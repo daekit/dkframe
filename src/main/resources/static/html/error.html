@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+	<link rel="stylesheet" href="/static/css/jui/jui-ui.min.classic.css" />
+	<link rel="stylesheet" href="/static/css/jui/jui-grid.classic.css" />
+	<script src="/static/js/global.js"></script>
+	<script src="/static/js/jquery-3.5.1.min.js"></script>
+	<script src="/static/js/jui/jui-core.min.js"></script>
+	<script src="/static/js/jui/jui-ui.min.js"></script>
+	<script src="/static/js/jui/jui-grid.min.js"></script>
+</head>
+<script type="text/javascript">
+	
+	var authorizationToken = getCookie("jwtToken");
+	console.log("쿠키 저장된 값: "+ authorizationToken);
+
+	$(document).ready(function() {
+		$.ajaxSetup({
+			contentType: "application/json; charset=utf-8",
+			beforeSend: function (request)
+            {
+                request.setRequestHeader("Authorization", authorizationToken);
+            }
+		});
+	})
+	
+	function testAction() {
+		$.post(
+			"/test",
+			function(data, status, request) {
+				alert(data);
+			}
+		);
+	}
+	
+</script>
+<body class="jui">
+	<div align="center">
+		<h2>토큰 인증 에러!</h2>
+		<a id="loginBtn" class="btn focus" onclick="testAction();">테스트 조회</a>
+	</div>
+</body>
+</html>
