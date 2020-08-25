@@ -17,7 +17,7 @@
 
 	$(document).ready(function() {
 		$.ajaxSetup({
-			contentType: "application/json; charset=utf-8",
+			contentType: "application/x-www-form-urlencoded; charset=utf-8",
 			beforeSend: function (request)
             {
                 request.setRequestHeader("Authorization", authorizationToken);
@@ -29,21 +29,17 @@
         firstGrid.setConfig({
             target: $('[data-ax5grid="first-grid"]'),
             columns: [
-                {key: "id", label: "아이디"},
-                {key: "email", label: "이메일"},
-                {key: "password", label: "패스워드"}
+                {key: "authId", label: "권한ID"},
+                {key: "authNm", label: "권한명"}
             ]
         });
  
-        // {a: "A", b: "A01", c:"C", d:"D", e:"E", f:"F", g:"G"}
-        // 값이 없는 h 는 표현안됨
-//         firstGrid.setData(gridList);
         // 그리드 데이터 가져오기
         $.ajax({
-            method: "GET",
-            url: "/api/user/selectAllUser",
-            success: function (res) {
-                firstGrid.setData(res.userList);
+            method: "POST",            
+            url: "/auth/selectAuthInfo",
+            success: function (data, status, request) {
+                firstGrid.setData(data.authList);
             }
         });
         
@@ -75,10 +71,10 @@
 </script>
 <body class="jui">
 	<div align="center">
-		<h2>테스트 페이지</h2>
-		<a id="loginBtn" class="btn focus" onclick="testAction();">테스트 조회</a>
-		<a id="loginBtn" class="btn focus" onclick="selectAllUser();">사용자 전체 조회</a>
-		<a id="loginBtn" class="btn focus" onclick="goAuthPage();">권한관리 이동</a>
+		<h2>권한관리 페이지</h2>
+		<a id="loginBtn" class="btn focus" onclick="testAction();">권한 관리</a>
+		<a id="loginBtn" class="btn focus" onclick="selectAllUser();">롤 관리</a>
+		<a id="loginBtn" class="btn focus" onclick="goAuthPage();">메뉴 관리</a>
 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 50%"></div>
 	</div>
 </body>
