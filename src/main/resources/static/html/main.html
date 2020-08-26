@@ -7,16 +7,9 @@
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap.min.css">
 	<link rel="stylesheet" href="/static/css/bootstrap/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="/static/css/bootstrap/dashboard.css">
-	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
-	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
-	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
 	<script src="/static/js/jquery-3.5.1.min.js"></script>
 	<script src="/static/js/bootstrap/bootstrap.min.js"></script>
 	<script src="/static/js/global.js"></script>
-	<script src="/static/js/ax5/ax5core.min.js"></script>
-	<script src="/static/js/ax5/ax5grid.min.js"></script>
-	<script src="/static/js/ax5/ax5mask.min.js"></script>
-	<script src="/static/js/ax5/ax5modal.min.js"></script>
   </head>
   <body>
 
@@ -58,116 +51,22 @@
             <li><a href="">조직관리</a></li>
           </ul>
         </div>
+        <!-- 메인Body 페이지 영역 -->
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">권한관리</h1>
-		  <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 50%"></div>
+          
         </div>
       </div>
     </div>
   </body>
 </html>
 <script type="text/javascript">
-	
-	var authorizationToken = getCookie("jwtToken");
-	console.log("쿠키 저장된 값: "+ authorizationToken);
 
-	var mask = new ax5.ui.mask();
-	var modal = new ax5.ui.modal({
-		header: {
-            title: "<i class='fa fa-arrows' aria-hidden='true'></i> 타이틀",
-            btns: {
-              close: {
-                label: '<i class="fa fa-times-circle" aria-hidden="true"></i> X',
-                onClick: function() {
-                  modal.close();
-                }
-              }
-            }
-        }
-	});
-	modal.setConfig({
-	    onStateChanged: function(){
-	        console.log(this);
-	    }
-	});
-	
 	$(document).ready(function() {
-		$.ajaxSetup({
-			contentType: "application/x-www-form-urlencoded; charset=utf-8",
-			beforeSend: function (request)
-            {
-                request.setRequestHeader("Authorization", authorizationToken);
-            }
-		});
 		
-        var firstGrid = new ax5.ui.grid();
- 
-        firstGrid.setConfig({
-            target: $('[data-ax5grid="first-grid"]'),
-            columns: [
-                {key: "authId", label: "권한ID"},
-                {key: "authNm", label: "권한명"},
-                {key: "description", label: "권한명"},
-                {key: "createDt", label: "등록일시"},
-                {
-                	key: "", label: "롤정보", align: 'center', formatter: function() {
-                		return '<button type="button"/>롤';
-                	}
-                }
-            ]
-        });
- 
-        // 그리드 데이터 가져오기
-        $.ajax({
-            method: "POST",            
-            url: "/auth/selectAuthInfo",
-            success: function (data, status, request) {
-                firstGrid.setData(data.authList);
-            }
-        });
+		$.get("/static/html/auth/auth.html", function(data) {    	        
+    		$(".main").html(data);
+      	});
         
 	})
-	
-	function testAction() {
-		$.post(
-			"/api/test",
-			function(data, status, request) {
-				alert(data);
-			}
-		);
-	}
-	
-	function selectAllUser() {
-		$.get(
-			"/api/user/selectAllUser",
-			function(data, status, request) {
-				alert(data);
-			}
-		);
-	}
-	
-	function goAuthPage() {
-		location.href = "/static/html/auth.html";
-	}
-	
-	function createAuthModal() {
-		modal.open({
-            width: 600,
-            onStateChanged: function () {
-                // mask
-                if (this.state === "open") {
-                    mask.open();
-                }
-                else if (this.state === "close") {
-                    mask.close();
-                }
-            }
-        }, function () {
-        	var targetEl = this.$["body-frame"];
-        	$.get("/static/html/auth/createAuth.html", function(data) {    	        
-        		targetEl.append(data);
-          	});
-        });
-	}
 	
 </script>
