@@ -3,44 +3,12 @@
 <head>
 	<meta charset="utf-8">
 	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
-	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
-	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
-	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
-	<link rel="stylesheet" href="/static/css/bootstrap/bootstrap.min.css">
-	<link rel="stylesheet" href="/static/css/bootstrap/bootstrap-theme.min.css">
-	<script src="/static/js/jquery-3.5.1.min.js"></script>
-	<script src="/static/js/bootstrap/bootstrap.min.js"></script>
-	<script src="/static/js/global.js"></script>
-	<script src="/static/js/ax5/ax5core.min.js"></script>
-	<script src="/static/js/ax5/ax5grid.min.js"></script>
-	<script src="/static/js/ax5/ax5mask.min.js"></script>
-	<script src="/static/js/ax5/ax5modal.min.js"></script>
 </head>
 <script type="text/javascript">
 	
 	var authorizationToken = getCookie("jwtToken");
 	console.log("쿠키 저장된 값: "+ authorizationToken);
 
-	var mask = new ax5.ui.mask();
-	var modal = new ax5.ui.modal({
-		header: {
-            title: "<i class='fa fa-arrows' aria-hidden='true'></i> 타이틀",
-            btns: {
-              close: {
-                label: '<i class="fa fa-times-circle" aria-hidden="true"></i> X',
-                onClick: function() {
-                  modal.close();
-                }
-              }
-            }
-        }
-	});
-	modal.setConfig({
-	    onStateChanged: function(){
-	        console.log(this);
-	    }
-	});
-	
 	$(document).ready(function() {
 		$.ajaxSetup({
 			contentType: "application/x-www-form-urlencoded; charset=utf-8",
@@ -101,32 +69,13 @@
 	}
 	
 	function createAuthModal() {
-		modal.open({
-            width: 600,
-            onStateChanged: function () {
-                // mask
-                if (this.state === "open") {
-                    mask.open();
-                }
-                else if (this.state === "close") {
-                    mask.close();
-                }
-            }
-        }, function () {
-        	var targetEl = this.$["body-frame"];
-        	$.get("/static/html/auth/createAuth.html", function(data) {    	        
-        		targetEl.append(data);
-          	});
-        });
+		openModal("/static/html/auth/createAuth.html", 600, 500, "권한등록");
 	}
 	
 </script>
-<body class="jui">
-	<div align="center">
-		<h2>권한관리 페이지</h2>
-		<a id="loginBtn" class="btn focus" onclick="testAction();">권한 관리</a>
-		<a id="loginBtn" class="btn focus" onclick="selectAllUser();">롤 관리</a>
-		<a id="loginBtn" class="btn focus" onclick="goAuthPage();">메뉴 관리</a><br>
+<body>
+	<div>
+		<h1>권한관리</h1>
 		<a id="loginBtn" class="btn focus" onclick="createAuthModal();">등록</a>
 		<a id="loginBtn" class="btn focus" onclick="updateAuthModal();">수정</a>
 		<a id="loginBtn" class="btn focus" onclick="deleteAuth();">삭제</a>
