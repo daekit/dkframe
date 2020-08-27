@@ -5,47 +5,58 @@
 	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
 </head>
 <script type="text/javascript">
-	
+
+	var jwt = parseJwt(authorizationToken);
+
 	$(document).ready(function() {
 		$.ajaxSetup({
-			contentType: "application/x-www-form-urlencoded; charset=utf-8",
+			contentType: "application/json; charset=utf-8",
 			beforeSend: function (request)
             {
                 request.setRequestHeader("Authorization", authorizationToken);
             }
 		});
-        
 	})
 	
-	function testAction() {
+	function createAuth() {
+		var formData = {
+				"authId" : $("#authId").val(),
+				"authNm" : $("#authNm").val(),
+				"description" : $("#description").val(),
+				"userId" : jwt.userId
+		}
 		$.post(
-			"/api/test",
+			"/auth/createAuth",
+			JSON.stringify(formData),
 			function(data, status, request) {
-				alert(data);
+				if(data.resultCode == 200){
+					modal.close();
+				}
 			}
 		);
-	}
-	
-	function selectAllUser() {
-		$.get(
-			"/api/user/selectAllUser",
-			function(data, status, request) {
-				alert(data);
-			}
-		);
-	}
-	
-	function goAuthPage() {
-		location.href = "/static/html/auth.html";
 	}
 	
 </script>
 <body>
+	<div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">권한ID</span>
+			  <input id="authId" type="text" class="form-control">
+			  <span class="input-group-addon" id="basic-addon1" >권한명</span>
+			  <input id="authNm" type="text" class="form-control">
+		  </div>
+		  <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1" >설명</span>
+			  <input id="description" type="text" class="form-control">
+		  </div>
+        </div>
+      </div>
+    </div>
 	<div>
-		<div class="input-group">
-		  <span class="input-group-addon" id="basic-addon1">권한ID</span>
-		  <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
-		</div>
+		<button type="button" class="btn btn-default btn-sm" onclick="createAuth();">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div>
 </body>
 </html>

@@ -22,4 +22,9 @@ public class AuthServiceImpl implements AuthService {
 		return authMapper.selectAuthList();
 	}
 
+	@Override
+	public int insertAuth(Map<String, String> param) {
+		return authMapper.insertAuth(param);
+	}
+
 }

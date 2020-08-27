@@ -9,5 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface AuthMapper {
 	
 	List<Map<String, String>> selectAuthList();
+
+	int insertAuth(Map<String, String> param);
 	
 }
