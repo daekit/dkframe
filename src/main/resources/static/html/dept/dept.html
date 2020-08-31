@@ -1,0 +1,80 @@
+<div>
+	<h1>조직관리</h1>
+</div>
+<div class="row">
+	<div class="col-xs-3">
+		<div id="deptTree"></div>
+	</div>
+	<div class="col-xs-9">부서정보</div>
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	selectDeptTree();
+});
+
+function selectDeptTree(){
+	$.ajax({
+	    type: "GET",
+		url: "/api/dept/selectDeptTree",
+	    dataType: "json",
+	    success: function(data){
+	    	initDeptTree(data.deptTree);
+	    },
+	    error: function (request, status, error){
+	    	alert("error");
+	    }
+	});
+}
+
+function initDeptTree(deptTree){
+	//checkbox plugin 속성
+	//three_state : 부모노드 클릭 시 하위노드 체크
+	//whole_node : 노드 클릭시 체크박스 컨트롤
+	
+	$("#deptTree").jstree({
+		plugins: ['types', 'search', 'sort'],
+	    core: {
+	    	data: deptTree
+	    },
+	    types : {
+	    	"person" : {"icon" : "glyphicon glyphicon-user"},
+	        'unit': { 'icon': 'glyphicon glyphicon-folder-close'},
+	        'unit-open'  : { 'icon': 'glyphicon glyphicon-folder-open'}
+      	},
+      	checkbox: {
+	    	keep_selected_style : false,
+	    	three_state : false,
+	    	whole_node : true
+	    },
+	    search: {
+	      	show_only_matches: false
+	    },
+	    sort: function(a, b){
+	    	var nodeA = this.get_node(a);
+	    	var nodeB = this.get_node(b);
+	    	if(nodeA.original.type=="person" && nodeB.original.type=="unit"){
+	    		return -1;
+	    	}
+	    }
+	  	}).on("ready.jstree", function() {
+	  		
+	  	}).on("loaded.jstree", function() {
+	  		
+		}).on("refresh.jstree", function() {
+		
+		}).on("select_node.jstree", function (e, data) {
+		// 노드 선택 시 발생 이벤트	
+			
+		}).on("deselect_node.jstree", function(e, data){
+		// 노드가 선택해제 시 발생 이벤트
+			
+		}).on('open_node.jstree', function(e, data) {
+		    data.instance.set_type(data.node,'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+		    data.instance.set_type(data.node,'unit');
+		});
+}
+
+</script>
