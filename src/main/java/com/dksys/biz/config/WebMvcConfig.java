@@ -8,6 +8,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.dksys.biz.util.MessageUtils;
+
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 	
@@ -15,6 +17,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
     MappingJackson2JsonView jsonView() {
 		return new MappingJackson2JsonView();
     }
+	
+	@Bean
+	MessageUtils messageUtils() {
+		return new MessageUtils();
+	}
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
