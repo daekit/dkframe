@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/role")
+@RequestMapping("/admin/role")
 public class RoleController {
 
 	@Autowired
