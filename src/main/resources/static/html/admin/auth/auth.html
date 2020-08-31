@@ -28,7 +28,7 @@
                 {key: "authId", label: "권한ID"},
                 {key: "authNm", label: "권한명"},
                 {key: "description", label: "설명"},
-                {key: "createDt", label: "등록일시"},
+                {key: "createDt", label: "등록일"},
                 {
                 	key: "", label: "롤정보", align: 'center', formatter: function() {
                 		return '<button type="button"/>롤';
@@ -56,18 +56,13 @@
 	
 
 	function updateAuthModal() {
-		if(firstGrid.getList("selected").length > 1) {
-			alert("한건 만 선택해주세요.");
-			return;
-		}
-		if(firstGrid.getList("selected").length == 0) {
-			alert("선택된 데이터가 없습니다.");
-			return;
-		}
+		if(selectGridValidation(firstGrid)) return;
 		openModal("/static/html/admin/auth/updateAuth.html", 600, 300, "권한수정");
 	}
 	
 	function deleteAuth() {
+		if(selectGridValidation(firstGrid)) return;
+		if(!confirm("삭제하시겠습니까?")) return;
 		var formData = {
 				"authId" : firstGrid.getList("selected")[0].authId
 		}
