@@ -27,4 +27,14 @@ public class AuthServiceImpl implements AuthService {
 		return authMapper.insertAuth(param);
 	}
 
+	@Override
+	public int deleteAuth(Map<String, String> param) {
+		return authMapper.deleteAuth(param);
+	}
+
+	@Override
+	public int updateAuth(Map<String, String> param) {
+		return authMapper.updateAuth(param);
+	}
+
 }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+
+	var jwt = parseJwt(authorizationToken);
+
+	$(document).ready(function() {
+		$.ajaxSetup({
+			contentType: "application/json; charset=utf-8",
+			beforeSend: function (request)
+            {
+                request.setRequestHeader("Authorization", authorizationToken);
+            }
+		});
+		setData();
+	})
+	
+	function setData() {
+		var row = firstGrid.getList("selected")[0];
+		$("#authId").val(row.authId);
+		$("#authNm").val(row.authNm);
+		$("#description").val(row.description);
+	}
+	
+	function updateAuth() {
+		var formData = {
+				"authId" : $("#authId").val(),
+				"authNm" : $("#authNm").val(),
+				"description" : $("#description").val(),
+				"userId" : jwt.userId
+		}
+		$.ajax({
+            method: "PUT",       
+            url: "/auth/updateAuth",
+            data: JSON.stringify(formData),
+            success: function (data, status, request) {
+            	if(data.resultCode == 200){
+					alert(data.resultMessage);
+					getData();
+					modal.close();
+				}
+            }
+        });
+	}
+	
+</script>
+<body>
+	<div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">권한ID</span>
+			  <input id="authId" type="text" class="form-control">
+			  <span class="input-group-addon" id="basic-addon1">권한명</span>
+			  <input id="authNm" type="text" class="form-control">
+		  </div>
+		  <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">설명</span>
+			  <input id="description" type="text" class="form-control">
+		  </div>
+        </div>
+      </div>
+    </div>
+	<div>
+		<button type="button" class="btn btn-default btn-sm" onclick="updateAuth();">수정</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+	</div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+	
+	var authorizationToken = getCookie("jwtToken");
+	console.log("쿠키 저장된 값: "+ authorizationToken);
+	
+	var firstGrid = new ax5.ui.grid();
+	
+	$(document).ready(function() {
+		$.ajaxSetup({
+			contentType: "application/json; charset=utf-8",
+			beforeSend: function (request)
+            {
+                request.setRequestHeader("Authorization", authorizationToken);
+            }
+		});
+		
+        firstGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: false,
+            target: $('[data-ax5grid="first-grid"]'),
+            columns: [
+                {key: "authId", label: "권한ID"},
+                {key: "authNm", label: "권한명"},
+                {key: "description", label: "설명"},
+                {key: "createDt", label: "등록일시"},
+                {
+                	key: "", label: "롤정보", align: 'center', formatter: function() {
+                		return '<button type="button"/>롤';
+                	}
+                }
+            ]
+        });
+        
+        getData();
+	})
+	
+	function getData() {
+        $.ajax({
+            method: "POST",            
+            url: "/auth/selectAuthInfo",
+            success: function (data, status, request) {
+                firstGrid.setData(data.authList);
+            }
+        });
+	}
+	
+	function createAuthModal() {
+		openModal("/static/html/auth/createAuth.html", 600, 300, "권한등록");
+	}
+	
+
+	function updateAuthModal() {
+		if(firstGrid.getList("selected").length > 1) {
+			alert("한건 만 선택해주세요.");
+			return;
+		}
+		if(firstGrid.getList("selected").length == 0) {
+			alert("선택된 데이터가 없습니다.");
+			return;
+		}
+		openModal("/static/html/auth/updateAuth.html", 600, 300, "권한수정");
+	}
+	
+	function deleteAuth() {
+		var formData = {
+				"authId" : firstGrid.getList("selected")[0].authId
+		}
+		$.ajax({
+            method: "DELETE",       
+            url: "/auth/deleteAuth",
+            data: JSON.stringify(formData),
+            success: function (data, status, request) {
+            	if(data.resultCode == 200){
+					alert(data.resultMessage);
+					getData();
+				}
+            }
+        });
+	}
+	
+</script>
+<body>
+	<div>
+		<h1>롤관리</h1>
+		<a id="loginBtn" class="btn focus" onclick="createAuthModal();">등록</a>
+		<a id="loginBtn" class="btn focus" onclick="updateAuthModal();">수정</a>
+		<a id="loginBtn" class="btn focus" onclick="deleteAuth();">삭제</a>
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 50%"></div>
+	</div>
+</body>
+</html>

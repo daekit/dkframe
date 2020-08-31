@@ -6,11 +6,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.auth.service.AuthService;
+import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 public class AuthController {
 
+	@Autowired
+	MessageUtils messageUtils;
+	
     @Autowired
     AuthService authService;
     
@@ -36,6 +42,24 @@ public class AuthController {
     	authService.insertAuth(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", "SUCCESS");
+    	return "jsonView";
+    }
+    
+    // 권한삭제
+    @DeleteMapping("/deleteAuth")
+    public String deleteAuth(@RequestBody Map<String, String> param, ModelMap model) {
+    	authService.deleteAuth(param);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	return "jsonView";
+    }
+    
+    // 권한수정
+    @PutMapping("/updateAuth")
+    public String updateAuth(@RequestBody Map<String, String> param, ModelMap model) {
+    	authService.updateAuth(param);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
     }
     

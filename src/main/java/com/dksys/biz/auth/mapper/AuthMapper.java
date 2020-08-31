@@ -11,5 +11,9 @@ public interface AuthMapper {
 	List<Map<String, String>> selectAuthList();
 
 	int insertAuth(Map<String, String> param);
+
+	int deleteAuth(Map<String, String> param);
+
+	int updateAuth(Map<String, String> param);
 	
 }

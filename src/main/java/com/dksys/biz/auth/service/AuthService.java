@@ -9,5 +9,9 @@ public interface AuthService {
 
 	public int insertAuth(Map<String, String> param);
 
+	public int deleteAuth(Map<String, String> param);
+
+	public int updateAuth(Map<String, String> param);
+
 
 }
