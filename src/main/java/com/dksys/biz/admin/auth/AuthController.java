@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/auth")
+@RequestMapping("/admin/auth")
 public class AuthController {
 
 	@Autowired
