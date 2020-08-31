@@ -53,3 +53,14 @@ function parseJwt (token) {
 
     return JSON.parse(jsonPayload);
 };
+
+function selectGridValidation(obj) {
+	if(obj.getList("selected").length > 1) {
+		alert("한건 만 선택해주세요.");
+		return true;
+	}
+	if(obj.getList("selected").length == 0) {
+		alert("선택된 데이터가 없습니다.");
+		return true;
+	}
+}

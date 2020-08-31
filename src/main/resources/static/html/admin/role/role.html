@@ -25,13 +25,15 @@
         	multipleSelect: false,
             target: $('[data-ax5grid="first-grid"]'),
             columns: [
-                {key: "authId", label: "권한ID"},
-                {key: "authNm", label: "권한명"},
+                {key: "roleId", label: "롤ID"},
+                {key: "roleNm", label: "롤명"},
+                {key: "roleType", label: "롤타입"},
+                {key: "roleSort", label: "롤정렬"},
                 {key: "description", label: "설명"},
-                {key: "createDt", label: "등록일시"},
+                {key: "createDt", label: "등록일"},
                 {
-                	key: "", label: "롤정보", align: 'center', formatter: function() {
-                		return '<button type="button"/>롤';
+                	key: "", label: "메뉴정보", align: 'center', formatter: function() {
+                		return '<button type="button"/>메뉴';
                 	}
                 }
             ]
@@ -43,37 +45,32 @@
 	function getData() {
         $.ajax({
             method: "POST",            
-            url: "/auth/selectAuthInfo",
+            url: "/role/selectRoleInfo",
             success: function (data, status, request) {
-                firstGrid.setData(data.authList);
+                firstGrid.setData(data.roleList);
             }
         });
 	}
 	
-	function createAuthModal() {
-		openModal("/static/html/auth/createAuth.html", 600, 300, "권한등록");
+	function createRoleModal() {
+		openModal("/static/html/admin/role/createRole.html", 600, 300, "롤등록");
 	}
 	
 
-	function updateAuthModal() {
-		if(firstGrid.getList("selected").length > 1) {
-			alert("한건 만 선택해주세요.");
-			return;
-		}
-		if(firstGrid.getList("selected").length == 0) {
-			alert("선택된 데이터가 없습니다.");
-			return;
-		}
-		openModal("/static/html/auth/updateAuth.html", 600, 300, "권한수정");
+	function updateRoleModal() {
+		if(selectGridValidation(firstGrid)) return;
+		openModal("/static/html/admin/role/updateRole.html", 600, 300, "롤수정");
 	}
 	
-	function deleteAuth() {
+	function deleteRole() {
+		if(selectGridValidation(firstGrid)) return;
+		if(!confirm("삭제하시겠습니까?")) return;
 		var formData = {
-				"authId" : firstGrid.getList("selected")[0].authId
+				"roleId" : firstGrid.getList("selected")[0].roleId
 		}
 		$.ajax({
             method: "DELETE",       
-            url: "/auth/deleteAuth",
+            url: "/role/deleteRole",
             data: JSON.stringify(formData),
             success: function (data, status, request) {
             	if(data.resultCode == 200){
@@ -88,9 +85,9 @@
 <body>
 	<div>
 		<h1>롤관리</h1>
-		<a id="loginBtn" class="btn focus" onclick="createAuthModal();">등록</a>
-		<a id="loginBtn" class="btn focus" onclick="updateAuthModal();">수정</a>
-		<a id="loginBtn" class="btn focus" onclick="deleteAuth();">삭제</a>
+		<a id="loginBtn" class="btn focus" onclick="createRoleModal();">등록</a>
+		<a id="loginBtn" class="btn focus" onclick="updateRoleModal();">수정</a>
+		<a id="loginBtn" class="btn focus" onclick="deleteRole();">삭제</a>
 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 50%"></div>
 	</div>
 </body>
