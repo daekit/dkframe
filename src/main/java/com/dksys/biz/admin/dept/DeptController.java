@@ -1,4 +1,4 @@
-package com.dksys.biz.dept;
+package com.dksys.biz.admin.dept;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.dksys.biz.dept.service.DeptService;
+import com.dksys.biz.admin.dept.service.DeptService;
 
 @Controller
 @RequestMapping("/api")

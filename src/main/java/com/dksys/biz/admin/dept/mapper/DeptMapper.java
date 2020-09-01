@@ -1,4 +1,4 @@
-package com.dksys.biz.dept.mapper;
+package com.dksys.biz.admin.dept.mapper;
 
 import java.util.HashMap;
 import java.util.List;

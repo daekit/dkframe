@@ -1,4 +1,4 @@
-package com.dksys.biz.dept.service;
+package com.dksys.biz.admin.dept.service;
 
 import java.util.HashMap;
 import java.util.List;
