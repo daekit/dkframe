@@ -1,80 +1,141 @@
-<div>
-	<h1>조직관리</h1>
-</div>
+<style>
+	.table tr th {
+		text-align: center;
+	}
+</style>
+
 <div class="row">
+	<div class="col-xs-9">
+		<span style="font-size: 22px; font-weight: bold;">조직관리</span>
+		<div style="float: right;">
+			<a href="#" class="btn btn-default btn-sm" id="registViewBtn">등록</a>
+			<a href="#" class="btn btn-default btn-sm" id="modifyViewBtn">수정</a>
+		</div>
+	</div>
+</div>
+<div class="row" style="margin-top: 15px;">
 	<div class="col-xs-3">
 		<div id="deptTree"></div>
 	</div>
-	<div class="col-xs-9">부서정보</div>
+	<div class="col-xs-6">
+		<table class="table">
+			<colgroup>
+				<col style="width: 15%;">
+				<col style="width: 35%">
+				<col style="width: 15%;">
+				<col style="width: 35%">
+			</colgroup>
+			<tbody id="deptInfo"></tbody>
+		</table>
+	</div>
 </div>
 
 <script type="text/javascript">
-
-$(document).ready(function() {
-	selectDeptTree();
-});
-
-function selectDeptTree(){
-	$.ajax({
-	    type: "GET",
-		url: "/api/dept/selectDeptTree",
-	    dataType: "json",
-	    success: function(data){
-	    	initDeptTree(data.deptTree);
-	    },
-	    error: function (request, status, error){
-	    	alert("error");
-	    }
+	$(document).ready(function() {
+		selectDeptTree();
+		selectDeptInfo("UNC");
 	});
-}
 
-function initDeptTree(deptTree){
-	//checkbox plugin 속성
-	//three_state : 부모노드 클릭 시 하위노드 체크
-	//whole_node : 노드 클릭시 체크박스 컨트롤
-	
-	$("#deptTree").jstree({
-		plugins: ['types', 'search', 'sort'],
-	    core: {
-	    	data: deptTree
-	    },
-	    types : {
-	    	"person" : {"icon" : "glyphicon glyphicon-user"},
-	        'unit': { 'icon': 'glyphicon glyphicon-folder-close'},
-	        'unit-open'  : { 'icon': 'glyphicon glyphicon-folder-open'}
-      	},
-      	checkbox: {
-	    	keep_selected_style : false,
-	    	three_state : false,
-	    	whole_node : true
-	    },
-	    search: {
-	      	show_only_matches: false
-	    },
-	    sort: function(a, b){
-	    	var nodeA = this.get_node(a);
-	    	var nodeB = this.get_node(b);
-	    	if(nodeA.original.type=="person" && nodeB.original.type=="unit"){
-	    		return -1;
-	    	}
-	    }
-	  	}).on("ready.jstree", function() {
-	  		
-	  	}).on("loaded.jstree", function() {
-	  		
-		}).on("refresh.jstree", function() {
-		
-		}).on("select_node.jstree", function (e, data) {
-		// 노드 선택 시 발생 이벤트	
-			
-		}).on("deselect_node.jstree", function(e, data){
-		// 노드가 선택해제 시 발생 이벤트
-			
-		}).on('open_node.jstree', function(e, data) {
-		    data.instance.set_type(data.node,'unit-open');
-		}).on('close_node.jstree', function(e, data) {
-		    data.instance.set_type(data.node,'unit');
+	function selectDeptTree() {
+		$.ajax({
+			type : "GET",
+			url : "/api/dept/selectDeptTree",
+			dataType : "json",
+			success : function(data) {
+				initDeptTree(data.deptTree);
+			},
+			error : function(request, status, error) {
+				alert("error");
+			}
 		});
-}
+	}
 
+	function initDeptTree(deptTree) {
+		//checkbox plugin 속성
+		//three_state : 부모노드 클릭 시 하위노드 체크
+		//whole_node : 노드 클릭시 체크박스 컨트롤
+
+		$("#deptTree").jstree(
+				{
+					plugins : [ 'types', 'search', 'sort' ],
+					core : {
+						data : deptTree
+					},
+					types : {
+						"person" : {
+							"icon" : "glyphicon glyphicon-user"
+						},
+						'unit' : {
+							'icon' : 'glyphicon glyphicon-folder-close'
+						},
+						'unit-open' : {
+							'icon' : 'glyphicon glyphicon-folder-open'
+						}
+					},
+					checkbox : {
+						keep_selected_style : false,
+						three_state : false,
+						whole_node : true
+					},
+					search : {
+						show_only_matches : false
+					},
+					sort : function(a, b) {
+						var nodeA = this.get_node(a);
+						var nodeB = this.get_node(b);
+						if (nodeA.original.type == "person"
+								&& nodeB.original.type == "unit") {
+							return -1;
+						}
+					}
+				}).on("ready.jstree", function() {
+
+		}).on("loaded.jstree", function() {
+			//최상위 노드 펼침
+			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
+		}).on("refresh.jstree", function() {
+
+		}).on("select_node.jstree", function(e, data) {
+			// 노드 선택 시 발생 이벤트
+			selectDeptInfo(data.node.id);
+		}).on("deselect_node.jstree", function(e, data) {
+			// 노드가 선택해제 시 발생 이벤트
+
+		}).on('open_node.jstree', function(e, data) {
+			data.instance.set_type(data.node, 'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+			data.instance.set_type(data.node, 'unit');
+		});
+	}
+	
+	function selectDeptInfo(deptId) {
+		$.ajax({
+			type : "GET",
+			url : "/api/dept/selectDeptInfo",
+			data : {"deptId" : deptId},
+			dataType : "json",
+			success : function(data) {
+				var deptInfo = data.deptInfo;
+				
+				var infoHtml = '';
+				infoHtml += '<tr>';
+				infoHtml += '<th scope="row">부서코드</th>';
+				infoHtml += '<td>'+deptInfo.deptId+'</td>';
+				infoHtml += '<th scope="row">부서명</th>';
+				infoHtml += '<td>'+deptInfo.deptNm+'</td>';
+				infoHtml += '</tr>';
+				infoHtml += '<tr>';
+				infoHtml += '<th scope="row">상위부서</th>';
+				infoHtml += '<td>'+deptInfo.upDeptNm+'</td>';
+				infoHtml += '<th scope="row">정렬키</th>';
+				infoHtml += '<td>'+deptInfo.sortNo+'</td>';
+				infoHtml += '</tr>';
+				
+				$('#deptInfo').html(infoHtml);
+			},
+			error : function(request, status, error) {
+				alert("error");
+			}
+		});
+	}
 </script>
