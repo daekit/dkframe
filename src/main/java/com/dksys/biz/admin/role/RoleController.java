@@ -28,7 +28,7 @@ public class RoleController {
     @Autowired
     RoleService roleService;
     
-    // 회원가입
+    // 롤리스트 조회
     @PostMapping("/selectRoleInfo")
     public String selectRoleInfo(ModelMap model) {
     	List<Map<String, String>> roleList = roleService.selectRoleList();
@@ -36,7 +36,7 @@ public class RoleController {
         return "jsonView";
     }
     
-    // 권한등록
+    // 롤등록
     @PostMapping("/createRole")
     public String createRole(@RequestBody Map<String, String> param, ModelMap model) {
     	roleService.insertRole(param);
@@ -45,7 +45,7 @@ public class RoleController {
     	return "jsonView";
     }
     
-    // 권한삭제
+    // 롤삭제
     @DeleteMapping("/deleteRole")
     public String deleteRole(@RequestBody Map<String, String> param, ModelMap model) {
     	roleService.deleteRole(param);
@@ -54,7 +54,7 @@ public class RoleController {
     	return "jsonView";
     }
     
-    // 권한수정
+    // 롤수정
     @PutMapping("/updateRole")
     public String updateRole(@RequestBody Map<String, String> param, ModelMap model) {
     	roleService.updateRole(param);

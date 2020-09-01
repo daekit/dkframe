@@ -6,28 +6,42 @@
 	<select id="selectDeptTree" resultType="CamelMap">
 		WITH RECURSIVE CTE AS (
 			SELECT 
-				dept_id AS ID,
-				dept_nm AS TEXT,
-				up_dept_id AS PARENT,
+				DEPT_ID AS ID,
+				DEPT_NM AS TEXT,
+				UP_DEPT_ID AS PARENT,
 				'unit' AS TYPE
 			FROM 
-				department
+				DEPARTMENT
 			WHERE 
-				up_dept_id = '#'
+				UP_DEPT_ID = '#'
 			
 			UNION ALL
 		
 			SELECT
-				a.dept_id AS ID,
-				a.dept_nm AS TEXT,
-				a.up_dept_id AS PARENT,
+				A.DEPT_ID AS ID,
+				A.DEPT_NM AS TEXT,
+				A.UP_DEPT_ID AS PARENT,
 				'unit' AS TYPE
 			FROM 
-				department a
-				INNER JOIN CTE b ON a.up_dept_id = b.ID 
+				DEPARTMENT A
+				INNER JOIN CTE B ON A.UP_DEPT_ID = B.ID 
 		)
 		
 		SELECT ID, TEXT, PARENT, TYPE FROM CTE
+	</select>
+	
+	<select id="selectDeptInfo" resultType="CamelMap">
+		SELECT
+			DEPT_ID,
+			DEPT_NM,
+			UP_DEPT_ID,
+			(SELECT DEPT_ID FROM DEPARTMENT WHERE DEPT_ID = A.UP_DEPT_ID) UP_DEPT_ID,
+			(SELECT DEPT_NM FROM DEPARTMENT WHERE DEPT_ID = A.UP_DEPT_ID) UP_DEPT_NM,
+			SORT_NO
+		FROM
+			DEPARTMENT A
+		WHERE
+			DEPT_ID = #{deptId}
 	</select>
 	
 </mapper>

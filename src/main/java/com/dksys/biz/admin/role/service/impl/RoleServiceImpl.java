@@ -15,26 +15,26 @@ import com.dksys.biz.admin.role.service.RoleService;
 public class RoleServiceImpl implements RoleService {
 	
     @Autowired
-    RoleMapper RoleMapper;
+    RoleMapper roleMapper;
 
 	@Override
 	public List<Map<String, String>> selectRoleList() {
-		return RoleMapper.selectRoleList();
+		return roleMapper.selectRoleList();
 	}
 
 	@Override
 	public int insertRole(Map<String, String> param) {
-		return RoleMapper.insertRole(param);
+		return roleMapper.insertRole(param);
 	}
 
 	@Override
 	public int deleteRole(Map<String, String> param) {
-		return RoleMapper.deleteRole(param);
+		return roleMapper.deleteRole(param);
 	}
 
 	@Override
 	public int updateRole(Map<String, String> param) {
-		return RoleMapper.updateRole(param);
+		return roleMapper.updateRole(param);
 	}
 
 }

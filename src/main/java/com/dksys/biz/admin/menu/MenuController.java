@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.auth;
+package com.dksys.biz.admin.menu;
 
 import java.util.List;
 import java.util.Map;
@@ -12,52 +12,52 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.dksys.biz.admin.auth.service.AuthService;
+import com.dksys.biz.admin.menu.service.MenuService;
 import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/admin/auth")
-public class AuthController {
+@RequestMapping("/admin/menu")
+public class MenuController {
 
 	@Autowired
 	MessageUtils messageUtils;
 	
     @Autowired
-    AuthService authService;
+    MenuService menuService;
     
-    // 권한리스트 조회
-    @PostMapping("/selectAuthInfo")
-    public String selectAuthInfo(ModelMap model) {
-    	List<Map<String, String>> authList = authService.selectAuthList();
-    	model.addAttribute("authList", authList);
+    // 메뉴리스트 조회
+    @PostMapping("/selectMenuList")
+    public String selectMenuList(ModelMap model) {
+    	List<Map<String, String>> menuList = menuService.selectMenuList();
+    	model.addAttribute("menuList", menuList);
         return "jsonView";
     }
     
-    // 권한등록
-    @PostMapping("/createAuth")
-    public String createAuth(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.insertAuth(param);
+    // 메뉴등록
+    @PostMapping("/createMenu")
+    public String createMenu(@RequestBody Map<String, String> param, ModelMap model) {
+    	menuService.insertMenu(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
     }
     
-    // 권한삭제
-    @DeleteMapping("/deleteAuth")
-    public String deleteAuth(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.deleteAuth(param);
+    // 메뉴삭제
+    @DeleteMapping("/deleteMenu")
+    public String deleteMenu(@RequestBody Map<String, String> param, ModelMap model) {
+    	menuService.deleteMenu(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
     }
     
-    // 권한수정
-    @PutMapping("/updateAuth")
-    public String updateAuth(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.updateAuth(param);
+    // 메뉴수정
+    @PutMapping("/updateMenu")
+    public String updateMenu(@RequestBody Map<String, String> param, ModelMap model) {
+    	menuService.updateMenu(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";

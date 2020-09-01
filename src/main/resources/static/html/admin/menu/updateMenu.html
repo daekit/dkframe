@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+
+	var jwt = parseJwt(authorizationToken);
+
+	$(document).ready(function() {
+		$.ajaxSetup({
+			contentType: "application/json; charset=utf-8",
+			beforeSend: function (request)
+            {
+                request.setRequestHeader("Authorization", authorizationToken);
+            }
+		});
+		setData();
+	})
+	
+	function setData() {
+		var row = firstGrid.getList("selected")[0];
+		$("#roleId").val(row.roleId);
+		$("#roleNm").val(row.roleNm);
+		$("#roleType").val(row.roleType);
+		$("#roleSort").val(row.roleSort);
+		$("#rolePattern").val(row.rolePattern);
+		$("#description").val(row.description);
+	}
+	
+	function updateRole() {
+		var formData = {
+				"roleId" : $("#roleId").val(),
+				"roleNm" : $("#roleNm").val(),
+				"roleType" : $("#roleType").val(),
+				"roleSort" : $("#roleSort").val(),
+				"rolePattern" : $("#rolePattern").val(),
+				"description" : $("#description").val(),
+				"userId" : jwt.userId
+		}
+		$.ajax({
+            method: "PUT",       
+            url: "/admin/role/updateRole",
+            data: JSON.stringify(formData),
+            success: function (data, status, request) {
+            	if(data.resultCode == 200){
+					alert(data.resultMessage);
+					getData();
+					modal.close();
+				}
+            }
+        });
+	}
+	
+</script>
+<body>
+	<div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">롤ID</span>
+			  <input id="roleId" type="text" class="form-control">
+			  <span class="input-group-addon" id="basic-addon1">롤명</span>
+			  <input id="roleNm" type="text" class="form-control">
+		  </div>
+		  <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">롤타입</span>
+			  <input id="roleType" type="text" class="form-control">
+			  <span class="input-group-addon" id="basic-addon1">롤정렬</span>
+			  <input id="roleSort" type="text" class="form-control">
+		  </div>
+		  <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">롤패턴</span>
+			  <input id="rolePattern" type="text" class="form-control">
+		  </div>
+		  <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">설명</span>
+			  <input id="description" type="text" class="form-control">
+		  </div>
+        </div>
+      </div>
+    </div>
+	<div>
+		<button type="button" class="btn btn-default btn-sm" onclick="updateRole();">수정</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+	</div>
+</body>
+</html>

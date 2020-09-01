@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+	
+	var authorizationToken = getCookie("jwtToken");
+	console.log("쿠키 저장된 값: "+ authorizationToken);
+	
+	$(document).ready(function() {
+		$.ajaxSetup({
+			contentType: "application/json; charset=utf-8",
+			beforeSend: function (request)
+            {
+                request.setRequestHeader("Authorization", authorizationToken);
+            }
+		});
+		
+        getData();
+	})
+	
+	function createRoleModal() {
+		openModal("/static/html/admin/role/createRole.html", 600, 300, "메뉴등록");
+	}
+	
+	function updateRoleModal() {
+		if(selectGridValidation(firstGrid)) return;
+		openModal("/static/html/admin/role/updateRole.html", 600, 300, "메뉴수정");
+	}
+	
+	function deleteRole() {
+		if(selectGridValidation(firstGrid)) return;
+		if(!confirm("삭제하시겠습니까?")) return;
+		var formData = {
+				"menuId" : firstGrid.getList("selected")[0].menuId
+		}
+		$.ajax({
+            method: "DELETE",       
+            url: "/admin/role/deleteRole",
+            data: JSON.stringify(formData),
+            success: function (data, status, request) {
+            	if(data.resultCode == 200){
+					alert(data.resultMessage);
+					getData();
+				}
+            }
+        });
+	}
+	
+	function getData() {
+		$.ajax({
+		    type: "POST",
+		    url: "/admin/menu/selectMenuList",
+		    success: function(data){
+		    	initMenuTree(data.menuList);
+		    }
+		});
+	}
+
+	function initMenuTree(menuList){
+		//checkbox plugin 속성
+		//three_state : 부모노드 클릭 시 하위노드 체크
+		//whole_node : 노드 클릭시 체크박스 컨트롤
+		$("#deptTree").jstree({
+			plugins: ['types', 'search', 'sort'],
+		    core: {
+		    	data: menuList
+		    },
+		    types : {
+		    	"person" : {"icon" : "glyphicon glyphicon-user"},
+		        'unit': { 'icon': 'glyphicon glyphicon-folder-close'},
+		        'unit-open'  : { 'icon': 'glyphicon glyphicon-folder-open'}
+	      	},
+	      	checkbox: {
+		    	keep_selected_style : false,
+		    	three_state : false,
+		    	whole_node : true
+		    },
+		    search: {
+		      	show_only_matches: false
+		    },
+		    sort: function(a, b){
+		    	var nodeA = this.get_node(a);
+		    	var nodeB = this.get_node(b);
+		    	if(nodeA.original.type=="person" && nodeB.original.type=="unit"){
+		    		return -1;
+		    	}
+		    }
+		  	}).on("ready.jstree", function() {
+		  		
+		  	}).on("loaded.jstree", function() {
+		  		
+			}).on("refresh.jstree", function() {
+			
+			}).on("select_node.jstree", function (e, data) {
+			// 노드 선택 시 발생 이벤트	
+				
+			}).on("deselect_node.jstree", function(e, data){
+			// 노드가 선택해제 시 발생 이벤트
+				
+			}).on('open_node.jstree', function(e, data) {
+			    data.instance.set_type(data.node,'unit-open');
+			}).on('close_node.jstree', function(e, data) {
+			    data.instance.set_type(data.node,'unit');
+			});
+	}
+	
+</script>
+<body>
+	<div>
+		<h1>메뉴관리</h1>
+		<a id="loginBtn" class="btn focus" onclick="createRoleModal();">등록</a>
+		<a id="loginBtn" class="btn focus" onclick="updateRoleModal();">수정</a>
+		<a id="loginBtn" class="btn focus" onclick="deleteRole();">삭제</a>
+<!-- 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div> -->
+	</div>
+	<div class="row">
+		<div class="col-xs-3">
+			<div id="deptTree"></div>
+		</div>
+		<div class="col-xs-9">부서정보</div>
+	</div>
+</body>
+</html>
