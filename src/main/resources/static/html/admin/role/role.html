@@ -6,19 +6,11 @@
 </head>
 <script type="text/javascript">
 	
-	var authorizationToken = getCookie("jwtToken");
-	console.log("쿠키 저장된 값: "+ authorizationToken);
-	
 	var firstGrid = new ax5.ui.grid();
+	var roleId = null;
+	var roleMenu = null;
 	
 	$(document).ready(function() {
-		$.ajaxSetup({
-			contentType: "application/json; charset=utf-8",
-			beforeSend: function (request)
-            {
-                request.setRequestHeader("Authorization", authorizationToken);
-            }
-		});
 		
         firstGrid.setConfig({
         	showRowSelector: true,
@@ -33,30 +25,33 @@
                 {key: "description", label: "설명"},
                 {key: "createDt", label: "등록일"},
                 {
-                	key: "", label: "메뉴정보", align: 'center', formatter: function() {
-                		return '<button type="button"/>메뉴';
+                	key: "", label: "메뉴정보", align: 'center', formatter: function(e) {
+                		return '<button type="button" onclick="menuListModal('+this.dindex+');"/>메뉴';
                 	}
-                }
+                },
+                {key: "roleMenu", label: "등록일", hidden: true}
             ]
         });
         
         getData();
 	})
 	
+	function menuListModal(index) {
+		firstGrid.select(index);
+		roleId = firstGrid.getList("selected")[index].roleId;
+		roleMenu = firstGrid.getList("selected")[index].roleMenu;
+		openModal("/static/html/admin/role/addMenuToRole.html", 600, 600, "롤메뉴등록 "+roleId);
+	}
+	
 	function getData() {
-        $.ajax({
-            method: "POST",            
-            url: "/admin/role/selectRoleInfo",
-            success: function (data, status, request) {
-                firstGrid.setData(data.roleList);
-            }
-        });
+		postAjax("/admin/role/selectRoleInfo", null, null, function(data){
+			firstGrid.setData(data.roleList);
+		});
 	}
 	
 	function createRoleModal() {
 		openModal("/static/html/admin/role/createRole.html", 600, 300, "롤등록");
 	}
-	
 
 	function updateRoleModal() {
 		if(selectGridValidation(firstGrid)) return;

@@ -15,5 +15,7 @@ public interface RoleMapper {
 	int deleteRole(Map<String, String> param);
 
 	int updateRole(Map<String, String> param);
+
+	int updateRoleMenu(Map<String, String> param);
 	
 }

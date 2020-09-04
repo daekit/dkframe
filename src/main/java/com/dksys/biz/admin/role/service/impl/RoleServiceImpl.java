@@ -37,4 +37,9 @@ public class RoleServiceImpl implements RoleService {
 		return roleMapper.updateRole(param);
 	}
 
+	@Override
+	public int updateRoleMenu(Map<String, String> param) {
+		return roleMapper.updateRoleMenu(param);
+	}
+
 }

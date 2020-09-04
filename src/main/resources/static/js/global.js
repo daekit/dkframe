@@ -9,6 +9,8 @@ var getCookie = function(name) {
 	return value? value[2] : null;
 };
 
+var authorizationToken = getCookie("jwtToken");
+
 var mask = new ax5.ui.mask();
 var modal = new ax5.ui.modal();
 
@@ -63,4 +65,76 @@ function selectGridValidation(obj) {
 		alert("선택된 데이터가 없습니다.");
 		return true;
 	}
+}
+
+function postAjax(url, data, contentType, callback) {
+	if(contentType == null) {
+		contentType = "application/json; charset=utf-8";
+	}
+	$.ajax({
+	    type: "POST",
+	    url: url,
+	    contentType: contentType,
+	    data: JSON.stringify(data),
+	    beforeSend: function (request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+        },
+	    success: function(data){
+	    	callback(data);
+	    },
+        error: function (data) {
+        	if(data.responseJSON.error == "unauthorized"){
+        		alert("토큰이 만료되었습니다.");
+        		location.href = "/static/index.html";
+        	}
+        }
+	});
+}
+
+function deleteAjax(url, data, contentType, callback) {
+	if(contentType == null) {
+		contentType = "application/json; charset=utf-8";
+	}
+	$.ajax({
+	    type: "DELETE",
+	    url: url,
+	    contentType: contentType,
+	    data: JSON.stringify(data),
+	    beforeSend: function (request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+        },
+	    success: function(data){
+	    	callback(data);
+	    },
+        error: function (data) {
+        	if(data.responseJSON.error == "unauthorized"){
+        		alert("토큰이 만료되었습니다.");
+        		location.href = "/static/index.html";
+        	}
+        }
+	});
+}
+
+function putAjax(url, data, contentType, callback) {
+	if(contentType == null) {
+		contentType = "application/json; charset=utf-8";
+	}
+	$.ajax({
+	    type: "PUT",
+	    url: url,
+	    contentType: contentType,
+	    data: JSON.stringify(data),
+	    beforeSend: function (request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+        },
+	    success: function(data){
+	    	callback(data);
+	    },
+        error: function (data) {
+        	if(data.responseJSON.error == "unauthorized"){
+        		alert("토큰이 만료되었습니다.");
+        		location.href = "/static/index.html";
+        	}
+        }
+	});
 }

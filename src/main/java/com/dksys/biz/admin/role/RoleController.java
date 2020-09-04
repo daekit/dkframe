@@ -62,5 +62,14 @@ public class RoleController {
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
     }
+
+    // 롤메뉴수정
+    @PutMapping("/updateRoleMenu")
+    public String updateRoleMenu(@RequestBody Map<String, String> param, ModelMap model) {
+    	roleService.updateRoleMenu(param);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
     
 }

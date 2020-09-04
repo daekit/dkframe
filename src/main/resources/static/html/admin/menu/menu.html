@@ -6,18 +6,7 @@
 </head>
 <script type="text/javascript">
 	
-	var authorizationToken = getCookie("jwtToken");
-	console.log("쿠키 저장된 값: "+ authorizationToken);
-	
 	$(document).ready(function() {
-		$.ajaxSetup({
-			contentType: "application/json; charset=utf-8",
-			beforeSend: function (request)
-            {
-                request.setRequestHeader("Authorization", authorizationToken);
-            }
-		});
-		
         getData();
 	})
 	
@@ -36,40 +25,28 @@
 		var formData = {
 				"menuId" : firstGrid.getList("selected")[0].menuId
 		}
-		$.ajax({
-            method: "DELETE",       
-            url: "/admin/role/deleteRole",
-            data: JSON.stringify(formData),
-            success: function (data, status, request) {
-            	if(data.resultCode == 200){
-					alert(data.resultMessage);
-					getData();
-				}
-            }
-        });
+		deleteAjax("/admin/role/deleteRole", formData, null, function(){
+			alert(data.resultMessage);
+			getData();
+		});
 	}
 	
 	function getData() {
-		$.ajax({
-		    type: "POST",
-		    url: "/admin/menu/selectMenuList",
-		    success: function(data){
-		    	initMenuTree(data.menuList);
-		    }
+		postAjax("/admin/menu/selectMenuList", null, null, function(data){
+			initMenuTree(data.menuList);
 		});
 	}
 
-	function initMenuTree(menuList){
+	function initMenuTree(menuList) {
 		//checkbox plugin 속성
 		//three_state : 부모노드 클릭 시 하위노드 체크
 		//whole_node : 노드 클릭시 체크박스 컨트롤
-		$("#deptTree").jstree({
+		$("#menuTree").jstree({
 			plugins: ['types', 'search', 'sort'],
 		    core: {
 		    	data: menuList
 		    },
 		    types : {
-		    	"person" : {"icon" : "glyphicon glyphicon-user"},
 		        'unit': { 'icon': 'glyphicon glyphicon-folder-close'},
 		        'unit-open'  : { 'icon': 'glyphicon glyphicon-folder-open'}
 	      	},
@@ -82,11 +59,7 @@
 		      	show_only_matches: false
 		    },
 		    sort: function(a, b){
-		    	var nodeA = this.get_node(a);
-		    	var nodeB = this.get_node(b);
-		    	if(nodeA.original.type=="person" && nodeB.original.type=="unit"){
-		    		return -1;
-		    	}
+		    	
 		    }
 		  	}).on("ready.jstree", function() {
 		  		
@@ -95,8 +68,12 @@
 			}).on("refresh.jstree", function() {
 			
 			}).on("select_node.jstree", function (e, data) {
-			// 노드 선택 시 발생 이벤트	
-				
+				var selected = data.node.original;
+				$("#menuId").html(selected.id);
+				$("#menuNm").html(selected.text);
+				$("#upMenuId").html(selected.parent);
+				$("#menuUrl").html(selected.url);
+				$("#menuType").html(selected.menuType);
 			}).on("deselect_node.jstree", function(e, data){
 			// 노드가 선택해제 시 발생 이벤트
 				
@@ -109,18 +86,49 @@
 	
 </script>
 <body>
-	<div>
-		<h1>메뉴관리</h1>
-		<a id="loginBtn" class="btn focus" onclick="createRoleModal();">등록</a>
-		<a id="loginBtn" class="btn focus" onclick="updateRoleModal();">수정</a>
-		<a id="loginBtn" class="btn focus" onclick="deleteRole();">삭제</a>
-<!-- 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div> -->
-	</div>
 	<div class="row">
-		<div class="col-xs-3">
-			<div id="deptTree"></div>
+		<div class="col-xs-9">
+			<span style="font-size: 22px; font-weight: bold;">메뉴관리</span>
+			<div style="float: right;">
+				<a href="#" class="btn btn-default btn-sm" id="registViewBtn">등록</a>
+				<a href="#" class="btn btn-default btn-sm" id="modifyViewBtn">수정</a>
+			</div>
 		</div>
-		<div class="col-xs-9">부서정보</div>
+	</div>
+	<div class="row" style="margin-top: 15px;">
+		<div class="col-xs-3">
+			<div id="menuTree"></div>
+		</div>
+		<div class="col-xs-6">
+			<table class="table">
+				<colgroup>
+					<col style="width: 30%;">
+					<col style="width: 70%">
+				</colgroup>
+				<tbody id="menuInfo">
+					<tr>
+						<th>메뉴ID</th>
+						<td id="menuId"></td>
+					</tr>
+					<tr>
+						<th>메뉴명</th>
+						<td id="menuNm"></td>
+					</tr>
+					<tr>
+						<th>부모메뉴ID</th>
+						<td id="upMenuId"></td>
+					</tr>
+					<tr>
+						<th>메뉴URL</th>
+						<td id="menuUrl"></td>
+					</tr>
+					<tr>
+						<th>메뉴타입</th>
+						<td id="menuType"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </body>
 </html>

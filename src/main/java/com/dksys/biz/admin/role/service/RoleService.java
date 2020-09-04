@@ -13,5 +13,7 @@ public interface RoleService {
 
 	public int updateRole(Map<String, String> param);
 
+	public int updateRoleMenu(Map<String, String> param);
+
 
 }
