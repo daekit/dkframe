@@ -13,5 +13,7 @@ public interface AuthService {
 
 	public int updateAuth(Map<String, String> param);
 
+	public int updateAuthRole(Map<String, String> param);
+
 
 }

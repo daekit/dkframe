@@ -37,4 +37,9 @@ public class AuthServiceImpl implements AuthService {
 		return authMapper.updateAuth(param);
 	}
 
+	@Override
+	public int updateAuthRole(Map<String, String> param) {
+		return authMapper.updateAuthRole(param);
+	}
+
 }

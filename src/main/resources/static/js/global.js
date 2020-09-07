@@ -10,6 +10,7 @@ var getCookie = function(name) {
 };
 
 var authorizationToken = getCookie("jwtToken");
+var jwt = parseJwt(authorizationToken);
 
 var mask = new ax5.ui.mask();
 var modal = new ax5.ui.modal();

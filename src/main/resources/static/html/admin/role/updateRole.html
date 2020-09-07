@@ -13,8 +13,6 @@
 </style>
 <script type="text/javascript">
 
-	var jwt = parseJwt(authorizationToken);
-
 	$(document).ready(function() {
 		setData();
 	})
@@ -39,18 +37,13 @@
 				"description" : $("#description").val(),
 				"userId" : jwt.userId
 		}
-		$.ajax({
-            method: "PUT",       
-            url: "/admin/role/updateRole",
-            data: JSON.stringify(formData),
-            success: function (data, status, request) {
-            	if(data.resultCode == 200){
-					alert(data.resultMessage);
-					getData();
-					modal.close();
-				}
-            }
-        });
+		putAjax("/admin/role/updateRole", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+				modal.close();
+			}
+		});
 	}
 	
 </script>

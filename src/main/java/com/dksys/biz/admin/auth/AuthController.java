@@ -63,4 +63,13 @@ public class AuthController {
     	return "jsonView";
     }
     
+    // 권한롤수정
+    @PutMapping("/updateAuthRole")
+    public String updateAuthRole(@RequestBody Map<String, String> param, ModelMap model) {
+    	authService.updateAuthRole(param);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+    
 }

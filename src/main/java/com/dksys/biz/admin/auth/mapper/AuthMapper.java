@@ -15,5 +15,7 @@ public interface AuthMapper {
 	int deleteAuth(Map<String, String> param);
 
 	int updateAuth(Map<String, String> param);
+
+	int updateAuthRole(Map<String, String> param);
 	
 }
