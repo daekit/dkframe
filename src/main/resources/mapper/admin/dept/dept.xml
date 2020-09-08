@@ -6,10 +6,12 @@
 	<select id="selectDeptTree" resultType="CamelMap">
 		WITH RECURSIVE CTE AS (
 			SELECT 
+				1 AS LEVEL,
 				DEPT_ID AS ID,
 				DEPT_NM AS TEXT,
 				UP_DEPT_ID AS PARENT,
-				'unit' AS TYPE
+				'unit' AS TYPE,
+				SORT_NO
 			FROM 
 				DEPARTMENT
 			WHERE 
@@ -18,16 +20,19 @@
 			UNION ALL
 		
 			SELECT
+				1 + B.LEVEL AS LEVEL,
 				A.DEPT_ID AS ID,
 				A.DEPT_NM AS TEXT,
 				A.UP_DEPT_ID AS PARENT,
-				'unit' AS TYPE
+				'unit' AS TYPE,
+				A.SORT_NO
 			FROM 
 				DEPARTMENT A
 				INNER JOIN CTE B ON A.UP_DEPT_ID = B.ID 
 		)
 		
 		SELECT ID, TEXT, PARENT, TYPE FROM CTE
+		ORDER BY LEVEL, SORT_NO
 	</select>
 	
 	<select id="selectDeptInfo" resultType="CamelMap">

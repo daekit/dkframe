@@ -33,6 +33,7 @@
 </div>
 
 <script type="text/javascript">
+	// 등록시 부서 아이디 중복체크 여부
 	var isChecked = false;
 
 	$(document).ready(function() {
@@ -97,14 +98,14 @@
 			data.instance.set_type(data.node, 'unit');
 		}).on('create_node.jstree', function(e, data){
 			$('#deptTree').jstree(true).deselect_all();
-			$('#deptTree').jstree(true).select_node(data.node);
+			$('#deptTree').jstree(true).select_node(data.node.id);
 		});
 	}
 	
-	function selectDeptInfo(deptId) {
-		if(deptId == "new"){
+	function selectDeptInfo(nodeId) {
+		if(nodeId == "new"){
 			var deptTree = $("#deptTree").jstree(true);
-			var newNode = deptTree.get_node(deptId);
+			var newNode = deptTree.get_node(nodeId);
 			var parentNode = deptTree.get_node(newNode.parent);
 			
 			var infoHtml = '';
@@ -141,7 +142,7 @@
 			infoHtml += '</tr>';
 			$('#deptInfo').html(infoHtml);
 		}else{
-			postAjax("/admin/dept/selectDeptInfo", {"deptId" : deptId}, null, function(data){
+			postAjax("/admin/dept/selectDeptInfo", {"deptId" : nodeId}, null, function(data){
 				var deptInfo = data.deptInfo;
 				var infoHtml = '';
 				infoHtml += '<tr>';
@@ -213,8 +214,8 @@
 	}
 	
 	function updateDept(){
-		var deptId = $('#deptId').val();
-		if(deptId == "new"){
+		var nodeId = $('#deptTree').jstree(true).get_selected()[0];
+		if(nodeId == "new"){
 			if(!isChecked){
 				alert("부서 아이디 중복확인이 필요합니다.");
 				return false;
