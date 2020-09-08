@@ -20,14 +20,17 @@ public class DeptServiceImpl implements DeptService {
 
 	@Override
 	public List<Map<String, String>> selectDeptTree() {
-		List<Map<String, String>> testList = deptMapper.selectDeptTree();
-		return testList;
+		return deptMapper.selectDeptTree();
 	}
 
 	@Override
 	public Map<String, String> selectDeptInfo(HashMap<String, String> paramMap) {
-		Map<String, String> deptInfo = deptMapper.selectDeptInfo(paramMap);
-		return deptInfo;
+		return deptMapper.selectDeptInfo(paramMap);
+	}
+
+	@Override
+	public int selectDeptCount(HashMap<String, String> paramMap) {
+		return deptMapper.selectDeptCount(paramMap);
 	}
 
 }

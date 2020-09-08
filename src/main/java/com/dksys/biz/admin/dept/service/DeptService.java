@@ -9,5 +9,7 @@ public interface DeptService {
 	List<Map<String, String>> selectDeptTree();
 
 	Map<String, String> selectDeptInfo(HashMap<String, String> paramMap);
+
+	int selectDeptCount(HashMap<String, String> paramMap);
 	
 }

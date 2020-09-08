@@ -14,14 +14,14 @@ import org.springframework.web.servlet.ModelAndView;
 import com.dksys.biz.admin.dept.service.DeptService;
 
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/admin/dept")
 public class DeptController {
 
     @Autowired
     DeptService deptService;
     
     // 부서트리 조회
-    @GetMapping("/dept/selectDeptTree")
+    @GetMapping("/selectDeptTree")
     public ModelAndView selectDeptTree() {
     	ModelAndView mv = new ModelAndView("jsonView");
     	List<Map<String, String>> deptTree = deptService.selectDeptTree();
@@ -30,7 +30,7 @@ public class DeptController {
     }
     
     // 부서정보 조회
-    @GetMapping("/dept/selectDeptInfo")
+    @GetMapping("/selectDeptInfo")
     public ModelAndView selectDeptInfo(@RequestParam HashMap<String, String> paramMap) {
     	ModelAndView mv = new ModelAndView("jsonView");
     	Map<String, String> deptInfo = deptService.selectDeptInfo(paramMap);
@@ -39,4 +39,13 @@ public class DeptController {
         return mv;
     }
     
+    // 부서아이디 중복확인
+    @GetMapping("/checkDeptId")
+    public ModelAndView checkDeptId(@RequestParam HashMap<String, String> paramMap) {
+    	ModelAndView mv = new ModelAndView("jsonView");
+    	int deptCount = deptService.selectDeptCount(paramMap);
+    	mv.addObject("deptCount", deptCount);
+    	mv.setViewName("jsonView");
+        return mv;
+    }
 }
