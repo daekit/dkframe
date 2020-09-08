@@ -97,6 +97,34 @@ function postAjax(url, data, contentType, callback) {
 	});
 }
 
+function postAjaxSync(url, data, contentType, callback) {
+	if(contentType == null) {
+		contentType = "application/json; charset=utf-8";
+		data = JSON.stringify(data);
+	} else if(contentType == "form") {
+		contentType = "x-www-form-urlencoded; charset=utf-8";
+	}
+	$.ajax({
+	    type: "POST",
+	    url: url,
+	    contentType: contentType,
+	    data: data,
+	    async: false,
+	    beforeSend: function (request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+        },
+	    success: function(data){
+	    	callback(data);
+	    },
+        error: function (data) {
+        	if(tokenErrorMsg.includes(data.responseJSON.error)) {
+        		alert("토큰이 만료되었습니다.");
+        		location.href = "/static/index.html";
+        	}
+        }
+	});
+}
+
 function deleteAjax(url, data, contentType, callback) {
 	if(contentType == null) {
 		contentType = "application/json; charset=utf-8";
