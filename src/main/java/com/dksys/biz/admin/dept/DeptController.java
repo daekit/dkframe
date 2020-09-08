@@ -53,7 +53,6 @@ public class DeptController {
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
     	}
-    	
         return "jsonView";
     }
 }

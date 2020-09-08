@@ -36,33 +36,24 @@
 	var isChecked = false;
 
 	$(document).ready(function() {
-// 		selectDeptTree();
+		initDeptTree();
 	});
-	
-	function testFunction(){
-		selectDeptTree();
-		debugger;
-	}
 	
 	function selectDeptTree() {
 		var deptTree = null;
-		postAjax("/admin/dept/selectDeptTree", null, null, function(data){
+		postAjaxSync("/admin/dept/selectDeptTree", null, null, function(data){
 			deptTree = data.deptTree;
 		});
 		return deptTree;
 	}
 
 	function initDeptTree(deptTree) {
-		//checkbox plugin 속성
-		//three_state : 부모노드 클릭 시 하위노드 체크
-		//whole_node : 노드 클릭시 체크박스 컨트롤
-
 		$("#deptTree").jstree(
 		{
 			plugins : ['types', 'search'],
 			core : {
 				"check_callback": true,
-				data : deptTree
+				data : selectDeptTree()
 			},
 			types : {
 				'unit' : {
@@ -75,12 +66,11 @@
 			search : {
 				show_only_matches : false
 			}
-		}).on("ready.jstree", function() {
-
 		}).on("loaded.jstree", function() {
 			//최상위 노드 펼침
 			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
 		}).on("refresh.jstree", function() {
+			$('#deptTree').jstree(true).select_node($('#deptId').val());
 		}).on("select_node.jstree", function(e, data) {
 			// 노드 선택 시 발생 이벤트
 			
@@ -120,7 +110,6 @@
 			var infoHtml = '';
 			infoHtml += '<tr>';
 			infoHtml += '<th>부서아이디</th>';
-			
 			infoHtml += '<td>';
 			infoHtml += '<div class="input-group">';
 			infoHtml += '<input type="text" class="form-control" id="deptId" name="deptId" onchange="isChecked = false;" required>';
@@ -145,7 +134,7 @@
 			infoHtml += '<th>사용여부</th>';
 			infoHtml += '<td>';
 			infoHtml += '<select class="form-control" id="useYn" name="useYn">';
-			infoHtml += '<option value="Y">사용</option>';
+			infoHtml += '<option value="Y" selected>사용</option>';
 			infoHtml += '<option value="N">미사용</option>';
 			infoHtml += '</select>';
 			infoHtml += '</td>';
@@ -232,16 +221,22 @@
 			}
 		}
 		
+		var isValid = true;
 		$('input[required]').each(function(idx, elem){
 			if($.trim($(elem).val()) == ""){
 				alert("필수값을 입력해 주세요.");
 				$(elem).focus();
+				isValid = false;
 				return false;
 			}
 		});
 		
-		putAjax("/admin/dept/updateDept", $('#deptForm').serializeObject(), null, function(data){
-			alert("저장되었습니다.");
-		});
+		if(isValid){
+			putAjax("/admin/dept/updateDept", $('#deptForm').serializeObject(), null, function(data){
+				alert("저장되었습니다.");
+				$('#deptTree').jstree(true).settings.core.data = selectDeptTree();
+				$('#deptTree').jstree(true).refresh();
+			});
+		}
 	}
 </script>
