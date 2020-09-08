@@ -31,12 +31,11 @@ public class HomeController {
     }
     
     // 접근 가능한 메뉴정보
-    @PostMapping("/setMenuAuth")
-    public String setMenuAuth(@RequestBody Map<String, Object> param, Model model) {
+    @PostMapping("/selectMenuAuth")
+    public String selectMenuAuth(@RequestBody Map<String, Object> param, Model model) {
     	String[] authArray = {"AUTH000"};
     	authArray = param.get("authInfo") != null ? param.get("authInfo").toString().split(",") : authArray;
-    	param.put("authInfo", authArray);
-    	List<Map<String, Object>> accessList = authService.getAccessUrl(param);
+    	List<Map<String, Object>> accessList = authService.selectMenuAuth(authArray);
     	model.addAttribute("accessList", accessList);
     	return "jsonView";
     }

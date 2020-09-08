@@ -17,5 +17,11 @@ public interface AuthMapper {
 	int updateAuth(Map<String, String> param);
 
 	int updateAuthRole(Map<String, String> param);
+
+	List<String> selectRoleFromAuth(String[] authArray);
+
+	List<String> selectMenuFromRole(String[] roleArray);
+
+	List<Map<String, Object>> selectMenuAuth(String[] menuArray);
 	
 }
