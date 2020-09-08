@@ -34,6 +34,7 @@ public class User implements UserDetails {
 	private String id;
     private String email;
     private String password;
+    private String authInfo;
     
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

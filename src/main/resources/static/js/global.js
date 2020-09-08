@@ -68,15 +68,20 @@ function selectGridValidation(obj) {
 	}
 }
 
+var tokenErrorMsg = ["unauthorized", "invalid_token"];
+
 function postAjax(url, data, contentType, callback) {
 	if(contentType == null) {
 		contentType = "application/json; charset=utf-8";
+		data = JSON.stringify(data);
+	} else if(contentType == "form") {
+		contentType = "x-www-form-urlencoded; charset=utf-8";
 	}
 	$.ajax({
 	    type: "POST",
 	    url: url,
 	    contentType: contentType,
-	    data: JSON.stringify(data),
+	    data: data,
 	    beforeSend: function (request) {
             request.setRequestHeader("Authorization", authorizationToken);
         },
@@ -84,7 +89,7 @@ function postAjax(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(data.responseJSON.error == "unauthorized"){
+        	if(tokenErrorMsg.includes(data.responseJSON.error)) {
         		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -108,7 +113,7 @@ function deleteAjax(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(data.responseJSON.error == "unauthorized"){
+        	if(tokenErrorMsg.includes(data.responseJSON.error)){
         		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -132,7 +137,7 @@ function putAjax(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(data.responseJSON.error == "unauthorized"){
+        	if(tokenErrorMsg.includes(data.responseJSON.error)){
         		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}

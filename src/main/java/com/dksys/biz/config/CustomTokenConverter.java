@@ -20,6 +20,7 @@ public class CustomTokenConverter extends JwtAccessTokenConverter {
 
 			additionalInfo.put("userId", user.getId());
 			additionalInfo.put("email", user.getEmail());
+			additionalInfo.put("authInfo", user.getAuthInfo());
 
 			((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
 		}

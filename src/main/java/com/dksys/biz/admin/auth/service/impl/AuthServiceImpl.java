@@ -42,4 +42,12 @@ public class AuthServiceImpl implements AuthService {
 		return authMapper.updateAuthRole(param);
 	}
 
+	@Override
+	public List<Map<String, Object>> getAccessUrl(Map<String, Object> param) {
+//		String roleInfo = authMapper.selectRoleFromAuth(param);
+//		String[] roleList = roleInfo.split(",");
+//		List<Map<String, Object>> result = authMapper.selectMenuFromRole(roleList);
+		return null;
+	}
+
 }
