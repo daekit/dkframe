@@ -8,8 +8,8 @@
 	<div class="col-xs-9">
 		<span style="font-size: 22px; font-weight: bold;">조직관리</span>
 		<div style="float: right;">
-			<a href="#" class="btn btn-default btn-sm">등록</a>
-			<a href="#" class="btn btn-default btn-sm">수정</a>
+			<a href="#" class="btn btn-default btn-sm" onclick="createDept();">등록</a>
+			<a href="#" class="btn btn-default btn-sm" onclick="updateDept();">저장</a>
 		</div>
 	</div>
 </div>
@@ -18,28 +18,40 @@
 		<div id="deptTree"></div>
 	</div>
 	<div class="col-xs-6">
-		<table class="table">
-			<colgroup>
-				<col style="width: 15%;">
-				<col style="width: 35%">
-				<col style="width: 15%;">
-				<col style="width: 35%">
-			</colgroup>
-			<tbody id="deptInfo"></tbody>
-		</table>
+		<form id="deptForm">
+			<table class="table">
+				<colgroup>
+					<col style="width: 15%;">
+					<col style="width: 35%">
+					<col style="width: 15%;">
+					<col style="width: 35%">
+				</colgroup>
+				<tbody id="deptInfo"></tbody>
+			</table>
+		</form>
 	</div>
 </div>
 
 <script type="text/javascript">
+	var isChecked = false;
+
 	$(document).ready(function() {
 		selectDeptTree();
-		selectDeptInfo("UNC");
+		
+		$('#deptForm').validate({
+			rules: {
+				deptNm:{required:true}
+			},
+			messages: {
+				deptNm: "부서명을 입력해 주세요."
+			}
+		});
 	});
 
 	function selectDeptTree() {
 		$.ajax({
 			type : "GET",
-			url : "/api/dept/selectDeptTree",
+			url : "/admin/dept/selectDeptTree",
 			dataType : "json",
 			success : function(data) {
 				initDeptTree(data.deptTree);
@@ -56,86 +68,177 @@
 		//whole_node : 노드 클릭시 체크박스 컨트롤
 
 		$("#deptTree").jstree(
-				{
-					plugins : [ 'types', 'search', 'sort' ],
-					core : {
-						data : deptTree
-					},
-					types : {
-						"person" : {
-							"icon" : "glyphicon glyphicon-user"
-						},
-						'unit' : {
-							'icon' : 'glyphicon glyphicon-folder-close'
-						},
-						'unit-open' : {
-							'icon' : 'glyphicon glyphicon-folder-open'
-						}
-					},
-					checkbox : {
-						keep_selected_style : false,
-						three_state : false,
-						whole_node : true
-					},
-					search : {
-						show_only_matches : false
-					},
-					sort : function(a, b) {
-						var nodeA = this.get_node(a);
-						var nodeB = this.get_node(b);
-						if (nodeA.original.type == "person"
-								&& nodeB.original.type == "unit") {
-							return -1;
-						}
-					}
-				}).on("ready.jstree", function() {
+		{
+			plugins : ['types', 'search'],
+			core : {
+				"check_callback": true,
+				data : deptTree
+			},
+			types : {
+				'unit' : {
+					'icon' : 'glyphicon glyphicon-folder-close'
+				},
+				'unit-open' : {
+					'icon' : 'glyphicon glyphicon-folder-open'
+				}
+			},
+			search : {
+				show_only_matches : false
+			}
+		}).on("ready.jstree", function() {
 
 		}).on("loaded.jstree", function() {
 			//최상위 노드 펼침
 			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
 		}).on("refresh.jstree", function() {
-
 		}).on("select_node.jstree", function(e, data) {
 			// 노드 선택 시 발생 이벤트
+			
+			// 신규 노드 삭제
+			if($('#deptTree').jstree(true).get_node('new')){
+				if(data.node.id != "new"){
+					$('#deptTree').jstree(true).delete_node("new");
+				}
+			}
+			
+			// 본 이름으로 변경
+			var nodeArr = $('#deptTree').jstree(true).get_json('#', {flat:true});
+			nodeArr.forEach(function(obj){
+				$('#deptTree').jstree(true).rename_node(obj.id, $('#deptTree').jstree(true).get_node(obj.id).original.text);
+			});
+			
+			// 부서정보 조회
 			selectDeptInfo(data.node.id);
 		}).on("deselect_node.jstree", function(e, data) {
 			// 노드가 선택해제 시 발생 이벤트
-
 		}).on('open_node.jstree', function(e, data) {
 			data.instance.set_type(data.node, 'unit-open');
 		}).on('close_node.jstree', function(e, data) {
 			data.instance.set_type(data.node, 'unit');
+		}).on('create_node.jstree', function(e, data){
+			$('#deptTree').jstree(true).deselect_all();
+			$('#deptTree').jstree(true).select_node(data.node);
 		});
 	}
 	
 	function selectDeptInfo(deptId) {
-		$.ajax({
-			type : "GET",
-			url : "/api/dept/selectDeptInfo",
-			data : {"deptId" : deptId},
-			dataType : "json",
-			success : function(data) {
-				var deptInfo = data.deptInfo;
-				
-				var infoHtml = '';
-				infoHtml += '<tr>';
-				infoHtml += '<th scope="row">부서코드</th>';
-				infoHtml += '<td>'+deptInfo.deptId+'</td>';
-				infoHtml += '<th scope="row">부서명</th>';
-				infoHtml += '<td>'+deptInfo.deptNm+'</td>';
-				infoHtml += '</tr>';
-				infoHtml += '<tr>';
-				infoHtml += '<th scope="row">상위부서</th>';
-				infoHtml += '<td>'+deptInfo.upDeptNm+'</td>';
-				infoHtml += '<th scope="row">정렬키</th>';
-				infoHtml += '<td>'+deptInfo.sortNo+'</td>';
-				infoHtml += '</tr>';
-				
-				$('#deptInfo').html(infoHtml);
-			},
-			error : function(request, status, error) {
-				alert("error");
+		if(deptId == "new"){
+			var deptTree = $("#deptTree").jstree(true);
+			var newNode = deptTree.get_node(deptId);
+			var parentNode = deptTree.get_node(newNode.parent);
+			
+			var infoHtml = '';
+			infoHtml += '<tr>';
+			infoHtml += '<th>부서아이디</th>';
+			
+			infoHtml += '<td>';
+			infoHtml += '<div class="input-group">';
+			infoHtml += '<input type="text" class="form-control" id="deptId" name="deptId" onchange="isChecked = false;">';
+			infoHtml += '<span class="input-group-btn">';
+			infoHtml += '<button class="btn btn-primary" type="button" onclick="checkDeptId();">중복확인</button>';
+			infoHtml += '</span>';
+			infoHtml += '</div>';
+			infoHtml += '</td>';
+			infoHtml += '<th>부서명</th>';
+			infoHtml += '<td><input class="form-control" id="deptNm" name="deptNm" onkeyup="renameNode(this);"></td>';
+			infoHtml += '</tr>';
+			infoHtml += '<tr>';
+			infoHtml += '<th>상위부서</th>';
+			infoHtml += '<td>';
+			infoHtml += '<input type="hidden" id="upDeptId" name="upDeptId" value="'+parentNode.id+'">';
+			infoHtml += '<input class="form-control" value="'+parentNode.text+'" readonly>';
+			infoHtml += '</td>';
+			infoHtml += '<th>정렬순서</th>';
+			infoHtml += '<td><input type="text" class="form-control" id="sortNo" name="sortNo"></td>';
+			infoHtml += '</tr>';
+			$('#deptInfo').html(infoHtml);
+		}else{
+			$.ajax({
+				type : "GET",
+				url : "/admin/dept/selectDeptInfo",
+				data : {"deptId" : deptId},
+				dataType : "json",
+				success : function(data) {
+					var deptInfo = data.deptInfo;
+					
+					var infoHtml = '';
+					infoHtml += '<tr>';
+					infoHtml += '<th>부서아이디</th>';
+					infoHtml += '<td><input type="text" class="form-control" id="deptId" name="deptId" value="'+deptInfo.deptId+'" readonly></td>';
+					infoHtml += '<th>부서명</th>';
+					infoHtml += '<td><input class="form-control" id="deptNm" name="deptNm" value="'+deptInfo.deptNm+'" onkeyup="renameNode(this);"></td>';
+					infoHtml += '</tr>';
+					infoHtml += '<tr>';
+					infoHtml += '<th>상위부서</th>';
+					infoHtml += '<td>';
+					infoHtml += '<input type="hidden" id="upDeptId" name="upDeptId" value="'+deptInfo.upDeptId+'">';
+					infoHtml += '<input class="form-control" value="'+deptInfo.upDeptNm+'" readonly>';
+					infoHtml += '</td>';
+					infoHtml += '<th>정렬순서</th>';
+					infoHtml += '<td><input type="text" class="form-control" id="sortNo" name="sortNo" value="'+deptInfo.sortNo+'"></td>';
+					infoHtml += '</tr>';
+					$('#deptInfo').html(infoHtml);
+				},
+				error : function(request, status, error) {
+					alert("error");
+				}
+			});
+		}
+	}
+	
+	function createDept(){
+		var deptTree = $("#deptTree").jstree(true);
+		if(!deptTree.get_node('new')){
+			var upDeptId = deptTree.get_selected()[0];
+			
+			if(upDeptId){
+				deptTree.create_node(upDeptId, {text: "신규조직", id: "new", type: "unit", icon: "glyphicon glyphicon-folder-close"}, "last", false, false);
+			}else{
+				alert("상위 조직을 선택해 주세요.");
 			}
-		});
+		}else{
+			alert("신규로 추가한 조직을 저장해 주세요.");
+		}
+	}
+	
+	function renameNode(elem){
+		var deptTree = $('#deptTree').jstree(true);
+		var deptId = deptTree.get_selected()[0];
+		deptTree.rename_node(deptId, $(elem).val());
+	}
+	
+	function checkDeptId(){
+		var deptId = $('#deptId').val();
+		
+		if($.trim(deptId) == ""){
+			alert("부서 아이디를 입력해 주세요.");
+		}else{
+			$.ajax({
+				type : "GET",
+				url : "/admin/dept/checkDeptId",
+				data : {
+					"deptId" : deptId
+				},
+				dataType : "json",
+				success : function(data) {
+					if(data.deptCount > 0){
+						alert("사용중인 부서 아이디입니다.");
+						isChecked = false;
+					}else{
+						alert("사용가능한 부서 아이디입니다.");
+						isChecked = true;
+					}
+				},
+				error : function(request, status, error) {
+					alert("error");
+				}
+			});
+		}
+	}
+	
+	function updateDept(){
+		if(!isChecked){
+			alert("부서 아이디 중복확인이 필요합니다.");
+		}
 	}
 </script>
