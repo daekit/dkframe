@@ -15,5 +15,7 @@ public interface AuthService {
 
 	public int updateAuthRole(Map<String, String> param);
 
+	public List<Map<String, Object>> getAccessUrl(Map<String, Object> param);
+
 
 }

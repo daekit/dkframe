@@ -36,7 +36,7 @@
 		firstGrid.select(index);
 		authId = firstGrid.getList("selected")[0].authId;
 		authRole = firstGrid.getList("selected")[0].authRole;
-		openModal("/static/html/admin/auth/updateAuthRole.html", 900, 550, "권한롤등록 "+authId);
+		openModal("/static/html/admin/auth/updateAuthRole.html", 800, 550, "권한롤등록 "+authId);
 	}
 	
 	function getData() {
@@ -61,17 +61,12 @@
 		var formData = {
 				"authId" : firstGrid.getList("selected")[0].authId
 		}
-		$.ajax({
-            method: "DELETE",       
-            url: "/admin/auth/deleteAuth",
-            data: JSON.stringify(formData),
-            success: function (data, status, request) {
-            	if(data.resultCode == 200){
-					alert(data.resultMessage);
-					getData();
-				}
-            }
-        });
+		deleteAjax("/admin/auth/deleteAuth", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+			}
+		});
 	}
 	
 </script>
