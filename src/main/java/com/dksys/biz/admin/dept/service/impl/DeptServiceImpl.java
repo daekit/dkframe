@@ -1,6 +1,5 @@
 package com.dksys.biz.admin.dept.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +23,18 @@ public class DeptServiceImpl implements DeptService {
 	}
 
 	@Override
-	public Map<String, String> selectDeptInfo(HashMap<String, String> paramMap) {
+	public Map<String, String> selectDeptInfo(Map<String, String> paramMap) {
 		return deptMapper.selectDeptInfo(paramMap);
 	}
 
 	@Override
-	public int selectDeptCount(HashMap<String, String> paramMap) {
+	public int selectDeptCount(Map<String, String> paramMap) {
 		return deptMapper.selectDeptCount(paramMap);
+	}
+
+	@Override
+	public int updateDept(Map<String, String> paramMap) {
+		return deptMapper.updateDept(paramMap);
 	}
 
 }
