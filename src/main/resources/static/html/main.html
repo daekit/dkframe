@@ -53,13 +53,11 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li id="MENU001" class="active"><a href="/static/html/admin/auth/auth.html" onclick="return false;">권한관리 <span class="sr-only">(current)</span></a></li>
-            <li id="MENU002"><a href="/static/html/admin/role/role.html" onclick="return false;">롤관리</a></li>
-            <li id="MENU003"><a href="/static/html/admin/menu/menu.html" onclick="return false;">메뉴관리</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
+            <!-- <li class="active"><a href="/static/html/admin/auth/auth.html" onclick="return false;">권한관리 <span class="sr-only">(current)</span></a></li>
+            <li><a href="/static/html/admin/role/role.html" onclick="return false;">롤관리</a></li>
+            <li><a href="/static/html/admin/menu/menu.html" onclick="return false;">메뉴관리</a></li>
             <li><a href="/static/html/admin/auth/role.html" onclick="return false;">사용자관리</a></li>
-            <li><a href="/static/html/admin/dept/dept.html" onclick="return false;">조직관리</a></li>
+            <li><a href="/static/html/admin/dept/dept.html" onclick="return false;">조직관리</a></li> -->
           </ul>
         </div>
         <!-- 메인Body 페이지 영역 -->
@@ -74,7 +72,27 @@
 
 	$(document).ready(function() {
 		
-        // 사이드 바 클릭 이벤트 바인딩
+		setMenuAuth();
+		
+	})
+	
+	// 권한에 따른 메뉴 보여주기
+	function setMenuAuth() {
+		var formData = {
+				"authInfo" : jwt.authInfo
+		}
+		postAjax("/selectMenuAuth", formData, null, function(data){
+			checkMenuAuth(data.accessList);
+		});
+	}
+	
+	function checkMenuAuth(accessList) {
+		var html = "";
+		for(var i=0; i < accessList.length; i++) {
+			html += '<li><a href="'+accessList[i].menuUrl+'" onclick="return false;">'+accessList[i].menuNm+'</a></li>';
+		}
+		$('.nav-sidebar').html(html);
+		// 사이드 바 클릭 이벤트 바인딩
         $('.sidebar ul li').click(function(){
         	$('.sidebar ul li').removeClass('active');
         	$(this).addClass('active');
@@ -84,18 +102,6 @@
         });
         
 		$('.sidebar ul li')[0].click();
-		
-		setMenuAuth();	
-	})
-	
-	// 권한에 따른 메뉴 보여주기
-		function setMenuAuth() {
-			var formData = {
-					"authInfo" : jwt.authInfo
-			}
-			postAjax("/setMenuAuth", formData, null, function(data){
-				alert()
-			});
-		}
+	}
 	
 </script>
