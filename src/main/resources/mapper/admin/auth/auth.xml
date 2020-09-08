@@ -40,11 +40,29 @@
 		WHERE AUTH_ID = #{authId}
 	</update>
 
-	<select id="selectRoleFromAuth" parameterType="Map" resultType="String">
+	<select id="selectRoleFromAuth" parameterType="ArrayList" resultType="String">
 		SELECT AUTH_ROLE FROM CMN_AUTH_INFO 
 		WHERE
 			AUTH_ID IN
-			<foreach collection="authInfo" item="item" index="index" separator="," open="(" close=")">
+			<foreach collection="authArray" item="item" index="index" separator="," open="(" close=")">
+    			 #{item}
+			</foreach>
+	</select>
+
+	<select id="selectMenuFromRole" parameterType="ArrayList" resultType="String">
+		SELECT ROLE_MENU FROM CMN_ROLE_INFO 
+		WHERE
+			ROLE_ID IN
+			<foreach collection="roleArray" item="item" index="index" separator="," open="(" close=")">
+    			 #{item}
+			</foreach>
+	</select>
+
+	<select id="selectMenuAuth" parameterType="ArrayList" resultType="CamelMap">
+		SELECT * FROM CMN_MENU_INFO 
+		WHERE
+			MENU_ID IN
+			<foreach collection="menuArray" item="item" index="index" separator="," open="(" close=")">
     			 #{item}
 			</foreach>
 	</select>
