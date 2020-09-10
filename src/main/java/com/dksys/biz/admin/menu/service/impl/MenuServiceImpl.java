@@ -37,4 +37,9 @@ public class MenuServiceImpl implements MenuService {
 		return menuMapper.updateMenu(param);
 	}
 
+	@Override
+	public int selectMenuCount(Map<String, String> param) {
+		return menuMapper.selectMenuCount(param);
+	}
+
 }

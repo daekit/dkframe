@@ -48,6 +48,14 @@ var openModal = function(url, width, height, title) {
 };
 
 function parseJwt (token) {
+	if(token == null) {
+		if(location.href.search("/static/index.html") == -1) {
+			alert("토큰이 만료되었습니다.");
+        location.href = "/static/index.html";
+		} else {
+			return;
+		}
+	}
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {

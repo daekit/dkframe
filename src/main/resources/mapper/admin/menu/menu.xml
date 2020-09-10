@@ -27,21 +27,32 @@
 	</insert>
 
 	<delete id="deleteMenu" parameterType="Map">
-		DELETE FROM CMN_ROLE_INFO
-		WHERE ROLE_ID = #{roleId}
+		DELETE FROM CMN_MENU_INFO
+		WHERE MENU_ID = #{menuId}
 	</delete>
 
-	<update id="updateMenu" parameterType="Map">
-		UPDATE CMN_ROLE_INFO
-		SET 
-			ROLE_ID = #{roleId},
-			ROLE_NM = #{roleNm},
-			ROLE_TYPE = #{roleType}, 
-			ROLE_SORT = ${roleSort},
-			DESCRIPTION = #{description},
+	<insert id="updateMenu" parameterType="Map">
+		INSERT INTO CMN_MENU_INFO
+		(
+			MENU_ID, MENU_NM, UP_MENU_ID, MENU_URL, MENU_TYPE, CREATE_ID, CREATE_DT
+		)
+		VALUES(
+			#{menuId}, #{menuNm}, #{upMenuId}, #{menuUrl}, #{menuType}, #{userId}, SYSDATE()
+		)
+		ON DUPLICATE KEY
+		UPDATE 
+			MENU_ID = #{menuId},
+			MENU_NM = #{menuNm},
+			UP_MENU_ID = #{upMenuId}, 
+			MENU_URL = #{menuUrl},
+			MENU_TYPE = #{menuType},
 			UPDATE_ID = #{userId}, 
 			UPDATE_DT = SYSDATE()
-		WHERE ROLE_ID = #{roleId}
-	</update>
+	</insert>
+
+	<select id="selectMenuCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*) FROM CMN_MENU_INFO
+		WHERE MENU_ID = #{menuId}
+	</select>
 	
 </mapper>

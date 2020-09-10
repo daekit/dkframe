@@ -63,4 +63,12 @@ public class MenuController {
     	return "jsonView";
     }
     
+    // 메뉴아이디 중복확인
+    @PostMapping("/checkMenuId")
+    public String checkMenuId(@RequestBody Map<String, String> param, ModelMap model) {
+    	int menuCount = menuService.selectMenuCount(param);
+    	model.addAttribute("menuCount", menuCount);
+        return "jsonView";
+    }
+    
 }

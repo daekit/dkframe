@@ -13,5 +13,7 @@ public interface MenuService {
 
 	public int updateMenu(Map<String, String> param);
 
+	public int selectMenuCount(Map<String, String> param);
+
 
 }

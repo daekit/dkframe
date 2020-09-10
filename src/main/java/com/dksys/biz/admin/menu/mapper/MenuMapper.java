@@ -15,5 +15,7 @@ public interface MenuMapper {
 	int deleteMenu(Map<String, String> param);
 
 	int updateMenu(Map<String, String> param);
+
+	int selectMenuCount(Map<String, String> param);
 	
 }
