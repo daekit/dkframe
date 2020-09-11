@@ -15,5 +15,7 @@ public interface DeptMapper {
 	int selectDeptCount(Map<String, String> paramMap);
 
 	int updateDept(Map<String, String> paramMap);
+
+	int moveDept(Map<String, String> paramMap);
 	
 }

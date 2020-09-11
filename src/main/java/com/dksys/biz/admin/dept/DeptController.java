@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.dept.service.DeptService;
+import com.dksys.biz.util.MessageUtils;
 
 @Controller
 @RequestMapping("/admin/dept")
 public class DeptController {
-
+	
+	@Autowired
+	MessageUtils messageUtils;
+	
     @Autowired
     DeptService deptService;
     
@@ -50,8 +54,24 @@ public class DeptController {
     	try {
     		deptService.updateDept(paramMap);
     		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+        return "jsonView";
+    }
+    
+    // 부서이동
+    @PostMapping("/moveDept")
+    public String moveDept(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+    	try {
+    		deptService.moveDept(paramList);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("move"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
     	}
         return "jsonView";
     }

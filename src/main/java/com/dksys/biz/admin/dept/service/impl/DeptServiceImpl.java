@@ -33,8 +33,15 @@ public class DeptServiceImpl implements DeptService {
 	}
 
 	@Override
-	public int updateDept(Map<String, String> paramMap) {
-		return deptMapper.updateDept(paramMap);
+	public void updateDept(Map<String, String> paramMap) throws Exception{
+		deptMapper.updateDept(paramMap);
+	}
+
+	@Override
+	public void moveDept(List<Map<String, String>> paramList) throws Exception{
+		for(Map<String, String> paramMap : paramList) {
+			deptMapper.moveDept(paramMap);
+		}
 	}
 
 }

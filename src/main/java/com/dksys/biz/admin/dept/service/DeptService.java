@@ -11,6 +11,8 @@ public interface DeptService {
 
 	int selectDeptCount(Map<String, String> paramMap);
 
-	int updateDept(Map<String, String> paramMap);
+	void updateDept(Map<String, String> paramMap) throws Exception;
+
+	void moveDept(List<Map<String, String>> paramList) throws Exception;
 	
 }
