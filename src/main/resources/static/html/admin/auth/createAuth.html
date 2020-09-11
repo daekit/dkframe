@@ -1,21 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
-</head>
 <script type="text/javascript">
 
-	var jwt = parseJwt(authorizationToken);
-
 	$(document).ready(function() {
-		$.ajaxSetup({
-			contentType: "application/json; charset=utf-8",
-			beforeSend: function (request)
-            {
-                request.setRequestHeader("Authorization", authorizationToken);
-            }
-		});
+		
 	})
 	
 	function createAuth() {
@@ -25,16 +11,12 @@
 				"description" : $("#description").val(),
 				"userId" : jwt.userId
 		}
-		$.post(
-			"/admin/auth/createAuth",
-			JSON.stringify(formData),
-			function(data, status, request) {
-				if(data.resultCode == 200){
-					modal.close();
-					getData();
-				}
+		postAjax("/admin/auth/createAuth", formData, null, function(data){
+			if(data.resultCode == 200){
+				modal.close();
+				getData();
 			}
-		);
+		})
 	}
 	
 </script>

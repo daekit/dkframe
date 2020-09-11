@@ -1,21 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
-</head>
 <script type="text/javascript">
 
-	var jwt = parseJwt(authorizationToken);
-
 	$(document).ready(function() {
-		$.ajaxSetup({
-			contentType: "application/json; charset=utf-8",
-			beforeSend: function (request)
-            {
-                request.setRequestHeader("Authorization", authorizationToken);
-            }
-		});
 		setData();
 	})
 	
@@ -33,18 +18,13 @@
 				"description" : $("#description").val(),
 				"userId" : jwt.userId
 		}
-		$.ajax({
-            method: "PUT",       
-            url: "/admin/auth/updateAuth",
-            data: JSON.stringify(formData),
-            success: function (data, status, request) {
-            	if(data.resultCode == 200){
-					alert(data.resultMessage);
-					getData();
-					modal.close();
-				}
-            }
-        });
+		putAajx("/admin/auth/updateAuth", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+				modal.close();
+			}
+		})
 	}
 	
 </script>

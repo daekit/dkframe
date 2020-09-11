@@ -71,9 +71,7 @@
 <script type="text/javascript">
 
 	$(document).ready(function() {
-		
 		setMenuAuth();
-		
 	})
 	
 	// 권한에 따른 메뉴 보여주기
@@ -89,7 +87,7 @@
 	function checkMenuAuth(accessList) {
 		var html = "";
 		for(var i=0; i < accessList.length; i++) {
-			html += '<li><a href="'+accessList[i].menuUrl+'" onclick="return false;">'+accessList[i].menuNm+'</a></li>';
+			html += '<li><a href="'+accessList[i].menuUrl+'" onclick="setMenuIdx(\''+accessList[i].menuUrl+'\'); return false;">'+accessList[i].menuNm+'</a></li>';
 		}
 		$('.nav-sidebar').html(html);
 		// 사이드 바 클릭 이벤트 바인딩
@@ -101,7 +99,16 @@
           	});
         });
         
-		$('.sidebar ul li')[0].click();
+		$('.sidebar ul li a').each(function(idx, elem){
+			if(elem.href.search(menuIdx) > -1) {
+				$('.sidebar ul li a')[idx].click();
+			}
+		});
+		
+	}
+	
+	function setMenuIdx(url) {
+		setCookie("menuIdx", url, 1);
 	}
 	
 </script>
