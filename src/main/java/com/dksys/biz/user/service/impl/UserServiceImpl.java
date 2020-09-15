@@ -1,6 +1,7 @@
 package com.dksys.biz.user.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,18 @@ public class UserServiceImpl implements UserService {
     }
 
 	@Override
-	public void selectOneUser() {
-		System.out.println("ㅎㅇ");
+	public List<Map<String, String>> selectUserList(Map<String, String> paramMap) {
+		return userMapper.selectUserList(paramMap);
+	}
+
+	@Override
+	public int selectUserCount(Map<String, String> paramMap) {
+		return userMapper.selectUserCount(paramMap);
+	}
+
+	@Override
+	public void createUser(Map<String, String> paramMap) {
+		userMapper.createUser(paramMap);
 	}
 
 }

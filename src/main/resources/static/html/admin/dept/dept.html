@@ -30,28 +30,28 @@
 					<tr>
 						<th>부서아이디</th>
 						<td>
-							<input type="text" class="form-control" id="deptId" name="deptId" readonly required>
+							<input type="text" class="form-control input-sm" id="deptId" name="deptId" readonly required>
 						</td>
 						<th>부서명</th>
 						<td>
-							<input class="form-control" id="deptNm" name="deptNm" onkeyup="renameNode(this)" required>
+							<input type="text" class="form-control input-sm" id="deptNm" name="deptNm" onkeyup="renameNode(this)" required>
 						</td>
 					</tr>
 					<tr>
 						<th>상위부서</th>
 						<td>
 							<input type="hidden" id="upDeptId" name="upDeptId">
-							<input class="form-control" id="upDeptNm" readonly>
+							<input type="text" class="form-control input-sm" id="upDeptNm" readonly>
 						</td>
 						<th>정렬순서</th>
 						<td>
-							<input type="text" class="form-control" id="sortNo" name="sortNo" readonly required>
+							<input type="text" class="form-control input-sm" id="sortNo" name="sortNo" readonly required>
 						</td>
 					</tr>
 					<tr>
 						<th>사용여부</th>
 						<td>
-							<select class="form-control" id="useYn" name="useYn" required>
+							<select class="form-control input-sm" id="useYn" name="useYn" required>
 								<option value="Y">사용</option>
 								<option value="N">미사용</option>
 							</select>
@@ -94,9 +94,9 @@
 			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
 		}).on("refresh.jstree", function() {
 		// 리프레시 완료 시
-			var selectedNode = $('#deptTree').jstree(true).get_selected()[0];
+			var selectedId = $('#deptTree').jstree(true).get_selected()[0];
 			$('#deptTree').jstree(true).deselect_all();
-			$('#deptTree').jstree(true).select_node(selectedNode);
+			$('#deptTree').jstree(true).select_node(selectedId);
 		}).on("select_node.jstree", function(e, data) {
 		// 노드 선택 시 발생 이벤트
 			
@@ -190,7 +190,7 @@
 			if (more && more.core) {
 			// 노드가 드랍되었을 때
 				if(node.id == "new"){
-					alert("신규로 추가한 조직을 저장해 주세요.");
+					alert("신규로 추가한 부서를 저장해 주세요.");
 					return false;
 				}else{
 					var confirmMessage = "부서를 이동하시겠습니까?";
@@ -209,13 +209,13 @@
 		inputHtml = '';
 		if(node.id == "new"){
 			inputHtml += '<div class="input-group">';
-			inputHtml += '<input type="text" class="form-control" id="deptId" name="deptId" onchange="isChecked = false;" required>';
+			inputHtml += '<input type="text" class="form-control input-sm" id="deptId" name="deptId" onchange="isChecked = false;" required>';
 			inputHtml += '<span class="input-group-btn">';
-			inputHtml += '<button class="btn btn-primary" type="button" onclick="checkDeptId();">중복확인</button>';
+			inputHtml += '<button class="btn btn-primary btn-sm" type="button" onclick="checkDeptId();">중복확인</button>';
 			inputHtml += '</span>';
 			$('#deptId').parents('td').html(inputHtml);
 		}else{
-			inputHtml += '<input type="text" class="form-control" id="deptId" name="deptId" readonly required>';
+			inputHtml += '<input type="text" class="form-control input-sm" id="deptId" name="deptId" readonly required>';
 			$('#deptId').parents('td').html(inputHtml);
 		}
 		
@@ -244,7 +244,7 @@
 			if(parentNode){
 				var newNode = {};
 				newNode.id = "new";
-				newNode.text = "신규조직";
+				newNode.text = "신규부서";
 				newNode.type = "unit";
 				newNode.icon = "glyphicon glyphicon-folder-close";
 				newNode.sortNo = parentNode.children.length + 1;
@@ -252,11 +252,11 @@
 				
 				$deptTree.create_node(upDeptId, newNode, "last", false, false);
 			}else{
-				alert("상위 조직을 선택해 주세요.");
+				alert("상위 부서를 선택해 주세요.");
 			}
 			
 		}else{
-			alert("신규로 추가한 조직을 저장해 주세요.");
+			alert("신규로 추가한 부서를 저장해 주세요.");
 		}
 	}
 	

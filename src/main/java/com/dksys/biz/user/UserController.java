@@ -1,6 +1,7 @@
 package com.dksys.biz.user;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.user.service.UserService;
 import com.dksys.biz.user.vo.User;
+import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,9 @@ public class UserController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    
+    @Autowired
+	MessageUtils messageUtils;
 
     @Autowired
     UserService userService;
@@ -51,6 +56,37 @@ public class UserController {
         	model.addAttribute("token", "1");
         }
         return "jsonView";
+    }
+    
+    // 사용자 리스트
+    @PostMapping("/admin/user/selectUserList")
+    public String selectUserList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> userList = userService.selectUserList(paramMap);
+    	model.addAttribute("userList", userList);
+    	return "jsonView";
+    }
+    
+    // 사용자아이디 중복확인
+    @PostMapping("/admin/user/checkUserId")
+    public String checkUserId(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int userCount = userService.selectUserCount(paramMap);
+    	model.addAttribute("userCount", userCount);
+    	return "jsonView";
+    }
+    
+    // 사용자 등록
+    @PostMapping("/admin/user/createUser")
+    public String createUser(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		userService.createUser(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	
+    	return "jsonView";
     }
     
 }

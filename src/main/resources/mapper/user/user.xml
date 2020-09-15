@@ -7,4 +7,52 @@
 		SELECT * FROM USER
 	</select>
 	
+	<select id="selectUserList" resultType="CamelMap">
+		SELECT
+			ID,
+			NAME,
+			EMP_NO,
+			EMAIL,
+			USE_YN,
+			DATE_FORMAT(INSERT_DT, '%Y-%m-%d %H:%i:%s') AS INSERT_DT,
+			DATE_FORMAT(UPDATE_DT, '%Y-%m-%d %H:%i:%s') AS UPDATE_DT
+		FROM
+			USER
+		WHERE
+			DEPT_ID = #{deptId}
+	</select>
+	
+	<select id="selectUserCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			USER
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<insert id="createUser">
+		INSERT INTO USER(
+			ID, 
+			NAME, 
+			EMP_NO, 
+			EMAIL, 
+			DEPT_ID, 
+			USE_YN, 
+			ENTER_DT,
+			INSERT_DT, 
+			UPDATE_DT
+		)VALUES(
+			#{userId},
+			#{userNm},
+			#{empNo},
+			#{email},
+			#{deptId},
+			#{useYn},
+			STR_TO_DATE(#{enterDt}, '%Y-%m-%d'),
+			NOW(),
+			NOW()
+		)
+	</insert>
+	
 </mapper>
