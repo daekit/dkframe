@@ -78,6 +78,8 @@ public class UserController {
     @PostMapping("/admin/user/createUser")
     public String createUser(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
+    		String rawPassword = paramMap.get("password");
+    		paramMap.put("password", passwordEncoder.encode(rawPassword));
     		userService.createUser(paramMap);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));

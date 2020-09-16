@@ -13,6 +13,6 @@ public interface UserService {
 
 	public int selectUserCount(Map<String, String> paramMap);
 
-	public void createUser(Map<String, String> paramMap);
+	public void createUser(Map<String, String> paramMap) throws Exception;
 
 }

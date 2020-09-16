@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void createUser(Map<String, String> paramMap) {
+	public void createUser(Map<String, String> paramMap) throws Exception{
 		userMapper.createUser(paramMap);
 	}
 
