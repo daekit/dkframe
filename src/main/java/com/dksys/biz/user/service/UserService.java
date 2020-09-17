@@ -15,4 +15,8 @@ public interface UserService {
 
 	public void createUser(Map<String, String> paramMap) throws Exception;
 
+	public Map<String, String> selectUserInfo(Map<String, String> paramMap);
+
+	public void updateUser(Map<String, String> paramMap) throws Exception;
+
 }

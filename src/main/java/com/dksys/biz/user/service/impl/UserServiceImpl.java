@@ -37,4 +37,14 @@ public class UserServiceImpl implements UserService {
 		userMapper.createUser(paramMap);
 	}
 
+	@Override
+	public Map<String, String> selectUserInfo(Map<String, String> paramMap) {
+		return userMapper.selectUserInfo(paramMap);
+	}
+
+	@Override
+	public void updateUser(Map<String, String> paramMap) throws Exception {
+		userMapper.updateUser(paramMap);
+	}
+
 }

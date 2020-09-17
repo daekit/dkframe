@@ -17,5 +17,9 @@ public interface UserMapper {
 	int selectUserCount(Map<String, String> paramMap);
 
 	int createUser(Map<String, String> paramMap);
+
+	Map<String, String> selectUserInfo(Map<String, String> paramMap);
+
+	int updateUser(Map<String, String> paramMap);
 	
 }

@@ -1,0 +1,57 @@
+<div style="padding:10px; text-align: left;">
+	<div id="deptSelectTree"></div>
+</div>
+<div class="modal_bottom">
+	<button type="button" class="btn btn-default btn-sm" onclick="selectDept();">선택</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="secondModal.close();">닫기</button>
+</div>
+
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		initDeptSelectTree();
+	});
+	
+	// 트리 초기화
+	function initDeptSelectTree() {
+		$("#deptSelectTree").jstree(
+		{
+			plugins : ['types'],
+			core : {
+				data : selectDeptTree()
+			},
+			types : {
+				'unit' : {
+					'icon' : 'glyphicon glyphicon-folder-close'
+				},
+				'unit-open' : {
+					'icon' : 'glyphicon glyphicon-folder-open'
+				}
+			}
+		}).on("loaded.jstree", function() {
+		// 루트 노드 로드 완료 시
+			// 현재 부서 선택
+			$('#deptSelectTree').jstree(true).select_node($('#deptId').val());
+		}).on("select_node.jstree", function(e, data) {
+		// 노드 선택 시 발생 이벤트
+		}).on('open_node.jstree', function(e, data) {
+		// 노드 열릴 때
+			data.instance.set_type(data.node, 'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+		// 노드 닫힐 때
+			data.instance.set_type(data.node, 'unit');
+		});
+	}
+	
+	
+	function selectDept(){
+		var $deptSelectTree = $('#deptSelectTree').jstree(true);
+		var selectedId = $deptSelectTree.get_selected()[0];
+		var selectedNode = $deptSelectTree.get_node(selectedId);
+		
+		$('#deptId').val(selectedNode.original.deptId);
+		$('#deptNm').val(selectedNode.original.deptNm);
+		
+		secondModal.close();
+	}
+</script>

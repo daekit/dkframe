@@ -57,4 +57,36 @@
 		)
 	</insert>
 	
+	<select id="selectUserInfo" resultType="CamelMap">
+		SELECT
+			ID,
+			EMP_NO, 
+			NAME, 
+			EMAIL, 
+			DEPT_ID,
+			(SELECT DEPT_NM FROM DEPARTMENT WHERE DEPT_ID = U.DEPT_ID) DEPT_NM,
+			DATE_FORMAT(ENTER_DT, '%Y-%m-%d') AS ENTER_DT, 
+			USE_YN, 
+			INSERT_DT
+		FROM
+			USER U
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<update id="updateUser">
+		UPDATE
+			USER
+		SET
+			EMP_NO = #{empNo},
+			NAME = #{userNm},
+			EMAIL = #{email},
+			DEPT_ID = #{deptId},
+			ENTER_DT = STR_TO_DATE(#{enterDt}, '%Y-%m-%d'),
+			USE_YN = #{useYn},
+			UPDATE_DT = NOW()
+		WHERE
+			ID = #{userId}
+	</update>
+	
 </mapper>

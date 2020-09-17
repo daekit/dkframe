@@ -91,4 +91,26 @@ public class UserController {
     	return "jsonView";
     }
     
+    // 사용자정보 조회
+    @PostMapping("/admin/user/selectUserInfo")
+    public String selectUserInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> userInfo = userService.selectUserInfo(paramMap);
+    	model.addAttribute("userInfo", userInfo);
+    	return "jsonView";
+    }
+    
+    // 사용자 등록
+    @PostMapping("/admin/user/updateUser")
+    public String updateUser(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		userService.updateUser(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	
+    	return "jsonView";
+    }
 }

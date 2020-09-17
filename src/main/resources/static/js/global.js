@@ -15,18 +15,19 @@ var menuIdx = getCookie("menuIdx");
 
 var mask = new ax5.ui.mask();
 var modal = new ax5.ui.modal();
+var secondModal = new ax5.ui.modal();
 
 var openModal = function(url, width, height, title) {
 	modal.open({
 		header: {
-	        title: "<i class='fa fa-arrows' aria-hidden='true'></i> "+title,
+			title: title,
 	        btns: {
-	          close: {
-	            label: '<i class="fa fa-times-circle" aria-hidden="true"></i> X',
-	            onClick: function() {
-	              modal.close();
+	        	close: {
+	                label: '<i class="fa fa-times-circle" aria-hidden="true"></i>',
+	                onClick: function () {
+	                    modal.close();
+	                }
 	            }
-	          }
 	        }
 	    },
         width: width,
@@ -40,6 +41,29 @@ var openModal = function(url, width, height, title) {
                 mask.close();
             }
         }
+    }, function () {
+    	var targetEl = this.$["body-frame"];
+    	$.get(url, function(data) {    	        
+    		targetEl.append(data);
+      	});
+    });
+};
+
+var openSecondModal = function(url, width, height, title) {
+	secondModal.open({
+		header: {
+			title: title,
+			btns: {
+	        	close: {
+	                label: '<i class="fa fa-times-circle" aria-hidden="true"></i>',
+	                onClick: function () {
+	                	secondModal.close();
+	                }
+	            }
+	        }
+	    },
+        width: width,
+        height: height
     }, function () {
     	var targetEl = this.$["body-frame"];
     	$.get(url, function(data) {    	        

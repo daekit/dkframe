@@ -1,5 +1,5 @@
 <style>
-	.bottom_btn {
+	.modal_bottom {
 		position: fixed;
 		bottom: 5px;
 		width: 100%;
@@ -18,17 +18,10 @@
 			<tr>
 				<th>아이디</th>
 				<td>
-					<div class="input-group">
-						<input type="text" class="form-control input-sm" id="userId" name="userId" onchange="isChecked = false;" required>
-						<span class="input-group-btn">
-						<button class="btn btn-primary btn-sm" type="button" onclick="checkUserId();">중복확인</button>
-						</span>
-					</div>
+					<input type="text" class="form-control input-sm" id="userId" name="userId" readonly required>
 				</td>
-				<th>비밀번호<br>(initpw1! 고정)</th>
-				<td>
-					<input type="password" class="form-control input-sm" id="password" name="password" value="initpw1!" readonly required>
-				</td>
+				<th></th>
+				<td></td>
 			</tr>
 			<tr>
 				<th>사번</th>
@@ -47,8 +40,13 @@
 				</td>
 				<th>부서</th>
 				<td>
-					<input type="hidden" id="deptId" name="deptId" required>
-					<input type="text" id="deptNm" class="form-control input-sm" readonly>
+					<div class="input-group">
+						<input type="hidden" id="deptId" name="deptId" required>
+						<input type="text" id="deptNm" class="form-control input-sm" readonly>
+						<span class="input-group-btn">
+							<button class="btn btn-primary btn-sm" type="button" onclick="selectDeptModal();">선택</button>
+						</span>
+					</div>
 				</td>
 			</tr>
 			<tr>
@@ -74,21 +72,14 @@
 		</tbody>
 	</table>
 </form>
-<div class="bottom_btn">
-	<button type="button" class="btn btn-default btn-sm" onclick="createUser();">등록</button>
+<div class="modal_bottom">
+	<button type="button" class="btn btn-default btn-sm" onclick="updateUser();">저장</button>
 	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 </div>
 <script type="text/javascript">
-	//등록시 사용자아이디 중복체크 여부
-	var isChecked = false;
-
 	$(document).ready(function() {
-		// 선택한 부서 set
-		var $deptTree = $('#deptTree').jstree(true);
-		var selectedId = $deptTree.get_selected()[0];
-		var selectedNode = $deptTree.get_node(selectedId);
-		$('#deptId').val(selectedNode.id);
-		$('#deptNm').val(selectedNode.text);
+		// 유저정보 set
+		setUserInfo();
 		
 		// 입사일 데이트피커 set
 		$('#enterDatePicker').datepicker({
@@ -98,31 +89,24 @@
 		});
 	});
 	
-	// 사용자아이디 중복확인
-	function checkUserId(){
-		var userId = $('#userId').val();
-		if($.trim(userId) == ""){
-			alert("사용자 아이디를 입력해 주세요.");
-		}else{
-			postAjax("/admin/user/checkUserId", {"userId" : userId}, null, function(data){
-				if(data.userCount > 0){
-					alert("사용중인 사용자 아이디입니다.");
-					isChecked = false;
-				}else{
-					alert("사용가능한 사용자 아이디입니다.");
-					isChecked = true;
-				}
-			});
-		}
+	function setUserInfo(){
+		var userId = userGrid.getList("selected")[0].id;
+		postAjax("/admin/user/selectUserInfo", {"userId" : userId}, null, function(data){
+			var userInfo = data.userInfo;
+			$('#userId').val(userInfo.id);
+			$('#empNo').val(userInfo.empNo);
+			$('#userNm').val(userInfo.name);
+			$('#email').val(userInfo.email);
+			$('#deptId').val(userInfo.deptId);
+			$('#deptNm').val(userInfo.deptNm);
+			$('#useYn').val(userInfo.useYn);
+			$('#enterDatePicker').datepicker("setDate", userInfo.enterDt);
+		});
 	}
 	
-	// 사용자정보 등록
-	function createUser(){
-		if(!isChecked){
-			alert("사용자 아이디 중복확인이 필요합니다.");
-			return false;
-		}
-		
+	// 사용자정보 수정
+	function updateUser(){
+				
 		var isValid = true;
 		$('input[required]').each(function(idx, elem){
 			if($.trim($(elem).val()) == ""){
@@ -134,11 +118,15 @@
 		});
 		
 		if(isValid){
-			postAjax("/admin/user/createUser", $('#userForm').serializeObject(), null, function(data){
+			postAjax("/admin/user/updateUser", $('#userForm').serializeObject(), null, function(data){
 				alert(data.resultMessage);
 				selectUserList($('#deptTree').jstree(true).get_selected()[0]);
 				modal.close();
 			});
 		}
+	}
+	
+	function selectDeptModal(){
+		openSecondModal("/static/html/admin/user/selectDept.html", 400, 550, "부서선택");
 	}
 </script>
