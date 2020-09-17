@@ -64,17 +64,16 @@
 		var formData = {
 				"roleId" : firstGrid.getList("selected")[0].roleId
 		}
-		$.ajax({
-            method: "DELETE",       
-            url: "/admin/role/deleteRole",
-            data: JSON.stringify(formData),
-            success: function (data, status, request) {
-            	if(data.resultCode == 200){
-					alert(data.resultMessage);
-					getData();
-				}
-            }
-        });
+		deleteAjax("/admin/role/deleteRole", null, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+			}
+		})
+	}
+	
+	function excelDownload() {
+		location.href = "/download/sample";
 	}
 	
 </script>
@@ -82,6 +81,7 @@
 	<div class="row">
 		<span style="font-size: 25px; font-weight: bold;">롤관리</span>
 		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="excelDownload();">Excel Export</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createRoleModal();">등록</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateRoleModal();">수정</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteRole();">삭제</a>

@@ -1,0 +1,62 @@
+<style>
+	th {
+		text-align: center;
+		vertical-align: middle !important; 
+		background-color: #F3FFF3;
+	}
+</style>
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		setData();
+	})
+	
+	function setData() {
+		var row = firstGrid.getList("selected")[0];
+		$("#codeId").val(row.codeId);
+		$("#codeNm").val(row.codeNm);
+		$("#codeKind").val(row.codeKind);
+		$("#codeDesc").val(row.codeDesc);
+	}
+	
+	function updateCode() {
+		var formData = {
+				"codeId" : $("#codeId").val(),
+				"codeNm" : $("#codeNm").val(),
+				"codeKind" : $("#codeKind").val(),
+				"codeDesc" : $("#codeDesc").val(),
+				"userId" : jwt.userId
+		}
+		putAjax("/admin/code/updateCode", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+				modal.close();
+			}
+		})
+	}
+	
+</script>
+<body>
+	<div>
+		<table class="table table-bordered table-condensed">
+    		<tr>
+    			<th>코드ID</th>
+    			<td><input id="codeId" type="text" class="form-control"></td>
+    			<th>코드명</th>
+    			<td><input id="codeNm" type="text" class="form-control"></td>
+    		</tr>
+    		<tr>
+    			<th>코드분류</th>
+    			<td><input id="codeKind" type="text" class="form-control"></td>
+    			<th>코드설명</th>
+    			<td><input id="codeDesc" type="text" class="form-control"></td>
+    		</tr>
+  		</table>
+	</div>
+	<div style="position: fixed; bottom: 5px; left: 40%;">
+		<button type="button" class="btn btn-default btn-sm" onclick="updateCode();">수정</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+	</div>
+</body>
+</html>

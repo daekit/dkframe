@@ -1,42 +1,27 @@
 package com.dksys.biz.test;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.dksys.biz.user.service.UserService;
-import com.dksys.biz.user.vo.User;
+import com.dksys.biz.admin.role.service.RoleService;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 @Controller
-@RequestMapping("/api")
 public class TestController {
-
-    @Autowired
-    UserService userService;
     
-    // 일반요청 테스트
-    @PostMapping("/test")
-    public String test(ModelMap model) {
-    	model.addAttribute("msg", "요청성공");
-    	return "jsonView";
-    }
-    
-    // 사용자 전체 조회
-    @GetMapping("/user/selectAllUser")
-    public ModelAndView selectAllUser(ModelMap model) {
-    	ModelAndView mv = new ModelAndView("jsonView");
-    	List<User> userList = userService.selectAllUser();
-    	mv.addObject("userList", userList);
-        return mv;
+	@Autowired
+	RoleService roleService;
+	
+    // 엑셀 다운로드
+	@GetMapping(path="/download/sample")
+    public String selectAllUser(ModelMap model) {
+		List<Map<String, String>> roleList = roleService.selectRoleList();
+		model.addAttribute("excelData", roleList);
+        return "excelView";
     }
     
 }
