@@ -109,6 +109,8 @@ function postAjax(url, data, contentType, callback) {
 		data = JSON.stringify(data);
 	} else if(contentType == "form") {
 		contentType = "x-www-form-urlencoded; charset=utf-8";
+	} else {
+		contentType = contentType;
 	}
 	$.ajax({
 	    type: "POST",
