@@ -29,7 +29,7 @@ public class CmnServiceImpl implements CmnService {
 			
 			XSSFSheet sheet = workbook.getSheetAt(0);
 			
-			for (int i = 1; i < sheet.getLastRowNum()+1; i++) {
+			for (int i = 0; i < sheet.getLastRowNum()+1; i++) {
 				Map<String, String> map = new HashMap<String, String>();
 				Row row = sheet.getRow(i);
 				if(null == row) {		
