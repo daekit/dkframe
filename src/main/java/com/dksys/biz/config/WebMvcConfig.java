@@ -14,12 +14,12 @@ import com.dksys.biz.util.MessageUtils;
 public class WebMvcConfig implements WebMvcConfigurer {
 	
 	@Bean
-    MappingJackson2JsonView jsonView() {
+	public MappingJackson2JsonView jsonView() {
 		return new MappingJackson2JsonView();
     }
 	
 	@Bean
-	MessageUtils messageUtils() {
+	public MessageUtils messageUtils() {
 		return new MessageUtils();
 	}
 	
