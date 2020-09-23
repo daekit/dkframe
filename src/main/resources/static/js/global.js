@@ -211,3 +211,7 @@ function putAjax(url, data, contentType, callback) {
 function onlyNumber(elem){
 	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
+
+function testFunction(){
+	
+}
