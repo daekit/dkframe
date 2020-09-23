@@ -1,0 +1,72 @@
+<div style="padding:10px; text-align: left;">
+	<div data-ax5grid="auth-grid" style="height: 500px; width: 100%"></div>
+</div>
+<div class="modal_bottom">
+	<button type="button" class="btn btn-default btn-sm" onclick="selectAuth();">선택</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="secondModal.close();">닫기</button>
+</div>
+
+<script type="text/javascript">
+	var authGrid = new ax5.ui.grid();
+	
+	$(document).ready(function() {
+		initAuthGrid();
+	});
+	
+	// 그리드 초기화
+	function initAuthGrid(){
+		//그리드 설정
+		authGrid.setConfig({
+			showRowSelector: true,
+	    	multipleSelect: true,
+	        target: $('[data-ax5grid="auth-grid"]'),
+	        columns: [
+		        {key: "authId", label: "권한ID", width: 100},
+	            {key: "authNm", label: "권한명", width: 100},
+	            {key: "description", label: "설명", width: 100}
+	        ]
+		});
+		
+		selectAuthList();
+		checkAuth();
+	}
+	
+	// 권한리스트 조회
+	function selectAuthList(){
+		postAjaxSync("/admin/auth/selectAuthInfo", null, null, function(data){
+			authGrid.setData(data.authList);
+		});
+	}
+	
+	// 권한 체크
+	function checkAuth(){
+		var authArr = authGrid.getList();
+		var selectedIdArr = [];
+		
+		if($('#authInfo').val() != ""){
+			selectedIdArr = $('#authInfo').val().split(",");
+		}
+		
+		$.each(authArr, function(idx, auth){
+			$.each(selectedIdArr, function(idx, selectedId){
+				if(auth.authId == selectedId){
+					authGrid.select(idx);
+					return false;
+				}	
+			});
+		});
+	}
+	
+	// 권한 선택
+	function selectAuth(){
+		var selectedAuthArr = authGrid.getList("selected");
+		var selectedIdArr = [];
+		
+		$.each(selectedAuthArr, function(idx, selectedAuth){
+			selectedIdArr.push(selectedAuth.authId);
+		});
+		
+		$('#authInfo').val(selectedIdArr.join(","));
+		secondModal.close();
+	}
+</script>
