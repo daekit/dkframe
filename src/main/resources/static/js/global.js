@@ -208,6 +208,30 @@ function putAjax(url, data, contentType, callback) {
 	});
 }
 
+function fileAjax(url, data, callback) {
+	$.ajax({
+	    type: "POST",
+	    url: url,
+	    processData: false,
+		contentType: false,
+	    data: data,
+	    beforeSend: function (request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+        },
+	    success: function(data){
+	    	callback(data);
+	    },
+        error: function (data) {
+        	if(tokenErrorMsg.includes(data.responseJSON.error)){
+        		alert("토큰이 만료되었습니다.");
+        		location.href = "/static/index.html";
+        	}
+        }
+	});
+}
+
+
+
 function onlyNumber(elem){
 	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
