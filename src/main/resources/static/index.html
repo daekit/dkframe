@@ -14,7 +14,11 @@
 </head>
 <script type="text/javascript">
 	$(document).ready(function() {
-		
+		$("body").keydown(function(key) {
+			if (key.keyCode == 13) {
+				loginAction();
+			}
+		});
 	});
 	
 	function setupAuthorization(headerValue) {
@@ -28,6 +32,17 @@
 	}
 	
 	function loginAction() {
+		var isValid = true;
+		$("input").each(function(index, item){
+			if($(this).val() == "") {
+				isValid = false;
+				return false;
+			}
+		});
+		if(!isValid) {
+			alert("모든 정보를 입력하셔야 합니다.");
+			return;
+		}
 		//헤더 세팅
 		setupAuthorization("Basic "+btoa($("#id").val()+":"+$("#pass").val()));
 		
@@ -53,11 +68,11 @@
 		<form class name="binder-form" onsubmit="return false;" style="border: 1px solid #ccc;padding: 10px;border-radius: 10px; width: 15%;">
 		    <div class="form-group">
 		        <label style="text-align: left;">ID</label>
-		        <input id="id" type="text" class="form-control" data-ax-path="email" value="jungki.kim">
+		        <input id="id" type="text" class="form-control" data-ax-path="email" value="">
 		    </div>
 		    <div class="form-group">
 		        <label>Password</label>
-		        <input id="pass" type="password" class="form-control" data-ax-path="password" value="1">
+		        <input id="pass" type="password" class="form-control" data-ax-path="password">
 		    </div>
 	<!-- 	    <div class="form-group"> -->
 	<!-- 	        <label>Select</label> -->
