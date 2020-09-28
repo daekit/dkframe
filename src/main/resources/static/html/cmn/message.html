@@ -1,16 +1,50 @@
-<style>
-	div {
-		cursor: pointer;
-	}
-</style>
-<div onclick="openChat('jungki.kim', '김정기');">김정기</div><br>
-<div onclick="openChat('daeyeon1.kim', '김대연');">김대연</div>
-
+<body>
+	<div class="row">
+		<span style="font-size: 25px; font-weight: bold;">채팅</span>
+		<div style="float: right;" class="form-inline">
+			<input id="searchValue" type="text" class="form-control" placeholder="사용자명">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createRoleModal();">검색</a>
+		</div>
+	</div>
+	<div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+</body>
 <script src="/static/js/websocket/sockjs.min.js"></script>
 <script src="/static/js/websocket/stomp.min.js"></script>
 <script>
 	
+	var firstGrid = new ax5.ui.grid();
 	var targetId = '';
+	
+	$(document).ready(function() {
+        firstGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: false,
+            target: $('[data-ax5grid="first-grid"]'),
+            columns: [
+                {key: "id", label: "부서", align: 'center'},
+                {key: "name", label: "사용자명", align: 'center'},
+                {key: "roleType", label: "직급", align: 'center'},
+                {
+                	key: "", label: "채팅", align: 'center', formatter: function(e) {
+                		return '<button type="button" onclick="openChat('+this.dindex+');"/>채팅하기';
+                	}
+                }
+            ]
+        });
+        
+        getData();
+	});
+	
+	function getData() {
+		var formData = {
+			"searchValue" : $("#searchValue").val()	
+		};
+		postAjax("/admin/user/selectUserList", formData, null, function(data){
+			firstGrid.setData(data.userList);
+		});
+	}
 	
 	function openChat(userId, userNm) {
 		targetId = userId;
