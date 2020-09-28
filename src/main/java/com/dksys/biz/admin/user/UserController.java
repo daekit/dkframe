@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -51,7 +52,7 @@ public class UserController {
     	try {
     		String rawPassword = paramMap.get("password");
     		paramMap.put("password", passwordEncoder.encode(rawPassword));
-    		userService.createUser(paramMap);
+    		userService.insertUser(paramMap);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch(Exception e){
@@ -71,7 +72,7 @@ public class UserController {
     }
     
     // 사용자 등록
-    @PostMapping("/updateUser")
+    @PutMapping("/updateUser")
     public String updateUser(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
     		userService.updateUser(paramMap);

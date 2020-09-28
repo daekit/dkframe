@@ -28,8 +28,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void createUser(Map<String, String> paramMap) throws Exception{
-		userMapper.createUser(paramMap);
+	public void insertUser(Map<String, String> paramMap) throws Exception{
+		userMapper.insertUser(paramMap);
 	}
 
 	@Override

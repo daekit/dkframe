@@ -5,114 +5,63 @@
 </style>
 
 <div class="row">
-	<div class="col-xs-12">
+	<div class="col-xs-9">
 		<span style="font-size: 22px; font-weight: bold;">직급관리</span>
 		<div style="float: right;">
-			<a href="#" class="btn btn-default btn-sm" onclick="createUserModal();">등록</a>
-			<a href="#" class="btn btn-default btn-sm" onclick="updateUserModal();">수정</a>
+			<a href="#" class="btn btn-default btn-sm" onclick="createLevelModal();">등록</a>
+			<a href="#" class="btn btn-default btn-sm" onclick="updateLevelModal();">수정</a>
 		</div>
 	</div>
 </div>
 <div class="row" style="margin-top: 15px;">
-	<div class="col-xs-3">
-		<div id="deptTree"></div>
-	</div>
 	<div class="col-xs-9">
-		<div data-ax5grid="user-grid" style="height: 500px; width: 100%"></div>
+		<div data-ax5grid="level-grid" style="height: 500px; width: 100%"></div>
 	</div>
 </div>
 
 <script type="text/javascript">
-	var userGrid = new ax5.ui.grid();
+	var levelGrid = new ax5.ui.grid();
 	
 	$(document).ready(function() {
-		initDeptTree();
-		initUserGrid();
+		initLevelGrid();
 	});
 	
-	// 트리 초기화
-	function initDeptTree(deptTree) {
-		$("#deptTree").jstree(
-		{
-			plugins : ['types'],
-			core : {
-				data : selectDeptTree()
-			},
-			types : {
-				'unit' : {
-					'icon' : 'glyphicon glyphicon-folder-close'
-				},
-				'unit-open' : {
-					'icon' : 'glyphicon glyphicon-folder-open'
-				}
-			}
-		}).on("loaded.jstree", function() {
-		// 루트 노드 로드 완료 시
-			// 최상위 노드 펼침
-			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
-		}).on("select_node.jstree", function(e, data) {
-		// 노드 선택 시 발생 이벤트
-			selectUserList(data.node.id);
-		}).on('open_node.jstree', function(e, data) {
-		// 노드 열릴 때
-			data.instance.set_type(data.node, 'unit-open');
-		}).on('close_node.jstree', function(e, data) {
-		// 노드 닫힐 때
-			data.instance.set_type(data.node, 'unit');
-		});
-	}
-	
-	// 트리 데이터 select
-	function selectDeptTree() {
-		var deptTree = null;
-		postAjaxSync("/admin/dept/selectDeptTree", null, null, function(data){
-			deptTree = data.deptTree;
-		});
-		return deptTree;
-	}
-	
 	// 그리드 초기화
-	function initUserGrid(){
-		userGrid.setConfig({
+	function initLevelGrid(){
+		levelGrid.setConfig({
 			showRowSelector: true,
 	    	multipleSelect: false,
-	        target: $('[data-ax5grid="user-grid"]'),
+	        target: $('[data-ax5grid="level-grid"]'),
 	        columns: [
-		        {key: "id", label: "아이디", width: 100},
-	            {key: "empNo", label: "사번", width: 100},
-	            {key: "name", label: "이름", width: 100},
-	            {key: "email", label: "이메일", width: 170},
-	            {key: "useYn", label: "사용여부", width: 100},
-	            {key: "insertDt", label: "등록일", width: 150},
-	            {key: "updateDt", label: "수정일", width: 150}
+		        {key: "levelCode", label: "직급코드", width: 100},
+		        {key: "levelName", label: "직급이름", width: 100},
+		        {key: "useYn", label: "사용여부", width: 100},
+		        {key: "createDt", label: "등록일", width: 150},
+		        {key: "updateDt", label: "수정일", width: 150}
 	        ]
 		});
+		
+		selectLevelList();
 	}
 	
-	// 사용자리스트 조회
-	function selectUserList(deptId){
-		postAjax("/admin/user/selectUserList", {"deptId" : deptId}, null, function(data){
-			userGrid.setData(data.userList);
+	// 직급리스트 조회
+	function selectLevelList(){
+		postAjax("/admin/level/selectLevelList", null, null, function(data){
+			levelGrid.setData(data.levelList);
 		});
 	}
 	
-	// 사용자등록 모달 오픈
-	function createUserModal(){
-		var $deptTree = $('#deptTree').jstree(true);
-		var selectedId = $deptTree.get_selected()[0];
-		if(selectedId){
-			openModal("/static/html/admin/user/createUser.html", 900, 700, "사용자등록");
-		}else{
-			alert("부서를 선택해 주세요.");
-		}
+	// 직급등록 모달 오픈
+	function createLevelModal(){
+		openModal("/static/html/admin/level/createLevel.html", 900, 700, "직급등록");
 	}
 	
-	// 사용자수정 모달 오픈
-	function updateUserModal(){
-		if(userGrid.getList("selected").length > 0){
-			openModal("/static/html/admin/user/updateUser.html", 900, 700, "사용자수정");
+	// 직급수정 모달 오픈
+	function updateLevelModal(){
+		if(levelGrid.getList("selected").length > 0){
+			openModal("/static/html/admin/level/updateLevel.html", 900, 700, "직급수정");
 		}else{
-			alert("사용자를 선택해 주세요.");
+			alert("직급을 선택해 주세요.");
 		}
 	}
 </script>
