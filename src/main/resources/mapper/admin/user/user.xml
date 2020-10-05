@@ -6,14 +6,15 @@
 	<select id="selectUserList" resultType="CamelMap">
 		SELECT
 			ID,
-			NAME,
 			EMP_NO,
+			NAME,
+			(SELECT LEVEL_NAME FROM CMN_LEVEL_INFO WHERE LEVEL_CODE = U.LEVEL_CODE) AS LEVEL_NAME,
 			EMAIL,
 			USE_YN,
 			DATE_FORMAT(CREATE_DT, '%Y-%m-%d %H:%i:%s') AS CREATE_DT,
 			DATE_FORMAT(UPDATE_DT, '%Y-%m-%d %H:%i:%s') AS UPDATE_DT
 		FROM
-			USER
+			USER U
 		WHERE 1=1
 		<if test="deptId !='' and deptId != null">
 			AND DEPT_ID = #{deptId}
@@ -38,8 +39,9 @@
 			PASSWORD, 
 			EMP_NO, 
 			NAME, 
-			EMAIL, 
 			DEPT_ID,
+			LEVEL_CODE,
+			EMAIL, 
 			AUTH_INFO,
 			ENTER_DT,
 			USE_YN, 
@@ -50,8 +52,9 @@
 			#{password},
 			#{empNo},
 			#{userNm},
-			#{email},
 			#{deptId},
+			#{levelCode},
+			#{email},
 			#{authInfo},
 			STR_TO_DATE(#{enterDt}, '%Y-%m-%d'),
 			#{useYn},
