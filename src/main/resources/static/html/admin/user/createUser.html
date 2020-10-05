@@ -45,26 +45,32 @@
 				</td>
 			</tr>
 			<tr>
-				<th>이메일</th>
-				<td>
-					<input type="text" class="form-control input-sm" id="email" name="email" required>
-				</td>
 				<th>부서</th>
 				<td>
 					<input type="hidden" id="deptId" name="deptId" required>
 					<input type="text" id="deptNm" class="form-control input-sm" readonly>
 				</td>
+				<th>직급</th>
+				<td>
+					<select class="form-control input-sm" id="levelCode" name="levelCode" required></select>
+				</td>
 			</tr>
 			<tr>
+				<th>이메일</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="email" name="email" required>
+				</td>
 				<th>권한</th>
 				<td>
 					<div class="input-group">
-						<input type="text" id="authInfo" name="authInfo" class="form-control input-sm" readonly required>
+						<input type="text" id="authInfo" name="authInfo" class="form-control input-sm" readonly>
 						<span class="input-group-btn">
 							<button class="btn btn-primary btn-sm" type="button" onclick="selectAuthModal();">선택</button>
 						</span>
 					</div>
 				</td>
+			</tr>
+			<tr>
 				<th>입사일</th>
 				<td>
 					<div class="form-group">
@@ -76,8 +82,6 @@
 		                </div>
 		            </div>
 				</td>
-			</tr>
-			<tr>
 				<th>사용여부</th>
 				<td>
 					<select class="form-control input-sm" id="useYn" name="useYn" required>
@@ -104,6 +108,15 @@
 		var selectedNode = $deptTree.get_node(selectedId);
 		$('#deptId').val(selectedNode.id);
 		$('#deptNm').val(selectedNode.text);
+		
+		// 직급 set
+		postAjax("/admin/level/selectLevelList", {"useYn" : "Y"}, null, function(data){
+			var levelHtml = '';
+			$.each(data.levelList, function(idx, item){
+				levelHtml += '<option value="'+item.levelCode+'">'+item.levelName+'</option>'
+			});
+			$('#levelCode').html(levelHtml);
+		});
 		
 		// 입사일 데이트피커 set
 		$('#enterDatePicker').datepicker({

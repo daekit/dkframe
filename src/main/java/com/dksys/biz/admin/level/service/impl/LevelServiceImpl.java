@@ -18,8 +18,8 @@ public class LevelServiceImpl implements LevelService {
     LevelMapper levelMapper;
 
 	@Override
-	public List<Map<String, String>> selectLevelList() {
-		return levelMapper.selectLevelList();
+	public List<Map<String, String>> selectLevelList(Map<String, String> paramMap) {
+		return levelMapper.selectLevelList(paramMap);
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class LevelServiceImpl implements LevelService {
 	}
 
 	@Override
-	public void insertLevel(Map<String, String> paramMap) {
+	public void insertLevel(Map<String, String> paramMap) throws Exception{
 		levelMapper.insertLevel(paramMap);
 	}
 
@@ -38,7 +38,7 @@ public class LevelServiceImpl implements LevelService {
 	}
 
 	@Override
-	public void updateLevel(Map<String, String> paramMap) {
+	public void updateLevel(Map<String, String> paramMap) throws Exception{
 		levelMapper.updateLevel(paramMap);
 	}
 

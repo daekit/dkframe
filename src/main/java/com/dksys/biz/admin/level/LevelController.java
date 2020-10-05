@@ -26,8 +26,8 @@ public class LevelController {
 	
 	// 직급 리스트
     @PostMapping("/selectLevelList")
-    public String selectLevelList(ModelMap model) {
-    	List<Map<String, String>> levelList = levelService.selectLevelList();
+    public String selectLevelList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> levelList = levelService.selectLevelList(paramMap);
     	model.addAttribute("levelList", levelList);
     	return "jsonView";
     }

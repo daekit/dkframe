@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface LevelMapper {
 	
-	List<Map<String, String>> selectLevelList();
+	List<Map<String, String>> selectLevelList(Map<String, String> paramMap);
 
 	int selectLevelCount(Map<String, String> paramMap);
 
