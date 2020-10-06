@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.dksys.biz.user.vo.User;
-
 @Mapper
 public interface UserMapper {
 	

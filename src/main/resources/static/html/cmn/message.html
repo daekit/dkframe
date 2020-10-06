@@ -1,13 +1,18 @@
 <body>
 	<div class="row">
-		<span style="font-size: 25px; font-weight: bold;">채팅</span>
+		<span style="font-size: 25px; font-weight: bold;">채팅목록</span>
 		<div style="float: right;" class="form-inline">
 			<input id="searchValue" type="text" class="form-control" placeholder="사용자명">
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="getData();">검색</a>
 		</div>
 	</div>
 	<div class="row">
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+		<div class="col-xs-6">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+		</div>
+		<div class="col-xs-6" style="float: right;">
+			<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+		</div>
 	</div>
 </body>
 <script src="/static/js/websocket/sockjs.min.js"></script>
@@ -15,7 +20,8 @@
 <script>
 	
 	var firstGrid = new ax5.ui.grid();
-	var targetId = '';
+	var secondGrid = new ax5.ui.grid();
+	var roomId = '';
 	
 	$(document).ready(function() {
         firstGrid.setConfig({
@@ -23,36 +29,88 @@
         	multipleSelect: false,
             target: $('[data-ax5grid="first-grid"]'),
             columns: [
+                {key: "userNm", label: "참가자", align: 'center'},
+                {key: "count", label: "참여자수", align: 'center'},
+                {
+                	key: "", label: "채팅", align: 'center', formatter: function(e) {
+                		return '<button type="button" onclick="openChatRoom('+this.dindex+');"/>대화하기';
+                	}
+                },
+                {key: "userId", label: "사용자ID", align: 'center', hidden: true},
+                {key: "roomId", label: "채팅방ID", align: 'center', hidden: true}
+            ]
+        });
+        
+        secondGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: false,
+            target: $('[data-ax5grid="second-grid"]'),
+            columns: [
                 {key: "id", label: "아이디", align: 'center'},
                 {key: "name", label: "사용자명", align: 'center'},
                 {key: "roleType", label: "직급", align: 'center'},
                 {
                 	key: "", label: "채팅", align: 'center', formatter: function(e) {
-                		return '<button type="button" onclick="openChat('+this.dindex+');"/>채팅하기';
+                		return '<button type="button" onclick="checkChatRoom('+this.dindex+');"/>대화하기';
                 	}
                 }
             ]
         });
         
+        getChatRoom();
         getData();
 	});
+	
+	function getChatRoom() {
+		var formData = {
+			"userId" : jwt.userId
+		};
+		postAjax("/chat/selectChatRoom", formData, null, function(data){
+			firstGrid.setData(data.result);
+		});
+	}
 	
 	function getData() {
 		var formData = {
 			"searchValue" : $("#searchValue").val()	
 		};
 		postAjax("/admin/user/selectUserList", formData, null, function(data){
-			firstGrid.setData(data.userList);
+			secondGrid.setData(data.userList);
 		});
 	}
-	
-	function openChat(userId, userNm) {
-		targetId = userId;
-		if(jwt.userId == userId) {
+
+	function openChatRoom(index) {
+		firstGrid.select(index);
+		roomId = firstGrid.getList("selected")[0].roomId;
+		var targetId = firstGrid.getList("selected")[0].userId;
+		var targetName = firstGrid.getList("selected")[0].userNm;
+		if(jwt.userId == targetId) {
 			alert("본인과 대화할 수 없습니다.");
 			return;
 		}
-		openModal("/static/html/cmn/messageRoom.html", 600, 600, userNm+"님과 대화");
+		openChat(targetName);
+	}
+	
+	function checkChatRoom(index) {
+		secondGrid.select(index);
+		var targetId = secondGrid.getList("selected")[0].id;
+		var targetName = secondGrid.getList("selected")[0].name;
+		if(jwt.userId == targetId) {
+			alert("본인과 대화할 수 없습니다.");
+			return;
+		}
+		var formData = {
+				"userId" : jwt.userId,
+				"targetId" : targetId
+		};
+		postAjax("/chat/checkChatRoom", formData, null, function(data){
+			roomId = data.result.roomId;
+			openChat(targetName);
+		});
+	}
+	
+	function openChat(userNm) {
+		openSecondModal("/static/html/cmn/messageRoom.html", 600, 600, userNm+"님과 대화");
 	}
 	
 </script>
