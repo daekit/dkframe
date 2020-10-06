@@ -74,7 +74,7 @@
 
 .jstalktheme .msg .othertalk .box .profile_name {
 	font-size: 12px;
-	text-align: center;
+	text-align: left;
 }
 
 .jstalktheme .msg .othertalk .box .a {
@@ -137,6 +137,7 @@
 </style>
 
 <div class="jstalktheme" id="jstalktheme_test" style="width: 600px; height: 600px;">
+	<div class="date"></div>
 	<div class="msg"></div>
 
 	<div class="sendmsg">
@@ -204,11 +205,11 @@
 		$("#jstalktheme_testmsg").val("");
 	}
 
-	var roomId = "1";
-	
 	function jstalktheme_testfunc() {
 		data = {
-			'sender' : jwt.userId,
+			'userId' : jwt.userId,
+			'userNm' : jwt.userNm,
+			'roomId' : roomId,
 			'message' : $("#jstalktheme_testmsg").val()
 		};
 		stompClient.send("/app/chat/send/"+roomId, {}, JSON.stringify(data));
@@ -222,13 +223,25 @@
 		stompClient.connect({}, function() {
 			stompClient.subscribe('/topic/receive/'+roomId, function(e) {
 				var result = JSON.parse(e.body);
-				if(result.sender != jwt.userId) {
-					jstalktheme_addmsg(1, result.sender, getMessageTime(), result.message);	
+				if(result.userId != jwt.userId) {
+					jstalktheme_addmsg(1, result.userNm, getMessageTime(), result.message);	
 				}
 			});
 		});
+		setMsg();
 	}
 
+	function setMsg() {
+		postAjax("/chat/selectChatMsg", {"roomId":roomId}, null, function(data) {
+			var msgList = data.result; 
+			var msgType = null;
+			$.each(msgList, function(idx, item){
+				var msgType = (item.userId == jwt.userId) ? 0 : 1;
+				jstalktheme_addmsg(msgType, item.userNm, setMessageTime(item.messageTime), item.message);	
+			});
+		});
+	}
+	
 	function getMessageTime() {
 		var d = new Date();
 		var ampm = (d.getHours() > 12 ? "PM" : "AM");
@@ -237,13 +250,12 @@
 		return ampm + " " + h + ":" + m;
 	}
 	
-	function send() {
-		data = {
-			'chatRoomId' : chatRoomId,
-			'sender' : nickname,
-			'receiver' : receiver,
-			'message' : $("#message").val()
-		};
-		stompClient.send("/app/chat/send", {}, JSON.stringify(data));
+	function setMessageTime(time) {
+		var d = new Date(time);
+		var ampm = (d.getHours() > 12 ? "PM" : "AM");
+		var h = (d.getHours() > 12 ? d.getHours() - 12 : d.getHours());
+		var m = d.getMinutes();
+		return ampm + " " + h + ":" + m;
 	}
+	
 </script>
