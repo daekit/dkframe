@@ -52,4 +52,9 @@ public class ChatServiceImpl implements ChatService {
 		return chatMapper.selectChatMsg(param);
 	}
 
+	@Override
+	public List<Map<String, String>> selectChatRoomList(Map<String, String> param) {
+		return chatMapper.selectChatRoomList(param);
+	}
+
 }

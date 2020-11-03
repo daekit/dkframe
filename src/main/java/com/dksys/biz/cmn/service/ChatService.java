@@ -13,4 +13,6 @@ public interface ChatService {
 
 	List<Map<String, String>> selectChatMsg(Map<String, String> param);
 
+	List<Map<String, String>> selectChatRoomList(Map<String, String> param);
+
 }

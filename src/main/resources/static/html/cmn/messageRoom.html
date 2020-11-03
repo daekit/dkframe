@@ -51,7 +51,7 @@
 	position: relative;
 	width: 8px;
 	height: 22px;
-	background: url(./chat_balloon_yellow.right.png) no-repeat;
+	background: url(/static/img/chat/chat_balloon_yellow.right.png) no-repeat;
 	z-index: 1;
 }
 
@@ -82,7 +82,7 @@
 	position: relative;
 	width: 8px;
 	height: 22px;
-	background: url(./chat_balloon_white.left.png) no-repeat;
+	background: url(/static/img/chat/chat_balloon_white.left.png) no-repeat;
 	z-index: 1;
 }
 
@@ -151,11 +151,34 @@
 </div>
 
 <script>
-	$(document).ready(function(){
-		connect();
-	});
-	var test_type = 0;
 
+	$(document).ready(function(){
+		setMsg();
+	});
+
+	function setMsg() {
+		postAjax("/chat/selectChatMsg", {"roomId":roomId}, null, function(data) {
+			var msgList = data.result; 
+			var msgType = null;
+			$.each(msgList, function(idx, item){
+				var msgType = (item.userId == jwt.userId) ? 0 : 1;
+				jstalktheme_addmsg(msgType, item.userNm, setMessageTime(item.messageTime), item.message);	
+			});
+		});
+	}
+	
+	function jstalktheme_testfunc() {
+		data = {
+			'userId' : jwt.userId,
+			'userNm' : jwt.userNm,
+			'roomId' : roomId,
+			'message' : $("#jstalktheme_testmsg").val()
+		};
+		stompClient.send("/app/chat/send/"+roomId, {}, JSON.stringify(data));
+		var msg = $("#jstalktheme_testmsg").val().replace("\n", "<br />\n");
+		jstalktheme_addmsg(0, "나", getMessageTime(), msg);
+	}
+	
 	/*
 	 * type
 	 *      0 : mytalk
@@ -169,7 +192,7 @@
 		var onewblank = document.createElement("div");
 		if (type) {
 			onewmsg.className = "othertalk";
-			onewmsg.innerHTML = "<div class=\"profile_image\" style=\"background: url(./profile_image.png) no-repeat;\">\n"
+			onewmsg.innerHTML = "<div class=\"profile_image\" style=\"background: url(/static/img/chat/profile_image.png) no-repeat;\">\n"
 					+ "</div>\n"
 					+ "<div class=\"box\">\n"
 					+ "<div class=\"profile_name\">\n"
@@ -204,43 +227,6 @@
 		ocontainer_msg.scrollTop = ocontainer_msg.scrollHeight;
 		$("#jstalktheme_testmsg").val("");
 	}
-
-	function jstalktheme_testfunc() {
-		data = {
-			'userId' : jwt.userId,
-			'userNm' : jwt.userNm,
-			'roomId' : roomId,
-			'message' : $("#jstalktheme_testmsg").val()
-		};
-		stompClient.send("/app/chat/send/"+roomId, {}, JSON.stringify(data));
-		var msg = $("#jstalktheme_testmsg").val().replace("\n", "<br />\n");
-		jstalktheme_addmsg(0, "나", getMessageTime(), msg);
-	}
-
-	function connect() {
-		var socket = new SockJS('/ws');
-		stompClient = Stomp.over(socket);
-		stompClient.connect({}, function() {
-			stompClient.subscribe('/topic/receive/'+roomId, function(e) {
-				var result = JSON.parse(e.body);
-				if(result.userId != jwt.userId) {
-					jstalktheme_addmsg(1, result.userNm, getMessageTime(), result.message);	
-				}
-			});
-		});
-		setMsg();
-	}
-
-	function setMsg() {
-		postAjax("/chat/selectChatMsg", {"roomId":roomId}, null, function(data) {
-			var msgList = data.result; 
-			var msgType = null;
-			$.each(msgList, function(idx, item){
-				var msgType = (item.userId == jwt.userId) ? 0 : 1;
-				jstalktheme_addmsg(msgType, item.userNm, setMessageTime(item.messageTime), item.message);	
-			});
-		});
-	}
 	
 	function getMessageTime() {
 		var d = new Date();
@@ -257,5 +243,4 @@
 		var m = d.getMinutes();
 		return ampm + " " + h + ":" + m;
 	}
-	
 </script>
