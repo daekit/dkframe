@@ -21,9 +21,23 @@
 	
 	var firstGrid = new ax5.ui.grid();
 	var secondGrid = new ax5.ui.grid();
+	var toast = new ax5.ui.toast();
+	var myRoomList = '';
 	var roomId = '';
 	
 	$(document).ready(function() {
+		$("#searchValue").keydown(function(key) {
+			if (key.keyCode == 13) {
+				loginAction();
+			}
+		});
+        toast.setConfig({
+            theme: "default",
+            displayTime: 5000,
+            animateTime: 200,
+            closeIcon: '<i>열기</i>',
+            containerPosition: "bottom-right"
+        });
         firstGrid.setConfig({
         	showRowSelector: true,
         	multipleSelect: false,
@@ -59,6 +73,7 @@
         
         getChatRoom();
         getData();
+        connect();
 	});
 	
 	function getChatRoom() {
@@ -91,6 +106,11 @@
 		openChat(targetName);
 	}
 	
+	function quickOpenChatRoom(message) {
+		roomId = message.roomId;
+		openChat(message.userNm);
+	}
+	
 	function checkChatRoom(index) {
 		secondGrid.select(index);
 		var targetId = secondGrid.getList("selected")[0].id;
@@ -111,6 +131,37 @@
 	
 	function openChat(userNm) {
 		openSecondModal("/static/html/cmn/messageRoom.html", 600, 600, userNm+"님과 대화");
+	}
+	
+	function connect() {
+		postAjax("/chat/selectChatRoomList", {"userId":jwt.userId}, null, function(data) {
+			myRoomList = data.result;
+		});
+		var socket = new SockJS('/ws');
+		stompClient = Stomp.over(socket);
+		debugger;
+		stompClient.connect({}, function() {
+			$.each(myRoomList, function(idx, item){
+				stompClient.subscribe('/topic/receive/'+item.roomId, function(e) {
+					var result = JSON.parse(e.body);
+					if(result.userId != jwt.userId) {
+						if($("#jstalktheme_test")[0] == undefined) {
+							toast.push({
+				                msg: result.userNm+"\n"+result.message,		                
+				                onStateChanged: function () {
+				                    console.log(this);
+				                }
+				            }, function () { //창 닫힐 때
+				            	quickOpenChatRoom(result);
+				                console.log(this);
+				            });
+						} else {
+							jstalktheme_addmsg(1, result.userNm, getMessageTime(), result.message);	
+						}
+					}
+				});
+			});
+		});
 	}
 	
 </script>

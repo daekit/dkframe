@@ -43,5 +43,12 @@ public class ChatController {
     	model.addAttribute("result", result);
     	return "jsonView";
     }
+
+    @PostMapping("/selectChatRoomList")
+    public String selectChatRoomList(@RequestBody Map<String, String> param, ModelMap model) {
+    	List<Map<String, String>> result = chatService.selectChatRoomList(param);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
     
 }
