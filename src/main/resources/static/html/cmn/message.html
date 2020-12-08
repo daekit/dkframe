@@ -35,7 +35,7 @@
             theme: "default",
             displayTime: 5000,
             animateTime: 200,
-            closeIcon: '<i>열기</i>',
+            closeIcon: '<i>닫기</i>',
             containerPosition: "bottom-right"
         });
         firstGrid.setConfig({
@@ -139,7 +139,6 @@
 		});
 		var socket = new SockJS('/ws');
 		stompClient = Stomp.over(socket);
-		debugger;
 		stompClient.connect({}, function() {
 			$.each(myRoomList, function(idx, item){
 				stompClient.subscribe('/topic/receive/'+item.roomId, function(e) {
@@ -149,10 +148,12 @@
 							toast.push({
 				                msg: result.userNm+"\n"+result.message,		                
 				                onStateChanged: function () {
+				                	$("#"+this.toastId).on("click", function(event){
+				                		quickOpenChatRoom(result);
+				                	});
 				                    console.log(this);
 				                }
-				            }, function () { //창 닫힐 때
-				            	quickOpenChatRoom(result);
+				            }, function (e) { //창 닫힌 후 실해되는 곳
 				                console.log(this);
 				            });
 						} else {
