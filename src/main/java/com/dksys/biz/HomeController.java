@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.dksys.biz.admin.auth.service.AuthService;
+import com.dksys.biz.util.WebClientUtil;
 
 @Controller
 public class HomeController {
@@ -18,6 +19,16 @@ public class HomeController {
     @Autowired
     AuthService authService;
 	
+    @Autowired
+    WebClientUtil webClientUtil;
+    
+    @GetMapping("/rest/get")
+    public String get(Model model) {
+    	String result = webClientUtil.get("http://asset2.dongkuk.com/cmn/getHeadInfo.json?orgCd=UNC50011431&comOrgCd=UNC");
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
 	// 웰컴 페이지
     @GetMapping("/")
     public String welcome(Model model) {

@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.dksys.biz.util.MessageUtils;
+import com.dksys.biz.util.WebClientUtil;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -21,6 +22,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Bean
 	public MessageUtils messageUtils() {
 		return new MessageUtils();
+	}
+	
+	@Bean
+	public WebClientUtil webClientUtil() {
+		return new WebClientUtil();
 	}
 	
 	@Bean
