@@ -89,29 +89,49 @@
 	
 	function checkMenuAuth(accessList) {
 		var html = "";
+		var subHtml = "";
+		var parentMenuId = "";
 		$.each(accessList, function(idx, item){
-			if(item.menuType == "HTML" && item.useYn == 'Y') {
-				html += '<li><a href="'+item.menuUrl+'" onclick="setMenuIdx(\''+item.menuUrl+'\'); return false;">'+item.menuNm+'</a></li>';
+			subHtml = "";
+			if(item.upMenuId == 'MENU100'){
+				if(item.menuType == "HTML" && item.useYn == 'Y') {
+					html += '<li><a href="'+item.menuUrl+'" onclick="setMenuIdx(\''+item.menuUrl+'\'); return false;">'+item.menuNm+'</a></li>';
+				}else if(item.menuType == "FOLDER" && item.useYn == 'Y') {
+					html += '<li id="'+item.menuId+'"><a href="#" onclick="subShowHide(this);return false;">'+item.menuNm+'</a></li>';
+					parentMenuId = item.menuId;
+					var formData = {
+							"authInfo" : jwt.authInfo,
+							"upMenuId" : item.menuId
+					}
+					postAjax("/selectSubMenuAuth", formData, null, function(data){
+						subHtml += "<ul class=\"nav nav-sidebar\" style=\"margin-left: 20px !important;\">";
+						$.each(data.accessSubList, function(idx, item){
+							if(item.menuType == "HTML") {
+								subHtml += '<li><a href="'+item.menuUrl+'" onclick="setMenuIdx(\''+item.menuUrl+'\'); return false;">'+item.menuNm+'</a></li>';
+							}
+						});
+						
+						subHtml += '</ul>';
+						$("#"+parentMenuId).append(subHtml);
+					});
+				}
 			}
 		});
 		$('.nav-sidebar').html(html);
-		// 사이드 바 클릭 이벤트 바인딩
-        $('.sidebar ul li').click(function(){
-        	$('.sidebar ul li').removeClass('active');
-        	$(this).addClass('active');
-        	$.get($(this).find("a").attr("href"), function(data) {    	        
-        		$(".main").html(data);
-          	});
-        });
-        
-		$('.sidebar ul li a').each(function(idx, elem){
-			if(elem.href.search(menuIdx) > -1) {
-				$('.sidebar ul li a')[idx].click();
-			}
-		});
+	}
+	
+	function subShowHide(data){
+		if($(data).parent().find("ul").css("display") == 'none'){
+			$(data).parent().find("ul").show();
+		}else{
+			$(data).parent().find("ul").hide();
+		}
 	}
 	
 	function setMenuIdx(url) {
+		$.get(url, function(data) {    	        
+    		$(".main").html(data);
+      	});
 		setCookie("menuIdx", url, 1);
 	}
 	
