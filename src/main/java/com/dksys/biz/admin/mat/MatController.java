@@ -45,10 +45,6 @@ public class MatController {
     public String selectMatInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	Map<String, String> matInfo = matService.selectMatInfo(paramMap);
     	model.addAttribute("matInfo", matInfo);
-    	//대분류
-    	paramMap.put("codeKind", "MATCMN100");
-    	List<Map<String, String>> matCodeList100 = codeService.selectCodeInfoList(paramMap);
-    	model.addAttribute("matCodeList100", matCodeList100);
     	return "jsonView";
     }
     
