@@ -13,5 +13,6 @@ public interface CodeService {
 
 	public int updateCode(Map<String, String> param);
 
-
+	public List<Map<String, String>> selectCodeInfoList(Map<String, String> param);
+	
 }

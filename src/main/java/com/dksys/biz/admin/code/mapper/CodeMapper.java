@@ -16,4 +16,6 @@ public interface CodeMapper {
 
 	int updateCode(Map<String, String> param);
 	
+	List<Map<String, String>> selectCodeInfoList(Map<String, String> param);
+	
 }

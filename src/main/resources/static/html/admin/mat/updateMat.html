@@ -17,11 +17,23 @@
 	})
 	
 	function setData() {
-		var row = firstGrid.getList("selected")[0];
-		$("#authId").val(row.authId);
-		$("#authNm").val(row.authNm);
-		$("#description").val(row.description);
-		$("#useYn").val("Y");
+		var authId = firstGrid.getList("selected")[0].authId;
+		postAjax("/admin/mat/selectMatInfo", {"authId" : authId}, null, function(data){
+			var matInfo = data.matInfo;
+			$("#authId").val(matInfo.authId);
+			$("#authNm").val(matInfo.authNm);
+			$("#description").val(matInfo.description);
+			$("#authRole").val(matInfo.authRole);
+			$("#createId").val(matInfo.createId);
+
+			var matCodeList100 = data.matCodeList100;
+			var matCode100Html = "";
+			for(var i=0; i<matCodeList100.length; i++){
+				matCode100Html += "<option value="+matCodeList100[i].codeId+">"+matCodeList100[i].codeNm+"</option>"
+			}
+			$("#useYn").append(matCode100Html);
+			$("#useYn").val("MATCMN101");
+		});
 	}
 	
 	function updateAuth() {
@@ -31,7 +43,7 @@
 				"description" : $("#description").val(),
 				"userId" : jwt.userId
 		}
-		putAajx("/admin/auth/updateAuth", formData, null, function(data){
+		putAjax("/admin/auth/updateAuth", $('#matForm').serializeObject(), null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
 				getData();
@@ -59,8 +71,7 @@
    			<th>대분류</th>
    			<td>
 				<select class="form-control input-sm input-sm" id="useYn" name="useYn" required>
-					<option value="Y" selected>사용</option>
-					<option value="N">미사용</option>
+					<option value="">--선택--</option>
 				</select>
 			</td>
    		</tr>
@@ -68,13 +79,13 @@
    			<th>계정 과목</th>
    			<td><input id="authId" type="text" class="form-control input-sm"></td>
    			<th>매출계정과목</th>
-   			<td><input id="authNm" type="text" class="form-control input-sm"></td>
+   			<td><input id="authRole" type="text" class="form-control input-sm"></td>
    			<th>품명/용역</th>
    			<td><input id="description" type="text" class="form-control input-sm"></td>
    		</tr>
 		<tr>
 			<th>재질</th>
-			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<td><input id="createId" type="text" class="form-control input-sm"></td>
 			<th>특성</th>
 			<td colspan="3"><input id="authId" type="text" class="form-control input-sm"></td>
 		</tr>
