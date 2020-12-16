@@ -18,15 +18,16 @@
 	
 	function setData() {
 		var authId = firstGrid.getList("selected")[0].authId;
-		postAjax("/admin/mat/selectMatInfo", {"authId" : authId}, null, function(data){
-			var matInfo = data.matInfo;
-			$("#authId").val(matInfo.authId);
-			$("#authNm").val(matInfo.authNm);
-			$("#description").val(matInfo.description);
-			$("#authRole").val(matInfo.authRole);
-			$("#createId").val(matInfo.createId);
+		postAjax("/admin/itm/selectItmInfo", {"authId" : authId}, null, function(data){
+			var itmInfo = data.itmInfo;
+			$("#authId").val(itmInfo.authId);
+			$("#authNm").val(itmInfo.authNm);
+			$("#description").val(itmInfo.description);
+			$("#authRole").val(itmInfo.authRole);
+			$("#createId").val(itmInfo.createId);
 			
 			selectCodeInfo("MATCMN100", "useYn", "MATCMN110");
+			goSubCate("MATCMN110", "useYn3", "MATCMN112");
 			selectCodeInfo("BOARD", "useYn1", "BOARD001");
 		});
 	}
@@ -38,7 +39,7 @@
 				"description" : $("#description").val(),
 				"userId" : jwt.userId
 		}
-		putAjax("/admin/auth/updateAuth", $('#matForm').serializeObject(), null, function(data){
+		putAjax("/admin/auth/updateAuth", $('#itmForm').serializeObject(), null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
 				getData();
@@ -48,7 +49,7 @@
 	}
 	
 </script>
-<form id="matForm">
+<form id="itmForm">
 	<table class="table table-bordered table-condensed">
 		<colgroup>
 			<col style="width: 13%;">
@@ -61,11 +62,15 @@
    		<tr>
    			<th>재고 표시</th>
    			<td><input id="authId" type="text" class="form-control input-sm"></td>
-   			<th>구조 코드</th>
-   			<td><input id="authNm" type="text" class="form-control input-sm"></td>
    			<th>대분류</th>
    			<td>
-				<select class="form-control input-sm input-sm" id="useYn" name="useYn" required>
+				<select class="form-control input-sm input-sm" id="useYn" name="useYn" onchange="goSubCate(this.value, 'useYn3', '');" required>
+					<option value="">--선택--</option>
+				</select>
+			</td>
+   			<th>중분류</th>
+   			<td>
+				<select class="form-control input-sm input-sm" id="useYn3" name="useYn3" required>
 					<option value="">--선택--</option>
 				</select>
 			</td>
