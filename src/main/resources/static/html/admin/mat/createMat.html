@@ -1,0 +1,181 @@
+<style>
+	.table tr th {
+		text-align: center;
+		vertical-align: middle !important; 
+		background-color: #F3FFF3;
+	}
+	
+	.modal_bottom {
+		position: fixed;
+		bottom: 5px;
+		width: 100%;
+	}
+</style>
+
+<form id="matForm">
+	<table class="table table-bordered table-condensed">
+		<colgroup>
+			<col style="width: 13%;">
+			<col style="width: 20%">
+			<col style="width: 13%;">
+			<col style="width: 20%">
+			<col style="width: 13%;">
+			<col style="width: *">
+		</colgroup>
+		<tbody>
+			<tr>
+				<th>재고 표시</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>구조 코드</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>대분류</th>
+				<td>
+					<select class="form-control input-sm" id="useYn" name="useYn" required>
+						<option value="">--선택--</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>계정 과목</th>
+				<td>
+					<select class="form-control input-sm" id="useYn1" name="useYn1" required>
+						<option value="">--선택--</option>
+					</select>
+				</td>
+				<th>매출계정과목</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>품명/용역</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+			<tr>
+				<th>재질</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>특성</th>
+				<td colspan="3">
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+			<tr>
+				<th>거래 단위</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>단가 단위</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>재고 단위</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+			<tr>
+				<th>단위 중량</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>비중</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>단가</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+			<tr>
+				<th>판매단가(A)</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>판매단가(B)</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>판매단가(C)</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+			<tr>
+				<th>판매단가(D)</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>창고 번호</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>주거래처</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+			<tr style="border-bottom: 1px solid #ddd;">
+				<th>재고수량기준</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+				</td>
+				<th>파트 수량</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+				<th>단중 계산식</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+<div class="bottom_btn">
+	<button type="button" class="btn btn-default btn-sm" onclick="createMat();">등록</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>
+<script type="text/javascript">
+	var isChecked = false;
+	
+	$(document).ready(function() {
+		//테스트1
+		selectCodeInfo("MATCMN100", "useYn", "");
+		//테스트2
+		selectCodeInfo("BOARD", "useYn1", "");
+	});
+	
+	function createMat(){
+		if(!isChecked){
+			alert("직급코드 중복확인이 필요합니다.");
+			return false;
+		}
+		
+		var isValid = true;
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			var levelInfo = $('#matForm').serializeObject();
+			levelInfo.userId = jwt.userId;
+			postAjax("/admin/mat/createMat", levelInfo, null, function(data){
+				alert(data.resultMessage);
+				selectMatList();
+				modal.close();
+			});
+		}
+	}
+</script>

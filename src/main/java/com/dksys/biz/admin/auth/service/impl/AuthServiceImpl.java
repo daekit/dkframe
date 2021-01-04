@@ -62,4 +62,35 @@ public class AuthServiceImpl implements AuthService {
 		return result;
 	}
 
+
+	@Override
+	public List<Map<String, Object>> selectSubMenuAuth(String[] authArray, String upMenuId) {
+		String roleStr = "";
+		String menuStr = "";
+		String subMenuStr = "";
+		List<String> roleList = authMapper.selectRoleFromAuth(authArray);
+		for (int i = 0; i < roleList.size(); i++) {
+			roleStr += roleList.get(i) + ",";
+		}
+		String[] roleArray = roleStr.split(",");
+		roleArray = Arrays.stream(roleArray).distinct().toArray(String[]::new);
+		List<String> menuList = authMapper.selectMenuFromRole(roleArray);
+		for (int i = 0; i < menuList.size(); i++) {
+			menuStr += menuList.get(i) + ",";
+		}
+		
+		String[] menuArray = menuStr.split(",");
+		List<Map<String, Object>> result = authMapper.selectMenuAuth(menuArray);
+		List<Map<String, Object>> upResult = authMapper.selectParentMenuAuth(upMenuId);
+		for (int i = 0; i < result.size(); i++) {
+			for (int j = 0; j < upResult.size(); j++) {
+				if(result.get(i).get("menuId").toString().equals(upResult.get(j).get("menuId").toString())){
+					subMenuStr += upResult.get(j).get("menuId").toString() + ",";
+				}
+			}
+		}
+		String[] subMenuArray = subMenuStr.split(",");
+		List<Map<String, Object>> returnResult = authMapper.selectMenuAuth(subMenuArray);
+		return returnResult;
+	}
 }

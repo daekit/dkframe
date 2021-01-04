@@ -17,5 +17,7 @@ public interface AuthService {
 
 	public List<Map<String, Object>> selectMenuAuth(String[] authArray);
 
+	public List<Map<String, Object>> selectSubMenuAuth(String[] authArray, String upMenuId);
+
 
 }

@@ -1,0 +1,141 @@
+<style>
+	.table tr th {
+		text-align: center;
+		vertical-align: middle !important; 
+		background-color: #F3FFF3;
+	}
+	
+	.modal_bottom {
+		position: fixed;
+		bottom: 5px;
+		width: 100%;
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		setData();
+	})
+	
+	function setData() {
+		var authId = firstGrid.getList("selected")[0].authId;
+		postAjax("/admin/itm/selectItmInfo", {"authId" : authId}, null, function(data){
+			var itmInfo = data.itmInfo;
+			$("#authId").val(itmInfo.authId);
+			$("#authNm").val(itmInfo.authNm);
+			$("#description").val(itmInfo.description);
+			$("#authRole").val(itmInfo.authRole);
+			$("#createId").val(itmInfo.createId);
+			
+			selectCodeInfo("MATCMN100", "useYn", "MATCMN110");
+			goSubCate("MATCMN110", "useYn3", "MATCMN112");
+			selectCodeInfo("BOARD", "useYn1", "BOARD001");
+		});
+	}
+	
+	function updateAuth() {
+		var formData = {
+				"authId" : $("#authId").val(),
+				"authNm" : $("#authNm").val(),
+				"description" : $("#description").val(),
+				"userId" : jwt.userId
+		}
+		putAjax("/admin/auth/updateAuth", $('#itmForm').serializeObject(), null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+				modal.close();
+			}
+		})
+	}
+	
+</script>
+<form id="itmForm">
+	<table class="table table-bordered table-condensed">
+		<colgroup>
+			<col style="width: 13%;">
+			<col style="width: 20%">
+			<col style="width: 13%;">
+			<col style="width: 20%">
+			<col style="width: 13%;">
+			<col style="width: *">
+		</colgroup>
+   		<tr>
+   			<th>재고 표시</th>
+   			<td><input id="authId" type="text" class="form-control input-sm"></td>
+   			<th>대분류</th>
+   			<td>
+				<select class="form-control input-sm input-sm" id="useYn" name="useYn" onchange="goSubCate(this.value, 'useYn3', '');" required>
+					<option value="">--선택--</option>
+				</select>
+			</td>
+   			<th>중분류</th>
+   			<td>
+				<select class="form-control input-sm input-sm" id="useYn3" name="useYn3" required>
+					<option value="">--선택--</option>
+				</select>
+			</td>
+   		</tr>
+   		<tr>
+   			<th>계정 과목</th>
+   			<td>
+				<select class="form-control input-sm input-sm" id="useYn1" name="useYn1" required>
+					<option value="">--선택--</option>
+				</select>
+			</td>
+   			<th>매출계정과목</th>
+   			<td><input id="authRole" type="text" class="form-control input-sm"></td>
+   			<th>품명/용역</th>
+   			<td><input id="description" type="text" class="form-control input-sm"></td>
+   		</tr>
+		<tr>
+			<th>재질</th>
+			<td><input id="createId" type="text" class="form-control input-sm"></td>
+			<th>특성</th>
+			<td colspan="3"><input id="authId" type="text" class="form-control input-sm"></td>
+		</tr>
+		<tr>
+			<th>거래 단위</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>단가 단위</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>재고 단위</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+		</tr>
+		<tr>
+			<th>단위 중량</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>비중</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>단가</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+		</tr>
+		<tr>
+			<th>판매단가(A)</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>판매단가(B)</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>판매단가(C)</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+		</tr>
+		<tr>
+			<th>판매단가(D)</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>창고 번호</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>주거래처</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+		</tr>
+		<tr style="border-bottom: 1px solid #ddd;">
+			<th>재고수량기준</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>파트 수량</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+			<th>단중 계산식</th>
+			<td><input id="authId" type="text" class="form-control input-sm"></td>
+		</tr>
+	</table>
+</form>
+<div class="bottom_btn">
+	<button type="button" class="btn btn-default btn-sm" onclick="updateAuth();">수정</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>

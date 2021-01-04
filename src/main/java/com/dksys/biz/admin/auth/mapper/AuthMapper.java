@@ -23,5 +23,7 @@ public interface AuthMapper {
 	List<String> selectMenuFromRole(String[] roleArray);
 
 	List<Map<String, Object>> selectMenuAuth(String[] menuArray);
+
+	List<Map<String, Object>> selectParentMenuAuth(String upMenuId);
 	
 }
