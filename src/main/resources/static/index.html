@@ -33,20 +33,7 @@
 		});
 	}
 	
-	function loginAction() {
-		var isValid = true;
-		$("input").each(function(index, item){
-			if($(this)[0].id != '_retVal12'){
-				if($(this).val() == "") {
-					isValid = false;
-					return false;
-				}
-			}
-		});
-		if(!isValid) {
-			alert("모든 정보를 입력하셔야 합니다.");
-			return;
-		}
+	function getToken() {
 		//헤더 세팅
 		setupAuthorization("Basic "+btoa($("#id").val()+":"+$("#pass").val()));
 		
@@ -63,6 +50,34 @@
 				location.href = "/static/html/main.html";
 			}
 		);
+	}
+	
+	function loginAction() {
+		var isValid = true;
+		$("input").each(function(index, item){
+			if($(this)[0].id != '_retVal12'){
+				if($(this).val() == "") {
+					isValid = false;
+					return false;
+				}
+			}
+		});
+		if(!isValid) {
+			alert("모든 정보를 입력하셔야 합니다.");
+			return;
+		}
+		var formData = {
+			"grant_type" : "password",	
+			"id" : $("#id").val(),
+			"password" : $("#pass").val()
+		}
+		postAjax("/login", formData, null, function(data) {
+			if(data.msg == "success") {
+				getToken();
+			} else {
+				alert(data.msg);
+			}
+		});
 	}
 	
 </script>
