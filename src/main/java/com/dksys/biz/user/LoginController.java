@@ -54,7 +54,7 @@ public class LoginController {
         if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호입니다.");
         } else {
-        	model.addAttribute("token", "1");
+        	model.addAttribute("msg", "success");
         }
         return "jsonView";
     }
