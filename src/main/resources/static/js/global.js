@@ -9,6 +9,13 @@ var getCookie = function(name) {
 	return value? value[2] : null;
 };
 
+var deleteCookie = function (name) {
+	var temp = getCookie(name);
+	if(temp){
+		setCookie(name, temp, 0);
+	}
+}
+
 var authorizationToken = getCookie("jwtToken");
 var jwt = parseJwt(authorizationToken);
 var menuIdx = getCookie("menuIdx");
@@ -48,6 +55,7 @@ var openModal = function(url, width, height, title) {
       	});
     });
 };
+
 
 var openSecondModal = function(url, width, height, title) {
 	secondModal.open({
