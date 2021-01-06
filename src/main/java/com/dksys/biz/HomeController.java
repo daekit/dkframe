@@ -51,4 +51,16 @@ public class HomeController {
     	return "jsonView";
     }
     
+    
+    // 접근 가능한 메뉴정보
+    @PostMapping("/selectSubMenuAuth")
+    public String selectSubMenuAuth(@RequestBody Map<String, Object> param, Model model) {
+    	String[] authArray = {"AUTH000"};
+    	String upMenuId = "";
+    	authArray = param.get("authInfo") != null ? param.get("authInfo").toString().split(",") : authArray;
+    	upMenuId = param.get("upMenuId") != null ? param.get("upMenuId").toString() : "";
+    	List<Map<String, Object>> accessSubList = authService.selectSubMenuAuth(authArray, upMenuId);
+    	model.addAttribute("accessSubList", accessSubList);
+    	return "jsonView";
+    }
 }

@@ -63,4 +63,12 @@ public class CodeController {
     	return "jsonView";
     }
     
+    // 공통코드 정보 가져오기
+    @PostMapping("/selectCodeInfo")
+    public String selectCodeInfo(@RequestBody Map<String, String> param, ModelMap model) {
+    	List<Map<String, String>> codeList = codeService.selectCodeInfoList(param);
+    	model.addAttribute("codeList", codeList);
+        return "jsonView";
+    }
+    
 }
