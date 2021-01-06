@@ -36,6 +36,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/oauth/**", "/oauth/token", "/oauth2/callback", "/h2-console/*").permitAll()
                 .and()
                 .formLogin().and()
+              // .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
+               // .invalidateHttpSession(true)
+              //  .deleteCookies("jwtToken")
+              //.and()
                 .httpBasic().disable();
     }
 } 
