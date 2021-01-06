@@ -13,7 +13,7 @@ var deleteCookie = function (name) {
 	var temp = getCookie(name);
 	if(temp){
 		setCookie(name, temp, 0);
-	}
+	} 
 }
 
 var authorizationToken = getCookie("jwtToken");
