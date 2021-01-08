@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.cmn.mapper.ChatMapper;
 import com.dksys.biz.cmn.service.ChatService;
