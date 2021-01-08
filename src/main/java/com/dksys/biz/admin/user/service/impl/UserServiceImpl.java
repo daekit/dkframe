@@ -11,7 +11,6 @@ import com.dksys.biz.admin.user.mapper.UserMapper;
 import com.dksys.biz.admin.user.service.UserService;
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
 	
     @Autowired

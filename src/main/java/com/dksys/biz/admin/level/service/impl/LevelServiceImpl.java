@@ -11,7 +11,6 @@ import com.dksys.biz.admin.level.mapper.LevelMapper;
 import com.dksys.biz.admin.level.service.LevelService;
 
 @Service
-@Transactional
 public class LevelServiceImpl implements LevelService {
 	
     @Autowired

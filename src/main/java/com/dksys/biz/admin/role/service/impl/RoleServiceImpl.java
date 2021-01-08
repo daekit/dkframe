@@ -11,7 +11,6 @@ import com.dksys.biz.admin.role.mapper.RoleMapper;
 import com.dksys.biz.admin.role.service.RoleService;
 
 @Service
-@Transactional
 public class RoleServiceImpl implements RoleService {
 	
     @Autowired

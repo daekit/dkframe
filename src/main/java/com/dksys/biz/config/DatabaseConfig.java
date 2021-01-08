@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.zaxxer.hikari.HikariDataSource;
@@ -25,7 +26,7 @@ public class DatabaseConfig {
 //	/** DataSource Main 생성 */
 	@Primary
     @Bean(name = "erpDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource erpDataSource() {
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
@@ -48,6 +49,16 @@ public class DatabaseConfig {
     public SqlSessionTemplate erpSqlSessionTemplate(@Qualifier("erpSqlSessionFactory") SqlSessionFactory erpSqlSessionFactory) {
         return new SqlSessionTemplate(erpSqlSessionFactory);
     }
+    
+    @Primary
+    @Bean(name = "erpTransactionManager")
+    public DataSourceTransactionManager erpTransactionManager() {
+    	DataSourceTransactionManager erpTransactionManager = new DataSourceTransactionManager();
+    	erpTransactionManager.setDataSource(erpDataSource());
+        return erpTransactionManager;
+    }
+//
+
     
 // 
 //    /** DataSource Sub 생성 */

@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dksys.biz.admin.standard.users.mapper.CodeUsersMapper;
 import com.dksys.biz.admin.standard.users.service.CodeUsersService; 
 @Service
-@Transactional
 public class CodeUsersServiceImpl implements CodeUsersService {
 	
     @Autowired
