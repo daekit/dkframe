@@ -11,7 +11,6 @@ import com.dksys.biz.admin.code.mapper.CodeMapper;
 import com.dksys.biz.admin.code.service.CodeService;
 
 @Service
-@Transactional
 public class CodeServiceImpl implements CodeService {
 	
     @Autowired

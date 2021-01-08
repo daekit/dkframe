@@ -11,7 +11,6 @@ import com.dksys.biz.admin.menu.mapper.MenuMapper;
 import com.dksys.biz.admin.menu.service.MenuService;
 
 @Service
-@Transactional
 public class MenuServiceImpl implements MenuService {
 	
     @Autowired

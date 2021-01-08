@@ -12,7 +12,6 @@ import com.dksys.biz.cmn.mapper.ChatMapper;
 import com.dksys.biz.cmn.service.ChatService;
 
 @Service
-@Transactional
 public class ChatServiceImpl implements ChatService {
 
 	@Autowired

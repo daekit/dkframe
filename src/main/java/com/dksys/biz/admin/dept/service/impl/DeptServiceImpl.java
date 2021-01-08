@@ -11,7 +11,6 @@ import com.dksys.biz.admin.dept.mapper.DeptMapper;
 import com.dksys.biz.admin.dept.service.DeptService;
 
 @Service
-@Transactional
 public class DeptServiceImpl implements DeptService {
 	
     @Autowired
