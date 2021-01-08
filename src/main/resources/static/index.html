@@ -15,12 +15,17 @@
 	<script src="/static/js/global.js"></script>
 </head>
 <script type="text/javascript">
+
 	$(document).ready(function() {
 		$("body").keydown(function(key) {
 			if (key.keyCode == 13) {
 				loginAction();
 			}
 		});
+		//jwt Token 존재할 시 메인으로 이동
+		/*if( getCookie("jwtToken") != null ){
+			location.href = "/static/html/main.html";
+		};*/
 	});
 	
 	function setupAuthorization(headerValue) {
@@ -33,20 +38,7 @@
 		});
 	}
 	
-	function loginAction() {
-		var isValid = true;
-		$("input").each(function(index, item){
-			if($(this)[0].id != '_retVal12'){
-				if($(this).val() == "") {
-					isValid = false;
-					return false;
-				}
-			}
-		});
-		if(!isValid) {
-			alert("모든 정보를 입력하셔야 합니다.");
-			return;
-		}
+	function getToken() {
 		//헤더 세팅
 		setupAuthorization("Basic "+btoa($("#id").val()+":"+$("#pass").val()));
 		
@@ -63,6 +55,38 @@
 				location.href = "/static/html/main.html";
 			}
 		);
+	}
+	
+	function loginAction() {
+		var isValid = true;
+		$("input").each(function(index, item){
+			if($(this)[0].id != '_retVal12'){
+				if($(this).val() == "") {
+					isValid = false;
+					return false;
+				}
+			}
+		});
+		if(!isValid) {
+			alert("모든 정보를 입력하셔야 합니다.");
+			return;
+		}
+		var formData = {
+			"grant_type" : "password",	
+			"id" : $("#id").val(),
+			"password" : $("#pass").val()
+		}
+		$.ajax({
+		    type: "POST",
+		    url: "/login",
+		    contentType: "application/json; charset=utf-8",
+		    data: JSON.stringify(formData),
+		    success: function(data){
+		    	if(data.msg == "success"){
+		    		getToken();
+		    	}
+		    }
+		});
 	}
 	
 </script>
