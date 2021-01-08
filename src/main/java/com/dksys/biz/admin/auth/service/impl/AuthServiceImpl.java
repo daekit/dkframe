@@ -6,11 +6,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.admin.auth.mapper.AuthMapper;
 import com.dksys.biz.admin.auth.service.AuthService;
 
 @Service
+@Transactional("erpTransactionManager")
 public class AuthServiceImpl implements AuthService {
 	
     @Autowired

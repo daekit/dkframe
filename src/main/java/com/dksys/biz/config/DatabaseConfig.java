@@ -26,7 +26,7 @@ public class DatabaseConfig {
 //	/** DataSource Main 생성 */
 	@Primary
     @Bean(name = "erpDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource erpDataSource() {
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
@@ -50,12 +50,13 @@ public class DatabaseConfig {
         return new SqlSessionTemplate(erpSqlSessionFactory);
     }
     
-//    @Bean(name = "erpTransactionManager")
-//    public DataSourceTransactionManager erpTransactionManager() {
-//    	DataSourceTransactionManager erpTransactionManager = new DataSourceTransactionManager();
-//    	erpTransactionManager.setDataSource(erpDataSource());
-//        return erpTransactionManager;
-//    }
+    @Primary
+    @Bean(name = "erpTransactionManager")
+    public DataSourceTransactionManager erpTransactionManager() {
+    	DataSourceTransactionManager erpTransactionManager = new DataSourceTransactionManager();
+    	erpTransactionManager.setDataSource(erpDataSource());
+        return erpTransactionManager;
+    }
 //
 
     
