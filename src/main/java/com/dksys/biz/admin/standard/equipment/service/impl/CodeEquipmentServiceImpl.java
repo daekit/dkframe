@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dksys.biz.admin.standard.equipment.mapper.CodeEquipmentMapper;
 import com.dksys.biz.admin.standard.equipment.service.CodeEquipmentService; 
 @Service
-@Transactional
 public class CodeEquipmentServiceImpl implements CodeEquipmentService {
 	
     @Autowired

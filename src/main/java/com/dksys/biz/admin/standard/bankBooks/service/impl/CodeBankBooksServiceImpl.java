@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dksys.biz.admin.standard.bankBooks.mapper.CodeBankBooksMapper;
 import com.dksys.biz.admin.standard.bankBooks.service.CodeBankBooksService; 
 @Service
-@Transactional
 public class CodeBankBooksServiceImpl implements CodeBankBooksService {
 	
     @Autowired

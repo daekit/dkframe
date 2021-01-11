@@ -12,7 +12,7 @@ import com.dksys.biz.admin.auth.mapper.AuthMapper;
 import com.dksys.biz.admin.auth.service.AuthService;
 
 @Service
-@Transactional
+@Transactional("erpTransactionManager")
 public class AuthServiceImpl implements AuthService {
 	
     @Autowired

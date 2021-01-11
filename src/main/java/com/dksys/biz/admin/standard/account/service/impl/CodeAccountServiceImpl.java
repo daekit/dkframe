@@ -11,7 +11,6 @@ import com.dksys.biz.admin.standard.account.mapper.CodeAccountMapper;
 import com.dksys.biz.admin.standard.account.service.CodeAccountService;
 
 @Service
-@Transactional
 public class CodeAccountServiceImpl implements CodeAccountService {
 	
     @Autowired
