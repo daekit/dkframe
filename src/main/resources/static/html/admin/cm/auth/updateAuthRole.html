@@ -1,0 +1,70 @@
+<script type="text/javascript">
+	
+	var secondGrid = new ax5.ui.grid();
+	
+	$(document).ready(function() {
+		secondGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: true,
+            target: $('[data-ax5grid="second-grid"]'),
+            columns: [
+                {key: "roleId", label: "롤ID"},
+                {key: "roleNm", label: "롤명"},
+                {key: "roleType", label: "롤타입"},
+                {key: "roleSort", label: "롤정렬"},
+                {key: "rolePattern", label: "롤패턴"},
+                {key: "description", label: "설명"},
+                {key: "createDt", label: "등록일"},
+                {key: "roleMenu", label: "롤메뉴", hidden: true}
+            ]
+        });
+        
+		getRoleData();
+	})
+	
+	function getRoleData() {
+		postAjax("/admin/cm/role/selectRoleInfo", null, null, function(data){
+			secondGrid.setData(data.roleList);
+			setData();
+		});
+	}
+	
+	function setData() {
+		var roleList = authRole.split(",");
+		for(var i=0; i < roleList.length; i++) {
+			secondGrid.selectAll({selected: true, filter: function(){
+			     return this["roleId"] == roleList[i];
+			}});
+		}
+	}
+	
+	function updateAuthRole() {
+		var authRole = "";
+		var data = secondGrid.getList("selected");
+		for(var i=0; i < data.length; i++) {
+			authRole += data[i].roleId + ","
+		}
+		var formData = {
+				"authId" : authId,
+				"authRole" : authRole.substring(0, authRole.length-1)
+		}
+		putAjax("/admin/cm/auth/updateAuthRole", formData, null, function(data){
+			alert(data.resultMessage);
+			getData();
+			modal.close();
+		});
+	}
+	
+</script>
+<body>
+	<div>
+		<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+	<div class="row" style="margin-top: 15px;">
+		<div style="position: fixed; bottom: 5px; left: 43%;">
+			<button type="button" class="btn btn-default btn-sm" onclick="updateAuthRole();">저장</button>
+			<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+		</div>
+	</div>
+</body>
+</html>

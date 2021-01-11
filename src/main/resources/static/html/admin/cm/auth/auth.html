@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+	
+	var firstGrid = new ax5.ui.grid();
+	var authId = null;
+	var authRole = null;
+	
+	$(document).ready(function() {
+		
+        firstGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: false,
+            target: $('[data-ax5grid="first-grid"]'),
+            columns: [
+                {key: "authId", label: "권한ID"},
+                {key: "authNm", label: "권한명"},
+                {key: "description", label: "설명"},
+                {key: "createDt", label: "등록일"},
+                {
+                	key: "", label: "롤정보", align: 'center', formatter: function() {
+                		return '<button type="button" onclick="roleListModal('+this.dindex+');"/>롤';
+                	}
+                }
+            ]
+        });
+        
+        getData();
+	})
+	
+	function roleListModal(index) {
+		firstGrid.select(index);
+		authId = firstGrid.getList("selected")[0].authId;
+		authRole = firstGrid.getList("selected")[0].authRole;
+		openModal("/static/html/admin/cm/auth/updateAuthRole.html", 800, 550, "권한롤등록 "+authId);
+	}
+	
+	function getData() {
+		postAjax("/admin/cm/auth/selectAuthInfo", null, null, function(data){
+			firstGrid.setData(data.authList);
+		});
+	}
+	
+	function createAuthModal() {
+		openModal("/static/html/admin/cm/auth/createAuth.html", 600, 300, "권한등록");
+	}
+	
+
+	function updateAuthModal() {
+		if(selectGridValidation(firstGrid)) return;
+		openModal("/static/html/admin/cm/auth/updateAuth.html", 600, 300, "권한수정");
+	}
+	
+	function deleteAuth() {
+		if(selectGridValidation(firstGrid)) return;
+		if(!confirm("삭제하시겠습니까?")) return;
+		var formData = {
+				"authId" : firstGrid.getList("selected")[0].authId
+		}
+		deleteAjax("/admin/cm/auth/deleteAuth", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+			}
+		});
+	}
+	
+</script>
+<body>
+	<div class="row">
+		<span style="font-size: 25px; font-weight: bold;">메뉴관리</span>
+		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createAuthModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAuthModal();">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAuth();">삭제</a>
+		</div>
+	</div>
+	<div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+</body>
+</html>

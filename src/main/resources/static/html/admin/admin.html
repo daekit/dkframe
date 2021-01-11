@@ -15,6 +15,7 @@
 	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
 	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
 	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
 	<script src="/static/js/jquery-3.5.1.min.js"></script>
 	<script src="/static/js/jquery.serializeObject.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
@@ -57,15 +58,23 @@
 
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <!-- <li class="active"><a href="/static/html/admin/auth/auth.html" onclick="return false;">권한관리 <span class="sr-only">(current)</span></a></li>
-            <li><a href="/static/html/admin/role/role.html" onclick="return false;">롤관리</a></li>-->
+        <div class="col-sm-3 col-md-2 sidebar menu_area">
+          <ul class="nav nav-sidebar menu">
+            <!-- <li>
+            	<a onclick="return false;">권한관리 <span class="sr-only">(current)</span></a>
+            	<div class="admin_sub_menu">
+					<dl>
+						<dd>
+							<a href="/static/html/admin/cm/role/role.html" onclick="return false;">거래처마스터관리</a>
+						</dd>
+					</dl>
+				</div>
+            </li> -->
           </ul>
         </div>
         <!-- 메인Body 페이지 영역 -->
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          
+          	
         </div>
       </div>
     </div>
@@ -90,30 +99,46 @@
 	function checkMenuAuth(accessList) {
 		var html = "";
 		$.each(accessList, function(idx, item){
-			console.log(item);
-			if(item.upMenuId == "MENU100" && item.useYn == 'Y') {
-				html += '<li><a href="'+item.menuUrl+'" onclick="setMenuIdx(\''+item.menuUrl+'\'); return false;">'+item.menuNm+'</a></li>';
+			if(item.menuId != "ROOT" && item.menuType == "FOLDER" && item.useYn == 'Y') {
+				html += '<li><a href="'+item.menuUrl+'" onclick="setMenuIdx(\''+item.menuUrl+'\'); return false;">'+item.menuNm+'<span class="sr-only">(current)</span></a>';
+				html += '<div id="'+item.menuId+'" class="admin_sub_menu"></div>';
+				html += '</li>';
 			}
 		});
 		$('.nav-sidebar').html(html);
+		
+		$.each(accessList, function(idx, item){
+			if(item.menuType == "HTML" && item.useYn == 'Y') {
+				html = '<dl><dd><a href="'+item.menuUrl+'" onclick="return false;">'+item.menuNm+'</a></dd></dl>';
+				$("#"+item.upMenuId).append(html);
+			}
+		});
+		
 		// 사이드 바 클릭 이벤트 바인딩
         $('.sidebar ul li').click(function(){
         	$('.sidebar ul li').removeClass('active');
+        	$('.admin_sub_menu').removeClass('on');
         	$(this).addClass('active');
-        	$.get($(this).find("a").attr("href"), function(data) {    	        
+        	$(this).find(".admin_sub_menu").addClass('on');
+        });
+		
+		$('dl dd a').click(function(){
+        	$.get($(this)[0].href, function(data) {    	        
         		$(".main").html(data);
           	});
         });
-        
-		$('.sidebar ul li a').each(function(idx, elem){
-			if(elem.href.search(menuIdx) > -1) {
-				$('.sidebar ul li a')[idx].click();
-			}
-		});
 	}
 	
 	function setMenuIdx(url) {
 		setCookie("menuIdx", url, 1);
+	}
+	
+	function subShowHide(data) {
+		if ($(data).parent().find("ul").css("display") == 'none') {
+			$(data).parent().find("ul").show();
+		} else {
+			$(data).parent().find("ul").hide();
+		}
 	}
 	
 </script>
