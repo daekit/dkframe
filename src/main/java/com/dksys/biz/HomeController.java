@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.dksys.biz.admin.auth.service.AuthService;
+import com.dksys.biz.admin.cm.auth.service.AuthService;
 import com.dksys.biz.util.WebClientUtil;
 
 @Controller

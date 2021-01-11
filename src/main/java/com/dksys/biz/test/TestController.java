@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.dksys.biz.admin.role.service.RoleService;
+import com.dksys.biz.admin.cm.role.service.RoleService;
 
 @Controller
 public class TestController {
