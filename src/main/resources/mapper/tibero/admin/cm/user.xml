@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.admin.cm.user.mapper.UserMapper">
+
+	<select id="selectUserList" resultType="CamelMap">
+		SELECT
+			ID,
+			EMP_NO,
+			NAME,
+			(SELECT LEVEL_NAME FROM CMN_LEVEL_INFO WHERE LEVEL_CODE = U.LEVEL_CODE) AS LEVEL_NAME,
+			EMAIL,
+			USE_YN,
+			TO_CHAR(CREATE_DT, 'yyyy-MM-dd HH:mm:ss') CREATE_DT,
+			TO_CHAR(UPDATE_DT, 'yyyy-MM-dd HH:mm:ss') UPDATE_DT
+		FROM
+			USER_INFO U
+		WHERE 1=1
+		<if test="deptId !='' and deptId != null">
+			AND DEPT_ID = #{deptId}
+		</if>
+		<if test="searchValue !='' and searchValue != null">
+			AND NAME = #{searchValue}
+		</if>
+	</select>
+	
+	<select id="selectUserCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			USER_INFO
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<insert id="insertUser">
+		INSERT INTO USER_INFO (
+			ID,
+			PASSWORD, 
+			EMP_NO, 
+			NAME, 
+			DEPT_ID,
+			LEVEL_CODE,
+			EMAIL, 
+			AUTH_INFO,
+			ENTER_DT,
+			USE_YN, 
+			CREATE_DT, 
+			UPDATE_DT
+		)VALUES(
+			#{userId},
+			#{password},
+			#{empNo},
+			#{userNm},
+			#{deptId},
+			#{levelCode},
+			#{email},
+			#{authInfo},
+			TO_CHAR(#{enterDt}, 'yyyy-MM-dd'),
+			#{useYn},
+			NOW(),
+			NOW()
+		)
+	</insert>
+	
+	<select id="selectUserInfo" resultType="CamelMap">
+		SELECT
+			ID,
+			EMP_NO, 
+			NAME, 
+			DEPT_ID,
+			(SELECT DEPT_NM FROM DEPARTMENT WHERE DEPT_ID = U.DEPT_ID) DEPT_NM,
+			LEVEL_CODE,
+			EMAIL, 
+			AUTH_INFO,
+			ENTER_DT,
+			USE_YN,
+			TO_CHAR(CREATE_DT, 'yyyy-MM-dd HH:mm:ss') CREATE_DT,
+			TO_CHAR(UPDATE_DT, 'yyyy-MM-dd HH:mm:ss') UPDATE_DT
+		FROM
+			USER_INFO U
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<update id="updateUser">
+		UPDATE
+			USER_INFO
+		SET
+			EMP_NO = #{empNo},
+			NAME = #{userNm},
+			DEPT_ID = #{deptId},
+			LEVEL_CODE = #{levelCode},
+			EMAIL = #{email},
+			AUTH_INFO = #{authInfo},
+			ENTER_DT = TO_CHAR(#{enterDt}, 'yyyy-MM-dd'),
+			USE_YN = #{useYn},
+			UPDATE_DT = NOW()
+		WHERE
+			ID = #{userId}
+	</update>
+	
+</mapper>
