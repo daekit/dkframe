@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+	
+	var firstGrid = new ax5.ui.grid();
+	var authId = null;
+	var authRole = null;
+	
+	$(document).ready(function() {
+		
+        firstGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: false,
+            target: $('[data-ax5grid="first-grid"]'),
+            body: {
+            	onClick: function () {
+                    this.self.select(this.dindex);
+                },
+            },
+            page: {
+                navigationItemCount: 9,
+                height: 30,
+                display: true,
+                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+                onChange: function () {
+                	firstGrid.setData(this.page.selectPage);
+                }
+            },
+            columns: [
+                {key: "stock", label: "재고표시"},
+                {key: "materialCd", label: "구조코드"},
+                {key: "description", label: "대분류"},
+                {key: "createDt", label: "계정과목"},
+                {key: "createDt", label: "매출계정과목"},
+                {key: "createDt", label: "품명/용역"},
+            ]
+        });
+        getData(0);
+	})
+	
+	function roleListModal(index) {
+		firstGrid.select(index);
+		authId = firstGrid.getList("selected")[0].authId;
+		authRole = firstGrid.getList("selected")[0].authRole;
+		openModal("/static/html/admin/cm/auth/updateAuthRole.html", 800, 550, "권한롤등록 "+authId);
+	}
+	
+	function getData(_pageNo) {
+		postAjax("/admin/bm/material/selectMaterialList", null, null, function(data){
+			var list = data.materialList;
+			firstGrid.setData({
+				list : list,
+				page : {
+					currentPage : _pageNo,
+					pageSize : 10,
+					totalElements : list.length,
+					totalPages : list.length / 10
+				}
+			});
+			return this;
+		});
+	}
+
+	function createAuthModal() {
+		openModal("/static/html/admin/cm/auth/createAuth.html", 600, 300,
+				"권한등록");
+	}
+
+	function updateAuthModal() {
+		if (selectGridValidation(firstGrid))
+			return;
+		openModal("/static/html/admin/cm/auth/updateAuth.html", 600, 300,
+				"권한수정");
+	}
+
+	function deleteAuth() {
+		if (selectGridValidation(firstGrid))
+			return;
+		if (!confirm("삭제하시겠습니까?"))
+			return;
+		var formData = {
+			"authId" : firstGrid.getList("selected")[0].authId
+		}
+		deleteAjax("/admin/cm/auth/deleteAuth", formData, null, function(data) {
+			if (data.resultCode == 200) {
+				alert(data.resultMessage);
+				getData();
+			}
+		});
+	}
+</script>
+<body>
+	<div class="row form-group">
+		<span style="font-size: 25px; font-weight: bold;">자재코드 관리</span>
+		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createAuthModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAuthModal();">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAuth();">삭제</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-inline form-group">
+			<select class="form-control" >
+				<option>품명</option>
+				<option>규격</option>
+				<option>구분</option>
+				<option>모델번호</option>
+				<option>모델명</option>
+				<option>비고</option>
+				<option>중분류</option>
+				<option>소분류</option>
+			</select>
+			<input type="text" class="form-control">
+		</div>
+	</div>
+	<div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+</body>
+</html>
