@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.cmn.mapper.ChatMapper">
+
+	<select id="selectChatRoom" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			*, 
+			(SELECT NAME FROM USER WHERE ID = USER_ID) AS USER_NM,
+			COUNT(USER_ID)+1 AS COUNT
+		FROM CHAT_ROOM_JOIN
+		WHERE ROOM_ID IN (
+			SELECT ROOM_ID FROM CHAT_ROOM_JOIN
+			WHERE USER_ID = #{userId}
+		)
+		AND USER_ID != #{userId}
+		GROUP BY ROOM_ID
+	</select>
+
+	<select id="selectTargetRoom" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM CHAT_ROOM_JOIN
+		WHERE ROOM_ID IN (
+			SELECT ROOM_ID FROM CHAT_ROOM_JOIN
+			WHERE USER_ID = #{targetId}
+		)
+		AND USER_ID = #{userId}
+	</select>
+
+	<select id="selectChatMsg" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			*,
+			(SELECT NAME FROM USER WHERE ID = A.USER_ID) AS USER_NM 
+		FROM CHAT_MESSAGE A
+		WHERE ROOM_ID = #{roomId}
+		ORDER BY MESSAGE_TIME ASC
+	</select>
+
+	<select id="selectChatRoomList" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			*
+		FROM CHAT_ROOM_JOIN A
+		WHERE USER_ID = #{userId}
+	</select>
+
+	<insert id="createChatRoom" parameterType="Map">
+		INSERT INTO CHAT_ROOM
+		(
+			ROOM_ID
+		)
+		VALUES
+		(
+			#{roomId}
+		)
+	</insert>
+
+	<insert id="createChatRoomJoin" parameterType="Map">
+		INSERT INTO CHAT_ROOM_JOIN
+		(
+			JOIN_ID, USER_ID, ROOM_ID
+		)
+		VALUES
+		(
+			#{joinId}, #{userId}, #{roomId}
+		)
+	</insert>
+
+	<insert id="insertChatMsg" parameterType="Map">
+		INSERT INTO CHAT_MESSAGE
+		(
+			MESSAGE_ID, MESSAGE, MESSAGE_TIME, USER_ID, ROOM_ID
+		)
+		VALUES
+		(
+			#{messageId}, #{message}, SYSDATE(), #{userId}, #{roomId}
+		)
+	</insert>
+	
+</mapper>

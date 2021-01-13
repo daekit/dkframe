@@ -40,7 +40,7 @@ public class DatabaseConfig {
            SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
            sqlSessionFactoryBean.setDataSource(erpDataSource);
            sqlSessionFactoryBean.setTypeAliasesPackage("com.dksys.biz");
-           sqlSessionFactoryBean.setMapperLocations(applicationContext.getResources("classpath:mapper/**/*.xml"));
+           sqlSessionFactoryBean.setMapperLocations(applicationContext.getResources("classpath:mapper/tibero/**/*.xml"));
            return sqlSessionFactoryBean.getObject();
     }
 
@@ -57,10 +57,7 @@ public class DatabaseConfig {
     	erpTransactionManager.setDataSource(erpDataSource());
         return erpTransactionManager;
     }
-//
-
     
-// 
 //    /** DataSource Sub 생성 */
 //    @Bean
 //    @ConfigurationProperties(prefix = "spring.datasource2")
@@ -83,5 +80,12 @@ public class DatabaseConfig {
 //	public SqlSessionTemplate sqlSession(SqlSessionFactory sqlSessionFactory) {
 //		return new SqlSessionTemplate(sqlSessionFactory);
 //	}
+    
+//    @Bean(name = "erpTransactionManager")
+//    public DataSourceTransactionManager erpTransactionManager() {
+//    	DataSourceTransactionManager erpTransactionManager = new DataSourceTransactionManager();
+//    	erpTransactionManager.setDataSource(erpDataSource());
+//        return erpTransactionManager;
+//    }
 	
 }

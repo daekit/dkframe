@@ -1,0 +1,320 @@
+<style>
+	.table tr th {
+		text-align: center;
+	}
+</style>
+
+<div class="row">
+	<div class="col-xs-9">
+		<span style="font-size: 22px; font-weight: bold;">조직관리</span>
+		<div style="float: right;">
+			<a href="#" class="btn btn-default btn-sm" onclick="createDept();">등록</a>
+			<a href="#" class="btn btn-default btn-sm" onclick="updateDept();">저장</a>
+		</div>
+	</div>
+</div>
+<div class="row" style="margin-top: 15px;">
+	<div class="col-xs-3">
+		<div id="deptTree"></div>
+	</div>
+	<div class="col-xs-6">
+		<form id="deptForm" style="display: none;">
+			<table class="table">
+				<colgroup>
+					<col style="width: 15%;">
+					<col style="width: 35%">
+					<col style="width: 15%;">
+					<col style="width: 35%">
+				</colgroup>
+				<tbody>
+					<tr>
+						<th>부서아이디</th>
+						<td>
+							<input type="text" class="form-control input-sm" id="deptId" name="deptId" readonly required>
+						</td>
+						<th>부서명</th>
+						<td>
+							<input type="text" class="form-control input-sm" id="deptNm" name="deptNm" onkeyup="renameNode(this)" required>
+						</td>
+					</tr>
+					<tr>
+						<th>상위부서</th>
+						<td>
+							<input type="hidden" id="upDeptId" name="upDeptId">
+							<input type="text" class="form-control input-sm" id="upDeptNm" readonly>
+						</td>
+						<th>정렬순서</th>
+						<td>
+							<input type="text" class="form-control input-sm" id="sortNo" name="sortNo" readonly required>
+						</td>
+					</tr>
+					<tr>
+						<th>사용여부</th>
+						<td>
+							<select class="form-control input-sm" id="useYn" name="useYn" required>
+								<option value="Y">사용</option>
+								<option value="N">미사용</option>
+							</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	// 등록시 부서 아이디 중복체크 여부
+	var isChecked = false;
+
+	$(document).ready(function() {
+		initDeptTree();
+	});
+	
+	// 트리 초기화
+	function initDeptTree() {
+		$("#deptTree").jstree(
+		{
+			plugins : ['types', 'dnd'],
+			core : {
+				"check_callback": checkOperation,
+				data : selectDeptTree()
+			},
+			types : {
+				'unit' : {
+					'icon' : 'glyphicon glyphicon-folder-close'
+				},
+				'unit-open' : {
+					'icon' : 'glyphicon glyphicon-folder-open'
+				}
+			}
+		}).on("loaded.jstree", function() {
+		// 루트 노드 로드 완료 시
+			// 최상위 노드 펼침
+			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
+		}).on("refresh.jstree", function() {
+		// 리프레시 완료 시
+			var selectedId = $('#deptTree').jstree(true).get_selected()[0];
+			$('#deptTree').jstree(true).deselect_all();
+			$('#deptTree').jstree(true).select_node(selectedId);
+		}).on("select_node.jstree", function(e, data) {
+		// 노드 선택 시 발생 이벤트
+			
+			//부서정보 show
+			if(!$('#deptForm').is(":visible")){
+				$('#deptForm').show();
+			}
+		
+			// 부서정보 set
+			setDeptInfo(data.node);
+			
+			// 신규 노드 삭제
+			if($('#deptTree').jstree(true).get_node('new')){
+				if(data.node.id != "new"){
+					$('#deptTree').jstree(true).refresh();
+				}
+			}
+		}).on('open_node.jstree', function(e, data) {
+		// 노드 열릴 때
+			data.instance.set_type(data.node, 'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+		// 노드 닫힐 때
+			data.instance.set_type(data.node, 'unit');
+		}).on('create_node.jstree', function(e, data){
+		// 노드 생성 시
+			$('#deptTree').jstree(true).deselect_all();
+			$('#deptTree').jstree(true).select_node(data.node.id);
+		}).on('move_node.jstree', function(e, data){
+		// 노드 이동완료 시
+			
+			$('#deptTree').jstree(true).deselect_all();
+			$('#deptTree').jstree(true).select_node(data.node.id);
+			
+			var curParent = $('#deptTree').jstree(true).get_node(data.parent);
+			var oldParent = $('#deptTree').jstree(true).get_node(data.old_parent);
+		
+			// 정렬순서 변경 - 현재 부모의 자식
+			$.each(curParent.children, function(idx, item){
+				var childNode = $('#deptTree').jstree(true).get_node(item);
+				childNode.original.sortNo = idx + 1;
+			});
+			
+			// 정렬순서 변경 - 이전 부모의 자식
+			$.each(oldParent.children, function(idx, item){
+				var childNode = $('#deptTree').jstree(true).get_node(item);
+				childNode.original.sortNo = idx + 1;
+			});
+			
+			var deptInfoArr = [];
+			$.each(oldParent.children, function(idx, item){
+				var childNode = $('#deptTree').jstree(true).get_node(item);
+				var deptInfo = {};
+				deptInfo.deptId = childNode.id;
+				deptInfo.upDeptId = childNode.parent;
+				deptInfo.sortNo = childNode.original.sortNo;
+				deptInfoArr.push(deptInfo);
+			});
+			
+			if(curParent != oldParent){
+				$.each(curParent.children, function(idx, item){
+					var childNode = $('#deptTree').jstree(true).get_node(item);
+					var deptInfo = {};
+					deptInfo.deptId = childNode.id;
+					deptInfo.upDeptId = childNode.parent;
+					deptInfo.sortNo = childNode.original.sortNo;
+					deptInfoArr.push(deptInfo);
+				});				
+			}
+			
+			postAjax("/admin/cm/dept/moveDept", deptInfoArr, null, function(data){
+				alert(data.resultMessage);
+				$('#deptTree').jstree(true).settings.core.data = selectDeptTree();
+				$('#deptTree').jstree(true).refresh();
+			});
+			
+		});
+	}
+	
+	// 트리 데이터 select
+	function selectDeptTree() {
+		var deptTree = null;
+		postAjaxSync("/admin/cm/dept/selectDeptTree", null, null, function(data){
+			deptTree = data.deptTree;
+		});
+		return deptTree;
+	}
+	
+	// dnd check
+	function checkOperation(operation, node, parent, position, more){
+		if(operation == "move_node"){
+			if (more && more.core) {
+			// 노드가 드랍되었을 때
+				if(node.id == "new"){
+					alert("신규로 추가한 부서를 저장해 주세요.");
+					return false;
+				}else{
+					var confirmMessage = "부서를 이동하시겠습니까?";
+					if(!confirm(confirmMessage)){
+						return false;
+					}
+				}
+			}
+		}
+	}
+	
+	// 부서정보 set
+	function setDeptInfo(node){
+		var $deptTree = $("#deptTree").jstree(true);
+		
+		inputHtml = '';
+		if(node.id == "new"){
+			inputHtml += '<div class="input-group">';
+			inputHtml += '<input type="text" class="form-control input-sm" id="deptId" name="deptId" onchange="isChecked = false;" required>';
+			inputHtml += '<span class="input-group-btn">';
+			inputHtml += '<button class="btn btn-primary btn-sm" type="button" onclick="checkDeptId();">중복확인</button>';
+			inputHtml += '</span>';
+			$('#deptId').parents('td').html(inputHtml);
+		}else{
+			inputHtml += '<input type="text" class="form-control input-sm" id="deptId" name="deptId" readonly required>';
+			$('#deptId').parents('td').html(inputHtml);
+		}
+		
+		// 부서 아이디
+		$('#deptId').val(node.original.deptId);
+		// 부서 명
+		$('#deptNm').val(node.original.deptNm);
+		// 상위 부서 아이디
+		$('#upDeptId').val(node.parent);
+		// 상위 부서 명
+		$('#upDeptNm').val($deptTree.get_node(node.parent).text);
+		// 정렬 순서
+		$('#sortNo').val(node.original.sortNo);
+		// 사용 여부
+		$('#useYn').val(node.original.useYn);
+	}
+	
+	// 신규조직 생성
+	function createDept(){
+		var $deptTree = $("#deptTree").jstree(true);
+		
+		if(!$deptTree.get_node('new')){
+			var upDeptId = $deptTree.get_selected()[0];
+			var parentNode = $deptTree.get_node(upDeptId);
+			
+			if(parentNode){
+				var newNode = {};
+				newNode.id = "new";
+				newNode.text = "신규부서";
+				newNode.type = "unit";
+				newNode.icon = "glyphicon glyphicon-folder-close";
+				newNode.sortNo = parentNode.children.length + 1;
+				newNode.useYn = "Y";
+				
+				$deptTree.create_node(upDeptId, newNode, "last", false, false);
+			}else{
+				alert("상위 부서를 선택해 주세요.");
+			}
+			
+		}else{
+			alert("신규로 추가한 부서를 저장해 주세요.");
+		}
+	}
+	
+	// 노드이름 변경
+	function renameNode(elem){
+		var $deptTree = $("#deptTree").jstree(true);
+		
+		var deptId = $deptTree.get_selected()[0];
+		$deptTree.rename_node(deptId, $(elem).val());
+	}
+	
+	// 부서아이디 중복확인
+	function checkDeptId(){
+		var deptId = $('#deptId').val();
+		
+		if($.trim(deptId) == ""){
+			alert("부서 아이디를 입력해 주세요.");
+		}else{
+			postAjax("/admin/cm/dept/checkDeptId", {"deptId" : deptId}, null, function(data){
+				if(data.deptCount > 0){
+					alert("사용중인 부서 아이디입니다.");
+					isChecked = false;
+				}else{
+					alert("사용가능한 부서 아이디입니다.");
+					isChecked = true;
+				}
+			});
+		}
+	}
+	
+	// 부서정보 저장
+	function updateDept(){
+		var $deptTree = $("#deptTree").jstree(true);
+		
+		var nodeId = $deptTree.get_selected()[0];
+		if(nodeId == "new"){
+			if(!isChecked){
+				alert("부서 아이디 중복확인이 필요합니다.");
+				return false;
+			}
+		}
+		
+		var isValid = true;
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			putAjax("/admin/cm/dept/updateDept", $('#deptForm').serializeObject(), null, function(data){
+				alert(data.resultMessage);
+				$deptTree.settings.core.data = selectDeptTree();
+				$deptTree.refresh();
+			});
+		}
+	}
+</script>

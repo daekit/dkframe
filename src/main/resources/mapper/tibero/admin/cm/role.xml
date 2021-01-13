@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.admin.cm.role.mapper.RoleMapper">
+
+	<select id="selectRoleList" resultType="CamelMap">
+		SELECT * FROM CMN_ROLE_INFO
+	</select>
+
+	<insert id="insertRole" parameterType="Map">
+		INSERT INTO CMN_ROLE_INFO
+		(
+			ROLE_ID, ROLE_NM, ROLE_TYPE, ROLE_SORT, ROLE_PATTERN, DESCRIPTION, ROLE_MENU, CREATE_ID, CREATE_DT, UPDATE_ID, UPDATE_DT
+		)
+		VALUES
+		(
+			#{roleId}, #{roleNm}, #{roleType}, ${roleSort}, #{rolePattern}, #{description}, NULL, #{userId}, SYSDATE(), NULL, NULL
+		)
+	</insert>
+
+	<delete id="deleteRole" parameterType="Map">
+		DELETE FROM CMN_ROLE_INFO
+		WHERE ROLE_ID = #{roleId}
+	</delete>
+
+	<update id="updateRole" parameterType="Map">
+		UPDATE CMN_ROLE_INFO
+		SET 
+			ROLE_ID = #{roleId},
+			ROLE_NM = #{roleNm},
+			ROLE_TYPE = #{roleType}, 
+			ROLE_SORT = ${roleSort},
+			ROLE_PATTERN = #{rolePattern},
+			DESCRIPTION = #{description},
+			UPDATE_ID = #{userId}, 
+			UPDATE_DT = SYSDATE()
+		WHERE ROLE_ID = #{roleId}
+	</update>
+
+	<update id="updateRoleMenu" parameterType="Map">
+		UPDATE CMN_ROLE_INFO
+		SET 
+			ROLE_MENU = #{roleMenu}
+		WHERE ROLE_ID = #{roleId}
+	</update>
+	
+</mapper>
