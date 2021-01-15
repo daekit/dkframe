@@ -9,6 +9,7 @@
 	var firstGrid = new ax5.ui.grid();
 	var authId = null;
 	var authRole = null;
+	var actionType = null;
 	
 	$(document).ready(function() {
 		
@@ -19,6 +20,9 @@
             body: {
             	onClick: function () {
                     this.self.select(this.dindex);
+                },
+                onDBLClick: function () {
+                	detailMaterial("U");
                 },
             },
             page: {
@@ -53,7 +57,11 @@
 	}
 	
 	function getData(_pageNo) {
-		postAjax("/admin/bm/material/selectMaterialList", null, null, function(data){
+		var formData = {
+			"searchType" : $("#searchType").val(),
+			"searchValue" : $("#searchValue").val()
+		}
+		postAjax("/admin/bm/material/selectMaterialList", formData, null, function(data){
 			var list = data.materialList;
 			firstGrid.setData({
 				list : list,
@@ -68,16 +76,14 @@
 		});
 	}
 
-	function createAuthModal() {
-		openModal("/static/html/admin/cm/auth/createAuth.html", 600, 300,
-				"권한등록");
+	function detailMaterial(type) {
+		actionType = type;
+		openModal("/static/html/admin/bm/material/detailMaterial.html", 800, 400, "자재코드");
 	}
 
 	function updateAuthModal() {
-		if (selectGridValidation(firstGrid))
-			return;
-		openModal("/static/html/admin/cm/auth/updateAuth.html", 600, 300,
-				"권한수정");
+		if (selectGridValidation(firstGrid)) return;
+		openModal("/static/html/admin/cm/auth/updateAuth.html", 600, 300, "자재코드 수정");
 	}
 
 	function deleteAuth() {
@@ -100,14 +106,14 @@
 	<div class="row form-group">
 		<span style="font-size: 25px; font-weight: bold;">자재코드 관리</span>
 		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createAuthModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailMaterial('C');">등록</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAuthModal();">수정</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAuth();">삭제</a>
 		</div>
 	</div>
 	<div class="row">
 		<div class="form-inline form-group">
-			<select class="form-control" >
+			<select id="searchType" class="form-control" >
 				<option>품명</option>
 				<option>규격</option>
 				<option>구분</option>
@@ -117,8 +123,8 @@
 				<option>중분류</option>
 				<option>소분류</option>
 			</select>
-			<input type="text" class="form-control">
-			<button class="btn btn-primary" type="button">검색</button>
+			<input id="searchValue" type="text" class="form-control">
+			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
 		</div>
 	</div>
 	<div class="row">
