@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.cm.code.service.CodeService;
-import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -29,23 +28,11 @@ public class CodeController {
     @Autowired
     CodeService codeService;
     
-    // 공통코드 리스트 조회
+    // 권한리스트 조회
     @PostMapping("/selectCodeList")
-    public String selectCodeList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = codeService.selectCodeCount(param);
-    	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
-    	model.addAttribute("paginationInfo", paginationInfo);
-    	
-    	List<Map<String, String>> codeList = codeService.selectCodeList(param);
+    public String selectCodeList(ModelMap model) {
+    	List<Map<String, String>> codeList = codeService.selectCodeList();
     	model.addAttribute("codeList", codeList);
-        return "jsonView";
-    }
-    
-    // 하위코드 리스트 조회
-    @PostMapping("/selectChildCodeList")
-    public String selectChildCodeList(@RequestBody Map<String, String> param, ModelMap model) {
-    	List<Map<String, String>> childCodeList = codeService.selectChildCodeList(param);
-    	model.addAttribute("childCodeList", childCodeList);
         return "jsonView";
     }
     
