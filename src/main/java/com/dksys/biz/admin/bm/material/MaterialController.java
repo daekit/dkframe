@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.bm.material.service.MaterialService;
@@ -23,7 +24,7 @@ public class MaterialController {
     MaterialService materialService;
 	
 	@PostMapping(value = "/selectMaterialList")
-    public String selectMaterialList(ModelMap model) {
+    public String selectMaterialList(@RequestBody Map<String, String> param, ModelMap model) {
 		List<Map<String, String>> materialList = materialService.selectMaterialList();
 		model.addAttribute("materialList", materialList);
         return "jsonView";
