@@ -5,7 +5,11 @@ import java.util.Map;
 
 public interface CodeService {
 
-    public List<Map<String, String>> selectCodeList();
+	public int selectCodeCount(Map<String, String> param);
+	
+    public List<Map<String, String>> selectCodeList(Map<String, String> param);
+    
+    public List<Map<String, String>> selectChildCodeList(Map<String, String> param);
 
 	public int insertCode(Map<String, String> param);
 
@@ -14,5 +18,5 @@ public interface CodeService {
 	public int updateCode(Map<String, String> param);
 
 	public List<Map<String, String>> selectCodeInfoList(Map<String, String> param);
-	
+
 }

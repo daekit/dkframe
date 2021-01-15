@@ -14,10 +14,20 @@ public class CodeServiceImpl implements CodeService {
 	
     @Autowired
     CodeMapper codeMapper;
-
+    
+    @Override
+	public int selectCodeCount(Map<String, String> param) {
+		return codeMapper.selectCodeCount(param);
+	}
+    
 	@Override
-	public List<Map<String, String>> selectCodeList() {
-		return codeMapper.selectCodeList();
+	public List<Map<String, String>> selectCodeList(Map<String, String> param) {
+		return codeMapper.selectCodeList(param);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectChildCodeList(Map<String, String> param) {
+		return codeMapper.selectChildCodeList(param);
 	}
 
 	@Override
@@ -39,5 +49,5 @@ public class CodeServiceImpl implements CodeService {
 	public List<Map<String, String>> selectCodeInfoList(Map<String, String> param) {
 		return codeMapper.selectCodeInfoList(param);
 	}
-
+	
 }
