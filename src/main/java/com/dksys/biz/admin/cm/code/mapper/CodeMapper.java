@@ -8,8 +8,12 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CodeMapper {
 	
-	List<Map<String, String>> selectCodeList();
+	int selectCodeCount(Map<String, String> param);
+	
+	List<Map<String, String>> selectCodeList(Map<String, String> param);
 
+	List<Map<String, String>> selectChildCodeList(Map<String, String> param);
+	
 	int insertCode(Map<String, String> param);
 
 	int deleteCode(Map<String, String> param);

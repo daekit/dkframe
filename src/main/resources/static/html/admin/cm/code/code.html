@@ -1,35 +1,112 @@
+<div class="row">
+	<span style="font-size: 25px; font-weight: bold;">공통코드관리</span>
+</div>
+<div class="row">
+	<div class="form-group form-inline">
+		<select class="form-control" id="largeDiv" onchange="selectChildCodeList(this.value, 'midDiv')">
+			<option value="">대분류 선택</option>
+		</select>
+		<select class="form-control" id="midDiv">
+			<option value="">중분류 선택</option>
+		</select>
+		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createCodeModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateCodeModal();">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
+		</div>
+		<input type="text" class="form-control" id="keyword" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
+	</div>
+</div>
+<div class="row">
+	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+</div>
 <script type="text/javascript">
-	
-	var firstGrid = new ax5.ui.grid();
 	var codeId = null;
 	var codeRole = null;
 	
-	$(document).ready(function() {
-		
-        firstGrid.setConfig({
-        	showRowSelector: true,
-        	multipleSelect: false,
-            target: $('[data-ax5grid="first-grid"]'),
-            columns: [
-                {key: "codeId", label: "코드ID"},
-                {key: "codeNm", label: "코드명"},
-                {key: "codeKind", label: "분류"},
-                {key: "codeDesc", label: "설명"},
-                {key: "createDt", label: "등록일"}
-            ],
-            body: {
-                onDBLClick: function(){
-                    
-                }
-            }
-        });
-        
-        getData();
-	})
+	ax5.ui.grid.tmpl.page_status = function(){
+        return '<span>총 {{totalElements}}건</span>';
+    };
 	
-	function getData() {
-		postAjax("/admin/cm/code/selectCodeList", null, null, function(data){
-			firstGrid.setData(data.codeList);
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="first-grid"]'),
+	        	showRowSelector: true,
+	        	multipleSelect: false,
+	            columns: [
+	                {key: "codeId", label: "코드ID", width: 150},
+	                {key: "codeNm", label: "코드명", width: 150},
+	                {key: "codeKind", label: "분류", width: 150},
+	                {key: "codeDesc", label: "설명", width: 150},
+	                {key: "createDt", label: "등록일", width: 100}
+	            ],
+	            page: {
+	                navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+	            }
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			var paramObj = {pageNo: _pageNo + 1, recordCnt: 20};
+			
+			// 대분류 또는 중분류 값 set
+			var codeKind = "ROOT";
+			if($('#largeDiv').val()){
+				if($('#midDiv').val()){
+					codeKind = $('#midDiv').val();
+				}else{
+					codeKind = $('#largeDiv').val();
+				}
+			}
+			paramObj.codeKind = codeKind;
+			
+			// 검색어 set
+			paramObj.keyword = $('#keyword').val();
+			
+			postAjax("/admin/cm/code/selectCodeList", paramObj, null, function(data){
+				targetObj.setData({
+					list: data.codeList,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		gridView.initView().setData(0);
+		selectChildCodeList("ROOT", "largeDiv");
+	});
+	
+	function selectChildCodeList(parentCode, target) {
+		var paramObj = {codeKind: parentCode};
+		postAjax("/admin/cm/code/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, item){
+				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += item.codeNm;
+				optionHtml += '</option>';
+			});
+			$('#'+target).find('option[value!=""]').remove();
+			$('#'+target).append(optionHtml);
 		});
 	}
 	
@@ -56,19 +133,4 @@
 			}
 		});
 	}
-	
 </script>
-<body>
-	<div class="row">
-		<span style="font-size: 25px; font-weight: bold;">공통코드관리</span>
-		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createCodeModal();">등록</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateCodeModal();">수정</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
-		</div>
-	</div>
-	<div class="row">
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
-	</div>
-</body>
-</html>

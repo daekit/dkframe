@@ -3,8 +3,70 @@
 
 <mapper namespace="com.dksys.biz.admin.cm.code.mapper.CodeMapper">
 
+	<select id="selectCodeCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM 
+			CMN_CODE_INFO 
+		WHERE
+			USE_YN = 'Y'
+			AND CODE_ID != #{codeKind}
+			<if test="keyword != null and !keyword.equals('')">
+				AND
+				(
+					CODE_ID LIKE '%${keyword}%'				
+					OR
+					CODE_NM LIKE '%${keyword}%'
+				)
+			</if>
+		START WITH CODE_ID = #{codeKind}
+		CONNECT BY PRIOR CODE_ID = CODE_KIND
+		ORDER SIBLINGS BY CODE_ID
+	</select>
+
 	<select id="selectCodeList" resultType="CamelMap">
-		SELECT * FROM CMN_CODE_INFO
+		SELECT 
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM 
+			(
+				SELECT
+					*
+				FROM 
+					CMN_CODE_INFO 
+				WHERE
+					USE_YN = 'Y'
+					AND CODE_ID != #{codeKind}
+					<if test="keyword != null and !keyword.equals('')">
+						AND
+						(
+							CODE_ID LIKE '%${keyword}%'				
+							OR
+							CODE_NM LIKE '%${keyword}%'
+						)
+					</if>
+				START WITH CODE_ID = #{codeKind}
+				CONNECT BY PRIOR CODE_ID = CODE_KIND
+				ORDER SIBLINGS BY CODE_ID
+			) A
+		)
+		WHERE
+		<![CDATA[
+			RNUM > #{firstIndex} AND RNUM <= #{lastIndex}
+		]]>
+	</select>
+	
+	<select id="selectChildCodeList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+			CMN_CODE_INFO
+		WHERE
+			USE_YN = 'Y'
+			AND CODE_KIND = #{codeKind}
 	</select>
 
 	<insert id="insertCode" parameterType="Map">
