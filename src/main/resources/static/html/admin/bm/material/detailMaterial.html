@@ -1,125 +1,172 @@
-<script type="text/javascript">
-
-	$(document).ready(function() {
-		if(actionType == "U") {
-			setData();	
-		} else {
-			$(".popup_table input").val("");
-		}
-	})
-	
-	function setData() {
-		var row = firstGrid.getList("selected")[0];
-		$("#stock").val(row.stock);
-		$("#materialCd").val(row.materialCd);
-	}
-	
-	function createAuth() {
-		var formData = {
-				"authId" : $("#authId").val(),
-				"authNm" : $("#authNm").val(),
-				"description" : $("#description").val(),
-				"userId" : jwt.userId
-		}
-		postAjax("/admin/cm/auth/createAuth", formData, null, function(data){
-			if(data.resultCode == 200){
-				modal.close();
-				getData();
-			}
-		})
-	}
-	
-</script>
 <body>
 	<div class="container-fluid">
       <div class="row">
         <div class="form-group">
-          <table class="popup_table">
-          	<colgroup>
-          		<col width="12%">
-          		<col width="">
-          		<col width="12%">
-          		<col width="">
-          		<col width="12%">
-          		<col width="">
-          	</colgroup>
-          	<tr>
-          		<th>재고표시</th>
-          		<td><input id="stock" type="text" class="form-control"></td>
-          		<th>자재코드</th>
-          		<td><input id="materialCd" type="text" class="form-control"></td>
-          		<th>대분류</th>
-          		<td><input id="bCd" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>계정과목</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>매출계정과목</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>품명/용역</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>재질</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>특성</th>
-          		<td colspan="3"><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>거래단위</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>단가단위</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>재고단위</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>단위중량</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>비중</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>단가</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>판매단가(A)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>판매단가(B)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>판매단가(C)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>판매단가(A)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>판매단가(B)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>판매단가(C)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>판매단가(D)</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>창고번호</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>주거래처</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          	<tr>
-          		<th>재고수량기준</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>파트수량</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          		<th>단중계산식</th>
-          		<td><input id="authId" type="text" class="form-control"></td>
-          	</tr>
-          </table>
+	        <form id="frm">
+	          <table class="popup_table">
+	          	<colgroup>
+	          		<col width="12%">
+	          		<col width="">
+	          		<col width="12%">
+	          		<col width="">
+	          		<col width="12%">
+	          		<col width="">
+	          	</colgroup>
+	          	<tr>
+	          		<th>재고표시</th>
+	          		<td>
+	          			<input name="stock" type="text" class="form-control">
+	          		</td>
+	          		<th>자재코드</th>
+	          		<td>
+	          			<input id="materialCd" name="materialCd" type="text" class="form-control" style="width: 77%; display: inline;" required="required">
+	          			<button id="checkBtn" type="button" class="btn btn-default btn-xs" onclick="checkOverLap()">체크</button>
+	          		</td>
+	          		<th>대분류</th>
+	          		<td><input name="bCd" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>계정과목</th>
+	          		<td><input name="accountCd" type="text" class="form-control"></td>
+	          		<th>매출계정과목</th>
+	          		<td><input name="sAccountCd" type="text" class="form-control"></td>
+	          		<th>품명/용역</th>
+	          		<td><input name="itemName" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>재질</th>
+	          		<td><input name="matterCd" type="text" class="form-control"></td>
+	          		<th>특성</th>
+	          		<td colspan="3"><input name="feature" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>거래단위</th>
+	          		<td><input name="tradeUnit" type="text" class="form-control"></td>
+	          		<th>단가단위</th>
+	          		<td><input name="priceUnit" type="text" class="form-control"></td>
+	          		<th>재고단위</th>
+	          		<td><input name="stockUnit" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>단위중량</th>
+	          		<td><input name="unitWeight" type="text" class="form-control"></td>
+	          		<th>비중</th>
+	          		<td><input name="weight" type="text" class="form-control"></td>
+	          		<th>단가</th>
+	          		<td><input name="price" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>판매단가(A)</th>
+	          		<td><input name="sellPriceA" type="text" class="form-control"></td>
+	          		<th>판매단가(B)</th>
+	          		<td><input name="sellPriceB" type="text" class="form-control"></td>
+	          		<th>판매단가(C)</th>
+	          		<td><input name="sellPriceC" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>판매단가(D)</th>
+	          		<td><input name="sellPriceD" type="text" class="form-control"></td>
+	          		<th>창고번호</th>
+	          		<td><input name="warehouseNo" type="text" class="form-control"></td>
+	          		<th>주거래처</th>
+	          		<td><input name="mainCustomer" type="text" class="form-control"></td>
+	          	</tr>
+	          	<tr>
+	          		<th>재고수량기준</th>
+	          		<td><input name="stockStandard" type="text" class="form-control"></td>
+	          		<th>파트수량</th>
+	          		<td><input name="partQty" type="text" class="form-control"></td>
+	          		<th>단중계산식</th>
+	          		<td><input name="pwCal" type="text" class="form-control"></td>
+	          	</tr>
+	          	<input id="userId" name="userId" type="hidden" class="form-control">
+	          </table>
+	        </form>
         </div>
       </div>
     </div>
 	<div>
-		<button type="button" class="btn btn-default btn-sm" onclick="createAuth();">등록</button>
+		<button id="actionBtn" type="button" class="btn btn-default btn-sm" onclick="insertMaterial();">등록</button>
 		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div>
 </body>
 </html>
+<script type="text/javascript">
+
+	var insertOK = false;
+
+	$(document).ready(function() {
+		$("#userId").val(jwt.userId);
+		if(actionType == "U") {
+			$("#actionBtn").html("수정");
+			selectMaterialInfo();
+			insertOK = true;
+			$("#materialCd").prop("readonly", true);
+			$("#materialCd").css("width", "100%");
+			$("#checkBtn").hide();
+		} else {
+			$("#actionBtn").html("등록");
+			$(".popup_table input").val("");
+		}
+		$("#materialCd").on("change", function(){
+			insertOK = false;
+		});
+	});
+	
+	function selectMaterialInfo() {
+		var row = firstGrid.getList("selected")[0];
+		$("#materialCd").val(row.materialCd);
+		var formData = $('#frm').serializeObject();
+		postAjax("/admin/bm/material/selectMaterialInfo", formData, null, function(data){
+			setData(data.materialInfo);
+		});
+	}
+	
+	function setData(data) {
+		$.each(data, function(idx, item){
+			for(var i=0; i<$('#frm input').length; i++) {
+				if($('#frm input')[i].name == idx) {
+					$('#frm input')[i].value = item;
+				}
+			}
+		});
+	}
+	
+	function insertMaterial() {
+		if(inputValidation($('#frm input'))) {
+			if(insertOK) {
+				var formData = $('#frm').serializeObject();
+				postAjax("/admin/bm/material/insertMaterial", formData, null, function(data){
+					if(data.resultCode == 200){
+						modal.close();
+						getData();
+					}
+				});
+			} else {
+				alert("중복체크 해주세요.")
+			}
+		} else {
+			alert("필수값을 입력하셔야 합니다.")
+		}
+	}
+	
+	function checkOverLap() {
+		var formData = $('#frm').serializeObject();
+		postAjax("/admin/bm/material/checkOverLap", formData, null, function(data){
+			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				insertOK = true;
+			} 
+		})
+	}
+	
+	function inputValidation(el) {
+		$.each(el, function(idx, item){
+			if(el[idx].required && el[idx].value == "") {
+				return false;
+			}
+		});
+		return true;
+	}
+	
+</script>

@@ -241,3 +241,4 @@ function fileAjax(url, data, callback) {
 function onlyNumber(elem){
 	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
+
