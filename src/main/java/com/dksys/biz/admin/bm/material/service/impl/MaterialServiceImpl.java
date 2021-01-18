@@ -18,8 +18,28 @@ public class MaterialServiceImpl implements MaterialService {
     MaterialMapper materialMapper;
 
 	@Override
-	public List<Map<String, String>> selectMaterialList() {
-		return materialMapper.selectMaterialList();
+	public List<Map<String, String>> selectMaterialList(Map<String, String> param) {
+		return materialMapper.selectMaterialList(param);
+	}
+
+	@Override
+	public int deleteMaterial(Map<String, String> param) {
+		return materialMapper.deleteMaterial(param);
+	}
+
+	@Override
+	public int insertMaterial(Map<String, String> param) {
+		return materialMapper.insertMaterial(param);
+	}
+
+	@Override
+	public int checkOverLap(Map<String, String> param) {
+		return materialMapper.checkOverLap(param);
+	}
+
+	@Override
+	public Map<String, String> selectMaterialInfo(Map<String, String> param) {
+		return materialMapper.selectMaterialInfo(param);
 	}
 
 }

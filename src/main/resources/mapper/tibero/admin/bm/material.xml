@@ -3,12 +3,71 @@
 
 <mapper namespace="com.dksys.biz.admin.bm.material.mapper.MaterialMapper">
 
-	 <select id="selectMaterialList" resultType="CamelMap">
+	<select id="selectMaterialList" parameterType="Map" resultType="CamelMap">
 	 	SELECT * FROM BM_MATERIAL_CODE
 	 	WHERE 1=1
 	 	<if test="searchValue != null and searchValue != ''">
 	 	
-	 	</if>
-	 </select>
+		</if>
+	</select>
+
+	<select id="checkOverLap" parameterType="Map" resultType="int">
+	 	SELECT COUNT(*) FROM BM_MATERIAL_CODE
+	 	WHERE MATERIAL_CD = #{materialCd}
+	</select>
+
+	<select id="selectMaterialInfo" parameterType="Map" resultType="CamelMap">
+	 	SELECT 
+	 		* 
+	 	FROM BM_MATERIAL_CODE
+	 	WHERE MATERIAL_CD = #{materialCd}
+	</select>
+	
+	<insert id="insertMaterial" parameterType="Map">
+		MERGE INTO BM_MATERIAL_CODE A
+			USING DUAL
+			ON (A.MATERIAL_CD = #{materialCd})
+		WHEN MATCHED THEN
+			UPDATE SET
+				 STOCK = #{stock}
+				,B_CD = #{bCd} 
+		WHEN NOT MATCHED THEN
+			INSERT
+		 	VALUES
+		 	(
+		 		 #{materialCd}
+		 		,#{stock}
+		 		,#{bCd}
+		 		,#{accountCd}
+		 		,#{sAccountCd}
+		 		,#{itemName}
+		 		,#{matterCd}
+		 		,#{feature}
+		 		,#{tradeUnit}
+		 		,#{priceUnit}
+		 		,#{stockUnit}
+		 		,#{unitWeight}
+		 		,#{weight}
+		 		,#{price}
+		 		,#{sellPriceA}
+		 		,#{sellPriceB}
+		 		,#{sellPriceC}
+		 		,#{sellPriceD}
+		 		,#{warehouseNo}
+		 		,#{mainCustomer}
+		 		,#{stockStandard}
+		 		,#{partQty}
+		 		,#{pwCal}
+		 		,#{userId}
+		 		,SYSDATE
+		 		,#{userId}
+		 		,SYSDATE
+		 	)
+	</insert>
+	
+	<delete id="deleteMaterial" parameterType="Map">
+		DELETE FROM BM_MATERIAL_CODE
+		WHERE MATERIAL_CD = #{materialCd}
+	</delete>
 	 
 </mapper>

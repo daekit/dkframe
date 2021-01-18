@@ -1,9 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
-</head>
+<body>
+	<div class="row form-group">
+		<span style="font-size: 25px; font-weight: bold;">자재코드 관리</span>
+		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailMaterial('C');">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailMaterial('U');">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteMaterial();">삭제</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-inline form-group">
+			<select id="searchType" class="form-control" >
+				<option>품명</option>
+				<option>규격</option>
+				<option>구분</option>
+				<option>모델번호</option>
+				<option>모델명</option>
+				<option>비고</option>
+				<option>중분류</option>
+				<option>소분류</option>
+			</select>
+			<input id="searchValue" type="text" class="form-control">
+			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
+		</div>
+	</div>
+	<div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+</body>
 <script type="text/javascript">
 	
 	var firstGrid = new ax5.ui.grid();
@@ -17,6 +40,9 @@
         	showRowSelector: true,
         	multipleSelect: false,
             target: $('[data-ax5grid="first-grid"]'),
+            header: {
+            	 selector: false
+            },
             body: {
             	onClick: function () {
                     this.self.select(this.dindex);
@@ -40,10 +66,10 @@
             columns: [
                 {key: "stock", label: "재고표시"},
                 {key: "materialCd", label: "구조코드"},
-                {key: "description", label: "대분류"},
-                {key: "createDt", label: "계정과목"},
-                {key: "createDt", label: "매출계정과목"},
-                {key: "createDt", label: "품명/용역"},
+                {key: "bCd", label: "대분류"},
+                {key: "accountNm", label: "계정과목"},
+                {key: "sAccountNm", label: "매출계정과목"},
+                {key: "itemName", label: "품명/용역"},
             ]
         });
         getData(0);
@@ -83,18 +109,18 @@
 
 	function updateAuthModal() {
 		if (selectGridValidation(firstGrid)) return;
-		openModal("/static/html/admin/cm/auth/updateAuth.html", 600, 300, "자재코드 수정");
+		openModal("/static/html/admin/bm/auth/updateAuth.html", 600, 300, "자재코드 수정");
 	}
 
-	function deleteAuth() {
+	function deleteMaterial() {
 		if (selectGridValidation(firstGrid))
 			return;
 		if (!confirm("삭제하시겠습니까?"))
 			return;
 		var formData = {
-			"authId" : firstGrid.getList("selected")[0].authId
+			"materialCd" : firstGrid.getList("selected")[0].materialCd
 		}
-		deleteAjax("/admin/cm/auth/deleteAuth", formData, null, function(data) {
+		deleteAjax("/admin/bm/material/deleteMaterial", formData, null, function(data) {
 			if (data.resultCode == 200) {
 				alert(data.resultMessage);
 				getData();
@@ -102,33 +128,3 @@
 		});
 	}
 </script>
-<body>
-	<div class="row form-group">
-		<span style="font-size: 25px; font-weight: bold;">자재코드 관리</span>
-		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailMaterial('C');">등록</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAuthModal();">수정</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAuth();">삭제</a>
-		</div>
-	</div>
-	<div class="row">
-		<div class="form-inline form-group">
-			<select id="searchType" class="form-control" >
-				<option>품명</option>
-				<option>규격</option>
-				<option>구분</option>
-				<option>모델번호</option>
-				<option>모델명</option>
-				<option>비고</option>
-				<option>중분류</option>
-				<option>소분류</option>
-			</select>
-			<input id="searchValue" type="text" class="form-control">
-			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
-		</div>
-	</div>
-	<div class="row">
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
-	</div>
-</body>
-</html>
