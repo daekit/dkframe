@@ -49,7 +49,7 @@ public class CodeController {
         return "jsonView";
     }
     
-    // 권한등록
+    // 코드등록
     @PostMapping("/createCode")
     public String createCode(@RequestBody Map<String, String> param, ModelMap model) {
     	codeService.insertCode(param);
