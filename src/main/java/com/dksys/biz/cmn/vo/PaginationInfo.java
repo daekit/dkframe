@@ -42,7 +42,7 @@ public class PaginationInfo
     	this.totalRecordCount = totalCnt;
     	
     	// 해당 페이지 처음 인덱스, 마지막 인덱스 set
-    	param.put("firstIndex", String.valueOf(this.getFirstRecordIndex()));
+    	param.put("firstIndex", String.valueOf(this.getFirstRecordIndex()+1));
     	param.put("lastIndex", String.valueOf(this.getLastRecordIndex()));
     }
     
