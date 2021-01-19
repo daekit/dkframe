@@ -242,3 +242,11 @@ function onlyNumber(elem){
 	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
 
+function inputValidation(el) {
+	$.each(el, function(item){
+		if(item.required && item == "") {
+			return false;
+		}
+	});
+	return true;
+}
