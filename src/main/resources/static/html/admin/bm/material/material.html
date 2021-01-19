@@ -10,96 +10,100 @@
 	<div class="row">
 		<div class="form-inline form-group">
 			<select id="searchType" class="form-control" >
-				<option>품명</option>
-				<option>규격</option>
-				<option>구분</option>
-				<option>모델번호</option>
-				<option>모델명</option>
-				<option>비고</option>
-				<option>중분류</option>
-				<option>소분류</option>
+				<option value="MATERIAL_CD">자재코드</option>
 			</select>
-			<input id="searchValue" type="text" class="form-control">
-			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
+			<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">
+			<button class="btn btn-primary" type="button" onclick="search();">검색</button>
 		</div>
 	</div>
 	<div class="row">
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
 	</div>
 </body>
 <script type="text/javascript">
 	
-	var firstGrid = new ax5.ui.grid();
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
+	var firstGrid = null;
+	
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	 selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	detailMaterial("U");
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		            {key: "stock", label: "재고표시"},
+		            {key: "materialCd", label: "자재코드"},
+		            {key: "bCd", label: "대분류"},
+		            {key: "accountNm", label: "계정과목"},
+		            {key: "sAccountNm", label: "매출계정과목"},
+		            {key: "itemName", label: "품명/용역"},
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			firstGrid = this.target;
+			var formData = {
+				"searchType" : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : 20
+			}
+			postAjax("/admin/bm/material/selectMaterialList", formData, null, function(data){
+				var list = data.materialList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
 	
 	$(document).ready(function() {
-		
-        firstGrid.setConfig({
-        	showRowSelector: true,
-        	multipleSelect: false,
-            target: $('[data-ax5grid="first-grid"]'),
-            header: {
-            	 selector: false
-            },
-            body: {
-            	onClick: function () {
-                    this.self.select(this.dindex);
-                },
-                onDBLClick: function () {
-                	detailMaterial("U");
-                },
-            },
-            page: {
-                navigationItemCount: 9,
-                height: 30,
-                display: true,
-                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-                onChange: function () {
-                	firstGrid.setData(this.page.selectPage);
-                }
-            },
-            columns: [
-                {key: "stock", label: "재고표시"},
-                {key: "materialCd", label: "구조코드"},
-                {key: "bCd", label: "대분류"},
-                {key: "accountNm", label: "계정과목"},
-                {key: "sAccountNm", label: "매출계정과목"},
-                {key: "itemName", label: "품명/용역"},
-            ]
-        });
-        getData(0);
+		gridView.initView().setData(0);
 	})
 	
+	function search() {
+		gridView.initView().setData(0);
+	}
+	
 	function roleListModal(index) {
-		firstGrid.select(index);
+		grid.select(index);
 		authId = firstGrid.getList("selected")[0].authId;
 		authRole = firstGrid.getList("selected")[0].authRole;
 		openModal("/static/html/admin/cm/auth/updateAuthRole.html", 800, 550, "권한롤등록 "+authId);
-	}
-	
-	function getData(_pageNo) {
-		var formData = {
-			"searchType" : $("#searchType").val(),
-			"searchValue" : $("#searchValue").val()
-		}
-		postAjax("/admin/bm/material/selectMaterialList", formData, null, function(data){
-			var list = data.materialList;
-			firstGrid.setData({
-				list : list,
-				page : {
-					currentPage : _pageNo,
-					pageSize : 10,
-					totalElements : list.length,
-					totalPages : list.length / 10
-				}
-			});
-			return this;
-		});
 	}
 
 	function detailMaterial(type) {
@@ -123,7 +127,7 @@
 		deleteAjax("/admin/bm/material/deleteMaterial", formData, null, function(data) {
 			if (data.resultCode == 200) {
 				alert(data.resultMessage);
-				getData();
+				gridView.initView().setData(firstGrid.page.currentPage);
 			}
 		});
 	}

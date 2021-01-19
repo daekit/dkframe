@@ -15,5 +15,7 @@ public interface MaterialService {
 
 	public Map<String, String> selectMaterialInfo(Map<String, String> param);
 
+	public int selectMaterialCount(Map<String, String> param);
+
 
 }

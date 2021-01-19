@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.bm.material.service.MaterialService;
+import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.util.MessageUtils;
 
 @Controller
@@ -26,6 +27,10 @@ public class MaterialController {
 	
 	@PostMapping(value = "/selectMaterialList")
     public String selectMaterialList(@RequestBody Map<String, String> param, ModelMap model) {
+		int totalCnt = materialService.selectMaterialCount(param);
+		PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
 		List<Map<String, String>> materialList = materialService.selectMaterialList(param);
 		model.addAttribute("materialList", materialList);
         return "jsonView";
