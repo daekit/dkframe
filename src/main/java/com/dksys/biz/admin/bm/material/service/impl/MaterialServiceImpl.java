@@ -42,4 +42,9 @@ public class MaterialServiceImpl implements MaterialService {
 		return materialMapper.selectMaterialInfo(param);
 	}
 
+	@Override
+	public int selectMaterialCount(Map<String, String> param) {
+		return materialMapper.selectMaterialCount(param);
+	}
+
 }

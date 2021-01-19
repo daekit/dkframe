@@ -18,4 +18,6 @@ public interface MaterialMapper {
 
 	Map<String, String> selectMaterialInfo(Map<String, String> param);
 
+	int selectMaterialCount(Map<String, String> param);
+
 }

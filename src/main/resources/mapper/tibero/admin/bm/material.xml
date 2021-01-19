@@ -4,13 +4,27 @@
 <mapper namespace="com.dksys.biz.admin.bm.material.mapper.MaterialMapper">
 
 	<select id="selectMaterialList" parameterType="Map" resultType="CamelMap">
-	 	SELECT * FROM BM_MATERIAL_CODE
+		SELECT * FROM 
+		(
+		 	SELECT ROWNUM RNUM, A.* FROM BM_MATERIAL_CODE A
+		 	WHERE 1=1
+		 	<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'				
+			</if>
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectMaterialCount" parameterType="Map" resultType="int">
+	 	SELECT 
+	 		COUNT(*) 
+	 	FROM BM_MATERIAL_CODE
 	 	WHERE 1=1
-	 	<if test="searchValue != null and searchValue != ''">
-	 	
+	 	<if test="searchValue != null and !searchValue.equals('')">
+			AND ${searchType} LIKE '%${searchValue}%'				
 		</if>
 	</select>
-
+	
 	<select id="checkOverLap" parameterType="Map" resultType="int">
 	 	SELECT COUNT(*) FROM BM_MATERIAL_CODE
 	 	WHERE MATERIAL_CD = #{materialCd}
