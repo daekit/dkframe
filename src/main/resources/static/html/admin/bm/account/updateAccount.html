@@ -1,0 +1,349 @@
+<script type="text/javascript">
+
+var row = firstGrid.getList("selected")[0];
+	
+	//수정 팝업인 경우 
+	var upLargeAccountId = '';
+	var upMiddleAccountId = '';
+	var upAccountTaxId = '';
+	var upSubledgerId = '';
+	var upPropertyId = '';
+	
+	$(document).ready(function() {
+		if(modal.modalConfig.header.title == '계정과목코드 수정'){
+			console.log(modal.modalConfig);
+			setData();	
+			largeAccountCombo.initCombo();	
+			upSearchCodeList();
+			subledgerCombo.initCombo('update');
+			propertyCombo.initCombo('update');
+		}		
+		else{
+			largeAccountCombo.initCombo();	
+			subledgerCombo.initCombo();
+			propertyCombo.initCombo();
+			
+		}
+	})
+	
+	function setData() {
+		var row = firstGrid.getList("selected")[0];
+		
+		upLargeAccountId = row.largeAccountId;
+		upMiddleAccountId = row.middleAccountId;
+		upAccountTaxId = row.accountTaxId;
+		upSubledgerId = row.subledgerId;
+		upPropertyId = row.propertyId;
+		
+		$("#accountCodeId").val(row.accountId);
+		$("#accountCodeNm").val(row.accountNm);
+		$("#description").val(row.description);
+		
+		if(row.salesYn =='Y'){
+			$('#salesYn').prop('checked', true);
+		}
+		if(row.purchaseYn =='Y'){
+			$('#purchaseYn').prop('checked', true);
+		}
+		if(row.useYn =='Y'){
+			$('#useYn').prop('checked', true);
+		}
+		
+	}
+	
+	function updateAccount() {
+		
+		if( $("#useYn").val() == 'on'){
+			document.getElementById("useYn").value  = 'Y';
+		}else{
+			document.getElementById("useYn").value  = 'N';
+		}
+		if( $("#salesYn").val() == 'on'){
+			document.getElementById("salesYn").value  = 'Y';
+		}else{
+			document.getElementById("salesYn").value  = 'N';
+		}
+		if( $("#purchaseYn").val() == 'on'){
+			document.getElementById("purchaseYn").value  = 'Y';
+		}else{
+			document.getElementById("purchaseYn").value  = 'n';
+		}
+	
+		var formData = {
+				"accountId": $("#accountCodeId").val(),
+				"accountNm" : $("#accountCodeNm").val(),
+				"largeAccountId" : $("#largeAccountId").val(),
+				"middleAccountId" : $("#middleAccountId").val(),
+				"accountTaxId" : $("#accountTaxId").val(),
+				"propertyId" : $("#propertyId").val(),
+				"subledgerId" : $("#subledgerId").val(),
+				"salesYn" : $("#salesYn").val(),
+				"purchaseYn" : $("#purchaseYn").val(),
+				"description" : $("#description").val(),
+				"useYn": $("#useYn").val(),
+				"userId" : jwt.userId
+		}
+		
+	//	console.log(formData);
+		
+		putAjax("/admin/bm/account/updateCode", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				getData();
+				modal.close();
+			}
+		})
+	}
+		
+	var largeAccountCombo ={
+			initCombo: function(param){
+				var formData = {"codeKind": "ACCOUNT"};
+				
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">대분류 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+						//수정 팝업인 경우 
+							if(codeList[i].codeId  == upLargeAccountId){
+								optionHtml += '<option value=\"' +  codeList[i].codeId + '\" selected >'
+    							+ codeList[i].codeNm + '</option>';
+    						}else{
+    							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+    							+ codeList[i].codeNm + '</option>';
+    						}
+    				}
+					document.getElementById("largeAccountId").innerHTML = optionHtml;
+				})
+			}
+			
+	}
+	
+	
+	var middleAccountCombo ={
+			initCombo: function(){
+				var formData = { "codeKind": $("#largeAccountId").val() };
+				
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">중분류 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+					
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';
+						
+    					}
+					document.getElementById("middleAccountId").innerHTML = optionHtml;
+				})
+			}
+			
+	}
+	
+	var accountTaxCombo ={
+			initCombo: function(){
+				var formData = { "codeKind": $("#middleAccountId").val() };
+		
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">계정과목코드(세무용) 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+					
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';	
+						}
+					document.getElementById("accountTaxId").innerHTML = optionHtml;
+				})
+			}
+			
+	}
+	
+	
+	var propertyCombo ={
+			initCombo: function( param ){
+				var formData = { 'codeKind': 'PROPERTY' };
+		
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">특성 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+						if(param == 'update'){
+								if(codeList[i].codeId  == upPropertyId){
+									optionHtml += '<option value=\"' +  codeList[i].codeId + '\" selected >'
+									+ codeList[i].codeNm + '</option>';	
+								}else{
+									optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+									+ codeList[i].codeNm + '</option>';	
+									}	
+						}else{
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';	
+						}					
+				    }
+					document.getElementById("propertyId").innerHTML = optionHtml;
+				})
+			}
+			
+	}	
+	
+	var subledgerCombo ={
+			initCombo: function( param ){
+				var formData = { "codeKind": 'SUBLEDGER' };
+		
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">보조부 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+						if(param == 'update'){
+								if(codeList[i].codeId  == upSubledgerId){
+									optionHtml += '<option value=\"' +  codeList[i].codeId + '\" selected >'
+									+ codeList[i].codeNm + '</option>';	
+								}else{
+									optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+									+ codeList[i].codeNm + '</option>';	
+									}	
+						}else{
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';	
+						}					
+				    }
+					document.getElementById("subledgerId").innerHTML = optionHtml;
+				})
+			}
+	}
+
+	
+	function searchCodeList(param){
+	
+		var codeSelect = document.getElementById("largeAccountId");
+		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
+		
+		if(param == 'middleAccount'){
+			if(codeId == ''){
+				alert("대분류 코드를 선택해주세요!"); 
+				$('#middleAccountId').find('option:first').attr('selected', 'selected');
+				$('#accountTaxId').find('option:first').attr('selected', 'selected');
+			}
+				middleAccountCombo.initCombo();
+						
+		}else if(param == 'accountTax'){
+			var codeMiddleSelect = document.getElementById("middleAccountId");
+			var codeMiddleId = codeMiddleSelect.options[codeMiddleSelect.selectedIndex].value;
+
+			if(codeMiddleId == ''){
+				alert("중분류 코드를 선택해주세요!");
+				$('#accountTaxId').find('option:first').attr('selected', 'selected');
+			
+			}
+				accountTaxCombo.initCombo();	
+		}
+	}
+
+	
+	//수정 팝업의 경우 대분류리스트 우선 조회, 대분류에 맞는 중, 소(계정과목 세무용) 조회되도록 한다
+	function upSearchCodeList(){
+		
+		var largeId = { "codeKind": upLargeAccountId };
+		var middleId = {"codeKind": upMiddleAccountId};
+		
+		//중분류
+		postAjax("/admin/cm/code/selectCodeInfo", largeId, null, function (data){
+			var codeList = data.codeList; 
+			var optionHtml = '<option value="">중분류 선택</option>';
+			for (var i = 0; i < codeList.length; i++) {
+				if(codeList[i].codeId  == upMiddleAccountId){
+					optionHtml += '<option value=\"' +  codeList[i].codeId + '\" selected >'
+					+ codeList[i].codeNm + '</option>';
+				}else{
+					optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+					+ codeList[i].codeNm + '</option>';
+				}
+				
+				}
+			document.getElementById("middleAccountId").innerHTML = optionHtml;
+		})
+		
+		//계정과목(세무용)
+		postAjax("/admin/cm/code/selectCodeInfo", middleId, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">계정과목코드(세무용) 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+					
+						if(codeList[i].codeId  == upAccountTaxId){
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\" selected >'
+							+ codeList[i].codeNm + '</option>';
+							}
+						else {
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';	
+						}
+    				}
+					document.getElementById("accountTaxId").innerHTML = optionHtml;
+				})
+				
+				
+				
+	}
+	
+</script>
+<body>
+	 <div class="modalpopup_area open">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="input-group">
+			  <input id="accountCodeId" type="hidden" class="form-control">
+			  <span class="input-group-addon" id="basic-addon1">계정과목명</span>
+			  <input id="accountCodeNm" type="text" class="form-control">
+		  </div>	  
+		  <span></span>
+		     <div class="input-group">
+		     <!--   <input id="largeAccountId" type="hidden" class="form-control">-->
+			  <span class="input-group-addon" id="basic-addon1">대분류명</span>
+			    <select id="largeAccountId" class="form-control"  onchange="searchCodeList('middleAccount')">
+		      </select>
+			
+			<!--   <input id="middleAccountId" type="hidden" class="form-control"> -->
+			  <span class="input-group-addon" id="basic-addon1">중분류명</span>
+			  <select id="middleAccountId"  class="form-control" onchange="searchCodeList('accountTax')">
+		      </select>
+			
+		  </div>
+		  	  
+		     <div class="input-group">
+		    <!--  <input id="accountTaxId" type="hidden" class="form-control">  --> 
+			  <span class="input-group-addon" id="basic-addon1">계정과목명(세무용)</span>
+			  <select id="accountTaxId"  class="form-control">
+			  </select>
+			 
+			   <span class="input-group-addon" id="basic-addon1">특성</span>
+			<select id="propertyId"  class="form-control">
+			  </select>
+			  <span class="input-group-addon" id="basic-addon1">보조부</span>
+			  <select id="subledgerId"  class="form-control">
+			  </select>
+		  </div>
+		
+		  <div class="input-group">
+	 		  <span class="input-group-addon" id="basic-addon1">매입여부</span>
+			  <input id="salesYn" type="checkbox"  class="form-control">
+			  <span class="input-group-addon" id="basic-addon1">매출여부</span>
+			  <input id="purchaseYn" type="checkbox"  class="form-control">
+			  <span class="input-group-addon" id="basic-addon1">사용여부</span>
+			  <input id="useYn" type="checkbox"  class="form-control">
+		  </div>
+		  
+		  
+		  <div class="input-group">
+			  <span class="input-group-addon" id="basic-addon1">비고</span>
+			  <input id="description" type="text" class="form-control">
+		  </div>
+		  <div>
+		  	<span># 신규 등록 시, 계정과목코드는 자동으로 등록됩니다.</span>
+		  </div>
+        </div>
+      </div>
+    </div>
+	<div>
+		<button type="button" class="btn btn-default btn-sm" onclick="updateAccount();">수정</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+	</div> 
+</body>
+</html>

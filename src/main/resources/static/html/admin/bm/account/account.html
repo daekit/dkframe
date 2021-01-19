@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+</head>
+<script type="text/javascript">
+	
+	var firstGrid = new ax5.ui.grid();
+	var authId = null;
+	var authRole = null;
+	
+	$(document).ready(function() {
+		
+		largeIdCombo.initCombo();	
+		
+        firstGrid.setConfig({
+        	showRowSelector: true,
+        	multipleSelect: false,
+            target: $('[data-ax5grid="first-grid"]'),
+            body: {
+            	onClick: function () {
+                    this.self.select(this.dindex);
+                },
+            },
+            page: {
+            	   navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+            },
+            columns: [
+                {key: "accountId", label: "계정과목코드"},
+                {key: "accountNm", label: "계정과목"},
+                {key: "largeAccountId", label: "대분류코드"},
+                {key: "largeAccountNm", label: "대분류명"},
+                {key: "middleAccountId", label: "중분류코드"},
+                {key: "middleAccountNm", label: "중분류명"},
+                {key: "accountTaxId", label: "계정과목코드(세무용)"},
+                {key: "accountTaxNm", label: "계정과목명(세무용)"},
+                {key: "propertyId", label: "특성코드"},
+                {key: "propertyNm", label: "특성명"},
+                {key: "subledgerId", label: "보조부코드"},
+                {key: "subledgerNm", label: "보조부명"},
+                {key: "salesYn", label: "매입여부"},
+                {key: "purchaseYn", label: "매출여부"},
+                {key: "useYn", label: "사용여부"},
+                {key: "description", label: "비고"},
+            ]
+        });
+        getData(0);
+	})
+	
+	
+	function getData(_pageNo) {
+		var targetObj = this.target;
+		var paramObj = {'pageNo': _pageNo + 1, 'recordCnt': 20};
+
+		
+		var codeKind ="";
+		
+		if($('#largeId').val()){
+			if($('#middleId').val()){
+			 if($('#taxId').val()){
+				 codeKind = $('#taxId').val();
+			 }else{
+				 codeKind = $('#middleId').val();
+			 }
+			}else{
+				codeKind = $('#largeId').val();
+			}
+		}
+		paramObj.codeKind = codeKind;
+		//검색어 set
+		paramObj.accountNm = $('#accountNm').val();
+		
+		
+		postAjax("/admin/bm/account/selectCodeList", paramObj , null, function(data){
+			var list = data.codeList;
+			console.log(data);
+			firstGrid.setData({
+				list : list,
+				page : {
+					currentPage : _pageNo,
+					pageSize : data.paginationInfo.pageSize,
+					totalElements : data.paginationInfo.totalRecordCount,
+					totalPages : data.paginationInfo.totalPageCount
+					 /*currentPage : _pageNo,
+					pageSize : 10,
+					totalElements : list.length,
+					totalPages : list.length / 10*/ 
+				}
+			});
+			return this;
+		});
+	}
+
+	function createAccountModal() {
+		openModal("/static/html/admin/bm/account/updateAccount.html", 1000, 300,
+				"계정과목코드 등록");
+	}
+
+	function updateAccountModal() {
+		if (selectGridValidation(firstGrid))
+			return;
+		openModal("/static/html/admin/bm/account/updateAccount.html", 1000, 300,
+				"계정과목코드 수정");
+	}
+
+	function deleteAccount() {
+		if (selectGridValidation(firstGrid))
+			return;
+		if (!confirm("삭제하시겠습니까?"))
+			return;
+		var formData = {
+			"authId" : firstGrid.getList("selected")[0].authId
+		}
+		deleteAjax("/admin/bm/account/deleteCode", formData, null, function(data) {
+			if (data.resultCode == 200) {
+				alert(data.resultMessage);
+				getData();
+			}
+		});
+	}
+	
+	var largeIdCombo = {
+			initCombo: function(param){
+				var formData = {"codeKind": "ACCOUNT"};
+				
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">대분류 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+								optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+    							+ codeList[i].codeNm + '</option>';
+    				}
+					document.getElementById("largeId").innerHTML = optionHtml;
+				})
+			}
+			
+	}
+	
+	var middleIdCombo ={
+			initCombo: function(){
+				var formData = { "codeKind": $("#largeId").val() };
+				
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">중분류 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+					
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';
+						
+    					}
+					document.getElementById("middleId").innerHTML = optionHtml;
+				})
+			}
+			
+	}
+	
+	
+	var taxIdCombo = {
+			initCombo: function(){
+				var formData = { "codeKind": $("#middleId").val() };
+		
+				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
+					var codeList = data.codeList; 
+					var optionHtml = '<option value="">계정과목코드(세무용) 선택</option>';
+					for (var i = 0; i < codeList.length; i++) {
+					
+							optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
+							+ codeList[i].codeNm + '</option>';	
+						}
+					document.getElementById("taxId").innerHTML = optionHtml;
+				})
+			}
+			
+	}
+	
+	
+	function commonCodeList(param){
+		
+		var codeSelect = document.getElementById("largeId");
+		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
+		
+		if(param == 'middleAccount'){
+			if(codeId == ''){
+				//alert("대분류 코드를 선택해주세요!"); 
+				$('#middleId').find('option:first').attr('selected', 'selected');
+				$('#taxId').find('option:first').attr('selected', 'selected');
+			}
+				middleIdCombo.initCombo();
+						
+		}else if(param == 'accountTax'){
+			var codeMiddleSelect = document.getElementById("middleId");
+			var codeMiddleId = codeMiddleSelect.options[codeMiddleSelect.selectedIndex].value;
+
+			if(codeMiddleId == ''){
+				//alert("중분류 코드를 선택해주세요!");
+				$('#taxId').find('option:first').attr('selected', 'selected');
+			
+			}
+				taxIdCombo.initCombo();	
+		}
+	}
+
+
+</script>
+<body>
+	<div class="row form-group">
+		<span style="font-size: 25px; font-weight: bold;">계정과목코드 관리</span>
+		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createAccountModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAccountModal();">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAccount();">삭제</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-inline form-group">
+			  
+			  <select id="largeId" class="form-control"  onchange="commonCodeList('middleAccount'); getData(0);">
+		      </select>
+		      
+		        <select id="middleId"  class="form-control" onchange="commonCodeList('accountTax'); getData(0);">
+		      </select>
+		      
+		      <select id="taxId"  class="form-control" onchange="getData(0);">
+			  </select>
+			  
+			<input type="text" class="form-control" id="accountNm" placeholder="계정과목명"  onkeypress="if(event.keyCode == 13){getData(0);}"> 
+			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
+		</div>
+	</div>
+	<div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+</body>
+</html>

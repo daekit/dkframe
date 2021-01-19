@@ -3,5 +3,133 @@
 
 <mapper namespace="com.dksys.biz.admin.bm.account.mapper.AccountMapper">
 
-	 
+
+	<select id="selectCodeCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+		FROM(
+			SELECT ROWNUM AS RNUM, A.*
+			FROM 
+			(	SELECT A.ACCOUNT_ID, A.ACCOUNT_NM,
+				   A.LARGE_ACCOUNT_ID, 
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.LARGE_ACCOUNT_ID = B.CODE_ID) as LARGE_ACCOUNT_NM,
+				   A.MIDDLE_ACCOUNT_ID,
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.MIDDLE_ACCOUNT_ID = B.CODE_ID) as MIDDLE_ACCOUNT_NM,
+				     A.ACCOUNT_TAX_ID, 
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.ACCOUNT_TAX_ID = B.CODE_ID) as ACCOUNT_TAX_NM,
+				   A.SUBLEDGER_ID,
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.SUBLEDGER_ID = B.CODE_ID) as SUBLEDGER_NM,
+				      A.PROPERTY_ID, 
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.PROPERTY_ID = B.CODE_ID) as PROPERTY_NM,
+					A.USE_YN, A.SALES_YN,
+				   A.PURCHASE_YN, A.DESCRIPTION,
+				   A.CREATE_ID, A.CREATE_DT
+				FROM BM_ACCOUNT_CODE A 
+				WHERE 1=1 
+					<if test= "codeKind != null and !codeKind.equals('')">
+					AND (
+						A.LARGE_ACCOUNT_ID = #{codeKind}
+						OR 
+						A.MIDDLE_ACCOUNT_ID = #{codeKind}
+						OR 
+						A.ACCOUNT_TAX_ID = #{codeKind}
+					)
+					</if>
+					<if test="accountNm != null and !accountNm.equals('')">
+					 AND  A.ACCOUNT_NM LIKE '%${accountNm}%'
+					</if> 
+			  ) A 
+			)
+	</select>
+
+	 <select id="selectCodeList" parameterType="Map" resultType="CamelMap">
+	
+		SELECT *
+		FROM(
+			SELECT ROWNUM AS RNUM, A.*
+			FROM 
+			(	SELECT A.ACCOUNT_ID, A.ACCOUNT_NM,
+				   A.LARGE_ACCOUNT_ID, 
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.LARGE_ACCOUNT_ID = B.CODE_ID) as LARGE_ACCOUNT_NM,
+				   A.MIDDLE_ACCOUNT_ID,
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.MIDDLE_ACCOUNT_ID = B.CODE_ID) as MIDDLE_ACCOUNT_NM,
+				     A.ACCOUNT_TAX_ID, 
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.ACCOUNT_TAX_ID = B.CODE_ID) as ACCOUNT_TAX_NM,
+				   A.SUBLEDGER_ID,
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.SUBLEDGER_ID = B.CODE_ID) as SUBLEDGER_NM,
+				      A.PROPERTY_ID, 
+				   (SELECT B.CODE_NM FROM CMN_CODE_INFO B WHERE A.PROPERTY_ID = B.CODE_ID) as PROPERTY_NM,
+					A.USE_YN, A.SALES_YN,
+				   A.PURCHASE_YN, A.DESCRIPTION,
+				   A.CREATE_ID, A.CREATE_DT
+				FROM BM_ACCOUNT_CODE A 
+				WHERE 1=1 
+					<if test= "codeKind != null and !codeKind.equals('')">
+					AND (
+						A.LARGE_ACCOUNT_ID = #{codeKind}
+						OR 
+						A.MIDDLE_ACCOUNT_ID = #{codeKind}
+						OR 
+						A.ACCOUNT_TAX_ID = #{codeKind}
+					)
+					</if>
+					<if test="accountNm != null and !accountNm.equals('')">
+					 AND  A.ACCOUNT_NM LIKE '%${accountNm}%'
+					</if> 
+			  ) A 
+			)
+			WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+
+	<insert id="insertCode" parameterType="Map">
+		INSERT INTO BM_ACCOUNT_CODE
+		(
+			ACCOUNT_ID, ACCOUNT_NM, LARGE_ACCOUNT_ID,  MIDDLE_ACCOUNT_ID, SUBLEDGER_ID, PROPERTY_ID, ACCOUNT_TAX_ID, USE_YN,
+			SALES_YN, PURCHASE_YN, DESCRIPTION, CREATE_ID, CREATE_DT
+		)
+		VALUES(
+			#{codeId}, #{codeNm}, #{largeAccountId}, #{middleAccountId}, #{subledgerId}, #{propertyId}, #{accountTaxId},'Y',
+			#{salesYn}, #{purchaseYn}, #{description}, #{userId}, SYSDATE()
+		);		
+	</insert>
+
+	<delete id="deleteCode" parameterType="Map">
+		DELETE FROM BM_ACCOUNT_CODE
+		WHERE ACCOUNT_ID = #{accountId}
+	</delete>
+	<update id= "updateCode" parameterType="Map">
+	
+	MERGE INTO BM_ACCOUNT_CODE
+	USING DUAL
+	ON (
+		ACCOUNT_ID = #{accountId}
+	)
+	WHEN MATCHED THEN 
+		UPDATE SET 
+			ACCOUNT_NM = #{accountNm},
+			LARGE_ACCOUNT_ID = #{largeAccountId},
+			MIDDLE_ACCOUNT_ID = #{middleAccountId},
+			SUBLEDGER_ID = #{subledgerId},
+			PROPERTY_ID = #{propertyId},
+			ACCOUNT_TAX_ID = #{accountTaxId},
+			USE_YN = #{useYn}, 
+			SALES_YN = #{salesYn},
+			PURCHASE_YN = #{purchaseYn},
+			DESCRIPTION = #{description},
+			UPDATE_ID = #{userId}, 
+			UPDATE_DT = SYSDATE
+	WHEN NOT MATCHED THEN 
+		INSERT 
+		(
+			ACCOUNT_ID, ACCOUNT_NM, LARGE_ACCOUNT_ID,  MIDDLE_ACCOUNT_ID, SUBLEDGER_ID, PROPERTY_ID, ACCOUNT_TAX_ID, USE_YN,
+			SALES_YN, PURCHASE_YN, DESCRIPTION, CREATE_ID, CREATE_DT
+		)
+		VALUES(
+			SEQ_ACCOUNT.NEXTVAL, #{accountNm}, #{largeAccountId}, #{middleAccountId}, #{subledgerId}, #{propertyId}, #{accountTaxId},'Y',
+			#{salesYn}, #{purchaseYn}, #{description}, #{userId}, SYSDATE
+		)
+	</update>
+	
+	
+	
 </mapper>
