@@ -11,13 +11,8 @@
 		WHERE
 			USE_YN = 'Y'
 			AND CODE_ID != #{codeKind}
-			<if test="keyword != null and !keyword.equals('')">
-				AND
-				(
-					CODE_ID LIKE '%${keyword}%'				
-					OR
-					CODE_NM LIKE '%${keyword}%'
-				)
+			<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'
 			</if>
 		START WITH CODE_ID = #{codeKind}
 		CONNECT BY PRIOR CODE_ID = CODE_KIND
@@ -40,15 +35,8 @@
 				WHERE
 					USE_YN = 'Y'
 					AND CODE_ID != #{codeKind}
-					<if test="keyword != null and !keyword.equals('')">
-						AND
-						(
-							CODE_ID LIKE '%${keyword}%'				
-							OR
-							CODE_NM LIKE '%${keyword}%'
-							OR
-							CODE_DESC LIKE '%${keyword}%'
-						)
+					<if test="searchValue != null and !searchValue.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
 				START WITH CODE_ID = #{codeKind}
 				CONNECT BY PRIOR CODE_ID = CODE_KIND
@@ -57,7 +45,7 @@
 		)
 		WHERE
 		<![CDATA[
-			RNUM > #{firstIndex} AND RNUM <= #{lastIndex}
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 		]]>
 	</select>
 	
@@ -70,47 +58,77 @@
 			USE_YN = 'Y'
 			AND CODE_KIND = #{codeKind}
 	</select>
-
-	<insert id="insertCode" parameterType="Map">
-		INSERT INTO CMN_CODE_INFO
-		(
-			CODE_ID, CODE_NM, CODE_KIND, CODE_DESC, USE_YN, CREATE_ID, CREATE_DT
-		)
-		VALUES(
-			#{codeId}, #{codeNm}, #{codeKind}, #{codeDesc}, 'Y', #{userId}, SYSDATE
-		);		
-	</insert>
-
-	<delete id="deleteCode" parameterType="Map">
-		DELETE FROM CMN_CODE_INFO
-		WHERE CODE_ID = #{codeId}
-	</delete>
-
-	<update id="updateCode" parameterType="Map">
-		UPDATE CMN_CODE_INFO
-		SET 
-			CODE_ID = #{codeId},
-			CODE_NM = #{codeNm},
-			CODE_KIND = #{codeKind},
-			CODE_DESC = #{codeDesc},
-			UPDATE_ID = #{userId}, 
-			UPDATE_DT = SYSDATE,
-		WHERE CODE_ID = #{codeId}
-	</update>
 	
-	<select id="selectCodeInfoList" parameterType="Map" resultType="CamelMap">
+	<select id="selectCodeInfo" resultType="CamelMap">
 		SELECT
-			CODE_ID, 
-			CODE_NM, 
-			CODE_KIND, 
-			CODE_DESC, 
-			USE_YN, 
-			CREATE_ID, 
-			CREATE_DT
+			CODE_ID,
+			CODE_NM,
+			CODE_KIND,
+			CODE_DESC
 		FROM
 			CMN_CODE_INFO
 		WHERE
-			CODE_KIND = #{codeKind}
+			CODE_ID = #{codeId}
 	</select>
-	 
+	
+	<select id="selectCodeTree" resultType="CamelMap">
+		SELECT
+			CODE_ID AS ID,
+			CODE_NM AS TEXT,
+			NVL2(CODE_KIND, CODE_KIND, '#') AS PARENT,
+			'unit' AS TYPE
+		FROM
+			CMN_CODE_INFO
+		WHERE
+			USE_YN = 'Y'
+	</select>
+
+	<insert id="insertCode" parameterType="Map">
+		MERGE INTO CMN_CODE_INFO A
+			USING DUAL
+			ON (A.CODE_ID = #{codeId})
+		WHEN MATCHED THEN
+			UPDATE SET
+				CODE_NM = #{codeNm},
+				CODE_KIND = #{codeKind},
+				CODE_DESC = #{codeDesc},
+				UPDATE_ID = #{userId},
+				UPDATE_DT = SYSDATE
+		WHEN NOT MATCHED THEN
+		INSERT
+		(
+			CODE_ID,
+			CODE_NM,
+			CODE_KIND,
+			CODE_DESC,
+			USE_YN,
+			CREATE_ID,
+			CREATE_DT,
+			UPDATE_ID,
+			UPDATE_DT
+		)
+		VALUES(
+			#{codeId},
+			#{codeNm},
+			#{codeKind},
+			#{codeDesc},
+			'Y',
+			#{userId},
+			SYSDATE,
+			#{userId},
+			SYSDATE
+		)		
+	</insert>
+
+	<update id="deleteCode" parameterType="Map">
+		UPDATE
+			CMN_CODE_INFO
+		SET
+			USE_YN = 'N',
+			UPDATE_ID = #{userId},
+			UPDATE_DT = SYSDATE
+		WHERE
+			CODE_ID = #{codeId}
+	</update>
+
 </mapper>
