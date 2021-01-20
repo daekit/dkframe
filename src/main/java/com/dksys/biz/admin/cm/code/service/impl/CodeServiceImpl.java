@@ -29,9 +29,19 @@ public class CodeServiceImpl implements CodeService {
 	public List<Map<String, String>> selectChildCodeList(Map<String, String> param) {
 		return codeMapper.selectChildCodeList(param);
 	}
+	
+	@Override
+	public Map<String, String> selectCodeInfo(Map<String, String> param) {
+		return codeMapper.selectCodeInfo(param);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectCodeTree() {
+		return codeMapper.selectCodeTree();
+	}
 
 	@Override
-	public int insertCode(Map<String, String> param) {
+	public int insertCode(Map<String, String> param) throws Exception {
 		return codeMapper.insertCode(param);
 	}
 
@@ -40,14 +50,4 @@ public class CodeServiceImpl implements CodeService {
 		return codeMapper.deleteCode(param);
 	}
 
-	@Override
-	public int updateCode(Map<String, String> param) {
-		return codeMapper.updateCode(param);
-	}
-
-	@Override
-	public List<Map<String, String>> selectCodeInfoList(Map<String, String> param) {
-		return codeMapper.selectCodeInfoList(param);
-	}
-	
 }

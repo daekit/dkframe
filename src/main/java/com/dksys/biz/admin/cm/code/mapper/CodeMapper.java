@@ -13,13 +13,13 @@ public interface CodeMapper {
 	List<Map<String, String>> selectCodeList(Map<String, String> param);
 
 	List<Map<String, String>> selectChildCodeList(Map<String, String> param);
+
+	Map<String, String> selectCodeInfo(Map<String, String> param);
+	
+	List<Map<String, String>> selectCodeTree();
 	
 	int insertCode(Map<String, String> param);
 
 	int deleteCode(Map<String, String> param);
 
-	int updateCode(Map<String, String> param);
-	
-	List<Map<String, String>> selectCodeInfoList(Map<String, String> param);
-	
 }

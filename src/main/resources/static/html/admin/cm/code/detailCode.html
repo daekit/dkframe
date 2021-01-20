@@ -1,0 +1,92 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="form-group">
+			<form id="codeForm">
+				<table class="popup_table">
+					<colgroup>
+						<col width="12%">
+						<col width="38%">
+						<col width="12%">
+						<col width="38%">
+					</colgroup>
+					<tr>
+						<th>코드ID</th>
+						<td><input type="text" class="form-control" id="codeId" name="codeId" required></td>
+						<th>상위코드ID</th>
+						<td><input type="text" class="form-control" id="codeKind" name="codeKind" required></td>
+					</tr>
+					<tr>
+						<th>코드명</th>
+						<td><input type="text" class="form-control" id="codeNm" name="codeNm" required></td>
+						<th>코드설명</th>
+						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc"></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>
+<div>
+	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick="insertCode();"></button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		if(actionType == "C"){
+			$('#actionBtn').text("등록");
+		}else if(actionType == "U"){
+			selectCodeInfo();
+			$('#codeId').prop("readOnly", true);
+			$('#actionBtn').text("저장");
+		}
+	});
+	
+	function selectCodeInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
+		postAjax("/admin/cm/code/selectCodeInfo", paramObj, null, function(data){
+			setCodeInfo(data.codeInfo);
+		});
+	}
+	
+	function setCodeInfo(codeInfo){
+		$.each(codeInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+	}
+	
+	function insertCode() {
+		var formData = $('#codeForm').serializeObject();
+		formData.actionType = actionType;
+		formData.userId = jwt.userId;
+		
+		var isValid = true;
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			postAjax("/admin/cm/code/insertCode", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					// 일단 등록은 완료!! 중복조회, 자동채번, 상위코드 선택하기
+					$('#searchValue').val("");
+					$('#rootDiv').val("ROOT").trigger('change');
+					modal.close();
+				}
+			});
+		}
+	}
+	
+	/* 
+		function selectCodeModal(){
+			openSecondModal("/static/html/admin/cm/code/selectCode.html", 600, 400, "코드선택");
+		}
+	*/
+</script>

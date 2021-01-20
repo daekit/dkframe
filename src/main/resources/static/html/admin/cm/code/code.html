@@ -3,33 +3,44 @@
 </div>
 <div class="row">
 	<div class="form-group form-inline">
-		<select class="form-control" id="largeDiv" onchange="selectChildCodeList(this.value, 'midDiv')">
+		<select class="form-control division" id="rootDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="0" style="display: none;">
+			<option value="">공통코드 선택</option>
+			<option value="ROOT">공통코드</option>
+		</select>
+		<select class="form-control division" id="codeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="1">
+			<option value="">코드분류 선택</option>
+		</select>
+		<select class="form-control division" id="largeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="2">
 			<option value="">대분류 선택</option>
 		</select>
-		<select class="form-control" id="midDiv">
+		<select class="form-control division" id="midDiv" onchange="gridView.setData(0);" data-depth="3">
 			<option value="">중분류 선택</option>
 		</select>
+		<select class="form-control" id="searchType">
+			<option value="CODE_ID">코드ID</option>
+			<option value="CODE_NM">코드명</option>
+			<option value="CODE_DESC">설명</option>
+		</select>
+		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
 		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createCodeModal();">등록</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateCodeModal();">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailCode('C');">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailCode('U');">수정</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
 		</div>
-		<input type="text" class="form-control" id="keyword" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
-		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
 	</div>
 </div>
 <div class="row">
 	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
 </div>
 <script type="text/javascript">
-	var codeId = null;
-	var codeRole = null;
-	
+	var actionType = null;
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				target: $('[data-ax5grid="first-grid"]'),
+				header: {selector: false},
 	        	showRowSelector: true,
 	        	multipleSelect: false,
 	            columns: [
@@ -52,25 +63,31 @@
 	                }
 	            }
 			});
-			return this;
 		},
 		setData: function(_pageNo){
 			var targetObj = this.target;
-			var paramObj = {pageNo: _pageNo + 1, recordCnt: 20};
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
 			
-			// 대분류 또는 중분류 값 set
+			// 분류값 set
 			var codeKind = "ROOT";
-			if($('#largeDiv').val()){
-				if($('#midDiv').val()){
-					codeKind = $('#midDiv').val();
+			if($('#codeDiv').val()){
+				if($('#largeDiv').val()){
+					if($('#midDiv').val()){
+						codeKind = $('#midDiv').val();
+					}else{
+						codeKind = $('#largeDiv').val();
+					}
 				}else{
-					codeKind = $('#largeDiv').val();
+					codeKind = $('#codeDiv').val();
 				}
 			}
 			paramObj.codeKind = codeKind;
 			
+			// 검색구분 set
+			paramObj.searchType = $('#searchType').val();
+			
 			// 검색어 set
-			paramObj.keyword = $('#keyword').val();
+			paramObj.searchValue = $('#searchValue').val();
 			
 			postAjax("/admin/cm/code/selectCodeList", paramObj, null, function(data){
 				targetObj.setData({
@@ -87,13 +104,17 @@
 	}
 	
 	$(document).ready(function() {
-		gridView.initView().setData(0);
-		selectChildCodeList("ROOT", "largeDiv");
+		gridView.initView();
+		$('#rootDiv').val("ROOT").trigger('change');
 	});
 	
-	function selectChildCodeList(parentCode, target) {
-		var paramObj = {codeKind: parentCode};
-		postAjax("/admin/cm/code/selectChildCodeList", paramObj, null, function(data){
+	function selectChildCodeList(obj) {
+		
+		var codeKind = $(obj).val();
+		var target = $(obj).next('select.division');
+		var paramObj = {"codeKind": codeKind};
+		
+		postAjaxSync("/admin/cm/code/selectChildCodeList", paramObj, null, function(data){
 			var optionHtml = '';
 			var childCodeList = data.childCodeList;
 			$.each(childCodeList, function(index, item){
@@ -101,31 +122,36 @@
 				optionHtml += item.codeNm;
 				optionHtml += '</option>';
 			});
-			$('#'+target).find('option[value!=""]').remove();
-			$('#'+target).append(optionHtml);
+			initDivision(obj);
+			$(target).append(optionHtml);
 		});
 	}
 	
-	function createCodeModal() {
-		openModal("/static/html/admin/cm/code/createCode.html", 600, 300, "코드등록");
-	}
-	
-
-	function updateCodeModal() {
-		if(selectGridValidation(firstGrid)) return;
-		openModal("/static/html/admin/cm/code/updateCode.html", 600, 300, "코드수정");
-	}
-	
-	function deleteCode() {
-		if(selectGridValidation(firstGrid)) return;
-		if(!confirm("삭제하시겠습니까?")) return;
-		var formData = {
-				"codeId" : firstGrid.getList("selected")[0].codeId
+	function initDivision(obj){
+		var divSiblings = $(obj).siblings('select.division');
+		for(var i=0;i<divSiblings.length;i++){
+			var divSibling = divSiblings[i];
+			if($(obj).data('depth') < $(divSibling).data('depth')){
+				$(divSibling).find('option[value!=""]').remove();
+			}
 		}
-		deleteAjax("/admin/cm/code/deleteCode", formData, null, function(data){
+	}
+	
+	function detailCode(type) {
+		actionType = type;
+		openModal("/static/html/admin/cm/code/detailCode.html", 600, 400, "자재코드");
+	}
+
+	function deleteCode() {
+		if(!confirm("삭제하시겠습니까?")) return;
+		
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
+		deleteAjax("/admin/cm/code/deleteCode", paramObj, null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
-				getData();
+				$('#searchValue').val("");
+				$('#rootDiv').val("ROOT").trigger('change');
 			}
 		});
 	}
