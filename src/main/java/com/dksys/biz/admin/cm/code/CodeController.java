@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,8 +86,8 @@ public class CodeController {
     	return "jsonView";
     }
     
-    // 코드삭제
-    @DeleteMapping("/deleteCode")
+    // 공통코드삭제
+    @PutMapping("/deleteCode")
     public String deleteCode(@RequestBody Map<String, String> param, ModelMap model) {
     	codeService.deleteCode(param);
     	model.addAttribute("resultCode", 200);
