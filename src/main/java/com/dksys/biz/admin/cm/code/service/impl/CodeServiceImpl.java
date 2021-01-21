@@ -36,6 +36,11 @@ public class CodeServiceImpl implements CodeService {
 	}
 	
 	@Override
+	public List<Map<String, String>> selectCodeInfoList(Map<String, String> param) {
+		return codeMapper.selectCodeInfoList(param);
+	}
+	
+	@Override
 	public List<Map<String, String>> selectCodeTree() {
 		return codeMapper.selectCodeTree();
 	}
