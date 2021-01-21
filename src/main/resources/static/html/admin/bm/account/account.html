@@ -1,9 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
-</head>
+<div class="row form-group">
+		<span style="font-size: 25px; font-weight: bold;">계정과목코드 관리</span>
+	</div>
+	<div class="row">
+		<div class="form-inline form-group">
+			  <select id="largeId" class="form-control"  onchange="commonCodeList('middleAccount'); getData(0);">
+		      </select>
+		        <select id="middleId"  class="form-control" onchange="commonCodeList('accountTax'); getData(0);">
+		      </select>
+		      <select id="taxId"  class="form-control" onchange="getData(0);">
+			  </select>
+			  
+			<input type="text" class="form-control" id="accountNm" placeholder="계정과목명"  onkeypress="if(event.keyCode == 13){getData(0);}"> 
+			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
+		<div style="float: right;">
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createAccountModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAccountModal();">수정</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAccount();">삭제</a>
+		</div>
+		
+		</div>
+	</div>
+	<div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+	</div>
+
 <script type="text/javascript">
 	
 	var firstGrid = new ax5.ui.grid();
@@ -133,8 +153,8 @@
 			initCombo: function(param){
 				var formData = {"codeKind": "ACCOUNT"};
 				
-				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
-					var codeList = data.codeList; 
+				postAjax("/admin/cm/code/selectCodeInfoList", formData, null, function (data){
+					var codeList = data.codeInfoList; 
 					var optionHtml = '<option value="">대분류 선택</option>';
 					for (var i = 0; i < codeList.length; i++) {
 								optionHtml += '<option value=\"' +  codeList[i].codeId + '\">'
@@ -150,8 +170,8 @@
 			initCombo: function(){
 				var formData = { "codeKind": $("#largeId").val() };
 				
-				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
-					var codeList = data.codeList; 
+				postAjax("/admin/cm/code/selectCodeInfoList", formData, null, function (data){
+					var codeList = data.codeInfoList; 
 					var optionHtml = '<option value="">중분류 선택</option>';
 					for (var i = 0; i < codeList.length; i++) {
 					
@@ -170,8 +190,8 @@
 			initCombo: function(){
 				var formData = { "codeKind": $("#middleId").val() };
 		
-				postAjax("/admin/cm/code/selectCodeInfo", formData, null, function (data){
-					var codeList = data.codeList; 
+				postAjax("/admin/cm/code/selectCodeInfoList", formData, null, function (data){
+					var codeList = data.codeInfoList; 
 					var optionHtml = '<option value="">계정과목코드(세무용) 선택</option>';
 					for (var i = 0; i < codeList.length; i++) {
 					
@@ -213,33 +233,4 @@
 
 
 </script>
-<body>
-	<div class="row form-group">
-		<span style="font-size: 25px; font-weight: bold;">계정과목코드 관리</span>
-		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createAccountModal();">등록</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateAccountModal();">수정</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteAccount();">삭제</a>
-		</div>
-	</div>
-	<div class="row">
-		<div class="form-inline form-group">
-			  
-			  <select id="largeId" class="form-control"  onchange="commonCodeList('middleAccount'); getData(0);">
-		      </select>
-		      
-		        <select id="middleId"  class="form-control" onchange="commonCodeList('accountTax'); getData(0);">
-		      </select>
-		      
-		      <select id="taxId"  class="form-control" onchange="getData(0);">
-			  </select>
-			  
-			<input type="text" class="form-control" id="accountNm" placeholder="계정과목명"  onkeypress="if(event.keyCode == 13){getData(0);}"> 
-			<button class="btn btn-primary" type="button" onclick="getData(0);">검색</button>
-		</div>
-	</div>
-	<div class="row">
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
-	</div>
-</body>
-</html>
+	
