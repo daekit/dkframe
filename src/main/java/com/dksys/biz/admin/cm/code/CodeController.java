@@ -64,15 +64,7 @@ public class CodeController {
         return "jsonView";
     }
     
-    // 공통코드 트리 조회
-    @PostMapping("/selectCodeTree")
-    public String selectCodeTree(ModelMap model) {
-    	List<Map<String, String>> codeTree = codeService.selectCodeTree();
-    	model.addAttribute("codeTree", codeTree);
-        return "jsonView";
-    }
-    
-    // 공통코드 등록 수정
+    // 공통코드 등록/수정
     @PostMapping("/insertCode")
     public String insertCode(@RequestBody Map<String, String> param, ModelMap model) {
     	try {

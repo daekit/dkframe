@@ -41,11 +41,6 @@ public class CodeServiceImpl implements CodeService {
 	}
 	
 	@Override
-	public List<Map<String, String>> selectCodeTree() {
-		return codeMapper.selectCodeTree();
-	}
-
-	@Override
 	public int insertCode(Map<String, String> param) throws Exception {
 		return codeMapper.insertCode(param);
 	}
