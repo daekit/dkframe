@@ -57,6 +57,14 @@ public class CodeController {
         return "jsonView";
     }
     
+    // 공통코드 정보 리스트 조회
+    @PostMapping("/selectCodeInfoList")
+    public String selectCodeInfoList(@RequestBody Map<String, String> param, ModelMap model) {
+    	List<Map<String, String>> codeInfoList = codeService.selectCodeInfoList(param);
+    	model.addAttribute("codeInfoList", codeInfoList);
+        return "jsonView";
+    }
+    
     // 공통코드 트리 조회
     @PostMapping("/selectCodeTree")
     public String selectCodeTree(ModelMap model) {

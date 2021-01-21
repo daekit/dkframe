@@ -16,6 +16,8 @@ public interface CodeMapper {
 
 	Map<String, String> selectCodeInfo(Map<String, String> param);
 	
+	List<Map<String, String>> selectCodeInfoList(Map<String, String> param);
+	
 	List<Map<String, String>> selectCodeTree();
 	
 	int insertCode(Map<String, String> param);
