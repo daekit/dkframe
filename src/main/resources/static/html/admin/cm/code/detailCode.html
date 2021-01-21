@@ -19,12 +19,12 @@
 						<th>코드명</th>
 						<td><input type="text" class="form-control" id="codeNm" name="codeNm" required></td>
 						<th>코드설명</th>
-						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc"></td>
+						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc" required></td>
 					</tr>
 					<tr>
 						<th>사용여부</th>
 						<td>
-							<select class="form-control input-sm" id="useYn" name="useYn" required>
+							<select class="form-control input-sm" id="useYn" name="useYn">
 								<option value="Y">사용</option>
 								<option value="N">미사용</option>
 							</select>
@@ -45,6 +45,8 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		if(actionType == "C"){
+			$('#codeKind').val(getCodeKind());
+			$('#codeKind').prop("readOnly", true);
 			$('#actionBtn').text("등록");
 		}else if(actionType == "U"){
 			selectCodeInfo();
@@ -72,21 +74,10 @@
 		formData.actionType = actionType;
 		formData.userId = jwt.userId;
 		
-		var isValid = true;
-		$('input[required]').each(function(idx, elem){
-			if($.trim($(elem).val()) == ""){
-				alert("필수값을 입력해 주세요.");
-				$(elem).focus();
-				isValid = false;
-				return false;
-			}
-		});
-		
-		if(isValid){
+		if(inputValidation($('#codeForm input[required]'))){
 			postAjax("/admin/cm/code/insertCode", formData, null, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
-					// 일단 등록은 완료!! 중복조회, 자동채번, 상위코드 선택하기
 					$('#searchValue').val("");
 					$('#useType').val("Y");
 					$('#rootDiv').val("ROOT").trigger('change');
@@ -95,10 +86,4 @@
 			});
 		}
 	}
-	
-	/* 
-		function selectCodeModal(){
-			openSecondModal("/static/html/admin/cm/code/selectCode.html", 600, 400, "코드선택");
-		}
-	*/
 </script>

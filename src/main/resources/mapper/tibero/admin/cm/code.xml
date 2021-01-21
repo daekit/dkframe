@@ -9,14 +9,11 @@
 		FROM 
 			CMN_CODE_INFO 
 		WHERE
-			USE_YN = #{useYn}
-			AND CODE_ID != #{codeKind}
+			CODE_KIND = #{codeKind}
+			AND USE_YN = #{useYn}
 			<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'
 			</if>
-		START WITH CODE_ID = #{codeKind}
-		CONNECT BY PRIOR CODE_ID = CODE_KIND
-		ORDER SIBLINGS BY CODE_ID
 	</select>
 
 	<select id="selectCodeList" resultType="CamelMap">
@@ -33,14 +30,11 @@
 				FROM 
 					CMN_CODE_INFO 
 				WHERE
-					USE_YN = #{useYn}
-					AND CODE_ID != #{codeKind}
+					CODE_KIND = #{codeKind}
+					AND USE_YN = #{useYn}
 					<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
-				START WITH CODE_ID = #{codeKind}
-				CONNECT BY PRIOR CODE_ID = CODE_KIND
-				ORDER SIBLINGS BY CODE_ID
 			) A
 		)
 		WHERE
@@ -85,18 +79,6 @@
 			CODE_KIND = #{codeKind}
 	</select>
 	
-	<select id="selectCodeTree" resultType="CamelMap">
-		SELECT
-			CODE_ID AS ID,
-			CODE_NM AS TEXT,
-			NVL2(CODE_KIND, CODE_KIND, '#') AS PARENT,
-			'unit' AS TYPE
-		FROM
-			CMN_CODE_INFO
-		WHERE
-			USE_YN = 'Y'
-	</select>
-
 	<insert id="insertCode" parameterType="Map">
 		MERGE INTO CMN_CODE_INFO A
 			USING DUAL

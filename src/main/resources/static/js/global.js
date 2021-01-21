@@ -242,11 +242,15 @@ function onlyNumber(elem){
 	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
 
-function inputValidation(el) {
-	$.each(el, function(item){
-		if(item.required && item == "") {
+function inputValidation(inputList) {
+	var isValid = true;
+	$.each(inputList, function(idx, elem){
+		if($.trim(elem.value) == ""){
+			isValid = false;
+			alert("필수값을 입력해 주세요.");
+			$(elem).focus();
 			return false;
 		}
 	});
-	return true;
+	return isValid;
 }

@@ -44,9 +44,17 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				target: $('[data-ax5grid="first-grid"]'),
-				header: {selector: false},
-	        	showRowSelector: true,
+				showRowSelector: true,
 	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	detailCode("U");
+		            },
+		        },
 	            columns: [
 	                {key: "codeId", label: "코드ID", width: 150},
 	                {key: "codeNm", label: "코드명", width: 150},
@@ -73,19 +81,7 @@
 			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
 			
 			// 분류값 set
-			var codeKind = "ROOT";
-			if($('#codeDiv').val()){
-				if($('#largeDiv').val()){
-					if($('#midDiv').val()){
-						codeKind = $('#midDiv').val();
-					}else{
-						codeKind = $('#largeDiv').val();
-					}
-				}else{
-					codeKind = $('#codeDiv').val();
-				}
-			}
-			paramObj.codeKind = codeKind;
+			paramObj.codeKind = getCodeKind();
 			
 			// 사용여부 set
 			paramObj.useYn = $('#useType').val();
@@ -142,6 +138,22 @@
 				$(divSibling).find('option[value!=""]').remove();
 			}
 		}
+	}
+	
+	function getCodeKind(){
+		var codeKind = "ROOT";
+		if($('#codeDiv').val()){
+			if($('#largeDiv').val()){
+				if($('#midDiv').val()){
+					codeKind = $('#midDiv').val();
+				}else{
+					codeKind = $('#largeDiv').val();
+				}
+			}else{
+				codeKind = $('#codeDiv').val();
+			}
+		}
+		return codeKind;
 	}
 	
 	function detailCode(type) {

@@ -15,8 +15,6 @@ public interface CodeService {
     
     public List<Map<String, String>> selectCodeInfoList(Map<String, String> param);
     
-    public List<Map<String, String>> selectCodeTree();
-
 	public int insertCode(Map<String, String> param) throws Exception;
 
 	public int deleteCode(Map<String, String> param);
