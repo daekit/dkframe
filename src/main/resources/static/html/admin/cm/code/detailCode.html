@@ -21,6 +21,17 @@
 						<th>코드설명</th>
 						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc"></td>
 					</tr>
+					<tr>
+						<th>사용여부</th>
+						<td>
+							<select class="form-control input-sm" id="useYn" name="useYn" required>
+								<option value="Y">사용</option>
+								<option value="N">미사용</option>
+							</select>
+						</td>
+						<th></th>
+						<td></td>
+					</tr>
 				</table>
 			</form>
 		</div>
@@ -44,7 +55,7 @@
 	
 	function selectCodeInfo(){
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
+		var paramObj = {"codeId": row.codeId};
 		postAjax("/admin/cm/code/selectCodeInfo", paramObj, null, function(data){
 			setCodeInfo(data.codeInfo);
 		});
@@ -77,6 +88,7 @@
 				if(data.resultCode == 200){
 					// 일단 등록은 완료!! 중복조회, 자동채번, 상위코드 선택하기
 					$('#searchValue').val("");
+					$('#useType').val("Y");
 					$('#rootDiv').val("ROOT").trigger('change');
 					modal.close();
 				}

@@ -16,6 +16,10 @@
 		<select class="form-control division" id="midDiv" onchange="gridView.setData(0);" data-depth="3">
 			<option value="">중분류 선택</option>
 		</select>
+		<select class="form-control" id="useType" onchange="gridView.setData(0);">
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
 		<select class="form-control" id="searchType">
 			<option value="CODE_ID">코드ID</option>
 			<option value="CODE_NM">코드명</option>
@@ -24,9 +28,9 @@
 		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
 		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailCode('C');">등록</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailCode('U');">수정</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
+			<a class="btn btn-default btn-sm" onclick="detailCode('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="detailCode('U');">수정</a>
+			<a class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
 		</div>
 	</div>
 </div>
@@ -83,6 +87,9 @@
 			}
 			paramObj.codeKind = codeKind;
 			
+			// 사용여부 set
+			paramObj.useYn = $('#useType').val();
+			
 			// 검색구분 set
 			paramObj.searchType = $('#searchType').val();
 			
@@ -138,6 +145,10 @@
 	}
 	
 	function detailCode(type) {
+		if(type == "U"){
+			if(selectGridValidation(gridView.target)) return;
+		}
+		
 		actionType = type;
 		openModal("/static/html/admin/cm/code/detailCode.html", 600, 400, "자재코드");
 	}
@@ -147,10 +158,11 @@
 		
 		var row = gridView.target.getList("selected")[0];
 		var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
-		deleteAjax("/admin/cm/code/deleteCode", paramObj, null, function(data){
+		putAjax("/admin/cm/code/deleteCode", paramObj, null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
 				$('#searchValue').val("");
+				$('#useType').val("Y");
 				$('#rootDiv').val("ROOT").trigger('change');
 			}
 		});
