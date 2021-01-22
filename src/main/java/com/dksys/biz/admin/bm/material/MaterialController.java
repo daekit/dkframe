@@ -71,6 +71,6 @@ public class MaterialController {
 		model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
 		return "jsonView";
-	}
+	} 
 	
 }
