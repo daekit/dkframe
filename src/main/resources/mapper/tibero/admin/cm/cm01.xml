@@ -10,11 +10,11 @@
 	<insert id="insertAuth" parameterType="Map">
 		INSERT INTO TB_CM01M01
 		(
-			AUTH_ID, AUTH_NM, DESCRIPTION, ROLE_INFO, CREATE_ID, CREATE_DT, UPDATE_ID, UPDATE_DT
+			AUTH_ID, AUTH_NM, EXPL, AUTH_ROLE, INSERT_ID, INSERT_DT, UPDATE_ID, UPDATE_DT
 		)
 		VALUES(
-			#{authId}, #{authNm}, #{description}, NULL, #{userId}, SYSDATE(), NULL, NULL
-		);		
+			#{authId}, #{authNm}, #{expl}, NULL, #{userId}, SYSDATE, NULL, NULL
+		)
 	</insert>
 
 	<delete id="deleteAuth" parameterType="Map">
@@ -27,9 +27,9 @@
 		SET 
 			AUTH_ID = #{authId},
 			AUTH_NM = #{authNm},
-			DESCRIPTION = #{description},
+			EXPL = #{expl},
 			UPDATE_ID = #{userId}, 
-			UPDATE_DT = SYSDATE()
+			UPDATE_DT = SYSDATE
 		WHERE AUTH_ID = #{authId}
 	</update>
 
@@ -50,7 +50,7 @@
 	</select>
 
 	<select id="selectMenuFromRole" parameterType="ArrayList" resultType="String">
-		SELECT ROLE_MENU FROM CMN_ROLE_INFO 
+		SELECT ROLE_MENU FROM TB_CM02M01 
 		WHERE
 			ROLE_ID IN
 			<foreach collection="roleArray" item="item" index="index" separator="," open="(" close=")">
@@ -59,7 +59,7 @@
 	</select>
 
 	<select id="selectMenuAuth" parameterType="ArrayList" resultType="CamelMap">
-		SELECT * FROM CMN_MENU_INFO 
+		SELECT * FROM TB_CM03M01 
 		WHERE
 			MENU_ID IN
 			<foreach collection="menuArray" item="item" index="index" separator="," open="(" close=")">
@@ -68,7 +68,7 @@
 	</select>
 
 	<select id="selectParentMenuAuth" parameterType="String" resultType="CamelMap">
-		SELECT * FROM CMN_MENU_INFO 
+		SELECT * FROM TB_CM03M01 
 		WHERE
 			UP_MENU_ID = #{upMenuId}
 	</select>

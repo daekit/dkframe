@@ -8,13 +8,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.dksys.biz.admin.cm.role.service.RoleService;
+import com.dksys.biz.admin.cm.cm02.service.CM02Svc;
 
 @Controller
 public class TestController {
     
 	@Autowired
-	RoleService roleService;
+	CM02Svc roleService;
 	
     // 엑셀 다운로드
 	@GetMapping(path="/download/sample")

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dksys.biz.admin.cm.menu.mapper.MenuMapper">
+<mapper namespace="com.dksys.biz.admin.cm.cm03.mapper.CM03Mapper">
 
 	<select id="selectMenuList" resultType="CamelMap">
 		SELECT 
@@ -13,16 +13,16 @@
 			USE_YN,
 			'unit' AS TYPE
 		FROM 
-			CMN_MENU_INFO
+			TB_CM03M01
 	</select>
 
 	<delete id="deleteMenu" parameterType="Map">
-		DELETE FROM CMN_MENU_INFO
+		DELETE FROM TB_CM03M01
 		WHERE MENU_ID = #{menuId}
 	</delete>
 
 	<insert id="updateMenu" parameterType="Map">
-		MERGE INTO CMN_MENU_INFO A
+		MERGE INTO TB_CM03M01 A
 			USING DUAL
 			ON (A.MENU_ID = #{menuId})
 		WHEN MATCHED THEN
@@ -37,7 +37,7 @@
 		WHEN NOT MATCHED THEN
 			INSERT
 			(
-				MENU_ID, MENU_NM, UP_MENU_ID, MENU_URL, MENU_TYPE, USE_YN, CREATE_ID, CREATE_DT
+				MENU_ID, MENU_NM, UP_MENU_ID, MENU_URL, MENU_TYPE, USE_YN, INSERT_ID, INSERT_DT
 			)
 			VALUES(
 				#{menuId}, #{menuNm}, #{upMenuId}, #{menuUrl}, #{menuType}, 'Y', #{userId}, SYSDATE
@@ -45,7 +45,7 @@
 	</insert>
 
 	<select id="selectMenuCount" parameterType="Map" resultType="int">
-		SELECT COUNT(*) FROM CMN_MENU_INFO
+		SELECT COUNT(*) FROM TB_CM03M01
 		WHERE MENU_ID = #{menuId}
 	</select>
 	

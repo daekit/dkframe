@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.role.mapper;
+package com.dksys.biz.admin.cm.cm02.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface RoleMapper {
+public interface CM02Mapper {
 	
 	List<Map<String, String>> selectRoleList();
 

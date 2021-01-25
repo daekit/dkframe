@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.menu.mapper;
+package com.dksys.biz.admin.cm.cm03.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface MenuMapper {
+public interface CM03Mapper {
 	
 	List<Map<String, String>> selectMenuList();
 
