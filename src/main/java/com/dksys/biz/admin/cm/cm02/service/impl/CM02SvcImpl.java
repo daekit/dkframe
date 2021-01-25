@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.role.service.impl;
+package com.dksys.biz.admin.cm.cm02.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -6,38 +6,38 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dksys.biz.admin.cm.role.mapper.RoleMapper;
-import com.dksys.biz.admin.cm.role.service.RoleService;
+import com.dksys.biz.admin.cm.cm02.mapper.CM02Mapper;
+import com.dksys.biz.admin.cm.cm02.service.CM02Svc;
 
 @Service
-public class RoleServiceImpl implements RoleService {
+public class CM02SvcImpl implements CM02Svc {
 	
     @Autowired
-    RoleMapper roleMapper;
+    CM02Mapper cm02Mapper;
 
 	@Override
 	public List<Map<String, String>> selectRoleList() {
-		return roleMapper.selectRoleList();
+		return cm02Mapper.selectRoleList();
 	}
 
 	@Override
 	public int insertRole(Map<String, String> param) {
-		return roleMapper.insertRole(param);
+		return cm02Mapper.insertRole(param);
 	}
 
 	@Override
 	public int deleteRole(Map<String, String> param) {
-		return roleMapper.deleteRole(param);
+		return cm02Mapper.deleteRole(param);
 	}
 
 	@Override
 	public int updateRole(Map<String, String> param) {
-		return roleMapper.updateRole(param);
+		return cm02Mapper.updateRole(param);
 	}
 
 	@Override
 	public int updateRoleMenu(Map<String, String> param) {
-		return roleMapper.updateRoleMenu(param);
+		return cm02Mapper.updateRoleMenu(param);
 	}
 
 }

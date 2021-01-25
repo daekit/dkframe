@@ -3,7 +3,7 @@
 		<span style="font-size: 25px; font-weight: bold;">롤관리</span>
 		<div style="float: right;">
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="excelDownload();">Excel Export</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="createRoleModal();">등록</a>
+			<a id="loginBtn" class="btn btn-default btn-sm" onclick="insertRoleModal();">등록</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="updateRoleModal();">수정</a>
 			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteRole();">삭제</a>
 		</div>
@@ -29,9 +29,9 @@
                 {key: "roleNm", label: "롤명"},
                 {key: "roleType", label: "롤타입"},
                 {key: "roleSort", label: "롤정렬"},
-                {key: "rolePattern", label: "롤패턴"},
-                {key: "description", label: "설명"},
-                {key: "createDt", label: "등록일"},
+                {key: "rolePttrn", label: "롤패턴"},
+                {key: "expl", label: "설명"},
+                {key: "insertDt", label: "등록일"},
                 {
                 	key: "", label: "메뉴정보", align: 'center', formatter: function(e) {
                 		return '<button type="button" onclick="menuListModal('+this.dindex+');"/>메뉴';
@@ -48,22 +48,22 @@
 		firstGrid.select(index);
 		roleId = firstGrid.getList("selected")[0].roleId;
 		roleMenu = firstGrid.getList("selected")[0].roleMenu;
-		openModal("/static/html/admin/cm/role/updateRoleMenu.html", 600, 600, "롤메뉴등록 "+roleId);
+		openModal("/static/html/admin/cm/cm02/CM0203P01.html", 600, 600, "롤메뉴등록 "+roleId);
 	}
 	
 	function getData() {
-		postAjax("/admin/cm/role/selectRoleInfo", null, null, function(data){
+		postAjax("/admin/cm/cm02/selectRoleInfo", null, null, function(data){
 			firstGrid.setData(data.roleList);
 		});
 	}
 	
-	function createRoleModal() {
-		openModal("/static/html/admin/cm/role/createRole.html", 600, 300, "롤등록");
+	function insertRoleModal() {
+		openModal("/static/html/admin/cm/cm02/CM0202P01.html", 600, 300, "롤등록");
 	}
 
 	function updateRoleModal() {
 		if(selectGridValidation(firstGrid)) return;
-		openModal("/static/html/admin/cm/role/updateRole.html", 600, 300, "롤수정");
+		openModal("/static/html/admin/cm/cm02/CM0202P02.html", 600, 300, "롤수정");
 	}
 	
 	function deleteRole() {
@@ -72,7 +72,7 @@
 		var formData = {
 				"roleId" : firstGrid.getList("selected")[0].roleId
 		}
-		deleteAjax("/admin/cm/role/deleteRole", null, null, function(data){
+		deleteAjax("/admin/cm/cm02/deleteRole", null, null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
 				getData();

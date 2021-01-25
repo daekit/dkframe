@@ -10,7 +10,7 @@
 		<div class="col-xs-9">
 			<span style="font-size: 22px; font-weight: bold;">메뉴관리</span>
 			<div style="float: right;">
-				<a href="#" class="btn btn-default btn-sm" id="registViewBtn" onclick="createMenu();">등록</a>
+				<a href="#" class="btn btn-default btn-sm" id="registViewBtn" onclick="insertMenu();">등록</a>
 				<a href="#" class="btn btn-default btn-sm" id="modifyViewBtn" onclick="updateMenu();">저장</a>
 			</div>
 		</div>
@@ -75,8 +75,8 @@
 		initMenuTree(selectMenuTree());
 	})
 	
-	function createRoleModal() {
-		openModal("/static/html/admin/cm/role/createRole.html", 600, 300, "메뉴등록");
+	function insertRoleModal() {
+		openModal("/static/html/admin/cm/role/insertRole.html", 600, 300, "메뉴등록");
 	}
 	
 	function updateRoleModal() {
@@ -96,7 +96,7 @@
 		});
 	}
 	
-	function createMenu(){
+	function insertMenu(){
 		var menuTree = $("#menuTree").jstree(true);
 		if(!menuTree.get_node('new')){
 			var upMenuId = menuTree.get_selected()[0];
@@ -140,7 +140,7 @@
 					"useYn" : $("#useYn").val(),
 					"userId" : jwt.userId
 			}
-			putAjax("/admin/cm/menu/updateMenu", formData, null, function(data){
+			putAjax("/admin/cm/cm03/updateMenu", formData, null, function(data){
 				alert(data.resultMessage);
 				$('#menuTree').jstree(true).settings.core.data = selectMenuTree();
 				$('#menuTree').jstree(true).refresh();
@@ -150,7 +150,7 @@
 	
 	function selectMenuTree() {
 		var menuList = null;
-		postAjaxSync("/admin/cm/menu/selectMenuList", null, null, function(data){
+		postAjaxSync("/admin/cm/cm03/selectMenuList", null, null, function(data){
 			menuList = data.menuList;
 		});
 		return menuList;
@@ -162,7 +162,7 @@
 		if($.trim(menuId) == ""){
 			alert("메뉴 아이디를 입력해 주세요.");
 		}else{
-			postAjax("/admin/cm/menu/checkMenuId", {"menuId" : menuId}, null, function(data){
+			postAjax("/admin/cm/cm03/checkMenuId", {"menuId" : menuId}, null, function(data){
 				if(data.menuCount > 0){
 					alert("사용중인 메뉴 아이디입니다.");
 					isChecked = false;

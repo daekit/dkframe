@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.role;
+package com.dksys.biz.admin.cm.cm02;
 
 import java.util.List;
 import java.util.Map;
@@ -12,34 +12,34 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.dksys.biz.admin.cm.role.service.RoleService;
+import com.dksys.biz.admin.cm.cm02.service.CM02Svc;
 import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/admin/cm/role")
-public class RoleController {
+@RequestMapping("/admin/cm/cm02")
+public class CM02Ctr {
 
 	@Autowired
 	MessageUtils messageUtils;
 	
     @Autowired
-    RoleService roleService;
+    CM02Svc cm02Svc;
     
     // 롤리스트 조회
     @PostMapping("/selectRoleInfo")
     public String selectRoleInfo(ModelMap model) {
-    	List<Map<String, String>> roleList = roleService.selectRoleList();
+    	List<Map<String, String>> roleList = cm02Svc.selectRoleList();
     	model.addAttribute("roleList", roleList);
         return "jsonView";
     }
     
     // 롤등록
-    @PostMapping("/createRole")
-    public String createRole(@RequestBody Map<String, String> param, ModelMap model) {
-    	roleService.insertRole(param);
+    @PostMapping("/insertRole")
+    public String insertRole(@RequestBody Map<String, String> param, ModelMap model) {
+    	cm02Svc.insertRole(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
@@ -48,7 +48,7 @@ public class RoleController {
     // 롤삭제
     @DeleteMapping("/deleteRole")
     public String deleteRole(@RequestBody Map<String, String> param, ModelMap model) {
-    	roleService.deleteRole(param);
+    	cm02Svc.deleteRole(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
@@ -57,7 +57,7 @@ public class RoleController {
     // 롤수정
     @PutMapping("/updateRole")
     public String updateRole(@RequestBody Map<String, String> param, ModelMap model) {
-    	roleService.updateRole(param);
+    	cm02Svc.updateRole(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
@@ -66,7 +66,7 @@ public class RoleController {
     // 롤메뉴수정
     @PutMapping("/updateRoleMenu")
     public String updateRoleMenu(@RequestBody Map<String, String> param, ModelMap model) {
-    	roleService.updateRoleMenu(param);
+    	cm02Svc.updateRoleMenu(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";

@@ -26,20 +26,20 @@ public class CM01Ctr {
 	MessageUtils messageUtils;
 	
     @Autowired
-    CM01Svc authService;
+    CM01Svc cm01Svc;
     
     // 권한리스트 조회
     @PostMapping("/selectAuthInfo")
     public String selectAuthInfo(ModelMap model) {
-    	List<Map<String, String>> authList = authService.selectAuthList();
+    	List<Map<String, String>> authList = cm01Svc.selectAuthList();
     	model.addAttribute("authList", authList);
         return "jsonView";
     }
     
     // 권한등록
-    @PostMapping("/createAuth")
-    public String createAuth(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.insertAuth(param);
+    @PostMapping("/insertAuth")
+    public String insertAuth(@RequestBody Map<String, String> param, ModelMap model) {
+    	cm01Svc.insertAuth(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
@@ -48,7 +48,7 @@ public class CM01Ctr {
     // 권한삭제
     @DeleteMapping("/deleteAuth")
     public String deleteAuth(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.deleteAuth(param);
+    	cm01Svc.deleteAuth(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
@@ -57,7 +57,7 @@ public class CM01Ctr {
     // 권한수정
     @PutMapping("/updateAuth")
     public String updateAuth(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.updateAuth(param);
+    	cm01Svc.updateAuth(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
@@ -66,7 +66,7 @@ public class CM01Ctr {
     // 권한롤수정
     @PutMapping("/updateAuthRole")
     public String updateAuthRole(@RequestBody Map<String, String> param, ModelMap model) {
-    	authService.updateAuthRole(param);
+    	cm01Svc.updateAuthRole(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";

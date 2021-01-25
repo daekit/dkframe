@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.menu.service;
+package com.dksys.biz.admin.cm.cm03.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface MenuService {
+public interface CM03Svc {
 
     public List<Map<String, String>> selectMenuList();
 

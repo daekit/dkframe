@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.role.service;
+package com.dksys.biz.admin.cm.cm02.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface RoleService {
+public interface CM02Svc {
 
     public List<Map<String, String>> selectRoleList();
 
