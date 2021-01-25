@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.auth.service.impl;
+package com.dksys.biz.admin.cm.cm01.service.impl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,15 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dksys.biz.admin.cm.auth.mapper.AuthMapper;
-import com.dksys.biz.admin.cm.auth.service.AuthService;
+import com.dksys.biz.admin.cm.cm01.mapper.CM01Mapper;
+import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
 
 @Service
 @Transactional("erpTransactionManager")
-public class AuthServiceImpl implements AuthService {
+public class CM01SvcImpl implements CM01Svc {
 	
     @Autowired
-    AuthMapper authMapper;
+    CM01Mapper authMapper;
 
 	@Override
 	public List<Map<String, String>> selectAuthList() {

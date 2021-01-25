@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.auth;
+package com.dksys.biz.admin.cm.cm01;
 
 import java.util.List;
 import java.util.Map;
@@ -12,21 +12,21 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.dksys.biz.admin.cm.auth.service.AuthService;
+import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
 import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/admin/cm/auth")
-public class AuthController {
+@RequestMapping("/admin/cm/cm01")
+public class CM01Ctr {
 
 	@Autowired
 	MessageUtils messageUtils;
 	
     @Autowired
-    AuthService authService;
+    CM01Svc authService;
     
     // 권한리스트 조회
     @PostMapping("/selectAuthInfo")

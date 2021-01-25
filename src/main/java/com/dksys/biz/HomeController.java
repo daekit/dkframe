@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.dksys.biz.admin.cm.auth.service.AuthService;
+import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
 import com.dksys.biz.util.WebClientUtil;
 
 @Controller
 public class HomeController {
 
     @Autowired
-    AuthService authService;
+    CM01Svc authService;
 	
     @Autowired
     WebClientUtil webClientUtil;

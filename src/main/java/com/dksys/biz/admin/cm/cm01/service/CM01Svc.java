@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.auth.service;
+package com.dksys.biz.admin.cm.cm01.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface AuthService {
+public interface CM01Svc {
 
     public List<Map<String, String>> selectAuthList();
 
