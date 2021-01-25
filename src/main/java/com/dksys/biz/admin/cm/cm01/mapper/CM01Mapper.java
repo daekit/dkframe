@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.auth.mapper;
+package com.dksys.biz.admin.cm.cm01.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface AuthMapper {
+public interface CM01Mapper {
 	
 	List<Map<String, String>> selectAuthList();
 
