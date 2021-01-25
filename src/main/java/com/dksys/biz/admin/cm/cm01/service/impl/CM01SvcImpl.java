@@ -16,49 +16,49 @@ import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
 public class CM01SvcImpl implements CM01Svc {
 	
     @Autowired
-    CM01Mapper authMapper;
+    CM01Mapper cm01Mapper;
 
 	@Override
 	public List<Map<String, String>> selectAuthList() {
-		return authMapper.selectAuthList();
+		return cm01Mapper.selectAuthList();
 	}
 
 	@Override
 	public int insertAuth(Map<String, String> param) {
-		return authMapper.insertAuth(param);
+		return cm01Mapper.insertAuth(param);
 	}
 
 	@Override
 	public int deleteAuth(Map<String, String> param) {
-		return authMapper.deleteAuth(param);
+		return cm01Mapper.deleteAuth(param);
 	}
 
 	@Override
 	public int updateAuth(Map<String, String> param) {
-		return authMapper.updateAuth(param);
+		return cm01Mapper.updateAuth(param);
 	}
 
 	@Override
 	public int updateAuthRole(Map<String, String> param) {
-		return authMapper.updateAuthRole(param);
+		return cm01Mapper.updateAuthRole(param);
 	}
 
 	@Override
 	public List<Map<String, Object>> selectMenuAuth(String[] authArray) {
 		String roleStr = "";
 		String menuStr = "";
-		List<String> roleList = authMapper.selectRoleFromAuth(authArray);
+		List<String> roleList = cm01Mapper.selectRoleFromAuth(authArray);
 		for (int i = 0; i < roleList.size(); i++) {
 			roleStr += roleList.get(i) + ",";
 		}
 		String[] roleArray = roleStr.split(",");
 		roleArray = Arrays.stream(roleArray).distinct().toArray(String[]::new);
-		List<String> menuList = authMapper.selectMenuFromRole(roleArray);
+		List<String> menuList = cm01Mapper.selectMenuFromRole(roleArray);
 		for (int i = 0; i < menuList.size(); i++) {
 			menuStr += menuList.get(i) + ",";
 		}
 		String[] menuArray = menuStr.split(",");
-		List<Map<String, Object>> result = authMapper.selectMenuAuth(menuArray);
+		List<Map<String, Object>> result = cm01Mapper.selectMenuAuth(menuArray);
 		return result;
 	}
 
@@ -68,20 +68,20 @@ public class CM01SvcImpl implements CM01Svc {
 		String roleStr = "";
 		String menuStr = "";
 		String subMenuStr = "";
-		List<String> roleList = authMapper.selectRoleFromAuth(authArray);
+		List<String> roleList = cm01Mapper.selectRoleFromAuth(authArray);
 		for (int i = 0; i < roleList.size(); i++) {
 			roleStr += roleList.get(i) + ",";
 		}
 		String[] roleArray = roleStr.split(",");
 		roleArray = Arrays.stream(roleArray).distinct().toArray(String[]::new);
-		List<String> menuList = authMapper.selectMenuFromRole(roleArray);
+		List<String> menuList = cm01Mapper.selectMenuFromRole(roleArray);
 		for (int i = 0; i < menuList.size(); i++) {
 			menuStr += menuList.get(i) + ",";
 		}
 		
 		String[] menuArray = menuStr.split(",");
-		List<Map<String, Object>> result = authMapper.selectMenuAuth(menuArray);
-		List<Map<String, Object>> upResult = authMapper.selectParentMenuAuth(upMenuId);
+		List<Map<String, Object>> result = cm01Mapper.selectMenuAuth(menuArray);
+		List<Map<String, Object>> upResult = cm01Mapper.selectParentMenuAuth(upMenuId);
 		for (int i = 0; i < result.size(); i++) {
 			for (int j = 0; j < upResult.size(); j++) {
 				if(result.get(i).get("menuId").toString().equals(upResult.get(j).get("menuId").toString())){
@@ -90,7 +90,7 @@ public class CM01SvcImpl implements CM01Svc {
 			}
 		}
 		String[] subMenuArray = subMenuStr.split(",");
-		List<Map<String, Object>> returnResult = authMapper.selectMenuAuth(subMenuArray);
+		List<Map<String, Object>> returnResult = cm01Mapper.selectMenuAuth(subMenuArray);
 		return returnResult;
 	}
 }
