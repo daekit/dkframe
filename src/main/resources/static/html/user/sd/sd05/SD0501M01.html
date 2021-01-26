@@ -249,13 +249,15 @@
 	}
 	
 	$(document).ready(function() {
-		$("#head_area").load("/static/html/header.html");
 		$('.more_btn').click(function() {
 			$('.search_option').toggleClass('open');
 			$('.more_btn').toggleClass('on');
 		});
-		setMenuAuth();
-		gridView.initView().setData(0);
+		
+		$("#head_area").load("/static/html/header.html", function() {
+			setMenuAuth();
+			gridView.initView().setData(0);
+		});
 	})
 
 	// 권한에 따른 메뉴 보여주기
@@ -275,12 +277,28 @@
 			$(data).parent().find("ul").hide();
 		}
 	}
-
-	function setMenuIdx(url) {
-		$.get(url, function(data) {
-			$(".main").html(data);
+	
+	function checkMenuAuth(accessList) {
+		var html = "";
+		$.each(accessList, function(idx, item){
+			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
+				html += '<li>';
+				html += '  <img src="/static/img/svg/menu_02.svg">';
+				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
+				html += '	<div class="sub_menu">';
+				html += '		<dl id="'+item.menuId+'"></dl>';
+				html += '	</div>';
+				html += '</li>';
+			}
 		});
-		setCookie("menuIdx", url, 1);
+		$('.menu').html(html);
+		
+		$.each(accessList, function(idx, item){
+			if(item.menuType == "HTML" && item.useYn == 'Y') {
+				html = '<dl><dd><a href="'+item.menuUrl+'">'+item.menuNm+'</a></dd></dl>';
+				$("#"+item.upMenuId).append(html);
+			}
+		});
 	}
 
 	$('#logoutBtn').on('click', function() {
