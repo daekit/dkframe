@@ -3,6 +3,8 @@ package com.dksys.biz.admin.cm.cm02;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,7 +40,8 @@ public class CM02Ctr {
     
     // 롤등록
     @PostMapping("/insertRole")
-    public String insertRole(@RequestBody Map<String, String> param, ModelMap model) {
+    public String insertRole(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	param.put("pgmId", request.getRequestURI());
     	cm02Svc.insertRole(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
@@ -56,7 +59,8 @@ public class CM02Ctr {
     
     // 롤수정
     @PutMapping("/updateRole")
-    public String updateRole(@RequestBody Map<String, String> param, ModelMap model) {
+    public String updateRole(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	param.put("pgmId", request.getRequestURI());
     	cm02Svc.updateRole(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));

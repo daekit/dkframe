@@ -3,6 +3,8 @@ package com.dksys.biz.admin.cm.cm04;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -50,8 +52,9 @@ public class CM04Ctr {
     
     // 부서 저장
     @PutMapping("/updateDept")
-    public String updateDept(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String updateDept(HttpServletRequest request, @RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
+    		paramMap.put("pgmId", request.getRequestURI());
     		cm04Svc.updateDept(paramMap);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
