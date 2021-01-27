@@ -135,14 +135,16 @@ CREATE TABLE TB_CM09M01
 	CO_CD varchar(5),
 	NOTI_TITLE varchar(255),
 	NOTI_CNTS varchar(8000),
+	-- Y/N
+	EXPRTN_YN char(1),
 	EXPRTN_DT varchar(8),
 	-- Y/N
 	POPUP_YN char(1),
 	-- Y/N
-	DEL_YN char(1),
+	USE_YN char(1),
 	-- Y/N
 	SAVE_YN char(1),
-	VISIT_CNT integer DEFAULT 0,
+	READ_CNT integer DEFAULT 0,
 	CREAT_ID varchar(20) NOT NULL,
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
