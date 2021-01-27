@@ -3,6 +3,8 @@ package com.dksys.biz.admin.cm.cm03;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,7 +40,8 @@ public class CM03Ctr {
     
     // 메뉴등록
     @PostMapping("/createMenu")
-    public String createMenu(@RequestBody Map<String, String> param, ModelMap model) {
+    public String createMenu(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	param.put("pgmId", request.getRequestURI());
     	cm03Svc.insertMenu(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
@@ -56,7 +59,8 @@ public class CM03Ctr {
     
     // 메뉴수정
     @PutMapping("/updateMenu")
-    public String updateMenu(@RequestBody Map<String, String> param, ModelMap model) {
+    public String updateMenu(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	param.put("pgmId", request.getRequestURI());
     	cm03Svc.updateMenu(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
