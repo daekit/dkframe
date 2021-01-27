@@ -3,6 +3,8 @@ package com.dksys.biz.admin.cm.cm01;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,7 +40,8 @@ public class CM01Ctr {
     
     // 권한등록
     @PostMapping("/insertAuth")
-    public String insertAuth(@RequestBody Map<String, String> param, ModelMap model) {
+    public String insertAuth(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	param.put("pgmId", request.getRequestURI());
     	cm01Svc.insertAuth(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
@@ -56,7 +59,8 @@ public class CM01Ctr {
     
     // 권한수정
     @PutMapping("/updateAuth")
-    public String updateAuth(@RequestBody Map<String, String> param, ModelMap model) {
+    public String updateAuth(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	param.put("pgmId", request.getRequestURI());
     	cm01Svc.updateAuth(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
