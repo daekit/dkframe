@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS CMN_CODE_INFO;
 DROP TABLE IF EXISTS TB_CM01M01;
 DROP TABLE IF EXISTS TB_CM02M01;
 DROP TABLE IF EXISTS TB_CM03M01;
+DROP TABLE IF EXISTS TB_CM08M01;
 
 
 
@@ -71,6 +72,33 @@ CREATE TABLE TB_CM03M01
 	UPDATE_ID varchar(20),
 	UPDATE_DT date,
 	CONSTRAINT TB_CM03M01_PK PRIMARY KEY (MENU_ID)
+);
+
+
+CREATE TABLE TB_CM08M01
+(
+	FILE_KEY numeric NOT NULL,
+	FILE_SIZE numeric,
+	FILE_TYPE varchar(5),
+	FILE_NAME varchar(50),
+	-- 저장 파일 경로(서버)
+	FILE_PATH varchar(255) COMMENT '저장 파일 경로(서버)',
+	-- 프로젝트(PT)
+	-- 주문서(OD)
+	-- 거래처(CT)
+	FILE_TRGT_TYP varchar(10) COMMENT '프로젝트(PT)
+주문서(OD)
+거래처(CT)',
+	FILE_TRGT_KEY varchar(20),
+	-- 사용/삭제 여부(Y/N)
+	USE_YN char(1) COMMENT '사용/삭제 여부(Y/N)',
+	CREAT_ID varchar(20) NOT NULL,
+	CREAT_PGM varchar(30) NOT NULL,
+	CREAT_DTTM timestamp NOT NULL,
+	UDT_ID varchar(20),
+	UPD_PGM varchar(30),
+	UDT_DTTM timestamp,
+	PRIMARY KEY (FILE_KEY)
 );
 
 
