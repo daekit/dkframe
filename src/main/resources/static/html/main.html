@@ -33,133 +33,7 @@
 	<script src="/static/js/global.js"></script>
 </head>
 <body>
-	<div id="head_area">
-		<!-- LOGO -->
-		<h1 class="logo">
-			<img src="../img/Logo_w.png" alt="금문철강">
-			<!-- 경로 추가 -->
-			<a href="#"></a>
-		</h1>
-
-		<!-- 메뉴시작 -->
-		<div id="menu_area">
-			<ul class="menu">
-			  <li class="on">
-			    <img src="/static/img/svg/menu_02.svg">
-			  	<a>영업관리</a> <!-- 서브메뉴 -->
-					<div class="sub_menu">
-						<dl>
-							<dd>
-								<a href="">판매계획 관리</a>
-							</dd>
-							<dd>
-								<a href="">실적 관리</a>
-							</dd>
-							<dd>
-								<a href="">견적서 관리</a>
-							</dd>
-							<dd>
-								<a href="">견적서 출력</a>
-							</dd>
-							<dd>
-								<a href="">주문 관리</a>
-							</dd>
-							<dd>
-								<a href="/static/html/user/sd/sd05/SD0501M01.html">프로젝트 관리</a>
-							</dd>
-						</dl>
-					</div>
-			  </li>
-			  <li>
-			    <img src="/static/img/svg/menu_02.svg">
-			  	<a>매출관리</a> <!-- 서브메뉴 -->
-					<div class="sub_menu">
-						<dl>
-							<dd>
-								<a href="">출하요청관리</a>
-							</dd>
-							<dd>
-								<a href="">매출 실적 현황</a>
-							</dd>
-							<dd>
-								<a href="">세금 계산서 관리</a>
-							</dd>
-							<dd>
-								<a href="">수금 관리</a>
-							</dd>
-						</dl>
-					</div>
-			  </li>
-			  <li>
-			    <img src="/static/img/svg/menu_02.svg">
-			  	<a>수불관리</a> <!-- 서브메뉴 -->
-					<div class="sub_menu">
-						<dl>
-							<dd>
-								<a href="">제품 입고 관리</a>
-							</dd>
-							<dd>
-								<a href="">제품 입고 검사 관리</a>
-							</dd>
-							<dd>
-								<a href="">제품 출고 관리(MES 연계)</a>
-							</dd>
-							<dd>
-								<a href="">제품 반입/반품 관리</a>
-							</dd>
-							<dd>
-								<a href="">제품 수불 내역 현황</a>
-							</dd>
-							<dd>
-								<a href="">고객 수불 내역 현황</a>
-							</dd>
-						</dl>
-					</div>
-			  </li>
-			  <li>
-			    <img src="/static/img/svg/menu_02.svg">
-			  	<a>재고관리</a> <!-- 서브메뉴 -->
-					<div class="sub_menu">
-						<dl>
-							<dd>
-								<a href="">재고 현황 관리</a>
-							</dd>
-							<dd>
-								<a href="">재고 이동 현황 관리</a>
-							</dd>
-							<dd>
-								<a href="">외주 재고 현황</a>
-							</dd>
-							<dd>
-								<a href="">재고 실사 관리</a>
-							</dd>
-							<dd>
-								<a href="">실사 보고서</a>
-							</dd>
-						</dl>
-					</div>
-			  </li>
-			  <li>
-			    <img src="/static/img/svg/menu_02.svg">
-			  	<a>발주서관리</a> <!-- 서브메뉴 -->
-					<div class="sub_menu">
-						<dl>
-							<dd>
-								<a href="">발주서 관리 </a>
-							</dd>
-							<dd>
-								<a href="">매입 내역</a>
-							</dd>
-							<dd>
-								<a href="">매입 처리</a>
-							</dd>
-						</dl>
-					</div>
-			  </li>
-			</ul>
-		</div>
-	</div>
-
+	<div id="head_area"></div>
 
 	<div id="main_area">
 		<!-- 페이지 상단 -->
@@ -401,7 +275,10 @@
 			$('.search_option').toggleClass('open');
 			$('.more_btn').toggleClass('on');
 		});
-		setMenuAuth();
+		
+		$("#head_area").load("/static/html/header.html", function() {
+			setMenuAuth();
+		});
 	})
 
 	// 권한에 따른 메뉴 보여주기
@@ -414,64 +291,6 @@
 		});
 	}
 
-	function checkMenuAuth(accessList) {
-		var html = "";
-		var subHtml = "";
-		var parentMenuId = "";
-		$
-				.each(
-						accessList,
-						function(idx, item) {
-							subHtml = "";
-							if (item.upMenuId == 'MENU100') {
-								if (item.menuType == "HTML"
-										&& item.useYn == 'Y') {
-									html += '<li><a href="' + item.menuUrl
-											+ '" onclick="setMenuIdx(\''
-											+ item.menuUrl
-											+ '\'); return false;">'
-											+ item.menuNm + '</a></li>';
-								} else if (item.menuType == "FOLDER"
-										&& item.useYn == 'Y') {
-									html += '<li id="'+item.menuId+'"><a href="#" onclick="subShowHide(this);return false;">'
-											+ item.menuNm + '</a></li>';
-									parentMenuId = item.menuId;
-									var formData = {
-										"authInfo" : jwt.authInfo,
-										"upMenuId" : item.menuId
-									}
-									postAjax(
-											"/selectSubMenuAuth",
-											formData,
-											null,
-											function(data) {
-												subHtml += "<ul class=\"nav nav-sidebar\" style=\"margin-left: 20px !important;\">";
-												$
-														.each(
-																data.accessSubList,
-																function(idx,
-																		item) {
-																	if (item.menuType == "HTML") {
-																		subHtml += '<li><a href="'
-																				+ item.menuUrl
-																				+ '" onclick="setMenuIdx(\''
-																				+ item.menuUrl
-																				+ '\'); return false;">'
-																				+ item.menuNm
-																				+ '</a></li>';
-																	}
-																});
-
-												subHtml += '</ul>';
-												$("#" + parentMenuId).append(
-														subHtml);
-											});
-								}
-							}
-						});
-		$('.nav-sidebar').html(html);
-	}
-
 	function subShowHide(data) {
 		if ($(data).parent().find("ul").css("display") == 'none') {
 			$(data).parent().find("ul").show();
@@ -479,18 +298,33 @@
 			$(data).parent().find("ul").hide();
 		}
 	}
-
-	function setMenuIdx(url) {
-		$.get(url, function(data) {
-			$(".main").html(data);
+	
+	function checkMenuAuth(accessList) {
+		var html = "";
+		$.each(accessList, function(idx, item){
+			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
+				html += '<li>';
+				html += '  <img src="/static/img/svg/menu_02.svg">';
+				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
+				html += '	<div class="sub_menu">';
+				html += '		<dl id="'+item.menuId+'"></dl>';
+				html += '	</div>';
+				html += '</li>';
+			}
 		});
-		setCookie("menuIdx", url, 1);
+		$('.menu').html(html);
+		
+		$.each(accessList, function(idx, item){
+			if(item.menuType == "HTML" && item.useYn == 'Y') {
+				html = '<dl><dd><a href="'+item.menuUrl+'">'+item.menuNm+'</a></dd></dl>';
+				$("#"+item.upMenuId).append(html);
+			}
+		});
 	}
 
 	$('#logoutBtn').on('click', function() {
 		deleteCookie("jwtToken");
 		deleteCookie("menuIdx");
 		location.href = "/";
-
 	});
 </script>

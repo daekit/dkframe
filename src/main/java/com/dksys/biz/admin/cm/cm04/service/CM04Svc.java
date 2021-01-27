@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.dept.service;
+package com.dksys.biz.admin.cm.cm04.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface DeptService {
+public interface CM04Svc {
 	
 	List<Map<String, String>> selectDeptTree();
 

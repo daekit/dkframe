@@ -10,10 +10,12 @@
 			UP_MENU_ID AS PARENT,
 			MENU_URL AS URL,
 			MENU_TYPE,
+			SORT_NO,
 			USE_YN,
 			'unit' AS TYPE
 		FROM 
 			TB_CM03M01
+		ORDER BY SORT_NO ASC
 	</select>
 
 	<delete id="deleteMenu" parameterType="Map">
@@ -31,16 +33,17 @@
 				UP_MENU_ID = #{upMenuId}, 
 				MENU_URL = #{menuUrl},
 				MENU_TYPE = #{menuType},
+				SORT_NO = ${sortNo},
 				USE_YN = #{useYn},
 				UPDATE_ID = #{userId}, 
 				UPDATE_DT = SYSDATE
 		WHEN NOT MATCHED THEN
 			INSERT
 			(
-				MENU_ID, MENU_NM, UP_MENU_ID, MENU_URL, MENU_TYPE, USE_YN, INSERT_ID, INSERT_DT
+				MENU_ID, MENU_NM, UP_MENU_ID, MENU_URL, MENU_TYPE, SORT_NO, USE_YN, INSERT_ID, INSERT_DT
 			)
 			VALUES(
-				#{menuId}, #{menuNm}, #{upMenuId}, #{menuUrl}, #{menuType}, 'Y', #{userId}, SYSDATE
+				#{menuId}, #{menuNm}, #{upMenuId}, #{menuUrl}, #{menuType}, ${sortNo}, 'Y', #{userId}, SYSDATE
 			)
 	</insert>
 

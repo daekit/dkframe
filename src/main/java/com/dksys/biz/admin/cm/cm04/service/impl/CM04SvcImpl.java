@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.dept.service.impl;
+package com.dksys.biz.admin.cm.cm04.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -6,39 +6,39 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dksys.biz.admin.cm.dept.mapper.DeptMapper;
-import com.dksys.biz.admin.cm.dept.service.DeptService;
+import com.dksys.biz.admin.cm.cm04.mapper.CM04Mapper;
+import com.dksys.biz.admin.cm.cm04.service.CM04Svc;
 
 @Service
-public class DeptServiceImpl implements DeptService {
+public class CM04SvcImpl implements CM04Svc {
 	
     @Autowired
-    DeptMapper deptMapper;
+    CM04Mapper cm04Mapper;
 
 	@Override
 	public List<Map<String, String>> selectDeptTree() {
-		return deptMapper.selectDeptTree();
+		return cm04Mapper.selectDeptTree();
 	}
 
 	@Override
 	public Map<String, String> selectDeptInfo(Map<String, String> paramMap) {
-		return deptMapper.selectDeptInfo(paramMap);
+		return cm04Mapper.selectDeptInfo(paramMap);
 	}
 
 	@Override
 	public int selectDeptCount(Map<String, String> paramMap) {
-		return deptMapper.selectDeptCount(paramMap);
+		return cm04Mapper.selectDeptCount(paramMap);
 	}
 
 	@Override
 	public void updateDept(Map<String, String> paramMap) throws Exception{
-		deptMapper.updateDept(paramMap);
+		cm04Mapper.updateDept(paramMap);
 	}
 
 	@Override
 	public void moveDept(List<Map<String, String>> paramList) throws Exception{
 		for(Map<String, String> paramMap : paramList) {
-			deptMapper.moveDept(paramMap);
+			cm04Mapper.moveDept(paramMap);
 		}
 	}
 
