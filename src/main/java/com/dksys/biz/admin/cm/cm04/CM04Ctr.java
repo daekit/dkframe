@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.dept;
+package com.dksys.biz.admin.cm.cm04;
 
 import java.util.List;
 import java.util.Map;
@@ -11,23 +11,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.dksys.biz.admin.cm.dept.service.DeptService;
+import com.dksys.biz.admin.cm.cm04.service.CM04Svc;
 import com.dksys.biz.util.MessageUtils;
 
 @Controller
-@RequestMapping("/admin/cm/dept")
-public class DeptController {
+@RequestMapping("/admin/cm/cm04")
+public class CM04Ctr {
 	
 	@Autowired
 	MessageUtils messageUtils;
 	
     @Autowired
-    DeptService deptService;
+    CM04Svc cm04Svc;
     
     // 부서트리 조회
     @PostMapping("/selectDeptTree")
     public String selectDeptTree(ModelMap model) {
-    	List<Map<String, String>> deptTree = deptService.selectDeptTree();
+    	List<Map<String, String>> deptTree = cm04Svc.selectDeptTree();
     	model.addAttribute("deptTree", deptTree);
         return "jsonView";
     }
@@ -35,7 +35,7 @@ public class DeptController {
     // 부서정보 조회
     @PostMapping("/selectDeptInfo")
     public String selectDeptInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, String> deptInfo = deptService.selectDeptInfo(paramMap);
+    	Map<String, String> deptInfo = cm04Svc.selectDeptInfo(paramMap);
     	model.addAttribute("deptInfo", deptInfo);
     	return "jsonView";
     }
@@ -43,7 +43,7 @@ public class DeptController {
     // 부서아이디 중복확인
     @PostMapping("/checkDeptId")
     public String checkDeptId(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int deptCount = deptService.selectDeptCount(paramMap);
+    	int deptCount = cm04Svc.selectDeptCount(paramMap);
     	model.addAttribute("deptCount", deptCount);
         return "jsonView";
     }
@@ -52,7 +52,7 @@ public class DeptController {
     @PutMapping("/updateDept")
     public String updateDept(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		deptService.updateDept(paramMap);
+    		cm04Svc.updateDept(paramMap);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
     	}catch(Exception e) {
@@ -66,7 +66,7 @@ public class DeptController {
     @PostMapping("/moveDept")
     public String moveDept(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
     	try {
-    		deptService.moveDept(paramList);
+    		cm04Svc.moveDept(paramList);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("move"));
     	}catch(Exception e) {

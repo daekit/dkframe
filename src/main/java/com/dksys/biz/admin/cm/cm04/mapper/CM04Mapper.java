@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.dept.mapper;
+package com.dksys.biz.admin.cm.cm04.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface DeptMapper {
+public interface CM04Mapper {
 	
 	List<Map<String, String>> selectDeptTree();
 

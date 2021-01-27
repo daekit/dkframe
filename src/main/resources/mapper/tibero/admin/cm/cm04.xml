@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dksys.biz.admin.cm.dept.mapper.DeptMapper">
+<mapper namespace="com.dksys.biz.admin.cm.cm04.mapper.CM04Mapper">
 
 	<select id="selectDeptTree" resultType="CamelMap">
 		SELECT 
@@ -13,11 +13,11 @@
 			R.DEPT_ID,
 			R.DEPT_NM,
 			R.UP_DEPT_ID,
-			(SELECT DEPT_NM FROM DEPARTMENT WHERE DEPT_ID = R.UP_DEPT_ID) AS UP_DEPT_NM,
+			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = R.UP_DEPT_ID) AS UP_DEPT_NM,
 			R.SORT_NO,
 			R.USE_YN
 		FROM 
-			DEPARTMENT R
+			TB_CM04M01 R
 		ORDER BY T_LEVEL, SORT_NO
 	</select>
 	
@@ -26,11 +26,11 @@
 			DEPT_ID,
 			DEPT_NM,
 			UP_DEPT_ID,
-			(SELECT DEPT_NM FROM DEPARTMENT WHERE DEPT_ID = A.UP_DEPT_ID) UP_DEPT_NM,
+			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = A.UP_DEPT_ID) UP_DEPT_NM,
 			SORT_NO,
 			USE_YN
 		FROM
-			DEPARTMENT A
+			TB_CM04M01 A
 		WHERE
 			DEPT_ID = #{deptId}
 	</select>
@@ -39,13 +39,13 @@
 		SELECT
 			COUNT(*)
 		FROM
-			DEPARTMENT
+			TB_CM04M01
 		WHERE
 			DEPT_ID  = #{deptId}
 	</select>
 	
 	<insert id="updateDept">
-		MERGE INTO DEPARTMENT A
+		MERGE INTO TB_CM04M01 A
 			USING DUAL
 			ON (A.DEPT_ID = #{deptId})
 		WHEN MATCHED THEN
@@ -73,7 +73,7 @@
 	
 	<update id="moveDept">
 		UPDATE
-			DEPARTMENT
+			TB_CM04M01
 		SET
 			UP_DEPT_ID = #{upDeptId},
 			SORT_NO = #{sortNo}
