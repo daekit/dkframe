@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dksys.biz.admin.cm.level.mapper.LevelMapper">
+<mapper namespace="com.dksys.biz.admin.cm.cm07.mapper.CM07Mapper">
 
 	<select id="selectLevelList" resultType="CamelMap">
 		SELECT
-			LEVEL_CODE,
-			LEVEL_NAME,
+			LEVEL_CD,
+			LEVEL_NM,
 			USE_YN, 
-			TO_CHAR(CREATE_DT, 'yyyy-MM-dd HH:mm:ss') CREATE_DT,
-			TO_CHAR(UPDATE_DT, 'yyyy-MM-dd HH:mm:ss') UPDATE_DT
+			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd HH:mm:ss') CREAT_DTTM,
+			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd HH:mm:ss') UDT_DTTM
 		FROM
-			CMN_LEVEL_INFO
+			TB_CM07M01
 		<where>
 			<if test="useYn != null and useYn != ''">
 				USE_YN = #{useYn}
@@ -23,51 +23,49 @@
 		SELECT
 			COUNT(*)
 		FROM
-			CMN_LEVEL_INFO
+			TB_CM07M01
 		WHERE
-			LEVEL_CODE = #{levelCode}
+			LEVEL_CD = #{levelCd}
 	</select>
 	
 	<insert id="insertLevel"> 
-		INSERT INTO CMN_LEVEL_INFO (
-			LEVEL_CODE,
-			LEVEL_NAME,
+		INSERT INTO TB_CM07M01 (
+			LEVEL_CD,
+			LEVEL_NM,
 			USE_YN,
-			CREATE_ID,
-			CREATE_DT,
-			UPDATE_ID,
-			UPDATE_DT
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM
 		) VALUES(
-			#{levelCode},
-			#{levelName},
+			#{levelCd},
+			#{levelNm},
 			#{useYn},
 			#{userId},
+			'admin',
 			NOW(),
-			#{userId},
-			NOW()
 		)
 	</insert>
 	
 	<select id="selectLevelInfo" resultType="CamelMap">
 		SELECT
-			LEVEL_CODE,
-			LEVEL_NAME,
+			LEVEL_CD,
+			LEVEL_NM,
 			USE_YN
 		FROM
-			CMN_LEVEL_INFO
+			TB_CM07M01
 		WHERE
-			LEVEL_CODE = #{levelCode}
+			LEVEL_CD = #{levelCd}
 	</select>
 	
 	<update id="updateLevel">
 		UPDATE
-			CMN_LEVEL_INFO
+			TB_CM07M01
 		SET
-			LEVEL_NAME = #{levelName},
+			LEVEL_NM = #{levelNm},
 			USE_YN = #{useYn},
-			UPDATE_DT = NOW()
+			UDT_DTTM = NOW()
 		WHERE
-			LEVEL_CODE = #{levelCode}
+			LEVEL_CD = #{levelCd}
 	</update>
 		
 </mapper>

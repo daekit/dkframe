@@ -6,6 +6,8 @@ DROP TABLE TB_CM02M01;
 DROP TABLE TB_CM03M01;
 DROP TABLE TB_CM04M01;
 DROP TABLE TB_CM05M01;
+DROP TABLE TB_CM06M01;
+DROP TABLE TB_CM07M01;
 DROP TABLE TB_CM08M01;
 DROP TABLE TB_CM09M01;
 
@@ -24,7 +26,7 @@ CREATE TABLE TB_CM01M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	CONSTRAINT TB_CM01M01_PK PRIMARY KEY (AUTH_ID)
 );
@@ -43,7 +45,7 @@ CREATE TABLE TB_CM02M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	CONSTRAINT TB_CM02M01_PK PRIMARY KEY (ROLE_ID)
 );
@@ -62,7 +64,7 @@ CREATE TABLE TB_CM03M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	CONSTRAINT TB_CM03M01_PK PRIMARY KEY (MENU_ID)
 );
@@ -80,7 +82,7 @@ CREATE TABLE TB_CM04M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	CONSTRAINT TB_CM04M01_PK PRIMARY KEY (DEPT_ID)
 );
@@ -98,9 +100,47 @@ CREATE TABLE TB_CM05M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	CONSTRAINT TB_CM05M01_PK PRIMARY KEY (CODE_ID)
+);
+
+
+CREATE TABLE TB_CM06M01
+(
+	ID varchar(50) NOT NULL,
+	PASSWORD varchar(200),
+	EMP_NO varchar(20),
+	NAME varchar(100),
+	DEPT_ID varchar(20),
+	LEVEL_CODE varchar(20),
+	EMAIL varchar(100),
+	AUTH_INFO varchar(200),
+	ENTER_DT date,
+	-- 사용/삭제 여부(Y/N)
+	USE_YN char(1),
+	CREAT_ID varchar(20) NOT NULL,
+	CREAT_PGM varchar(30) NOT NULL,
+	CREAT_DTTM timestamp NOT NULL,
+	UDT_ID varchar(20),
+	UDT_PGM varchar(30),
+	UDT_DTTM timestamp,
+	CONSTRAINT TB_CM06M01_PK PRIMARY KEY (ID)
+);
+
+
+CREATE TABLE TB_CM07M01
+(
+	LEVEL_CD varchar(20) NOT NULL,
+	LEVEL_NM varchar(100),
+	USE_YN char,
+	CREAT_ID varchar(20) NOT NULL,
+	CREAT_PGM varchar(30) NOT NULL,
+	CREAT_DTTM timestamp NOT NULL,
+	UDT_ID varchar(20),
+	UDT_PGM varchar(30),
+	UDT_DTTM timestamp,
+	CONSTRAINT TB_CM07M01_PK PRIMARY KEY (LEVEL_CD)
 );
 
 
@@ -123,7 +163,7 @@ CREATE TABLE TB_CM08M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	PRIMARY KEY (FILE_KEY)
 );
@@ -149,7 +189,7 @@ CREATE TABLE TB_CM09M01
 	CREAT_PGM varchar(30) NOT NULL,
 	CREAT_DTTM timestamp NOT NULL,
 	UDT_ID varchar(20),
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	UDT_DTTM timestamp,
 	PRIMARY KEY (NOTI_KEY)
 );

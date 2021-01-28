@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.user.service;
+package com.dksys.biz.admin.cm.cm06.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface UserService {
+public interface CM06Svc {
 
 	public List<Map<String, String>> selectUserList(Map<String, String> paramMap);
 

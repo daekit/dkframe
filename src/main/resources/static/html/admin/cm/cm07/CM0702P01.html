@@ -23,7 +23,7 @@
 				<th>직급코드</th>
 				<td>
 					<div class="input-group">
-						<input type="text" class="form-control input-sm" id="levelCode" name="levelCode" onchange="isChecked = false;" required>
+						<input type="text" class="form-control input-sm" id="levelCd" name="levelCd" onchange="isChecked = false;" required>
 						<span class="input-group-btn">
 						<button class="btn btn-primary btn-sm" type="button" onclick="checkLevelCode();">중복확인</button>
 						</span>
@@ -31,7 +31,7 @@
 				</td>
 				<th>직급이름</th>
 				<td>
-					<input type="text" class="form-control input-sm" id="levelName" name="levelName" required>
+					<input type="text" class="form-control input-sm" id="levelNm" name="levelNm" required>
 				</td>
 			</tr>
 			<tr>
@@ -60,11 +60,11 @@
 	
 	// 직급코드 중복확인
 	function checkLevelCode(){
-		var levelCode = $('#levelCode').val();
-		if($.trim(levelCode) == ""){
+		var levelCd = $('#levelCd').val();
+		if($.trim(levelCd) == ""){
 			alert("직급코드를 입력해 주세요.");
 		}else{
-			postAjax("/admin/cm/level/checkLevelCode", {"levelCode" : levelCode}, null, function(data){
+			postAjax("/admin/cm/cm07/checkLevelCode", {"levelCd" : levelCd}, null, function(data){
 				if(data.levelCount > 0){
 					alert("사용중인 직급코드입니다.");
 					isChecked = false;
@@ -96,7 +96,7 @@
 		if(isValid){
 			var levelInfo = $('#levelForm').serializeObject();
 			levelInfo.userId = jwt.userId;
-			postAjax("/admin/cm/level/createLevel", levelInfo, null, function(data){
+			postAjax("/admin/cm/cm07/createLevel", levelInfo, null, function(data){
 				alert(data.resultMessage);
 				selectLevelList();
 				modal.close();
