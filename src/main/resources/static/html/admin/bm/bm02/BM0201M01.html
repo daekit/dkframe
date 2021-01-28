@@ -1,0 +1,167 @@
+<div class="row">
+	<span style="font-size: 25px; font-weight: bold;">거래처 마스터 관리</span>
+</div>
+<div class="row">
+	<div class="form-group form-inline">
+		<!-- 
+		<select class="form-control division" id="rootDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="0" style="display: none;">
+			<option value="">공통코드 선택</option>
+			<option value="ROOT">공통코드</option>
+		</select>
+		<select class="form-control division" id="codeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="1">
+			<option value="">코드분류 선택</option>
+		</select>
+		<select class="form-control division" id="largeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="2">
+			<option value="">대분류 선택</option>
+		</select>
+		<select class="form-control division" id="midDiv" onchange="gridView.setData(0);" data-depth="3">
+			<option value="">중분류 선택</option>
+		</select>
+		-->
+		<select class="form-control" id="useType" onchange="gridView.setData(0);">
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
+		<select class="form-control" id="searchType">
+			<option value="">선택</option>
+			<option value=""></option>
+			<option value=""></option>
+		</select>
+		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
+		<div style="float: right;">
+			<a class="btn btn-default btn-sm" onclick="detailClnt('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="detailClnt('U');">수정</a>
+			<a class="btn btn-default btn-sm" onclick="deleteClnt();">삭제</a>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+</div>
+<script type="text/javascript">
+	var actionType = null;
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="first-grid"]'),
+				showRowSelector: true,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	detailClnt("U");
+		            },
+		        },
+	            columns: [
+	                {key: "codeId", label: "거래처 코드", width: 150},
+	                {key: "codeNm", label: "거래처명", width: 150},
+	                {key: "codeKind", label: "거래처 구분", width: 150},
+	                {key: "codeDesc", label: "업태", width: 150},
+	                {key: "createDt", label: "종목", width: 150}
+	            ],
+	            page: {
+	                navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+	            }
+			});
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			
+			// 분류값 set
+			paramObj.codeKind = getCodeKind();
+			
+			// 사용여부 set
+			paramObj.useYn = $('#useType').val();
+			
+			// 검색구분 set
+			paramObj.searchType = $('#searchType').val();
+			
+			// 검색어 set
+			paramObj.searchValue = $('#searchValue').val();
+			
+			postAjax("/admin/cm/code/selectCodeList", paramObj, null, function(data){
+				targetObj.setData({
+					list: data.codeList,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		gridView.initView();
+		$('#rootDiv').val("ROOT").trigger('change');
+	});
+	
+	function selectChildCodeList(obj) {
+		
+		var codeKind = $(obj).val();
+		var target = $(obj).next('select.division');
+		var paramObj = {"codeKind": codeKind};
+		
+		postAjaxSync("/admin/cm/code/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, item){
+				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += item.codeNm;
+				optionHtml += '</option>';
+			});
+			initDivision(obj);
+			$(target).append(optionHtml);
+		});
+	}
+	
+	function initDivision(obj){
+		var divSiblings = $(obj).siblings('select.division');
+		for(var i=0;i<divSiblings.length;i++){
+			var divSibling = divSiblings[i];
+			if($(obj).data('depth') < $(divSibling).data('depth')){
+				$(divSibling).find('option[value!=""]').remove();
+			}
+		}
+	}
+	
+	function detailClnt(type) {
+		if(type == "U"){
+			if(selectGridValidation(gridView.target)) return;
+		}
+		
+		actionType = type;
+		openModal("/static/html/admin/bm/bm02/BM0202P01.html", 1000, 800, "거래처 마스터");
+	}
+
+	function deleteClnt() {
+		if(!confirm("삭제하시겠습니까?")) return;
+		var row = gridView.target.getList("selected")[0];
+		/*
+			var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
+			putAjax("/admin/cm/code/deleteCode", paramObj, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		*/
+	}
+</script>
