@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.level.service;
+package com.dksys.biz.admin.cm.cm07.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface LevelService {
+public interface CM07Svc {
 
 	public List<Map<String, String>> selectLevelList(Map<String, String> paramMap);
 

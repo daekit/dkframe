@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.user.mapper;
+package com.dksys.biz.admin.cm.cm06.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserMapper {
+public interface CM06Mapper {
 	
 	List<Map<String, String>> selectUserList(Map<String, String> paramMap);
 
