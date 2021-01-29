@@ -10,61 +10,6 @@ DROP TABLE TB_SM02M01;
 
 
 
-/* Create Tables */
-
--- 자재(제품)마스터
-CREATE TABLE TB_BM01M01
-(
-	-- 제품코드 : 제품코드 (SD400)000001
-	-- 시멘트0000002
-	PRDT_CD varchar(10) NOT NULL,
-	-- 제품명 : 철근(SD400)
-	PRDT_NM varchar(200) NOT NULL,
-	-- 제품구분 : 제고유형구분(철근, 형강, 건자재)
-	PRDT_DIV varchar(10) NOT NULL,
-	-- 제품강종 : SD400.SD500
-	PRDT_STKN varchar(10) NOT NULL,
-	-- 내진설계 구분 : 내진설계만(S) 그외 SPACE
-	PRDT_ERQK_CD char,
-	-- 사이즈(스펙) : 철근:13~~29
-	-- 기타
-	PRDT_SIZE varchar(30) NOT NULL,
-	-- 제품단위 : 처리단위(EA,KG,SH,매,본,장)
-	PRDT_UNIT varchar(10),
-	-- 제품단위중량
-	PRDT_WT integer,
-	-- 제품기준단가
-	PRDT_UPR integer,
-	-- 제품기준단가기준일자 : YYYYMMDD
-	PRDT_DT char(8),
-	-- 동국제강제품코드
-	PRDT_DK_CD varchar(30),
-	-- MES대응코드 : MES(폼묵코드+치수코드)
-	PRDT_MES_CD varchar(30),
-	-- 사용여부
-	USE_YN char DEFAULT 'Y' NOT NULL,
-	-- 여분필드(고정) : 여분필드(고정)
-	ETC_FIELD1 char(10),
-	-- 여분필드(숫자) : 숫자여분필드
-	ETC_FIELD2 numeric,
-	-- 여분필드(가변) : 여분필드(가변)
-	ETC_FIELD3 varchar(100),
-	-- 생성자
-	CREAT_ID varchar(20) NOT NULL,
-	-- 생성프로그램ID
-	CREAT_PGM varchar(30) NOT NULL,
-	-- 생성일시
-	CREAT_DTTM timestamp NOT NULL,
-	-- 최종변경자
-	UDT_ID varchar(20),
-	-- 최종수정프로그램ID
-	UPD_PGM varchar(30),
-	-- 최종변경일시
-	UDT_DTTM timestamp,
-	PRIMARY KEY (PRDT_CD)
-);
-
-
 -- 재고월마감자료
 CREATE TABLE TB_SM01D01
 (
@@ -113,12 +58,12 @@ CREATE TABLE TB_SM01D01
 	-- 최종변경자
 	UDT_ID varchar(20),
 	-- 최종수정프로그램ID
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	-- 최종변경일시
 	UDT_DTTM timestamp,
 	-- 수입구분 : 수입:Y,  defaulf:N
 	IMP_YN char DEFAULT 'N' NOT NULL,
-	PRIMARY KEY (CLOSE_YM, CO_CD, WH_CD, OWNER_CD, TYP_CD, MAKR_CD, PRJCT_CD, PRDT_CD, IMP_YN)
+	CONSTRAINT TB_SM01D01_PK PRIMARY KEY (CLOSE_YM, CO_CD, WH_CD, OWNER_CD, TYP_CD, MAKR_CD, PRJCT_CD, PRDT_CD, IMP_YN)
 );
 
 
@@ -176,10 +121,10 @@ CREATE TABLE TB_SM01H01
 	-- 최종변경자
 	UDT_ID varchar(20),
 	-- 최종수정프로그램ID
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	-- 최종변경일시
 	UDT_DTTM timestamp,
-	PRIMARY KEY (TRST_NO)
+	CONSTRAINT TB_SM01H01_PK PRIMARY KEY (TRST_NO)
 );
 
 
@@ -231,10 +176,10 @@ CREATE TABLE TB_SM01M01
 	-- 최종변경자
 	UDT_ID varchar(20),
 	-- 최종수정프로그램ID
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	-- 최종변경일시
 	UDT_DTTM timestamp,
-	PRIMARY KEY (CO_CD, WH_CD, OWNER_CD, TYP_CD, MAKR_CD, PRJCT_CD, PRDT_CD, IMP_YN)
+	CONSTRAINT TB_SM01M01_PK PRIMARY KEY (CO_CD, WH_CD, OWNER_CD, TYP_CD, MAKR_CD, PRJCT_CD, PRDT_CD, IMP_YN)
 );
 
 
@@ -292,10 +237,10 @@ CREATE TABLE TB_SM02M01
 	-- 최종변경자
 	UDT_ID varchar(20),
 	-- 최종수정프로그램ID
-	UPD_PGM varchar(30),
+	UDT_PGM varchar(30),
 	-- 최종변경일시
 	UDT_DTTM timestamp,
-	PRIMARY KEY (TRST_NO)
+	CONSTRAINT TB_SM02M01_PK PRIMARY KEY (TRST_NO)
 );
 
 
