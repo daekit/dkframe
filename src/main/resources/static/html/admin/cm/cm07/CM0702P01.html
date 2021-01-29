@@ -1,0 +1,106 @@
+<style>
+	.table tr th {
+		text-align: center;
+	}
+	
+	.modal_bottom {
+		position: fixed;
+		bottom: 5px;
+		width: 100%;
+	}
+</style>
+
+<form id="levelForm">
+	<table class="table">
+		<colgroup>
+			<col style="width: 15%;">
+			<col style="width: 35%">
+			<col style="width: 15%;">
+			<col style="width: 35%">
+		</colgroup>
+		<tbody>
+			<tr>
+				<th>직급코드</th>
+				<td>
+					<div class="input-group">
+						<input type="text" class="form-control input-sm" id="levelCd" name="levelCd" onchange="isChecked = false;" required>
+						<span class="input-group-btn">
+						<button class="btn btn-primary btn-sm" type="button" onclick="checkLevelCode();">중복확인</button>
+						</span>
+					</div>
+				</td>
+				<th>직급이름</th>
+				<td>
+					<input type="text" class="form-control input-sm" id="levelNm" name="levelNm" required>
+				</td>
+			</tr>
+			<tr>
+				<th>사용여부</th>
+				<td>
+					<select class="form-control input-sm" id="useYn" name="useYn" required>
+						<option value="Y" selected>사용</option>
+						<option value="N">미사용</option>
+					</select>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+<div class="bottom_btn">
+	<button type="button" class="btn btn-default btn-sm" onclick="createLevel();">등록</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>
+<script type="text/javascript">
+	//등록시 직급코드 중복체크 여부
+	var isChecked = false;
+	
+	$(document).ready(function() {
+		
+	});
+	
+	// 직급코드 중복확인
+	function checkLevelCode(){
+		var levelCd = $('#levelCd').val();
+		if($.trim(levelCd) == ""){
+			alert("직급코드를 입력해 주세요.");
+		}else{
+			postAjax("/admin/cm/cm07/checkLevelCode", {"levelCd" : levelCd}, null, function(data){
+				if(data.levelCount > 0){
+					alert("사용중인 직급코드입니다.");
+					isChecked = false;
+				}else{
+					alert("사용가능한 직급코드입니다.");
+					isChecked = true;
+				}
+			});
+		}
+	}
+	
+	// 직급정보 등록
+	function createLevel(){
+		if(!isChecked){
+			alert("직급코드 중복확인이 필요합니다.");
+			return false;
+		}
+		
+		var isValid = true;
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			var levelInfo = $('#levelForm').serializeObject();
+			levelInfo.userId = jwt.userId;
+			postAjax("/admin/cm/cm07/createLevel", levelInfo, null, function(data){
+				alert(data.resultMessage);
+				selectLevelList();
+				modal.close();
+			});
+		}
+	}
+</script>

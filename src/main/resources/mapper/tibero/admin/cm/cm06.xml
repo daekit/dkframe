@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.admin.cm.cm06.mapper.CM06Mapper">
+
+	<select id="selectUserList" resultType="CamelMap">
+		SELECT
+			ID,
+			EMP_NO,
+			NAME,
+			(SELECT LEVEL_NM FROM TB_CM07M01 WHERE LEVEL_CD = U.LEVEL_CD) AS LEVEL_NM,
+			EMAIL,
+			USE_YN,
+			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') CREAT_DTTM,
+			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') UDT_DTTM
+		FROM
+			TB_CM06M01 U
+		WHERE 1=1
+		<if test="deptId !='' and deptId != null">
+			AND DEPT_ID = #{deptId}
+		</if>
+		<if test="searchValue !='' and searchValue != null">
+			AND NAME = #{searchValue}
+		</if>
+	</select>
+	
+	<select id="selectUserCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_CM06M01
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<insert id="insertUser">
+		INSERT INTO TB_CM06M01 (
+			ID,
+			PASSWORD, 
+			EMP_NO, 
+			NAME, 
+			DEPT_ID,
+			LEVEL_CD,
+			EMAIL, 
+			AUTH_INFO,
+			ENTER_DT,
+			USE_YN,
+			CREAT_ID,  
+			CREAT_PGM,  
+			CREAT_DTTM, 
+			UDT_DTTM
+		)VALUES(
+			#{userId},
+			#{password},
+			#{empNo},
+			#{userNm},
+			#{deptId},
+			#{levelCd},
+			#{email},
+			#{authInfo},
+			#{enterDt},
+			#{useYn},
+			'admin',
+			'admin',
+			SYSDATE,
+			SYSDATE
+		)
+	</insert>
+	
+	<select id="selectUserInfo" resultType="CamelMap">
+		SELECT
+			ID,
+			EMP_NO, 
+			NAME, 
+			DEPT_ID,
+			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = U.DEPT_ID) DEPT_NM,
+			LEVEL_CD,
+			EMAIL, 
+			AUTH_INFO,
+			ENTER_DT,
+			USE_YN,
+			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') CREAT_DTTM,
+			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') UDT_DTTM
+		FROM
+			TB_CM06M01 U
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<update id="updateUser">
+		UPDATE
+			TB_CM06M01
+		SET
+			EMP_NO = #{empNo},
+			NAME = #{userNm},
+			DEPT_ID = #{deptId},
+			LEVEL_CD = #{levelCd},
+			EMAIL = #{email},
+			AUTH_INFO = #{authInfo},
+			ENTER_DT = #{enterDt},
+			USE_YN = #{useYn},
+			UDT_DTTM = SYSDATE
+		WHERE
+			ID = #{userId}
+	</update>
+	
+</mapper>

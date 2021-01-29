@@ -1,0 +1,88 @@
+package com.dksys.biz.admin.cm.cm06;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.dksys.biz.admin.cm.cm06.service.CM06Svc;
+import com.dksys.biz.util.MessageUtils;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Controller
+@RequestMapping("/admin/cm/cm06")
+public class CM06Ctr {
+
+    private final PasswordEncoder passwordEncoder;
+    
+    @Autowired
+	MessageUtils messageUtils;
+
+    @Autowired
+    CM06Svc cm06Svc;
+    
+    // 사용자 리스트
+    @PostMapping("/selectUserList")
+    public String selectUserList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> userList = cm06Svc.selectUserList(paramMap);
+    	model.addAttribute("userList", userList);
+    	return "jsonView";
+    }
+    
+    // 사용자아이디 중복확인
+    @PostMapping("/checkUserId")
+    public String checkUserId(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int userCount = cm06Svc.selectUserCount(paramMap);
+    	model.addAttribute("userCount", userCount);
+    	return "jsonView";
+    }
+    
+    // 사용자 등록
+    @PostMapping("/createUser")
+    public String createUser(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		String rawPassword = paramMap.get("password");
+    		paramMap.put("password", passwordEncoder.encode(rawPassword));
+    		cm06Svc.insertUser(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	
+    	return "jsonView";
+    }
+    
+    // 사용자정보 조회
+    @PostMapping("/selectUserInfo")
+    public String selectUserInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> userInfo = cm06Svc.selectUserInfo(paramMap);
+    	model.addAttribute("userInfo", userInfo);
+    	return "jsonView";
+    }
+    
+    // 사용자 등록
+    @PutMapping("/updateUser")
+    public String updateUser(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		cm06Svc.updateUser(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	
+    	return "jsonView";
+    }
+}
