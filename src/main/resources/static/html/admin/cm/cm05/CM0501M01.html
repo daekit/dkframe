@@ -60,7 +60,8 @@
 	                {key: "codeNm", label: "코드명", width: 150},
 	                {key: "codeKind", label: "상위코드ID", width: 150},
 	                {key: "codeDesc", label: "설명", width: 150},
-	                {key: "createDt", label: "등록일", width: 100}
+	                {key: "sortNo", label: "정렬값", width: 150},
+	                {key: "creatDttm", label: "등록일", width: 100}
 	            ],
 	            page: {
 	                navigationItemCount: 10,
@@ -92,7 +93,7 @@
 			// 검색어 set
 			paramObj.searchValue = $('#searchValue').val();
 			
-			postAjax("/admin/cm/code/selectCodeList", paramObj, null, function(data){
+			postAjax("/admin/cm/cm05/selectCodeList", paramObj, null, function(data){
 				targetObj.setData({
 					list: data.codeList,
 					page : {
@@ -117,7 +118,7 @@
 		var target = $(obj).next('select.division');
 		var paramObj = {"codeKind": codeKind};
 		
-		postAjaxSync("/admin/cm/code/selectChildCodeList", paramObj, null, function(data){
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
 			var optionHtml = '';
 			var childCodeList = data.childCodeList;
 			$.each(childCodeList, function(index, item){
@@ -162,7 +163,7 @@
 		}
 		
 		actionType = type;
-		openModal("/static/html/admin/cm/code/detailCode.html", 600, 400, "자재코드");
+		openModal("/static/html/admin/cm/cm05/CM0502P01.html", 600, 250, "공통코드");
 	}
 
 	function deleteCode() {
@@ -170,7 +171,7 @@
 		
 		var row = gridView.target.getList("selected")[0];
 		var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
-		putAjax("/admin/cm/code/deleteCode", paramObj, null, function(data){
+		putAjax("/admin/cm/cm05/deleteCode", paramObj, null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
 				gridView.setData(0);
