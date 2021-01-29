@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.code.mapper;
+package com.dksys.biz.admin.cm.cm05.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface CodeMapper {
+public interface CM05Mapper {
 	
 	int selectCodeCount(Map<String, String> param);
 	

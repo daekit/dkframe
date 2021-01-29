@@ -1,0 +1,134 @@
+<style>
+	.table tr th {
+		text-align: center;
+	}
+</style>
+<div class="form-group row">
+	<span style="font-size: 25px; font-weight: bold;">공지사항 관리</span>
+</div>
+<div class="row">
+  <form id="mainForm">
+	<div class="form-group form-inline">
+		<label>회사</label>
+		<select class="form-control division" name="coCd">
+			
+		</select>
+		<label>구분</label>
+		<select class="form-control division" name="searchType">
+			<option value="">전체</option>
+			<option value="NOTI_TITLE">제목</option>
+			<option value="NOTI_CNTS">내용</option>
+		</select>
+		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<label>사용여부</label>
+		<select class="form-control division" name="useYn">
+			<option value="">전체</option>
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
+		<button class="btn btn-primary btn-sm" type="button" onclick="gridView.setData(0);">검색</button>
+		<div style="float: right;">
+			<a class="btn btn-default btn-sm" onclick="insertNotiModal('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="insertNotiModal('U');">수정</a>
+		</div>
+	</div>
+  </form>
+</div>
+<div class="row">
+	<div data-ax5grid="first-grid" style="height: 500px; width: 100%"></div>
+</div>
+
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		selectChildCodeList();
+		gridView.initView().setData(0);
+	});
+	
+	var firstGrid = null;
+	
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		            {key: "coNm", label: "회사", width: 150},
+		            {key: "notiTitle", label: "제목", width: 350},
+		            {key: "useYn", label: "사용여부", width: 150},
+		            {key: "exprtnYn", label: "만료여부", width: 150},
+		            {key: "exprtnDt", label: "만료일", width: 150},
+		            {key: "creatNm", label: "등록자", width: 150},
+		            {key: "udtDttm", label: "최종변경일", width: 150},
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			firstGrid = this.target;
+			var formData = $('#mainForm').serializeObject();
+			formData.pageNo = _pageNo + 1;
+			formData.recordCnt = 20;
+			debugger;
+			postAjax("/admin/cm/cm09/selectNotiList", formData, null, function(data){
+				var list = data.notiList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	function selectChildCodeList() {
+		
+		var paramObj = {"codeKind": "CO"};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, item){
+				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += item.codeNm;
+				optionHtml += '</option>';
+			});
+			$("#coCd").append(optionHtml);
+		});
+	}
+	
+	// 직급등록 모달 오픈
+	function insertNotiModal(type){
+		openModal("/static/html/admin/cm/cm09/CM0902P01.html", 600, 360, "공지사항 등록");
+	}
+	
+</script>

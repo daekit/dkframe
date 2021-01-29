@@ -1,4 +1,4 @@
-package com.dksys.biz.admin.cm.code;
+package com.dksys.biz.admin.cm.cm05;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.dksys.biz.admin.cm.code.service.CodeService;
+import com.dksys.biz.admin.cm.cm05.service.CM05Svc;
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.util.MessageUtils;
 
@@ -19,23 +19,23 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/admin/cm/code")
-public class CodeController {
+@RequestMapping("/admin/cm/cm05")
+public class CM05Ctr {
 
 	@Autowired
 	MessageUtils messageUtils;
 	
     @Autowired
-    CodeService codeService;
+    CM05Svc cm05Svc;
     
     // 공통코드 리스트 조회
     @PostMapping("/selectCodeList")
     public String selectCodeList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = codeService.selectCodeCount(param);
+    	int totalCnt = cm05Svc.selectCodeCount(param);
     	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, String>> codeList = codeService.selectCodeList(param);
+    	List<Map<String, String>> codeList = cm05Svc.selectCodeList(param);
     	model.addAttribute("codeList", codeList);
         return "jsonView";
     }
@@ -43,7 +43,7 @@ public class CodeController {
     // 하위코드 리스트 조회
     @PostMapping("/selectChildCodeList")
     public String selectChildCodeList(@RequestBody Map<String, String> param, ModelMap model) {
-    	List<Map<String, String>> childCodeList = codeService.selectChildCodeList(param);
+    	List<Map<String, String>> childCodeList = cm05Svc.selectChildCodeList(param);
     	model.addAttribute("childCodeList", childCodeList);
         return "jsonView";
     }
@@ -51,7 +51,7 @@ public class CodeController {
     // 공통코드 정보 조회
     @PostMapping("/selectCodeInfo")
     public String selectCodeInfo(@RequestBody Map<String, String> param, ModelMap model) {
-    	Map<String, String> codeInfo = codeService.selectCodeInfo(param);
+    	Map<String, String> codeInfo = cm05Svc.selectCodeInfo(param);
     	model.addAttribute("codeInfo", codeInfo);
         return "jsonView";
     }
@@ -59,7 +59,7 @@ public class CodeController {
     // 공통코드 정보 리스트 조회
     @PostMapping("/selectCodeInfoList")
     public String selectCodeInfoList(@RequestBody Map<String, String> param, ModelMap model) {
-    	List<Map<String, String>> codeInfoList = codeService.selectCodeInfoList(param);
+    	List<Map<String, String>> codeInfoList = cm05Svc.selectCodeInfoList(param);
     	model.addAttribute("codeInfoList", codeInfoList);
         return "jsonView";
     }
@@ -68,7 +68,7 @@ public class CodeController {
     @PostMapping("/insertCode")
     public String insertCode(@RequestBody Map<String, String> param, ModelMap model) {
     	try {
-    		codeService.insertCode(param);
+    		cm05Svc.insertCode(param);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", "C".equals(param.get("actionType")) ? messageUtils.getMessage("insert") : messageUtils.getMessage("update"));
     	} catch(Exception e) {
@@ -81,7 +81,7 @@ public class CodeController {
     // 공통코드삭제
     @PutMapping("/deleteCode")
     public String deleteCode(@RequestBody Map<String, String> param, ModelMap model) {
-    	codeService.deleteCode(param);
+    	cm05Svc.deleteCode(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";

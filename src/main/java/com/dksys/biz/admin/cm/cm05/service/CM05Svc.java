@@ -1,9 +1,9 @@
-package com.dksys.biz.admin.cm.code.service;
+package com.dksys.biz.admin.cm.cm05.service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface CodeService {
+public interface CM05Svc {
 	
 	public int selectCodeCount(Map<String, String> param);
 	
