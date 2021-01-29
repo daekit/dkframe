@@ -22,6 +22,8 @@
 						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc" required></td>
 					</tr>
 					<tr>
+						<th>정렬값</th>
+						<td><input type="text" class="form-control" id="sortNo" name="sortNo" onkeyup="onlyNumber(this)"></td>
 						<th>사용여부</th>
 						<td>
 							<select class="form-control input-sm" id="useYn" name="useYn">
@@ -29,8 +31,6 @@
 								<option value="N">미사용</option>
 							</select>
 						</td>
-						<th></th>
-						<td></td>
 					</tr>
 				</table>
 			</form>
@@ -58,7 +58,7 @@
 	function selectCodeInfo(){
 		var row = gridView.target.getList("selected")[0];
 		var paramObj = {"codeId": row.codeId};
-		postAjax("/admin/cm/code/selectCodeInfo", paramObj, null, function(data){
+		postAjax("/admin/cm/cm05/selectCodeInfo", paramObj, null, function(data){
 			setCodeInfo(data.codeInfo);
 		});
 	}
@@ -75,7 +75,7 @@
 		formData.userId = jwt.userId;
 		
 		if(inputValidation($('#codeForm input[required]'))){
-			postAjax("/admin/cm/code/insertCode", formData, null, function(data){
+			postAjax("/admin/cm/cm05/insertCode", formData, null, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
 					gridView.setData(0);

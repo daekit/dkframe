@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dksys.biz.admin.cm.code.mapper.CodeMapper">
+<mapper namespace="com.dksys.biz.admin.cm.cm05.mapper.CM05Mapper">
 
 	<select id="selectCodeCount" resultType="int">
 		SELECT
 			COUNT(*)
 		FROM 
-			CMN_CODE_INFO 
+			TB_CM05M01 
 		WHERE
 			CODE_KIND = #{codeKind}
 			AND USE_YN = #{useYn}
 			<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'
 			</if>
+		ORDER BY SORT_NO ASC
 	</select>
 
 	<select id="selectCodeList" resultType="CamelMap">
@@ -28,13 +29,14 @@
 				SELECT
 					*
 				FROM 
-					CMN_CODE_INFO 
+					TB_CM05M01 
 				WHERE
 					CODE_KIND = #{codeKind}
 					AND USE_YN = #{useYn}
 					<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
+				ORDER BY SORT_NO ASC
 			) A
 		)
 		WHERE
@@ -45,10 +47,11 @@
 		SELECT
 			*
 		FROM
-			CMN_CODE_INFO
+			TB_CM05M01
 		WHERE
 			USE_YN = 'Y'
 			AND CODE_KIND = #{codeKind}
+		ORDER BY SORT_NO ASC
 	</select>
 	
 	<select id="selectCodeInfo" resultType="CamelMap">
@@ -57,9 +60,10 @@
 			CODE_NM,
 			CODE_KIND,
 			CODE_DESC,
+			SORT_NO,
 			USE_YN
 		FROM
-			CMN_CODE_INFO
+			TB_CM05M01
 		WHERE
 			CODE_ID = #{codeId}
 	</select>
@@ -70,17 +74,19 @@
 			CODE_NM, 
 			CODE_KIND, 
 			CODE_DESC, 
+			SORT_NO,
 			USE_YN, 
-			CREATE_ID, 
-			CREATE_DT
+			CREAT_ID, 
+			CREAT_DTTM
 		FROM
-			CMN_CODE_INFO
+			TB_CM05M01
 		WHERE
 			CODE_KIND = #{codeKind}
+		ORDER BY SORT_NO ASC
 	</select>
 	
 	<insert id="insertCode" parameterType="Map">
-		MERGE INTO CMN_CODE_INFO A
+		MERGE INTO TB_CM05M01 A
 			USING DUAL
 			ON (A.CODE_ID = #{codeId})
 		WHEN MATCHED THEN
@@ -88,9 +94,11 @@
 				CODE_NM = #{codeNm},
 				CODE_KIND = #{codeKind},
 				CODE_DESC = #{codeDesc},
+				SORT_NO = #{sortNo},
 				USE_YN = #{useYn},
-				UPDATE_ID = #{userId},
-				UPDATE_DT = SYSDATE
+				UDT_ID = #{userId},
+				UDT_PGM = 'admin',
+				UDT_DTTM = SYSDATE
 		WHEN NOT MATCHED THEN
 		INSERT
 		(
@@ -98,32 +106,33 @@
 			CODE_NM,
 			CODE_KIND,
 			CODE_DESC,
+			SORT_NO,
 			USE_YN,
-			CREATE_ID,
-			CREATE_DT,
-			UPDATE_ID,
-			UPDATE_DT
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM
 		)
 		VALUES(
 			#{codeId},
 			#{codeNm},
 			#{codeKind},
 			#{codeDesc},
+			#{sortNo},
 			#{useYn},
 			#{userId},
-			SYSDATE,
-			#{userId},
+			'admin',
 			SYSDATE
 		)		
 	</insert>
 
 	<update id="deleteCode" parameterType="Map">
 		UPDATE
-			CMN_CODE_INFO
+			TB_CM05M01
 		SET
 			USE_YN = 'N',
-			UPDATE_ID = #{userId},
-			UPDATE_DT = SYSDATE
+			UDT_ID = #{userId},
+			UDT_PGM = 'admin',
+			UDT_DTTM = SYSDATE
 		WHERE
 			CODE_ID = #{codeId}
 	</update>

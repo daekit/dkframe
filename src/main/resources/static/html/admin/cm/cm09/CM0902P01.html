@@ -1,0 +1,131 @@
+<style>
+	.table tr th {
+		text-align: center;
+	}
+	
+	.modal_bottom {
+		position: fixed;
+		bottom: 5px;
+		width: 100%;
+	}
+</style>
+<div class="form-group">
+	<form id="popForm">
+		<table class="popup_table">
+			<colgroup>
+				<col style="width: 15%;">
+				<col style="width: 85%;">
+			</colgroup>
+			<tbody>
+				<tr>
+					<th>제목</th>
+					<td>
+						<input type="text" class="form-control input-sm" id="notiTitle" name="notiTitle" required>
+					</td>
+				</tr>
+				<tr>
+					<th>내용</th>
+					<td>
+						<textarea rows="8" cols="78" name="notiCnts"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>첨부파일</th>
+					<td>
+						<input type="file" class="form-control input-sm" id="file" name="file">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="popup_table">
+			<colgroup>
+				<col style="width: 15%;">
+				<col style="width: 35%;">
+				<col style="width: 15%;">
+				<col style="width: 35%;">
+			</colgroup>
+			<tbody>
+				<tr>
+					<th>팝업 기능</th>
+					<td>
+						<input type="radio" name="popupYn" value="N" checked="checked">사용 안함
+						<input type="radio" name="popupYn" value="Y">사용
+					</td>
+					<th>사용 여부</th>
+					<td>
+						<input type="radio" name="useYn" value="N" checked="checked">사용 안함
+						<input type="radio" name="useYn" value="Y">사용
+					</td>
+				</tr>
+				<tr>
+					<th>만료 기능</th>
+					<td>
+						<input type="radio" name="exprtnYnG" value="N" checked="checked">사용 안함
+						<input type="radio" name="exprtnYnG" value="Y">사용
+						<input type="hidden" name="exprtnYn" value="N">
+					</td>
+					<th>만료일</th>
+					<td>
+						<div class="input-group date" id="exprtnDatePicker">
+		                    <input type="text" class="form-control input-sm" id="exprtnDt" name="exprtnDt" style="text-align: center;" disabled="disabled"/>
+		                    <span class="input-group-addon" style="padding: 0px 5px;">
+		                        <span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
+		                    </span>
+		                </div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<input type="hidden" name="notiKey">
+	</form>
+</div>
+<div class="bottom_btn">
+	<button type="button" class="btn btn-default btn-sm" onclick="insertNoti();">저장</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>
+<script type="text/javascript">
+	//등록시 직급코드 중복체크 여부
+	var isChecked = false;
+	
+	$(document).ready(function() {
+		$("input[name='exprtnYnG']").prop("disabled", true);
+		$("input[name='popupYnG']").on("change", function(){
+			var selectedValue = $("input[name='popupYnG']:checked").val();
+			if(selectedValue == "Y") {
+				$("input[name='exprtnYnG']").prop("disabled", false);
+				$("#exprtnDt").prop("readonly", false);
+			} else {
+				$("input[name='exprtnYnG']").prop("disabled", true);
+				$("#exprtnDt").prop("readonly", true);
+			}
+			$("input[name='exprtnYn']").val($("input[name='exprtnYnG']:checked").val());
+		});
+	});
+	
+	// 만료일 데이트피커 set
+	$('#exprtnDatePicker').datepicker({
+		format: "yyyy-mm-dd",
+		language : "ko",
+		autoclose : true
+	});
+	
+	function insertNoti() {
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		var formData = $('#popForm').serializeObject();
+		formData.userId = jwt.userId;
+		formData.coCd = $('#mainForm').find("#coCd option:selected").val();
+		formData.exprtnDt = $("#exprtnDt").val();
+		postAjax("/admin/cm/cm09/insertNoti", formData, null, function(data){
+			alert(data.resultMessage);
+			modal.close();
+		});
+	}
+	
+</script>
