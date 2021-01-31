@@ -1,6 +1,7 @@
 <div class="container-fluid">
-	<div class="row">
-		<div class="form-group">
+	<div class="form-group">
+		<form id="clntForm">
+			<!-- 기본정보 테이블 -->
 			<table class="popup_table">
 				<colgroup>
 					<col width="15%">
@@ -12,72 +13,66 @@
 				</colgroup>
 				<thead>
 					<tr>
-						<td colspan="6" style="text-align: left;">기본정보</td>
+						<td colspan="5" style="text-align: left;">기본정보</td>
+						<td style="text-align: right;">
+							<a class="tbody_more_btn"></a>
+						</td>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<th>거래처명</th>
-						<td><input type="text" class="form-control" id="" name="" required></td>
-						<th>사업자등록번호</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
-						<th>거래처구분</th>
 						<td>
-							<select class="form-control input-sm" id="" name="">
+							<input type="text" class="form-control" id="clntNm" name="clntNm" maxlength="25">
+						</td>
+						<th>사업자등록번호</th>
+						<td>
+							<input type="text" class="form-control" id="crn" name="crn" onkeyup="crnFormatter(this);" maxlength="12">
+						</td>
+						<th>거래처구분*</th>
+						<td>
+							<select class="form-control input-sm" id="clntDivCd" name="clntDivCd">
 								<option value="">선택</option>
 							</select>
 						</td>
 					</tr>
 					<tr>
 						<th>대표자명</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
+						<td>
+							<input type="text" class="form-control" id="repstNm" name="repstNm" maxlength="5">
+						</td>
 						<th>업태</th>
 						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
+							<input type="text" class="form-control" id="bizconNm" name="bizconNm" maxlength="25">
 						</td>
 						<th>종목</th>
 						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
+							<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
 						</td>
 					</tr>
 					<tr>
-						<th>주소</th>
-						<td colspan="5">
-							<div class="form-inline" style="text-align: left;">
-								<div class="input-group" style="width:20%;">
-									<input type="text" class="form-control" id="" name="" placeholder="우편번호" readonly>
-									<span class="input-group-btn">
-										<button type="button" class="btn btn-primary btn-sm" onclick="">검색</button>
-									</span>
-								</div>
-								<input type="text" class="form-control" id="" name="" style="width:39.5%;" placeholder="도로명주소" readonly>
-								<input type="text" class="form-control" id="" name="" style="width:39.5%;" placeholder="상세주소" readonly>
+						<th rowspan="2">주소</th>
+						<td>
+							<div class="input-group">
+								<input type="text" class="form-control" id="bizZip" name="bizZip" placeholder="우편번호" readonly>
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">검색</button>
+								</span>
 							</div>
 						</td>
-					</tr>
-					<tr>
-						<th>전화번호</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
-						<th>FAX</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
-						<th>URL</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
-					</tr>
-					<tr>
-						<th>주거래은행</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
-						<th>계좌번호</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
+						<td colspan="2"></td>
 						<th>기본여신금액</th>
-						<td><input type="text" class="form-control" id="" name=""></td>
+						<td colspan="3">
+							<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="commaFormatter(this);">
+						</td>
 					</tr>
 					<tr>
-						<th>메모</th>
-						<td colspan="3"><input type="text" class="form-control" id="" name=""></td>
+						<td colspan="3">
+							<div class="form-inline" style="text-align: left;">
+								<input type="text" class="form-control" id="bizAddr" name="bizAddr" style="width:49.5%;" placeholder="주소" readonly>
+								<input type="text" class="form-control" id="bizAddrDtl" name="bizAddrDtl" style="width:49.5%;" placeholder="상세주소" maxlength="100">
+							</div>
+						</td>
 						<th>사용여부</th>
 						<td>
 							<select class="form-control input-sm" id="useYn" name="useYn">
@@ -87,143 +82,264 @@
 						</td>
 					</tr>
 					<tr>
+						<th>전화번호</th>
+						<td>
+							<input type="text" class="form-control" id="bizTelNo" name="bizTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+						</td>
+						<th>FAX</th>
+						<td>
+							<input type="text" class="form-control" id="bizFaxNo" name="bizFaxNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+						</td>
+						<th>URL</th>
+						<td>
+							<input type="text" class="form-control" id="subRmkUrl" name="subRmkUrl" onkeyup="exceptKorean(this);" maxlength="100">
+						</td>
+					</tr>
+					<tr>
+						<th>주거래은행*</th>
+						<td>
+							<select class="form-control input-sm" id="bankCd" name="bankCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+						<th>계좌번호</th>
+						<td>
+							<input type="text" class="form-control" id="bkacNo" name="bkacNo" onkeyup="onlyNumber(this);" maxlength="20">
+						</td>
+						<th>계좌소유주</th>
+						<td>
+							<input type="text" class="form-control" id="bkacOwner" name="bkacOwner" maxlength="5">
+						</td>
+					</tr>
+					<tr>
+						<th>메모</th>
+						<td colspan="5">
+							<textarea class="form-control" id="clntRmk" name="clntRmk" style="height: 60px;" maxlength="500"></textarea>
+						</td>
+					</tr>
+					<tr>
 						<th>첨부파일</th>
 						<td colspan="5"></td>
 					</tr>
 				</tbody>
 			</table>
-			<table class="popup_table">
-				<colgroup>
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-				</colgroup>
-				<thead>
-					<tr>
-						<td colspan="4" style="text-align: left;">담보내역</td>
-						<td>
-							<div class="add_btn">
-								<a>+</a>
-								<a>-</a>
-							</div>
-						</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<th>회사</th>
-						<th>구분</th>
-						<th>금액</th>
-						<th>인정비율</th>
-						<th>비고</th>
-					</tr>
-					<tr>
-						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">	
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<table class="popup_table">
-				<colgroup>
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-				</colgroup>
-				<thead>
-					<tr>
-						<td colspan="4" style="text-align: left;">사업부</td>
-						<td>
-							<div class="add_btn">
-								<a>+</a>
-								<a>-</a>
-							</div>
-						</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<th>사업부명</th>
-						<th>사업구분</th>
-						<th>담당자명</th>
-						<th>담당자전화번호</th>
-						<th>담당자휴대전화</th>
-					</tr>
-					<tr>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-					</tr>
-					<tr>
-						<th>담당자이메일</th>
-						<th>담당자부서명</th>
-						<th>담당자직위</th>
-						<th>영업회사</th>
-						<th>영업사원</th>
-					</tr>
-					<tr>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<input type="text" class="form-control" id="" name="">
-						</td>
-						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="" name="">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<div class="input-group">
-								<input type="text" class="form-control" id="" name="" readonly>
-								<span class="input-group-btn">
-									<button type="button" class="btn btn-primary btn-sm" onclick="">검색</button>
-								</span>
-							</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+		</form>
+		<!-- 매입/매출정보 테이블 -->
+		<table class="popup_table">
+			<colgroup>
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+			</colgroup>
+			<thead>
+				<tr>
+					<td colspan="4" style="text-align: left;">매입/매출정보</td>
+					<td style="text-align: right;">
+						<a class="tbody_more_btn"></a>
+					</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th>구분</th>
+					<th>지급구분</th>
+					<th>수금조건</th>
+					<th>결제방법</th>
+					<th>부가세</th>
+				</tr>
+				<tr>
+					<td>매출</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>매입</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 사업부 테이블 -->
+		<table class="popup_table">
+			<colgroup>
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+			</colgroup>
+			<thead>
+				<tr>
+					<td colspan="4" style="text-align: left;">사업부</td>
+					<td style="text-align: right;">
+						<a class="tbody_more_btn"></a>
+					</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="5">
+						<div class="add_btn">
+							<a>+</a>
+							<a>-</a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>사업부명</th>
+					<th>사업구분</th>
+					<th>담당자명</th>
+					<th>담당자전화번호</th>
+					<th>담당자휴대전화</th>
+				</tr>
+				<tr>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+				</tr>
+				<tr>
+					<th>담당자이메일</th>
+					<th>담당자부서명</th>
+					<th>담당자직위</th>
+					<th>영업회사</th>
+					<th>영업사원</th>
+				</tr>
+				<tr>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<div class="input-group">
+							<input type="text" class="form-control" id="" name="" readonly>
+							<span class="input-group-btn">
+								<button type="button" class="btn btn-primary btn-sm" onclick="">검색</button>
+							</span>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 담보내역 테이블 -->
+		<table class="popup_table">
+			<colgroup>
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+				<col width="20%">
+			</colgroup>
+			<thead>
+				<tr>
+					<td colspan="4" style="text-align: left;">담보내역</td>
+					<td style="text-align: right;">
+						<a class="tbody_more_btn"></a>
+					</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="5">
+						<div class="add_btn">
+							<a>+</a>
+							<a>-</a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>회사</th>
+					<th>구분</th>
+					<th>금액</th>
+					<th>인정비율</th>
+					<th>비고</th>
+				</tr>
+				<tr>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<select class="form-control input-sm" id="" name="">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">
+					</td>
+					<td>
+						<input type="text" class="form-control" id="" name="">	
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </div>
 <div>
@@ -231,15 +347,32 @@
 	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 </div>
 
+<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
 <script type="text/javascript">
 	
 	$(document).ready(function() {
+		
+		$('a.tbody_more_btn').click(function(){
+			$(this).toggleClass('on');
+			$(this).closest('table').find('tbody').toggle();
+		});
+		
 		if(actionType == "C"){
 			$('#actionBtn').text("등록");
 		}else if(actionType == "U"){
 			$('#actionBtn').text("저장");
 		}
 	});
+	
+	function openDaumPostcode(){
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#bizZip').val(data.zonecode);
+				$('#bizAddr').val(data.roadAddress || data.address);
+			}
+		}).open();
+	}
 	
 	/*
 		function selectCodeInfo(){
