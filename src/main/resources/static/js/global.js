@@ -238,10 +238,6 @@ function fileAjax(url, data, callback) {
 	});
 }
 
-function onlyNumber(elem){
-	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
-}
-
 function inputValidation(inputList) {
 	var isValid = true;
 	$.each(inputList, function(idx, elem){
@@ -253,4 +249,32 @@ function inputValidation(inputList) {
 		}
 	});
 	return isValid;
+}
+
+// 숫자만 입력
+function onlyNumber(elem){
+	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
+}
+
+// 한글제거
+function exceptKorean(elem){
+	$(elem).val($(elem).val().replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,""));
+}
+
+// 전화번호 포맷 변경
+function telNumberFormatter(elem){
+	onlyNumber(elem);
+	$(elem).val($(elem).val().replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/g,"$1-$2-$3"));
+}
+
+// 사업자 등록번호 포맷 변경
+function crnFormatter(elem){
+	onlyNumber(elem);
+	$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
+}
+
+// 원단위 포맷 변경
+function commaFormatter(elem) {
+	onlyNumber(elem);
+	$(elem).val($(elem).val().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
