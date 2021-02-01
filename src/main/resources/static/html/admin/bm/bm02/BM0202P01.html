@@ -348,7 +348,7 @@
 	</div>
 </div>
 <div>
-	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick=""></button>
+	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick="testFunction();"></button>
 	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 </div>
 
@@ -370,16 +370,15 @@ var gridView = {
 	                {key: "fileType", label: "파일타입", width: 100},
 	                {key: "fileSize", label: "파일크기", width: 100},
 	                {
-						key: "fileIdx", label: "삭제", width:50,
+						key:"fileDelete", label: "삭제", width:50,
 						formatter:function() {
-							return '<button onclick="testFunction('+this.dindex+')">삭제</button>';
+							return '<button type="button" onclick="deleteFile('+this.dindex+');">삭제</button>';
 						}
 					}
 	            ]
 			});
 		},
 		setData: function(){
-			var targetObj = this.target;
 			this.target.setData(clntFileList);
 		}
 	}
@@ -416,6 +415,7 @@ var gridView = {
 		$.each(tempFiles, function(idx, obj){
 			var testArr = obj.name.split(".");
 			clntFileList.push({
+				'fileKey' : 0,
 		      	'fileName' : obj.name,
 		      	'fileType' : testArr[testArr.length-1],
 		      	'fileSize' : obj.size,
@@ -425,39 +425,21 @@ var gridView = {
 		gridView.setData();
 	}
 	
-	function testFunction(param1){
-		debugger;
+	function deleteFile(rowIndex){
+		gridView.target.removeRow(rowIndex);
+		clntFileList.splice(rowIndex, 1);
 	}
 	
-	/*
-		function selectCodeInfo(){
-			var row = gridView.target.getList("selected")[0];
-			var paramObj = {"codeId": row.codeId};
-			postAjax("/admin/cm/code/selectCodeInfo", paramObj, null, function(data){
-				setCodeInfo(data.codeInfo);
-			});
-		}
+	function testFunction(){
+		var formData = new FormData($('#clntForm')[0]);
+		// 첨부파일 추가
+		$.each(clntFileList, function(idx, obj){
+			formData.append("files", obj.file);
+		});
 		
-		function setCodeInfo(codeInfo){
-			$.each(codeInfo, function(key, value){
-				$('#'+key).val(value);
-			});
-		}
-		
-		function insertCode() {
-			var formData = $('#codeForm').serializeObject();
-			formData.actionType = actionType;
-			formData.userId = jwt.userId;
-			
-			if(inputValidation($('#codeForm input[required]'))){
-				postAjax("/admin/cm/code/insertCode", formData, null, function(data){
-					alert(data.resultMessage);
-					if(data.resultCode == 200){
-						gridView.setData(0);
-						modal.close();
-					}
-				});
-			}
-		}
-	*/
+		fileAjax("/admin/bm/bm02/insertClnt", formData, function(data){
+			alert(data.resultMessage);           
+			modal.close();
+		});
+	}
 </script>
