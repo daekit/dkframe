@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd06.mapper.SD06Mapper">
+
+	<select id= "selectCmnCodeList" resultType="CamelMap">
+	 
+		SELECT CODE_ID, CODE_NM, CODE_KIND, CODE_DESC
+		FROM TB_CM05M01 
+		WHERE
+		CODE_KIND IN ( #{selpchCd}, #{prdtImpYn}, #{prdtDiv}, #{prdtStkn}, #{prdtSize}, #{prdtErqk} )
+			
+	</select>
+
+	<select id="selectUprCount" parameterType="Map" resultType="int">
+				SELECT
+					COUNT(*)
+				FROM TB_SD06M01 
+				WHERE 1=1 
+				<if test="prdtDt1 != null and !prdtDt1.equals('') and prdtDt2 != null and !prdtDt2.equals('')">
+				AND PRDT_DT BETWEEN #{prdtDt1} AND #{prdtDt2}
+				</if>
+				<if test="selpchCd != null and !selpchCd.equals('')">
+				 		AND SELPCH_CD = #{selpchCd}
+				 </if>
+				 <if test="prdtImpYn != null and !prdtImpYn.equals('')">
+						AND PRDT_IMP_YN = #{prdtImpYn}
+				</if>
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
+						AND PRDT_DIV = #{prdtDiv}
+				</if>
+				ORDER BY BASIS_PRICE_SEQ
+	</select>
+
+	 <select id="selectUprList" parameterType="Map" resultType="CamelMap">
+		
+		SELECT 
+			RNUM,
+		  PRDT_DT,
+		  SELPCH_CD,
+		  (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE SELPCH_CD = B.CODE_ID) AS SELPCH_NM,
+		  PRDT_IMP_YN,
+		  (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE PRDT_IMP_YN = B.CODE_ID) AS PRDT_IMP_NM,
+		  PRDT_DIV, 
+		   (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE PRDT_DIV = B.CODE_ID) AS PRDT_DIV_NM,
+		  PRDT_UPR, 
+		  BASIS_PRICE_SEQ
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM 
+			(
+				SELECT
+					*
+				FROM TB_SD06M01 
+				WHERE 1=1 
+				<if test="prdtDt1 != null and !prdtDt1.equals('') and prdtDt2 != null and !prdtDt2.equals('')">
+				AND PRDT_DT BETWEEN #{prdtDt1} AND #{prdtDt2}
+				</if>
+				<if test="selpchCd != null and !selpchCd.equals('')">
+				 		AND SELPCH_CD = #{selpchCd}
+				 </if>
+				 <if test="prdtImpYn != null and !prdtImpYn.equals('')">
+						AND PRDT_IMP_YN = #{prdtImpYn}
+				</if>
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
+						AND PRDT_DIV = #{prdtDiv}
+				</if>
+				ORDER BY BASIS_PRICE_SEQ
+			) A
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+
+	<insert id="insertUpr" parameterType="Map">
+		INSERT INTO TB_SD06M01
+		(
+			
+		)
+		VALUES(
+			
+		)
+	</insert>
+
+	<delete id="deleteUpr" parameterType="Map">
+		DELETE FROM 
+		WHERE 
+	</delete>
+	<update id= "updateUpr" parameterType="Map">
+	
+	MERGE INTO TB_SD06M01
+	USING DUAL
+	ON (
+		
+	)
+	WHEN MATCHED THEN 
+		UPDATE SET 
+		
+	WHEN NOT MATCHED THEN 
+		INSERT 
+		(
+			
+		)
+		VALUES(
+			
+		)
+	</update>
+	
+	<select id= "selectUprInfo" parameterType="Map" resultType="CamelMap">
+	
+	</select>
+	
+	<select id="selectDetail01Count" parameterType="Map" resultType="int">
+			SELECT
+				COUNT(*)
+			FROM 
+			(
+				SELECT
+					*
+				FROM 
+					TB_SD06D01 
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
+				<if test="prdtStkn != null and !prdtStkn.equals('')">
+				AND PRDT_STKN = #{prdtStkn}
+				</if>
+						
+				<if test="prdtErqkCd != null and !prdtErqkCd.equals('')">
+				AND PRDT_ERQK_CD = #{prdtErqkCd}
+				</if>
+						
+			)
+	</select>
+
+	 <select id="selectDetail01List" parameterType="Map" resultType="CamelMap">
+		
+		SELECT 
+		 RNUM, 
+		 BASIS_PRICE_SEQ,
+		 PRDT_STKN,
+		 (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE PRDT_STKN = B.CODE_ID) AS PRDT_STKN_NM,
+		 PRDT_ERQK_CD,
+		  (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE PRDT_ERQK_CD = B.CODE_ID) AS PRDT_ERQK_CD_NM,
+		 SC_AMT 
+		  	FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM 
+			(
+				SELECT
+					*
+				FROM 
+					TB_SD06D01 
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
+				ORDER BY BASIS_PRICE_SEQ, PRDT_STKN
+			) A
+		)
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	
+	<select id="selectDetail02Count" parameterType="Map" resultType="int">
+			SELECT
+				COUNT(*)
+			FROM 
+			(
+				SELECT
+					*
+				FROM 
+					TB_SD06D02
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
+				<if test="prdtSize != null and !prdtSize.equals('')">
+				AND PRDT_SIZE = #{prdtSize}
+				</if>
+						
+				<if test="prdtErqkCd != null and !prdtErqkCd.equals('')">
+				AND PRDT_ERQK_CD = #{prdtErqkCd}
+				</if>
+				
+			)
+	</select>
+
+	 <select id="selectDetail02List" parameterType="Map" resultType="CamelMap">
+		
+		SELECT 
+		 RNUM, 
+		 BASIS_PRICE_SEQ,
+		 PRDT_SIZE,
+		  (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE PRDT_SIZE = B.CODE_ID) AS PRDT_SIZE_NM,
+		 PRDT_ERQK_CD,
+		  (SELECT B.CODE_NM FROM TB_CM05M01 B WHERE PRDT_ERQK_CD = B.CODE_ID) AS PRDT_ERQK_CD_NM,
+		 SC_AMT 
+		  	FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM 
+			(
+				SELECT
+					*
+				FROM 
+					TB_SD06D02
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
+				ORDER BY BASIS_PRICE_SEQ, PRDT_SIZE
+			) A
+		)
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	
+	<select id="seletOneMaster" parameterType="Map" resultType="CamelMap">
+				SELECT
+					*
+				FROM 
+					TB_SD06M01
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
+				
+	</select>
+	
+	<select id="seletOneDetail01" parameterType="Map" resultType="CamelMap">
+				SELECT
+					*
+				FROM 
+					TB_SD06D01
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq} 
+						AND PRDT_STKN = #{prdtStkn}
+						AND PRDT_ERQK_CD = #{prdtErqkCd}
+				
+	</select>
+	
+	<select id="seletOneDetail02" parameterType="Map" resultType="CamelMap">
+				SELECT
+					*
+				FROM 
+					TB_SD06D02
+				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
+						AND PRDT_SIZE = #{prdtSize}
+						AND PRDT_ERQK_CD = #{prdtErqkCd}
+	</select>
+	
+	
+	
+	<update id= "insertOneMaster" parameterType="Map">
+	
+	MERGE INTO TB_SD06M01
+	USING DUAL
+	ON (
+		BASIS_PRICE_SEQ = #{basisPriceSeq}
+		AND PRDT_DT = #{prdtDt} 
+	)
+	WHEN MATCHED THEN 
+		UPDATE SET 
+			 SELPCH_CD = #{selpchCd},
+			  PRDT_IMP_YN = #{prdtImpYn},
+			  PRDT_DIV = #{prdtDiv},
+			  PRDT_UPR = #{prdtUpr},
+			 UDT_ID = #{userId},
+			 UDT_PGM = 'SD0602P01.html',
+			 UDT_DTTM = sysdate
+	WHEN NOT MATCHED THEN 
+	INSERT 
+	 (PRDT_DT, SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, PRDT_UPR, BASIS_PRICE_SEQ, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM) 
+	VALUES
+	(#{prdtDt}, #{selpchCd}, #{prdtImpYn}, #{prdtDiv}, #{prdtUpr}, TB_SD06M01_SQ01.NEXTVAL , #{userId}, 'SD0602P01.html', sysdate,  #{userId}, 'SD0602P01.html', sysdate);
+
+	</update>
+	
+	
+		<update id= "insertOneDetail01" parameterType="Map">
+	
+	MERGE INTO TB_SD06D01
+	USING DUAL
+	ON (
+		 BASIS_PRICE_SEQ = #{basisPriceSeq}
+		AND PRDT_STKN = #{prdtStkn}
+		AND PRDT_ERQK_CD = #{prdtErqkCd}
+	)
+	WHEN MATCHED THEN 
+		UPDATE SET 
+		     SC_AMT = #{scAmt},
+			 UDT_ID = #{userId},
+			 UDT_PGM = 'SD0602P02.html',
+			 UDT_DTTM = sysdate
+	WHEN NOT MATCHED THEN 
+		INSERT 
+		(BASIS_PRICE_SEQ, PRDT_STKN, PRDT_ERQK_CD, SC_AMT, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM )
+		VALUES
+		(#{basisPriceSeq}, #{prdtStkn}, #{prdtErqkCd}, #{scAmt}, #{userId}, 'SD0602P02.html', sysdate, #{userId}, 'SD0602P02.html', sysdate);
+	</update>
+	
+	
+		<update id= "insertOneDetail02" parameterType="Map">
+	
+	MERGE INTO TB_SD06D02
+	USING DUAL
+	ON (
+		 BASIS_PRICE_SEQ = #{basisPriceSeq}
+		AND PRDT_SIZE = #{prdtSize}
+		AND PRDT_ERQK_CD = #{prdtErqkCd}
+	)
+	WHEN MATCHED THEN 
+		UPDATE SET 
+		     SC_AMT = #{scAmt},
+			 UDT_ID = #{userId},
+			 UDT_PGM = 'SD0602P03.html',
+			 UDT_DTTM = sysdate
+	WHEN NOT MATCHED THEN 
+		INSERT 
+		(BASIS_PRICE_SEQ, PRDT_SIZE, PRDT_ERQK_CD, SC_AMT, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM )
+		VALUES
+		(#{basisPriceSeq}, #{prdtSize}, #{prdtErqkCd}, #{scAmt}, #{userId}, 'SD0602P02.html', sysdate, #{userId}, 'SD0602P03.html', sysdate);
+
+	</update>
+	
+	
+</mapper>

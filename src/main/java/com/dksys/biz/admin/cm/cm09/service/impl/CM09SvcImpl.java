@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.admin.cm.cm09.mapper.CM09Mapper;
 import com.dksys.biz.admin.cm.cm09.service.CM09Svc;
 
@@ -14,12 +16,9 @@ public class CM09SvcImpl implements CM09Svc {
 	
     @Autowired
     CM09Mapper cm09Mapper;
-
-
-	@Override
-	public int insertNoti(Map<String, String> paramMap) {
-		return cm09Mapper.insertNoti(paramMap);
-	}
+    
+    @Autowired
+    CM08Svc cm08Svc;
 
 	@Override
 	public List<Map<String, String>> selectNotiList(Map<String, String> paramMap) {
@@ -29,6 +28,13 @@ public class CM09SvcImpl implements CM09Svc {
 	@Override
 	public int selectNotiCount(Map<String, String> paramMap) {
 		return cm09Mapper.selectNotiCount(paramMap);
+	}
+
+	@Override
+	public int insertNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		cm09Mapper.insertNoti(paramMap);
+		cm08Svc.uploadFile(paramMap.get("notiKey"), mRequest);
+		return 0;
 	}
 
 }
