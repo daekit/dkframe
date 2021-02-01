@@ -256,7 +256,7 @@ function onlyNumber(elem){
 	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
 
-// 한글제거
+// 한글 제거
 function exceptKorean(elem){
 	$(elem).val($(elem).val().replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,""));
 }
@@ -273,8 +273,8 @@ function crnFormatter(elem){
 	$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
 }
 
-// 원단위 포맷 변경
-function commaFormatter(elem) {
+// 원단위 콤마 추가
+function addComma(elem) {
 	onlyNumber(elem);
 	$(elem).val($(elem).val().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
