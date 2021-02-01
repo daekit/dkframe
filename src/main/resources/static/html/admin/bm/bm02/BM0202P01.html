@@ -1,5 +1,6 @@
 <div class="container-fluid">
 	<div class="form-group">
+		<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 		<form id="clntForm">
 			<!-- 기본정보 테이블 -->
 			<table class="popup_table">
@@ -63,7 +64,7 @@
 						<td colspan="2"></td>
 						<th>기본여신금액</th>
 						<td colspan="3">
-							<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="commaFormatter(this);">
+							<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);">
 						</td>
 					</tr>
 					<tr>
@@ -118,8 +119,12 @@
 						</td>
 					</tr>
 					<tr>
-						<th>첨부파일</th>
-						<td colspan="5"></td>
+						<th>
+							<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
+						</th>
+						<td colspan="5">
+							<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -349,9 +354,41 @@
 
 <script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
 <script type="text/javascript">
+
+var clntFileList = [];
+var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showLineNumber: true,
+				showRowSelector: false,
+	        	multipleSelect: false,
+				header: {selector: false},
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 517},
+	                {key: "fileType", label: "파일타입", width: 100},
+	                {key: "fileSize", label: "파일크기", width: 100},
+	                {
+						key: "fileIdx", label: "삭제", width:50,
+						formatter:function() {
+							return '<button onclick="testFunction('+this.dindex+')">삭제</button>';
+						}
+					}
+	            ]
+			});
+		},
+		setData: function(){
+			var targetObj = this.target;
+			this.target.setData(clntFileList);
+		}
+	}
 	
 	$(document).ready(function() {
+		// 그리드 초기화
+		gridView.initView();
 		
+		// 영역 접기/열기 이벤트 바인딩
 		$('a.tbody_more_btn').click(function(){
 			$(this).toggleClass('on');
 			$(this).closest('table').find('tbody').toggle();
@@ -372,6 +409,24 @@
 				$('#bizAddr').val(data.roadAddress || data.address);
 			}
 		}).open();
+	}
+	
+	function setClntFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var testArr = obj.name.split(".");
+			clntFileList.push({
+		      	'fileName' : obj.name,
+		      	'fileType' : testArr[testArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		gridView.setData();
+	}
+	
+	function testFunction(param1){
+		debugger;
 	}
 	
 	/*
