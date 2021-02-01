@@ -31,9 +31,7 @@
 				</tr>
 				<tr>
 					<th>첨부파일</th>
-					<td>
-						<input type="file" class="form-control input-sm" id="file" name="file">
-					</td>
+					<td><input type="file" class="form-control input-sm" id="files" name="files" multiple="multiple"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -67,7 +65,7 @@
 					<th>만료일</th>
 					<td>
 						<div class="input-group date" id="exprtnDatePicker">
-		                    <input type="text" class="form-control input-sm" id="exprtnDt" name="exprtnDt" style="text-align: center;" disabled="disabled"/>
+		                    <input type="text" class="form-control input-sm" id="exprtnDt" name="exprtnDt" style="text-align: center;"/>
 		                    <span class="input-group-addon" style="padding: 0px 5px;">
 		                        <span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
 		                    </span>
@@ -76,7 +74,9 @@
 				</tr>
 			</tbody>
 		</table>
-		<input type="hidden" name="notiKey">
+		<input type="hidden" id="notiKey" name="notiKey">
+		<input type="hidden" id="userId" name="userId">
+		<input type="hidden" id="coCd" name="coCd">
 	</form>
 </div>
 <div class="bottom_btn">
@@ -118,13 +118,26 @@
 				return false;
 			}
 		});
-		var formData = $('#popForm').serializeObject();
-		formData.userId = jwt.userId;
-		formData.coCd = $('#mainForm').find("#coCd option:selected").val();
-		formData.exprtnDt = $("#exprtnDt").val();
-		postAjax("/admin/cm/cm09/insertNoti", formData, null, function(data){
-			alert(data.resultMessage);
+		$("#userId").val(jwt.userId)              ;
+		$("#popForm").find("#coCd").val($('#mainForm').find("#coCd option:selected").val());
+		var formData = new FormData($("#popForm")[0]);
+		fileAjax("/admin/cm/cm09/insertNoti", formData, function(data){
+			alert(data.resultMessage);           
 			modal.close();
+		});
+	}
+	
+	function selectCodeInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"codeId": row.codeId};
+		postAjax("/admin/cm/cm05/selectCodeInfo", paramObj, null, function(data){
+			setCodeInfo(data.codeInfo);
+		});
+	}
+	
+	function setCodeInfo(codeInfo){
+		$.each(codeInfo, function(key, value){
+			$('#'+key).val(value);
 		});
 	}
 	
