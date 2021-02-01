@@ -9,9 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.cm.cm09.service.CM09Svc;
 import com.dksys.biz.cmn.vo.PaginationInfo;
@@ -27,9 +28,8 @@ public class CM09Ctr {
 	@Autowired
 	CM09Svc cm09Svc;
 	
-	// 직급 리스트
     @PostMapping("/selectNotiList")
-    public String selectLevelList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String selectNotiList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int totalCnt = cm09Svc.selectNotiCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
@@ -39,12 +39,11 @@ public class CM09Ctr {
     	return "jsonView";
     }
     
-    // 직급 등록
     @PostMapping("/insertNoti")
-    public String createLevel(HttpServletRequest request, @RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String insertNoti(@RequestParam Map<String, String> paramMap, HttpServletRequest request, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
     		paramMap.put("pgmId", request.getRequestURI());
-    		cm09Svc.insertNoti(paramMap);
+    		cm09Svc.insertNoti(paramMap, mRequest);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch(Exception e){

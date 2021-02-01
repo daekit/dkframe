@@ -218,6 +218,7 @@ function putAjax(url, data, contentType, callback) {
 
 function fileAjax(url, data, callback) {
 	$.ajax({
+//		enctype: 'multipart/form-data',
 	    type: "POST",
 	    url: url,
 	    processData: false,
