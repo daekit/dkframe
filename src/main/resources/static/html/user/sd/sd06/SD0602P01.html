@@ -1,0 +1,229 @@
+<script type="text/javascript">
+	
+	var today = getTimeStamp();
+	var insertOK = false;
+	
+	$(document).ready(function() {
+		
+		 setCombo();
+		 
+		if(actionType == 'U'){
+			$('#actionBtn').text("수정");
+			setData();	
+		}else if(actionType == 'C'){
+			$('#actionBtn').text("등록");
+			
+		}
+		
+		$("#selpchCd").on("change", function(){
+			insertOK = false;
+		});
+		$("#prdtImpYn").on("change", function(){
+			insertOK = false;
+		});
+		$("#prdtDiv").on("change", function(){
+			insertOK = false;
+		});
+		
+	})
+	
+	function setCombo(){
+		
+		var selectSelpchCd = document.getElementById("searchSelpchCd");
+		document.getElementById("selpchCd").innerHTML = selectSelpchCd.innerHTML;
+		
+		var searchPrdtImpYn = document.getElementById("searchPrdtImpYn");
+		document.getElementById("prdtImpYn").innerHTML = searchPrdtImpYn.innerHTML;
+		
+		var searchPrdtDiv = document.getElementById("searchPrdtDiv");
+		document.getElementById("prdtDiv").innerHTML = searchPrdtDiv.innerHTML;
+		
+	}
+	
+	function setData() {
+	
+		var row = firstGrid.getList("selected")[0];
+		
+		var paramObj = {"basisPriceSeq": row.basisPriceSeq, "userId": jwt.userId};
+		
+		postAjax("/user/sd/sd06/seletOneMaster", paramObj, null, function(data){
+			setDetailInfo(data.detailInfo);
+		});
+		
+	}
+	
+	function setDetailInfo(data){
+		$.each(data, function(key, value){
+			if(key == 'basisPriceSeq'){
+				$("#basisPriceSeqCd").val(value);
+			}
+			else if(key == 'selpchCd'){
+				$("#selpchCd").val(value).attr("selected", "selected");  
+			}
+			else if(key == 'prdtImpYn'){
+				$("#prdtImpYn").val(value).attr("selected", "selected");  
+			}
+			else if(key == 'prdtDiv'){
+				$("#prdtDiv").val(value).attr("selected", "selected");  
+			}
+			else if(key == 'prdtDt'){
+				$("#prdtDt").val(today);
+			}
+			else{
+				$('#'+key).val(value);
+			}
+		});
+		
+	}
+	
+	function insertOneMaster() {
+		
+		var isValid = true;
+		
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		$('select[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			if(insertOK) {
+				var formData = {
+						"basisPriceSeq" : $("#basisPriceSeqCd").val(),
+						"prdtDt" : $("#prdtDt").val().replace(/\-/g,''),
+						"selpchCd" : $("#selpchCd").val(),
+						"prdtImpYn" : $("#prdtImpYn").val(),
+						"prdtDiv" : $("#prdtDiv").val(),
+						"prdtUpr" : $("#prdtUpr").val(),
+						"userId" : jwt.userId
+				}
+				putAjax("/user/sd/sd06/insertOneMaster", formData, null, function(data){	
+					if(data.resultCode == 200){
+					alert(data.resultMessage);
+						modal.close();
+						gridView.initView().setData(firstGrid.page.currentPage);
+					}
+				});
+			} else {
+				alert("중복체크 해주세요.")
+			}
+		}
+		
+		
+	
+	}
+	
+	function checkOverLap() {
+	
+		var formData = {
+				"prdtDt1" : $("#prdtDt").val().replace(/\-/g,''),
+				"prdtDt2" : $("#prdtDt").val().replace(/\-/g,''),
+				"selpchCd" : $("#selpchCd").val(),
+				"prdtImpYn" : $("#prdtImpYn").val(),
+				"prdtDiv" : $("#prdtDiv").val()
+		}
+		
+		postAjax("/user/sd/sd06/checkOverLapMaster", formData, null, function(data){
+			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				insertOK = true;
+			} 
+		})
+	}
+	
+	function getTimeStamp() {
+
+	    var d = new Date();
+	    var s =
+	        leadingZeros(d.getFullYear(), 4) + '-' +
+	        leadingZeros(d.getMonth() + 1, 2) + '-' +
+	        leadingZeros(d.getDate(), 2);
+
+	    return s;
+	}
+
+	function leadingZeros(n, digits) {
+
+	    var zero = '';
+	    n = n.toString();
+
+	    if (n.length < digits) {
+	        for (i = 0; i < digits - n.length; i++)
+	            zero += '0';
+	    }
+	    return zero + n;
+	}
+	
+	
+</script>
+<body>
+	<div class="container-fluid">
+      <div class="row">
+        <div class="popup_area">
+	        <form id="frm">
+		        <div  class="popup_table">
+		          <table>
+		          	<tbody>
+		          		<tr>
+		          			<th colspan= "2">기준번호
+		          			</th>
+		          			<td colspan="6"> 
+		          				<input type="text" id="basisPriceSeqCd" readonly>
+		          			</td>
+		          			<th colspan="2">기준날짜</th>
+		          			<td colspan="6"> 
+		          				<input type="text" id="prdtDt" readonly>
+		          			</td>
+		          		</tr>
+		          		<tr>
+		          			<th colspan= "2">매입/매출 구분
+		          			</th>
+		          			<td colspan="6"> 
+		          				<select id="selpchCd" required></select>
+		          			</td>
+		          			<th colspan="2">일반/수입 구분</th>
+		          			<td colspan="6"> 
+		          				<select id="prdtImpYn" required></select>
+		          			</td>
+		          		</tr>
+		          		<tr>
+		          			<th colspan="2">자재제품 구분</th>
+		          			<td colspan="6"> 
+		          				<select id="prdtDiv" required></select>
+		          			</td>
+		          			<th colspan= "2">기준단가
+		          			</th>
+		          			<td colspan="6"> 
+		          				<input type="number" id="prdtUpr">
+		          			</td>
+		          			
+		          		</tr>
+		          	</tbody>
+		          	<input id="userId" name="userId" type="hidden" class="form-control">
+		          </table>
+	          </div>
+	        </form>
+		
+			<div class ="popup_bottom_btn">
+				<button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button>
+				<button type="button"  onclick="insertOneMaster();" id ="actionBtn"></button>
+				<button type="button"  onclick="modal.close();">닫기</button>
+				<p class="pd10"> 수정의 경우, 기존 등록된 기준날짜와 다른 경우 신규등록됩니다. 기준번호는 자동으로 등록됩니다. </p>
+			</div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

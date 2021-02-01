@@ -1,0 +1,204 @@
+<script type="text/javascript">
+	
+	var insertOK = false;
+	
+	$(document).ready(function() {
+		
+		 setCombo();
+		 
+		if(actionType == 'U'){
+			$('#actionBtn').text("수정");
+			setData();	
+			$('#checkBtn').hide();
+			insertOK = true;
+			
+		}else if(actionType == 'C'){
+			
+			if( thirdGrid.getList("selected")[0]){
+				var row = thirdGrid.getList("selected")[0];
+					
+			}else{
+				var row = firstGrid.getList("selected")[0];
+			}
+			
+			$("#basisPriceSeqCd").val(row.basisPriceSeq);
+			$('#actionBtn').text("등록");
+			
+		}
+		
+		 
+		$("#prdtErqkCd").on("change", function(){
+			insertOK = false;
+		});
+		$("#prdtSize").on("change", function(){
+			insertOK = false;
+		});
+		
+	})
+	
+	function setCombo(){
+		
+		var searchPrdtSize = document.getElementById("searchPrdtSize");
+		document.getElementById("prdtSize").innerHTML = searchPrdtSize.innerHTML;
+		
+		var searchPrdtErqk = document.getElementById("searchPrdtErqk");
+		document.getElementById("prdtErqkCd").innerHTML = searchPrdtErqk.innerHTML;
+		
+	}
+	
+	function setData() {
+	
+		var row = thirdGrid.getList("selected")[0];
+		
+		var paramObj = {
+				"basisPriceSeq": row.basisPriceSeq,
+				"prdtSize" : row.prdtSize,
+				"prdtErqkCd" : row.prdtErqkCd,
+				"userId": jwt.userId,
+				
+		};
+		
+		console.log("row.basisPriceSeq,"+row.basisPriceSeq);
+		
+		postAjax("/user/sd/sd06/seletOneDetail02", paramObj, null, function(data){
+			setDetailInfo(data.detailInfo);
+		});
+		
+	}
+	
+	function setDetailInfo(data){
+		$.each(data, function(key, value){
+			if(key == 'basisPriceSeq'){
+				$("#basisPriceSeqCd").val(value);
+			}
+			else if(key == 'prdtSize'){
+				$("#prdtSize").val(value).attr("selected", "selected"); 
+				$("#prdtSize").val(value).prop('disabled',true);  
+
+			}else if(key == 'prdtErqkCd'){
+				
+				$("#prdtErqkCd").val(value).attr("selected", "selected");
+				$("#prdtErqkCd").val(value).prop('disabled',true);  
+			}
+			else{
+				$('#'+key).val(value);
+			}
+		});
+		
+	}
+	
+	function insertOneDetail02() {
+		
+		var isValid = true;
+		
+		$('input[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		$('select[required]').each(function(idx, elem){
+			if($.trim($(elem).val()) == ""){
+				alert("필수값을 입력해 주세요.");
+				$(elem).focus();
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			if(insertOK) {
+				var formData = {
+						"basisPriceSeq" : $("#basisPriceSeqCd").val(),
+						"prdtErqkCd" : $("#prdtErqkCd").val(),
+						"prdtSize" : $("#prdtSize").val(),
+						"scAmt" : $("#scAmt").val(),
+						"userId" : jwt.userId
+				}
+				putAjax("/user/sd/sd06/insertOneDetail02", formData, null, function(data){	
+					if(data.resultCode == 200){
+					alert(data.resultMessage);
+						modal.close();
+						gridView.initView().setData(firstGrid.page.currentPage);
+					}
+				});
+			} else {
+				alert("중복체크 해주세요.")
+			}
+		}
+		
+		//강종별 할증금액 리스트 조회
+	
+	}
+	
+	function checkOverLap() {
+	
+		var formData = {
+				"basisPriceSeq" : $("#basisPriceSeqCd").val(),
+				"prdtSize" : $("#prdtSize").val(),
+				"prdtErqkCd" : $("#prdtErqkCd").val()
+		}
+		
+		postAjax("/user/sd/sd06/checkOverLapDetail02", formData, null, function(data){
+			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				insertOK = true;
+			} 
+		})
+	}
+	
+	
+	
+	
+</script>
+<body>
+	<div class="container-fluid">
+      <div class="row">
+        <div class="popup_area">
+	        <form id="frm">
+	          <table class="popup_table">
+	          	<tbody>
+	          		<tr>
+	          			<th colspan= "2">기준번호
+	          			</th>
+	          			<td colspan="6"> 
+	          				<input type="text" id="basisPriceSeqCd" readonly>
+	          			<th colspan= "2">내진 구분
+	          			</th>
+	          			<td colspan="6"> 
+	          				<select id="prdtErqkCd" required></select>
+	          			</td>
+	          		</tr>
+	          		<tr>
+	          			<th colspan="2">철근SIZE 구분</th>
+	          			<td colspan="6"> 
+	          				<select id="prdtSize" required></select>
+	          			</td>
+	          			
+	          			<th colspan= "2">할증금액
+	          			</th>
+	          			<td colspan="6"> 
+	          				<input type="number" id="scAmt">
+	          			</td>
+	          			
+	          		</tr>
+	          	
+	          	</tbody>
+	          	<input id="userId" name="userId" type="hidden" class="form-control">
+	          </table>
+	        </form>
+	        <div class ="popup_bottom_btn">
+				<button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button>
+				<button type="button"  onclick="insertOneDetail02();" id ="actionBtn"></button>
+				<button type="button"  onclick="modal.close();">닫기</button>
+			</div>
+        </div>
+      </div>
+    </div>
+		
+	
+</body>
+</html>
