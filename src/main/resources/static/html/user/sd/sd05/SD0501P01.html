@@ -1,0 +1,321 @@
+<body>
+  <div class="popup_area" style="width: 1000px;">
+    <div class="popup_table" style="">
+        <table>
+            <colgroup>
+                <col style= "width:10%">
+                <col style= "width:13%">
+                <col style= "width:10%">
+                <col style= "width:25%">
+                <col style= "width:8%">
+                <col style= "width:20%">
+            </colgroup>
+            
+            <tr>
+            	<input id="prjctCd" name="userId" type="hidden" class="form-control">
+                
+                <th class="">회사</th>
+                <td>
+					<select id="coCdDtl" class="form-control" onchange="commonCodeList();">
+					</select>
+                </td>
+                <th class ="">프로젝트 담당자</th>
+                <td><input id="mngIdDtl" type="text" class="" style="width:45%"><button type="button" class="btn btn-primary" onclick="userSearch()">검색</button></td>
+                	
+                <th class="">등록일</th>
+                <td><input id="creatDtDtl" type="date" readonly="true"></td>
+            </tr>
+            
+		</table>
+        <table>
+        	<colgroup>
+                <col style= "width:10%">
+                <col style= "width:24%">
+                <col style= "width:2%">
+                <col style= "width:24%">
+                <col style= "width:8%">
+                <col style= "width:20%">
+            </colgroup>
+            <tr>
+                <th class ="">프로젝트 기간</th>
+                <td><input id="strtDtDtl" type="date"></td> <th>~</th> <td><input id="endDtDtl" type="date"></td> 
+                <th class ="">총중량</th>
+                <td><input id="totWtDtl" type="text" class="form-control" style="width:80%">TON</td>
+            </tr>
+		</table>
+		<table>
+			<colgroup>
+                <col style= "width:10%">
+                <col style= "width:13%">
+                <col style= "width:10%">
+                <col style= "width:25%">
+                <col style= "width:8%">
+                <col style= "width:20%">
+            </colgroup>
+            <tr>
+                <th class="">프로젝트명</th>
+                <td><input id="prjctNmDtl" type="text" class="form-control" style="width:80%"></td>
+                <th class ="">제조사</th>
+                <td><input id="makrCdDtl" type="text" class="" style="width:45%"><button type="button" class="btn btn-primary" onclick="clntSearch();">검색</button></td>
+                <th class="">턴키여부</th>
+                <td>
+                <select id="tnkeyYnDtl" class="form-control">
+                	<option value="Y" selected>Y</option>
+					<option value="N">N</option>
+		      	</select>
+                </td>
+            </tr>
+		</table>
+        <table>
+        	<colgroup>
+                <col width="10%">
+                <col width="90%">
+            </colgroup>
+        	<tr>
+            	<th class ="">비고</th>
+            	<td><textarea id="rmkDtl" rows="10" class="form-control"  cols="100%"></textarea>
+            </tr>
+        </table>
+        <table>
+        	<colgroup>
+                <col width="10%">
+                <col width="65%">
+                <col width="13%">
+            </colgroup>
+        	<tr>
+            	<th class ="">첨부파일</th>
+            	<td><input type="text" class="form-control"></td>
+            	<td><button type="button" class="btn btn-primary">첨부파일</button></td>
+            </tr>
+        </table>
+    </div>
+  
+  
+  <!-- 테이블 -->
+    <div class="popup_table">
+      <table>
+        <thead>
+          <tr>
+            <th colspan="4">
+              출하요청서
+            </th>
+            <td>
+              <a class="tbody_more_btn"></a>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>요청 일자</th>
+            <th>상차지</th>
+            <th>하차지</th>
+            <th>출하 일자</th>
+            <th>총 중량</th>
+          </tr>
+          <tr>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- 테이블 -->
+    <div class="popup_table">
+      <table>
+        <thead>
+          <tr>
+            <th colspan="5">
+              발주서
+            </th>
+            <td>
+              <a class="tbody_more_btn"></a>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>요청 일자</th>
+            <th>건설사</th>
+            <th>상차지</th>
+            <th>하차지</th>
+            <th>납품 일자</th>
+            <th>총 중량</th>
+          </tr>
+          <tr>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div>
+		<button id="actionBtn" type="button" class="btn btn-default btn-sm" onclick="insertPrjDtl();">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+	</div> 
+  <!-- <div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+  </div> -->
+</body>
+<script type="text/javascript">
+var insertOK = false;
+var row = firstGrid.getList("selected")[0];
+	$(document).ready( function() {
+		//$("#coCdDtl").prop('disabled',true);  
+		$("#userId").val(jwt.userId);
+		if(actionType == "U") {
+			$("#actionBtn").html("수정");
+			initData();
+			setData();
+			coCdDtlCombo.initCombo();
+			insertOK = true;
+		}else{
+			$("#actionBtn").html("등록");
+			$(".popup_table input").val("");
+			creatDt = new Date().toISOString().slice(0, 10)
+			$("#creatDtDtl").val(creatDt);
+			upcoCdDtlCombo.initCombo();
+			insertOK = false;
+		}
+		$( '.tbody_more_btn' ).click( function() {
+	    $(this).closest('table').toggleClass('off');
+	    $(this).closest('table').find('tbody').toggle();
+	    $(this).closest('table').find('thead').toggleClass('off');
+	    $(this).toggleClass('on');
+	  });		
+	});
+	
+	function initData(){
+		var selectSelpchCd = document.getElementById("coCd");
+		document.getElementById("coCdDtl").innerHTML = selectSelpchCd.innerHTML;
+	}
+	
+	function setData(){
+		var row = firstGrid.getList("selected")[0];
+		
+		coCdId = row.coCd;
+		tnkeyYnId = row.tnkeyYn;
+		
+		strtDtId = row.strtDt;
+		strtDt = strtDtId.substr(0,4) + "-" + strtDtId.substr(4,2) + "-" + strtDtId.substr(6,2); 
+		
+		endDtId = row.endDt;
+		endDt = endDtId.substr(0,4) + "-" + endDtId.substr(4,2) + "-" + endDtId.substr(6,2);
+		creatDtId = row.creatDttm;
+		if(creatDtId != ""){
+			creatDt = creatDtId.substring(10,0);				
+		}
+		$("#prjctCd").val(row.prjctCd);
+		$("#prjctNmDtl").val(row.prjctNm);
+		$("#creatDtDtl").val(creatDt);
+		$("#totWtDtl").val(row.totWt);
+		$("#strtDtDtl").val(strtDt);
+		$("#endDtDtl").val(endDt);
+		$("#mngIdDtl").val(row.mngId);
+		$("#makrCdDtl").val(row.makrCd);
+		$("#rmkDtl").val(row.rmk);
+	}
+	
+	function setDtlcoCd(params){
+		$("#coCdDtl").val(params.coCd);
+		$("#mngIdDtl").val(params.name);
+	}
+	function setDtlclntCd(params){
+		$("#makrCdDtl").val(params.clntNm);
+	}
+	var coCdDtlCombo = {
+		initCombo: function(param){
+			var row = firstGrid.getList("selected")[0];
+			var formObj = {"prjctCd": row.prjctCd, "userId": jwt.userId};
+			postAjax("/user/sd/sd05/selectProjectKeyList", formObj, null, function (data){
+				
+				setDetailInfo(data.codeName);
+			})
+		}
+	}
+	
+	var upcoCdDtlCombo = {
+		initCombo: function(param){
+			var formData = {"coCd": "TEST"};
+			
+			postAjax("/user/sd/sd05/selectProjectcoCdList", formData, null, function (data){
+				var list = data.codecoCd; 
+				var optionHtml = '<option value="">전체</option>';
+				for (var i = 0; i < list.length; i++) {
+							optionHtml += '<option value=\"' +  list[i].deptId + '\">'
+							+ list[i].deptNm + '</option>';
+				}
+				document.getElementById("coCdDtl").innerHTML = optionHtml;
+			})
+		}
+	}
+	
+	function setDetailInfo(data){
+		$.each(data, function(key, value){
+			if(key == 'coCd'){
+				//var coCd = data[0].coCd;
+				$("#coCdDtl").val(value).attr("selected", "selected");
+				//$("#selpchCd").val(value).attr("selected", "selected");
+			}
+		});
+		//$("select[name=coNmDtl]").val(coCd);
+		
+	}
+	function insertPrjDtl() {
+		strtDtDtl = $("#strtDtDtl").val();
+		strtDt = strtDtDtl.substr(0,4) + strtDtDtl.substr(5,2) + strtDtDtl.substr(8,2);
+		endDtDtl = $("#endDtDtl").val();
+		prjctCd = $("prjctCd").val();
+		clntCd = $("clntCd").val();
+		endDt = endDtDtl.substr(0,4) + endDtDtl.substr(5,2) + endDtDtl.substr(8,2);
+		
+		var formData = {
+				"prjctCd": $("#prjctCd").val(), 
+				"coCd" : $("#coCdDtl").val(),
+				"mngId" : $("#mngIdDtl").val(),
+				"strtDt" : strtDt,
+				"endDt" : endDt,
+				"totWt" : $("#totWtDtl").val(),
+				"prjctNm" : $("#prjctNmDtl").val(),
+				"makrCd" : $("#makrCdDtl").val(),
+				"clntCd" : "clntCd",
+				"tnkeyYn" : $("#tnkeyYnDtl").val(),
+				"rmk" : $("#rmkDtl").val(),
+				"creatPgm" : "creatPgm",
+				"userId" : jwt.userId
+		}
+		putAjax("/user/sd/sd05/insertProject", formData, null, function(data){
+			if(data.resultCode == 200){
+				if(insertOK){
+					alert("수정 되었습니다.");	
+				}else{
+					alert(data.resultMessage);
+				}
+				getData();
+				modal.close();
+			}
+		})
+	}
+	
+	function userSearch() {
+		openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 500, 200, "사용자검색");
+	}
+	function clntSearch() {
+		openSecondModal("/static/html/user/sd/sd05/SD0501P03.html", 500, 200, "제조사검색");
+	}
+	/*select box 선택시*/
+	function commonCodeList(param){
+		var codeSelect = document.getElementById("coCdDtl");
+		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
+	}
+	
+</script>
+</html>

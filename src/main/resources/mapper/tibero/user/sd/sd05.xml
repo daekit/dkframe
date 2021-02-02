@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd05.mapper.SD05Mapper">
+
+	<select id="selectProjectList" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM 
+		(
+		 	SELECT ROWNUM RNUM, A.* FROM TB_SD05M01 A
+		 	WHERE 1=1
+		 	<if test= "coCd != null and !coCd.equals('')">
+		 		AND A.CO_CD = #{coCd}
+			</if>
+			<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+			<![CDATA[
+				AND STRT_DT >= TO_DATE (#{strtDt} , 'YYYY-MM-DD' )
+				AND END_DT <= TO_DATE(#{endDt}, 'YYYY-MM-DD')
+			]]> 
+			</if>
+			<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'
+			</if>
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectProjectcoCdList" parameterType="Map" resultType="CamelMap">
+	 	SELECT * FROM TB_CM04M01 WHERE 1=1 AND DEPT_ID = 'GGM' OR DEPT_ID = 'GUM'
+	 	<if test="searchValue != null and !searchValue.equals('')">
+			AND CO_CD = ${searchType} 
+			AND PRJCT_NM LIKE '%${searchValue}%'
+		</if>
+	</select>
+	
+	<select id="selectProjectNameList" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM TB_CM06M01 WHERE 1=1 		
+	 	<if test="searchType != null and !searchType.equals('')">
+			AND NAME LIKE '${searchValue}%' AND DEPT_ID LIKE '${searchType}%'
+		</if>
+	</select>
+	
+	<select id="selectProjectClntList" parameterType="Map" resultType="CamelMap">
+		SELECT CLNT_CD, CLNT_NM FROM TB_BM02M01 WHERE 1=1
+		<if test="searchValue != null and !searchValue.equals('')">
+			AND CLNT_CD LIKE '${searchValue}%'
+			AND CLNT_NM LIKE '${searchType}%'
+		</if>
+	</select>
+	
+	<select id="selectProjectKeyList" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM TB_SD05M01 WHERE 1=1 AND PRJCT_CD = #{prjctCd}
+	</select>
+	
+	<select id="selectProjectCount" parameterType="Map" resultType="int">
+	 	SELECT 
+	 		COUNT(*) 
+	 	FROM TB_SD05M01
+	 	WHERE 1=1
+	 	<if test="searchValue != null and !searchValue.equals('')">
+			AND ${searchType} LIKE '%${searchValue}%'				
+		</if>
+	</select>
+	
+	<insert id="insertProject" parameterType="Map">
+		MERGE INTO TB_SD05M01
+			USING DUAL
+			ON (PRJCT_CD = #{prjctCd})
+		WHEN MATCHED THEN
+			UPDATE SET
+				 CO_CD = #{coCd}
+				,MNG_ID = #{mngId}
+				,MAKR_CD = #{makrCd}
+				,STRT_DT = #{strtDt}
+				,END_DT = #{endDt}
+				,TOT_WT = #{totWt}
+				,PRJCT_NM = #{prjctNm}
+				,CLNT_CD = #{clntCd}
+				,TNKEY_YN = #{tnkeyYn}
+				,RMK = #{rmk}	
+				,UDT_ID = #{userId}											
+				,UDT_DTTM = SYSDATE
+		WHEN NOT MATCHED THEN
+			INSERT
+			(
+				PRJCT_CD, CO_CD, MNG_ID, MAKR_CD, STRT_DT, END_DT, TOT_WT, PRJCT_NM, CLNT_CD, TNKEY_YN, RMK, CREAT_ID, CREAT_PGM, CREAT_DTTM
+				
+			)
+		 	VALUES
+		 	(
+				TO_CHAR(SYSDATE, 'YYYYMMDD')||LPAD(TB_SD05M01_SQ01.NEXTVAL,3,0), #{coCd}, #{mngId}, #{makrCd}, #{strtDt}, #{endDt}, #{totWt}, #{prjctNm}, #{clntCd}, #{tnkeyYn}, #{rmk}	,#{userId}, #{creatPgm}, SYSDATE
+		 	)
+	</insert>
+	
+</mapper>
