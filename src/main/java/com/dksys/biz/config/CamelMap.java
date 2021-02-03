@@ -3,7 +3,7 @@ package com.dksys.biz.config;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 @SuppressWarnings("all")
-public class CamelMap extends ListOrderedMap {
+public class CamelMap extends ListOrderedMap <String, Object> {
 
     private String toProperCase(String s, boolean isCapital) {
 
@@ -31,9 +31,7 @@ public class CamelMap extends ListOrderedMap {
     }
 
     @Override
-    public Object put(Object key, Object value) {
-        return super.put(toCamelCase((String)key), value.toString());
-
+    public Object put(String key, Object value) {
+    	return super.put(toCamelCase((String)key), value);
     }
-
 }
