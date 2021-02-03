@@ -41,7 +41,7 @@
 			<h3 class="location"> 기준정보관리 > 기준정보관리 > <span class="page_tit">000</span></h3>
 			<!-- 로그아웃버튼 -->
 			<div class="btn_area">
-				<a id="logoutBtn"><button class="logout_btn">Logout</button></a>
+				<a id="logoutBtn"><button class="logout_btn" onclick="logoutClick();" >Logout</button></a>
 				<a href="/static/html/admin/admin.html" target="_blank">
 					<button class="bg_b">Admin</button>
 				</a>
@@ -259,8 +259,6 @@
 
 		</div>
 		<!-- // 콘텐츠 -->
-
-
 	</div>
 </body>
 </html>
@@ -276,16 +274,6 @@
 		});
 	})
 
-	// 권한에 따른 메뉴 보여주기
-	function setMenuAuth() {
-		var formData = {
-			"authInfo" : jwt.authInfo
-		}
-		postAjax("/selectMenuAuth", formData, null, function(data) {
-			checkMenuAuth(data.accessList);
-		});
-	}
-
 	function subShowHide(data) {
 		if ($(data).parent().find("ul").css("display") == 'none') {
 			$(data).parent().find("ul").show();
@@ -294,32 +282,5 @@
 		}
 	}
 	
-	function checkMenuAuth(accessList) {
-		var html = "";
-		$.each(accessList, function(idx, item){
-			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
-				html += '<li>';
-				html += '  <img src="/static/img/svg/menu_02.svg">';
-				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
-				html += '	<div class="sub_menu">';
-				html += '		<dl id="'+item.menuId+'"></dl>';
-				html += '	</div>';
-				html += '</li>';
-			}
-		});
-		$('.menu').html(html);
-		
-		$.each(accessList, function(idx, item){
-			if(item.menuType == "HTML" && item.useYn == 'Y') {
-				html = '<dl><dd><a href="'+item.menuUrl+'">'+item.menuNm+'</a></dd></dl>';
-				$("#"+item.upMenuId).append(html);
-			}
-		});
-	}
 
-	$('#logoutBtn').on('click', function() {
-		deleteCookie("jwtToken");
-		deleteCookie("menuIdx");
-		location.href = "/";
-	});
 </script>

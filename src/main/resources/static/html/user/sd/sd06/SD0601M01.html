@@ -69,7 +69,7 @@
 		<h3 class="location"> 영업관리 > 단가관리 > <span class="page_tit">단가관리</span></h3>
 			<!-- 로그아웃버튼 -->
 			<div class="btn_area">
-				<a id="logoutBtn"><button class="logout_btn">Logout</button></a>
+				<a id="logoutBtn"><button class="logout_btn" onclick="logoutClick();" >Logout</button></a>
 				<a href="/static/html/admin/admin.html" target="_blank">
 				<button class="bg_b">Admin</button>
 				</a>
@@ -101,19 +101,19 @@
                       <input type="date" id="prdtDt2">
                     </div>
                 </td>
-                <th>매입/매출구분*</th>
+                <th>매입/매출구분</th>
                 <td>
                  	<select id ="searchSelpchCd">
                  	</select>
                 </td>
               </tr>
               <tr>
-                <th>일반/수입구분*</th>
+                <th>일반/수입구분</th>
                 <td>
                   <select id= "searchPrdtImpYn">
                   </select>
                 </td>
-                <th>제품구분*</th>
+                <th >제품구분</th>
                 <td>
                   <select id= "searchPrdtDiv">
                   </select>
@@ -430,15 +430,6 @@
 		
 	})
 
-	// 권한에 따른 메뉴 보여주기
-	function setMenuAuth() {
-		var formData = {
-			"authInfo" : jwt.authInfo
-		}
-		postAjax("/selectMenuAuth", formData, null, function(data) {
-			checkMenuAuth(data.accessList);
-		});
-	}
 
 	function subShowHide(data) {
 		if ($(data).parent().find("ul").css("display") == 'none') {
@@ -448,6 +439,15 @@
 		}
 	}
 
+	// 권한에 따른 메뉴 보여주기
+	/*function setMenuAuth() {
+		var formData = {
+			"authInfo" : jwt.authInfo
+		}
+		postAjax("/selectMenuAuth", formData, null, function(data) {
+			checkMenuAuth(data.accessList);
+		});
+	}
 	function checkMenuAuth(accessList) {
 		var html = "";
 		$.each(accessList, function(idx, item){
@@ -469,7 +469,7 @@
 				$("#"+item.upMenuId).append(html);
 			}
 		});
-	}
+	}*/
 	
 	function setMenuIdx(url) {
 		$.get(url, function(data) {
@@ -477,13 +477,13 @@
 		});
 		setCookie("menuIdx", url, 1);
 	}
-
+/*
 	$('#logoutBtn').on('click', function() {
 		deleteCookie("jwtToken");
 		deleteCookie("menuIdx");
 		location.href = "/";
 
-	});
+	});*/
 	
 	function setSelectCombo(){
 		
@@ -492,8 +492,8 @@
 				"selpchCd" : "SELPCH",
 				"prdtImpYn" : "PRDTIMP",
 				"prdtDiv" : "PRDTDIV",
-				"prdtStkn" : "PRDTSTKN",
-				"prdtSize": "PRDTSIZE",
+				"prdtStkn" : "PDSK",
+				"prdtSize": "PDSZ",
 				"prdtErqk" : "PRDTERQK"
 			};
 		
@@ -523,11 +523,11 @@
 					prdtDivHtml += '<option value='+item.codeId+'>';
 					prdtDivHtml += item.codeNm;
 					prdtDivHtml += '</option>';
-				}else if(item.codeKind == 'PRDTSTKN'){
+				}else if(item.codeKind == 'PDSK'){
 					prdtStknHtml += '<option value='+item.codeId+'>';
 					prdtStknHtml += item.codeNm;
 					prdtStknHtml += '</option>';
-				}else if(item.codeKind == 'PRDTSIZE'){
+				}else if(item.codeKind == 'PDSZ'){
 					prdtSizeHtml += '<option value='+item.codeId+'>';
 					prdtSizeHtml += item.codeNm;
 					prdtSizeHtml += '</option>';
@@ -566,7 +566,7 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/sd/sd06/SD0602P01.html", 800, 200, "기준단가 관리");
+		openModal("/static/html/user/sd/sd06/SD0602P01.html", 800, 230, "기준단가 관리");
 		
 	}
 	
@@ -580,7 +580,7 @@
 		if ( actionType == 'C' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/sd/sd06/SD0602P02.html", 800, 200, "강종별 할증 관리");
+		openModal("/static/html/user/sd/sd06/SD0602P02.html", 800, 150, "강종별 할증 관리");
 		
 	}
 	
@@ -594,44 +594,9 @@
 		if ( actionType == 'C' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/sd/sd06/SD0602P03.html", 800, 200, "철근 사이즈 관리");
+		openModal("/static/html/user/sd/sd06/SD0602P03.html", 800, 150, "철근 사이즈 관리");
 		
 	}
-	
-	/* 
-	function insertUprModal(param) {
-		
-		if(param == 'SD06M01'){
-			if(selectGridValidation(firstGrid)){
-				openModal("/static/html/user/sd/sd06/SD0601P01.html", 600, 220, "기준단가 수정");
-			}else{
-				openModal("/static/html/user/sd/sd06/SD0601P01.html", 600, 220, "기준단가 등록");
-			}
-		}
-		
-		
-		if(param == 'SD06D01'){
-			if(selectGridValidation(firstGrid)){
-				openModal("/static/html/user/sd/sd06/SD0602P01.html", 600, 220, "강종별 할증 관리 수정");
-			}else{
-				openModal("/static/html/user/sd/sd06/SD0602P01.html", 600, 220, "강종별 할증 관리 등록");
-			}
-		}
-		
-		if(param == 'SD06D02'){
-			if(selectGridValidation(firstGrid)){
-				openModal("/static/html/user/sd/sd06/SD0602P01.html", 600, 220, "철근 사이즈 관리 수정");
-			}else{
-				openModal("/static/html/user/sd/sd06/SD0602P01.html", 600, 220, "철근 사이즈 관리 등록");
-			}
-			
-		}
-		
-		
-		if(selectGridValidation(firstGrid)) return;
-		openModal("/static/html/admin/cm/cm02/CM0202P02.html", 600, 220, "롤수정");
-	}
-	 */
 	
 	
 </script>

@@ -284,3 +284,43 @@ function addComma(elem) {
 function deleteComma(elem) {
 	$(elem).val($(elem).val().replace(/,/g, ""));
 }
+
+// 권한에 따른 메뉴 보여주기
+function setMenuAuth() {
+	var formData = {
+		"authInfo" : jwt.authInfo
+	}
+	postAjax("/selectMenuAuth", formData, null, function(data) {
+		checkMenuAuth(data.accessList);
+	});
+}
+	
+function checkMenuAuth(accessList) {
+		var html = "";
+		$.each(accessList, function(idx, item){
+			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
+				html += '<li>';
+				html += '  <img src="/static/img/svg/menu_02.svg">';
+				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
+				html += '	<div class="sub_menu">';
+				html += '		<dl id="'+item.menuId+'"></dl>';
+				html += '	</div>';
+				html += '</li>';
+			}
+		});
+		$('.menu').html(html);
+		
+		$.each(accessList, function(idx, item){
+			if(item.menuType == "HTML" && item.useYn == 'Y') {
+				html = '<dl><dd><a href="'+item.menuUrl+'">'+item.menuNm+'</a></dd></dl>';
+				$("#"+item.upMenuId).append(html);
+			}
+		});
+	}
+
+//로그아웃 
+function logoutClick(){
+		deleteCookie("jwtToken");
+		deleteCookie("menuIdx");
+		location.href = "/";
+}

@@ -1,5 +1,6 @@
 package com.dksys.biz.admin.cm.cm09.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,14 @@ public class CM09SvcImpl implements CM09Svc {
 		cm09Mapper.insertNoti(paramMap);
 		cm08Svc.uploadFile(paramMap.get("notiKey"), mRequest);
 		return 0;
+	}
+
+	@Override
+	public Map<String, Object> selectNotiInfo(Map<String, String> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("notiKey")));
+		returnMap.put("notiInfo", cm09Mapper.selectNotiInfo(paramMap));
+		return returnMap; 
 	}
 
 }
