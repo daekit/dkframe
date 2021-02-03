@@ -279,3 +279,8 @@ function addComma(elem) {
 	onlyNumber(elem);
 	$(elem).val($(elem).val().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
+
+// 콤마 제거
+function deleteComma(elem) {
+	$(elem).val($(elem).val().replace(/,/g, ""));
+}
