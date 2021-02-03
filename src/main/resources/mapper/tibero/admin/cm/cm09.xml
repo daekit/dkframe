@@ -41,7 +41,22 @@
 		</if>
 	</select>
 	
-	<insert id="insertNoti" parameterType="Map" useGeneratedKeys="true" keyProperty="notiKey">
+	<select id="selectNotiInfo" parameterType="Map" resultType="CamelMap">
+	 	SELECT 
+	 		*
+	 	FROM TB_CM09M01
+	 	WHERE NOTI_KEY = #{notiKey}
+	</select>
+	
+	<insert id="insertNoti" parameterType="Map">
+		<selectKey keyProperty="notiKey" resultType="String" order="BEFORE">
+			SELECT
+				CASE WHEN NOTI_KEY IS NOT NULL THEN NOTI_KEY
+	            ELSE TB_CM09M01_SQ01.NEXTVAL
+		        END
+			FROM	TB_CM09M01
+			WHERE	NOTI_KEY = #{notiKey}
+	  	</selectKey>
 		MERGE INTO TB_CM09M01 A
 			USING DUAL
 			ON (A.NOTI_KEY = #{notiKey})
@@ -78,9 +93,6 @@
 		 		,#{pgmId}
 		 		,SYSDATE
 		 	)
-		<selectKey keyProperty="notiKey" resultType="String" order="AFTER">
-	    	SELECT MAX(NOTI_KEY) FROM TB_CM09M01
-	  	</selectKey>
 	</insert>
 	
 	<delete id="deleteNoti" parameterType="Map">
