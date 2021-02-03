@@ -44,7 +44,7 @@ public class CM08SvcImpl implements CM08Svc {
             
             HashMap<String, String> param = new HashMap<String, String>();
             param.put("fileSize", String.valueOf(mf.getSize()));
-            param.put("fileType", originFileName.substring(originFileName.indexOf(".")+1));
+            param.put("fileType", originFileName.split("\\.")[originFileName.split("\\.").length-1]);
             param.put("fileName", originFileName);
             param.put("filePath", path+originFileName);
             param.put("fileTrgtTyp", mRequest.getRequestURI().split("/")[mRequest.getRequestURI().split("/").length-1]);
