@@ -12,4 +12,6 @@ public interface BM02Mapper {
 	int selectClntCount(Map<String, String> param);
 
 	List<Map<String, String>> selectClntList(Map<String, String> param);
+
+	Map<String, String> selectClntInfo(Map<String, String> param);
 }

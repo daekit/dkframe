@@ -39,7 +39,7 @@ public class BM02Ctr {
     	return "jsonView";
     }
 	
-	// 공통코드 리스트 조회
+	// 거래처 리스트 조회
     @PostMapping("/selectClntList")
     public String selectClntList(@RequestBody Map<String, String> param, ModelMap model) {
     	int totalCnt = bm02Svc.selectClntCount(param);
@@ -48,6 +48,14 @@ public class BM02Ctr {
     	
     	List<Map<String, String>> clntList = bm02Svc.selectClntList(param);
     	model.addAttribute("clntList", clntList);
+        return "jsonView";
+    }
+    
+    // 거래처 정보 조회
+    @PostMapping("/selectClntInfo")
+    public String selectClntInfo(@RequestBody Map<String, String> param, ModelMap model) {
+    	Map<String, String> clntInfo = bm02Svc.selectClntInfo(param);
+    	model.addAttribute("clntInfo", clntInfo);
         return "jsonView";
     }
 }
