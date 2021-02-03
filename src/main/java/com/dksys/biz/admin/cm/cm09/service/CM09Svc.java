@@ -13,4 +13,6 @@ public interface CM09Svc {
 
 	public int selectNotiCount(Map<String, String> paramMap);
 
+	public Map<String, Object> selectNotiInfo(Map<String, String> paramMap);
+
 }

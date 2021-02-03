@@ -39,13 +39,20 @@ public class CM09Ctr {
     	return "jsonView";
     }
     
+    @PostMapping("/selectNotiInfo")
+    public String selectNotiInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = cm09Svc.selectNotiInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
     @PostMapping("/insertNoti")
     public String insertNoti(@RequestParam Map<String, String> paramMap, HttpServletRequest request, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
     		paramMap.put("pgmId", request.getRequestURI());
     		cm09Svc.insertNoti(paramMap, mRequest);
     		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
     	}catch(Exception e){
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

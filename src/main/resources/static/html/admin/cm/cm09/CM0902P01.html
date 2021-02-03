@@ -26,12 +26,12 @@
 				<tr>
 					<th>내용</th>
 					<td>
-						<textarea rows="8" cols="78" name="notiCnts"></textarea>
+						<textarea rows="8" cols="78" id="notiCnts" name="notiCnts"></textarea>
 					</td>
 				</tr>
 				<tr>
 					<th>첨부파일</th>
-					<td><input type="file" class="form-control input-sm" id="files" name="files" multiple="multiple"></td>
+					<td id="fileArea"><input type="file" class="form-control input-sm" id="files" name="files" multiple="multiple"></td>
 				</tr>
 			</tbody>
 		</table>
@@ -58,9 +58,8 @@
 				<tr>
 					<th>만료 기능</th>
 					<td>
-						<input type="radio" name="exprtnYnG" value="N" checked="checked">사용 안함
-						<input type="radio" name="exprtnYnG" value="Y">사용
-						<input type="hidden" name="exprtnYn" value="N">
+						<input type="radio" name="exprtnYn" value="N" checked="checked">사용 안함
+						<input type="radio" name="exprtnYn" value="Y">사용
 					</td>
 					<th>만료일</th>
 					<td>
@@ -88,23 +87,26 @@
 	var isChecked = false;
 	
 	$(document).ready(function() {
-		$("input[name='exprtnYnG']").prop("disabled", true);
-		$("input[name='popupYnG']").on("change", function(){
-			var selectedValue = $("input[name='popupYnG']:checked").val();
-			if(selectedValue == "Y") {
-				$("input[name='exprtnYnG']").prop("disabled", false);
-				$("#exprtnDt").prop("readonly", false);
-			} else {
-				$("input[name='exprtnYnG']").prop("disabled", true);
-				$("#exprtnDt").prop("readonly", true);
-			}
-			$("input[name='exprtnYn']").val($("input[name='exprtnYnG']:checked").val());
+		$("input[name='popupYn']").on("change", function(){
+			if($(this).val() == "N") {
+				$('input:radio[name=exprtnYn]:input[value="N"]').prop("checked", true);
+			} 
 		});
+		$("input[name='exprtnYn']").on("change", function(){
+			if($("input[name='popupYn']:checked").val() == "N") {
+				$('input:radio[name=exprtnYn]:input[value="N"]').prop("checked", true);
+			} 
+		});
+		if(actionType == "C"){
+			
+		} else if(actionType == "U") {
+			selectNotiInfo();
+		}
 	});
 	
 	// 만료일 데이트피커 set
 	$('#exprtnDatePicker').datepicker({
-		format: "yyyy-mm-dd",
+		format: "yyyymmdd",
 		language : "ko",
 		autoclose : true
 	});
@@ -123,22 +125,37 @@
 		var formData = new FormData($("#popForm")[0]);
 		fileAjax("/admin/cm/cm09/insertNoti", formData, function(data){
 			alert(data.resultMessage);           
+			gridView.setData(0);
 			modal.close();
 		});
 	}
 	
-	function selectCodeInfo(){
+	function selectNotiInfo(){
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"codeId": row.codeId};
-		postAjax("/admin/cm/cm05/selectCodeInfo", paramObj, null, function(data){
-			setCodeInfo(data.codeInfo);
+		var paramObj = {"notiKey": row.notiKey};
+		postAjax("/admin/cm/cm09/selectNotiInfo", paramObj, null, function(data){
+			setNotiInfo(data.result.notiInfo);
+			setFileInfo(data.result.fileList);
 		});
 	}
 	
-	function setCodeInfo(codeInfo){
-		$.each(codeInfo, function(key, value){
+	function setNotiInfo(notiInfo){
+		$.each(notiInfo, function(key, value){
 			$('#'+key).val(value);
 		});
+		$('input:radio[name=popupYn]:input[value=' + notiInfo.popupYn + ']').prop("checked", true);
+		$('input:radio[name=useYn]:input[value=' + notiInfo.useYn + ']').prop("checked", true);
+		$('input:radio[name=exprtnYn]:input[value=' + notiInfo.exprtnYn + ']').prop("checked", true);
+	}
+	
+	function setFileInfo(fileInfo) {
+		if(fileInfo.length != 0) {
+			var html = "";
+			$.each(fileInfo, function(key, value){
+				html += "<a href='/admin/cm/cm08/fileDownload?fileKey="+value.fileKey+"'>"+value.fileName+"<br></a>";
+			});
+			$("#fileArea").html(html);
+		}
 	}
 	
 </script>

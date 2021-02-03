@@ -1,9 +1,21 @@
 package com.dksys.biz.admin.cm.cm08.service;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 public interface CM08Svc {
 
 	public int uploadFile(String fileTrgtKey, MultipartHttpServletRequest mRequest);
+	
+	public List<Map<String, String>> selectFileList(String fileTrgtKey);
+	
+	public void setDisposition(HttpServletRequest request, HttpServletResponse response, String fileName);
+
+	public Map<String, String> selectFileInfo(String fileKey);
 
 }
