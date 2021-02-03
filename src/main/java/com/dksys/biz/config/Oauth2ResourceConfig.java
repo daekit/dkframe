@@ -19,7 +19,7 @@ public class Oauth2ResourceConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       http.authorizeRequests()
-      			.antMatchers("/", "/login", "/static/**", "/oauth/token", "/oauth/**", "/download/**", "/ws/**").permitAll()
+      			.antMatchers("/", "/login", "/static/**", "/oauth/token", "/oauth/**", "/download/**", "/ws/**", "/admin/cm/cm08/**").permitAll()
       			.anyRequest().authenticated();
     }
 	
