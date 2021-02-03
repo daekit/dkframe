@@ -348,7 +348,7 @@
 	</div>
 </div>
 <div>
-	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick="insertClnt();"></button>
+	<button type="button" class="btn btn-default btn-sm" id="actionBtn"></button>
 	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 </div>
 
@@ -357,7 +357,7 @@
 
 	var clntFileArr = [];
 	var fileGridView = {
-		initView: function(){
+		initView: function() {
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				target: $('[data-ax5grid="file-grid"]'),
@@ -365,6 +365,11 @@
 				showRowSelector: false,
 	        	multipleSelect: false,
 				header: {selector: false},
+				body: {
+		            onDBLClick: function () {
+		            	location.href="/admin/cm/cm08/fileDownload?fileKey="+this.item.fileKey;
+		            }
+		        },
 	            columns: [
 	                {key: "fileName", label: "파일명", width: 517},
 	                {key: "fileType", label: "파일타입", width: 100},
@@ -378,14 +383,14 @@
 	            ]
 			});
 		},
-		setData: function(){
+		setData: function() {
 			this.target.setData(clntFileArr);
 		}
 	}
 	
 	$(document).ready(function() {
 		// 영역 접기/열기 이벤트 바인딩
-		$('a.tbody_more_btn').click(function(){
+		$('a.tbody_more_btn').click(function() {
 			$(this).toggleClass('on');
 			$(this).closest('table').find('tbody').toggle();
 		});
@@ -397,14 +402,49 @@
 		fileGridView.initView();
 		
 		if(actionType == "C"){
+			$('#actionBtn').on("click", function(){insertClnt()});
 			$('#actionBtn').text("등록");
 		}else if(actionType == "U"){
+			selectClntInfo();
+			$('#actionBtn').on("click", function(){updateClnt()});
 			$('#actionBtn').text("저장");
 		}
 	});
 	
+	function selectClntInfo() {
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"clntCd": row.clntCd};
+		postAjax("/admin/bm/bm02/selectClntInfo", paramObj, null, function(data){
+			setClntInfo(data.clntInfo);
+		});
+	}
+	
+	function setClntInfo(clntInfo) {
+		// 기본정보 set
+		$.each(clntInfo, function(key, value){
+			if($('#'+key)[0]){
+				$('#'+key).val(value);
+			}
+		});
+		
+		// 첨부파일 set
+		var clntFileList = clntInfo.clntFileList;
+		$.each(clntFileList, function(idx, obj){
+			clntFileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
 	function setCommonCode(){
-		$.each($('select[data-kind]'), function(idx, elem){
+		$.each($('select[data-kind]'), function(idx, elem) {
 			var codeKind = $(elem).data('kind');
 			postAjaxSync("/admin/cm/cm05/selectChildCodeList", {"codeKind" : codeKind}, null, function(data){
 				var optionHtml = '';
@@ -416,7 +456,7 @@
 		});
 	}
 	
-	function openDaumPostcode(){
+	function openDaumPostcode() {
 		new daum.Postcode({
 			oncomplete:function(data){
 				// 우편번호
@@ -426,7 +466,7 @@
 		}).open();
 	}
 	
-	function setClntFile(elem){
+	function setClntFile(elem) {
 		var tempFiles = elem.files;
 		
 		// 전역변수 배열에 선택된 파일 추가 
@@ -448,12 +488,12 @@
 		$('#clntFile').val("");
 	}
 	
-	function deleteFile(rowIndex){
+	function deleteFile(rowIndex) {
 		fileGridView.target.removeRow(rowIndex);
 		clntFileArr.splice(rowIndex, 1);
 	}
 	
-	function insertClnt(){
+	function insertClnt() {
 		if(inputValidation($('#clntForm input[required]'))){
 			var formData = new FormData($('#clntForm')[0]);
 			// 유저아이디 추가
@@ -475,5 +515,14 @@
 				}
 			});
 		}
+	}
+	
+	function updateClnt(){
+		alert("수정 작업중입니다.");
+		/*
+			putAjax("/admin/bm/bm02/updateClnt", formData, function(data){
+				alert(data.resultMessage);
+			});
+		*/
 	}
 </script>

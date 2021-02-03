@@ -32,7 +32,7 @@ public class CM08Ctr {
 	CM08Svc cm08Svc;
 	
 	@GetMapping(value="/fileDownload")
-	public void fileDownload(@RequestParam String fileKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void fileDownload(@RequestParam("fileKey") String fileKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Map<String, String> fileInfo = cm08Svc.selectFileInfo(fileKey);
 		

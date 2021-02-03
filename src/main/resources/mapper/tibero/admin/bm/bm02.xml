@@ -78,4 +78,30 @@
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
+	
+	<resultMap id="resultInfoMap" type="CamelMap">
+		<collection select="selectClntFileList" property="CLNT_FILE_LIST" column="{fileTrgtKey=CLNT_CD}" ofType="CamelMap"/>
+	</resultMap>
+	
+	<select id="selectClntInfo" resultMap="resultInfoMap">
+		SELECT
+			CLNT_CD, CLNT_NM, CRN,
+			CLNT_DIV_CD, REPST_NM,
+			BIZCON_NM, BSTY_NM,
+			BIZ_ZIP, BIZ_ADDR, BIZ_ADDR_DTL,
+			BIZ_TEL_NO, BIZ_FAX_NO, SUB_RMK_URL,
+			BANK_CD, BKAC_NO, BKAC_OWNER, BASIS_CDTLN_AMT,
+			PCHS_PAY_DIV_CD, PCHS_CLMN_DIV_CD, PCHS_PMNT_MTD_CD, PCHS_VAT_CD,
+			SELL_PAY_DIV_CD, SELL_CLMN_DIV_CD, SELL_PMNT_MTD_CD, SELL_VAT_CD,
+			CLNT_RMK, USE_YN
+		FROM
+			TB_BM02M01
+		WHERE
+			CLNT_CD = ${clntCd}
+	</select>
+	
+	<select id="selectClntFileList" resultType="CamelMap">
+		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_BM02M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
+	</select>
+	
 </mapper>

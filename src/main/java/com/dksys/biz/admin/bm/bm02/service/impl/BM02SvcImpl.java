@@ -38,5 +38,10 @@ public class BM02SvcImpl implements BM02Svc {
 	public List<Map<String, String>> selectClntList(Map<String, String> param) {
 		return bm01Mapper.selectClntList(param);
 	}
+
+	@Override
+	public Map<String, String> selectClntInfo(Map<String, String> param) {
+		return bm01Mapper.selectClntInfo(param);
+	}
 	
 }

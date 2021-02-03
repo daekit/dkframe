@@ -13,4 +13,6 @@ public interface BM02Svc {
 
 	List<Map<String, String>> selectClntList(Map<String, String> param);
 
+	Map<String, String> selectClntInfo(Map<String, String> param);
+
 }
