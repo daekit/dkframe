@@ -280,16 +280,20 @@ function addComma(elem) {
 	$(elem).val($(elem).val().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
 
+// 콤마 제거
+function deleteComma(elem) {
+	$(elem).val($(elem).val().replace(/,/g, ""));
+}
 
 // 권한에 따른 메뉴 보여주기
 function setMenuAuth() {
-		var formData = {
-			"authInfo" : jwt.authInfo
-		}
-		postAjax("/selectMenuAuth", formData, null, function(data) {
-			checkMenuAuth(data.accessList);
-		});
+	var formData = {
+		"authInfo" : jwt.authInfo
 	}
+	postAjax("/selectMenuAuth", formData, null, function(data) {
+		checkMenuAuth(data.accessList);
+	});
+}
 	
 function checkMenuAuth(accessList) {
 		var html = "";
@@ -320,5 +324,3 @@ function logoutClick(){
 		deleteCookie("menuIdx");
 		location.href = "/";
 }
-
-	
