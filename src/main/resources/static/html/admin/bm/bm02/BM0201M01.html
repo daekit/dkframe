@@ -3,29 +3,12 @@
 </div>
 <div class="row">
 	<div class="form-group form-inline">
-		<!-- 
-		<select class="form-control division" id="rootDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="0" style="display: none;">
-			<option value="">공통코드 선택</option>
-			<option value="ROOT">공통코드</option>
-		</select>
-		<select class="form-control division" id="codeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="1">
-			<option value="">코드분류 선택</option>
-		</select>
-		<select class="form-control division" id="largeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="2">
-			<option value="">대분류 선택</option>
-		</select>
-		<select class="form-control division" id="midDiv" onchange="gridView.setData(0);" data-depth="3">
-			<option value="">중분류 선택</option>
-		</select>
-		-->
 		<select class="form-control" id="useType" onchange="gridView.setData(0);">
 			<option value="Y">사용</option>
 			<option value="N">미사용</option>
 		</select>
 		<select class="form-control" id="searchType">
-			<option value="">선택</option>
-			<option value=""></option>
-			<option value=""></option>
+			<option value="CLNT_NM">거래처명</option>
 		</select>
 		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
@@ -58,11 +41,15 @@
 		            },
 		        },
 	            columns: [
-	                {key: "codeId", label: "거래처 코드", width: 150},
-	                {key: "codeNm", label: "거래처명", width: 150},
-	                {key: "codeKind", label: "거래처 구분", width: 150},
-	                {key: "codeDesc", label: "업태", width: 150},
-	                {key: "createDt", label: "종목", width: 150}
+	                {key: "clntCd", label: "거래처 코드", width: 150},
+	                {key: "clntNm", label: "거래처명", width: 150},
+	                {key: "crn", label: "사업자 등록번호", width: 150},
+	                {key: "clntDivNm", label: "거래처 구분", width: 150},
+	                {key: "bizconNm", label: "업태", width: 150},
+	                {key: "bstyNm", label: "종목", width: 150},
+	                {key: "bizTelNo", label: "전화번호", width: 150},
+	                {key: "creatDttm", label: "등록일", width: 150},
+	                {key: "udtDttm", label: "수정일", width: 150}
 	            ],
 	            page: {
 	                navigationItemCount: 10,
@@ -77,13 +64,11 @@
 	                }
 	            }
 			});
+			return this;
 		},
 		setData: function(_pageNo){
 			var targetObj = this.target;
 			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
-			
-			// 분류값 set
-			paramObj.codeKind = getCodeKind();
 			
 			// 사용여부 set
 			paramObj.useYn = $('#useType').val();
@@ -94,9 +79,9 @@
 			// 검색어 set
 			paramObj.searchValue = $('#searchValue').val();
 			
-			postAjax("/admin/cm/code/selectCodeList", paramObj, null, function(data){
+			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
 				targetObj.setData({
-					list: data.codeList,
+					list: data.clntList,
 					page : {
 						currentPage : _pageNo,
 						pageSize : data.paginationInfo.pageSize,
@@ -109,38 +94,8 @@
 	}
 	
 	$(document).ready(function() {
-		gridView.initView();
-		$('#rootDiv').val("ROOT").trigger('change');
+		gridView.initView().setData(0);
 	});
-	
-	function selectChildCodeList(obj) {
-		
-		var codeKind = $(obj).val();
-		var target = $(obj).next('select.division');
-		var paramObj = {"codeKind": codeKind};
-		
-		postAjaxSync("/admin/cm/code/selectChildCodeList", paramObj, null, function(data){
-			var optionHtml = '';
-			var childCodeList = data.childCodeList;
-			$.each(childCodeList, function(index, item){
-				optionHtml += '<option value='+item.codeId+'>';
-				optionHtml += item.codeNm;
-				optionHtml += '</option>';
-			});
-			initDivision(obj);
-			$(target).append(optionHtml);
-		});
-	}
-	
-	function initDivision(obj){
-		var divSiblings = $(obj).siblings('select.division');
-		for(var i=0;i<divSiblings.length;i++){
-			var divSibling = divSiblings[i];
-			if($(obj).data('depth') < $(divSibling).data('depth')){
-				$(divSibling).find('option[value!=""]').remove();
-			}
-		}
-	}
 	
 	function detailClnt(type) {
 		if(type == "U"){
