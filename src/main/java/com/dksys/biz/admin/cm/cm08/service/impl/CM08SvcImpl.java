@@ -26,7 +26,7 @@ public class CM08SvcImpl implements CM08Svc {
     CM08Mapper cm08Mapper;
 
 	@Override
-	public int uploadFile(String fileTrgtKey, MultipartHttpServletRequest mRequest) {
+	public int uploadFile(String fileTrgtTyp, String fileTrgtKey, MultipartHttpServletRequest mRequest) {
 		List<MultipartFile> fileList = mRequest.getFiles("files");
 		String src = mRequest.getParameter("src");
         System.out.println("src value : " + src);
@@ -47,7 +47,7 @@ public class CM08SvcImpl implements CM08Svc {
             param.put("fileType", originFileName.split("\\.")[originFileName.split("\\.").length-1]);
             param.put("fileName", originFileName);
             param.put("filePath", path+originFileName);
-            param.put("fileTrgtTyp", mRequest.getRequestURI().split("/")[mRequest.getRequestURI().split("/").length-1]);
+            param.put("fileTrgtTyp", fileTrgtTyp);
             param.put("fileTrgtKey", fileTrgtKey);
             param.put("userId", mRequest.getParameter("userId"));
             param.put("pgmId", mRequest.getRequestURI());
