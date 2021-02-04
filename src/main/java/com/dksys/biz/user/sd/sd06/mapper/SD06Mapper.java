@@ -8,8 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface SD06Mapper {
 	
-	List<Map<String, String>> selectCmnCodeList(Map<String, String> param);
-
+	
 	int selectUprCount(Map<String, String> param);
 	
 	List<Map<String, String>> selectUprList(Map<String, String> param);

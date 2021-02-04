@@ -15,13 +15,7 @@ public class SD06Svcmpl implements SD06Svc {
     @Autowired
     SD06Mapper sd06Mapper;
 
-    
-	@Override
-	public List<Map<String, String>> selectCmnCodeList(Map<String, String> param) {
-		return sd06Mapper.selectCmnCodeList(param);
-	}
-    
-	@Override
+    @Override
 	public int selectUprCount(Map<String, String> param) {
 		return sd06Mapper.selectUprCount(param);
 	}

@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 public interface CM08Svc {
 
-	public int uploadFile(String fileTrgtKey, MultipartHttpServletRequest mRequest);
+	public int uploadFile(String fileTrgtTyp, String fileTrgtKey, MultipartHttpServletRequest mRequest);
 	
 	public List<Map<String, String>> selectFileList(String fileTrgtKey);
 	
