@@ -21,7 +21,7 @@
 		$("#prdtImpYn").on("change", function(){
 			insertOK = false;
 		});
-		$("#prdtDiv").on("change", function(){
+		$("#prdtDivCd").on("change", function(){
 			insertOK = false;
 		});
 		
@@ -29,14 +29,14 @@
 	
 	function setCombo(){
 		
-		var selectSelpchCd = document.getElementById("searchSelpchCd");
+		var selectSelpchCd = document.getElementById("SELPCH");
 		document.getElementById("selpchCd").innerHTML = selectSelpchCd.innerHTML;
 		
-		var searchPrdtImpYn = document.getElementById("searchPrdtImpYn");
+		var searchPrdtImpYn = document.getElementById("PRDTIMP");
 		document.getElementById("prdtImpYn").innerHTML = searchPrdtImpYn.innerHTML;
 		
-		var searchPrdtDiv = document.getElementById("searchPrdtDiv");
-		document.getElementById("prdtDiv").innerHTML = searchPrdtDiv.innerHTML;
+		var searchPrdtDiv = document.getElementById("PRDTDIV");
+		document.getElementById("prdtDivCd").innerHTML = searchPrdtDiv.innerHTML;
 		
 	}
 	
@@ -64,7 +64,7 @@
 				$("#prdtImpYn").val(value).attr("selected", "selected");  
 			}
 			else if(key == 'prdtDiv'){
-				$("#prdtDiv").val(value).attr("selected", "selected");  
+				$("#prdtDivCd").val(value).attr("selected", "selected");  
 			}
 			else if(key == 'prdtDt'){
 				$("#prdtDt").val(today);
@@ -105,9 +105,10 @@
 						"prdtDt" : $("#prdtDt").val().replace(/\-/g,''),
 						"selpchCd" : $("#selpchCd").val(),
 						"prdtImpYn" : $("#prdtImpYn").val(),
-						"prdtDiv" : $("#prdtDiv").val(),
+						"prdtDiv" : $("#prdtDivCd").val(),
 						"prdtUpr" : $("#prdtUpr").val(),
-						"userId" : jwt.userId
+						"userId" : jwt.userId,
+						"pgmId" : $("#pgmId").val()
 				}
 				putAjax("/user/sd/sd06/insertOneMaster", formData, null, function(data){	
 					if(data.resultCode == 200){
@@ -132,7 +133,7 @@
 				"prdtDt2" : $("#prdtDt").val().replace(/\-/g,''),
 				"selpchCd" : $("#selpchCd").val(),
 				"prdtImpYn" : $("#prdtImpYn").val(),
-				"prdtDiv" : $("#prdtDiv").val()
+				"prdtDiv" : $("#prdtDivCd").val()
 		}
 		
 		postAjax("/user/sd/sd06/checkOverLapMaster", formData, null, function(data){
@@ -201,7 +202,7 @@
 		          		<tr>
 		          			<th class="hit" colspan="2">자재제품<br/>구분</th>
 		          			<td colspan="6"> 
-		          				<select id="prdtDiv" required></select>
+		          				<select id="prdtDivCd" required></select>
 		          			</td>
 		          			<th class="hit" colspan= "2">기준단가
 		          			</th>
@@ -211,9 +212,11 @@
 		          			
 		          		</tr>
 		          	</tbody>
-		          	<input id="userId" name="userId" type="hidden" class="form-control">
+		          	
 		          </table>
 	          </div>
+	          		<input id="userId" name="userId" type="hidden" >
+		          	<input type="hidden" id="pgmId" name="pgmId" value="SD0602P01">
 	        </form>
 		
 			<div class ="popup_bottom_btn">
