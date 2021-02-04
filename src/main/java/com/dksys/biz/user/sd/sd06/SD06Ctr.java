@@ -113,26 +113,7 @@ public class SD06Ctr {
     	return "jsonView";
     }
     
-    
-    
-	/*
-	 * //상세 조회
-	 * 
-	 * @PostMapping("/selectUprInfo") public String selectUprInfo(@RequestBody
-	 * Map<String, String> param, ModelMap model) { Map<String, String> accountInfo
-	 * = sd06svc.selectUprInfo(param); model.addAttribute("accountInfo",
-	 * accountInfo); return "jsonView"; }
-	 */
-
-    //검색 조건 공통 코드 조회
-    @PostMapping("/selectCmnCodeList")
-    public String selectCmnCodeList(@RequestBody Map<String, String> param, ModelMap model) {
-    	List<Map<String, String>> cmnCodeInfo = sd06svc.selectCmnCodeList(param);
-    	model.addAttribute("cmnCodeInfo", cmnCodeInfo);
-    	return "jsonView";
-    }
-
-    
+        
     //강종별 할증금액 리스트 조회
     @PostMapping("/selectDetail01List")
     public String selectDetail01List(@RequestBody Map<String, String> param, ModelMap model) {
