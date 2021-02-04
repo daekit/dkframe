@@ -2,6 +2,8 @@
 	<div class="form-group">
 		<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 		<form id="clntForm">
+			<input type="hidden" id="pgmId" name="pgmId" value="BM0202P01">
+			<input type="hidden" id="clntCd" name="clntCd">
 			<!-- 기본정보 테이블 -->
 			<table class="popup_table">
 				<colgroup>
@@ -356,6 +358,7 @@
 <script type="text/javascript">
 
 	var clntFileArr = [];
+	var deleteFileArr = [];
 	var fileGridView = {
 		initView: function() {
 			this.target = new ax5.ui.grid();
@@ -402,11 +405,11 @@
 		fileGridView.initView();
 		
 		if(actionType == "C"){
-			$('#actionBtn').on("click", function(){insertClnt()});
+			$('#actionBtn').on("click", function(){insertClnt();});
 			$('#actionBtn').text("등록");
 		}else if(actionType == "U"){
 			selectClntInfo();
-			$('#actionBtn').on("click", function(){updateClnt()});
+			$('#actionBtn').on("click", function(){updateClnt();});
 			$('#actionBtn').text("저장");
 		}
 	});
@@ -490,24 +493,19 @@
 	
 	function deleteFile(rowIndex) {
 		fileGridView.target.removeRow(rowIndex);
+		
+		if(clntFileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(clntFileArr[rowIndex].fileKey);
+		}
+		
 		clntFileArr.splice(rowIndex, 1);
 	}
 	
 	function insertClnt() {
 		if(inputValidation($('#clntForm input[required]'))){
-			var formData = new FormData($('#clntForm')[0]);
-			// 유저아이디 추가
-			formData.append("userId", jwt.userId);
-			
-			// 첨부파일 추가
-			$.each(clntFileArr, function(idx, obj){
-				// 신규파일만 추가
-				if(obj.fileKey == 0){
-					formData.append("files", obj.file);
-				}
-			});
-			
-			fileAjax("/admin/bm/bm02/insertClnt", formData, function(data){
+			var formData = makeFormData();
+			filePostAjax("/admin/bm/bm02/insertClnt", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
 					gridView.setData(0);
@@ -517,12 +515,35 @@
 		}
 	}
 	
-	function updateClnt(){
-		alert("수정 작업중입니다.");
-		/*
-			putAjax("/admin/bm/bm02/updateClnt", formData, function(data){
+	function updateClnt() {
+		if(inputValidation($('#clntForm input[required]'))){
+			var formData = makeFormData();
+			filePutAjax("/admin/bm/bm02/updateClnt", formData, function(data){
 				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
-		*/
+		}
+	}
+	
+	function makeFormData() {
+		var formData = new FormData($('#clntForm')[0]);
+		// 유저아이디 추가
+		formData.append("userId", jwt.userId);
+		// 첨부파일 추가
+		$.each(clntFileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		if(actionType == "U"){
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		}
+		
+		return formData;
 	}
 </script>

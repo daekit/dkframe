@@ -3,7 +3,7 @@
 
 <mapper namespace="com.dksys.biz.admin.bm.bm02.mapper.BM02Mapper">
 	<insert id="insertClnt">
-		<selectKey keyProperty="clntCd" resultType="string" order="BEFORE">
+		<selectKey keyProperty="clntCd" resultType="String" order="BEFORE">
 			SELECT TB_BM02M01_SQ01.NEXTVAL FROM DUAL
 		</selectKey>
 		INSERT INTO TB_BM02M01 (
@@ -19,7 +19,7 @@
 			CREAT_ID, CREAT_PGM, CREAT_DTTM,
 			UDT_ID, UDT_PGM, UDT_DTTM
 		) VALUES (
-			#{clntCd}, #{clntNm}, #{crn},
+			#{clntNm}, #{crn},
 			#{clntDivCd}, #{repstNm},
 			#{bizconNm}, #{bstyNm},
 			#{bizZip}, #{bizAddr}, #{bizAddrDtl},
@@ -28,10 +28,28 @@
 			#{pchsPayDivCd}, #{pchsClmnDivCd}, #{pchsPmntMtdCd}, #{pchsVatCd},
 			#{sellPayDivCd}, #{sellClmnDivCd}, #{sellPmntMtdCd}, #{sellVatCd},
 			#{clntRmk}, #{useYn},
-			#{userId}, ' ', SYSDATE,
-			#{userId}, ' ', SYSDATE
+			#{userId}, #{pgmId}, SYSDATE,
+			#{userId}, #{pgmId}, SYSDATE
 		)
 	</insert>
+	
+	<update id="updateClnt">
+		UPDATE
+			TB_BM02M01
+		SET
+			CLNT_NM = #{clntNm}, CRN = #{crn}, 
+			CLNT_DIV_CD = #{clntDivCd}, REPST_NM = #{repstNm}, 
+			BIZCON_NM = #{bizconNm}, BSTY_NM = #{bstyNm},
+			BIZ_ZIP = #{bizZip}, BIZ_ADDR = #{bizAddr}, BIZ_ADDR_DTL = #{bizAddrDtl},
+			BIZ_TEL_NO = #{bizTelNo}, BIZ_FAX_NO = #{bizFaxNo}, SUB_RMK_URL = #{subRmkUrl},
+			BANK_CD = #{bankCd}, BKAC_NO = #{bkacNo}, BKAC_OWNER = #{bkacOwner}, BASIS_CDTLN_AMT = #{basisCdtlnAmt},
+			PCHS_PAY_DIV_CD = #{pchsPayDivCd}, PCHS_CLMN_DIV_CD = #{pchsClmnDivCd}, PCHS_PMNT_MTD_CD = #{pchsPmntMtdCd}, PCHS_VAT_CD = #{pchsVatCd},
+			SELL_PAY_DIV_CD = #{sellPayDivCd}, SELL_CLMN_DIV_CD = #{sellClmnDivCd}, SELL_PMNT_MTD_CD = #{sellPmntMtdCd}, SELL_VAT_CD = #{sellVatCd},
+			CLNT_RMK = #{clntRmk}, USE_YN = #{useYn},
+			UDT_ID = #{userId}, UDT_PGM = #{pgmId}, UDT_DTTM = SYSDATE
+		WHERE
+			CLNT_CD = #{clntCd}
+	</update>
 	
 	<select id="selectClntCount" resultType="int">
 		SELECT 
