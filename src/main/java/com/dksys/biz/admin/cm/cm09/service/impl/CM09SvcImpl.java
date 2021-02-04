@@ -33,7 +33,7 @@ public class CM09SvcImpl implements CM09Svc {
 
 	@Override
 	public int insertNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
-		cm08Svc.uploadFile(paramMap.get("notiKey"), mRequest);
+		cm08Svc.uploadFile("Noti", paramMap.get("notiKey"), mRequest);
 		return cm09Mapper.insertNoti(paramMap);
 	}
 
@@ -47,7 +47,7 @@ public class CM09SvcImpl implements CM09Svc {
 
 	@Override
 	public int updateNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
-		cm08Svc.uploadFile(paramMap.get("notiKey"), mRequest);
+		cm08Svc.uploadFile("Noti", paramMap.get("notiKey"), mRequest);
 		return cm09Mapper.updateNoti(paramMap);
 	}
 
