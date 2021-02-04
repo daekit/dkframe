@@ -15,5 +15,7 @@ public interface CM09Mapper {
 	int selectNotiCount(Map<String, String> paramMap);
 
 	Map<String, String> selectNotiInfo(Map<String, String> paramMap);
+
+	int updateNoti(Map<String, String> paramMap);
 	
 }
