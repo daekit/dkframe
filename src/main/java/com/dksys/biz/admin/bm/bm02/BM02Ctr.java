@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +33,19 @@ public class BM02Ctr {
     		bm02Svc.insertClnt(paramMap, mRequest);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+	
+	@PutMapping("/updateClnt")
+    public String updateClnt(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+		try {
+    		bm02Svc.updateClnt(paramMap, mRequest);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	}catch(Exception e){
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
