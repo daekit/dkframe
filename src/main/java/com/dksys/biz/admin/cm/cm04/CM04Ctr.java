@@ -54,7 +54,6 @@ public class CM04Ctr {
     @PutMapping("/updateDept")
     public String updateDept(HttpServletRequest request, @RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		paramMap.put("pgmId", request.getRequestURI());
     		cm04Svc.updateDept(paramMap);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("save"));

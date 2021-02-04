@@ -15,4 +15,6 @@ public interface CM09Svc {
 
 	public Map<String, Object> selectNotiInfo(Map<String, String> paramMap);
 
+	public int updateNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+
 }
