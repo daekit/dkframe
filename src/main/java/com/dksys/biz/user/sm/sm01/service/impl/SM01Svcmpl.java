@@ -27,6 +27,16 @@ public class SM01Svcmpl implements SM01Svc {
 		return sm01Mapper.selectStockList(param);
 	}
 
+	@Override
+	public int selectStockHistoryListCount(Map<String, String> param) {
+		return sm01Mapper.selectStockHistoryListCount(param);
+	}
+
+	@Override
+	public List<Map<String, String>> selectStockHistoryList(Map<String, String> param) {
+		return sm01Mapper.selectStockHistoryList(param);
+	}
+
 	
 
 

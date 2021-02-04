@@ -9,6 +9,10 @@ public interface SM01Svc {
 
 	public List<Map<String, String>> selectStockList(Map<String, String> param);
 
+	public int selectStockHistoryListCount(Map<String, String> param);
+
+	public List<Map<String, String>> selectStockHistoryList(Map<String, String> param);
+
 	
     
 }

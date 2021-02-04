@@ -38,5 +38,17 @@ public class SM01Ctr {
     	model.addAttribute("stockList", stockList);
         return "jsonView";
     }
+    
+  //selectStockHistoryList 재고 변동 이력 리스트 조회 
+    @PostMapping("/selectStockHistoryList")
+    public String selectStockHistoryList(@RequestBody Map<String, String> param, ModelMap model) {
+    	int totalCnt = sm01svc.selectStockHistoryListCount(param);
+    	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    
+    	List<Map<String, String>> stockList = sm01svc.selectStockHistoryList(param);
+    	model.addAttribute("stockList", stockList);
+        return "jsonView";
+    }
    
 }
