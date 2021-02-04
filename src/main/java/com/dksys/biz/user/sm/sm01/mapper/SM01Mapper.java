@@ -12,6 +12,10 @@ public interface SM01Mapper {
 	
 	List<Map<String, String>> selectStockList(Map<String, String> param);
 
+	int selectStockHistoryListCount(Map<String, String> param);
+
+	List<Map<String, String>> selectStockHistoryList(Map<String, String> param);
+
 	
 
 }
