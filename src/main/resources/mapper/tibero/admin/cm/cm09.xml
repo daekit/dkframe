@@ -4,24 +4,32 @@
 <mapper namespace="com.dksys.biz.admin.cm.cm09.mapper.CM09Mapper">
 
 	<select id="selectNotiList" parameterType="Map" resultType="CamelMap">
-		SELECT 
-			 T.*
-			,(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM
-			,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.CREAT_ID) AS CREAT_NM
-		FROM 
-		(
-		 	SELECT ROWNUM RNUM, A.* FROM TB_CM09M01 A
-		 	WHERE 1=1
-		 	<if test="searchValue != null and !searchValue.equals('')">
-				AND ${searchType} LIKE '%${searchValue}%'				
-			</if>
-			<if test="coCd != null and !coCd.equals('')">
-				AND CO_CD = #{coCd}				
-			</if>
-			<if test="useYn != null and !useYn.equals('')">
-				AND USE_YN = #{useYn}				
-			</if>
-		) T
+		SELECT * FROM (
+			SELECT 
+				 ROWNUM RNUM
+				,T.*
+				,(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM
+				,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.CREAT_ID) AS CREAT_NM
+				,TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM2
+			FROM 
+			(
+			 	SELECT * FROM TB_CM09M01
+			 	WHERE 1=1
+			 	<if test="!searchType.equals('') and !searchValue.equals('')">
+					AND ${searchType} LIKE '%${searchValue}%'				
+				</if>
+				<if test="searchType.equals('')">
+					AND (NOTI_TITLE LIKE '%${searchValue}%' OR NOTI_CNTS LIKE '%${searchValue}%') 				
+				</if>
+				<if test="coCd != null and !coCd.equals('')">
+					AND CO_CD = #{coCd}				
+				</if>
+				<if test="useYn != null and !useYn.equals('')">
+					AND USE_YN = #{useYn}				
+				</if>
+				ORDER BY UDT_DTTM DESC
+			) T
+		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
 	
@@ -30,8 +38,11 @@
 	 		COUNT(*) 
 	 	FROM TB_CM09M01
 	 	WHERE 1=1
-	 	<if test="searchValue != null and !searchValue.equals('')">
+	 	<if test="!searchType.equals('') and !searchValue.equals('')">
 			AND ${searchType} LIKE '%${searchValue}%'				
+		</if>
+		<if test="searchType.equals('')">
+			AND (NOTI_TITLE LIKE '%${searchValue}%' OR NOTI_CNTS LIKE '%${searchValue}%') 				
 		</if>
 		<if test="coCd != null and !coCd.equals('')">
 			AND CO_CD = #{coCd}				
@@ -50,7 +61,7 @@
 	
 	<insert id="insertNoti" parameterType="Map">
 		<selectKey keyProperty="notiKey" resultType="String" order="BEFORE">
-			SELECT TB_CM09M01_SQ01.NEXTVAL FROM TB_CM09M01
+			SELECT TB_CM09M01_SQ01.NEXTVAL FROM DUAL
 	  	</selectKey>
 		INSERT INTO TB_CM09M01
 	 	VALUES
@@ -86,9 +97,7 @@
 			,UDT_ID = #{userId}
 			,UDT_PGM = #{pgmId}
 			,UDT_DTTM = SYSDATE
-		<selectKey keyProperty="notiKey" resultType="String" order="AFTER">
-			SELECT NOTI_KEY FROM TB_CM09M01 WHERE NOTI_KEY = {notiKey}
-	  	</selectKey>
+		WHERE NOTI_KEY = #{notiKey}
 	</update>
 	
 	<delete id="deleteNoti" parameterType="Map">

@@ -85,14 +85,14 @@
 	</form>
 </div>
 <div class="bottom_btn">
-	<button type="button" class="btn btn-default btn-sm" onclick="insertNoti();">저장</button>
+	<button type="button" class="btn btn-default btn-sm" id="actionBtn"></button>
 	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 </div>
 <script type="text/javascript">
 	//등록시 직급코드 중복체크 여부
 	var isChecked = false;
 	var clntFileArr = [];
-	var reqUrl = "/admin/cm/cm09/insertNoti";
+	var deleteFileArr = [];
 	var fileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -102,6 +102,14 @@
 				showRowSelector: false,
 	        	multipleSelect: false,
 				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	downloadFile(this.dindex);
+		            },
+		        },
 	            columns: [
 	                {key: "fileName", label: "파일명", width: 250},
 	                {key: "fileType", label: "파일타입", width: 80},
@@ -133,10 +141,12 @@
 			} 
 		});
 		if(actionType == "C"){
-			
+			$('#actionBtn').on("click", function(){insertNoti();});
+			$('#actionBtn').text("등록");
 		} else if(actionType == "U") {
 			selectNotiInfo();
-			reqUrl = "/admin/cm/cm09/updateNoti";
+			$('#actionBtn').on("click", function(){updateNoti();});
+			$('#actionBtn').text("수정");
 		}
 	});
 	
@@ -148,22 +158,25 @@
 	});
 	
 	function insertNoti() {
-		var isValid = inputValidation($('input[required]'));
-		if(isValid) {
-			$("#userId").val(jwt.userId)              ;
-			$("#popForm").find("#coCd").val($('#mainForm').find("#coCd option:selected").val());
-			var formData = new FormData($("#popForm")[0]);
-			// 첨부파일 추가
-			$.each(clntFileArr, function(idx, obj){
-				// 신규파일만 추가
-				if(obj.fileKey == 0){
-					formData.append("files", obj.file);
-				}
-			});
-			filePostAjax(reqUrl, formData, function(data){
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/admin/cm/cm09/insertNoti", formData, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
 				modal.close();
+			});
+		}
+	}
+
+	function updateNoti() {
+		if(inputValidation($('input[required]'))){
+			var formData = makeFormData();
+			filePutAjax("/admin/cm/cm09/updateNoti", formData, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}
@@ -177,6 +190,26 @@
 		});
 	}
 	
+	
+	function makeFormData() {
+		$("#userId").val(jwt.userId)              ;
+		$("#popForm").find("#coCd").val($('#mainForm').find("#coCd option:selected").val());
+		var formData = new FormData($("#popForm")[0]);
+		// 첨부파일 추가
+		$.each(clntFileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		if(actionType == "U"){
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		}
+		
+		return formData;
+	}
+	
 	function setNotiInfo(notiInfo){
 		$.each(notiInfo, function(key, value){
 			$('#'+key).val(value);
@@ -186,14 +219,12 @@
 		$('input:radio[name=exprtnYn]:input[value=' + notiInfo.exprtnYn + ']').prop("checked", true);
 	}
 	
-	function setFileInfo(fileInfo) {
-		if(fileInfo.length != 0) {
-			var html = "";
-			$.each(fileInfo, function(key, value){
-				html += "<a href='/admin/cm/cm08/fileDownload?fileKey="+value.fileKey+"'>"+value.fileName+"<br></a>";
-			});
-			$("#fileArea").html(html);
-		}
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": clntFileArr[idx].fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
 	}
 	
 	function setClntInfo(clntInfo) {
@@ -233,4 +264,14 @@
 		clntFileArr.splice(rowIndex, 1);
 	}
 	
+	function deleteFile(rowIndex) {
+		fileGridView.target.removeRow(rowIndex);
+		
+		if(clntFileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(clntFileArr[rowIndex].fileKey);
+		}
+		
+		clntFileArr.splice(rowIndex, 1);
+	}
 </script>
