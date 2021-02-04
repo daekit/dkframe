@@ -5,8 +5,7 @@ import java.util.Map;
 
 public interface SD06Svc {
 
-	public List<Map<String, String>> selectCmnCodeList(Map<String, String> param);
-
+	
 	public int selectUprCount(Map<String, String> param);
 	
     public List<Map<String, String>> selectUprList(Map<String, String> param);

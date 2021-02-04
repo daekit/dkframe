@@ -216,10 +216,33 @@ function putAjax(url, data, contentType, callback) {
 	});
 }
 
-function fileAjax(url, data, callback) {
+function filePostAjax(url, data, callback) {
 	$.ajax({
 //		enctype: 'multipart/form-data',
 	    type: "POST",
+	    url: url,
+	    processData: false,
+		contentType: false,
+	    data: data,
+	    beforeSend: function (request) {
+            request.setRequestHeader("Authorization", authorizationToken);
+        },
+	    success: function(data){
+	    	callback(data);
+	    },
+        error: function (data) {
+        	if(tokenErrorMsg.includes(data.responseJSON.error)){
+        		alert("토큰이 만료되었습니다.");
+        		location.href = "/static/index.html";
+        	}
+        }
+	});
+}
+
+function filePutAjax(url, data, callback) {
+	$.ajax({
+//		enctype: 'multipart/form-data',
+	    type: "PUT",
 	    url: url,
 	    processData: false,
 		contentType: false,

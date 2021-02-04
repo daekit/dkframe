@@ -10,6 +10,7 @@
 	}
 </style>
 <div class="form-group">
+	<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 	<form id="popForm">
 		<table class="popup_table">
 			<colgroup>
@@ -30,17 +31,21 @@
 					</td>
 				</tr>
 				<tr>
-					<th>첨부파일</th>
-					<td id="fileArea"><input type="file" class="form-control input-sm" id="files" name="files" multiple="multiple"></td>
+					<th>
+						<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
+					</th>
+					<td>
+						<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+					</td>
 				</tr>
 			</tbody>
 		</table>
 		<table class="popup_table">
 			<colgroup>
-				<col style="width: 15%;">
-				<col style="width: 35%;">
-				<col style="width: 15%;">
-				<col style="width: 35%;">
+				<col style="width: 17%;">
+				<col style="width: 33%;">
+				<col style="width: 17%;">
+				<col style="width: 33%;">
 			</colgroup>
 			<tbody>
 				<tr>
@@ -75,6 +80,7 @@
 		</table>
 		<input type="hidden" id="notiKey" name="notiKey">
 		<input type="hidden" id="userId" name="userId">
+		<input type="hidden" id="pgmId" name="pgmId" value="CM0902P01">
 		<input type="hidden" id="coCd" name="coCd">
 	</form>
 </div>
@@ -85,8 +91,37 @@
 <script type="text/javascript">
 	//등록시 직급코드 중복체크 여부
 	var isChecked = false;
+	var clntFileArr = [];
+	var reqUrl = "/admin/cm/cm09/insertNoti";
+	var fileGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showLineNumber: true,
+				showRowSelector: false,
+	        	multipleSelect: false,
+				header: {selector: false},
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 250},
+	                {key: "fileType", label: "파일타입", width: 80},
+	                {key: "fileSize", label: "파일크기", width: 80},
+	                {
+						key:"fileDelete", label: "삭제", width:50,
+						formatter:function() {
+							return '<button type="button" onclick="deleteFile('+this.dindex+');">삭제</button>';
+						}
+					}
+	            ]
+			});
+		},
+		setData: function(){
+			this.target.setData(clntFileArr);
+		}
+	}
 	
 	$(document).ready(function() {
+		fileGridView.initView();
 		$("input[name='popupYn']").on("change", function(){
 			if($(this).val() == "N") {
 				$('input:radio[name=exprtnYn]:input[value="N"]').prop("checked", true);
@@ -101,6 +136,7 @@
 			
 		} else if(actionType == "U") {
 			selectNotiInfo();
+			reqUrl = "/admin/cm/cm09/updateNoti";
 		}
 	});
 	
@@ -112,22 +148,24 @@
 	});
 	
 	function insertNoti() {
-		$('input[required]').each(function(idx, elem){
-			if($.trim($(elem).val()) == ""){
-				alert("필수값을 입력해 주세요.");
-				$(elem).focus();
-				isValid = false;
-				return false;
-			}
-		});
-		$("#userId").val(jwt.userId)              ;
-		$("#popForm").find("#coCd").val($('#mainForm').find("#coCd option:selected").val());
-		var formData = new FormData($("#popForm")[0]);
-		fileAjax("/admin/cm/cm09/insertNoti", formData, function(data){
-			alert(data.resultMessage);           
-			gridView.setData(0);
-			modal.close();
-		});
+		var isValid = inputValidation($('input[required]'));
+		if(isValid) {
+			$("#userId").val(jwt.userId)              ;
+			$("#popForm").find("#coCd").val($('#mainForm').find("#coCd option:selected").val());
+			var formData = new FormData($("#popForm")[0]);
+			// 첨부파일 추가
+			$.each(clntFileArr, function(idx, obj){
+				// 신규파일만 추가
+				if(obj.fileKey == 0){
+					formData.append("files", obj.file);
+				}
+			});
+			filePostAjax(reqUrl, formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
 	}
 	
 	function selectNotiInfo(){
@@ -135,7 +173,7 @@
 		var paramObj = {"notiKey": row.notiKey};
 		postAjax("/admin/cm/cm09/selectNotiInfo", paramObj, null, function(data){
 			setNotiInfo(data.result.notiInfo);
-			setFileInfo(data.result.fileList);
+			setClntInfo(data.result.fileList);
 		});
 	}
 	
@@ -156,6 +194,43 @@
 			});
 			$("#fileArea").html(html);
 		}
+	}
+	
+	function setClntInfo(clntInfo) {
+		// 첨부파일 set
+		$.each(clntInfo, function(idx, obj){
+			clntFileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
+	function setClntFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var testArr = obj.name.split(".");
+			clntFileArr.push({
+				'fileKey' : 0,
+		      	'fileName' : obj.name,
+		      	'fileType' : testArr[testArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		fileGridView.setData();
+		$(elem).val("");
+	}
+	
+	function deleteFile(rowIndex){
+		fileGridView.target.removeRow(rowIndex);
+		clntFileArr.splice(rowIndex, 1);
 	}
 	
 </script>

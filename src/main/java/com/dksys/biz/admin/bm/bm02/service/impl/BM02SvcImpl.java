@@ -26,7 +26,7 @@ public class BM02SvcImpl implements BM02Svc {
 	public void insertClnt(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		// CREAT_PGM 결정되면 값 insert 필요!
 		bm01Mapper.insertClnt(paramMap);
-		cm08Svc.uploadFile(paramMap.get("clntCd"), mRequest);
+		cm08Svc.uploadFile("Clnt", paramMap.get("clntCd"), mRequest);
 	}
 
 	@Override

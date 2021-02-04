@@ -50,50 +50,46 @@
 	
 	<insert id="insertNoti" parameterType="Map">
 		<selectKey keyProperty="notiKey" resultType="String" order="BEFORE">
-			SELECT
-				CASE WHEN NOTI_KEY IS NOT NULL THEN NOTI_KEY
-	            ELSE TB_CM09M01_SQ01.NEXTVAL
-		        END
-			FROM	TB_CM09M01
-			WHERE	NOTI_KEY = #{notiKey}
+			SELECT TB_CM09M01_SQ01.NEXTVAL FROM TB_CM09M01
 	  	</selectKey>
-		MERGE INTO TB_CM09M01 A
-			USING DUAL
-			ON (A.NOTI_KEY = #{notiKey})
-		WHEN MATCHED THEN
-			UPDATE SET
-				 CO_CD = #{coCd}     
-				,NOTI_TITLE = #{notiTitle}
-				,NOTI_CNTS = #{notiCnts} 
-				,EXPRTN_YN = #{exprtnYn} 
-				,EXPRTN_DT = #{exprtnDt} 
-				,POPUP_YN = #{popupYn}  
-				,USE_YN = #{useYn}    
-				,UDT_ID = #{userId}
-				,UDT_PGM = #{pgmId}
-				,UDT_DTTM = SYSDATE
-		WHEN NOT MATCHED THEN
-			INSERT
-		 	VALUES
-		 	(
-		 		 TB_CM09M01_SQ01.NEXTVAL
-		 		,#{coCd}
-		 		,#{notiTitle}
-		 		,#{notiCnts}
-		 		,#{exprtnYn}
-		 		,#{exprtnDt}
-		 		,#{popupYn}
-		 		,#{useYn}
-		 		,'N'
-		 		,0
-		 		,#{userId}
-		 		,#{pgmId}
-		 		,SYSDATE
-		 		,#{userId}
-		 		,#{pgmId}
-		 		,SYSDATE
-		 	)
+		INSERT INTO TB_CM09M01
+	 	VALUES
+	 	(
+	 		 #{notiKey}
+	 		,#{coCd}
+	 		,#{notiTitle}
+	 		,#{notiCnts}
+	 		,#{exprtnYn}
+	 		,#{exprtnDt}
+	 		,#{popupYn}
+	 		,#{useYn}
+	 		,'N'
+	 		,0
+	 		,#{userId}
+	 		,#{pgmId}
+	 		,SYSDATE
+	 		,#{userId}
+	 		,#{pgmId}
+	 		,SYSDATE
+	 	)
 	</insert>
+	
+	<update id="updateNoti" parameterType="Map">
+		UPDATE TB_CM09M01
+		SET  CO_CD = #{coCd}     
+			,NOTI_TITLE = #{notiTitle}
+			,NOTI_CNTS = #{notiCnts} 
+			,EXPRTN_YN = #{exprtnYn} 
+			,EXPRTN_DT = #{exprtnDt} 
+			,POPUP_YN = #{popupYn}  
+			,USE_YN = #{useYn}    
+			,UDT_ID = #{userId}
+			,UDT_PGM = #{pgmId}
+			,UDT_DTTM = SYSDATE
+		<selectKey keyProperty="notiKey" resultType="String" order="AFTER">
+			SELECT NOTI_KEY FROM TB_CM09M01 WHERE NOTI_KEY = {notiKey}
+	  	</selectKey>
+	</update>
 	
 	<delete id="deleteNoti" parameterType="Map">
 		DELETE FROM TB_CM09M01
