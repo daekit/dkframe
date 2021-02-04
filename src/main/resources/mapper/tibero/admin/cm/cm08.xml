@@ -3,7 +3,10 @@
 
 <mapper namespace="com.dksys.biz.admin.cm.cm08.mapper.CM08Mapper">
 
-	<insert id="insertFile"> 
+	<insert id="insertFile">
+		<selectKey keyProperty="fileKey" resultType="String" order="BEFORE">
+			SELECT TB_CM08M01_SQ01.NEXTVAL FROM DUAL
+	  	</selectKey>
 		INSERT INTO TB_CM08M01 (
 			FILE_KEY,
 			FILE_SIZE,
@@ -17,7 +20,7 @@
 			CREAT_PGM,
 			CREAT_DTTM
 		) VALUES(
-			TB_CM08M01_SQ01.NEXTVAL,
+			#{fileKey},
 			#{fileSize},
 			#{fileType},
 			#{fileName},
@@ -41,5 +44,9 @@
 		where FILE_KEY = #{fileKey}
 	</select>
 	
+	<delete id="deleteFileInfo" parameterType="Map">
+		DELETE FROM TB_CM08M01
+		where FILE_KEY = #{fileKey}
+	</delete>
 	
 </mapper>

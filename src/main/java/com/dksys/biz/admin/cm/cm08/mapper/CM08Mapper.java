@@ -14,6 +14,8 @@ public interface CM08Mapper {
 	List<Map<String, String>> selectFileList(String fileTrgtKey);
 
 	Map<String, String> selectFileInfo(String fileKey);
+
+	int deleteFileInfo(String fileKey);
 	
 	
 }

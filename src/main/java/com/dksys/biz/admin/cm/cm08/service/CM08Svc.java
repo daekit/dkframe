@@ -18,4 +18,6 @@ public interface CM08Svc {
 
 	public Map<String, String> selectFileInfo(String fileKey);
 
+	public int deleteFile(String fileKey);
+
 }

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.cm.cm08.mapper.CM08Mapper;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
+import com.dksys.biz.util.DateUtil;
 
 @Service
 public class CM08SvcImpl implements CM08Svc {
@@ -28,10 +29,10 @@ public class CM08SvcImpl implements CM08Svc {
 	@Override
 	public int uploadFile(String fileTrgtTyp, String fileTrgtKey, MultipartHttpServletRequest mRequest) {
 		List<MultipartFile> fileList = mRequest.getFiles("files");
-		String src = mRequest.getParameter("src");
-        System.out.println("src value : " + src);
+		String year = DateUtil.getCurrentYyyy();
+		String month = DateUtil.getCurrentMm();
 
-        String path = "C:/upload/";
+        String path = "C:\\upload" + File.separator + fileTrgtTyp + File.separator + year + File.separator + month + File.separator;
 
         for (MultipartFile mf : fileList) {
             String originFileName = mf.getOriginalFilename(); // 원본 파일 명
@@ -40,22 +41,21 @@ public class CM08SvcImpl implements CM08Svc {
             System.out.println("originFileName : " + originFileName);
             System.out.println("fileSize : " + fileSize);
 
-            String safeFile = path + System.currentTimeMillis() + originFileName;
-            
             HashMap<String, String> param = new HashMap<String, String>();
             param.put("fileSize", String.valueOf(mf.getSize()));
             param.put("fileType", originFileName.split("\\.")[originFileName.split("\\.").length-1]);
             param.put("fileName", originFileName);
-            param.put("filePath", path+originFileName);
+            param.put("filePath", path);
             param.put("fileTrgtTyp", fileTrgtTyp);
             param.put("fileTrgtKey", fileTrgtKey);
             param.put("userId", mRequest.getParameter("userId"));
             param.put("pgmId", mRequest.getRequestURI());
             try {
             	cm08Mapper.insertFile(param);
-            	File dir = new File(path);
-            	if(!dir.isDirectory()) dir.mkdirs();
-            	mf.transferTo(new File(safeFile));
+            	String saveFile = param.get("fileKey") + "_" + originFileName;
+            	File f = new File(path);
+            	if(!f.isDirectory()) f.mkdirs();
+            	mf.transferTo(new File(path+saveFile));
             } catch (IllegalStateException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -128,4 +128,19 @@ public class CM08SvcImpl implements CM08Svc {
 	public Map<String, String> selectFileInfo(String fileKey) {
 		return cm08Mapper.selectFileInfo(fileKey);
 	}
+
+	@Override
+	public int deleteFile(String fileKey) {
+		Map<String, String> fileInfo = selectFileInfo(fileKey);
+		String filePath = fileInfo.get("filePath") + fileKey + "_" + fileInfo.get("fileName");
+		int result = cm08Mapper.deleteFileInfo(fileKey);
+		try {
+			File f = new File(filePath);
+			f.delete();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
 }
