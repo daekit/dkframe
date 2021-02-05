@@ -347,3 +347,29 @@ function logoutClick(){
 		deleteCookie("menuIdx");
 		location.href = "/";
 }
+
+//공통코드 검색 함수 
+function setSelectCombo(){
+			
+		$.each($('select[data-kind]'), function(idx, elem){
+		
+			var param = {
+				"codeKind" : $(elem).data('kind')
+			};
+			
+			var codeHtml = '<option value="" selected>전체 선택</option>';
+			
+			postAjax("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
+		
+				var codeList = data.childCodeList;
+				$.each(codeList, function (index, item){
+					codeHtml += '<option value='+item.codeId+'>';
+					codeHtml += item.codeNm;
+					codeHtml += '</option>';
+				});
+				$(elem).append(codeHtml);			
+			});
+		})
+		
+		
+	}

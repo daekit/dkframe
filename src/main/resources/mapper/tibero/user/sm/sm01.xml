@@ -7,7 +7,7 @@
 		SELECT COUNT(*)
 		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD = C.PRDT_CD 
-				AND A.CLNT_CD = E.CLNT_CD
+				AND A.CLNT_CD = E.CLNT_CD(+)
 				<if test="coCd != null and !coCd.equals('')">
 				AND A.CO_CD = #{coCd}
 				</if>
@@ -47,11 +47,13 @@
 						, A.TYP_CD
 						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
 						, A.MAKR_CD 
-						, FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MARK_NM
+						, FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
 						, A.PRDT_CD
 				     	, C.PRDT_NM
 					    , A.IMP_YN
 					    , FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+					    , A.STOCK_CHG_CD
+					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
 						, A.STOCK_AMT
 						, A.STOCK_QTY
 						, A.STOCK_UPR
@@ -62,7 +64,7 @@
 						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 				WHERE  A.PRDT_CD = C.PRDT_CD
-				AND A.CLNT_CD = E.CLNT_CD
+				AND A.CLNT_CD = E.CLNT_CD(+)
 				<if test="coCd != null and !coCd.equals('')">
 						AND A.CO_CD = #{coCd}
 						</if>
@@ -94,8 +96,8 @@
 	
 	<select id="selectStockHistoryListCount" parameterType="Map" resultType="int">
 		SELECT COUNT(*)
-		FROM TB_SM01H01 A, TB_BM01M01 C 
-		WHERE  A.PRDT_CD = C.PRDT_CD
+		FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
+		WHERE  A.PRDT_CD = C.PRDT_CD AND A.CLNT_CD = E.CLNT_CD(+)
 				<if test="coCd != null and !coCd.equals('')">
 				AND A.CO_CD = #{coCd}
 				</if>
@@ -113,6 +115,9 @@
 				</if>
 				<if test="prdtNm != null and !prdtNm.equals('')">
 						AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+						AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 				</if>
 				
 	</select>
@@ -139,15 +144,19 @@
 						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
 					    , A.CHG_CD
 					    , FN_CM05M01_CD_TO_NM(A.CHG_CD) AS CHG_NM
+					    , A.STOCK_CHG_CD
+					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
 						, A.STOCK_AMT
 						, A.STOCK_QTY
 						, A.STOCK_UPR
 						, A.STD_UPR
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
+						, E.CLNT_NM
 						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
-				FROM TB_SM01H01 A, TB_BM01M01 C
-				WHERE  A.PRDT_CD = C.PRDT_CD
+				FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
+		WHERE  A.PRDT_CD = C.PRDT_CD 
+				AND A.CLNT_CD = E.CLNT_CD(+)
 				<if test="coCd != null and !coCd.equals('')">
 						AND A.CO_CD = #{coCd}
 						</if>
@@ -166,7 +175,9 @@
 						<if test="prdtNm != null and !prdtNm.equals('')">
 								AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
 						</if>
-						
+						<if test="clntNm != null and !clntNm.equals('')">
+								AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
+						</if>
 				ORDER BY UDT_DTTM DESC
 			)D
 		)
