@@ -20,9 +20,14 @@ public class User implements UserDetails {
 	private static final long serialVersionUID = 7205501915991930357L;
 	
 	private String id;
+	private String password;
+	private String empNo;
 	private String name;
+	private String coCd;
+	private String deptId;
+	private String levelCd;
     private String email;
-    private String password;
+    private String enterDt;
     private String authInfo;
     
     @Builder.Default

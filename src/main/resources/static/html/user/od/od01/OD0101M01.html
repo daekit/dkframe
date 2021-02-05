@@ -122,10 +122,15 @@
 	                <th>거래처</th>
 	                <td>
 	                  <input type="text">
+	                  <button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">
+	                  	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+	                  </button>
 	                </td>
 	                <th>직송구분</th>
 	                <td>
-	                  <select id= "PRDTIMP" data-kind="PRDTIMP">
+	                  <select id="USEYN" data-kind="USEYN">
+	                  	<option value="N" selected="selected">N</option>
+	                  	<option value="Y" >Y</option>
 	                  </select>
 	                </td>
 	              </tr>
@@ -144,7 +149,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="insertOrder();" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
 				<select class="prae_select" onchange="changeRecordCnt();">
@@ -208,14 +213,25 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "prdtDt", label: "기준날짜", align: "center", width: "16%"},
-		            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "14%"},
-		            {key: "selpchNm", label: "매입/매출\n 구분", align: "center", width: "19%"},
-		        	{key: "prdtImpNm", label: "일반/수입\n구분", align: "center", width: "19%"},
-		        	{key: "prdtDivNm", label: "자재제품\n구분", align: "center", width: "19%"},
-		        	{key: "prdtUpr", label: "기준단가", align: "center", width: "16%"},
-		        	
-		            
+		          	{key: "prdtDt", label: "매출일자", align: "center", width: "5%"},
+		            {key: "basisPriceSeq", label: "직송구분", align: "center", width: "5%"},
+		            {key: "selpchNm", label: "매입거래처", align: "center", width: "10%"},
+		        	{key: "prdtImpNm", label: "프로젝트", align: "center", width: "10%"},
+		        	{key: "prdtDivNm", label: "매출거래처", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "제조사", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "창고", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "수량(Kg)", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "발주금액", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "판매유형", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "매입확정여부", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "매출확정여부", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "수입구분", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "도착지", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "담당자연락처", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "납기일자", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "비고", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "주소", align: "center", width: "10%"},
+		        	{key: "prdtUpr", label: "발주담당자", align: "center", width: "10%"},
 		        ]
 		    });
 			return this;
@@ -253,7 +269,7 @@
 	$(document).ready(function() {
 		//순서 맨 처음
 		mainDefaultLoad();
-		setSelectCombo();
+		setCommonSelect($("#main_area select[data-kind]"));
 		gridView.initView().setData(0);
 	})
 
@@ -278,42 +294,14 @@
 		gridView.initView().setData(0);
 	}
 
-	function updateUprList(type){
+	function insertOrder(type){
 		actionType = type;
 		
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/sd/sd06/SD0602P01.html", 800, 230, "기준단가 관리");
+		openModal("/static/html/user/od/od01/OD0102P01.html", 800, 700, " ");
 		
 	}
-	
-	function updateDtl01List(type){
-		actionType = type;
-		 
-		if ( actionType == 'U' && selectGridValidation(secondGrid))
-			return;
-		
-		if ( actionType == 'C' && selectGridValidation(firstGrid))
-			return;
-		
-		openModal("/static/html/user/sd/sd06/SD0602P02.html", 800, 150, "강종별 할증 관리");
-		
-	}
-	
-
-	function updateDtl02List(type){
-		actionType = type;
-		
-		if ( actionType == 'U' && selectGridValidation(thirdGrid))
-			return;
-		
-		if ( actionType == 'C' && selectGridValidation(firstGrid))
-			return;
-		
-		openModal("/static/html/user/sd/sd06/SD0602P03.html", 800, 150, "철근 사이즈 관리");
-		
-	}
-	
 	
 </script>
