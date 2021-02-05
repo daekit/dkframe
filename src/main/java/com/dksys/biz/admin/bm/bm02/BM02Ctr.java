@@ -27,6 +27,27 @@ public class BM02Ctr {
 	@Autowired
 	BM02Svc bm02Svc;
 	
+	// 거래처 리스트 조회
+    @PostMapping("/selectClntList")
+    public String selectClntList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = bm02Svc.selectClntCount(paramMap);
+    	PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> clntList = bm02Svc.selectClntList(paramMap);
+    	model.addAttribute("clntList", clntList);
+        return "jsonView";
+    }
+    
+    // 거래처 정보 조회
+    @PostMapping("/selectClntInfo")
+    public String selectClntInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> clntInfo = bm02Svc.selectClntInfo(paramMap);
+    	model.addAttribute("clntInfo", clntInfo);
+        return "jsonView";
+    }
+    
+    // 거래처 등록
 	@PostMapping("/insertClnt")
     public String insertClnt(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
@@ -40,6 +61,7 @@ public class BM02Ctr {
     	return "jsonView";
     }
 	
+	// 거래처 수정
 	@PutMapping("/updateClnt")
     public String updateClnt(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
 		try {
@@ -53,23 +75,17 @@ public class BM02Ctr {
     	return "jsonView";
     }
 	
-	// 거래처 리스트 조회
-    @PostMapping("/selectClntList")
-    public String selectClntList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = bm02Svc.selectClntCount(param);
-    	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
-    	model.addAttribute("paginationInfo", paginationInfo);
-    	
-    	List<Map<String, String>> clntList = bm02Svc.selectClntList(param);
-    	model.addAttribute("clntList", clntList);
-        return "jsonView";
-    }
-    
-    // 거래처 정보 조회
-    @PostMapping("/selectClntInfo")
-    public String selectClntInfo(@RequestBody Map<String, String> param, ModelMap model) {
-    	Map<String, String> clntInfo = bm02Svc.selectClntInfo(param);
-    	model.addAttribute("clntInfo", clntInfo);
-        return "jsonView";
+	// 거래처 사용안함 처리
+	@PutMapping("/unuseClnt")
+    public String unuseClnt(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		try {
+    		bm02Svc.unuseClnt(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
     }
 }

@@ -207,15 +207,20 @@
 		<!-- 사업부 테이블 -->
 		<table class="popup_table">
 			<colgroup>
-				<col width="20%">
-				<col width="20%">
-				<col width="20%">
-				<col width="20%">
-				<col width="20%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
 			</colgroup>
 			<thead>
 				<tr>
-					<td colspan="4" style="text-align: left;">사업부</td>
+					<td colspan="9" style="text-align: left;">사업부</td>
 					<td style="text-align: right;">
 						<a class="tbody_more_btn"></a>
 					</td>
@@ -223,10 +228,9 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="5">
+					<td colspan="10">
 						<div class="add_btn">
-							<a>+</a>
-							<a>-</a>
+							<a>추가</a>
 						</div>
 					</td>
 				</tr>
@@ -236,6 +240,11 @@
 					<th>담당자명</th>
 					<th>담당자전화번호</th>
 					<th>담당자휴대전화</th>
+					<th>담당자이메일</th>
+					<th>담당자부서명</th>
+					<th>담당자직위</th>
+					<th>영업회사</th>
+					<th>영업사원</th>
 				</tr>
 				<tr>
 					<td>
@@ -255,15 +264,6 @@
 					<td>
 						<input type="text" class="form-control" id="" name="">
 					</td>
-				</tr>
-				<tr>
-					<th>담당자이메일</th>
-					<th>담당자부서명</th>
-					<th>담당자직위</th>
-					<th>영업회사</th>
-					<th>영업사원</th>
-				</tr>
-				<tr>
 					<td>
 						<input type="text" class="form-control" id="" name="">
 					</td>
@@ -292,17 +292,18 @@
 			</tbody>
 		</table>
 		<!-- 담보내역 테이블 -->
-		<table class="popup_table">
+		<table class="popup_table" id="pldgTable">
 			<colgroup>
-				<col width="20%">
-				<col width="20%">
-				<col width="20%">
-				<col width="20%">
-				<col width="20%">
+				<col width="19%">
+				<col width="19%">
+				<col width="19%">
+				<col width="19%">
+				<col width="19%">
+				<col width="5%">
 			</colgroup>
 			<thead>
 				<tr>
-					<td colspan="4" style="text-align: left;">담보내역</td>
+					<td colspan="5" style="text-align: left;">담보내역</td>
 					<td style="text-align: right;">
 						<a class="tbody_more_btn"></a>
 					</td>
@@ -310,10 +311,9 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="5">
+					<td colspan="6">
 						<div class="add_btn">
-							<a>+</a>
-							<a>-</a>
+							<a onclick="addPldgRow(this);">추가</a>
 						</div>
 					</td>
 				</tr>
@@ -323,27 +323,7 @@
 					<th>금액</th>
 					<th>인정비율</th>
 					<th>비고</th>
-				</tr>
-				<tr>
-					<td>
-						<select class="form-control input-sm" id="" name="">
-							<option value="">선택</option>
-						</select>
-					</td>
-					<td>
-						<select class="form-control input-sm" id="" name="">
-							<option value="">선택</option>
-						</select>
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">	
-					</td>
+					<th class="tc">삭제</th>
 				</tr>
 			</tbody>
 		</table>
@@ -444,6 +424,16 @@
 		
 		// 첨부파일 그리드 set
 		fileGridView.setData();
+		
+		// 담보내역 set
+		var pldgList = clntInfo.pldgList;
+		$.each(pldgList, function(idx, obj){
+			var pldgRow = addPldgRow();
+			for(var i=0;i<$(pldgRow).find('[name]').length;i++){
+				var pldgItem = $(pldgRow).find('[name]')[i];
+				pldgItem.value = obj[pldgItem.name];
+			}
+		});
 	}
 	
 	function setCommonCode(){
@@ -488,17 +478,15 @@
 		fileGridView.setData();
 		
 		// input file 초기화
-		$('#clntFile').val("");
+		$(elem).val("");
 	}
 	
 	function deleteFile(rowIndex) {
 		fileGridView.target.removeRow(rowIndex);
-		
 		if(clntFileArr[rowIndex].fileKey){
 		// 기 등록되어 있는 파일 삭제시
 			deleteFileArr.push(clntFileArr[rowIndex].fileKey);
 		}
-		
 		clntFileArr.splice(rowIndex, 1);
 	}
 	
@@ -540,10 +528,70 @@
 			}
 		});
 		
+		// 수정시 삭제된 파일 추가
 		if(actionType == "U"){
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		}
 		
+		// 담보내역 추가
+		var pldgArr = [];
+		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
+			var pldgObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				pldgObj[elem.name] = elem.value;
+			});
+			pldgArr.push(pldgObj);
+		});
+		
+		formData.append("pldgArr", JSON.stringify(pldgArr));
+		
 		return formData;
+	}
+	
+	function addPldgRow(){
+		var pldgRow = '';
+		pldgRow += '<tr name="pldgRow">';
+		pldgRow += '<td>';
+		pldgRow += '<select class="form-control input-sm" name="coCd">';
+		pldgRow += '<option value="">선택</option>';
+		pldgRow += makeCmnCdOpt("CO");
+		pldgRow += '</select>';
+		pldgRow += '</td>';
+		pldgRow += '<td>';
+		pldgRow += '<select class="form-control input-sm" name="pldgDivCd">';
+		pldgRow += '<option value="">선택</option>';
+		pldgRow += makeCmnCdOpt("PLDG");
+		pldgRow += '</select>';
+		pldgRow += '</td>';
+		pldgRow += '<td>';
+		pldgRow += '<input type="text" class="form-control" name="pldgAmt" onkeyup="addComma(this);">'
+		pldgRow += '</td>';
+		pldgRow += '<td>';
+		pldgRow += '<input type="text" class="form-control" name="pldgRcognRate" onkeyup="onlyNumber(this);">';
+		pldgRow += '</td>';
+		pldgRow += '<td>';
+		pldgRow += '<input type="text" class="form-control" name="pldgRmk" maxlength="127">';
+		pldgRow += '</td>';
+		pldgRow += '<td>';
+		pldgRow += '<button type="button" class="btn btn-danger btn-sm delete_btn" onclick="deletePldg(this);">삭제</button>';
+		pldgRow += '</td>';
+		pldgRow += '</tr>';
+		$('#pldgTable').append(pldgRow);
+		return $('#pldgTable tr[name="pldgRow"]:last')[0];
+	}
+	
+	function makeCmnCdOpt(codeKind){
+		var optionHtml = '';
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", {"codeKind" : codeKind}, null, function(data){
+			$.each(data.childCodeList, function(idx, obj){
+				optionHtml += '<option value="'+obj.codeId+'">'+obj.codeNm+'</option>';
+			});
+		});
+		return optionHtml;
+	}
+	
+	function deletePldg(elem){
+		// 삭제시 로우 validation 추가??
+		$(elem).closest('tr').remove();	
 	}
 </script>
