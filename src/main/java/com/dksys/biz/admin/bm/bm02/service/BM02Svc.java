@@ -7,15 +7,16 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 public interface BM02Svc {
 
+	int selectClntCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectClntList(Map<String, String> paramMap);
+
+	Map<String, String> selectClntInfo(Map<String, String> paramMap);
+	
 	void insertClnt(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
 	void updateClnt(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
-
-	int selectClntCount(Map<String, String> param);
-
-	List<Map<String, String>> selectClntList(Map<String, String> param);
-
-	Map<String, String> selectClntInfo(Map<String, String> param);
-
+	
+	void unuseClnt(Map<String, String> paramMap);
 
 }
