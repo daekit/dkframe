@@ -49,7 +49,7 @@ public class CM08SvcImpl implements CM08Svc {
             param.put("fileTrgtTyp", fileTrgtTyp);
             param.put("fileTrgtKey", fileTrgtKey);
             param.put("userId", mRequest.getParameter("userId"));
-            param.put("pgmId", mRequest.getRequestURI());
+            param.put("pgmId", fileTrgtTyp);
             try {
             	cm08Mapper.insertFile(param);
             	String saveFile = param.get("fileKey") + "_" + originFileName;
