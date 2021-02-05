@@ -367,6 +367,7 @@ function setCommonSelect(el){
 
 function mainDefaultLoad() {
 	$("#head_area").load("/static/html/header.html");
+	$("#head_area").after('<div class="menu_off"><a class="off_btn"></a></div>');
 	$('.off_btn').click(function () {
 	    $('#head_area').toggleClass('off');
 	    $('#top_area').toggleClass('on');
