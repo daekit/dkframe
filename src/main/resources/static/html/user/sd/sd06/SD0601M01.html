@@ -64,9 +64,6 @@
 
 <body>
 	<div id="head_area"></div>
-	<div class="menu_off">
-  		 <a class="off_btn"></a>
- 	</div>
 	<div id="top_area">
 		<!-- 페이지 타이틀 -->
 		<h3 class="location"> 영업관리 > 단가관리 > <span class="page_tit">단가관리</span></h3>
@@ -145,13 +142,12 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
-				<select class="prae_select" onchange="changeRecordCnt();">
+				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
 					<option value="10">10</option>
-					<option value="20">20</option>
+					<option value="20" selected>20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
-				<input type="hidden" id="recordCnt">
 				<input type="hidden" id="basisPriceSeq">
 			</div>
 		</div>
@@ -284,6 +280,7 @@
 				"recordCnt" : $("#recordCnt").val()
 			}
 			
+			
 			postAjax("/user/sd/sd06/selectUprList", formData, null, function(data){
 				var list = data.uprList;
 				
@@ -395,7 +392,7 @@
 			            }
 			        },
 			        columns: [
-			            {key: "basisPriceSeq", label: "No.", align: "center", width: "17%"},
+			            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "17%"},
 			        	{key: "prdtErqkNm", label: "내진", align: "center", width: "28%"},
 			        	{key: "prdtSizeNm", label: "사이즈", align: "center", width: "29%"},
 			        	{key: "scAmt", label: "할증금액", align: "center", width: "29%"},
@@ -428,22 +425,11 @@
 	
 	
 	$(document).ready(function() {
-		$("#head_area").load("/static/html/header.html");
-		$('.more_btn').click(function() {
-			$('.search_option').toggleClass('open');
-			$('.more_btn').toggleClass('on');
-		});
-		setMenuAuth();
-		setCommonSelect();
+		mainDefaultLoad();
+		setCommonSelect($("#main_area select[data-kind]"));
 		gridView.initView().setData(0);
 		gridView2.initView().setData(0);
 		gridView3.initView().setData(0);
-		
-		 $('.off_btn').click(function () {
-		      $('#head_area').toggleClass('off');
-		      $('#top_area').toggleClass('on');
-		      $('#main_area').toggleClass('on');
-		    });
 		
 		
 	})
@@ -468,14 +454,6 @@
 
 	
 	
-	
-	function changeRecordCnt() {
-		$("#recordCnt").val($(".prae_select").val());
-		gridView.initView().setData(0);
-	}
-	
-	
-
 	function updateUprList(type){
 		actionType = type;
 		
