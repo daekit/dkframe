@@ -349,8 +349,8 @@ function logoutClick(){
 }
 
 //공통코드 검색 함수 
-function setCommonSelect(){
-	$.each($('select[data-kind]'), function(idx, elem){
+function setCommonSelect(el){
+	$.each(el, function(idx, elem){
 		var param = {"codeKind" : $(elem).data('kind')};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
 			var optionHtml = '';
