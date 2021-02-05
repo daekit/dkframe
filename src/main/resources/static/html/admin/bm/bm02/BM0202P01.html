@@ -205,22 +205,23 @@
 			</table>
 		</form>
 		<!-- 사업부 테이블 -->
-		<table class="popup_table">
+		<table class="popup_table" id="bizdeptTable">
 			<colgroup>
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="11%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="12%">
+				<col width="5%">
 			</colgroup>
 			<thead>
 				<tr>
-					<td colspan="9" style="text-align: left;">사업부</td>
+					<td colspan="10" style="text-align: left;">사업부</td>
 					<td style="text-align: right;">
 						<a class="tbody_more_btn"></a>
 					</td>
@@ -228,9 +229,9 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="10">
+					<td colspan="11">
 						<div class="add_btn">
-							<a>추가</a>
+							<a onclick="addBizdeptRow();">추가</a>
 						</div>
 					</td>
 				</tr>
@@ -245,49 +246,7 @@
 					<th>담당자직위</th>
 					<th>영업회사</th>
 					<th>영업사원</th>
-				</tr>
-				<tr>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<select class="form-control input-sm" id="" name="">
-							<option value="">선택</option>
-						</select>
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<input type="text" class="form-control" id="" name="">
-					</td>
-					<td>
-						<select class="form-control input-sm" id="" name="">
-							<option value="">선택</option>
-						</select>
-					</td>
-					<td>
-						<select class="form-control input-sm" id="" name="">
-							<option value="">선택</option>
-						</select>
-					</td>
-					<td>
-						<div class="input-group">
-							<input type="text" class="form-control" id="" name="" readonly>
-							<span class="input-group-btn">
-								<button type="button" class="btn btn-primary btn-sm" onclick="">검색</button>
-							</span>
-						</div>
-					</td>
+					<th class="tc">삭제</th>
 				</tr>
 			</tbody>
 		</table>
@@ -313,7 +272,7 @@
 				<tr>
 					<td colspan="6">
 						<div class="add_btn">
-							<a onclick="addPldgRow(this);">추가</a>
+							<a onclick="addPldgRow();">추가</a>
 						</div>
 					</td>
 				</tr>
@@ -543,6 +502,17 @@
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		}
 		
+		// 사업부 추가
+		var bizdeptArr = [];
+		$.each($('#bizdeptTable tr[name="bizdeptRow"]'), function(idx, elem){
+			var bizdeptObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				bizdeptObj[elem.name] = elem.value;
+			});
+			bizdeptArr.push(bizdeptObj);
+		});
+		formData.append("bizdeptArr", JSON.stringify(bizdeptArr));
+		
 		// 담보내역 추가
 		var pldgArr = [];
 		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
@@ -555,6 +525,61 @@
 		formData.append("pldgArr", JSON.stringify(pldgArr));
 		
 		return formData;
+	}
+	
+	function addBizdeptRow(){
+		var bizdeptRow = '';
+		bizdeptRow += '<tr name="bizdeptRow">';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<input type="text" class="form-control" name="bizdeptNm" maxlength="15">';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<select class="form-control input-sm" name="bizDivCd">';
+		bizdeptRow += '<option value="">선택</option>';
+		bizdeptRow += makeCommonSelect("BIZDIV");
+		bizdeptRow += '</select>';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<input type="text" class="form-control" name="mngNm" maxlength="5">';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<input type="text" class="form-control" name="mngTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<input type="text" class="form-control" name="mngMoblphonNo" onkeyup="telNumberFormatter(this);" maxlength="13">';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<input type="text" class="form-control" name="mngEmail" onkeyup="exceptKorean(this)" maxlength="50">';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<input type="text" class="form-control" name="mngDeptNm" maxlength="15">';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<select class="form-control input-sm" name="mngPstCd">';
+		bizdeptRow += '<option value="">선택</option>';
+		bizdeptRow += makeCommonSelect("PST");
+		bizdeptRow += '</select>';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<select class="form-control input-sm" name="salesCoCd">';
+		bizdeptRow += '<option value="">선택</option>';
+		bizdeptRow += makeCommonSelect("CO");
+		bizdeptRow += '</select>';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<div class="input-group">';
+		bizdeptRow += '<input type="text" class="form-control" name="salesEmpId" readonly>';
+		bizdeptRow += '<span class="input-group-btn">';
+		bizdeptRow += '<button type="button" class="btn btn-primary btn-sm" onclick="">검색</button>';
+		bizdeptRow += '</span>';
+		bizdeptRow += '</div>';
+		bizdeptRow += '</td>';
+		bizdeptRow += '<td>';
+		bizdeptRow += '<button type="button" class="btn btn-danger btn-sm delete_btn" onclick="deleteRow(this);">삭제</button>';
+		bizdeptRow += '</td>';
+		bizdeptRow += '</tr>';
+		$('#bizdeptTable').append(bizdeptRow);
+		return $('#bizdeptTable tr[name="bizdeptRow"]:last')[0];
 	}
 	
 	function addPldgRow(){
@@ -582,7 +607,7 @@
 		pldgRow += '<input type="text" class="form-control" name="pldgRmk" maxlength="127">';
 		pldgRow += '</td>';
 		pldgRow += '<td>';
-		pldgRow += '<button type="button" class="btn btn-danger btn-sm delete_btn" onclick="deletePldg(this);">삭제</button>';
+		pldgRow += '<button type="button" class="btn btn-danger btn-sm delete_btn" onclick="deleteRow(this);">삭제</button>';
 		pldgRow += '</td>';
 		pldgRow += '</tr>';
 		$('#pldgTable').append(pldgRow);
@@ -599,8 +624,7 @@
 		return optionHtml;
 	}
 	
-	function deletePldg(elem){
-		// 삭제시 로우 validation 추가??
+	function deleteRow(elem){
 		$(elem).closest('tr').remove();	
 	}
 </script>
