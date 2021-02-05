@@ -360,7 +360,17 @@ function setCommonSelect(){
 				optionHtml += item.codeNm;
 				optionHtml += '</option>';
 			});
-			$(elem).append(optionHtml);			
-		});
+			$(elem).append(optionHtml);	
+		})
 	})
+}
+
+function mainDefaultLoad() {
+	$("#head_area").load("/static/html/header.html");
+	$('.off_btn').click(function () {
+	    $('#head_area').toggleClass('off');
+	    $('#top_area').toggleClass('on');
+	    $('#main_area').toggleClass('on');
+    });
+	setMenuAuth();
 }
