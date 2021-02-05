@@ -373,3 +373,13 @@ function setSelectCombo(){
 		
 		
 	}
+	
+function mainDefaultLoad() {
+	$("#head_area").load("/static/html/header.html");
+	$('.off_btn').click(function () {
+	    $('#head_area').toggleClass('off');
+	    $('#top_area').toggleClass('on');
+	    $('#main_area').toggleClass('on');
+    });
+	setMenuAuth();
+}
