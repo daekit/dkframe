@@ -17,10 +17,15 @@ public class CustomTokenConverter extends JwtAccessTokenConverter {
 		if (authentication.getOAuth2Request().getGrantType().equalsIgnoreCase("password")) {
 			User user = (User) authentication.getPrincipal();
 			final Map<String, Object> additionalInfo = new HashMap<String, Object>();
-
+			//토큰에 넣을 값 세팅
 			additionalInfo.put("userId", user.getId());
 			additionalInfo.put("userNm", user.getName());
+			additionalInfo.put("empNo", user.getEmpNo());
+			additionalInfo.put("coCd", user.getCoCd());
+			additionalInfo.put("deptId", user.getDeptId());
+			additionalInfo.put("levelCd", user.getLevelCd());
 			additionalInfo.put("email", user.getEmail());
+			additionalInfo.put("enterDt", user.getEnterDt());
 			additionalInfo.put("authInfo", user.getAuthInfo());
 
 			((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
