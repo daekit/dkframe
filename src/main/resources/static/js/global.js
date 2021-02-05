@@ -352,25 +352,15 @@ function logoutClick(){
 function setCommonSelect(){
 	$.each($('select[data-kind]'), function(idx, elem){
 		var param = {"codeKind" : $(elem).data('kind')};
-		postAjaxSync("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
+		postAjax("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
 			var optionHtml = '';
 			var codeList = data.childCodeList;
-			$.each(codeList, function (index, item){
+			$.each(codeList, function (idx, item){
 				optionHtml += '<option value='+item.codeId+'>';
 				optionHtml += item.codeNm;
 				optionHtml += '</option>';
 			});
-			$(elem).append(optionHtml);	
-		})
+			$(elem).append(optionHtml);			
+		});
 	})
-}
-
-function mainDefaultLoad() {
-	$("#head_area").load("/static/html/header.html");
-	$('.off_btn').click(function () {
-	    $('#head_area').toggleClass('off');
-	    $('#top_area').toggleClass('on');
-	    $('#main_area').toggleClass('on');
-    });
-	setMenuAuth();
 }
