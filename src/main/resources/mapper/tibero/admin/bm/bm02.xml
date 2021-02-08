@@ -2,6 +2,83 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.admin.bm.bm02.mapper.BM02Mapper">
+	
+	<select id="selectClntCount" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM
+			TB_BM02M01
+		WHERE
+			USE_YN = #{useYn}
+			<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'
+			</if>
+		ORDER BY CLNT_CD
+	</select>
+	
+	<select id="selectClntList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT 
+					CLNT_CD,
+					CLNT_NM,
+					CRN,
+					FN_CM05M01_CD_TO_NM(CLNT_DIV_CD) CLNT_DIV_NM,
+					BIZCON_NM,
+					BSTY_NM,
+					BIZ_TEL_NO,
+					CREAT_DTTM,
+					UDT_DTTM
+				FROM
+					TB_BM02M01
+				WHERE
+					USE_YN = #{useYn}
+					<if test="searchValue != null and !searchValue.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'
+					</if>
+				ORDER BY CLNT_CD
+			) A
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<resultMap id="resultInfoMap" type="CamelMap">
+		<collection select="selectClntFileList" property="CLNT_FILE_LIST" column="{fileTrgtKey=CLNT_CD}" ofType="CamelMap"/>
+		<collection select="selectPldgList" property="PLDG_LIST" column="{clntCd=CLNT_CD}" ofType="CamelMap"/>
+	</resultMap>
+	
+	<select id="selectClntInfo" resultMap="resultInfoMap">
+		SELECT
+			CLNT_CD, CLNT_NM, CRN,
+			CLNT_DIV_CD, REPST_NM,
+			BIZCON_NM, BSTY_NM,
+			BIZ_ZIP, BIZ_ADDR, BIZ_ADDR_DTL,
+			BIZ_TEL_NO, BIZ_FAX_NO, SUB_RMK_URL,
+			BANK_CD, BKAC_NO, BKAC_OWNER, BASIS_CDTLN_AMT,
+			PCHS_PAY_DIV_CD, PCHS_CLMN_DIV_CD, PCHS_PMNT_MTD_CD, PCHS_VAT_CD,
+			SELL_PAY_DIV_CD, SELL_CLMN_DIV_CD, SELL_PMNT_MTD_CD, SELL_VAT_CD,
+			CLNT_RMK, USE_YN
+		FROM
+			TB_BM02M01
+		WHERE
+			CLNT_CD = ${clntCd}
+	</select>
+	
+	<select id="selectClntFileList" resultType="CamelMap">
+		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_BM02M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
+	</select>
+	
+	<select id="selectPldgList" resultType="CamelMap">
+		SELECT * FROM TB_BM02D02 WHERE CLNT_CD = #{clntCd}
+	</select>
+
 	<insert id="insertClnt">
 		<selectKey keyProperty="clntCd" resultType="String" order="BEFORE">
 			SELECT TB_BM02M01_SQ01.NEXTVAL FROM DUAL
@@ -19,7 +96,7 @@
 			CREAT_ID, CREAT_PGM, CREAT_DTTM,
 			UDT_ID, UDT_PGM, UDT_DTTM
 		) VALUES (
-			#{clntNm}, #{crn},
+			#{clntCd}, #{clntNm}, #{crn},
 			#{clntDivCd}, #{repstNm},
 			#{bizconNm}, #{bstyNm},
 			#{bizZip}, #{bizAddr}, #{bizAddrDtl},
@@ -51,75 +128,65 @@
 			CLNT_CD = #{clntCd}
 	</update>
 	
-	<select id="selectClntCount" resultType="int">
-		SELECT 
-			COUNT(*)
-		FROM
+	<update id="unuseClnt">
+		UPDATE
 			TB_BM02M01
+		SET
+			USE_YN = 'N'
 		WHERE
-			USE_YN = #{useYn}
-			<if test="searchValue != null and !searchValue.equals('')">
-				AND ${searchType} LIKE '%${searchValue}%'
-			</if>
-		ORDER BY CLNT_CD
-	</select>
+			CLNT_CD = #{clntCd}
+	</update>
 	
-	<select id="selectClntList" resultType="CamelMap">
-		SELECT
-			*
+	<update id="unusePldg">
+		UPDATE
+			TB_BM02D02
+		SET
+			USE_YN = 'N'
+		WHERE
+			CLNT_CD = #{clntCd}
+	</update>
+	
+	<update id="deletePldg">
+		DELETE
 		FROM
+			TB_BM02D02
+		WHERE
+			CLNT_CD = #{clntCd}
+	</update>
+	
+	<insert id="insertPldg">
+		INSERT INTO TB_BM02D02
 		(
-			SELECT
-				ROWNUM AS RNUM, A.*
-			FROM
-			(
-				SELECT 
-					CLNT_CD,
-					CLNT_NM,
-					CRN,
-					(SELECT CODE_NM FROM GOLDMOON.TB_CM05M01 WHERE CODE_ID = CLNT.CLNT_DIV_CD) CLNT_DIV_NM,
-					BIZCON_NM,
-					BSTY_NM,
-					BIZ_TEL_NO,
-					CREAT_DTTM,
-					UDT_DTTM
-				FROM
-					TB_BM02M01 CLNT
-				WHERE
-					USE_YN = #{useYn}
-					<if test="searchValue != null and !searchValue.equals('')">
-						AND ${searchType} LIKE '%${searchValue}%'
-					</if>
-				ORDER BY CLNT_CD
-			) A
+			PLDG_SN,
+			CLNT_CD,
+			CO_CD,
+			PLDG_DIV_CD,
+			PLDG_AMT,
+			PLDG_RCOGN_RATE,
+			PLDG_RMK,
+			USE_YN,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
 		)
-		WHERE
-			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
-	</select>
-	
-	<resultMap id="resultInfoMap" type="CamelMap">
-		<collection select="selectClntFileList" property="CLNT_FILE_LIST" column="{fileTrgtKey=CLNT_CD}" ofType="CamelMap"/>
-	</resultMap>
-	
-	<select id="selectClntInfo" resultMap="resultInfoMap">
-		SELECT
-			CLNT_CD, CLNT_NM, CRN,
-			CLNT_DIV_CD, REPST_NM,
-			BIZCON_NM, BSTY_NM,
-			BIZ_ZIP, BIZ_ADDR, BIZ_ADDR_DTL,
-			BIZ_TEL_NO, BIZ_FAX_NO, SUB_RMK_URL,
-			BANK_CD, BKAC_NO, BKAC_OWNER, BASIS_CDTLN_AMT,
-			PCHS_PAY_DIV_CD, PCHS_CLMN_DIV_CD, PCHS_PMNT_MTD_CD, PCHS_VAT_CD,
-			SELL_PAY_DIV_CD, SELL_CLMN_DIV_CD, SELL_PMNT_MTD_CD, SELL_VAT_CD,
-			CLNT_RMK, USE_YN
-		FROM
-			TB_BM02M01
-		WHERE
-			CLNT_CD = ${clntCd}
-	</select>
-	
-	<select id="selectClntFileList" resultType="CamelMap">
-		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_BM02M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
-	</select>
-	
+		VALUES(
+			TB_BM02D02_SQ01.NEXTVAL,
+			#{clntCd},
+			#{coCd},
+			#{pldgDivCd},
+			#{pldgAmt},
+			#{pldgRcognRate},
+			#{pldgRmk},
+			'Y',
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE
+		)
+	</insert>
 </mapper>

@@ -7,14 +7,23 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface BM02Mapper {
+	
+	int selectClntCount(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectClntList(Map<String, String> paramMap);
+
+	Map<String, String> selectClntInfo(Map<String, String> paramMap);
+	
 	int insertClnt(Map<String, String> paramMap);
 	
 	int updateClnt(Map<String, String> paramMap);
+	
+	int unuseClnt(Map<String, String> paramMap);
 
-	int selectClntCount(Map<String, String> param);
+	int unusePldg(Map<String, String> paramMap);
+	
+	int deletePldg(Map<String, String> paramMap);
 
-	List<Map<String, String>> selectClntList(Map<String, String> param);
-
-	Map<String, String> selectClntInfo(Map<String, String> param);
+	int insertPldg(Map<String, String> paramMap);
 
 }

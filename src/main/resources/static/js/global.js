@@ -347,3 +347,31 @@ function logoutClick(){
 		deleteCookie("menuIdx");
 		location.href = "/";
 }
+
+//공통코드 검색 함수 
+function setCommonSelect(el){
+	$.each(el, function(idx, elem){
+		var param = {"codeKind" : $(elem).data('kind')};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
+			var optionHtml = '';
+			var codeList = data.childCodeList;
+			$.each(codeList, function (index, item){
+				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += item.codeNm;
+				optionHtml += '</option>';
+			});
+			$(elem).append(optionHtml);	
+		})
+	})
+}
+
+function mainDefaultLoad() {
+	$("#head_area").load("/static/html/header.html");
+	$("#head_area").after('<div class="menu_off"><a class="off_btn"></a></div>');
+	$('.off_btn').click(function () {
+	    $('#head_area').toggleClass('off');
+	    $('#top_area').toggleClass('on');
+	    $('#main_area').toggleClass('on');
+    });
+	setMenuAuth();
+}

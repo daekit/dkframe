@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sm.sm02.mapper.SM02Mapper">
+
+	<select id= "selectCmnCodeList" resultType="CamelMap">
+		SELECT CODE_ID, CODE_NM, CODE_KIND, CODE_DESC
+		FROM TB_CM05M01 
+		WHERE
+		CODE_KIND IN ( #{wh})
+	</select>
+	
+	<select id= "selectDtlCmnCodeList" resultType="CamelMap">
+		SELECT CODE_ID, CODE_NM, CODE_KIND, CODE_DESC
+		FROM TB_CM05M01 
+		WHERE
+		CODE_KIND IN ( #{wh}, #{co}, #{makr}, #{owner}, #{selltype}, #{prdtimp} )
+	</select>
+	
+	<select id= "selectClntSearchList" resultType="CamelMap">
+		SELECT CLNT_CD, CLNT_NM FROM TB_BM02M01
+		<if test="clntCd != null and !clntCd.equals('') or clntNm != null and !clntNm.equals('')">
+			WHERE CLNT_CD LIKE '%${clntCd}%'
+			  AND CLNT_NM LIKE '%${clntNm}%'
+		</if>
+	</select>
+
+	<select id= "selectPrdtSearchList" resultType="CamelMap">
+		SELECT PRDT_CD, PRDT_NM FROM TB_BM01M01
+		<if test="prdtCd != null and !prdtCd.equals('') or prdtNm != null and !prdtNm.equals('')">
+			WHERE PRDT_CD LIKE '%${prdtCd}%'
+			  AND PRDT_NM LIKE '%${prdtNm}%'
+		</if>
+	</select>
+	
+	<select id="selectUprCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_SM02M01 
+		WHERE 1=1 
+		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+		AND TRST_DT BETWEEN #{strtDt} AND #{endDt}
+		</if>
+		<if test="outCoCd != null and !outCoCd.equals('')">
+		 		AND SELPCH_CD = #{selpchCd}
+		 </if>
+		 <if test="inCoCd != null and !inCoCd.equals('')">
+				AND PRDT_IMP_YN = #{prdtImpYn}
+		</if>
+		ORDER BY TRST_NO
+	</select>
+	
+	<select id="selectStockMoveStatMngmList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					 A.TRST_NO
+					,A.OUT_CO_CD
+					,FN_CM05M01_CD_TO_NM(A.OUT_CO_CD) AS OUT_CO_NM
+					,A.OUT_WH_CD
+					,FN_CM05M01_CD_TO_NM(A.OUT_WH_CD) AS OUT_WH_NM
+					,A.OWNER_CD
+					,FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+					,A.TYP_CD
+					,FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+					,A.MAKR_CD
+					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+					,A.PRDT_CD
+					,C.PRDT_NM 
+					,A.IMP_YN
+					,FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM 
+					,A.MO_WH
+					,A.STD_UPR
+					,A.IN_CO_CD
+					,FN_CM05M01_CD_TO_NM(A.IN_CO_CD) AS IN_CO_NM
+					,A.IN_WH_CD
+					,FN_CM05M01_CD_TO_NM(A.IN_WH_CD) AS IN_WH_NM
+					,A.IMP_YN
+					,FN_CM05M01_CD_TO_NM(A.IMP_YN ) AS IMP_NM
+					,A.TRST_DT 
+					,A.UDT_DTTM
+				FROM TB_SM02M01 A, TB_BM01M01 C
+				WHERE A.PRDT_CD = C.PRDT_CD
+				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+					AND TRST_DT BETWEEN #{strtDt} AND #{endDt}
+				</if>
+				<if test="outWhCd != null and !outWhCd.equals('')">
+					AND OUT_WH_CD = #{outWhCd}
+				 </if>
+				 <if test="inWhCd != null and !inWhCd.equals('')">
+					AND IN_WH_CD = #{inWhCd}
+				</if>
+				ORDER BY A.TRST_NO
+			) D
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectUprDtlCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+		WHERE 1=1 
+			AND A.PRDT_CD = C.PRDT_CD
+			AND A.CLNT_CD = E.CLNT_CD
+		<if test="coCd != null and !coCd.equals('')">
+			AND CO_CD = #{coCd}
+		</if>
+		<if test="whCd != null and !whCd.equals('')">
+		 	AND WH_CD = #{whCd}
+		</if>
+		<if test="clntNm != null and !clntNm.equals('')">
+			AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
+		</if>
+		<if test="ownerCd != null and !ownerCd.equals('')">
+			AND OWNER_CD = #{ownerCd}
+		</if>
+		<if test="typCd != null and !typCd.equals('')">
+			AND TYP_CD = #{typCd}
+		</if>
+		<if test="makrCd != null and !makrCd.equals('')">
+			AND MAKR_CD = #{makrCd}
+		</if>
+		<if test="impYn != null and !impYn.equals('')">
+			AND IMP_YN = #{impYn}
+		</if>
+		<if test="prdtNm != null and !prdtNm.equals('')">
+				AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+		</if>
+		ORDER BY CO_CD
+	</select>
+	
+	<select id="selectStockMoveStatMngmDtlList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROWNUM AS RNUM, D.*
+			FROM(
+				SELECT 	  
+						  A.CO_CD
+						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+						, A.WH_CD
+						, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+						, A.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+						, A.TYP_CD
+						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+						, A.MAKR_CD
+						, FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+						, A.PRDT_CD
+				     	, C.PRDT_NM
+				     	, A.CLNT_CD
+				     	, E.CLNT_NM
+					    , A.IMP_YN
+						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+						, A.STOCK_QTY
+						, A.STOCK_UPR
+						, A.STD_UPR
+						, A.PCHS_UPR
+						, A.SELL_UPR
+						, A.PRJCT_CD
+						, A.ETC_FIELD1
+						, A.ETC_FIELD2
+						, A.ETC_FIELD3
+				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+				WHERE  A.PRDT_CD = C.PRDT_CD
+				AND A.CLNT_CD = E.CLNT_CD
+				<if test="coCd != null and !coCd.equals('')">
+					AND CO_CD = #{coCd}
+				</if>
+				<if test="whCd != null and !whCd.equals('')">
+				 	AND WH_CD = #{whCd}
+				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+					AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
+				</if>
+				<if test="ownerCd != null and !ownerCd.equals('')">
+					AND OWNER_CD = #{ownerCd}
+				</if>
+				<if test="typCd != null and !typCd.equals('')">
+					AND TYP_CD = #{typCd}
+				</if>
+				<if test="makrCd != null and !makrCd.equals('')">
+					AND MAKR_CD = #{makrCd}
+				</if>
+				<if test="impYn != null and !impYn.equals('')">
+					AND IMP_YN = #{impYn}
+				</if>
+				<if test="prdtNm != null and !prdtNm.equals('')">
+						AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+				</if>
+			)D
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<update id="sm01UpdateStockMove" parameterType="Map">
+		UPDATE TB_SM01M01 SET
+			STOCK_QTY = #{mStockQty}-#{sMoveQty}
+		WHERE
+				CO_CD = #{mCoCd}
+			AND WH_CD = #{mWhCd}
+			AND OWNER_CD = #{mOwnerCd}
+			AND TYP_CD = #{mTypCd}
+			AND MAKR_CD = #{mMakrCd}
+			AND PRJCT_CD = #{mPrjctCd}
+			AND PRDT_CD = #{mPrdtCd}
+	</update>
+	
+	<insert id="sm02InsertStockMove" parameterType="Map">
+		INSERT INTO TB_SM02M01
+		(
+			TRST_NO, 
+			OUT_CO_CD,	
+			OUT_WH_CD, 
+			OWNER_CD, 
+			TYP_CD, 
+			MAKR_CD, 
+			PRJCT_CD, 
+			PRDT_CD, 
+			IMP_YN, 
+			IN_CO_CD, 
+			IN_WH_CD, 
+			STOCK_UPR, 
+			STD_UPR,
+			PCHS_UPR, 
+			SELL_UPR,	
+			MO_WH, 
+			RMK,	
+			ETC_FIELD1,	
+			ETC_FIELD2,	
+			ETC_FIELD3,	
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM, 
+			TRST_DT				
+		)
+	 	VALUES
+	 	(
+			TB_SM02M01_SQ01.NEXTVAL, 
+			#{mCoCd}, 
+			#{mWhCd}, 
+			#{mOwnerCd}, 
+			#{mTypCd}, 
+			#{mMakrCd},
+			#{mPrjctCd}, 
+			#{mPrdtCd}, 
+			#{mImpYn},
+			#{sCoCd}, 
+			#{sWhCd},	
+			#{mStockUpr},
+			#{mStdUpr}, 
+			#{mPchsUpr}, 
+			#{mSellUpr},
+			#{sMoveQty},
+			#{sRmk},
+			#{mEtcField1, jdbcType=VARCHAR}, 
+			#{mEtcField2, jdbcType=INTEGER}, 
+			#{mEtcField3, jdbcType=VARCHAR},
+			#{userId}, 
+			'SM0201P01.html', 
+			sysdate, 
+			#{sTransDt}
+	 	)
+	</insert>
+	
+</mapper>
