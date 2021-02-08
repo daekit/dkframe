@@ -13,8 +13,8 @@
 		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
 		<div style="float: right;">
-			<a class="btn btn-default btn-sm" onclick="detailClnt('C');">등록</a>
-			<a class="btn btn-default btn-sm" onclick="detailClnt('U');">수정</a>
+			<a class="btn btn-default btn-sm" onclick="openClntDetail('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="openClntDetail('U');">수정</a>
 			<a class="btn btn-default btn-sm" onclick="unuseClnt();">삭제</a>
 		</div>
 	</div>
@@ -37,7 +37,7 @@
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		            	detailClnt("U");
+		            	openClntDetail("U");
 		            },
 		        },
 	            columns: [
@@ -97,7 +97,7 @@
 		gridView.initView().setData(0);
 	});
 	
-	function detailClnt(type) {
+	function openClntDetail(type) {
 		if(type == "U"){
 			if(selectGridValidation(gridView.target)) return;
 		}
@@ -110,7 +110,6 @@
 		if(!confirm("삭제하시겠습니까?")) return;
 		var row = gridView.target.getList("selected")[0];
 		var paramObj = {"clntCd": row.clntCd, "userId": jwt.userId};
-		debugger;
 		putAjax("/admin/bm/bm02/unuseClnt", paramObj, null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);

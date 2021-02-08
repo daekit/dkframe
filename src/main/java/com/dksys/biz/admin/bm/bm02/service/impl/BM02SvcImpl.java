@@ -2,7 +2,6 @@ package com.dksys.biz.admin.bm.bm02.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,7 @@ import com.dksys.biz.admin.bm.bm02.mapper.BM02Mapper;
 import com.dksys.biz.admin.bm.bm02.service.BM02Svc;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @Service
@@ -45,13 +45,25 @@ public class BM02SvcImpl implements BM02Svc {
 	
 	@Override
 	public void insertClnt(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		
 		// 거래처 insert 
 		bm02Mapper.insertClnt(paramMap);
 		// 파일 업로드
 		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
+		
+		// 사업부 delete
+		bm02Mapper.deleteBizdept(paramMap);
+		// 사업부 insert
+		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
+		for(Map<String, String> bizdeptMap : bizdeptList) {
+			bizdeptMap.put("clntCd", paramMap.get("clntCd"));
+			bizdeptMap.put("userId", paramMap.get("userId"));
+			bizdeptMap.put("pgmId", paramMap.get("pgmId"));
+			bm02Mapper.insertBizdept(bizdeptMap);
+		}
+		
 		// 담보내역 delete
 		bm02Mapper.deletePldg(paramMap);
 		// 담보내역 insert
@@ -79,6 +91,18 @@ public class BM02SvcImpl implements BM02Svc {
 		for(String fileKey : deleteFileList) {
 			cm08Svc.deleteFile(fileKey);
 		}
+		
+		// 사업부 delete
+		bm02Mapper.deleteBizdept(paramMap);
+		// 사업부 insert
+		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
+		for(Map<String, String> bizdeptMap : bizdeptList) {
+			bizdeptMap.put("clntCd", paramMap.get("clntCd"));
+			bizdeptMap.put("userId", paramMap.get("userId"));
+			bizdeptMap.put("pgmId", paramMap.get("pgmId"));
+			bm02Mapper.insertBizdept(bizdeptMap);
+		}
+		
 		// 담보내역 delete
 		bm02Mapper.deletePldg(paramMap);
 		// 담보내역 insert
@@ -95,6 +119,6 @@ public class BM02SvcImpl implements BM02Svc {
 	public void unuseClnt(@RequestBody Map<String, String> paramMap) {
 		bm02Mapper.unuseClnt(paramMap);
 		bm02Mapper.unusePldg(paramMap);
+		bm02Mapper.unuseBizdept(paramMap);
 	}
-	
 }
