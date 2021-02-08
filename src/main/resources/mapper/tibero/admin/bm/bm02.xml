@@ -51,6 +51,7 @@
 	
 	<resultMap id="resultInfoMap" type="CamelMap">
 		<collection select="selectClntFileList" property="CLNT_FILE_LIST" column="{fileTrgtKey=CLNT_CD}" ofType="CamelMap"/>
+		<collection select="selectBizdeptList" property="BIZDEPT_LIST" column="{clntCd=CLNT_CD}" ofType="CamelMap"/>
 		<collection select="selectPldgList" property="PLDG_LIST" column="{clntCd=CLNT_CD}" ofType="CamelMap"/>
 	</resultMap>
 	
@@ -73,6 +74,25 @@
 	
 	<select id="selectClntFileList" resultType="CamelMap">
 		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_BM02M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
+	</select>
+	
+	<select id="selectBizdeptList" resultType="CamelMap">
+		SELECT
+			BIZDEPT_NM,
+			BIZ_DIV_CD,
+			MNG_NM,
+			MNG_DEPT_NM,
+			MNG_PST_CD,
+			MNG_TEL_NO,
+			MNG_MOBLPHON_NO,
+			MNG_EMAIL,
+			SALES_CO_CD,
+			SALES_EMP_ID,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = A.SALES_EMP_ID) AS SALES_EMP_NM
+		FROM 
+			TB_BM02D01 A
+		WHERE 
+			CLNT_CD = #{clntCd}
 	</select>
 	
 	<select id="selectPldgList" resultType="CamelMap">
@@ -136,6 +156,70 @@
 		WHERE
 			CLNT_CD = #{clntCd}
 	</update>
+	
+	<update id="unuseBizdept">
+		UPDATE
+			TB_BM02D01
+		SET
+			USE_YN = 'N'
+		WHERE
+			CLNT_CD = #{clntCd}
+	</update>
+	
+	<update id="deleteBizdept">
+		DELETE
+		FROM
+			TB_BM02D01
+		WHERE
+			CLNT_CD = #{clntCd}
+	</update>
+	
+	<insert id="insertBizdept">
+		INSERT INTO GOLDMOON.TB_BM02D01
+		(
+			BIZDEPT_SN,
+			CLNT_CD,
+			BIZDEPT_NM, 
+			BIZ_DIV_CD,
+			MNG_NM,
+			MNG_DEPT_NM,
+			MNG_PST_CD,
+			MNG_TEL_NO,
+			MNG_MOBLPHON_NO,
+			MNG_EMAIL,
+			SALES_CO_CD,
+			SALES_EMP_ID,
+			USE_YN,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
+		)
+		VALUES
+		(
+			TB_BM02D01_SQ01.NEXTVAL,
+			#{clntCd},
+			#{bizdeptNm}, 
+			#{bizDivCd},
+			#{mngNm},
+			#{mngDeptNm},
+			#{mngPstCd},
+			#{mngTelNo},
+			#{mngMoblphonNo},
+			#{mngEmail},
+			#{salesCoCd},
+			#{salesEmpId},
+			'Y',
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE
+		)
+	</insert>
 	
 	<update id="unusePldg">
 		UPDATE

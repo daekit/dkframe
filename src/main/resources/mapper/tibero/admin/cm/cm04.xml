@@ -4,21 +4,31 @@
 <mapper namespace="com.dksys.biz.admin.cm.cm04.mapper.CM04Mapper">
 
 	<select id="selectDeptTree" resultType="CamelMap">
-		SELECT 
-			1 AS T_LEVEL,
-			R.DEPT_ID AS ID,
-			R.DEPT_NM AS TEXT,
-			R.UP_DEPT_ID AS PARENT,
+		SELECT
+			DEPT_ID AS ID,
+			DEPT_NM AS TEXT,
+			DECODE(LV, 1, '#', UP_DEPT_ID) AS PARENT,
 			'unit' AS TYPE,
-			R.DEPT_ID,
-			R.DEPT_NM,
-			R.UP_DEPT_ID,
-			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = R.UP_DEPT_ID) AS UP_DEPT_NM,
-			R.SORT_NO,
-			R.USE_YN
-		FROM 
-			TB_CM04M01 R
-		ORDER BY T_LEVEL, SORT_NO
+			DEPT_ID,
+			DEPT_NM,
+			UP_DEPT_ID,
+			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = B.UP_DEPT_ID) AS UP_DEPT_NM,
+			SORT_NO,
+			USE_YN
+		FROM
+		(
+			SELECT
+				LEVEL LV,
+				A.*
+			FROM
+				TB_CM04M01 A
+			<if test="useYn != null and !useYn.equals('')">
+				WHERE USE_YN = #{useYn}
+			</if>
+			START WITH DEPT_ID = #{coCd}
+			CONNECT BY PRIOR DEPT_ID = UP_DEPT_ID
+			ORDER SIBLINGS BY SORT_NO
+		) B
 	</select>
 	
 	<select id="selectDeptInfo" resultType="CamelMap">

@@ -8,14 +8,16 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CM06Mapper {
 	
-	List<Map<String, String>> selectUserList(Map<String, String> paramMap);
-
 	int selectUserCount(Map<String, String> paramMap);
 
-	int insertUser(Map<String, String> paramMap);
+	List<Map<String, String>> selectUserList(Map<String, String> paramMap);
 
 	Map<String, String> selectUserInfo(Map<String, String> paramMap);
-
-	int updateUser(Map<String, String> paramMap);
 	
+	List<Map<String, String>> selectUserTree(Map<String, String> paramMap);
+
+	int insertUser(Map<String, String> paramMap);
+	
+	int updateUser(Map<String, String> paramMap);
+
 }

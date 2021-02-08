@@ -1,22 +1,228 @@
-<div class="container-fluid">
-	<div class="form-group">
-		<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
-		<form id="clntForm">
-			<input type="hidden" id="pgmId" name="pgmId" value="BM0202P01">
-			<input type="hidden" id="clntCd" name="clntCd">
-			<!-- 기본정보 테이블 -->
-			<table class="popup_table">
+<div id="popup_area">
+	<div class="container-fluid">
+		<div class="form-group">
+			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
+			<form id="clntForm">
+				<input type="hidden" id="pgmId" name="pgmId" value="BM0202P01">
+				<input type="hidden" id="clntCd" name="clntCd">
+				<!-- 기본정보 테이블 -->
+				<table class="popup_table">
+					<colgroup>
+						<col width="15%">
+						<col >
+						<col width="15%">
+						<col >
+						<col width="15%">
+						<col >
+					</colgroup>
+					<thead>
+						<tr>
+							<td colspan="5" style="text-align: left;">기본정보</td>
+							<td style="text-align: right;">
+								<a class="tbody_more_btn"></a>
+							</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th class="hit">거래처명</th>
+							<td>
+								<input type="text" class="form-control" id="clntNm" name="clntNm" maxlength="25" required>
+							</td>
+							<th>사업자등록번호</th>
+							<td>
+								<input type="text" class="form-control" id="crn" name="crn" onkeyup="crnFormatter(this);" maxlength="12">
+							</td>
+							<th>거래처구분</th>
+							<td>
+								<select class="form-control input-sm" id="clntDivCd" name="clntDivCd" data-kind="CLNTDIV">
+									<option value="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>대표자명</th>
+							<td>
+								<input type="text" class="form-control" id="repstNm" name="repstNm" maxlength="5">
+							</td>
+							<th>업태</th>
+							<td>
+								<input type="text" class="form-control" id="bizconNm" name="bizconNm" maxlength="25">
+							</td>
+							<th>종목</th>
+							<td>
+								<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
+							</td>
+						</tr>
+						<tr>
+							<th rowspan="2">주소</th>
+							<td>
+								<div class="input-group">
+									<input type="text" class="form-control" id="bizZip" name="bizZip" placeholder="우편번호" readonly>
+									<span class="input-group-btn">
+										<button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">검색</button>
+									</span>
+								</div>
+							</td>
+							<td colspan="2"></td>
+							<th>기본여신금액</th>
+							<td colspan="3">
+								<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);" comma>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="3">
+								<div class="form-inline" style="text-align: left;">
+									<input type="text" class="form-control" id="bizAddr" name="bizAddr" style="width:49.5%;" placeholder="주소" readonly>
+									<input type="text" class="form-control" id="bizAddrDtl" name="bizAddrDtl" style="width:49.5%;" placeholder="상세주소" maxlength="100">
+								</div>
+							</td>
+							<th>사용여부</th>
+							<td>
+								<select class="form-control input-sm" id="useYn" name="useYn">
+									<option value="Y">사용</option>
+									<option value="N">미사용</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>전화번호</th>
+							<td>
+								<input type="text" class="form-control" id="bizTelNo" name="bizTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+							</td>
+							<th>FAX</th>
+							<td>
+								<input type="text" class="form-control" id="bizFaxNo" name="bizFaxNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+							</td>
+							<th>URL</th>
+							<td>
+								<input type="text" class="form-control" id="subRmkUrl" name="subRmkUrl" onkeyup="exceptKorean(this);" maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<th>주거래은행</th>
+							<td>
+								<select class="form-control input-sm" id="bankCd" name="bankCd" data-kind="BANK">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<th>계좌번호</th>
+							<td>
+								<input type="text" class="form-control" id="bkacNo" name="bkacNo" onkeyup="onlyNumber(this);" maxlength="20">
+							</td>
+							<th>계좌소유주</th>
+							<td>
+								<input type="text" class="form-control" id="bkacOwner" name="bkacOwner" maxlength="5">
+							</td>
+						</tr>
+						<tr>
+							<th>메모</th>
+							<td colspan="5">
+								<textarea class="form-control" id="clntRmk" name="clntRmk" style="height: 60px;" maxlength="500"></textarea>
+							</td>
+						</tr>
+						<tr>
+							<th class="tc">
+								<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
+							</th>
+							<td colspan="5">
+								<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<!-- 매입/매출정보 테이블 -->
+				<table class="popup_table">
+					<colgroup>
+						<col width="20%">
+						<col width="20%">
+						<col width="20%">
+						<col width="20%">
+						<col width="20%">
+					</colgroup>
+					<thead>
+						<tr>
+							<td colspan="4" style="text-align: left;">매입/매출정보</td>
+							<td style="text-align: right;">
+								<a class="tbody_more_btn"></a>
+							</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th>구분</th>
+							<th>지급구분</th>
+							<th>수금조건</th>
+							<th>결제방법</th>
+							<th>부가세</th>
+						</tr>
+						<tr>
+							<td>매출</td>
+							<td>
+								<select class="form-control input-sm" id="pchsPayDivCd" name="pchsPayDivCd" data-kind="PAYDIV">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<td>
+								<select class="form-control input-sm" id="pchsClmnDivCd" name="pchsClmnDivCd" data-kind="CLMNDIV">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<td>
+								<select class="form-control input-sm" id="pchsPmntMtdCd" name="pchsPmntMtdCd" data-kind="PMNTMTD">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<td>
+								<select class="form-control input-sm" id="pchsVatCd" name="pchsVatCd" data-kind="VAT">
+									<option value="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>매입</td>
+							<td>
+								<select class="form-control input-sm" id="sellPayDivCd" name="sellPayDivCd" data-kind="PAYDIV">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<td>
+								<select class="form-control input-sm" id="sellClmnDivCd" name="sellClmnDivCd" data-kind="CLMNDIV">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<td>
+								<select class="form-control input-sm" id="sellPmntMtdCd" name="sellPmntMtdCd" data-kind="PMNTMTD">
+									<option value="">선택</option>
+								</select>
+							</td>
+							<td>
+								<select class="form-control input-sm" id="sellVatCd" name="sellVatCd" data-kind="VAT">
+									<option value="">선택</option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<!-- 사업부 테이블 -->
+			<table class="popup_table" id="bizdeptTable">
 				<colgroup>
-					<col width="15%">
-					<col >
-					<col width="15%">
-					<col >
-					<col width="15%">
-					<col >
+					<col width="9%">
+					<col width="9%">
+					<col width="9%">
+					<col width="9%">
+					<col width="9%">
+					<col width="11%">
+					<col width="9%">
+					<col width="9%">
+					<col width="9%">
+					<col width="12%">
+					<col width="5%">
 				</colgroup>
 				<thead>
 					<tr>
-						<td colspan="5" style="text-align: left;">기본정보</td>
+						<td colspan="10" style="text-align: left;">사업부</td>
 						<td style="text-align: right;">
 							<a class="tbody_more_btn"></a>
 						</td>
@@ -24,124 +230,40 @@
 				</thead>
 				<tbody>
 					<tr>
-						<th class="hit">거래처명</th>
-						<td>
-							<input type="text" class="form-control" id="clntNm" name="clntNm" maxlength="25" required>
-						</td>
-						<th>사업자등록번호</th>
-						<td>
-							<input type="text" class="form-control" id="crn" name="crn" onkeyup="crnFormatter(this);" maxlength="12">
-						</td>
-						<th>거래처구분</th>
-						<td>
-							<select class="form-control input-sm" id="clntDivCd" name="clntDivCd" data-kind="CLNTDIV">
-								<option value="">선택</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<th>대표자명</th>
-						<td>
-							<input type="text" class="form-control" id="repstNm" name="repstNm" maxlength="5">
-						</td>
-						<th>업태</th>
-						<td>
-							<input type="text" class="form-control" id="bizconNm" name="bizconNm" maxlength="25">
-						</td>
-						<th>종목</th>
-						<td>
-							<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
-						</td>
-					</tr>
-					<tr>
-						<th rowspan="2">주소</th>
-						<td>
-							<div class="input-group">
-								<input type="text" class="form-control" id="bizZip" name="bizZip" placeholder="우편번호" readonly>
-								<span class="input-group-btn">
-									<button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">검색</button>
-								</span>
+						<td colspan="11">
+							<div class="add_btn">
+								<a onclick="addBizdeptRow();">추가</a>
 							</div>
 						</td>
-						<td colspan="2"></td>
-						<th>기본여신금액</th>
-						<td colspan="3">
-							<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);" comma>
-						</td>
 					</tr>
 					<tr>
-						<td colspan="3">
-							<div class="form-inline" style="text-align: left;">
-								<input type="text" class="form-control" id="bizAddr" name="bizAddr" style="width:49.5%;" placeholder="주소" readonly>
-								<input type="text" class="form-control" id="bizAddrDtl" name="bizAddrDtl" style="width:49.5%;" placeholder="상세주소" maxlength="100">
-							</div>
-						</td>
-						<th>사용여부</th>
-						<td>
-							<select class="form-control input-sm" id="useYn" name="useYn">
-								<option value="Y">사용</option>
-								<option value="N">미사용</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<th>전화번호</th>
-						<td>
-							<input type="text" class="form-control" id="bizTelNo" name="bizTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">
-						</td>
-						<th>FAX</th>
-						<td>
-							<input type="text" class="form-control" id="bizFaxNo" name="bizFaxNo" onkeyup="telNumberFormatter(this);" maxlength="13">
-						</td>
-						<th>URL</th>
-						<td>
-							<input type="text" class="form-control" id="subRmkUrl" name="subRmkUrl" onkeyup="exceptKorean(this);" maxlength="100">
-						</td>
-					</tr>
-					<tr>
-						<th>주거래은행</th>
-						<td>
-							<select class="form-control input-sm" id="bankCd" name="bankCd" data-kind="BANK">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<th>계좌번호</th>
-						<td>
-							<input type="text" class="form-control" id="bkacNo" name="bkacNo" onkeyup="onlyNumber(this);" maxlength="20">
-						</td>
-						<th>계좌소유주</th>
-						<td>
-							<input type="text" class="form-control" id="bkacOwner" name="bkacOwner" maxlength="5">
-						</td>
-					</tr>
-					<tr>
-						<th>메모</th>
-						<td colspan="5">
-							<textarea class="form-control" id="clntRmk" name="clntRmk" style="height: 60px;" maxlength="500"></textarea>
-						</td>
-					</tr>
-					<tr>
-						<th class="tc">
-							<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
-						</th>
-						<td colspan="5">
-							<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
-						</td>
+						<th>사업부명</th>
+						<th>사업구분</th>
+						<th>담당자명</th>
+						<th>담당자전화번호</th>
+						<th>담당자휴대전화</th>
+						<th>담당자이메일</th>
+						<th>담당자부서명</th>
+						<th>담당자직위</th>
+						<th>영업회사</th>
+						<th>영업사원</th>
+						<th class="tc">삭제</th>
 					</tr>
 				</tbody>
 			</table>
-			<!-- 매입/매출정보 테이블 -->
-			<table class="popup_table">
+			<!-- 담보내역 테이블 -->
+			<table class="popup_table" id="pldgTable">
 				<colgroup>
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
-					<col width="20%">
+					<col width="19%">
+					<col width="19%">
+					<col width="19%">
+					<col width="19%">
+					<col width="19%">
+					<col width="5%">
 				</colgroup>
 				<thead>
 					<tr>
-						<td colspan="4" style="text-align: left;">매입/매출정보</td>
+						<td colspan="5" style="text-align: left;">담보내역</td>
 						<td style="text-align: right;">
 							<a class="tbody_more_btn"></a>
 						</td>
@@ -149,143 +271,23 @@
 				</thead>
 				<tbody>
 					<tr>
+						<td colspan="6">
+							<div class="add_btn">
+								<a onclick="addPldgRow();">추가</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>회사</th>
 						<th>구분</th>
-						<th>지급구분</th>
-						<th>수금조건</th>
-						<th>결제방법</th>
-						<th>부가세</th>
-					</tr>
-					<tr>
-						<td>매출</td>
-						<td>
-							<select class="form-control input-sm" id="pchsPayDivCd" name="pchsPayDivCd" data-kind="PAYDIV">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="pchsClmnDivCd" name="pchsClmnDivCd" data-kind="CLMNDIV">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="pchsPmntMtdCd" name="pchsPmntMtdCd" data-kind="PMNTMTD">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="pchsVatCd" name="pchsVatCd" data-kind="VAT">
-								<option value="">선택</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>매입</td>
-						<td>
-							<select class="form-control input-sm" id="sellPayDivCd" name="sellPayDivCd" data-kind="PAYDIV">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="sellClmnDivCd" name="sellClmnDivCd" data-kind="CLMNDIV">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="sellPmntMtdCd" name="sellPmntMtdCd" data-kind="PMNTMTD">
-								<option value="">선택</option>
-							</select>
-						</td>
-						<td>
-							<select class="form-control input-sm" id="sellVatCd" name="sellVatCd" data-kind="VAT">
-								<option value="">선택</option>
-							</select>
-						</td>
+						<th>금액</th>
+						<th>인정비율(%)</th>
+						<th>비고</th>
+						<th class="tc">삭제</th>
 					</tr>
 				</tbody>
 			</table>
-		</form>
-		<!-- 사업부 테이블 -->
-		<table class="popup_table" id="bizdeptTable">
-			<colgroup>
-				<col width="9%">
-				<col width="9%">
-				<col width="9%">
-				<col width="9%">
-				<col width="9%">
-				<col width="11%">
-				<col width="9%">
-				<col width="9%">
-				<col width="9%">
-				<col width="12%">
-				<col width="5%">
-			</colgroup>
-			<thead>
-				<tr>
-					<td colspan="10" style="text-align: left;">사업부</td>
-					<td style="text-align: right;">
-						<a class="tbody_more_btn"></a>
-					</td>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td colspan="11">
-						<div class="add_btn">
-							<a onclick="addBizdeptRow();">추가</a>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<th>사업부명</th>
-					<th>사업구분</th>
-					<th>담당자명</th>
-					<th>담당자전화번호</th>
-					<th>담당자휴대전화</th>
-					<th>담당자이메일</th>
-					<th>담당자부서명</th>
-					<th>담당자직위</th>
-					<th>영업회사</th>
-					<th>영업사원</th>
-					<th class="tc">삭제</th>
-				</tr>
-			</tbody>
-		</table>
-		<!-- 담보내역 테이블 -->
-		<table class="popup_table" id="pldgTable">
-			<colgroup>
-				<col width="19%">
-				<col width="19%">
-				<col width="19%">
-				<col width="19%">
-				<col width="19%">
-				<col width="5%">
-			</colgroup>
-			<thead>
-				<tr>
-					<td colspan="5" style="text-align: left;">담보내역</td>
-					<td style="text-align: right;">
-						<a class="tbody_more_btn"></a>
-					</td>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td colspan="6">
-						<div class="add_btn">
-							<a onclick="addPldgRow();">추가</a>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<th>회사</th>
-					<th>구분</th>
-					<th>금액</th>
-					<th>인정비율(%)</th>
-					<th>비고</th>
-					<th class="tc">삭제</th>
-				</tr>
-			</tbody>
-		</table>
+		</div>
 	</div>
 </div>
 <div>
@@ -346,7 +348,7 @@
 		});
 		
 		// 공통코드 set
-		setCommonSelect();
+		setCommonSelect($('#popup_area [data-kind]'));
 		
 		// 그리드 초기화
 		fileGridView.initView();
@@ -397,13 +399,27 @@
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 		
+		// 사업부 set
+		var bizdeptList = clntInfo.bizdeptList;
+		$.each(bizdeptList, function(idx, obj){
+			var bizdeptRow = addBizdeptRow();
+			for(var i=0;i<$(bizdeptRow).find('[name]').length;i++){
+				var bizdeptItem = $(bizdeptRow).find('[name]')[i];
+				if(obj[bizdeptItem.name]){
+					bizdeptItem.value = obj[bizdeptItem.name];
+				}
+			}
+		});
+		
 		// 담보내역 set
 		var pldgList = clntInfo.pldgList;
 		$.each(pldgList, function(idx, obj){
 			var pldgRow = addPldgRow();
 			for(var i=0;i<$(pldgRow).find('[name]').length;i++){
 				var pldgItem = $(pldgRow).find('[name]')[i];
-				pldgItem.value = obj[pldgItem.name];
+				if(obj[pldgItem.name]){
+					pldgItem.value = obj[pldgItem.name];
+				}
 				if($(pldgItem).is('[comma]')){
 					addComma(pldgItem);
 				}
@@ -423,14 +439,13 @@
 	
 	function setClntFile(elem) {
 		var tempFiles = elem.files;
-		
 		// 전역변수 배열에 선택된 파일 추가 
 		$.each(tempFiles, function(idx, obj){
-			var testArr = obj.name.split(".");
+			var typeArr = obj.name.split(".");
 			clntFileArr.push({
 				'fileKey' : 0,
 		      	'fileName' : obj.name,
-		      	'fileType' : testArr[testArr.length-1],
+		      	'fileType' : typeArr[typeArr.length-1],
 		      	'fileSize' : obj.size,
 		      	'file' : obj
 			});
@@ -468,7 +483,7 @@
 	}
 	
 	function updateClnt() {
-		if(inputValidation($('#clntForm input[required]'))){
+		if(inputValidation($('[required]'))){
 			var formData = makeFormData();
 			filePutAjax("/admin/bm/bm02/updateClnt", formData, function(data){
 				alert(data.resultMessage);
@@ -531,10 +546,10 @@
 		var bizdeptRow = '';
 		bizdeptRow += '<tr name="bizdeptRow">';
 		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="bizdeptNm" maxlength="15">';
+		bizdeptRow += '<input type="text" class="form-control" name="bizdeptNm" maxlength="15" required>';
 		bizdeptRow += '</td>';
 		bizdeptRow += '<td>';
-		bizdeptRow += '<select class="form-control input-sm" name="bizDivCd">';
+		bizdeptRow += '<select class="form-control input-sm" name="bizDivCd" required>';
 		bizdeptRow += '<option value="">선택</option>';
 		bizdeptRow += makeCommonSelect("BIZDIV");
 		bizdeptRow += '</select>';
@@ -561,16 +576,17 @@
 		bizdeptRow += '</select>';
 		bizdeptRow += '</td>';
 		bizdeptRow += '<td>';
-		bizdeptRow += '<select class="form-control input-sm" name="salesCoCd">';
+		bizdeptRow += '<select class="form-control input-sm" name="salesCoCd" onchange="initSalesEmp(this);">';
 		bizdeptRow += '<option value="">선택</option>';
 		bizdeptRow += makeCommonSelect("CO");
 		bizdeptRow += '</select>';
 		bizdeptRow += '</td>';
 		bizdeptRow += '<td>';
 		bizdeptRow += '<div class="input-group">';
-		bizdeptRow += '<input type="text" class="form-control" name="salesEmpId" readonly>';
+		bizdeptRow += '<input type="hidden" class="form-control" name="salesEmpId">';
+		bizdeptRow += '<input type="text" class="form-control" name="salesEmpNm" readonly>';
 		bizdeptRow += '<span class="input-group-btn">';
-		bizdeptRow += '<button type="button" class="btn btn-primary btn-sm" onclick="">검색</button>';
+		bizdeptRow += '<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree(this);">검색</button>';
 		bizdeptRow += '</span>';
 		bizdeptRow += '</div>';
 		bizdeptRow += '</td>';
@@ -580,6 +596,23 @@
 		bizdeptRow += '</tr>';
 		$('#bizdeptTable').append(bizdeptRow);
 		return $('#bizdeptTable tr[name="bizdeptRow"]:last')[0];
+	}
+	
+	function initSalesEmp(elem){
+		var changedRow = $(elem).closest('tr[name="bizdeptRow"]');
+		changedRow.find('[name="salesEmpId"]').val("");
+		changedRow.find('[name="salesEmpNm"]').val("");
+	}
+	
+	function openUserTree(elem){
+		var targetRow = $(elem).closest('tr[name="bizdeptRow"]');
+		if(!targetRow.find('[name="salesCoCd"]').val()){
+			alert("영업회사를 선택해주세요.");
+			return false;
+		}
+		$('tr[name="bizdeptRow"]').removeAttr("target");
+		targetRow.attr("target", true);
+		openSecondModal("/static/html/admin/bm/bm02/BM0202P02.html", 300, 500, "사용자 검색");
 	}
 	
 	function addPldgRow(){

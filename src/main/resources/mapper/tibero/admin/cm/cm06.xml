@@ -2,7 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.admin.cm.cm06.mapper.CM06Mapper">
-
+	
+	<select id="selectUserCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_CM06M01
+		WHERE
+			ID = #{userId}
+	</select>
+	
 	<select id="selectUserList" resultType="CamelMap">
 		SELECT
 			ID,
@@ -24,13 +33,39 @@
 		</if>
 	</select>
 	
-	<select id="selectUserCount" resultType="int">
+	<select id="selectUserInfo" resultType="CamelMap">
 		SELECT
-			COUNT(*)
+			ID,
+			EMP_NO, 
+			NAME, 
+			DEPT_ID,
+			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = U.DEPT_ID) DEPT_NM,
+			LEVEL_CD,
+			EMAIL, 
+			AUTH_INFO,
+			ENTER_DT,
+			USE_YN,
+			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') CREAT_DTTM,
+			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') UDT_DTTM
+		FROM
+			TB_CM06M01 U
+		WHERE
+			ID = #{userId}
+	</select>
+	
+	<select id="selectUserTree" resultType="CamelMap">
+		SELECT
+			ID AS ID,
+			NAME AS TEXT,
+			DEPT_ID AS PARENT,
+			'person' AS TYPE
 		FROM
 			TB_CM06M01
 		WHERE
-			ID = #{userId}
+			USE_YN = 'Y'
+			<if test="coCd != null and !coCd.equals('')">
+				AND CO_CD = #{coCd}
+			</if>
 	</select>
 	
 	<insert id="insertUser">
@@ -66,26 +101,6 @@
 			SYSDATE
 		)
 	</insert>
-	
-	<select id="selectUserInfo" resultType="CamelMap">
-		SELECT
-			ID,
-			EMP_NO, 
-			NAME, 
-			DEPT_ID,
-			(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = U.DEPT_ID) DEPT_NM,
-			LEVEL_CD,
-			EMAIL, 
-			AUTH_INFO,
-			ENTER_DT,
-			USE_YN,
-			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') CREAT_DTTM,
-			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') UDT_DTTM
-		FROM
-			TB_CM06M01 U
-		WHERE
-			ID = #{userId}
-	</select>
 	
 	<update id="updateUser">
 		UPDATE

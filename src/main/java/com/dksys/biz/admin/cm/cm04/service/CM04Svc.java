@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface CM04Svc {
 	
-	List<Map<String, String>> selectDeptTree();
+	List<Map<String, String>> selectDeptTree(Map<String, String> paramMap);
 
 	Map<String, String> selectDeptInfo(Map<String, String> paramMap);
 

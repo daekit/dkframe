@@ -19,6 +19,12 @@ public interface BM02Mapper {
 	int updateClnt(Map<String, String> paramMap);
 	
 	int unuseClnt(Map<String, String> paramMap);
+	
+	int unuseBizdept(Map<String, String> paramMap);
+	
+	int deleteBizdept(Map<String, String> paramMap);
+	
+	int insertBizdept(Map<String, String> paramMap);
 
 	int unusePldg(Map<String, String> paramMap);
 	

@@ -16,8 +16,8 @@ public class CM04SvcImpl implements CM04Svc {
     CM04Mapper cm04Mapper;
 
 	@Override
-	public List<Map<String, String>> selectDeptTree() {
-		return cm04Mapper.selectDeptTree();
+	public List<Map<String, String>> selectDeptTree(Map<String, String> paramMap) {
+		return cm04Mapper.selectDeptTree(paramMap);
 	}
 
 	@Override

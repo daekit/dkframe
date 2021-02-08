@@ -28,8 +28,8 @@ public class CM99Ctr {
     
     // 부서트리 조회
     @PostMapping("/selectDeptTree")
-    public String selectDeptTree(ModelMap model) {
-    	List<Map<String, String>> deptTree = cm04Svc.selectDeptTree();
+    public String selectDeptTree(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> deptTree = cm04Svc.selectDeptTree(paramMap);
     	model.addAttribute("deptTree", deptTree);
         return "jsonView";
     }
