@@ -1,8 +1,8 @@
-package com.dksys.biz.user.service;
+package com.dksys.biz.main.service;
 
 import java.util.Map;
 
-import com.dksys.biz.user.vo.User;
+import com.dksys.biz.main.vo.User;
 
 public interface LoginService {
 

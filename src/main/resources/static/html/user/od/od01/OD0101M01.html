@@ -95,51 +95,51 @@
 	              <tr>
 	              	<th>회사</th>
 	                <td>
-	                 	<select id="CO" data-kind="CO">
+	                 	<select id="coCd_S" data-kind="CO">
+	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
 	                <th>기간</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="date" id="prdtDt1">
+	                      <input type="date" id="reqDtFrom">
 	                      <span>~</span>
-	                      <input type="date" id="prdtDt2">
+	                      <input type="date" id="reqDtTo">
 	                    </div>
 	                </td>
 	                <th>재고주체</th>
 	                <td>
-	                 	<select id="OWNER" data-kind="OWNER">
+	                 	<select id="ownerCd_S" data-kind="OWNER">
+	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
 	              </tr>
 	              <tr>
 	                <th>판매유형</th>
 	                <td>
-	                  <select id="PRDTIMP" data-kind="PRDTIMP">
+	                  <select id="typCd_S" data-kind="SELLTYPE">
+	                  	<option value="">전체</option>
 	                  </select>
 	                </td>
 	                <th>거래처</th>
 	                <td>
-	                  <input type="text">
-	                  <button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">
+	                  <input type="hidden" id="clntCd_S">
+	                  <input type="text" id="clntNm_S">
+	                  <button type="button" class="btn btn-primary btn-sm" onclick="clntSearch('SEARCH');">
 	                  	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 	                  </button>
 	                </td>
 	                <th>직송구분</th>
 	                <td>
-	                  <select id="DRCTYN" data-kind="DRCTYN">
-	                  	<option value="N" selected="selected">N</option>
+	                  <select id="dirtrsYn_S">
+	                  	<option value="">전체</option>
+	                  	<option value="N">N</option>
 	                  	<option value="Y" >Y</option>
 	                  </select>
 	                </td>
 	              </tr>
 	            </table>
-	          </div>
-	        <div style="display:none;">
-	         	<select id="PDSK"  data-kind="PDSK"></select>
-	         	<select id="PDSZ"  data-kind="PDSZ"></select>
-	        	<select id="PRDTERQK" data-kind="PRDTERQK"></select>
-	    	</div>
+	        </div>
 	    </div>
 		<!-- // 콘텐츠 -->
 
@@ -148,7 +148,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="insertOrder();" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
 				<select class="prae_select" onchange="changeRecordCnt();">
@@ -160,7 +160,6 @@
 				<input type="hidden" id="recordCnt">
 				<input type="hidden" id="basisPriceSeq">
 			</div>
-			
 		</div>
 	  <!-- 콘텐츠 -->
 	    <div class="contents">
@@ -212,7 +211,7 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "prdtDt", label: "매출일자", align: "center", width: "5%"},
+		          	{key: "prdtDt", label: "요청일자", align: "center", width: "5%"},
 		            {key: "basisPriceSeq", label: "직송구분", align: "center", width: "5%"},
 		            {key: "selpchNm", label: "매입거래처", align: "center", width: "10%"},
 		        	{key: "prdtImpNm", label: "프로젝트", align: "center", width: "10%"},
@@ -236,22 +235,20 @@
 			return this;
 		}, 
 		setData: function(_pageNo) {
-			
-			$("#basisPriceSeq").val(""); 
 			firstGrid = this.target;
 			var formData = {
-				"prdtDt1" : $("#prdtDt1").val().replace(/\-/g,''),
-				"prdtDt2" : $("#prdtDt2").val().replace(/\-/g,''),
-				"selpchCd" : $("#SELPCH").val(),
-				"prdtImpYn" : $("#PRDTIMP").val(),
-				"prdtDiv" : $("#PRDTDIV").val(),
+				"coCd" : $("#coCd_S").val(),
+				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+				"reqDtTo" : $("#reqDtTo").val(),
+				"ownerCd" : $("#ownerCd_S").val(),
+				"typCd" : $("#typCd_S").val(),
+				"clntCd" : $("#clntCd_S").val(),
+				"dirtrsYn" : $("#dirtrsYn_S").val(),
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
-			
-			postAjax("/user/sd/sd06/selectUprList", formData, null, function(data){
+			postAjax("/user/od/od01/selectOrderList", formData, null, function(data){
 				var list = data.uprList;
-				
 				firstGrid.setData({
 					list : list,
 					page : {
@@ -270,8 +267,8 @@
 		mainDefaultLoad();
 		setCommonSelect($("#main_area select[data-kind]"));
 		gridView.initView().setData(0);
+		$("#CO").val(jwt.coCd);
 	})
-
 
 	function subShowHide(data) {
 		if ($(data).parent().find("ul").css("display") == 'none') {
@@ -293,14 +290,13 @@
 		gridView.initView().setData(0);
 	}
 
-	function insertOrder(type){
+	function insertOrderModal(type){
 		actionType = type;
 		
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/od/od01/OD0102P01.html", 800, 700, " ");
-		
+		openModal("/static/html/user/od/od01/OD0102P01.html", 900, 750, " ");
 	}
 	
 	function openDaumPostcode() {
@@ -311,5 +307,19 @@
 				$('#addrMain').val(data.roadAddress || data.address);
 			}
 		}).open();
+	}
+	
+
+	function clntSearch(type) {
+		var modalTitle = "";
+		clntType = type; 
+		if(clntType == "PUR") {
+			modalTitle = "매입거래처";
+		} else if(clntType == "SELL") {
+			modalTitle = "매출거래처";
+		} else {
+			modalTitle = "거래처";
+		} 	
+		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
 	}
 </script>

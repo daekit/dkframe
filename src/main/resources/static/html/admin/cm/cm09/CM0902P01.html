@@ -10,7 +10,7 @@
 	}
 </style>
 <div class="form-group">
-	<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
+	<input type="file" id="notiFile" style="display:none" multiple="multiple" onchange="setNotiFile(this);"/>
 	<form id="popForm">
 		<table class="popup_table">
 			<colgroup>
@@ -32,7 +32,7 @@
 				</tr>
 				<tr>
 					<th>
-						<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
+						<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="notiFile.click();">첨부파일</button>
 					</th>
 					<td>
 						<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
@@ -91,7 +91,7 @@
 <script type="text/javascript">
 	//등록시 직급코드 중복체크 여부
 	var isChecked = false;
-	var clntFileArr = [];
+	var notiFileArr = [];
 	var deleteFileArr = [];
 	var fileGridView = {
 		initView: function(){
@@ -124,7 +124,7 @@
 			});
 		},
 		setData: function(){
-			this.target.setData(clntFileArr);
+			this.target.setData(notiFileArr);
 		}
 	}
 	
@@ -186,7 +186,7 @@
 		var paramObj = {"notiKey": row.notiKey};
 		postAjax("/admin/cm/cm09/selectNotiInfo", paramObj, null, function(data){
 			setNotiInfo(data.result.notiInfo);
-			setClntInfo(data.result.fileList);
+			setNotiFileInfo(data.result.fileList);
 		});
 	}
 	
@@ -196,7 +196,7 @@
 		$("#popForm").find("#coCd").val($('#mainForm').find("#coCd option:selected").val());
 		var formData = new FormData($("#popForm")[0]);
 		// 첨부파일 추가
-		$.each(clntFileArr, function(idx, obj){
+		$.each(notiFileArr, function(idx, obj){
 			// 신규파일만 추가
 			if(obj.fileKey == 0){
 				formData.append("files", obj.file);
@@ -220,17 +220,17 @@
 	}
 	
 	function downloadFile(idx) {
-		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": clntFileArr[idx].fileKey}, null, function(data){
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": notiFileArr[idx].fileKey}, null, function(data){
 			var fileInfo = data.fileInfo;
 			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
 	}
 	
-	function setClntInfo(clntInfo) {
+	function setNotiFileInfo(fileInfo) {
 		// 첨부파일 set
-		$.each(clntInfo, function(idx, obj){
-			clntFileArr.push({
+		$.each(fileInfo, function(idx, obj){
+			notiFileArr.push({
 				'fileKey' : obj.fileKey,
 		      	'fileName' : obj.fileName,
 		      	'fileType' : obj.fileType,
@@ -243,11 +243,11 @@
 		fileGridView.setData();
 	}
 	
-	function setClntFile(elem){
+	function setNotiFile(elem){
 		var tempFiles = elem.files;
 		$.each(tempFiles, function(idx, obj){
 			var testArr = obj.name.split(".");
-			clntFileArr.push({
+			notiFileArr.push({
 				'fileKey' : 0,
 		      	'fileName' : obj.name,
 		      	'fileType' : testArr[testArr.length-1],
@@ -259,19 +259,14 @@
 		$(elem).val("");
 	}
 	
-	function deleteFile(rowIndex){
-		fileGridView.target.removeRow(rowIndex);
-		clntFileArr.splice(rowIndex, 1);
-	}
-	
 	function deleteFile(rowIndex) {
 		fileGridView.target.removeRow(rowIndex);
 		
-		if(clntFileArr[rowIndex].fileKey){
+		if(notiFileArr[rowIndex].fileKey){
 		// 기 등록되어 있는 파일 삭제시
-			deleteFileArr.push(clntFileArr[rowIndex].fileKey);
+			deleteFileArr.push(notiFileArr[rowIndex].fileKey);
 		}
 		
-		clntFileArr.splice(rowIndex, 1);
+		notiFileArr.splice(rowIndex, 1);
 	}
 </script>
