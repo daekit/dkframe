@@ -1,4 +1,4 @@
-package com.dksys.biz.user;
+package com.dksys.biz.main;
 
 import java.util.Map;
 
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.dksys.biz.user.service.LoginService;
-import com.dksys.biz.user.vo.User;
+import com.dksys.biz.main.service.LoginService;
+import com.dksys.biz.main.vo.User;
 import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;

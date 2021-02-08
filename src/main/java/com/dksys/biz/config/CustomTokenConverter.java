@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
-import com.dksys.biz.user.vo.User;
+import com.dksys.biz.main.vo.User;
 
 public class CustomTokenConverter extends JwtAccessTokenConverter {
 

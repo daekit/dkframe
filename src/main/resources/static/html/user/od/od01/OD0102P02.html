@@ -1,0 +1,116 @@
+<body>
+    <div class="popup_area" style="width: 100%;">
+    	<div class="popup_table">
+    		<table>
+    			<colgroup>
+                	<col width="30%">
+	                <col width="">
+	            </colgroup>
+    			<tr>	
+    				<td>
+    					<select id="searchType">
+		                  	<option value="CLNT_NM">거래처명</option>
+		                </select>    
+    				</td>
+    				<td>
+    					<input type="text" id="searchValue" style="width: 86%;">
+    					<button type="button" class="btn btn-primary btn-sm" onclick="popGridView.setData(0);">검색</button>    
+    				</td>
+    			</tr>
+    		</table>
+    		<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%" ></div>
+    	</div>
+    </div>
+    <div class="popup_bottom_btn">
+      <button>선택</button>
+      <button class="close_btn" onclick="secondModal.close();">닫기</button>
+    </div>
+</body>
+<script type="text/javascript">
+	
+	var secondGrid = null;
+	
+	var popGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="second-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	setClntInfo(clntType);
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	popGridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		          	{key: "clntCd", label: "거래처코트", align: "center", hidden: true},
+		            {key: "clntNm", label: "거래처명", align: "center", width: "30%"},
+		            {key: "crn", label: "사업자 등록번호", align: "center", width: "29%"},
+		            {key: "clntDivNm", label: "거래처 구분", align: "center"},
+		        	{key: "bizconNm", label: "업태", align: "center"},
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			secondGrid = this.target;
+			var formData = {
+				"searchType" : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"useYn" : "Y",
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : 10
+			}
+			
+			postAjax("/admin/bm/bm02/selectClntList", formData, null, function(data){
+				var list = data.clntList;
+				secondGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		popGridView.initView().setData(0);
+	});
+
+	function setClntInfo(clntType) {
+		var row = secondGrid.getList("selected")[0];
+		if(clntType == "PUR") {
+			$("#clntCd").val(row.clntCd);
+			$("#clntNm").val(row.clntNm);
+		} else if(clntType == "SELL") {
+			$("#sellClntCd").val(row.clntCd);
+			$("#sellClntNm").val(row.clntNm);
+		} else {
+			
+		}
+		secondModal.close();
+	}
+</script>
