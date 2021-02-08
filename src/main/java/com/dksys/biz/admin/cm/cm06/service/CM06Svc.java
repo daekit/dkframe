@@ -5,14 +5,16 @@ import java.util.Map;
 
 public interface CM06Svc {
 
-	public List<Map<String, String>> selectUserList(Map<String, String> paramMap);
-
 	public int selectUserCount(Map<String, String> paramMap);
-
-	public void insertUser(Map<String, String> paramMap) throws Exception;
+	
+	public List<Map<String, String>> selectUserList(Map<String, String> paramMap);
 
 	public Map<String, String> selectUserInfo(Map<String, String> paramMap);
 
+	public List<Map<String, String>> selectUserTree(Map<String, String> paramMap);
+	
+	public void insertUser(Map<String, String> paramMap) throws Exception;
+	
 	public void updateUser(Map<String, String> paramMap) throws Exception;
 
 }
