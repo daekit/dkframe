@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CM04Mapper {
 	
-	List<Map<String, String>> selectDeptTree();
+	List<Map<String, String>> selectDeptTree(Map<String, String> paramMap);
 
 	Map<String, String> selectDeptInfo(Map<String, String> paramMap);
 
