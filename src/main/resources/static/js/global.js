@@ -275,9 +275,10 @@ function inputValidation(inputList) {
 	return isValid;
 }
 
-// 숫자만 입력
+// 숫자만 입력 (음수, 정수 가능.  소수 불가능)
 function onlyNumber(elem){
-	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
+	//	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
+	$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
 }
 
 // 한글 제거
@@ -409,3 +410,4 @@ function before30day() {
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+

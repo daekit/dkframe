@@ -7,13 +7,16 @@
 		
 		 setCombo();
 		 
-		 $("#prdtDt").val(today);
+		 document.getElementById('prdtDtInput').value = new Date().toISOString().substring(0, 10);;
 		 
 		if(actionType == 'U'){
 			$('#actionBtn').text("수정");
+			insertOK = true;
 			setData();	
 		}else if(actionType == 'C'){
 			$('#actionBtn').text("등록");
+			$('#updateMsg').text("기준번호는 자동으로 등록됩니다. ");
+			
 			
 		}
 		
@@ -61,15 +64,19 @@
 			}
 			else if(key == 'selpchCd'){
 				$("#selpchCd").val(value).attr("selected", "selected");  
+				$("#selpchCd").val(value).prop('disabled',true);  
 			}
 			else if(key == 'prdtImpYn'){
-				$("#prdtImpYn").val(value).attr("selected", "selected");  
+				$("#prdtImpYn").val(value).attr("selected", "selected"); 
+				$("#prdtImpYn").val(value).prop('disabled',true);  
 			}
 			else if(key == 'prdtDiv'){
 				$("#prdtDivCd").val(value).attr("selected", "selected");  
+				$("#prdtDivCd").val(value).prop('disabled',true);  
 			}
 			else if(key == 'prdtDt'){
-				$("#prdtDt").val(today);
+				$("#prdtDtInput").val(value);
+				document.getElementById("prdtDtInput").readOnly = true;
 			}
 			else{
 				$('#'+key).val(value);
@@ -101,10 +108,9 @@
 		});
 		
 		if(isValid){
-			if(insertOK) {
 				var formData = {
 						"basisPriceSeq" : $("#basisPriceSeqCd").val(),
-						"prdtDt" : $("#prdtDt").val().replace(/\-/g,''),
+						"prdtDt" : $("#prdtDtInput").val().replace(/\-/g,''),
 						"selpchCd" : $("#selpchCd").val(),
 						"prdtImpYn" : $("#prdtImpYn").val(),
 						"prdtDiv" : $("#prdtDivCd").val(),
@@ -119,32 +125,39 @@
 						gridView.initView().setData(firstGrid.page.currentPage);
 					}
 				});
-			} else {
-				alert("중복체크 해주세요.")
-			}
+			
 		}
+		
+	}
 		
 		
 	
-	}
+	
 	
 	function checkOverLap() {
 	
-		var formData = {
-				"prdtDt1" : $("#prdtDt").val().replace(/\-/g,''),
-				"prdtDt2" : $("#prdtDt").val().replace(/\-/g,''),
-				"selpchCd" : $("#selpchCd").val(),
-				"prdtImpYn" : $("#prdtImpYn").val(),
-				"prdtDiv" : $("#prdtDivCd").val()
-		}
 		
-		postAjax("/user/sd/sd06/checkOverLapMaster", formData, null, function(data){
-			alert(data.resultMessage);
-			if(data.resultCode == 200){
-				insertOK = true;
-			} 
-		})
+		if(insertOK){
+			insertOneMaster(); 
+		}else{
+		
+			var formData = {
+					"prdtDt" : $("#prdtDtInput").val().replace(/\-/g,''),
+					"selpchCd" : $("#selpchCd").val(),
+					"prdtImpYn" : $("#prdtImpYn").val(),
+					"prdtDiv" : $("#prdtDivCd").val(),
+					"prdtUpr" : $("#prdtUpr").val(),
+			}
+			postAjax("/user/sd/sd06/checkOverLapMaster", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					insertOK = true;
+					insertOneMaster();
+				}
+			})	
+		}		
 	}
+	
 	
 	function getTimeStamp() {
 
@@ -168,9 +181,11 @@
 	    }
 	    return zero + n;
 	}
-	
+
 	
 </script>
+
+
 <body>
 	<div class="container-fluid">
       <div class="row">
@@ -187,7 +202,7 @@
 		          			</td>
 		          			<th colspan="2">기준날짜</th>
 		          			<td colspan="6"> 
-		          				<input type="text" id="prdtDt" readonly>
+		          				<input type="date" id="prdtDtInput">
 		          			</td>
 		          		</tr>
 		          		<tr>
@@ -208,8 +223,9 @@
 		          			</td>
 		          			<th class="hit" colspan= "2">기준단가
 		          			</th>
-		          			<td colspan="6"> 
-		          				<input type="text" id="prdtUpr" onkeyup="onlyNumber(this);" maxlength="20" required>
+		          			<td colspan="6">  <!--  onkeyup="exceptKorean(this);" -->
+		          				<input type="text" id="prdtUpr"  onkeyup="onlyNumber(this);" maxlength="20" required>
+		          				
 		          			</td>
 		          			
 		          		</tr>
@@ -222,10 +238,11 @@
 	        </form>
 		
 			<div class ="popup_bottom_btn">
-				<button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button>
-				<button type="button"  onclick="insertOneMaster();" id ="actionBtn"></button>
+				<!--  <button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button> -->
+				<button type="button"  onclick="checkOverLap();" id ="actionBtn"></button>
 				<button type="button"  onclick="modal.close();">닫기</button>
-				<p class="pd10"> 수정의 경우, 기존 등록된 기준날짜와 다른 경우 신규등록됩니다. 기준번호는 자동으로 등록됩니다. </p>
+				<p class="pd10" id ="updateMsg"> 수정의 경우 단가만 수정이 가능합니다.</p>
+				<!-- <p class="pd10" id ="insertMsg"> 기준번호는 자동으로 등록됩니다. </p> -->
 			</div>
         </div>
       </div>
