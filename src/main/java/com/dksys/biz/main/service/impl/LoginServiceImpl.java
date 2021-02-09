@@ -1,13 +1,13 @@
-package com.dksys.biz.user.service.impl;
+package com.dksys.biz.main.service.impl;
 
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dksys.biz.user.mapper.LoginMapper;
-import com.dksys.biz.user.service.LoginService;
-import com.dksys.biz.user.vo.User;
+import com.dksys.biz.main.mapper.LoginMapper;
+import com.dksys.biz.main.service.LoginService;
+import com.dksys.biz.main.vo.User;
 
 @Service
 @SuppressWarnings("all")

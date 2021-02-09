@@ -10,8 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.dksys.biz.user.service.LoginService;
-import com.dksys.biz.user.vo.User;
+import com.dksys.biz.main.service.LoginService;
+import com.dksys.biz.main.vo.User;
 
 import lombok.RequiredArgsConstructor;
 
