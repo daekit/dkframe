@@ -13,5 +13,11 @@ public interface OD01Mapper {
 	int selectOrderCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
+
+	int deleteOrderDetail(Map<String, String> paramMap);
+
+	int insertOrderDetail(Map<String, String> detailMap);
+
+	int deleteOrder(Map<String, String> paramMap);
 	
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,14 +33,22 @@ public class OD01Ctr {
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, String>> notiList = od01Svc.selectOrderList(paramMap);
-    	model.addAttribute("notiList", notiList);
+    	List<Map<String, String>> resultList = od01Svc.selectOrderList(paramMap);
+    	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
     
     @PostMapping(value = "/insertOrder")
     public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	od01Svc.insertOrder(paramMap, mRequest);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	return "jsonView";
+    }
+    
+    @DeleteMapping(value = "/deleteOrder")
+    public String deleteOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	od01Svc.deleteOrder(paramMap, mRequest);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";

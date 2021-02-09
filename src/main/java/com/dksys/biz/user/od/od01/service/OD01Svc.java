@@ -13,5 +13,7 @@ public interface OD01Svc {
 
 	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
 
+	int deleteOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+
 	
 }
