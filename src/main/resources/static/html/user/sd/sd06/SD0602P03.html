@@ -9,7 +9,6 @@
 		if(actionType == 'U'){
 			$('#actionBtn').text("수정");
 			setData();	
-			$('#checkBtn').hide();
 			insertOK = true;
 			
 		}else if(actionType == 'C'){
@@ -110,7 +109,6 @@
 		});
 		
 		if(isValid){
-			if(insertOK) {
 				var formData = {
 						"basisPriceSeq" : $("#basisPriceSeqCd").val(),
 						"prdtErqkCd" : $("#prdtErqkCd").val(),
@@ -126,29 +124,34 @@
 						gridView.initView().setData(firstGrid.page.currentPage);
 					}
 				});
-			} else {
-				alert("중복체크 해주세요.")
-			}
+			
 		}
 		
-		//강종별 할증금액 리스트 조회
+
 	
 	}
 	
 	function checkOverLap() {
-	
-		var formData = {
-				"basisPriceSeq" : $("#basisPriceSeqCd").val(),
-				"prdtSize" : $("#prdtSize").val(),
-				"prdtErqkCd" : $("#prdtErqkCd").val()
+		if(insertOK){
+			insertOneDetail02();
+			
+		}else{
+			
+			var formData = {
+					"basisPriceSeq" : $("#basisPriceSeqCd").val(),
+					"prdtSize" : $("#prdtSize").val(),
+					"prdtErqkCd" : $("#prdtErqkCd").val()
+			}
+			
+			postAjax("/user/sd/sd06/checkOverLapDetail02", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					insertOK = true;
+					insertOneDetail02();
+				} 
+			})		
 		}
-		
-		postAjax("/user/sd/sd06/checkOverLapDetail02", formData, null, function(data){
-			alert(data.resultMessage);
-			if(data.resultCode == 200){
-				insertOK = true;
-			} 
-		})
+	
 	}
 	
 	
@@ -193,8 +196,8 @@
 		          	<input type="hidden" id="pgmId" name="pgmId" value="SD0602P03">
 	        </form>
 	        <div class ="popup_bottom_btn">
-				<button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button>
-				<button type="button"  onclick="insertOneDetail02();" id ="actionBtn"></button>
+				<!-- <button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button> -->
+				<button type="button"  onclick="checkOverLap();" id ="actionBtn"></button>
 				<button type="button"  onclick="modal.close();">닫기</button>
 			</div>
         </div>
