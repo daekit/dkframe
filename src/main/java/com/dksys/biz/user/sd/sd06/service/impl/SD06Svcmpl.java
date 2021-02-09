@@ -97,5 +97,10 @@ public class SD06Svcmpl implements SD06Svc {
 		return sd06Mapper.insertOneDetail02(param);
 	}
 
+	@Override
+	public int selectOneMasterCount(Map<String, String> param) {
+		return sd06Mapper.selectOneMasterCount(param);
+	}
+
 
 }

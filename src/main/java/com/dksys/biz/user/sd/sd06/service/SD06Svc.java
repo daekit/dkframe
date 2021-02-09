@@ -18,6 +18,8 @@ public interface SD06Svc {
 
 	public Map<String, String> selectUprInfo(Map<String, String> param);
 
+	public int selectOneMasterCount(Map<String, String>  param);
+	
 	public int selectDetail01Count(Map<String, String> param);
 	
     public List<Map<String, String>> selectDetail01List(Map<String, String> param);

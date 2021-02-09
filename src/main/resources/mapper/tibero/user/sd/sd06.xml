@@ -4,12 +4,29 @@
 <mapper namespace="com.dksys.biz.user.sd.sd06.mapper.SD06Mapper">
 
 	<select id="selectUprCount" parameterType="Map" resultType="int">
-				SELECT
-					COUNT(*)
-				FROM TB_SD06M01 
-				WHERE 1=1 
-				<if test="prdtDt1 != null and !prdtDt1.equals('') and prdtDt2 != null and !prdtDt2.equals('')">
-				AND PRDT_DT BETWEEN #{prdtDt1} AND #{prdtDt2}
+	SELECT count(*)
+	FROM (
+		select
+			max(PRDT_DT) AS PRDT_DT,
+			max(PRDT_UPR) AS PRDT_UPR,
+			max(basis_price_seq) AS BASIS_PRICE_SEQ,
+			SELPCH_CD, 
+			FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
+			PRDT_IMP_YN,
+			FN_CM05M01_CD_TO_NM(PRDT_IMP_YN) AS PRDT_IMP_NM,
+				  PRDT_DIV, 
+				  FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
+		from(
+			select
+				*
+			from TB_SD06M01
+			where (SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, PRDT_DT) in (
+				select SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, max(TO_DATE(PRDT_DT, 'YYYYMMDD')) as PRDT_DT
+				from TB_SD06M01 
+				WHERE 1=1 	
+				<if test="prdtDt != null and !prdtDt.equals('')">
+				<![CDATA[
+				AND TO_DATE(PRDT_DT, 'YYYYMMDD') <=  TO_DATE(#{prdtDt}, 'YYYYMMDD')  ]]>
 				</if>
 				<if test="selpchCd != null and !selpchCd.equals('')">
 				 		AND SELPCH_CD = #{selpchCd}
@@ -20,52 +37,64 @@
 				<if test="prdtDiv != null and !prdtDiv.equals('')">
 						AND PRDT_DIV = #{prdtDiv}
 				</if>
-				ORDER BY BASIS_PRICE_SEQ
+				group by SELPCH_CD, PRDT_IMP_YN, PRDT_DIV
+			)
+			order by PRDT_DT desc
+		) t
+		group by t.SELPCH_CD, t.PRDT_IMP_YN, t.PRDT_DIV
+	)
 	</select>
 
 	 <select id="selectUprList" parameterType="Map" resultType="CamelMap">
 		
-		SELECT 
-			RNUM,
-		  PRDT_DT,
-		  SELPCH_CD,
-		 FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
-		  PRDT_IMP_YN,
-		 FN_CM05M01_CD_TO_NM(PRDT_IMP_YN) AS PRDT_IMP_NM,
-		  PRDT_DIV, 
-		  FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM,
-		  PRDT_UPR, 
-		  BASIS_PRICE_SEQ
-		FROM
-		(
-			SELECT
-				ROWNUM AS RNUM, A.*
-			FROM 
-			(
-				SELECT
-					*
-				FROM TB_SD06M01 
-				WHERE 1=1 
-				<if test="prdtDt1 != null and !prdtDt1.equals('') and prdtDt2 != null and !prdtDt2.equals('')">
-				AND PRDT_DT BETWEEN #{prdtDt1} AND #{prdtDt2}
-				</if>
-				<if test="selpchCd != null and !selpchCd.equals('')">
-				 		AND SELPCH_CD = #{selpchCd}
-				 </if>
-				 <if test="prdtImpYn != null and !prdtImpYn.equals('')">
-						AND PRDT_IMP_YN = #{prdtImpYn}
-				</if>
-				<if test="prdtDiv != null and !prdtDiv.equals('')">
-						AND PRDT_DIV = #{prdtDiv}
-				</if>
-				ORDER BY BASIS_PRICE_SEQ
-			) A
+		SELECT TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
+		, PRDT_UPR, BASIS_PRICE_SEQ, SELPCH_CD, SELPCH_NM, PRDT_IMP_YN, PRDT_IMP_NM, PRDT_DIV, PRDT_DIV_NM 
+		from(
+			SELECT ROWNUM AS RNUM, A.*
+			FROM (
+				select
+					max(PRDT_DT) AS PRDT_DT,
+					max(PRDT_UPR) AS PRDT_UPR,
+					max(basis_price_seq) AS BASIS_PRICE_SEQ,
+					SELPCH_CD, 
+					FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
+					PRDT_IMP_YN,
+					FN_CM05M01_CD_TO_NM(PRDT_IMP_YN) AS PRDT_IMP_NM,
+						  PRDT_DIV, 
+						  FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
+				from(
+					select
+						*
+					from TB_SD06M01
+					where (SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, PRDT_DT) in (
+						select SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, max(TO_DATE(PRDT_DT, 'YYYYMMDD')) as PRDT_DT
+						from TB_SD06M01 
+						WHERE 1=1
+						 <if test="prdtDt != null and !prdtDt.equals('')">
+						<![CDATA[
+						AND TO_DATE(PRDT_DT, 'YYYYMMDD') <=  TO_DATE(#{prdtDt}, 'YYYYMMDD')  ]]>
+						</if>
+						<if test="selpchCd != null and !selpchCd.equals('')">
+						 		AND SELPCH_CD = #{selpchCd}
+						 </if>
+						 <if test="prdtImpYn != null and !prdtImpYn.equals('')">
+								AND PRDT_IMP_YN = #{prdtImpYn}
+						</if>
+						<if test="prdtDiv != null and !prdtDiv.equals('')">
+								AND PRDT_DIV = #{prdtDiv}
+						</if>
+						group by SELPCH_CD, PRDT_IMP_YN, PRDT_DIV
+					)
+					order by PRDT_DT desc
+				) t
+				group by t.SELPCH_CD, t.PRDT_IMP_YN, t.PRDT_DIV
+			)A
 		)
-		WHERE
-			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+		
+	
 	</select>
 	
-
 	<insert id="insertUpr" parameterType="Map">
 		INSERT INTO TB_SD06M01
 		(
@@ -82,26 +111,19 @@
 	</delete>
 	<update id= "updateUpr" parameterType="Map">
 	
-	MERGE INTO TB_SD06M01
-	USING DUAL
-	ON (
-		
-	)
-	WHEN MATCHED THEN 
-		UPDATE SET 
-		
-	WHEN NOT MATCHED THEN 
-		INSERT 
-		(
-			
-		)
-		VALUES(
-			
-		)
 	</update>
 	
-	<select id= "selectUprInfo" parameterType="Map" resultType="CamelMap">
-	
+	<select id= "selectOneMasterCount" parameterType="Map" resultType="int">
+		
+			select
+				count(*)
+			from TB_SD06M01
+			where PRDT_DT = #{prdtDt}
+				AND SELPCH_CD = #{selpchCd}
+				AND PRDT_IMP_YN = #{prdtImpYn}
+				AND PRDT_DIV = #{prdtDiv}
+
+		
 	</select>
 	
 	<select id="selectDetail01Count" parameterType="Map" resultType="int">
@@ -203,8 +225,7 @@
 	
 	
 	<select id="seletOneMaster" parameterType="Map" resultType="CamelMap">
-				SELECT
-					*
+				SELECT  to_char(to_date(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT, PRDT_UPR, BASIS_PRICE_SEQ, SELPCH_CD, PRDT_IMP_YN, PRDT_DIV 
 				FROM 
 					TB_SD06M01
 				WHERE BASIS_PRICE_SEQ = #{basisPriceSeq}
@@ -236,73 +257,73 @@
 	
 	<update id= "insertOneMaster" parameterType="Map">
 	
-	MERGE INTO TB_SD06M01
-	USING DUAL
-	ON (
-		BASIS_PRICE_SEQ = #{basisPriceSeq}
-		AND PRDT_DT = #{prdtDt} 
-	)
-	WHEN MATCHED THEN 
-		UPDATE SET 
-			 SELPCH_CD = #{selpchCd},
-			  PRDT_IMP_YN = #{prdtImpYn},
-			  PRDT_DIV = #{prdtDiv},
-			  PRDT_UPR = #{prdtUpr},
-			 UDT_ID = #{userId},
-			 UDT_PGM = 'SD0602P01.html',
-			 UDT_DTTM = sysdate
-	WHEN NOT MATCHED THEN 
-	INSERT 
-	 (PRDT_DT, SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, PRDT_UPR, BASIS_PRICE_SEQ, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM) 
-	VALUES
-	(#{prdtDt}, #{selpchCd}, #{prdtImpYn}, #{prdtDiv}, #{prdtUpr}, TB_SD06M01_SQ01.NEXTVAL , #{userId}, 'SD0602P01.html', sysdate,  #{userId}, 'SD0602P01.html', sysdate);
+		MERGE INTO TB_SD06M01
+		USING DUAL
+		ON (
+			BASIS_PRICE_SEQ = #{basisPriceSeq}
+			AND PRDT_DT = #{prdtDt} 
+		)
+		WHEN MATCHED THEN 
+			UPDATE SET 
+				 SELPCH_CD = #{selpchCd},
+				  PRDT_IMP_YN = #{prdtImpYn},
+				  PRDT_DIV = #{prdtDiv},
+				  PRDT_UPR = #{prdtUpr},
+				 UDT_ID = #{userId},
+				 UDT_PGM = 'SD0602P01.html',
+				 UDT_DTTM = sysdate
+		WHEN NOT MATCHED THEN 
+		INSERT 
+		 (PRDT_DT, SELPCH_CD, PRDT_IMP_YN, PRDT_DIV, PRDT_UPR, BASIS_PRICE_SEQ, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM) 
+		VALUES
+		(#{prdtDt}, #{selpchCd}, #{prdtImpYn}, #{prdtDiv}, #{prdtUpr}, TB_SD06M01_SQ01.NEXTVAL , #{userId}, 'SD0602P01.html', sysdate,  #{userId}, 'SD0602P01.html', sysdate);
 
 	</update>
 	
 	
-		<update id= "insertOneDetail01" parameterType="Map">
+	<update id= "insertOneDetail01" parameterType="Map">
 	
-	MERGE INTO TB_SD06D01
-	USING DUAL
-	ON (
-		 BASIS_PRICE_SEQ = #{basisPriceSeq}
-		AND PRDT_STKN = #{prdtStkn}
-		AND PRDT_ERQK_CD = #{prdtErqkCd}
-	)
-	WHEN MATCHED THEN 
-		UPDATE SET 
-		     SC_AMT = #{scAmt},
-			 UDT_ID = #{userId},
-			 UDT_PGM = #{pgmId},
-			 UDT_DTTM = sysdate
-	WHEN NOT MATCHED THEN 
-		INSERT 
-		(BASIS_PRICE_SEQ, PRDT_STKN, PRDT_ERQK_CD, SC_AMT, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM )
-		VALUES
-		(#{basisPriceSeq}, #{prdtStkn}, #{prdtErqkCd}, #{scAmt}, #{userId}, #{pgmId}, sysdate, #{userId}, #{pgmId}, sysdate);
+		MERGE INTO TB_SD06D01
+		USING DUAL
+		ON (
+			 BASIS_PRICE_SEQ = #{basisPriceSeq}
+			AND PRDT_STKN = #{prdtStkn}
+			AND PRDT_ERQK_CD = #{prdtErqkCd}
+		)
+		WHEN MATCHED THEN 
+			UPDATE SET 
+			     SC_AMT = #{scAmt},
+				 UDT_ID = #{userId},
+				 UDT_PGM = #{pgmId},
+				 UDT_DTTM = sysdate
+		WHEN NOT MATCHED THEN 
+			INSERT 
+			(BASIS_PRICE_SEQ, PRDT_STKN, PRDT_ERQK_CD, SC_AMT, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM )
+			VALUES
+			(#{basisPriceSeq}, #{prdtStkn}, #{prdtErqkCd}, #{scAmt}, #{userId}, #{pgmId}, sysdate, #{userId}, #{pgmId}, sysdate);
 	</update>
 	
 	
-		<update id= "insertOneDetail02" parameterType="Map">
-	
-	MERGE INTO TB_SD06D02
-	USING DUAL
-	ON (
-		 BASIS_PRICE_SEQ = #{basisPriceSeq}
-		AND PRDT_SIZE = #{prdtSize}
-		AND PRDT_ERQK_CD = #{prdtErqkCd}
-	)
-	WHEN MATCHED THEN 
-		UPDATE SET 
-		     SC_AMT = #{scAmt},
-			 UDT_ID = #{userId},
-			 UDT_PGM = #{pgmId},
-			 UDT_DTTM = sysdate
-	WHEN NOT MATCHED THEN 
-		INSERT 
-		(BASIS_PRICE_SEQ, PRDT_SIZE, PRDT_ERQK_CD, SC_AMT, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM )
-		VALUES
-		(#{basisPriceSeq}, #{prdtSize}, #{prdtErqkCd}, #{scAmt}, #{userId}, #{pgmId}, sysdate, #{userId}, #{pgmId}, sysdate);
+	<update id= "insertOneDetail02" parameterType="Map">
+		
+		MERGE INTO TB_SD06D02
+		USING DUAL
+		ON (
+			 BASIS_PRICE_SEQ = #{basisPriceSeq}
+			AND PRDT_SIZE = #{prdtSize}
+			AND PRDT_ERQK_CD = #{prdtErqkCd}
+		)
+		WHEN MATCHED THEN 
+			UPDATE SET 
+			     SC_AMT = #{scAmt},
+				 UDT_ID = #{userId},
+				 UDT_PGM = #{pgmId},
+				 UDT_DTTM = sysdate
+		WHEN NOT MATCHED THEN 
+			INSERT 
+			(BASIS_PRICE_SEQ, PRDT_SIZE, PRDT_ERQK_CD, SC_AMT, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM )
+			VALUES
+			(#{basisPriceSeq}, #{prdtSize}, #{prdtErqkCd}, #{scAmt}, #{userId}, #{pgmId}, sysdate, #{userId}, #{pgmId}, sysdate);
 
 	</update>
 	

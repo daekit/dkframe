@@ -42,7 +42,7 @@ public class SD06Ctr {
     //단가관리 중복 조회
     @PostMapping("/checkOverLapMaster")
     public String checkOverLapMaster(@RequestBody Map<String, String> param, ModelMap model) {
-    	int result = sd06svc.selectUprCount(param);
+    	int result = sd06svc.selectOneMasterCount(param);
     	if(result > 0) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("exist"));

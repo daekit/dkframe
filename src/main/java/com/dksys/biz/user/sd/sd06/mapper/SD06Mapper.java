@@ -21,6 +21,8 @@ public interface SD06Mapper {
 	
 	Map<String, String> selectUprInfo(Map<String, String> param);
 
+	int selectOneMasterCount(Map<String, String> param);
+	
 	int selectDetail01Count(Map<String, String> param);
 	
 	List<Map<String, String>> selectDetail01List(Map<String, String> param);
