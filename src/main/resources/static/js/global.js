@@ -376,7 +376,6 @@ function mainDefaultLoad() {
 	setMenuAuth();
 }
 
-
 function dateToStr(str) {
 	var format = new Date(str);
     var year = format.getFullYear();
