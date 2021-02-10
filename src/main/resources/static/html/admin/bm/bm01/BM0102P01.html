@@ -1,4 +1,3 @@
-<body>
 	<div class="container-fluid" id="popup_area">
       <div class="row">
         <div class="form-group">
@@ -29,7 +28,7 @@
 	          	<tr>
 	          		<th class="hit">제품 구분</th>
 	          		<td>
-	          			 <select id= "prdtDiv" data-kind="PRDTDIV" name="prdtDiv"  class="form-control input-sm" required>
+	          			 <select id= "prdtDiv" data-kind="PRDTDIV" name="prdtDiv"  class="form-control input-sm"  required >
                   			<option value="">선택</option>
                  		 </select>
 	          		</td>
@@ -89,15 +88,15 @@
 	          		<td><input id="prdtDkCd" name="prdtDkCd" type="text" class="form-control"></td>
 	          	</tr>
 	          	<tr>
-	          		<th>여분필드(고정)</th>
+	          		<th>여분필드<br/>(고정)</th>
 	          		<td>
 	          			<input type="text" name="etcField1"  id="etcField1" class="form-control">
 	          		</td>
-	          		<th>여분필드(숫자)</th>
+	          		<th>여분필드<br/>(숫자)</th>
 	          		<td>
 	          			<input type="text" name="etcField2" id="etcField2"  class="form-control">
 	          		</td>
-	          		<th>여분필드(가변)</th>
+	          		<th>여분필드<br/>(가변)</th>
 	          		<td>
 	          			<input type="text" name="etcField3" id="etcField3"  class="form-control">
 	          		</td>
@@ -116,8 +115,6 @@
 		<button id="actionBtn" type="button" class="btn btn-default btn-sm" ></button>
 		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div>
-</body>
-</html>
 <script type="text/javascript">
 
 	var insertOK = false;
@@ -144,25 +141,10 @@
 			
 		}
 		
+		$('[required]').on("change", function(){
+			insertOK = false;
+		});
 		
-		$("#prdtNm").on("change", function(){
-			insertOK = false;
-		});
-		$("#prdtDiv").on("change", function(){
-			insertOK = false;
-		});
-		$("#prdtStkn").on("change", function(){
-			insertOK = false;			
-		});
-		$("#prdtErqkYn").on("change", function(){
-			insertOK = false;			
-		});
-		$("#prdtSize").on("change", function(){
-			insertOK = false;			
-		});
-		$("#prdtSpec").on("change", function(){
-			insertOK = false;			
-		});
 		
 	});
 	
@@ -171,29 +153,25 @@
 		$("#prdtCd").val(row.prdtCd);
 		var formData = $('#frm').serializeObject();
 		postAjax("/admin/bm/bm01/selectMaterialInfo", formData, null, function(data){
-			console.log(data.materialInfo);
 			setData(data.materialInfo);
 		});
 	}
 	
 	function setData(data) {
 		$.each(data, function(idx, item){
-			for(var i=0; i<$('#frm input').length; i++) {
-				if($('#frm input')[i].name == idx) {
-					if($('[required]')[i]){
-						$("#frm input")[i].disabled = true;//('disabled',true); 
-					}else{
-						$('#frm input')[i].value = item;	
+			for(var i=0; i<$('#frm [name]').length; i++) {
+				if($('#frm [name]')[i].name == idx) {
+					if($('#frm [name]')[i].required){ //수정 못하도록 막는다.
+						$("#frm [name]")[i].disabled = true;
 					}
-					
-					
+					$('#frm [name]')[i].value = item;	
 				}
 			}
 		});
+		
 	}
 	  
 	function insertMaterial() {
-		
 		
 		if(inputValidation($('[required]'))) {
 			if(insertOK) {
@@ -212,20 +190,27 @@
 	 
 	function updateMaterial() {
 		
-		//console.log()
-		if(inputValidation($('[required]'))) {
-			if(insertOK) {
+		for(var i=0; i<$('#frm [name]').length; i++) {
+			
+			if($('#frm [name]')[i].required){ 
+				$("#frm [name]")[i].disabled = false;
+			}
+		}
+		
+		
+		if(insertOK) {
 				var formData = $('#frm').serializeObject();
+				formData.prdtCd = formData.prdtCd + ''; 
 				formData.prdtDt = formData.prdtDt.replace(/\-/g,'');
 				
-				postAjax("/admin/bm/bm01/updateMaterial", formData, null, function(data){
+				putAjax("/admin/bm/bm01/updateMaterial", formData, null, function(data){
+					alert(data.resultMessage);
 					if(data.resultCode == 200){
 						modal.close();
 						gridView.initView().setData(0);
 					}
 				});
-			}
-		} 
+			} 
 	}
 	
 	

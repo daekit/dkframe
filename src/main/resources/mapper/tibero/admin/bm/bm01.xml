@@ -21,7 +21,7 @@
 			, NVL(FN_CM05M01_CD_TO_NM(PRDT_UNIT), PRDT_UNIT) AS PRDT_UNIT_NM
 			, PRDT_WT
 			, PRDT_UPR
-			, PRDT_DT
+			, TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
 			, PRDT_DK_CD
 			, PRDT_MES_CD
 			, USE_YN
@@ -36,6 +36,11 @@
 		 	<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'				
 			</if>
+			<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
+				<![CDATA[
+				AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYYMMDD') 
+				]]>				
+			</if>
 				AND USE_YN = #{useYn} 
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -48,6 +53,11 @@
 	 	WHERE 1=1
 	 	<if test="searchValue != null and !searchValue.equals('')">
 			AND ${searchType} LIKE '%${searchValue}%'				
+		</if>
+		<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
+			<![CDATA[
+				AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYYMMDD') 
+				]]>				
 		</if>
 	</select>
 	
@@ -128,10 +138,10 @@
 			 , ETC_FIELD1 = #{etcField1}
 			 , ETC_FIELD2 = #{etcField2}
 			 , ETC_FIELD3 = #{etcField3}
-			 , CREAT_ID = #{useId}
+			 , CREAT_ID = #{userId}
 			 , CREAT_PGM = #{pgmId}
 			 , CREAT_DTTM = SYSDATE
-			 , UDT_ID = #{udtId}
+			 , UDT_ID = #{userId}
 			 , UPD_PGM = #{pgmId}
 			 , UDT_DTTM= SYSDATE
 		WHERE PRDT_CD = #{prdtCd}
