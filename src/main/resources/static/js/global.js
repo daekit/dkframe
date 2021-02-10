@@ -380,7 +380,7 @@ function setCommonSelect(el){
 	})
 }
 
-function mainDefaultLoad(topTitle) {
+function mainDefaultLoad(menuNm, subMenuNm) {
 	// left
 	$("#head_area").load("/static/html/header.html");
 	$("#head_area").after('<div class="menu_off"><a class="off_btn"></a></div>');
@@ -393,7 +393,8 @@ function mainDefaultLoad(topTitle) {
 	
 	// top
 	$("#top_area").load("/static/html/top.html", function(){
-		$('.page_tit').text(topTitle);
+		$('#topMenu').text(menuNm);
+		$('#topSubMenu').text(subMenuNm);
 	});
 }
 
