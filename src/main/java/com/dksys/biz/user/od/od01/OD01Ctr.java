@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +39,13 @@ public class OD01Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectOrderInfo")
+    public String selectOrderInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = od01Svc.selectOrderInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
     @PostMapping(value = "/insertOrder")
     public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	od01Svc.insertOrder(paramMap, mRequest);
@@ -46,11 +54,19 @@ public class OD01Ctr {
     	return "jsonView";
     }
     
-    @DeleteMapping(value = "/deleteOrder")
-    public String deleteOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-    	od01Svc.deleteOrder(paramMap, mRequest);
+    @PutMapping(value = "/updateOrder")
+    public String updateOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	od01Svc.updateOrder(paramMap, mRequest);
     	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+    
+    @DeleteMapping(value = "/deleteOrder")
+    public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	od01Svc.deleteOrder(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
     }
     
