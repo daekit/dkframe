@@ -307,6 +307,17 @@ function addComma(elem) {
 // 콤마 제거
 function deleteComma(elem) {
 	$(elem).val($(elem).val().replace(/,/g, ""));
+	return elem;
+}
+
+// 원단위 콤마 추가 스트링변수용
+function addCommaStr(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// 콤마 제거 스트링변수용
+function deleteCommaStr(x) {
+    return x.toString().replace(/,/g, "");
 }
 
 // 권한에 따른 메뉴 보여주기
@@ -407,7 +418,4 @@ function before30day() {
 	  return dateToStr(d)
 }
 
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
