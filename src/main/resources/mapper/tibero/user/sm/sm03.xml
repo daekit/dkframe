@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sm.sm03.mapper.SM03Mapper">
+
+	<select id="selectStockListCount" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM 
+			TB_SM01M01 SM01
+			INNER JOIN TB_BM01M01 BM01 ON SM01.PRDT_CD = BM01.PRDT_CD
+			LEFT JOIN TB_BM02M01 BM02 ON SM01.CLNT_CD = BM02.CLNT_CD
+			INNER JOIN TB_CM05M01 CM05 ON SM01.WH_CD = CM05.CODE_ID
+		WHERE
+			CM05.CODE_RPRC = 'WHDIV_03'
+			<if test="coCd != null and !coCd.equals('')">
+				AND SM01.CO_CD = #{coCd}
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+		 		AND SM01.WH_CD = #{whCd}
+			 </if>
+			 <if test="ownerCd != null and !ownerCd.equals('')">
+				AND SM01.OWNER_CD = #{ownerCd}
+			</if>
+			<if test="typCd != null and !typCd.equals('')">
+				AND SM01.TYP_CD = #{typCd}
+			</if>
+			<if test="makrCd != null and !makrCd.equals('')">
+				AND SM01.MAKR_CD = #{makrCd}
+			</if>
+			<if test="prdtNm != null and !prdtNm.equals('')">
+				AND BM01.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND BM02.CLNT_NM LIKE '%' || #{clntNm} || '%'
+			</if>
+	</select>
+
+	 <select id="selectStockList" resultType="CamelMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM(
+				SELECT 
+					SM01.CO_CD
+					, FN_CM05M01_CD_TO_NM(SM01.CO_CD) AS CO_NM
+					, SM01.WH_CD
+					, FN_CM05M01_CD_TO_NM(SM01.WH_CD) AS WH_NM
+					, SM01.OWNER_CD
+					, FN_CM05M01_CD_TO_NM(SM01.OWNER_CD) AS OWNER_NM
+					, SM01.TYP_CD
+					, FN_CM05M01_CD_TO_NM(SM01.TYP_CD) AS TYP_NM
+					, SM01.MAKR_CD 
+					, FN_CM05M01_CD_TO_NM(SM01.MAKR_CD) AS MAKR_NM
+					, SM01.PRDT_CD
+				 	, BM01.PRDT_NM
+				    , SM01.IMP_YN
+				    , FN_CM05M01_CD_TO_NM(SM01.IMP_YN) AS IMP_NM
+				    , SM01.STOCK_CHG_CD
+				    , FN_CM05M01_CD_TO_NM(SM01.STOCK_CHG_CD) AS STOCK_CHG_NM
+					, SM01.STOCK_AMT
+					, SM01.STOCK_QTY
+					, SM01.STOCK_UPR
+					, SM01.STD_UPR
+					, SM01.PCHS_UPR 
+					, SM01.SELL_UPR 
+					, BM02.CLNT_NM
+					, TO_CHAR(SM01.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM
+					, CM05.CODE_RPRC
+				FROM 
+					TB_SM01M01 SM01
+					INNER JOIN TB_BM01M01 BM01 ON SM01.PRDT_CD = BM01.PRDT_CD
+					LEFT JOIN TB_BM02M01 BM02 ON SM01.CLNT_CD = BM02.CLNT_CD
+					INNER JOIN TB_CM05M01 CM05 ON SM01.WH_CD = CM05.CODE_ID
+				WHERE
+					CM05.CODE_RPRC = 'WHDIV_03'
+					<if test="coCd != null and !coCd.equals('')">
+						AND SM01.CO_CD = #{coCd}
+					</if>
+					<if test="whCd != null and !whCd.equals('')">
+				 		AND SM01.WH_CD = #{whCd}
+					 </if>
+					 <if test="ownerCd != null and !ownerCd.equals('')">
+						AND SM01.OWNER_CD = #{ownerCd}
+					</if>
+					<if test="typCd != null and !typCd.equals('')">
+						AND SM01.TYP_CD = #{typCd}
+					</if>
+					<if test="makrCd != null and !makrCd.equals('')">
+						AND SM01.MAKR_CD = #{makrCd}
+					</if>
+					<if test="prdtNm != null and !prdtNm.equals('')">
+						AND BM01.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND BM02.CLNT_NM LIKE '%' || #{clntNm} || '%'
+					</if>
+				ORDER BY UDT_DTTM DESC
+			) A
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 
+	</select>
+</mapper>
