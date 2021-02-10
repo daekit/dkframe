@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper">
+
+	<select id="selectMaterialList" parameterType="Map" resultType="CamelMap">
+		SELECT PRDT_CD
+			, PRDT_NM
+			, PRDT_DIV
+			, FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
+			, PRDT_STKN
+			, FN_CM05M01_CD_TO_NM(PRDT_STKN) AS PRDT_STKN_NM
+			, PRDT_ERQK_YN
+			, FN_CM05M01_CD_TO_NM(PRDT_ERQK_YN) AS PRDT_ERQK_NM
+			, PRDT_SIZE
+			, NVL(FN_CM05M01_CD_TO_NM(PRDT_SIZE), PRDT_SIZE) AS PRDT_SIZE_NM
+			, PRDT_SPEC
+			, NVL(FN_CM05M01_CD_TO_NM(PRDT_SPEC), PRDT_SPEC) AS PRDT_SPEC_NM
+			, PRDT_COIL_YN
+			, PRDT_UNIT
+			, NVL(FN_CM05M01_CD_TO_NM(PRDT_UNIT), PRDT_UNIT) AS PRDT_UNIT_NM
+			, PRDT_WT
+			, PRDT_UPR
+			, PRDT_DT
+			, PRDT_DK_CD
+			, PRDT_MES_CD
+			, USE_YN
+			, ETC_FIELD1
+			, ETC_FIELD2
+			, ETC_FIELD3
+			, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
+		FROM 
+		(
+		 	SELECT ROWNUM RNUM, A.* FROM TB_BM01M01 A
+		 	WHERE 1=1
+		 	<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'				
+			</if>
+				AND USE_YN = #{useYn} 
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectMaterialCount" parameterType="Map" resultType="int">
+	 	SELECT 
+	 		COUNT(*) 
+	 	FROM TB_BM01M01
+	 	WHERE 1=1
+	 	<if test="searchValue != null and !searchValue.equals('')">
+			AND ${searchType} LIKE '%${searchValue}%'				
+		</if>
+	</select>
+	
+	<select id="checkOverLap" parameterType="Map" resultType="int">
+	 	SELECT COUNT(*) FROM TB_BM01M01
+	 	WHERE 
+	 	<if test="prdtNm != null and !prdtNm.equals('')">
+	 	PRDT_NM = #{prdtNm}
+	 	</if>
+	 	 <if test="prdtCd != null and !prdtCd.equals('')">
+	 	 AND PRDT_CD = #{prdtCd}
+	 	</if>
+	 	 <if test="prdtDiv != null and !prdtDiv.equals('')">
+	 	AND PRDT_DIV = #{prdtDiv}
+	 	</if>
+	 	 <if test="prdtStkn != null and !prdtStkn.equals('')">
+	 	AND PRDT_STKN = #{prdtStkn}
+	 	</if>
+	 	 <if test="prdtErqkYn != null and !prdtErqkYn.equals('')">
+	 	AND PRDT_ERQK_YN = #{prdtErqkYn}
+	 	</if>
+	 	 <if test="prdtSize != null and !prdtSize.equals('')">
+	 	AND PRDT_SIZE = #{prdtSize}
+	 	</if>
+	 	 <if test="prdtSpec != null and !prdtSpec.equals('')">
+	 	AND PRDT_SPEC = #{prdtSpec}
+	 	</if>
+	 	 <if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
+	 	AND PRDT_COIL_YN= #{prdtCoilYn}
+	 	</if>
+	 	
+	 	
+	 	
+	</select>
+
+	<select id="selectMaterialInfo" parameterType="Map" resultType="CamelMap">
+	 	SELECT  PRDT_CD
+			, PRDT_NM
+			, PRDT_DIV
+			, PRDT_STKN
+			, PRDT_ERQK_YN
+			, PRDT_SIZE
+			, PRDT_SPEC
+			, PRDT_COIL_YN
+			, PRDT_UNIT
+			, PRDT_WT
+			, PRDT_UPR
+			, TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
+			, PRDT_DK_CD
+			, PRDT_MES_CD
+			, USE_YN
+			, ETC_FIELD1
+			, ETC_FIELD2
+			, ETC_FIELD3
+			, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
+	 	
+	 	FROM TB_BM01M01
+	 	WHERE PRDT_CD = #{prdtCd}
+	</select>
+	
+	<update id ="updateMaterial" parameterType="Map">
+		UPDATE TB_BM01M01 
+		SET
+			 PRDT_NM= #{prdtNm}
+			 , PRDT_DIV = #{prdtDiv}
+			 , PRDT_STKN = #{prdtStkn}
+			 , PRDT_ERQK_YN = #{prdtErqkYn}
+			 , PRDT_SIZE = #{prdtSize}
+			 , PRDT_SPEC = #{prdtSpec}
+			 , PRDT_COIL_YN = #{prdtCoilYn}
+			 , PRDT_UNIT = #{prdtUnit}
+			 , PRDT_WT = #{prdtWt}
+			 , PRDT_UPR = #{prdtUpr}
+			 , PRDT_DT = #{prdtDt}
+			 , PRDT_DK_CD = #{prdtDkCd}
+			 , PRDT_MES_CD = #{prdtMesCd}
+			 , USE_YN= #{useYn}
+			 , ETC_FIELD1 = #{etcField1}
+			 , ETC_FIELD2 = #{etcField2}
+			 , ETC_FIELD3 = #{etcField3}
+			 , CREAT_ID = #{useId}
+			 , CREAT_PGM = #{pgmId}
+			 , CREAT_DTTM = SYSDATE
+			 , UDT_ID = #{udtId}
+			 , UPD_PGM = #{pgmId}
+			 , UDT_DTTM= SYSDATE
+		WHERE PRDT_CD = #{prdtCd}
+	</update>
+	
+	<insert id="insertMaterial" parameterType="Map">
+		INSERT INTO TB_BM01M01
+		 (
+		 		PRDT_CD
+		 		, PRDT_NM
+		 		, PRDT_DIV
+		 		, PRDT_STKN
+		 		, PRDT_ERQK_YN
+		 		, PRDT_SIZE
+		 		, PRDT_SPEC
+		 		, PRDT_COIL_YN
+		 		, PRDT_UNIT
+		 		, PRDT_WT
+		 		, PRDT_UPR
+		 		, PRDT_DT
+		 		, PRDT_DK_CD
+		 		, PRDT_MES_CD
+		 		, USE_YN
+		 		, ETC_FIELD1
+		 		, ETC_FIELD2
+		 		, ETC_FIELD3
+		 		, CREAT_ID
+		 		, CREAT_PGM
+		 		, CREAT_DTTM
+		 		, UDT_ID
+		 		, UPD_PGM
+		 		, UDT_DTTM) 	
+		 	VALUES
+		 	(
+		 		 TB_BM01M01_SQ01.NEXTVAL
+		 		, #{prdtNm}
+		 		, #{prdtDiv}
+		 		, #{prdtStkn}
+		 		, #{prdtErqkYn}
+		 		, #{prdtSize}
+		 		, #{prdtSpec}
+		 		, #{prdtCoilYn}
+		 		, #{prdtUnit}
+		 		, #{prdtWt}
+		 		, #{prdtUpr}
+		 		, #{prdtDt}
+		 		, #{prdtDkCd}
+		 		, #{prdtMesCd}
+		 		, #{useYn}
+		 		, #{etcField1}
+		 		, #{etcField2}
+		 		, #{etcField3}
+		 		, #{userId}
+		 		, #{pgmId}
+		 		, SYSDATE
+		 		, #{userId}
+		 		, #{pgmId}
+		 		, SYSDATE
+		 		
+		 	)
+	</insert>
+	
+	<delete id="deleteMaterial" parameterType="Map">
+		DELETE FROM TB_BM01M01
+		WHERE PRDT_CD = #{prdtCd}
+	</delete>
+	 
+</mapper>
