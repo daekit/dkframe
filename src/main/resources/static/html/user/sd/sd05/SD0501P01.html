@@ -1,196 +1,287 @@
 <body>
-  <div class="popup_area" style="width: 1000px;">
-    <div class="popup_table" style="">
+  <div class="popup_area of_a" style="width: 100%; overflow:scroll;">
+    <!-- <div class="tit_contents">
+        <h4 class="tit">견적서 등록</h4>
+    </div> -->
+
+<!--     <h6 class="fs-30 tc">견  적  서</h6> -->
+
+    <div class="popup_table">
+    	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
+    	<form id="popForm">
         <table>
             <colgroup>
-                <col style= "width:10%">
-                <col style= "width:13%">
-                <col style= "width:10%">
-                <col style= "width:25%">
-                <col style= "width:8%">
-                <col style= "width:20%">
+                <col width="12%">
+                <col width="">
+                <col width="12%">
+                <col width="">
+                <col width="12%">
+                <col width="">
             </colgroup>
-            
             <tr>
-            	<input id="prjctCd" name="userId" type="hidden" class="form-control">
-                
                 <th class="">회사</th>
-                <td>
-					<select id="coCdDtl" class="form-control" onchange="commonCodeList();">
-					</select>
+                <td>                                
+                    <select id="coCd" name="coCdDtl" data-kind="CO">
+                    </select>
                 </td>
-                <th class ="">프로젝트 담당자</th>
-                <td><input id="mngIdDtl" type="text" class="" style="width:45%"><button type="button" class="btn btn-primary" onclick="userSearch()">검색</button></td>
-                	
+                <th class="">프로젝트 담당자</th>
+                <td>                                
+                    <input type="hidden" id="salesMng" name="salesMng" style="width: 73%;">
+                    <input type="text" id="salesMngNm" name="salesMngNm" style="width: 73%;" readonly="readonly">
+                	<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree();">
+	                	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+	                </button>
+                </td>
                 <th class="">등록일</th>
-                <td><input id="creatDtDtl" type="date" readonly="true"></td>
+                <td>
+                	<input id="creatDttm2" name="creatDtDtl" type="date">
+                </td>
             </tr>
-            
-		</table>
-        <table>
-        	<colgroup>
-                <col style= "width:10%">
-                <col style= "width:24%">
-                <col style= "width:2%">
-                <col style= "width:24%">
-                <col style= "width:8%">
-                <col style= "width:20%">
-            </colgroup>
             <tr>
-                <th class ="">프로젝트 기간</th>
-                <td><input id="strtDtDtl" type="date"></td> <th>~</th> <td><input id="endDtDtl" type="date"></td> 
-                <th class ="">총중량</th>
-                <td><input id="totWtDtl" type="text" class="form-control" style="width:80%">TON</td>
+                <!-- <th class="">프로젝트 기간</th>
+                <td colspan="3">   
+                	<input id="strtDtDtl" type="date" style="width:264px"><span>~</span><input id="endDtDtl" type="date" style="width:264px">    
+                </td> -->
+                <th class="">프로젝트 기간</th>
+                <td class="drctArea">
+                	<input id="strtDt2" name="strtDtDtl" type="date"><span>~</span><input id="endDt2" name="endDtDtl" type="date">
+                </td>
+                <th class="">제조사</th>
+                <td>
+                	<select id="makrCd" name="makrCdDtl" data-kind="MAKR">
+                    </select>
+                </td>
+                <th class="">총중량</th>
+                <td>                                
+                    <input id="totWt" name="totWtDtl" type="text" style="width: 85%;"><span>TON</span>
+                </td>
             </tr>
-		</table>
-		<table>
-			<colgroup>
-                <col style= "width:10%">
-                <col style= "width:13%">
-                <col style= "width:10%">
-                <col style= "width:25%">
-                <col style= "width:8%">
-                <col style= "width:20%">
-            </colgroup>
             <tr>
                 <th class="">프로젝트명</th>
-                <td><input id="prjctNmDtl" type="text" class="form-control" style="width:80%"></td>
-                <th class ="">제조사</th>
-                <td><input id="makrCdDtl" type="text" class="" style="width:45%"><button type="button" class="btn btn-primary" onclick="clntSearch();">검색</button></td>
+                <td>   
+                	<input id="prjctNm" name="prjctNmDtl" type="text" style="width: 100%;" >
+                </td>
+                <th class="">매출처</th>
+                <td>   
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 73%;">
+                	<input type="text" id="clntNm" name="clntNm" style="width: 73%;" readonly="readonly">
+                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch();">
+	                	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+	                </button>
+                </td>
                 <th class="">턴키여부</th>
-                <td>
-                <select id="tnkeyYnDtl" class="form-control">
-                	<option value="Y" selected>Y</option>
-					<option value="N">N</option>
-		      	</select>
+                <td>   
+                	<select id="tnkeyYn" name="tnkeyYnDtl" class="form-control">
+                		<option value="Y" selected>Y</option>
+						<option value="N">N</option>
+		      		</select>
                 </td>
             </tr>
-		</table>
-        <table>
-        	<colgroup>
-                <col width="10%">
-                <col width="90%">
-            </colgroup>
-        	<tr>
-            	<th class ="">비고</th>
-            	<td><textarea id="rmkDtl" rows="10" class="form-control"  cols="100%"></textarea>
+            <tr>
+                <th class="">비고</th>
+                <td colspan="5">     
+                    <textarea id="rmk" name="rmkDtl" style="width: 100%;height: 120px;" ></textarea>
+                </td>
             </tr>
         </table>
-        <table>
-        	<colgroup>
-                <col width="10%">
-                <col width="65%">
-                <col width="13%">
-            </colgroup>
-        	<tr>
-            	<th class ="">첨부파일</th>
-            	<td><input type="text" class="form-control"></td>
-            	<td><button type="button" class="btn btn-primary">첨부파일</button></td>
-            </tr>
-        </table>
+        <input type="hidden" id="userId" name="userId">
+	    <input type="hidden" id="pgmId" name="pgmId" value="SD0501M01">
+	    <input type="hidden" id="prjctCd" name="prjctCd">
+      </form>
     </div>
   
   
-  <!-- 테이블 -->
-    <div class="popup_table">
-      <table>
-        <thead>
-          <tr>
-            <th colspan="4">
-              출하요청서
-            </th>
-            <td>
-              <a class="tbody_more_btn"></a>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>요청 일자</th>
-            <th>상차지</th>
-            <th>하차지</th>
-            <th>출하 일자</th>
-            <th>총 중량</th>
-          </tr>
-          <tr>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <!-- 테이블 -->
-    <div class="popup_table">
-      <table>
-        <thead>
-          <tr>
-            <th colspan="5">
-              발주서
-            </th>
-            <td>
-              <a class="tbody_more_btn"></a>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>요청 일자</th>
-            <th>건설사</th>
-            <th>상차지</th>
-            <th>하차지</th>
-            <th>납품 일자</th>
-            <th>총 중량</th>
-          </tr>
-          <tr>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-            <td><input type="text"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- 출하요청서 테이블 -->
+	<table class="popup_table" id="shipmentTable">
+		<colgroup>
+			<col width="16%">
+			<col width="16%">
+			<col width="16%">
+			<col width="16%">
+			<col width="16%">
+			<col width="16%">
+		</colgroup>
+		<thead>
+			<tr>
+				<td colspan="5" style="text-align: left;">출하요청서</td>
+				<td style="text-align: right;">
+					<a class="tbody_more_btn"></a>
+				</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th>요청 일자</th>
+				<th>상차지</th>
+				<th>하차지</th>
+				<th>출하 일자</th>
+				<th>출하 중량</th>
+				<th>실 중량</th>
+			</tr>
+			<tr class="detailRow">
+				<td>
+					<input type="text" id="smtReqDt" name="smtReqDt">
+				</td>
+				<td>
+					<input type="text" id="smtWhCd" name="smtWhCd">
+				</td>
+				<td>
+					<input type="text" id="smtAddr" name="smtAddr">
+				</td>
+				<td>
+					<input type="text" id="smtShipDttm" name="smtShipDttm">
+				</td>
+				<td>
+					<input type="text" id="smtRealShipWt" name="smtRealShipWt">
+				</td>
+				<td>
+					<input type="text" id="smtShipWt" name="smtShipWt">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+  <!-- 발주서 테이블 -->
+	<table class="popup_table" id="ordrgTable">
+		<colgroup>
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+		</colgroup>
+		<thead>
+			<tr>
+				<td colspan="6" style="text-align: left;">발주서</td>
+				<td style="text-align: right;">
+					<a class="tbody_more_btn"></a>
+				</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th>요청 일자</th>
+				<th>건설사</th>
+				<th>상차지</th>
+				<th>하차지</th>
+				<th>납품 일자</th>
+				<th>발주 중량</th>
+				<th>실 중량</th>
+			</tr>
+			<tr>
+				<td>
+					<input type="text" id="ordReqDt" name="ordReqDt">
+				</td>
+				<td>
+					<input type="text" id="ordClntCd" name="ordClntCd">
+				</td>
+				<td>
+					<input type="text" id="ordWhCd" name="ordWhCd">
+				</td>
+				<td>
+					<input type="text" id="ordAddr" name="ordAddr">
+				</td>
+				<td>
+					<input type="text" id="ordOrdrgProcDttm" name="ordOrdrgProcDttm">
+				</td>
+				<td>
+					<input type="text" id="ordOrdrgWt" name="ordOrdrgWt">
+				</td>
+				<td>
+					<input type="text" id="ordRealDlvrWt" name="ordRealDlvrWt">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+    <table>
+	  <colgroup>
+	    <col width="10%">
+	    <col width="65%">
+	    <col width="13%">
+	  </colgroup>
+	    <tr>
+	  		<th>
+	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+	  		</th>
+	  		<td>
+	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 863px"></div>
+	  		</td>
+	  	</tr>
+	</table>
   </div>
   <div>
-		<button id="actionBtn" type="button" class="btn btn-default btn-sm" onclick="insertPrjDtl();">등록</button>
+		<button id="actionBtn">등록</button>
 		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div> 
   <!-- <div class="row">
 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
   </div> -->
 </body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
 <script type="text/javascript">
-var insertOK = false;
-var row = firstGrid.getList("selected")[0];
-	$(document).ready( function() {
-		//$("#coCdDtl").prop('disabled',true);  
-		$("#userId").val(jwt.userId);
-		if(actionType == "U") {
-			$("#actionBtn").html("수정");
-			initData();
-			setData();
-			coCdDtlCombo.initCombo();
-			insertOK = true;
-		}else{
-			$("#actionBtn").html("등록");
-			$(".popup_table input").val("");
-			creatDt = new Date().toISOString().slice(0, 10)
-			$("#creatDtDtl").val(creatDt);
-			upcoCdDtlCombo.initCombo();
-			insertOK = false;
+
+	var clntType = null;
+	var fileArr = [];
+	var deleteFileArr = [];
+	var fileGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showLineNumber: true,
+				showRowSelector: false,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	downloadFile(this.dindex);
+		            },
+		        },
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 440},
+	                {key: "fileType", label: "파일타입", width: 150},
+	                {key: "fileSize", label: "파일크기", width: 150},
+	                {
+						key:"fileDelete", label: "삭제", width:80,
+						formatter:function() {
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
+						}
+					}
+	            ]
+			});
+		},
+		setData: function(){
+			this.target.setData(fileArr);
 		}
-		$( '.tbody_more_btn' ).click( function() {
+	}
+	
+	$(document).ready( function() {
+		// 영역 접기/열기 이벤트 바인딩
+		$('a.tbody_more_btn').click(function() {
+			$(this).toggleClass('on');
+			$(this).closest('table').find('tbody').toggle();
+		});
+		fileGridView.initView();
+		$("#userId").val(jwt.userId);
+		setCommonSelect($(".popup_area select[data-kind]"));
+		if(actionType == "C") {
+			$('#actionBtn').on("click", function(){insertOrder();});
+			$("#actionBtn").text("등록");
+		}else if(actionType == "U"){
+			selectPrjInfo();
+			$('#actionBtn').on("click", function(){updateOrder();});
+			$('#actionBtn').text("수정");
+		}
+		/* $( '.tbody_more_btn' ).click( function() {
 	    $(this).closest('table').toggleClass('off');
 	    $(this).closest('table').find('tbody').toggle();
 	    $(this).closest('table').find('thead').toggleClass('off');
-	    $(this).toggleClass('on');
-	  });		
+	    $(this).toggleClass('on'); */
 	});
 	
 	function initData(){
@@ -198,64 +289,79 @@ var row = firstGrid.getList("selected")[0];
 		document.getElementById("coCdDtl").innerHTML = selectSelpchCd.innerHTML;
 	}
 	
-	function setData(){
-		var row = firstGrid.getList("selected")[0];
-		
-		coCdId = row.coCd;
-		tnkeyYnId = row.tnkeyYn;
-		
-		strtDtId = row.strtDt;
-		strtDt = strtDtId.substr(0,4) + "-" + strtDtId.substr(4,2) + "-" + strtDtId.substr(6,2); 
-		
-		endDtId = row.endDt;
-		endDt = endDtId.substr(0,4) + "-" + endDtId.substr(4,2) + "-" + endDtId.substr(6,2);
-		creatDtId = row.creatDttm;
-		if(creatDtId != ""){
-			creatDt = creatDtId.substring(10,0);				
+	function selectPrjInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"prjctCd" : row.prjctCd,
+			"salesMng" : row.mngId
 		}
-		$("#prjctCd").val(row.prjctCd);
-		$("#prjctNmDtl").val(row.prjctNm);
-		$("#creatDtDtl").val(creatDt);
-		$("#totWtDtl").val(row.totWt);
-		$("#strtDtDtl").val(strtDt);
-		$("#endDtDtl").val(endDt);
-		$("#mngIdDtl").val(row.mngId);
-		$("#makrCdDtl").val(row.makrCd);
-		$("#rmkDtl").val(row.rmk);
+		postAjax("/user/sd/sd05/selectPrjInfo", formData, null, function(data){
+			setPrjInfo(data.result);
+		});
+	}
+	
+	function setPrjInfo(obj){
+		debugger;		
+		var fileInfo = obj.fileList;
+		var prjInfo = obj.prjInfo;
+		var ordDtl = obj.ordDetail;
+		var shipmentDtl = obj.shipmentDetail;
+		
+		//메인정보 세팅
+		$.each(prjInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+		//발주서 세팅
+		$.each(ordDtl, function(idx, item){
+			if(idx != 0) addRow();
+			$.each(item, function(key, value){
+					$('#'+key).val(value);	
+			});
+			//countTot();
+		});
+		
+		//출하요청서
+		$.each(shipmentDtl, function(idx, item){
+			if(idx != 0) addRow2();
+			$.each(item, function(key, value){
+					$('#'+key).val(value);	
+			});
+			//countTot();
+		});
+		
+		$.each(fileInfo, function(idx, obj){
+			debugger;
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+		
+	function addRow() {
+		var row = $("#ordrgTable > tbody:last > tr:last").clone();
+		$("#ordrgTable > tbody:last").append(row);
+		//countTot();
+	}
+	
+	function addRow2() {
+		var row = $("#shipmentTable > tbody:last > tr:last").clone();
+		$("#shipmentTable > tbody:last").append(row);
+		//countTot();
 	}
 	
 	function setDtlcoCd(params){
 		$("#coCdDtl").val(params.coCd);
-		$("#mngIdDtl").val(params.name);
+		$("#salesMngNm").val(params.name);
+		$("#salesMng").val(params.salesMng);
 	}
 	function setDtlclntCd(params){
 		$("#makrCdDtl").val(params.clntNm);
-	}
-	var coCdDtlCombo = {
-		initCombo: function(param){
-			var row = firstGrid.getList("selected")[0];
-			var formObj = {"prjctCd": row.prjctCd, "userId": jwt.userId};
-			postAjax("/user/sd/sd05/selectProjectKeyList", formObj, null, function (data){
-				
-				setDetailInfo(data.codeName);
-			})
-		}
-	}
-	
-	var upcoCdDtlCombo = {
-		initCombo: function(param){
-			var formData = {"coCd": "TEST"};
-			
-			postAjax("/user/sd/sd05/selectProjectcoCdList", formData, null, function (data){
-				var list = data.codecoCd; 
-				var optionHtml = '<option value="">전체</option>';
-				for (var i = 0; i < list.length; i++) {
-							optionHtml += '<option value=\"' +  list[i].deptId + '\">'
-							+ list[i].deptNm + '</option>';
-				}
-				document.getElementById("coCdDtl").innerHTML = optionHtml;
-			})
-		}
 	}
 	
 	function setDetailInfo(data){
@@ -269,52 +375,118 @@ var row = firstGrid.getList("selected")[0];
 		//$("select[name=coNmDtl]").val(coCd);
 		
 	}
-	function insertPrjDtl() {
-		strtDtDtl = $("#strtDtDtl").val();
-		strtDt = strtDtDtl.substr(0,4) + strtDtDtl.substr(5,2) + strtDtDtl.substr(8,2);
-		endDtDtl = $("#endDtDtl").val();
-		prjctCd = $("prjctCd").val();
-		clntCd = $("clntCd").val();
-		endDt = endDtDtl.substr(0,4) + endDtDtl.substr(5,2) + endDtDtl.substr(8,2);
-		
-		var formData = {
-				"prjctCd": $("#prjctCd").val(), 
-				"coCd" : $("#coCdDtl").val(),
-				"mngId" : $("#mngIdDtl").val(),
-				"strtDt" : strtDt,
-				"endDt" : endDt,
-				"totWt" : $("#totWtDtl").val(),
-				"prjctNm" : $("#prjctNmDtl").val(),
-				"makrCd" : $("#makrCdDtl").val(),
-				"clntCd" : "clntCd",
-				"tnkeyYn" : $("#tnkeyYnDtl").val(),
-				"rmk" : $("#rmkDtl").val(),
-				"creatPgm" : "creatPgm",
-				"userId" : jwt.userId
-		}
-		putAjax("/user/sd/sd05/insertProject", formData, null, function(data){
-			if(data.resultCode == 200){
-				if(insertOK){
-					alert("수정 되었습니다.");	
-				}else{
-					alert(data.resultMessage);
-				}
-				getData();
-				modal.close();
-			}
-		})
+	//사용자 검색
+	function openUserTree() {
+		openSecondModal("/static/html/user/sd/sd03/SD0301P02.html", 300, 500, "사용자 검색");
+	}
+	//제조사 검색
+	function clntSearch() {
+		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 400, 400, "거래처검색");
+	}
+	//검색된 거래처 받아오는함수
+	function setDtlClntCd(params){
+		$("#clntNm").val(params.clntNm);
+		$("#clntCd").val(params.clntCd);
 	}
 	
-	function userSearch() {
-		openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 500, 200, "사용자검색");
-	}
-	function clntSearch() {
-		openSecondModal("/static/html/user/sd/sd05/SD0501P03.html", 500, 200, "제조사검색");
-	}
 	/*select box 선택시*/
 	function commonCodeList(param){
 		var codeSelect = document.getElementById("coCdDtl");
 		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
+	}
+	
+	function insertOrder() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/sd/sd05/insertProject", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updateOrder() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/sd/sd05/updateProject", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function makeFormData() {
+		$("#userId").val(jwt.userId);
+		//$("#popForm").find("#coCdDtl").val($('#mainForm').find("#coCdDtl option:selected").val());
+		var formData = new FormData($("#popForm")[0]);
+		
+		
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		if(actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		} 
+		
+		return formData;
+	}
+	
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+	
+	function setFileInfo(fileInfo) {
+		// 첨부파일 set
+		$.each(fileInfo, function(idx, obj){
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
+	function setFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var testArr = obj.name.split(".");
+			fileArr.push({
+				'fileKey' : 0,
+		      	'fileName' : obj.name,
+		      	'fileType' : testArr[testArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		fileGridView.setData();
+		$(elem).val("");
+	}
+	
+	function deleteFile(rowIndex) {
+		fileGridView.target.removeRow(rowIndex);
+		
+		if(fileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(fileArr[rowIndex].fileKey);
+		}
+		
+		fileArr.splice(rowIndex, 1);
 	}
 	
 </script>
