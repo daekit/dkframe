@@ -21,5 +21,15 @@ public interface SD05Mapper {
 	
 	int selectProjectCount(Map<String, String> param);
 	
-	int insertProject(Map<String, String> param);
+	Map<String, String> selectPrjInfo(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectOrdDetail(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectShipmentDetail(Map<String, String> paramMap);
+	
+	int insertProject(Map<String, String> paramMap);
+
+	int updateProject(Map<String, String> param);
+	
+	int deleteProject(Map<String, String> paramMap);
 }
