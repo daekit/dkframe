@@ -24,6 +24,10 @@
 			, PRDT_DT
 			, PRDT_DK_CD
 			, PRDT_MES_CD
+			, NVL(FN_SD06_UPR_FROM_PRDT_CD(T.PRDT_DT, 'SELPCH1', 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
+<!-- 			, NVL((SELECT PCHS_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS PCHS_UPR -->
+<!-- 			, NVL((SELECT SELL_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS SELL_UPR -->
+<!-- 			, NVL((SELECT STOCK_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS STOCK_UPR -->
 			, USE_YN
 			, ETC_FIELD1
 			, ETC_FIELD2
@@ -36,8 +40,8 @@
 		 	<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'				
 			</if>
-				AND USE_YN = #{useYn} 
-		)
+				AND USE_YN = #{useYn}
+		) T
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
 	
