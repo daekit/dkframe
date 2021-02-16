@@ -275,9 +275,10 @@ function inputValidation(inputList) {
 	return isValid;
 }
 
-// 숫자만 입력
+// 숫자만 입력 (음수, 정수 가능.  소수 불가능)
 function onlyNumber(elem){
-	 $(elem).val($(elem).val().replace(/[^0-9]/g,""));
+	//	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
+	$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
 }
 
 // 한글 제거
@@ -306,6 +307,17 @@ function addComma(elem) {
 // 콤마 제거
 function deleteComma(elem) {
 	$(elem).val($(elem).val().replace(/,/g, ""));
+	return elem;
+}
+
+// 원단위 콤마 추가 스트링변수용
+function addCommaStr(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// 콤마 제거 스트링변수용
+function deleteCommaStr(x) {
+    return x.toString().replace(/,/g, "");
 }
 
 // 권한에 따른 메뉴 보여주기
@@ -351,7 +363,10 @@ function logoutClick(){
 //공통코드 검색 함수 
 function setCommonSelect(el){
 	$.each(el, function(idx, elem){
-		var param = {"codeKind" : $(elem).data('kind')};
+		var param = {
+			"codeKind" : $(elem).data('kind'),
+			"codeRprc" : $(elem).data('rprc')
+		};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
 			var optionHtml = '';
 			var codeList = data.childCodeList;
@@ -365,7 +380,8 @@ function setCommonSelect(el){
 	})
 }
 
-function mainDefaultLoad() {
+function mainDefaultLoad(menuNm, subMenuNm) {
+	// left
 	$("#head_area").load("/static/html/header.html");
 	$("#head_area").after('<div class="menu_off"><a class="off_btn"></a></div>');
 	$('.off_btn').click(function () {
@@ -374,4 +390,42 @@ function mainDefaultLoad() {
 	    $('#main_area').toggleClass('on');
     });
 	setMenuAuth();
+	
+	// top
+	$("#top_area").load("/static/html/top.html", function(){
+		$('#topMenu').text(menuNm);
+		$('#topSubMenu').text(subMenuNm);
+	});
 }
+
+function dateToStr(str) {
+	var format = new Date(str);
+    var year = format.getFullYear();
+    var month = format.getMonth() + 1;
+    if(month<10) month = '0' + month;
+    var date = format.getDate();
+    if(date<10) date = '0' + date;
+    var hour = format.getHours();
+    if(hour<10) hour = '0' + hour;
+    var min = format.getMinutes();
+    if(min<10) min = '0' + min;
+    var sec = format.getSeconds();
+    if(sec<10) sec = '0' + sec;
+    return year + "-" + month + "-" + date;
+}
+
+function lastWeek() {
+	  var d = new Date()
+	  var dayOfMonth = d.getDate()
+	  d.setDate(dayOfMonth - 7)
+	  return dateToStr(d)
+}
+
+function before30day() {
+	  var d = new Date()
+	  var dayOfMonth = d.getDate()
+	  d.setDate(dayOfMonth - 30)
+	  return dateToStr(d)
+}
+
+

@@ -80,15 +80,17 @@
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
 	        <li class="btn_r">
-	        <a onclick = "gridView.setData(0);">
-	          <button class="bg_gray">초기화</button>
-	          <button class="bg_gray">검 색</button>
-	         </a>
+		    	<a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		        </a>
+		        <a onclick="gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
 	        </li>
 	      </ul>
     	</div>
 		  <!-- 검색 콘텐츠 -->
-	    <div class="contents">
+	    <div class="contents search">
 	        <div class="">
 	            <!-- 테이블 인풋 3분할 -->
 	            <table class="table_input type03">
@@ -148,8 +150,8 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;">+</a>
-	                <a onclick="" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="insertOrderModal('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteOrder();" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
 				<select class="prae_select" onchange="changeRecordCnt();">
 					<option value="10">10</option>
@@ -184,6 +186,7 @@
 			this.target.setConfig({
 		    	showRowSelector: true,
 		    	multipleSelect: false,
+		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
 		        	align: "center",
@@ -192,10 +195,9 @@
 		        body: {
 		        	onClick: function () {
 		                this.self.select(this.dindex); 
-		                $("#basisPriceSeq").val( this.item.basisPriceSeq ); 
 		            },
 		            onDBLClick: function () {
-		            	//detailMaterial("U");
+		            	insertOrderModal("U");
 		            },
 		        },
 		        page: {
@@ -211,25 +213,26 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "prdtDt", label: "요청일자", align: "center", width: "5%"},
-		            {key: "basisPriceSeq", label: "직송구분", align: "center", width: "5%"},
-		            {key: "selpchNm", label: "매입거래처", align: "center", width: "10%"},
-		        	{key: "prdtImpNm", label: "프로젝트", align: "center", width: "10%"},
-		        	{key: "prdtDivNm", label: "매출거래처", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "제조사", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "창고", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "수량(Kg)", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "발주금액", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "판매유형", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "매입확정여부", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "매출확정여부", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "수입구분", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "도착지", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "담당자연락처", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "납기일자", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "비고", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "주소", align: "center", width: "10%"},
-		        	{key: "prdtUpr", label: "발주담당자", align: "center", width: "10%"},
+		          	{key: "ordrgSeq", label: "발주일련번호", align: "center", hidden: true},
+		          	{key: "reqDt", label: "요청일자", align: "center", hidden: true},
+		          	{key: "reqDt2", label: "요청일자", align: "center", width: "5%"},
+		            {key: "dirtrsYn", label: "직송구분", align: "center", width: "4%"},
+		            {key: "clntNm", label: "매입거래처", align: "center", width: "10%"},
+		        	{key: "prjctNm", label: "프로젝트", align: "center", width: "10%"},
+		        	{key: "sellClntNm", label: "매출거래처", align: "center", width: "10%"},
+		        	{key: "makrNm", label: "제조사", align: "center", width: "6%"},
+		        	{key: "whNm", label: "창고", align: "center", width: "8%"},
+		        	{key: "totQty", label: "수량(Kg)", align: "center", width: "6%"},
+		        	{key: "totAmt", label: "발주금액", align: "center", width: "10%", formatter: "money"},
+		        	{key: "typNm", label: "판매유형", align: "center", width: "6%"},
+		        	{key: "ordrgYn", label: "매입확정여부", align: "center", width: "5%"},
+		        	{key: "sellYn", label: "매출확정여부", align: "center", width: "5%"},
+		        	{key: "impYn", label: "수입구분", align: "center", width: "4%"},
+		        	{key: "addr", label: "착지주소", align: "center", width: "12%"},
+		        	{key: "mngTel", label: "담당자연락처", align: "center", width: "10%"},
+		        	{key: "dlvrDttm", label: "납기일자", align: "center", width: "10%"},
+		        	{key: "ordrgRmk", label: "비고", align: "center", width: "10%"},
+		        	{key: "salesMngNm", label: "발주담당자", align: "center", width: "10%"},
 		        ]
 		    });
 			return this;
@@ -239,7 +242,7 @@
 			var formData = {
 				"coCd" : $("#coCd_S").val(),
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-				"reqDtTo" : $("#reqDtTo").val(),
+				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
 				"ownerCd" : $("#ownerCd_S").val(),
 				"typCd" : $("#typCd_S").val(),
 				"clntCd" : $("#clntCd_S").val(),
@@ -248,7 +251,7 @@
 				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/od/od01/selectOrderList", formData, null, function(data){
-				var list = data.uprList;
+				var list = data.resultList;
 				firstGrid.setData({
 					list : list,
 					page : {
@@ -266,8 +269,10 @@
 		//순서 맨 처음
 		mainDefaultLoad();
 		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
+		$("#reqDtFrom").val(lastWeek());
+		$("#reqDtTo").val(dateToStr(new Date()));
 		gridView.initView().setData(0);
-		$("#CO").val(jwt.coCd);
 	})
 
 	function subShowHide(data) {
@@ -296,7 +301,7 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/od/od01/OD0102P01.html", 900, 750, " ");
+		openModal("/static/html/user/od/od01/OD0102P01.html", 920, 770, " ");
 	}
 	
 	function openDaumPostcode() {
@@ -315,11 +320,35 @@
 		clntType = type; 
 		if(clntType == "PUR") {
 			modalTitle = "매입거래처";
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
 		} else if(clntType == "SELL") {
 			modalTitle = "매출거래처";
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
 		} else {
 			modalTitle = "거래처";
+			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
 		} 	
-		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
 	}
+	
+	function deleteOrder() {
+		if(confirm("삭제하시겠습니까?")){
+			var row = gridView.target.getList("selected")[0];
+			var formData = {
+				"ordrgSeq" : row.ordrgSeq,
+				"reqDt" : row.reqDt
+			}
+			deleteAjax("/user/od/od01/deleteOrder", formData, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		}
+	}
+
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input[type='text']").val("");
+	}
+	
 </script>

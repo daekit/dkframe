@@ -4,39 +4,104 @@
 <mapper namespace="com.dksys.biz.user.sd.sd05.mapper.SD05Mapper">
 
 	<select id="selectProjectList" parameterType="Map" resultType="CamelMap">
-		SELECT * FROM 
-		(
-		 	SELECT ROWNUM RNUM, A.* FROM TB_SD05M01 A
-		 	WHERE 1=1
-		 	<if test= "coCd != null and !coCd.equals('')">
-		 		AND A.CO_CD = #{coCd}
-			</if>
-			<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-			<![CDATA[
-				AND STRT_DT >= TO_DATE (#{strtDt} , 'YYYY-MM-DD' )
-				AND END_DT <= TO_DATE(#{endDt}, 'YYYY-MM-DD')
-			]]> 
-			</if>
-			<if test="searchValue != null and !searchValue.equals('')">
-				AND ${searchType} LIKE '%${searchValue}%'
-			</if>
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					 A.CO_CD
+					,FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM					 
+					,A.PRJCT_CD
+					,A.PRJCT_NM
+					,A.TNKEY_YN
+					,A.CLNT_CD
+					,B.CLNT_NM
+					,A.MAKR_CD
+					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+					,A.MNG_ID
+					,C.NAME AS MNG_NM
+					,A.STRT_DT
+					,A.END_DT
+					,A.TOT_WT
+					,A.ODR_NO
+					,A.ODR_DT
+					,A.RMK
+					,A.ETC_FIELD1
+					,A.ETC_FIELD2
+					,A.ETC_FIELD3
+					,A.CREAT_PGM
+					,to_char(A.CREAT_DTTM,'YYYYMMDD') as CREAT_DTTM
+					,A.UDT_ID
+					,A.UDT_PGM
+					,A.UDT_DTTM
+				FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
+				WHERE A.CLNT_CD = B.CLNT_CD
+				 AND  A.MNG_ID = C.ID
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+				<![CDATA[
+					AND STRT_DT >= TO_DATE (#{strtDt} , 'YYYY-MM-DD' )
+					AND END_DT <= TO_DATE(#{endDt}, 'YYYY-MM-DD')
+				]]> 
+				</if>
+				<if test="searchValue != null and !searchValue.equals('')">
+					AND ${searchType} LIKE '%${searchValue}%'
+				</if>
+				ORDER BY CREAT_DTTM
+			) D
 		)
-		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
 	
-	<select id="selectProjectcoCdList" parameterType="Map" resultType="CamelMap">
-	 	SELECT * FROM TB_CM04M01 WHERE 1=1 AND DEPT_ID = 'GGM' OR DEPT_ID = 'GUM'
-	 	<if test="searchValue != null and !searchValue.equals('')">
-			AND CO_CD = ${searchType} 
-			AND PRJCT_NM LIKE '%${searchValue}%'
-		</if>
+	<select id="selectPrjInfo" parameterType="Map" resultType="camelMap">
+		SELECT T.*,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.MAKR_CD) AS MAKR_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+			MNG_ID AS SALES_MNG,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS SALES_MNG_NM,
+			TO_CHAR(TO_DATE(STRT_DT,'YYYYMMDD'),'YYYY-MM-DD') as STRT_DT2,
+			TO_CHAR(TO_DATE(END_DT,'YYYYMMDD'),'YYYY-MM-DD') as END_DT2,
+			TO_CHAR(CREAT_DTTM,'YYYY-MM-DD') as CREAT_DTTM2 
+		FROM TB_SD05M01 T
+		WHERE PRJCT_CD = #{prjctCd}
 	</select>
 	
-	<select id="selectProjectNameList" parameterType="Map" resultType="CamelMap">
-		SELECT * FROM TB_CM06M01 WHERE 1=1 		
-	 	<if test="searchType != null and !searchType.equals('')">
-			AND NAME LIKE '${searchValue}%' AND DEPT_ID LIKE '${searchType}%'
-		</if>
+	<select id="selectOrdDetail" parameterType="Map" resultType="camelMap">
+		SELECT TO_CHAR(TO_DATE(REQ_DT,'YYYYMMDD'),'YYYY-MM-DD') AS ORD_REQ_DT
+			  ,B.CLNT_CD AS ORD_CLNT_CD
+			  ,WH_CD AS ORD_WH_CD
+			  ,ADDR_MAIN AS ORD_ADDR_MAIN
+			  ,ADDR_SUB AS ORD_ADDR_SUB
+			  ,CONCAT(CONCAT(B.ADDR_MAIN,' '),B.ADDR_SUB) AS ORD_ADDR
+			  ,TO_CHAR(B.ORDRG_PROC_DTTM,'YYYY-MM-DD') AS ORD_ORDRG_PROC_DTTM
+			  ,C.ORDRG_WT AS ORD_ORDRG_WT
+			  ,C.REAL_DLVR_WT AS ORD_REAL_DLVR_WT
+		FROM TB_SD05M01 A, TB_OD01M01 B, TB_OD01D01 C
+		WHERE 1=1
+		  AND A.PRJCT_CD = B.PRJCT_CD
+		  AND B.ORDRG_SEQ = C.ORDRG_SEQ
+		  AND B.PRJCT_CD = #{prjctCd}
+	</select>
+	
+	<select id="selectShipmentDetail" parameterType="Map" resultType="camelMap">
+		SELECT TO_CHAR(TO_DATE(REQ_DT,'YYYYMMDD'),'YYYY-MM-DD') AS SMT_REQ_DT
+			  ,WH_CD AS SMT_WH_CD
+			  ,ADDR_MAIN AS SMT_ADDR_MAIN
+			  ,ADDR_SUB AS SMT_ADDR_SUB
+			  ,CONCAT(CONCAT(B.ADDR_MAIN,' '),B.ADDR_SUB) AS SMT_ADDR
+			  ,TO_CHAR(B.SHIP_DTTM,'YYYY-MM-DD') AS SMT_SHIP_DTTM
+			  ,C.SHIP_WT AS SMT_SHIP_WT
+			  ,C.REAL_SHIP_WT AS SMT_REAL_SHIP_WT
+		FROM TB_SD05M01 A, TB_AR01M01 B, TB_AR01D01 C
+		WHERE 1=1
+		AND A.PRJCT_CD = B.PRJCT_CD
+		AND B.SHIP_SEQ = C.SHIP_SEQ
+		  AND B.PRJCT_CD = #{prjctCd}
 	</select>
 	
 	<select id="selectProjectClntList" parameterType="Map" resultType="CamelMap">
@@ -61,34 +126,68 @@
 		</if>
 	</select>
 	
-	<insert id="insertProject" parameterType="Map">
-		MERGE INTO TB_SD05M01
-			USING DUAL
-			ON (PRJCT_CD = #{prjctCd})
-		WHEN MATCHED THEN
-			UPDATE SET
-				 CO_CD = #{coCd}
-				,MNG_ID = #{mngId}
-				,MAKR_CD = #{makrCd}
-				,STRT_DT = #{strtDt}
-				,END_DT = #{endDt}
-				,TOT_WT = #{totWt}
-				,PRJCT_NM = #{prjctNm}
+	<update id="updateProject" parameterType="Map">
+		UPDATE TB_SD05M01 
+			SET 
+				 CO_CD = #{coCdDtl}
+				,MNG_ID = #{salesMng}
+				,MAKR_CD = #{makrCdDtl}
+				,STRT_DT = TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD') 
+				,END_DT = TO_CHAR(TO_DATE(#{endDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD')
+				,TOT_WT = #{totWtDtl}
+				,PRJCT_NM = #{prjctNmDtl}
 				,CLNT_CD = #{clntCd}
-				,TNKEY_YN = #{tnkeyYn}
-				,RMK = #{rmk}	
-				,UDT_ID = #{userId}											
+				,TNKEY_YN = #{tnkeyYnDtl}
+				,RMK = #{rmkDtl}	
+				,UDT_ID = #{userId}
+				,UDT_PGM = #{pgmId}										
 				,UDT_DTTM = SYSDATE
-		WHEN NOT MATCHED THEN
-			INSERT
+		WHERE 
+			PRJCT_CD = #{prjctCd}
+			
+	</update>
+	
+	<insert id="insertProject" parameterType="Map">
+		<selectKey keyProperty="prjctCd" resultType="String" order="BEFORE">
+			SELECT TO_CHAR(SYSDATE, 'YYYYMMDD')||LPAD(TB_SD05M01_SQ01.NEXTVAL,3,0) FROM DUAL
+		</selectKey>
+		INSERT INTO TB_SD05M01
 			(
-				PRJCT_CD, CO_CD, MNG_ID, MAKR_CD, STRT_DT, END_DT, TOT_WT, PRJCT_NM, CLNT_CD, TNKEY_YN, RMK, CREAT_ID, CREAT_PGM, CREAT_DTTM
-				
-			)
-		 	VALUES
-		 	(
-				TO_CHAR(SYSDATE, 'YYYYMMDD')||LPAD(TB_SD05M01_SQ01.NEXTVAL,3,0), #{coCd}, #{mngId}, #{makrCd}, #{strtDt}, #{endDt}, #{totWt}, #{prjctNm}, #{clntCd}, #{tnkeyYn}, #{rmk}	,#{userId}, #{creatPgm}, SYSDATE
+				PRJCT_CD,
+				CO_CD,
+				MNG_ID,
+				MAKR_CD,
+				STRT_DT,
+				END_DT,
+				TOT_WT,
+				PRJCT_NM,
+				CLNT_CD,
+				TNKEY_YN,
+				RMK,
+				CREAT_ID,
+				CREAT_PGM,										
+				CREAT_DTTM
+			)VALUES(
+				#{prjctCd}, 
+				#{coCdDtl}, 
+				#{salesMng}, 
+				#{makrCdDtl},
+				TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD'), 
+				TO_CHAR(TO_DATE(#{endDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD'),
+				#{totWtDtl}, 
+				#{prjctNmDtl}, 
+				#{clntCd}, 
+				#{tnkeyYnDtl}, 
+				#{rmkDtl}, 
+				#{userId}, 
+				'SD0501P01.html', 
+				SYSDATE
 		 	)
 	</insert>
+	
+	<delete id="deleteProject" parameterType="Map">
+		DELETE FROM TB_SD05M01
+		WHERE PRJCT_CD = #{prjctCd}
+	</delete>
 	
 </mapper>

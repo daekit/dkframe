@@ -1,5 +1,5 @@
 <body>
-  <div class="popup_area" style="width: 100%;">
+  <div class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
         <h4 class="tit">발주서 등록</h4>
     </div>
@@ -32,7 +32,7 @@
 	                </td>
 	                <th>직송여부</th>
 	                <td>                                
-	                    <select id="dirtrsYn" name="dirtrsYn"onchange="setData();">
+	                    <select id="dirtrsYn" name="dirtrsYn" onchange="setData();">
 		                  	<option value="N" selected="selected">N</option>
 		                  	<option value="Y" >Y</option>
 		                </select>
@@ -42,7 +42,7 @@
 	                <th>매입거래처</th>
 	                <td>     
 	                    <input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">
-	                    <input type="text" id="clntNm" style="width: 76%;">
+	                    <input type="text" id="clntNm" style="width: 76%;" readonly="readonly">
 	                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch('PUR');">
 	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 	                	</button>      
@@ -53,11 +53,11 @@
 	                        <option value="">선택</option> 
 	                    </select>               
 	                </td>
-	                <th>매출거래처</th>
-	                <td class="drctArea">             
-	                	<input type="hidden" id="sellClntCd" name="sellClntCd" style="width: 76%;">                   
-	                    <input type="text" id="sellClntNm" style="width: 76%;">
-	                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch('SELL');">
+	                <th>영업담당자</th>
+	                <td>                                
+	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
+	                    <input type="text" id="salesMngNm" name="salesMngNm" style="width: 76%;" readonly="readonly">
+	                	<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree();">
 	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 	                	</button>
 	                </td>
@@ -69,11 +69,10 @@
 	                        <option value="">선택</option> 
 	                    </select>
 	                </td>
-	                <th>수입여부</th>
+	                <th>입고창고</th>
 	                <td>                                
-	                    <select id="impYn" name="impYn">
-		                  	<option value="N" selected="selected">N</option>
-		                  	<option value="Y" >Y</option>
+	                    <select id="whCd" name="whCd" data-kind="WH">
+		                  	<option value="">선택</option> 
 		                </select>
 	                </td>
 	                <th>판매지역</th>
@@ -84,6 +83,27 @@
 	                </td>
 	            </tr>
 	            <tr>
+	                <th>수입여부</th>
+	                <td>
+		                <select id="impYn" name="impYn">
+		                  	<option value="N" selected="selected">N</option>
+		                  	<option value="Y" >Y</option>
+		                </select>
+	                </td>
+	                <th>운송비</th>
+	                <td>   
+	                	<input type="text" id="transAmt" name="transAmt" style="width: 100%;">
+	                </td>
+	                <th>매출거래처</th>
+	                <td class="drctArea">
+	                	<input type="hidden" id="sellClntCd" name="sellClntCd" style="width: 76%;">                   
+	                    <input type="text" id="sellClntNm" style="width: 76%;">
+	                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch('SELL');">
+	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+	                	</button>
+	                </td>
+	            </tr>
+	            <tr>
 	                <th>주문번호</th>
 	                <td>     
 	                    <input type="text" id="odrSeq" name="odrSeq" style="width: 76%;">
@@ -91,29 +111,28 @@
 	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 	                	</button>      
 	                </td>
-	                <th>운송비</th>
-	                <td>   
-	                	<input type="text" id="transAmt" name="transAmt" style="width: 100%;">
-	                </td>
-	                <th>영업담당자</th>
-	                <td class="drctArea">                                
-	                    <input type="text" id="salesMng" name="salesMng" style="width: 76%;">
-	                	<button type="button" class="btn btn-primary btn-sm" onclick="">
-	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-	                	</button>
-	                </td>
-	            </tr>
-	            <tr>
-	                <th>프로젝트<br>현장명</th>
-	                <td colspan="3">     
-	                    <input type="text" id="prjctCd" name="prjctCd" style="width: 91%;">
-	                	<button type="button" class="btn btn-primary btn-sm" onclick="">
-	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-	                	</button>      
+	                <th>착지연락처</th>
+	                <td>
+	                	<input type="text" id="mngTel" name="mngTel" style="width: 100%;">
 	                </td>
 	                <th>납기일자</th>
 	                <td class="drctArea">
 	                	<input type="date" id="dlvrDttm" name="dlvrDttm">
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>프로젝트<br>현장명</th>
+	                <td colspan="3">
+	                	<input type="hidden" id="prjctCd" name="prjctCd" style="width: 91%;">     
+	                    <input type="text" id="prjctNm" name="prjctNm" style="width: 91%;">
+	                	<button type="button" class="btn btn-primary btn-sm" onclick="">
+	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+	                	</button>      
+	                </td>
+	                <th>발주처리<br>완료여부</th>
+	                <td>                                
+	                    <input type="text" id="ordrgYn" name="ordrgYn" style="width: 28%;" disabled="disabled">
+	                	<input type="text" id="ordrgProcId" name="ordrgProcId" style="width: 70%;" disabled="disabled">
 	                </td>
 	            </tr>
 	            <tr>
@@ -124,9 +143,9 @@
 	                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 	                	</button>      
 	                </td>
-	                <th>착지연락처</th>
+	                <th>발주처리<br>완료일자</th>
 	                <td>
-	                	<input type="text" id="mngTel" name="mngTel" style="width: 100%;">
+	                	<input type="date" id="ordrgProcDttm" name="ordrgProcDttm" disabled="disabled">
 	                </td>
 	            </tr>
 	            <tr>
@@ -143,17 +162,11 @@
 	                    <input id="ordrgRmk" name="ordrgRmk" type="text" style="width: 100%;">
 	                </td>
 	            </tr>
-	            <tr>
-	                <th>
-						<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
-					</th>
-					<td colspan="5">
-						<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
-					</td>
-	            </tr>
 	        </table>
 	        <input type="hidden" id="userId" name="userId">
 	        <input type="hidden" id="pgmId" name="pgmId" value="OD0102P01">
+	        <input type="hidden" id="ordrgSeq" name="ordrgSeq">
+	        <input type="hidden" id="reqDt" name="reqDt">
 	    </form>
     </div>
 
@@ -198,44 +211,86 @@
         <tbody>
           <tr class="detailRow">
             <td>
-              <input type="text" style="width: 66%;">
+              <input type="hidden" name="prdtCd">
+              <input type="text" name="prdtNm" style="width: 66%;">
               <button type="button" class="btn btn-primary btn-sm" onclick="prdtSearch(this);" style="min-width: 20px;">
          		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
          	  </button>
             </td>
+            <td><input type="text" name="prdtUnit"></td>
+            <td><input type="text" name="prdtLen"></td>
+            <td><input type="text" name="prdtUpr"></td>
+            <td><input type="text" name="stockUpr"></td>
             <td>
-              <input type="text" style="width: 100%;">
+	            <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	        </td>
+            <td>
+            	<input type="text" name="ordrgWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
             </td>
             <td>
-              <input type="text" style="width: 100%;">
+            	<input type="text" name="ordrgUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
             </td>
             <td>
-              <select>
-                <option value="" selected disabled hidden>선택</option> 
-              </select>
+            	<input type="text" name="ordrgAmt" style="text-align: right;" readonly="readonly" comma>
             </td>
-            <td><input type="text" style="width: 100%;"></td>
-            <td><input type="text" style="width: 100%;"></td>
-            <td></td>
-            <td><input type="text" style="width: 100%;"></td>
-            <td><input type="text" style="width: 100%;"></td>
-            <td><input type="text" style="width: 100%;"></td>
+            <td>
+            	<input type="text" name="ordrgDtlRmk" style="width: 100%;">
+            </td>
           </tr>
           <!--  -->
- 
         </tbody>
         <!-- \\ -->
       </table>
+      <table>
+      	<colgroup>
+            <col width="12%">
+            <col width="8%">
+            <col width="8%">
+            <col width="8%">
+            <col width="8%">
+            <col width="8%">
+            <col width="8%">
+            <col width="8%">
+            <col width="8%">
+            <col width="12%">
+        </colgroup>
+      	<tr>
+            <th colspan="5" style="text-align: center;">합계</th>
+            <td id="totQty" style="text-align: right;" comma></td>
+            <td id="totWt" style="text-align: right;" comma></td>
+            <td>-</td>
+            <td id="totAmt" style="text-align: right;" comma></td>
+            <td>-</td>
+        </tr>
+      </table>
     </div>
-     
+    <br>
+    <div class="popup_table">
+      <table>
+        <colgroup>
+        	<col width="12%">
+        </colgroup>
+	  	<tr>
+	  		<th>
+	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+	  		</th>
+	  		<td>
+	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
+	  		</td>
+	  	</tr>
+	  </table>
+    </div>
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
       <button id="actionBtn">등록</button>
+      <button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
       <button class="close_btn" onclick="modal.close();">닫기</button>
     </div>
   </div>
  
 </body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
 <script type="text/javascript">
 	
 	//매입매출구분
@@ -285,13 +340,67 @@
 	});
 	
 	function setInit() {
-		$('#actionBtn').on("click", function(){insertOrder();});
-		$('#actionBtn').text("등록");
+		if(actionType == "C"){
+			$('#actionBtn').on("click", function(){insertOrder();});
+			$('#actionBtn').text("등록");
+			$("#reqDt").val(dateToStr(new Date()).replace(/\-/g,''));
+		}else if(actionType == "U"){
+			selectOrderInfo();
+			$('#actionBtn').on("click", function(){updateOrder();});
+			$('#actionBtn').text("수정");
+			$("#ordrgYnBtn").show();
+		}
+	}
+	
+	function selectOrderInfo() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"ordrgSeq" : row.ordrgSeq,
+			"reqDt" : row.reqDt
+		}
+		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data){
+			setOrderInfo(data.result);
+		});
+	}
+	
+	function setOrderInfo(obj) {
+		var fileInfo = obj.fileList;
+		var orderInfo = obj.orderInfo;
+		var orderDetail = obj.orderDetail;
+		//메인정보 세팅
+		$.each(orderInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+		//상세정보 세팅
+		$.each(orderDetail, function(idx, item){
+			if(idx != 0) addRow();
+			$.each(item, function(key, value){
+				if($(".detailRow").find("input[name="+key+"]")[idx] != undefined) {
+					if(key == "ordrgAmt") value = addCommaStr(value); 
+					$(".detailRow").find("input[name="+key+"]")[idx].value = value;
+				} else {
+					$('#'+key).val(value);	
+				}
+			});
+			countTot();
+		});
+		$.each(fileInfo, function(idx, obj){
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		// 첨부파일 그리드 set
+		fileGridView.setData();
 	}
 	
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
+		countTot();
 	}
 	
 	function removeRow() {
@@ -301,6 +410,7 @@
 		} else {
 			return false;
 		}
+		countTot();
 	}
 
 	function setData() {
@@ -373,8 +483,17 @@
 	}
 	
 	function makeFormData() {
-		$("#userId").val(jwt.userId)              ;
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		$("#userId").val(jwt.userId);
 		var formData = new FormData($("#popForm")[0]);
+		formData.append("totQty", deleteCommaStr($("#totQty").html()));
+		formData.append("totWt", deleteCommaStr($("#totWt").html()));
+		formData.append("totAmt", deleteCommaStr($("#totAmt").html()));
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
 		// 첨부파일 추가
 		$.each(fileArr, function(idx, obj){
 			// 신규파일만 추가
@@ -383,17 +502,26 @@
 			}
 		});
 		
-		if(actionType == "U"){
+		// 상세내역 추가
+		var detailArr = [];
+		$.each($('.detailRow'), function(idx, elem){
+			var detailObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				detailObj[elem.name] = elem.value;
+			});
+			detailArr.push(detailObj);
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		if(actionType == "U") {
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		}
+		} 
 		
 		return formData;
 	}
 	
 	function insertOrder() {
 		if(inputValidation($('input[required]'))) {
-			$("#popForm input").prop("disabled", false);
-			$("#popForm select").prop("disabled", false);
 			var formData = makeFormData();
 			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
 				alert(data.resultMessage);           
@@ -402,4 +530,57 @@
 			});
 		}
 	}
+	
+	function updateOrder() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function openUserTree() {
+		openSecondModal("/static/html/user/od/od01/OD0102P04.html", 300, 500, "사용자 검색");
+	}
+	
+	function countAmt(el) {
+		var rowIdx = $(el).closest('tr').prevAll().length;
+		var ordrgQty = $("input[name='ordrgQty']")[rowIdx].value;
+		var ordrgUpr = $("input[name='ordrgUpr']")[rowIdx].value;
+		$("input[name='ordrgAmt']")[rowIdx].value = (deleteCommaStr(ordrgQty) * deleteCommaStr(ordrgUpr));
+		addComma($("input[name='ordrgAmt']")[rowIdx]);
+		countTot();
+	}
+	
+	function countTot() {
+		var totQty = 0;
+		var totWt = 0;
+		var totAmt = 0;
+		$.each($(".detailRow"), function(idx, item){
+			var ordrgQty = $("input[name='ordrgQty']")[idx].value;
+			var ordrgWt = $("input[name='ordrgWt']")[idx].value;
+			var ordrgAmt = $("input[name='ordrgAmt']")[idx].value;
+			totQty += Number(deleteCommaStr(ordrgQty)); 
+			totWt += Number(deleteCommaStr(ordrgWt)); 
+			totAmt += Number(deleteCommaStr(ordrgAmt)); 
+		});
+		$("#totQty").html(addCommaStr(totQty));
+		$("#totWt").html(addCommaStr(totWt) );
+		$("#totAmt").html(addCommaStr(totAmt));
+	}	
+
+	function updateConfirm() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
 </script>

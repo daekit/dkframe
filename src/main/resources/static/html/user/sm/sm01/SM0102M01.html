@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<style>
+ .grid-cell-blue{
+        background: #dcf0f8;
+    }
+</style>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-3.5.1.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+	 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	
+</head>
+
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+	        <a onclick = "gridView.setData(0);">
+	          <button class="bg_gray">검 색</button>
+	         </a>
+	        </li>
+	      </ul>
+    	</div>
+		  <!-- 검색 콘텐츠 -->
+    <div class="contents">
+        <div class="">
+            <!-- 테이블 인풋 3분할 -->
+            <table class="table_input type04">
+              <tr>
+                <th>법인</th>
+                <td>
+                    <select id ="CO" data-kind="CO" onchange="gridView.setData(0);">
+                  	  <option value="">선택</option>
+                    </select>                
+                </td>
+                <th>창고구분</th>
+                <td>
+                 	<select id ="WH" data-kind="WH" onchange="gridView.setData(0);">
+                  	  <option value="">선택</option>
+                    </select>
+                </td>
+                 <th>재고주체구분</th>
+                <td>
+                  <select id= "OWNER" data-kind="OWNER" onchange="gridView.setData(0);" >
+                  	  <option value="">선택</option>
+                  </select>
+                </td>
+                <th>거래처</th>
+               	 <td>
+                  <input type="text" id="clntNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+                </td>
+              </tr>
+             
+              <tr>
+                <th >판매유형</th>
+                <td>
+                  <select id= "SELLTYPE" data-kind="SELLTYPE" onchange="gridView.setData(0);">
+                  	  <option value="">선택</option>
+                  </select>
+                </td>
+                 <th >제조사</th>
+                <td>
+                 <select id= "MAKR" data-kind="MAKR" onchange="gridView.setData(0);">
+                 	  <option value="">선택</option>
+                  </select>
+                </td>
+                 <th >제품</th>
+                <td>
+                  <input type="text" id="prdtNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+                </td>
+              </tr>
+            </table>
+          </div>
+        
+    </div>
+		<!-- // 콘텐츠 -->
+
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+				<input type="hidden" id="recordCnt">
+				<input type="hidden" id="basisPriceSeq">
+			</div>
+		</div>
+	  <!-- 콘텐츠 -->
+	    <div class="contents">
+	      <!-- 리스트 -->
+	        <div>
+	           <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
+	        </div>
+	    </div>
+	</div>
+		
+</body>
+</html>
+
+<script type="text/javascript">
+
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;
+	
+	
+	var gridView = {
+		initView: function(){
+			
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		                
+		            },
+		            onDBLClick: function () {
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		        		{key: "whNm", label: "창고", align: "center", width: "6.5%"},
+		          	{key: "ownerNm", label: "재고 주체", align: "center", width: "6.5%"},
+		          	{key: "clntNm", label: "거래처", align: "center", width: "7%"},
+		          	{key: "typNm", label: "판매 유형", align: "center", width: "6.5%"},
+		          	{key: "makrNm", label: "제조사", align: "center", width: "6.5%"},
+		          	{key: "prdtNm", label: "제품", align: "center", width: "8%"},
+		          	{key: "impNm", label: "수입 구분", align: "center", width: "6%"},
+		          	{label: "재고",  columns:[
+		          		{key: "stockQty", label: "수량(Ton)", align: "right", width: "6%", styleClass:"grid-cell-blue" },
+			          	{key: "stockUpr", label: "단가", align: "right", width: "6%", styleClass:"grid-cell-blue" },
+			          	{key: "stockAmt", label: "금액", align: "right", width: "6%", styleClass:"grid-cell-blue" }
+		          	]},
+		          	{key: "stdUpr", label: "기준 단가", align: "right", width: "5%"},
+		         	{key: "stockChgNm", label: "재고 변동\n 사유", align: "center", width: "6%"},
+			         
+		          	{key: "pchsUpr", label: "최종\n매입 단가", align: "right", width: "6%"},
+		          	{key: "sellUpr", label: "최종\n매출 단가", align: "right", width: "6%"},
+		          	{key: "chgNm", label: "재고 변동\n 구분", align: "center", width: "6%"},
+		          	{key: "udtDttm", label: "최종\n변경일", align: "center", width: "6%"},
+		          	
+		          	
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			
+			firstGrid = this.target;
+		
+			var formData = {
+				"coCd" : $("#CO").val(),
+				"whCd" : $("#WH").val(),
+				"ownerCd" : $("#OWNER").val(),
+				"typCd" : $("#SELLTYPE").val(),
+				"clntNm" : $("#clntNm").val(),
+				"makrCd" : $("#MAKR").val(),
+				"prdtNm" : $("#prdtNm").val(),
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : $("#recordCnt").val()
+			}
+			
+			postAjax("/user/sm/sm01/selectStockHistoryList", formData, null, function(data){
+				var list = data.stockList;
+				
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+
+	$(document).ready(function() {
+		
+		mainDefaultLoad("재고관리","재고 변동 이력 현황");
+		setCommonSelect($("#main_area select[data-kind]"));
+		gridView.initView().setData(0);
+		
+		
+	})
+
+
+
+	
+
+	
+
+</script>
