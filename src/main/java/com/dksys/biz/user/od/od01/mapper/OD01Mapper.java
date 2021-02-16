@@ -25,5 +25,11 @@ public interface OD01Mapper {
 	List<Map<String, String>> selectOrderDetail(Map<String, String> paramMap);
 
 	int updateOrder(Map<String, String> paramMap);
+
+	int updateConfirm(Map<String, String> paramMap);
+
+	int updateConfirmDetail(Map<String, String> detailMap);
+
+	Map<String, String> selectOrderDetailInfo(Map<String, String> detailMap);
 	
 }

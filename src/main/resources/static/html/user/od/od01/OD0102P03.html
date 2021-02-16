@@ -46,7 +46,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	setClntInfo(clntType);
+		            	setPrdtInfo(this.item);
 		            },
 		        },
 		        page: {
@@ -62,11 +62,12 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "clntCd", label: "거래처코트", align: "center", hidden: true},
-		            {key: "clntNm", label: "거래처명", align: "center", width: "30%"},
-		            {key: "crn", label: "사업자 등록번호", align: "center", width: "29%"},
-		            {key: "clntDivNm", label: "거래처 구분", align: "center"},
-		        	{key: "bizconNm", label: "업태", align: "center"},
+		          	{key: "prdtCd ", label: "제품코드", align: "center", hidden: true},
+		          	{key: "prdtNm", label: "제품명", align: "center", width: "20%"},
+		            {key: "prdtStknNm", label: "제품강종", align: "center", width: "20%"},
+		            {key: "prdtUnitNm", label: "제품단위", align: "center", width: "20%"},
+		            {key: "prdtSizeNm", label: "제품사이즈", align: "center", width: "20%"},
+		        	{key: "ordrgUpr", label: "기준단가", align: "center", width: "20%"},
 		        ]
 		    });
 			return this;
@@ -76,13 +77,13 @@
 			var formData = {
 				"searchType" : $("#searchType").val(),
 				"searchValue" : $("#searchValue").val(),
+				"impYn" : $("#impYn").val(),
 				"useYn" : "Y",
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : 10
 			}
-			
-			postAjax("/admin/bm/bm01/selectClntList", formData, null, function(data){
-				var list = data.clntList;
+			postAjax("/admin/bm/bm01/selectMaterialList", formData, null, function(data){
+				var list = data.materialList;
 				secondGrid.setData({
 					list : list,
 					page : {
@@ -100,11 +101,12 @@
 		popGridView.initView().setData(0);
 	});
 
-	function setClntInfo(clntType) {
-		var row = secondGrid.getList("selected")[0];
-		if(clntType == "PUR") {
-			$("#pchsCertiNo").val(row.clntCd);
-			$("#pchsCertiNm").val(row.clntNm);
-		}
+	function setPrdtInfo(item) {
+		$.each(item, function(key, value){
+			if($("input[name="+key+"]")[selectedIdx] != undefined)
+				$("input[name="+key+"]")[selectedIdx].value = value;
+		});
+		$("input[name=prdtUpr]")[selectedIdx].value = $("input[name=ordrgUpr]")[selectedIdx].value;
+		secondModal.close();
 	}
 </script>

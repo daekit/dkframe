@@ -62,8 +62,17 @@ public class OD01Ctr {
     	return "jsonView";
     }
     
+    @PutMapping(value = "/updateConfirm")
+    public String updateConfirm(@RequestParam Map<String, String> paramMap, ModelMap model) {
+    	od01Svc.updateConfirm(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
+    	return "jsonView";
+    }
+    
     @DeleteMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	System.out.println();
     	od01Svc.deleteOrder(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
