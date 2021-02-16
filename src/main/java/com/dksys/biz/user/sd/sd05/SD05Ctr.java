@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.user.sd.sd05.service.SD05Svc;
@@ -35,6 +37,14 @@ public class SD05Ctr {
 		model.addAttribute("sd0501m01", sd0501m01);
         return "jsonView";
     }
+	
+	@PostMapping(value = "/selectPrjInfo")
+    public String selectOrderInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = sd05Svc.selectPrjInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+	
 	@PostMapping(value = "/selectProjectcoCdList")
     public String selectProjectcoCdList(@RequestBody Map<String, String> param, ModelMap model) {
 		List<Map<String, String>> codecoCd = sd05Svc.selectProjectcoCdList(param);
@@ -63,11 +73,19 @@ public class SD05Ctr {
         return "jsonView";
     }
 	
-	@PutMapping(value = "/insertProject")
-	public String insertProject(@RequestBody Map<String, String> param, ModelMap model) {
-		sd05Svc.insertProject(param);
+	@PostMapping(value = "/insertProject")
+	public String insertProject(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+		sd05Svc.insertProject(paramMap, mRequest);
 		model.addAttribute("resultCode", 200);
 		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
 		return "jsonView";
 	}
+	
+	@PutMapping(value = "/updateProject")
+	public String updateProject(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+		sd05Svc.updateProject(paramMap, mRequest);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
 }

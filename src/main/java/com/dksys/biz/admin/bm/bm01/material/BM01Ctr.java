@@ -68,12 +68,13 @@ public class BM01Ctr {
 	}
 	
 	@PutMapping(value = "/updateMaterial")
-	public String updateMaterial(@RequestParam Map<String, String>paramMap, ModelMap model) {
-		bm01Svc.updateMaterial(paramMap);
+	public String updateMaterial(@RequestBody Map<String, String> param, ModelMap model) {
+		bm01Svc.updateMaterial(param);
 		model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
-		return "jsonview";
+		return "jsonView";
 	}
+	
 	@DeleteMapping(value = "/deleteMaterial")
 	public String deleteMaterial(@RequestBody Map<String, String> param, ModelMap model) {
 		bm01Svc.deleteMaterial(param);

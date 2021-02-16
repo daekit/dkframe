@@ -23,7 +23,6 @@
 		    SELL_CLNT_CD,
 		    MNG_TEL,
 		    DLVR_DTTM,
-<!-- 		    DLVR_RMK, -->
 		    DIRTRS_YN,
 		    ADDR_ZIP,
 		    ADDR_MAIN,
@@ -37,11 +36,6 @@
 <!-- 		    PCHS_NO, -->
 		    SALES_MNG,
 		    ORDRG_YN,
-<!-- 		    ORDRG_PROC_ID, -->
-<!-- 		    ORDRG_PROC_DTTM, -->
-<!-- 		    ETC_FIELD1, -->
-<!-- 		    ETC_FIELD2, -->
-<!-- 		    ETC_FIELD3, -->
 		    CREAT_ID,
 		    CREAT_PGM,
 		    CREAT_DTTM,
@@ -65,7 +59,6 @@
 		    #{sellClntCd},
 		    #{mngTel},
 		    #{dlvrDttm},
-<!-- 		    #{}, -->
 		    #{dirtrsYn},
 		    #{addrZip},
 		    #{addrMain},
@@ -79,11 +72,6 @@
 <!-- 		    PCHS_NO, -->
 		    #{salesMng},
 		    'N',
-<!-- 		    ORDRG_PROC_ID, -->
-<!-- 		    ORDRG_PROC_DTTM, -->
-<!-- 		    ETC_FIELD1, -->
-<!-- 		    ETC_FIELD2, -->
-<!-- 		    ETC_FIELD3, -->
 		    #{userId},
 		    #{pgmId},
 		    SYSDATE,
@@ -174,29 +162,27 @@
 		INSERT INTO TB_OD01D01
 		(
 			ORDRG_SEQ,
-	        ORDR_DTL_SEQ,
+	        ORDRG_DTL_SEQ,
 	        PRDT_CD,
+	        PRDT_COIL_YN,
+	        PRDT_DIV,
+	        PRDT_ERQK_YN,
+	        PRDT_SPEC,
+	        PRDT_STKN,
 	        PRDT_UNIT,
+	        PRDT_SIZE,
 	        PRDT_LEN,
 	        ORDRG_QTY,
 	        ORDRG_WT,
 	        ORDRG_UPR,
 	        ORDRG_AMT,
-<!-- 	        REAL_DLVR_QTY, -->
-<!-- 	        REAL_DLVR_WT, -->
-<!-- 	        REAL_DLVR_AMT, -->
-<!-- 	        SELL_UPR, -->
-<!-- 	        PCHS_UPR, -->
-	        STOCK_UPR,
+	        SELL_UPR,
+	        PCHS_UPR,
+<!-- 	        STOCK_UPR, -->
 	        PRDT_UPR,
 <!-- 	        PCHS_CERTI_NO, -->
 	        ORDRG_YN,
-<!-- 	        ORDRG_PROC_ID, -->
-<!-- 	        ORDRG_PROC_DTTM, -->
 	        ORDRG_DTL_RMK,
-<!-- 	        ETC_FIELD1, -->
-<!-- 	        ETC_FIELD2, -->
-<!-- 	        ETC_FIELD3, -->
 	        CREAT_ID,
 	        CREAT_PGM,
 	        CREAT_DTTM,
@@ -209,27 +195,25 @@
         	#{ordrgSeq},
 	        #{ordrgDtlSeq},
 	        #{prdtCd},
-	        #{prdtUnit},
+	        #{prdtCoilYn},
+	        #{prdtDivNm},
+	        #{prdtErqkNm},
+	        #{prdtSpecNm},
+	        #{prdtStknNm},
+	        #{prdtUnitNm},
+	        #{prdtSizeNm},
 	        #{prdtLen},
 	        #{ordrgQty},
 	        #{ordrgWt},
 	        #{ordrgUpr},
 	        #{ordrgAmt},
-<!-- 	        REAL_DLVR_QTY, -->
-<!-- 	        REAL_DLVR_WT, -->
-<!-- 	        REAL_DLVR_AMT, -->
-<!-- 	        SELL_UPR, -->
-<!-- 	        PCHS_UPR, -->
-	        #{stockUpr},
+	        #{sellUpr},
+	        #{pchsUpr},
+<!-- 	        #{stockUpr}, -->
 	        #{prdtUpr},
 <!-- 	        PCHS_CERTI_NO, -->
 	        'N',
-<!-- 	        ORDRG_PROC_ID, -->
-<!-- 	        ORDRG_PROC_DTTM, -->
 	        #{ordrgDtlRmk},
-<!-- 	        ETC_FIELD1, -->
-<!-- 	        ETC_FIELD2, -->
-<!-- 	        ETC_FIELD3, -->
 	        #{userId},
 		    #{pgmId},
 		    SYSDATE,
@@ -241,7 +225,47 @@
 	
 	<select id="selectOrderInfo" parameterType="Map" resultType="camelMap">
 		SELECT 
-			T.*,
+			T.ORDRG_SEQ,
+            T.CO_CD,
+            T.REQ_DT,
+            T.CLNT_CD,
+            T.PRJCT_CD,
+            T.MAKR_CD,
+            T.WH_CD,
+            T.TYP_CD,
+            T.OWNER_CD,
+            T.IMP_YN,
+            T.SALES_AREA_CD,
+            T.SELL_CLNT_CD,
+            (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM,
+            T.MNG_TEL,
+            TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+            T.DLVR_RMK,
+            T.DIRTRS_YN,
+            T.ADDR_ZIP,
+            T.ADDR_MAIN,
+            T.ADDR_SUB,
+            T.ORDRG_RMK,
+            T.TOT_QTY,
+            T.TOT_WT,
+            T.TOT_AMT,
+            T.TRANS_AMT,
+            T.ODR_SEQ,
+            T.PCHS_NO,
+            T.SALES_MNG,
+            T.ORDRG_YN,
+            T.ORDRG_PROC_ID,
+            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
+            TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
+            T.ETC_FIELD1,
+            T.ETC_FIELD2,
+            T.ETC_FIELD3,
+            T.CREAT_ID,
+            T.CREAT_PGM,
+            T.CREAT_DTTM,
+            T.UDT_ID,
+            T.UDT_PGM,
+            T.UDT_DTTM,
 			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM 
@@ -251,7 +275,48 @@
 	
 	<select id="selectOrderDetail" parameterType="Map" resultType="camelMap">
 		SELECT 
-			T.*,
+			T.ORDRG_SEQ,
+	        T.ORDRG_DTL_SEQ,
+	        T.PRDT_CD,
+	        T.PRDT_DIV,
+	        T.PRDT_STKN,
+	        T.PRDT_ERQK_YN,
+	        T.PRDT_SIZE,
+	        T.PRDT_SPEC,
+	        T.PRDT_COIL_YN,
+	        T.PRDT_UNIT,
+	        T.PRDT_LEN,
+	        T.ORDRG_QTY,
+	        T.ORDRG_WT,
+	        T.ORDRG_UPR,
+	        T.ORDRG_AMT,
+	        T.REAL_DLVR_QTY,
+	        T.REAL_DLVR_WT,
+	        T.REAL_DLVR_AMT,
+	        T.SELL_UPR,
+	        T.PCHS_UPR,
+	        T.STOCK_UPR,
+	        T.PRDT_UPR,
+	        T.PCHS_CERTI_NO,
+	        T.ORDRG_YN,
+	        T.ORDRG_PROC_ID,
+	        T.ORDRG_PROC_DTTM,
+	        T.ORDRG_DTL_RMK,
+	        T.ETC_FIELD1,
+	        T.ETC_FIELD2,
+	        T.ETC_FIELD3,
+	        T.CREAT_ID,
+	        T.CREAT_PGM,
+	        T.CREAT_DTTM,
+	        T.UDT_ID,
+	        T.UDT_PGM,
+	        T.UDT_DTTM,
+			T.PRDT_DIV AS PRDT_DIV_NM,
+			T.PRDT_SIZE AS PRDT_SIZE_NM,
+			T.PRDT_ERQK_YN AS PRDT_ERQK_NM,
+			T.PRDT_SPEC AS PRDT_SPEC_NM,
+			T.PRDT_STKN AS PRDT_STKN_NM,
+			T.PRDT_UNIT AS PRDT_UNIT_NM,
 			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM
 		FROM TB_OD01D01 T
 		WHERE ORDRG_SEQ = #{ordrgSeq}
@@ -287,16 +352,45 @@
 		    ODR_SEQ                = #{odrSeq},                      
 <!-- 		    PCHS_NO         =     PCHS_NO, -->                
 		    SALES_MNG              = #{salesMng},                    
-<!-- 		    ORDRG_YN               = 'N',                             -->
-<!-- 		    ORDRG_PROC_ID   =     ORDRG_PROC_ID, -->          
-<!-- 		    ORDRG_PROC_DTTM =     ORDRG_PROC_DTTM, -->        
-<!-- 		    ETC_FIELD1      =     ETC_FIELD1, -->             
-<!-- 		    ETC_FIELD2      =     ETC_FIELD2, -->             
-<!-- 		    ETC_FIELD3      =     ETC_FIELD3, -->             
 		    UDT_ID                 = #{userId},                      
 		    UDT_PGM                = #{pgmId},                       
 		    UDT_DTTM                = SYSDATE                         
 		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
 	</update>
+	
+	<update id="updateConfirm" parameterType="Map">
+		UPDATE TB_OD01M01 T
+		SET
+			TOT_QTY         = #{totQty},
+		    TOT_WT          = #{totWt},
+		    TOT_AMT         = #{totAmt},
+		    ORDRG_PROC_ID   = #{userId},
+		    ORDRG_PROC_DTTM = SYSDATE,
+		    ORDRG_YN 		= 'Y',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
+	</update>
+	
+	<update id="updateConfirmDetail" parameterType="Map">
+		UPDATE TB_OD01D01 T
+		SET
+		    REAL_DLVR_AMT   = #{ordrgAmt},
+		    REAL_DLVR_QTY 	= #{ordrgQty},
+		    REAL_DLVR_WT 	= #{ordrgWt},
+		    ORDRG_PROC_ID   = #{userId},
+		    ORDRG_PROC_DTTM = SYSDATE,
+		    ORDRG_YN 		= 'Y',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE		    
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
+	</update>
+	
+	<select id="selectOrderDetailInfo" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq} 
+	</select>
 	
 </mapper>

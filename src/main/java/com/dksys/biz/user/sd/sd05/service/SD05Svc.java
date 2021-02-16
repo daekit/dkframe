@@ -3,6 +3,8 @@ package com.dksys.biz.user.sd.sd05.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 public interface SD05Svc {
 
 	public List<Map<String, String>> selectProjectList(Map<String, String> param);
@@ -17,6 +19,10 @@ public interface SD05Svc {
 	
 	public int selectProjectCount(Map<String, String> param);
 	
-	public int insertProject(Map<String, String> param);
+	Map<String, Object> selectPrjInfo(Map<String, String> paramMap);
+	
+	int insertProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+
+	int updateProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
 }

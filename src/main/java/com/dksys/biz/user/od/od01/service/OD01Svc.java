@@ -19,5 +19,7 @@ public interface OD01Svc {
 
 	int updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
+	int updateConfirm(Map<String, String> paramMap);
+
 	
 }

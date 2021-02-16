@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
+import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.od.od01.mapper.OD01Mapper;
 import com.dksys.biz.user.od.od01.service.OD01Svc;
 import com.google.gson.Gson;
@@ -25,6 +26,9 @@ public class OD01SvcImpl implements OD01Svc {
 	
     @Autowired
     OD01Mapper od01Mapper;
+    
+    @Autowired
+    AR02Mapper ar02Mapper;
     
     @Autowired
     CM08Svc cm08Svc;
@@ -92,6 +96,29 @@ public class OD01SvcImpl implements OD01Svc {
 		List<String> deleteFileList = Arrays.asList(deleteFileArr);
 		for(String fileKey : deleteFileList) {
 			cm08Svc.deleteFile(fileKey);
+		}
+		return result;
+	}
+
+	@Override
+	public int updateConfirm(Map<String, String> paramMap) {
+		int result = od01Mapper.updateConfirm(paramMap);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		for(Map<String, String> detailMap : detailList) {
+			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("userId", paramMap.get("userId"));
+			detailMap.put("pgmId", paramMap.get("pgmId"));
+			od01Mapper.updateConfirmDetail(detailMap);
+			detailMap = od01Mapper.selectOrderDetailInfo(detailMap);
+			paramMap.putAll(detailMap);
+			paramMap.put("selpchCd", "SELPCH1");
+			ar02Mapper.insertPchsSell(paramMap);
+			if("Y".equals(paramMap.get("dirtrsYn"))) {
+				paramMap.put("selpchCd", "SELPCH2");
+				ar02Mapper.insertPchsSell(paramMap);
+			}
 		}
 		return result;
 	}
