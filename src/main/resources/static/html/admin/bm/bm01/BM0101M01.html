@@ -9,16 +9,20 @@
 	</div>
 	<div class="row">
 		<div class="form-inline form-group">
-			<span style="font-weight: bold;">단가 기준일</span >&nbsp; 
-			<input id= "searchPrdtDt" type="date" class="form-control" >
-			&nbsp;
+			<!--  <span style="font-weight: bold;">단가 기준일</span >&nbsp; 
+			<input id= "searchPrdtDt" type="date" class="form-control"  onchange="search();">-->
+			<div class="form-control">
+				<input id="searchPrdtDt" class="input_calendar" onchange="search();">
+				
+			</div>
+		
 			<select id="searchType" class="form-control" >
 				<option value="PRDT_NM">제품명</option>
 			</select>
 			<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">&nbsp; 
 			<button class="btn btn-primary" type="button" onclick="search();">검색</button>
 			&nbsp;
-			<select id="useYn" class="form-control" onchange="search();">
+			<select id="useType" class="form-control" onchange="search();">
 				<option value="Y">사용</option>
 				<option value="N">미사용</option>
 			</select>
@@ -92,7 +96,7 @@
 		setData: function(_pageNo) {
 			firstGrid = this.target;
 			var formData = {
-				"useYn" : $("#useYn").val(),
+				"useYn" : $("#useType").val(),
 				"searchType" : $("#searchType").val(),
 				"searchValue" : $("#searchValue").val(),
 				"searchPrdtDt" : $("#searchPrdtDt").val().replace(/\-/g,''),
@@ -115,9 +119,14 @@
 	}
 	
 	$(document).ready(function() {
-		gridView.initView().setData(0);
 		 document.getElementById("searchPrdtDt").value = new Date().toISOString().substring(0, 10);
-			
+		gridView.initView().setData(0);
+		$('#searchPrdtDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
 	})
 	
 	function search() {
