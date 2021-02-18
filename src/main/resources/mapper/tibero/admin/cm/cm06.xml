@@ -55,14 +55,16 @@
 	
 	<select id="selectUserTree" resultType="CamelMap">
 		SELECT
-			ID AS ID,
-			NAME AS TEXT,
-			DEPT_ID AS PARENT,
-			'person' AS TYPE
+			A.ID AS ID,
+			A.NAME AS TEXT,
+			A.DEPT_ID AS PARENT,
+			'person' AS TYPE,
+			B.DEPT_NM
 		FROM
-			TB_CM06M01
+			TB_CM06M01 A , TB_CM04M01 B
 		WHERE
-			USE_YN = 'Y'
+			A.USE_YN = 'Y'
+			AND A.DEPT_ID = B.DEPT_ID
 			<if test="coCd != null and !coCd.equals('')">
 				AND CO_CD = #{coCd}
 			</if>
