@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd03.mapper.SD03Mapper">
+
+
+	<select id= "selectPrdtCodeList" resultType="CamelMap">
+		SELECT PRDT_CD, PRDT_NM, PRDT_UPR FROM TB_BM01M01 
+		WHERE 
+			PRDT_DIV = #{prdtDiv}
+		AND PRDT_STKN = #{prdtStkn}
+		AND PRDT_SIZE = #{prdtSize}
+		AND PRDT_UNIT = #{prdtUnit}
+		<if test= "prdtCd != null and !prdtCd.equals('')">
+		AND PRDT_CD = #{prdtCd} 
+		</if>
+	</select>
+	<select id= "selectPrdtCd" resultType="CamelMap">
+		SELECT PRDT_CD,PRDT_NM FROM TB_BM01M01
+	</select>
+	<select id="selectUprCount" parameterType="Map" resultType="int">
+				SELECT
+					COUNT(*)
+				FROM TB_SD03M01 
+				ORDER BY EST_NO
+	</select>
+	
+	 <select id="selectMainEstList" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			A.EST_NO,
+			A.CO_CD,
+			A.SALES_EMP_ID,
+			C.NAME AS SALES_EMP_NM,
+			A.EST_COPRT,
+			FN_CM05M01_CD_TO_NM(A.EST_COPRT) AS EST_COPRT_NM,			
+			A.EST_CLNT_CD,
+			A.EST_CLNT_NM,
+			A.EST_RPRC, 
+			A.BIZ_TEL_NO,
+			A.BIZ_FAX_NO,
+			A.MNG_EMAIL,
+			A.PRJCT_NM,
+			TO_CHAR(TO_DATE(EST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS EST_DT,
+			A.RMK,
+			SUM(B.EST_QTY) as EST_QTY,
+			SUM(B.EST_AMT) as EST_AMT,
+			A.SALES_EMP_ID,
+			A.CREAT_PGM
+		FROM TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
+		WHERE 1=1
+			AND A.EST_NO = B.EST_NO
+			AND A.SALES_EMP_ID = C.ID
+		<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
+		 	AND ${searchValue} LIKE '%${searchName}%'
+		</if>
+			AND ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
+			GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
+	</select>
+	
+	<resultMap id="resultInfoMap" type="CamelMap">
+		<collection select="selectEstFileList" property="EST_FILE_LIST" column="{fileTrgtKey=EST_NO}" ofType="CamelMap"/>
+		<collection select="selectEstDetail" property="EST_DETAIL" column="{estNo=EST_NO}" ofType="CamelMap"/>
+	</resultMap>
+	
+	<select id="selectEstInfo" resultMap="resultInfoMap">
+		SELECT T.*,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.EST_COPRT) AS EST_COPRT_NM,		
+			TO_CHAR(TO_DATE(EST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS EST_DT2,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_EMP_ID) AS SALES_MNG_NM,
+			SALES_EMP_ID AS SALES_MNG
+		FROM TB_SD03M01 T
+		WHERE EST_NO = #{estNo}
+	</select>
+	
+	<select id="selectEstFileList" resultType="CamelMap">
+		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_SD03M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
+	</select>
+	
+	<select id="selectEstDetail" resultType="CamelMap">
+		SELECT T.*,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_DIV) AS PRDT_DIV_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_STKN) AS PRDT_STKN_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_SIZE) AS PRDT_SIZE_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_UNIT) AS PRDT_UNIT_NM,	
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			T.PRDT_SIZE AS	DTL_PDSZ
+		FROM TB_SD03D01 T, TB_SD03M01 M, TB_BM01M01 B
+		WHERE T.EST_NO = M.EST_NO
+		AND T.PRDT_CD = B.PRDT_CD
+		AND T.EST_NO = #{estNo}
+	</select>
+	
+	<insert id="insertEst">
+		<selectKey keyProperty="estNo" resultType="String" order="BEFORE">
+			SELECT TB_SD03M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_SD03M01 (
+			EST_NO,
+			CO_CD,
+			SALES_EMP_ID,
+			EST_COPRT,
+			EST_CLNT_CD,
+			EST_CLNT_NM,
+			EST_RPRC,
+			BIZ_TEL_NO,
+			BIZ_FAX_NO,
+			MNG_EMAIL,
+			PRJCT_NM,
+			EST_DT,
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM
+		)VALUES(
+			#{estNo},
+			#{coCd},
+			#{salesMng},
+			#{estCoprt},
+			#{clntCd},
+			#{clntNm},
+			#{estRprc},
+			#{bizTelNo},
+			#{bizFaxNo},
+			#{mngEmail},
+			#{prjctNm},
+			TO_CHAR(TO_DATE(#{estDt2},'YYYY-MM-DD'),'YYYYMMDD'),
+			#{userId},
+			#{pgmId},
+			SYSDATE
+		)
+	</insert>
+	
+	<insert id="insertEstDetail">
+		<selectKey keyProperty="estPrdtSeq" resultType="String" order="BEFORE">
+			SELECT TB_SD03D01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_SD03D01 (
+			EST_NO,
+			EST_PRDT_SEQ,
+			PRDT_DIV,
+			PRDT_STKN,
+			PRDT_SIZE,
+			PRDT_CD,
+			PRDT_UNIT,
+			EST_QTY,
+			EST_UPR,
+			EST_AMT,
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM
+		)VALUES(
+			#{estNo},
+			#{estPrdtSeq},
+			#{prdtDiv},
+			#{prdtStkn},
+			#{prdtSize},
+			#{prdtCd},
+			#{prdtUnit},
+			#{estQty},
+			#{estUpr},
+			#{estAmt},
+			#{userId},
+			#{pgmId},
+			SYSDATE
+		)
+	</insert>
+
+	<update id="updateEst">
+		UPDATE
+			TB_SD03M01
+		SET
+			CO_CD = #{coCd},
+			SALES_EMP_ID = #{salesMng},
+			EST_COPRT = #{estCoprt},
+			EST_CLNT_CD = #{clntCd},
+			EST_CLNT_NM = #{clntNm},
+			EST_RPRC = #{estRprc},
+			BIZ_TEL_NO = #{bizTelNo},
+			BIZ_FAX_NO = #{bizFaxNo},
+			MNG_EMAIL = #{mngEmail},
+			PRJCT_NM = #{prjctNm},
+			EST_DT = TO_CHAR(TO_DATE(#{estDt2},'YYYY-MM-DD'),'YYYYMMDD'),
+			CREAT_ID = #{userId}, 
+			CREAT_PGM = #{pgmId}, 
+			CREAT_DTTM = SYSDATE,
+			UDT_ID = #{userId}, 
+			UDT_PGM = #{pgmId}, 
+			UDT_DTTM = SYSDATE
+		WHERE
+			EST_NO = #{estNo}
+	</update>
+	
+	<update id="updateEstDetail">
+		UPDATE
+			TB_SD03D01
+		SET
+			PRDT_DIV = #{prdtDiv},
+			PRDT_STKN = #{prdtStkn},
+			PRDT_SIZE = #{prdtSize},
+			PRDT_CD = #{prdtCd},
+			PRDT_UNIT = #{prdtUnit},
+			EST_QTY = #{estQty},
+			EST_UPR = #{estUpr},
+			EST_AMT = #{estAmt},
+			CREAT_ID = #{userId}, 
+			CREAT_PGM = #{pgmId}, 
+			CREAT_DTTM = SYSDATE,
+			UDT_ID = #{userId}, 
+			UDT_PGM = #{pgmId}, 
+			UDT_DTTM = SYSDATE
+		WHERE
+			EST_NO = #{estNo}
+		AND EST_PRDT_SEQ = #{estPrdtSeq}
+	</update>
+	
+	<!-- <update id="deleteEst">
+		DELETE
+		FROM 
+			TB_SD03M01
+		WHERE
+			EST_NO = {estNo}
+	</update> --> 
+</mapper>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+		<!-- 페이지 타이틀 -->
+		<!-- <h3 class="location">영업관리>견적서 관리 <span class="page_tit">견적서 관리</span></h3>
+			로그아웃버튼
+			<div class="btn_area">
+				<a id="logoutBtn"><button class="logout_btn">Logout</button></a>
+				<a href="/static/html/admin/admin.html" target="_blank">
+				<button class="bg_b">Admin</button>
+				</a>
+			</div> -->
+	
+	
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+		        <a onclick="initSearch();">
+			          <button class="bg_gray">초기화</button>
+			    </a>
+		        <a onclick="gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
+	        </li>
+	      </ul>
+    	</div>
+				  <!-- 검색 콘텐츠 -->
+      <div class="contents search">
+        <div class="">
+            <!-- 테이블 인풋 2분할 -->
+            <table class="table_input type02">
+              <tr>
+                <td style="width:5%">
+                  <select id= "searchValue" style="width:100%">
+                  <option>전체</option>
+                  <option value="EST_CLNT_NM">수신처</option>
+                  <option value="NAME">견적담당자</option>
+                  
+                  </select>
+                </td>
+                <td>
+                  <input type="text" id="searchName">
+                </td>
+              </tr>
+            </table>
+          </div>
+    </div>
+    <div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="insertUpdateEst('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteEst()" style="height: 30px; line-height: 28px;">-</a>
+	            </div>
+				<select class="prae_select" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+				<input type="hidden" id="recordCnt">
+				<input type="hidden" id="basisPriceSeq">
+			</div>
+		</div>
+    	<div class="contents">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+		</div>
+	</div>
+		
+</body>
+</html>
+
+<script type="text/javascript">
+
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;
+		
+	var gridView = {	
+		initView: function(){ 
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center", 
+		        	selector: false
+		        },
+		        body: {
+		        	 onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	insertUpdateEst("U");
+		            }, 
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		            {key: "estDt", label: "발신일자", align: "center"},
+		            {key: "estCoprtNm", label: "발신처", align: "center"},
+		            {key: "estClntNm", label: "수신처", align: "center"},
+		            {key: "estRprc", label: "수신처 참조", align: "center"},
+		            {key: "estQty", label: "수량(합계)", align: "right"},
+		            {key: "estAmt", label: "수입 공급가액(합계)", align: "right"},
+		            {key: "bizTelNo", label: "사업자 전화번호", align: "center"},
+		            {key: "bizFaxNo", label: "사업자 FAX번호", align: "center"},
+		            {key: "mngEmail", label: "담당자 이메일", align: "center"},
+		            {key: "prjctNm", label: "프로젝트 명", align: "left"},
+		            {key: "rmk", label: "비고", align: "center"},
+		            {key: "name", label: "견적 담당자", align: "center"}
+		        ]
+		    });
+			return this;
+		},
+		setData: function(_pageNo) {
+			firstGrid = this.target;
+			var formData = {
+				"searchValue" : $("#searchValue").val(),
+				"searchName"  : $("#searchName").val(),
+				"pageNo" : _pageNo + 1,
+				"recordCnt" : $("#recordCnt").val() 
+			}
+			
+			postAjax("/user/sd/sd03/selectMainEstList", formData, null, function(data){
+				var list = data.smelList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		} 
+	}
+	
+	//화면로드시
+	$(document).ready(function() {
+		mainDefaultLoad("영업관리", "견적서 관리");
+	    gridView.initView().setData(0);
+	})	
+		
+	function setSelectCombo(){
+		var paramObj = {
+			"userId" : jwt.userId,
+			"wh" : "WH"
+		};
+		
+		postAjax("/user/sm/sm02/selectCmnCodeList", paramObj, null,  function(data){
+			
+			var whHtml = '<option value="" selected>전체선택</option>';
+			var cmnCodeInfo = data.cmnCodeInfo;
+			
+			$.each(cmnCodeInfo, function(index, item){
+				if(item.codeKind == 'WH'){
+					whHtml += '<option value='+item.codeId+'>';
+					whHtml += item.codeNm;
+					whHtml += '</option>';
+				}
+				
+				document.getElementById("searchOutCoCd").innerHTML = whHtml;
+				document.getElementById("searchInCoCd").innerHTML = whHtml;
+			});
+		});
+	}
+	
+	function insertUpdateEst(type){
+		actionType = type;
+		if ( actionType == 'U' && selectGridValidation(firstGrid)){
+			return;
+		}
+		openModal("/static/html/user/sd/sd03/SD0301P01.html", 900, 700, " ");
+	}
+	
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input[type='text']").val("");
+	}
+</script>
