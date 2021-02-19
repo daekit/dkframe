@@ -1,0 +1,306 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area">
+	<div class="tit_contents">
+		<h4 class="tit"></h4>
+	</div>
+	
+	<!-- 수금 테이블 -->
+	<div class="popup_table" id="etrdpsTableDiv">
+		<form id="etrdpsData">
+			<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
+			<input type="hidden" id="etrdpsSeq" name="etrdpsSeq">
+			<table>
+				<colgroup>
+					<col width="15%">
+					<col width="">
+					<col width="15%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th class="hit">거래처</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd" required>
+							<input type="text" id="clntNm" disabled> 
+							<button type="button" id="btnClntSearch" onclick="clntSearch();"><i class="i_search_w"></i></button>
+						</div> 
+					</td>
+					<th class="hit">입금일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="etrdpsDt" name="etrdpsDt" date required>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">결제방법</th>
+					<td>
+						<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th class="hit">금액</th>
+					<td>
+						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="addComma(this);" comma required>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">입금계좌</th>
+					<td>
+						<select id="etrdpsBkacCd" name="etrdpsBkacCd" data-kind="BKAC" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th></th>
+					<td></td>
+				</tr>
+				<tr>
+					<th>적요</th>
+					<td colspan="3">
+						<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 어음 테이블 -->
+	<div class="popup_table" id="billTableDiv" style="display: none;">
+		<form id="billData">
+			<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
+			<table>
+				<colgroup>
+					<col width="15%">
+					<col width="">
+					<col width="15%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th class="hit">어음종류</th>
+					<td>
+						<select id="bilTypCd" name="bilTypCd" data-kind="BIL" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th class="hit">어음번호</th>
+					<td>
+						<input type="text" id="bilNo" name="bilNo" required> 
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">만기일</th>
+					<td>
+						<input type="text" class="input_calendar" id="exprtnDt" name="exprtnDt" date required>
+					</td>
+					<th class="hit">지급은행</th>
+					<td>
+						<select id="pymntBankCd" name="pymntBankCd" data-kind="BANK" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>발행자</th>
+					<td>
+						<input type="text" id="bilPblsPsn" name="bilPblsPsn" maxlength="25">
+					</td>
+					<th>배서인 수</th>
+					<td>
+						<input type="text" id="endrsPsnCnt" name="endrsPsnCnt" onkeyup="onlyNumber(this);">
+					</td>
+				</tr>
+				<tr>
+					<th>어음금액</th>
+					<td>
+						<input type="text" id="bilAmt" name="bilAmt" onkeyup="addComma(this);" comma>
+					</td>
+					<th>발행일</th>
+					<td>
+						<input type="text" class="input_calendar" id="bilPblsDt" name="bilPblsDt" date>
+					</td>
+				</tr>
+				<tr>
+					<th>전배서인</th>
+					<td>
+						<input type="text" id="endrsPsn" name="endrsPsn" maxlength="25">
+					</td>
+					<th>
+					</th>
+					<td>
+					</td>
+				</tr>
+				<tr>
+					<th>비고</th>
+					<td colspan="3">
+						<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="actionBtn"></button>
+		<button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
+		<button class="close_btn" onclick="modal.close();">닫기</button>
+	</div>
+</div>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		
+		// 공통코드 SelectBox set
+		setCommonSelect($(".popup_area select[data-kind]"));
+		
+		// 입금일 datepicker bind
+		$('#etrdpsDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 만기일 datepicker bind
+		$('#exprtnDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 어음 발행일 datepicker bind
+		$('#bilPblsDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		if (actionType == "C") {
+			// 입금일자 오늘날짜 set
+			$('#etrdpsDt').datepicker("setDate", new Date());
+			
+			$('#actionBtn').on("click", function() {insertEtrdps();});
+			$('.tit_contents .tit').text("수금 등록");
+			$('#actionBtn').text("등록");
+		} else if (actionType == "U") {
+			// 입금정보 set
+			selectEtrdpsInfo();
+			// 거래처 변경 disable
+			$('#clntCd').prop("disabled", true);
+			$('#btnClntSearch').prop("disabled", true);
+			// 결제방법 변경 disable
+			$('#setleTypCd').prop("disabled", true);
+			// 어음번호 변경 readonly - 어음 업데이트 시 필요
+			$('#bilNo').prop("readonly", true);
+			
+			$('#actionBtn').on("click", function() {updateEtrdps();});
+			$('.tit_contents .tit').text("수금 수정");
+			$('#actionBtn').text("수정");
+		}
+	});
+	
+	function clntSearch() {
+		openSecondModal("/static/html/user/ar/ar05/AR0502P02.html", 500, 420, "거래처 검색");
+	}
+	
+	function ctrlBillTable(elem){
+		var pmntMtd = $(elem).find('option:selected').data("etc");
+		if(pmntMtd == "BILL"){
+			$('#billTableDiv').show();
+		}else{
+			$('#billTableDiv').hide();
+		}
+	}
+	
+	function selectEtrdpsInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"etrdpsSeq": row.etrdpsSeq};
+		postAjax("/user/ar/ar05/selectEtrdpsInfo", paramObj, null, function(data){
+			setEtrdpsInfo(data.etrdpsInfo);
+		});
+	}
+	
+	function setEtrdpsInfo(etrdpsInfo){
+		var etrdpsData = etrdpsInfo.etrdpsData;
+		var billData = etrdpsInfo.billData;
+		
+		$.each(etrdpsData, function(key, value){
+			if($('#etrdpsData').find('#'+key)[0]){
+				$('#etrdpsData').find('#'+key).val(value);
+				
+				if($('#etrdpsData').find('#'+key).is("[comma]")){
+					addComma($('#etrdpsData').find('#'+key)[0]);
+				}
+				
+				if($('#etrdpsData').find('#'+key).is("[date]")){
+					$('#etrdpsData').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}
+			}
+		});
+		
+		if(billData){
+			$('#billTableDiv').show();
+			$.each(billData, function(key, value){
+				if($('#billData').find('#'+key)[0]){
+					$('#billData').find('#'+key).val(value);
+					
+					if($('#billData').find('#'+key).is("[comma]")){
+						addComma($('#billData').find('#'+key)[0]);
+					}
+					
+					if($('#billData').find('#'+key).is("[date]")){
+						$('#billData').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+					}
+				}
+			});
+		}
+	}
+	
+	function insertEtrdps() {
+		if (inputValidation($('.popup_table table:visible [required]'))) {
+			var formData = makeFormData();
+			postAjax("/user/ar/ar05/insertEtrdps", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
+			});
+		}
+	}
+
+	function updateEtrdps() {
+		if (inputValidation($('.popup_table table:visible [required]'))) {
+			var formData = makeFormData();
+			putAjax("/user/ar/ar05/updateEtrdps", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
+			});
+		}
+	}
+	
+	function makeFormData(){
+		var formData = {};
+		for(var i=0;i<$('.popup_table:visible form').length;i++){
+			var tempForm = $('.popup_table:visible form')[i];
+			
+			// 금액 콤마 제거
+			$.each($(tempForm).find('[comma]'), function(idx, elem){
+				deleteComma(elem);		
+			});
+			
+			// 날짜 하이픈 제거
+			$.each($(tempForm).find('[date]'), function(idx, elem){
+				deleteHyphen(elem);		
+			});
+			
+			// 객체 생성
+			var tempObj = $(tempForm).serializeObject();
+			tempObj.coCd = jwt.coCd;
+			tempObj.userId = jwt.userId;
+			formData[tempForm.id] = tempObj;
+		}
+		return formData;
+	}
+</script>
