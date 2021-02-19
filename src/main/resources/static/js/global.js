@@ -1,3 +1,6 @@
+// 그리도 총건수 표기 커스텀
+ax5.ui.grid.tmpl.page_status = function(){return '<span>총 {{totalElements}}건</span>';};
+
 var setCookie = function(name, value, exp) {
 	var date = new Date();
 	date.setTime(date.getTime() + exp * 24 * 60 * 60 * 1000);
@@ -97,6 +100,7 @@ function parseJwt (token) {
 
     return JSON.parse(jsonPayload);
 };
+
 
 function selectGridValidation(obj) {
 	if(obj.getList("selected").length > 1) {
@@ -286,6 +290,11 @@ function exceptKorean(elem){
 	$(elem).val($(elem).val().replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,""));
 }
 
+// 계좌번호 (숫자, 하이픈만 허용)
+function onlBkac(elem){
+	$(elem).val($(elem).val().replace(/^[-]|[^0-9-]/gi,""));
+}
+
 // 전화번호 포맷 변경
 function telNumberFormatter(elem){
 	onlyNumber(elem);
@@ -307,7 +316,6 @@ function addComma(elem) {
 // 콤마 제거
 function deleteComma(elem) {
 	$(elem).val($(elem).val().replace(/,/g, ""));
-	return elem;
 }
 
 // 원단위 콤마 추가 스트링변수용
@@ -318,6 +326,11 @@ function addCommaStr(x) {
 // 콤마 제거 스트링변수용
 function deleteCommaStr(x) {
     return x.toString().replace(/,/g, "");
+}
+
+// 하이픈 제거
+function deleteHyphen(elem){
+	$(elem).val($(elem).val().replace(/-/g, ""));
 }
 
 // 권한에 따른 메뉴 보여주기
@@ -371,7 +384,7 @@ function setCommonSelect(el){
 			var optionHtml = '';
 			var codeList = data.childCodeList;
 			$.each(codeList, function (index, item){
-				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += '<option value='+item.codeId+' data-etc="'+item.codeEtc+'">';
 				optionHtml += item.codeNm;
 				optionHtml += '</option>';
 			});
