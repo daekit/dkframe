@@ -116,7 +116,7 @@ public class BM02SvcImpl implements BM02Svc {
 	}
 
 	@Override
-	public void unuseClnt(@RequestBody Map<String, String> paramMap) {
+	public void unuseClnt(Map<String, String> paramMap) {
 		bm02Mapper.unuseClnt(paramMap);
 		bm02Mapper.unusePldg(paramMap);
 		bm02Mapper.unuseBizdept(paramMap);

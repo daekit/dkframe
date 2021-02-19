@@ -8,11 +8,19 @@
 			COUNT(*)
 		FROM
 			TB_BM02M01
-		WHERE
-			USE_YN = #{useYn}
+		<where>
+			<choose>
+				<when test="useYn != null and !useYn.equals('')">
+					USE_YN = #{useYn}
+				</when>
+				<otherwise>
+					USE_YN = 'Y'
+				</otherwise>
+			</choose>
 			<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'
 			</if>
+		</where>
 		ORDER BY CLNT_CD
 	</select>
 	
@@ -37,11 +45,19 @@
 					UDT_DTTM
 				FROM
 					TB_BM02M01
-				WHERE
-					USE_YN = #{useYn}
+				<where>
+					<choose>
+						<when test="useYn != null and !useYn.equals('')">
+							USE_YN = #{useYn}
+						</when>
+						<otherwise>
+							USE_YN = 'Y'
+						</otherwise>
+					</choose>
 					<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
+				</where>
 				ORDER BY CLNT_CD
 			) A
 		)
@@ -79,7 +95,7 @@
 	<select id="selectBizdeptList" resultType="CamelMap">
 		SELECT
 			BIZDEPT_NM,
-			BIZ_DIV_CD,
+			BIZDEPT_DIV_CD,
 			MNG_NM,
 			MNG_DEPT_NM,
 			MNG_PST_CD,
@@ -180,7 +196,7 @@
 			BIZDEPT_SN,
 			CLNT_CD,
 			BIZDEPT_NM, 
-			BIZ_DIV_CD,
+			BIZDEPT_DIV_CD,
 			MNG_NM,
 			MNG_DEPT_NM,
 			MNG_PST_CD,
@@ -202,7 +218,7 @@
 			TB_BM02D01_SQ01.NEXTVAL,
 			#{clntCd},
 			#{bizdeptNm}, 
-			#{bizDivCd},
+			#{bizdeptDivCd},
 			#{mngNm},
 			#{mngDeptNm},
 			#{mngPstCd},
