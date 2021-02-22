@@ -1,0 +1,542 @@
+<body>
+  <div class="popup_area" style="width: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">견적서 등록</h4>
+    </div>
+
+<!--     <h6 class="fs-30 tc">견  적  서</h6> -->
+
+    <div class="popup_table">
+    	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
+    	<form id="popForm">
+        <table>
+            <colgroup>
+                <col width="12%">
+                <col width="">
+                <col width="12%">
+                <col width="">
+                <col width="12%">
+                <col width="">
+            </colgroup>
+            <tr>
+                <th class="">회사</th>
+                <td>                                
+                    <select id="coCd" name="coCd" data-kind="CO">
+                    </select>
+                </td>
+                <th class="">영업담당자</th>
+                <td>                                
+                    <input type="hidden" id="salesMng" name="salesMng" style="width: 73%;">
+                    <input type="text" id="salesMngNm" name="salesMngNm" style="width: 73%;" readonly="readonly">
+                	<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree();">
+	                	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+	                </button>
+                </td>
+                <th class="">견적일자</th>
+                <td>
+                	<input id="estDt2" name="estDt2" type="date">
+                </td>
+            </tr>
+            <tr>
+                <th class="">발행법인</th>
+                <td>   
+                	<select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT">
+                    </select>               
+                </td>
+                <th class="">수신 거래처</th>
+                <td>     
+                	<input type="hidden" id="estClntCd" name="clntCd" style="width: 73%;">
+                    <input id="estClntNm" name="clntNm" type="text" style="width: 73%;">
+                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch();">
+                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                	</button>      
+                </td>
+                <th class="">참조내용</th>
+                <td>                                
+                    <input id="estRprc" name="estRprc" type="text" style="width: 100%;">
+                </td>
+            </tr>
+            <tr>
+                <th class="">사업자 Tel.</th>
+                <td>   
+                	<input id="bizTelNo" name="bizTelNo" type="text" style="width: 100%;" onkeyup="telNumberFormatter(this);" maxlength="13">
+                </td>
+                <th class="">사업자 Fax</th>
+                <td>   
+                	<input id="bizFaxNo" name="bizFaxNo" type="text" style="width: 100%;" onkeyup="telNumberFormatter(this);" maxlength="13">
+                </td>
+                <th class="">담당자 Email</th>
+                <td>   
+                	<input id="mngEmail" name="mngEmail" type="text" style="width: 100%;" onkeyup="exceptKorean(this);" maxlength="100">
+                </td>
+            </tr>
+            <tr>
+                <th class="">프로젝트<br>현장명</th>
+                <td colspan="5">     
+                    <input id="prjctNm" name="prjctNm" type="text" style="width: 100%;">
+                </td>
+            </tr>
+        </table>
+	        <input type="hidden" id="userId" name="userId">
+		    <input type="hidden" id="pgmId" name="pgmId" value="SD0301M01">
+		    <input type="hidden" id="estNo" name="estNo">
+        </form>
+    </div>
+
+    <br>
+    <!-- 테이블 -->
+    <div class="popup_table">
+      <table id="detailTb">
+        <colgroup>
+            <col width="12%">
+            <col width="12%">
+            <col width="12%">
+            <col width="12%">
+            <col width="8%">
+            <col width="8%">
+            <col width="12%">
+            <col width="12%">
+        </colgroup>
+        <tr>
+          <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
+          <td colspan="6">
+            <div class="add_btn">
+              <a onclick="addRow();">+</a>
+              <a onclick="removeRow();">-</a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+            <th>제품구분</th>
+            <th>제품강종</th>
+            <th>사이즈(스펙)</th>
+            <th>제품코드</th>
+            <th>단위</th>
+            <th>수량</th>
+            <th>단가</th>
+            <th>금액</th>
+        </tr>
+        <!-- // -->
+        <tbody>
+          <tr id="tableCd" name="tableCd">
+            <td id="dtlGrid">
+              <select name="prdtDiv" data-kind="PRDTDIV" onChange="gridViewChange(this);" >
+              </select>
+            </td>
+            <td>
+              <select name="prdtStkn" data-kind="PDSK" onChange="gridDtlPrdtdiv11(this);">
+              </select>
+            </td>
+            <td>
+              <select name="prdtSize" data-kind="PDSZ" onChange="gridDtlPrdtdiv11(this);">
+              </select>
+            </td>
+            <td>
+              <select id="prdtCd" name="prdtCd" onChange="gridDtlPrdtCd(this);">
+              </select>
+            </td>
+            <td>
+              <select name="prdtUnit" data-kind="PRDTUNIT" onChange="gridDtlPrdtdiv11(this);">
+              </select>
+            </td>
+            <td><input name="estQty" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);"></td>
+            <td><input name="estUpr" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);"></td>
+            <td><input name="estAmt" type="text" style="width: 100%;">
+            <input name="estPrdtSeq" type="hidden">
+            <input name="prodCd" type="hidden"></td>
+          </tr>
+          <!--  -->
+        
+        </tbody>
+        <!-- \\ -->
+      </table>
+    </div>
+   <table>
+	  <colgroup>
+	    <col width="10%">
+	    <col width="65%">
+	    <col width="13%">
+	  </colgroup>
+	    <tr>
+	  		<th>
+	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+	  		</th>
+	  		<td>
+	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 863px"></div>
+	  		</td>
+	  	</tr>
+	</table>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="actionBtn">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	var prdtCdVal = "";
+	var fileArr = [];
+	var deleteFileArr = [];
+
+	var fileGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showLineNumber: true,
+				showRowSelector: false,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	downloadFile(this.dindex);
+		            },
+		        },
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 380},
+	                {key: "fileType", label: "파일타입", width: 120},
+	                {key: "fileSize", label: "파일크기", width: 120},
+	                {
+						key:"fileDelete", label: "삭제", width:60,
+						formatter:function() {
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
+						}
+					}
+	            ]
+			});
+		},
+		setData: function(){
+			this.target.setData(fileArr);
+		}
+	}
+	
+	$(document).ready(function() {
+		fileGridView.initView();
+		$("#userId").val(jwt.userId);
+		setCommonSelect($(".popup_area select[data-kind]"));
+		setInit();
+	});
+	
+	function setInit() {
+		if(actionType == "C") {
+			$('#actionBtn').on("click", function(){insertEst();});
+			$("#actionBtn").text("등록");
+		}else if(actionType == "U"){
+			initDtlTb();
+			selectEstInfo();
+			$('#actionBtn').on("click", function(){updateEst();});
+			$('#actionBtn').text("수정");
+		}
+			prdtNmSet();
+	}
+	
+	function initDtlTb(){
+		$('table tr[name="tableCd"]').removeAttr("target");
+		prdtCdVal = $('tr[target] select[name="prdtDiv"]').val();
+	}
+	
+	function selectEstInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"estNo" : row.estNo,
+			"pgmId" : row.creatPgm			
+		}
+		postAjax("/user/sd/sd03/selectEstInfo", formData, null, function(data){
+			setEstInfo(data.result);
+		});
+	}
+	
+	function setEstInfo(obj){
+		var fileInfo = obj.estFileList;
+		var estInfo = obj;
+		var estDtl = obj.estDetail;
+		
+		//메인정보 세팅
+		$.each(estInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+		//상세정보 세팅
+		$.each(estDtl, function(idx, item){
+			if(idx != 0) {
+				addRow();
+			}
+			var changeInput = $('table tr[name="tableCd"]:last').removeAttr("target");
+			
+			if(item.prdtDiv != "PRDTDIV11"){
+				changeInput.find('td').eq(1).html('<input id="name="prdtStkn" name="prdtStkn"></input>');
+				changeInput.find('td').eq(2).html('<input id="name="prdtSize" name="prdtSize"></input>');
+				changeInput.find('td').eq(3).html('<input id="name="prdtCd" name="prdtCd"></input>');
+				changeInput.find('td').eq(4).html('<input id="name="prdtUnit" name="prdtUnit"></input>');
+				changeInput.find('td').eq(5).html('<input name="estQty" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);"></input>');
+				changeInput.find('td').eq(6).html('<input name="estUpr" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);"></input>');
+				changeInput.find('td').eq(7).html('<input name="estAmt" type="text" style="width: 100%;"></input>');
+			}
+			
+			addedRow = $("tr[name='tableCd']:last")[0];
+			
+			$.each(item, function(key, value){
+				$(addedRow).find("input[name='"+key+"']").val(value);
+				$(addedRow).find("select[name='"+key+"']").val(value);
+			}); 	
+		});
+		
+		$.each(fileInfo, function(idx, obj){
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
+	//거래처 검색
+	function clntSearch() {
+		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 400, 400, "거래처검색");
+	}	
+	
+	//검색된 거래처 받아오는함수
+	function setDtlClntCd(params){
+		$("#estClntCd").val(params.clntCd);
+		$("#estClntNm").val(params.clntNm);
+	}
+	
+	//사용자 검색
+	function openUserTree() {
+		openSecondModal("/static/html/user/sd/sd03/SD0301P02.html", 300, 500, "사용자 검색");
+	}
+	
+	//list 행추가
+	function addRow() {
+		//rowCnt++;
+		var row = $("#detailTb > tbody:last > tr:last").clone();
+		//row.attr("id","detailTb"+rowCnt);
+		$("#detailTb > tbody:last").append(row);
+		return $("tr[name='tableCd']:last")[0];
+	}
+	//list 행삭제	
+	function removeRow() {
+		var rowCnt = $("#detailTb > tbody:last > tr").length;
+		if(rowCnt > 1) {
+			$("#detailTb > tbody:last > tr:last").remove();
+		} else {
+			return false;
+		}
+	}
+	
+	function gridViewChange(elem){
+		var targetRow = $(elem).closest('tr');
+		$('table tr[name="tableCd"]').removeAttr("target");
+		targetRow.attr("target", true);
+		prdtCdVal = $('tr[target] select[name="prdtDiv"]').val();
+				
+		if(prdtCdVal == "PRDTDIV11"){
+			targetRow.find('td').eq(0).html('<select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" onChange="gridViewChange(this);"></select>');
+			targetRow.find('td').eq(1).html('<select id="prdtStkn" name="prdtStkn" data-kind="PDSK" onChange="gridDtlPrdtdiv11(this);"></select>');
+			targetRow.find('td').eq(2).html('<select id="prdtSize" name="prdtSize" data-kind="PDSZ" onChange="gridDtlPrdtdiv11(this);"></select>');
+			targetRow.find('td').eq(3).html('<select name="prdtCd" onChange="gridDtlPrdtCd(this);"></select>');
+			targetRow.find('td').eq(4).html('<select name="prdtUnit" data-kind="PRDTUNIT" onChange="gridDtlPrdtdiv11(this);"></select>');
+			targetRow.find('td').eq(5).html('<input name="estQty" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);">');
+			targetRow.find('td').eq(6).html('<input name="estUpr" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);">');
+			targetRow.find('td').eq(7).html('<input name="estAmt" type="text" style="width: 100%;">');
+			setCommonSelect(targetRow.find('[data-kind]'));
+			//gridDtlPrdtdiv11();
+		}else{
+			targetRow.find('td').eq(1).html('<input id="name="prdtStkn" name="prdtStkn"></input>');
+			targetRow.find('td').eq(2).html('<input id="name="prdtSize" name="prdtSize"></input>');
+			targetRow.find('td').eq(3).html('<input id="name="prdtCd" name="prdtCd"></input>');
+			targetRow.find('td').eq(4).html('<input id="name="prdtUnit" name="prdtUnit"></input>');
+			targetRow.find('td').eq(5).html('<input name="estQty" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);">');
+			targetRow.find('td').eq(6).html('<input name="estUpr" type="text" style="width: 100%;" onChange="gridDtlPrdtAmt(this);">');
+			targetRow.find('td').eq(7).html('<input name="estAmt" type="text" style="width: 100%;">');
+			$('tr[target] input[name="estUpr"]').val('');
+			$('tr[target] input[name="estAmt"]').val('');
+		}
+		
+	} 
+	
+	function gridDtlPrdtdiv11(elem){
+		 var targetRow = $(elem).closest('tr');
+		 $('table tr[name="tableCd"]').removeAttr("target");
+		 targetRow.attr("target", true);
+		 
+		var formData = {
+				"prdtDiv" 	: $('tr[target] select[name="prdtDiv"]').val(),         
+				"prdtStkn" 	: $('tr[target] select[name="prdtStkn"]').val(),    
+				"prdtSize" 	: $('tr[target] select[name="prdtSize"]').val(),
+				"prdtUnit" 	: $('tr[target] select[name="prdtUnit"]').val()
+		};
+		postAjax("/user/sd/sd03/selectPrdtCodeList", formData, null, function(data){
+			var prdtList = data.prdtCodeInfo;
+			var name = '<option value="" selected>전체선택</option>';
+			for(var i=0; i<prdtList.length; i++){
+				name += '<option value='+prdtList[i].prdtCd+'>';
+				name += prdtList[i].prdtNm;
+				name += '</option>';
+			}
+			
+			$('tr[target] select[name="prdtCd"]').html(name);
+			$('tr[target] input[name="estUpr"]').val('');
+			$('tr[target] input[name="estAmt"]').val('');
+			$('tr[target] input[name="estQty"]').val('');
+		});
+	} 
+	  
+	 function prdtNmSet(){
+		var formData = {
+		};
+		postAjax("/user/sd/sd03/selectPrdtCd", formData, null, function(data){
+			var prdtList = data.prdtCd;
+			var name = '<option value="" selected>전체선택</option>';
+			for(var i=0; i<prdtList.length; i++){
+				name += '<option value='+prdtList[i].prdtCd+'>';
+				name += prdtList[i].prdtNm;
+				name += '</option>';
+			}
+			document.getElementById("prdtCd").innerHTML = name;
+		});
+	}
+	function gridDtlPrdtAmt(elem){
+		var targetRow = $(elem).closest('tr');
+		$('table tr[name="tableCd"]').removeAttr("target");
+		targetRow.attr("target", true);
+		var toTalAmt = $('tr[target] input[name="estQty"]').val() * $('tr[target] input[name="estUpr"]').val();
+		$('tr[target] input[name="estAmt"]').val(toTalAmt);
+		//targetRow.find('#estAmt').val(toTalAmt);
+		
+		//var toTalAmt =  targetRow.find('#estQty').val() * targetRow.find('#estUpr').val();
+	}
+	
+	function gridDtlPrdtCd(elem){
+		var targetRow = $(elem).closest('tr');
+		$('table tr[name="tableCd"]').removeAttr("target");
+		targetRow.attr("target", true);
+		 
+		var formData = {
+			"prdtDiv" 	: $('tr[target] select[name="prdtDiv"]').val(),         
+			"prdtStkn" 	: $('tr[target] select[name="prdtStkn"]').val(),    
+			"prdtSize" 	: $('tr[target] select[name="prdtSize"]').val(),
+			"prdtUnit" 	: $('tr[target] select[name="prdtUnit"]').val(),
+			"prdtCd"	: $('tr[target] select[name="prdtCd"]').val()
+		};
+		postAjax("/user/sd/sd03/selectPrdtCodeList", formData, null, function(data){
+			var prdtList = data.prdtCodeInfo;
+			$('tr[target] input[name="estUpr"]').val(prdtList[0].prdtUpr);
+		});
+	}
+	
+	function insertEst() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/sd/sd03/insertEst", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updateEst() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/sd/sd03/updateEst", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	} 
+	
+	function makeFormData() {
+		var formData = new FormData($("#popForm")[0]);
+		$("#userId").val(jwt.userId);
+		
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		if(actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		} 
+		
+		// 견적서 추가
+		var detailArr = [];
+		$.each($("#detailTb tr[name='tableCd']"), function(idx, elem){
+			var detailObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				detailObj[elem.name] = elem.value;
+			});
+			detailArr.push(detailObj);
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		if(actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		} 
+		return formData;
+	}  
+	
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+	
+	function setFileInfo(fileInfo) {
+		// 첨부파일 set
+		$.each(fileInfo, function(idx, obj){
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
+		
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
+	function setFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var testArr = obj.name.split(".");
+			fileArr.push({
+				'fileKey' : 0,
+		      	'fileName' : obj.name,
+		      	'fileType' : testArr[testArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		fileGridView.setData();
+		$(elem).val("");
+	}
+	
+	function deleteFile(rowIndex) {
+		fileGridView.target.removeRow(rowIndex);
+		
+		if(fileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(fileArr[rowIndex].fileKey);
+		}
+		
+		fileArr.splice(rowIndex, 1);
+	} 
+</script>

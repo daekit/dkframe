@@ -30,7 +30,7 @@ public class PaginationInfo
     	// 페이지당 로우 개수
     	String recordCnt = param.get("recordCnt");
     	if(StringUtils.isEmpty(recordCnt)) {
-    		this.recordCountPerPage = 10;
+    		this.recordCountPerPage = 20;
     	}else {
     		this.recordCountPerPage = Integer.parseInt(recordCnt);
     	}

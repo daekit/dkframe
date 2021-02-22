@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar05.mapper.AR05Mapper">
+	
+	<select id="selectEtrdpsCount" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM
+			TB_AR05M01 D
+			LEFT JOIN TB_AR05D01 B ON D.BIL_NO = B.BIL_NO
+			INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
+		<where>
+			<if test="coCd != null and !coCd.equals('')">
+				D.CO_CD = #{coCd}
+			</if>
+			<if test="startDt != null and !startDt.equals('')">
+				<![CDATA[ AND TO_DATE(D.ETRDPS_DT, 'YYYYMMDD') >= TO_DATE(#{startDt}, 'YYYY-MM-DD') ]]>
+			</if>
+			<if test="endDt != null and !endDt.equals('')">
+				<![CDATA[ AND TO_DATE(D.ETRDPS_DT, 'YYYYMMDD') < TO_DATE(#{endDt}, 'YYYY-MM-DD') + 1 ]]>
+			</if>
+			<if test="clntDivCd != null and !clntDivCd.equals('')">
+				AND C.CLNT_DIV_CD = #{clntDivCd}
+			</if>
+			<if test="setleTypCd != null and !setleTypCd.equals('')">
+				AND D.SETLE_TYP_CD = #{setleTypCd}
+			</if>
+			<if test="etrdpsBkacCd != null and !etrdpsBkacCd.equals('')">
+				AND D.ETRDPS_BKAC_CD = #{etrdpsBkacCd}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectEtrdpsList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT
+					D.ETRDPS_SEQ,
+					TO_CHAR(TO_DATE(D.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') ETRDPS_DT,
+					C.CLNT_NM,
+					FN_CM05M01_CD_TO_NM(D.SETLE_TYP_CD) AS SETLE_TYP_NM,
+					D.ETRDPS_AMT,
+					FN_CM05M01_CD_TO_NM(D.ETRDPS_BKAC_CD) AS ETRDPS_BKAC_NM, 
+					D.SUMRY,
+					FN_CM05M01_CD_TO_NM(B.BIL_TYP_CD) AS BIL_TYP_NM,
+					B.BIL_NO,
+					TO_CHAR(TO_DATE(B.EXPRTN_DT, 'YYYYMMDD'), 'YYYY-MM-DD') EXPRTN_DT,
+					FN_CM05M01_CD_TO_NM(B.PYMNT_BANK_CD) AS PYMNT_BANK_NM,
+					B.ENDRS_PSN
+				FROM
+					TB_AR05M01 D
+					LEFT JOIN TB_AR05D01 B ON D.BIL_NO = B.BIL_NO
+					INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
+				<where>
+					<if test="coCd != null and !coCd.equals('')">
+						D.CO_CD = #{coCd}
+					</if>
+					<if test="startDt != null and !startDt.equals('')">
+						<![CDATA[ AND TO_DATE(D.ETRDPS_DT, 'YYYYMMDD') >= TO_DATE(#{startDt}, 'YYYY-MM-DD') ]]>
+					</if>
+					<if test="endDt != null and !endDt.equals('')">
+						<![CDATA[ AND TO_DATE(D.ETRDPS_DT, 'YYYYMMDD') < TO_DATE(#{endDt}, 'YYYY-MM-DD') + 1 ]]>
+					</if>
+					<if test="clntDivCd != null and !clntDivCd.equals('')">
+						AND C.CLNT_DIV_CD = #{clntDivCd}
+					</if>
+					<if test="setleTypCd != null and !setleTypCd.equals('')">
+						AND D.SETLE_TYP_CD = #{setleTypCd}
+					</if>
+					<if test="etrdpsBkacCd != null and !etrdpsBkacCd.equals('')">
+						AND D.ETRDPS_BKAC_CD = #{etrdpsBkacCd}
+					</if>
+				</where>
+				ORDER BY D.CREAT_DTTM DESC
+			) A
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectEtrdpsInfo" resultType ="CamelMap">
+		SELECT
+			D.ETRDPS_SEQ,
+			D.CLNT_CD,
+			C.CLNT_NM,
+			TO_CHAR(TO_DATE(D.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') ETRDPS_DT,
+			D.SETLE_TYP_CD,
+			D.ETRDPS_AMT,
+			D.ETRDPS_BKAC_CD,
+			D.BIL_NO,
+			D.SUMRY
+		FROM
+			TB_AR05M01 D
+			INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
+		WHERE
+			ETRDPS_SEQ = ${etrdpsSeq}
+	</select>
+	
+	<select id="selectBillInfo" resultType="CamelMap">
+		SELECT
+			B.BIL_TYP_CD,
+			B.BIL_NO,
+			TO_CHAR(TO_DATE(B.EXPRTN_DT, 'YYYYMMDD'), 'YYYY-MM-DD') EXPRTN_DT,
+			B.PYMNT_BANK_CD,
+			B.BIL_PBLS_PSN,
+			B.ENDRS_PSN_CNT,
+			B.BIL_AMT,
+			TO_CHAR(TO_DATE(B.BIL_PBLS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') BIL_PBLS_DT,
+			B.ENDRS_PSN,
+			B.SUMRY
+		FROM
+			TB_AR05D01 B
+		WHERE
+			B.BIL_NO = #{bilNo}
+	</select>
+	
+	<insert id="insertEtrdps">
+		INSERT INTO TB_AR05M01 (
+			CO_CD,
+			ETRDPS_DT,
+			CLNT_CD,
+			ETRDPS_SEQ,
+			SETLE_TYP_CD,
+			ETRDPS_AMT,
+			ETRDPS_BKAC_CD,
+			<if test="bilNo != null and !bilNo.equals('')">
+				BIL_NO,
+			</if>
+			SUMRY,
+			CREAT_ID, CREAT_PGM, CREAT_DTTM,
+			UDT_ID, UDT_PGM, UDT_DTTM
+	 	) VALUES (
+	 		#{coCd},
+			#{etrdpsDt},
+			#{clntCd},
+			TB_AR05M01_SQ01.NEXTVAL,
+			#{setleTypCd},
+			#{etrdpsAmt},
+			#{etrdpsBkacCd},
+			<if test="bilNo != null and !bilNo.equals('')">
+				#{bilNo},
+			</if>
+			#{sumry},
+			#{userId}, #{pgmId}, SYSDATE,
+			#{userId}, #{pgmId}, SYSDATE
+	 	)
+	</insert>
+	
+	<insert id="insertBill">
+		INSERT INTO TB_AR05D01 (
+			CO_CD,
+			CLNT_CD,
+			BIL_NO,
+			BIL_TYP_CD,
+			EXPRTN_DT,
+			PYMNT_BANK_CD,
+			BIL_PBLS_PSN,
+			ENDRS_PSN_CNT,
+			ENDRS_PSN,
+			BIL_AMT,
+			BIL_PBLS_DT,
+			SUMRY,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
+	 	) VALUES (
+	 		#{coCd},
+	 		#{clntCd},
+	 		#{bilNo},
+	 		#{bilTypCd},
+	 		#{exprtnDt},
+	 		#{pymntBankCd},
+	 		#{bilPblsPsn},
+	 		#{endrsPsnCnt},
+	 		#{endrsPsn},
+	 		#{bilAmt},
+	 		#{bilPblsDt},
+	 		#{sumry},
+	 		#{userId},
+	 		#{pgmId},
+	 		SYSDATE,
+	 		#{userId},
+	 		#{pgmId},
+	 		SYSDATE
+	 	)
+	</insert>
+	
+	<update id="updateEtrdps">
+		UPDATE TB_AR05M01
+		SET
+			ETRDPS_DT = #{etrdpsDt},
+			ETRDPS_AMT = #{etrdpsAmt},
+			ETRDPS_BKAC_CD = #{etrdpsBkacCd},
+			SUMRY = #{sumry},
+			UDT_ID = #{userId},
+			UDT_PGM = #{pgmId}, 
+			UDT_DTTM = SYSDATE
+		WHERE
+			ETRDPS_SEQ = #{etrdpsSeq}
+	</update>
+	
+	<update id="updateBill">
+		UPDATE TB_AR05D01
+		SET
+			BIL_TYP_CD = #{bilTypCd},
+			EXPRTN_DT = #{exprtnDt},
+			PYMNT_BANK_CD = #{pymntBankCd},
+			BIL_PBLS_PSN = #{bilPblsPsn},
+			ENDRS_PSN_CNT = #{endrsPsnCnt},
+			BIL_AMT = #{bilAmt},
+			BIL_PBLS_DT = #{bilPblsDt},
+			ENDRS_PSN = #{endrsPsn},
+			SUMRY = #{sumry},
+			UDT_ID = #{userId},
+			UDT_PGM = #{pgmId},
+			UDT_DTTM = SYSDATE
+		WHERE
+			BIL_NO = #{bilNo}
+	</update>
+	
+	<delete id="deleteEtrdps">
+		DELETE
+		FROM
+			TB_AR05M01
+		WHERE
+			ETRDPS_SEQ = #{etrdpsSeq}
+	</delete>
+	
+	<delete id="deleteBill">
+		DELETE
+		FROM
+			TB_AR05D01
+		WHERE
+			BIL_NO = #{bilNo}
+	</delete>
+	
+</mapper>
