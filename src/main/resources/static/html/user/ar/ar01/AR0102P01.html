@@ -1,10 +1,8 @@
 <body>
   <div class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
-        <h4 class="tit">발주서 등록</h4>
+        <h4 class="tit">출하요청서</h4>
     </div>
-
-<!--     <h6 class="fs-30 tc">견  적  서</h6> -->
 
     <div class="popup_table">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
@@ -19,14 +17,57 @@
 	                <col width="">
 	            </colgroup>
 	            <tr>
-	                <th>회사</th>
+	                <th>회사명</th>
 	                <td>                                
 	                    <select id="coCd" name="coCd" data-kind="CO">
+	                    </select>
+	                </td>
+	                <th>입고창고</th>
+	                <td>                                
+	                    <select id="whCd" name="whCd" data-kind="WH">
+		                  	<option value="">선택</option> 
+		                </select>
+	                </td>
+	                <th>프로젝트</th>
+	                <td>
+	                	<div class="search_form">
+			              <input type="hidden" id="prjctCd" name="prjctCd">
+			              <input type="text" id="prjctNm" name="prjctNm">
+			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
+			            </div>
+	                </td>
+	            </tr>
+	            <tr>
+	            	<th>제조사</th>
+	                <td>                                
+	                    <select id="makrCd" name="makrCd" data-kind="MAKR">
+	                        <option value="">선택</option> 
 	                    </select>
 	                </td>
 	                <th>판매유형</th>
 	                <td>                                
 	                    <select id="typCd" name="typCd" data-kind="SELLTYPE">
+	                        <option value="">선택</option> 
+	                    </select>
+	                </td>
+	                <th>재고주체</th>
+	                <td>   
+	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER">
+	                        <option value="">선택</option> 
+	                    </select>               
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>수입구분</th>
+	                <td>
+		                <select id="impYn" name="impYn">
+		                  	<option value="N" selected="selected">N</option>
+		                  	<option value="Y" >Y</option>
+		                </select>
+	                </td>
+	                <th>판매지역</th>
+	                <td class="drctArea">                                
+	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
 	                        <option value="">선택</option> 
 	                    </select>
 	                </td>
@@ -39,19 +80,13 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>매입거래처</th>
+	                <th>거래처</th>
 	                <td>     
 	                    <input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">
 	                    <div class="search_form">
 	                    	<input type="text" id="clntNm" readonly="readonly">
 	                    	<a onclick="clntSearch('PUR');"><i class="i_search_w"></i></a>
 	                    </div>
-	                </td>
-	                <th>재고주체</th>
-	                <td>   
-	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER">
-	                        <option value="">선택</option> 
-	                    </select>               
 	                </td>
 	                <th>영업담당자</th>
 	                <td>                                
@@ -61,92 +96,27 @@
 	                    	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
-	            </tr>
-	            <tr>
-	                <th>Maker</th>
-	                <td>                                
-	                    <select id="makrCd" name="makrCd" data-kind="MAKR">
-	                        <option value="">선택</option> 
-	                    </select>
-	                </td>
-	                <th>입고창고</th>
-	                <td>                                
-	                    <select id="whCd" name="whCd" data-kind="WH">
-		                  	<option value="">선택</option> 
-		                </select>
-	                </td>
-	                <th>판매지역</th>
-	                <td class="drctArea">                                
-	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
-	                        <option value="">선택</option> 
-	                    </select>
-	                </td>
-	            </tr>
-	            <tr>
-	                <th>수입여부</th>
+	                <th>요청일자</th>
 	                <td>
-		                <select id="impYn" name="impYn">
-		                  	<option value="N" selected="selected">N</option>
-		                  	<option value="Y" >Y</option>
-		                </select>
-	                </td>
-	                <th>운송비</th>
-	                <td>   
-	                	<input type="text" id="transAmt" name="transAmt" style="width: 100%;">
-	                </td>
-	                <th>매출거래처</th>
-	                <td class="drctArea">
-	                	<input type="hidden" id="sellClntCd" name="sellClntCd" style="width: 76%;">                   
-	                	<div class="search_form">
-		                    <input type="text" id="sellClntNm" name="sellClntNm" readonly="readonly">
-	                    	<a id="sellClntBtn"><i class="i_search_w"></i></a>
-	                    </div>
+	                	<input type="text" id="reqDt" name="reqDt" class="input_calendar">
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>주문번호</th>
-	                <td>     
-	                	<div class="search_form">
-		                    <input type="text" id="odrSeq" name="odrSeq">
-	                    	<a onclick=""><i class="i_search_w"></i></a>
-	                    </div>
-	                </td>
-	                <th>착지연락처</th>
+	                <th rowspan="2">우편번호</th>
 	                <td>
-	                	<input type="text" id="mngTel" name="mngTel" style="width: 100%;">
-	                </td>
-	                <th>납기일자</th>
-	                <td class="drctArea">
-	                	<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar">
-	                </td>
-	            </tr>
-	            <tr>
-	                <th>프로젝트<br>현장명</th>
-	                <td colspan="3">
-	                	<div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd">
-			              <input type="text" id="prjctNm" name="prjctNm">
-			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
-			            </div>
-	                </td>
-	                <th>발주처리<br>완료여부</th>
-	                <td>
-	                    <input type="text" id="ordrgYn" name="ordrgYn" style="width: 28%;" disabled="disabled">
-	                	<input type="hidden" id="ordrgProcId" name="ordrgProcId">
-	                	<input type="text" id="ordrgProcNm" name="ordrgProcNm" style="width: 70%;" disabled="disabled">
-	                </td>
-	            </tr>
-	            <tr>
-	                <th rowspan="2">착지 주소</th>
-	                <td colspan="3">
 	                	<div class="search_form">
 		                    <input id="addrZip" name="addrZip" type="text" readonly="readonly">
 	                    	<a onclick="openDaumPostcode();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
-	                <th>발주처리<br>완료일자</th>
+	                <th>담당자Tel</th>
 	                <td>
-	                	<input type="text" id="ordrgProcDttm" name="ordrgProcDttm" disabled="disabled" class="input_calendar">
+	                	<input type="text" id="dlvrDttm" name="dlvrDttm">
+	                </td>
+	                <th>납품일시</th>
+	                <td>
+	                	<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar" style="width: 63% !important;">
+	                	<input type="text" id="dlvrDttm" name="dlvrDttm" style="width: 35% !important;">
 	                </td>
 	            </tr>
 	            <tr>
@@ -158,14 +128,56 @@
 	                </td>
 	            </tr>
 	            <tr>
-	            	<th>비고</th>
+	            	<th>납기 비고</th>
 	                <td colspan="5">     
-	                    <input id="ordrgRmk" name="ordrgRmk" type="text" style="width: 100%;">
+	                    <input id="dlvrRmk" name="dlvrRmk" type="text">
+	                </td>
+	            </tr>
+	            <tr>
+	            	<th>출하 비고</th>
+	                <td colspan="5">     
+	                    <input id="shipRmk" name="shipRmk" type="text">
+	                </td>
+	            </tr>
+	            <tr>
+	            	<th>운송비</th>
+	                <td colspan="5">     
+	                    <input id="transAmt" name="transAmt" type="text" style="width: 100%;">
 	                </td>
 	            </tr>
 	        </table>
+	        <table>
+	            <colgroup>
+	                <col width="17%">
+	                <col width="17%">
+	                <col width="17%">
+	                <col width="17%">
+	                <col width="17%">
+	                <col width="17%">
+	            </colgroup>
+	            <tr>
+	            	<th colspan="3" style="text-align: center;">출하 요청</th>
+	            	<th colspan="3" style="text-align: center;">실 출하</th>
+	            </tr>
+	            <tr>
+	            	<th>총 수량</th>
+	            	<th>총 중량</th>
+	            	<th>총 금액</th>
+	            	<th>총 수량</th>
+	            	<th>총 중량</th>
+	            	<th>총 금액</th>
+	            </tr>
+	            <tr>
+	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            </tr>
+            </table>
 	        <input type="hidden" id="userId" name="userId">
-	        <input type="hidden" id="pgmId" name="pgmId" value="OD0102P01">
+	        <input type="hidden" id="pgmId" name="pgmId" value="AR0102P01">
 	        <input type="hidden" id="ordrgSeq" name="ordrgSeq">
 	        <input type="hidden" id="reqDt" name="reqDt">
 	    </form>
