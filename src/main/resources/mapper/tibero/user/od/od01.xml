@@ -113,17 +113,55 @@
 		SELECT * FROM (
 			SELECT 
 				 ROWNUM RNUM
-				,T.*
-				,TO_CHAR(TO_DATE(REQ_DT), 'YYYY-MM-DD') REQ_DT2
-				,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
-				,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
-				,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM
-				,FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM
-				,FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM
-				,FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM
+				,T.ORDRG_SEQ
+	            ,T.CO_CD
+	            ,TO_CHAR(TO_DATE(REQ_DT), 'YYYY-MM-DD') AS REQ_DT
+	            ,T.CLNT_CD
+	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+	            ,T.PRJCT_CD
+	            ,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+	            ,T.MAKR_CD
+	            ,FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM
+	            ,T.WH_CD
+	            ,FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM
+	            ,T.TYP_CD
+	            ,FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM
+	            ,T.OWNER_CD
+	            ,T.IMP_YN
+	            ,T.SALES_AREA_CD
+	            ,T.SELL_CLNT_CD
+	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM
+	            ,T.MNG_TEL
+	            ,TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM
+	            ,T.DLVR_RMK
+	            ,T.DIRTRS_YN
+	            ,T.ADDR_ZIP
+	            ,T.ADDR_MAIN
+	            ,T.ADDR_SUB
+	            ,T.ORDRG_RMK
+	            ,T.TOT_QTY
+	            ,T.TOT_WT
+	            ,T.TOT_AMT
+	            ,T.TRANS_AMT
+	            ,T.ODR_SEQ
+	            ,T.PCHS_NO
+	            ,T.SALES_MNG
+	            ,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
+	            ,T.ORDRG_YN
+	            ,T.ORDRG_PROC_ID
+	            ,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM
+	            ,TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM
+	            ,T.ETC_FIELD1
+	            ,T.ETC_FIELD2
+	            ,T.ETC_FIELD3
+	            ,T.CREAT_ID
+	            ,T.CREAT_PGM
+	            ,T.CREAT_DTTM
+	            ,T.UDT_ID
+	            ,T.UDT_PGM
+	            ,T.UDT_DTTM
 				,ADDR_MAIN || ' ' || ADDR_SUB AS ADDR
 				,DECODE(ORDRG_YN||DIRTRS_YN, 'YY', 'Y', 'N') AS SELL_YN
-				,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
 			FROM 
 			(
 			 	SELECT * FROM TB_OD01M01
@@ -335,10 +373,7 @@
 	<update id="updateOrder" parameterType="Map">
 		UPDATE TB_OD01M01
 		SET
-<!-- 			CO_CD                  = #{coCd}, -->
-<!-- 		    REQ_DT                 = #{reqDt}, -->
 		    CLNT_CD                = #{clntCd},                      
-<!-- 		    ORDRG_SEQ              = #{ordrgSeq},                     -->
 		    PRJCT_CD               = #{prjctCd},                     
 		    MAKR_CD                = #{makrCd},                      
 		    WH_CD                  = #{whCd},                        
@@ -349,7 +384,6 @@
 		    SELL_CLNT_CD           = #{sellClntCd},                  
 		    MNG_TEL                = #{mngTel},                      
 		    DLVR_DTTM              = #{dlvrDttm},                    
-<!-- 		    DLVR_RMK        = #{dlvrRmk}, -->                    
 		    DIRTRS_YN              = #{dirtrsYn},                    
 		    ADDR_ZIP               = #{addrZip},                     
 		    ADDR_MAIN              = #{addrMain},                    
