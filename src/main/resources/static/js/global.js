@@ -84,7 +84,7 @@ function parseJwt (token) {
 	if(token == null) {
 		if(location.href.search("/static/index.html") == -1) {
 			alert("토큰이 만료되었습니다.");
-        location.href = "/static/index.html";
+        	location.href = "/static/index.html";
 		} else {
 			return;
 		}
