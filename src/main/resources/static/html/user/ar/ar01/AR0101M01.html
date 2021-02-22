@@ -14,7 +14,7 @@
     height: 20px;
     line-height: 20px;
     text-align: center;
-    border: 1px solid #dbdbdb;
+    bShip: 1px solid #dbdbdb;
     color: #444;
     background: #ffffff;
     box-shadow: 1px 1px rgba(0,0,0,0.15);
@@ -81,12 +81,6 @@
 	            <!-- 테이블 인풋 3분할 -->
 	            <table class="table_input type03">
 	              <tr>
-	              	<th>회사</th>
-	                <td>
-	                 	<select id="coCd_S" data-kind="CO">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
 	                <th>기간</th>
 	                <td>
 	                    <div class="date_input">
@@ -95,35 +89,20 @@
 	                      <input type="text" id="reqDtTo" class="input_calendar">
 	                    </div>
 	                </td>
-	                <th>재고주체</th>
+	              	<th>판매유형</th>
 	                <td>
-	                 	<select id="ownerCd_S" data-kind="OWNER">
+	                 	<select id="coCd_S" data-kind="CO">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	              </tr>
-	              <tr>
-	                <th>판매유형</th>
+	                <th>
+	                 	<select id="ownerCd_S" style="width: 100%;">
+	                 		<option value="CLNT_CD">거래처</option>
+	                 		<option value="SALES_MNG">담당자</option>
+	                 	</select>
+	                </th>
 	                <td>
-	                  <select id="typCd_S" data-kind="SELLTYPE">
-	                  	<option value="">전체</option>
-	                  </select>
-	                </td>
-	                <th>거래처</th>
-	                <td>
-	                  <input type="hidden" id="clntCd_S">
-	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S">
-		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
-		              </div>
-	                </td>
-	                <th>직송구분</th>
-	                <td>
-	                  <select id="dirtrsYn_S">
-	                  	<option value="">전체</option>
-	                  	<option value="N">N</option>
-	                  	<option value="Y" >Y</option>
-	                  </select>
+	                  <input type="text" id="clntCd_S">
 	                </td>
 	              </tr>
 	            </table>
@@ -136,8 +115,8 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="insertOrderModal('C');" style="height: 30px; line-height: 28px;">+</a>
-	                <a onclick="deleteOrder();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="insertShipModal('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
 					<option value="10">10</option>
@@ -181,7 +160,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	insertOrderModal("U");
+		            	insertShipModal("U");
 		            },
 		        },
 		        page: {
@@ -197,25 +176,26 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "ordrgSeq", label: "발주일련번호", align: "center", hidden: true},
-		          	{key: "reqDt", label: "요청일자", align: "center", width: "5%"},
-		            {key: "dirtrsYn", label: "직송구분", align: "center", width: "5%"},
-		            {key: "clntNm", label: "매입거래처", align: "center", width: "10%"},
-		        	{key: "prjctNm", label: "프로젝트", align: "center", width: "10%"},
-		        	{key: "sellClntNm", label: "매출거래처", align: "center", width: "10%"},
-		        	{key: "makrNm", label: "제조사", align: "center", width: "6%"},
-		        	{key: "whNm", label: "창고", align: "center", width: "8%"},
-		        	{key: "totQty", label: "수량(Kg)", align: "center", width: "6%", formatter: "money"},
-		        	{key: "totAmt", label: "발주금액", align: "right", width: "10%", formatter: "money"},
-		        	{key: "typNm", label: "판매유형", align: "center", width: "6%"},
-		        	{key: "ordrgYn", label: "매입확정여부", align: "center", width: "6%"},
-		        	{key: "sellYn", label: "매출확정여부", align: "center", width: "6%"},
-		        	{key: "impYn", label: "수입구분", align: "center", width: "5%"},
-		        	{key: "addr", label: "착지주소", align: "center", width: "12%"},
-		        	{key: "mngTel", label: "담당자연락처", align: "center", width: "10%"},
-		        	{key: "dlvrDttm", label: "납기일자", align: "center", width: "10%"},
-		        	{key: "ordrgRmk", label: "비고", align: "center", width: "10%"},
-		        	{key: "salesMngNm", label: "발주담당자", align: "center", width: "10%"},
+		          	{key: "coNm", label: "회사", align: "center", width: "6%"},
+		          	{key: "whNm", label: "창고", align: "center", width: "6%"},
+		            {key: "clntNm", label: "거래처", align: "center", width: "6%"},
+		            {key: "reqDt", label: "요청일자", align: "center", width: "6%"},
+		        	{key: "dirtrsYn", label: "직송구분", align: "center", width: "6%"},
+		        	{key: "dlvrDttm", label: "납기일시", align: "center", width: "6%"},
+		        	{label: "출하요청",  columns:[
+		          		{key: "shipTotQty", label: "수량", align: "right", width: "7%", formatter: "money" },
+			          	{key: "shipTotWt", label: "중량", align: "right", width: "7%", formatter: "money" },
+			          	{key: "shipTotAmt", label: "총금액", align: "right", width: "7%",formatter: "money" }
+		          	]},
+		          	{label: "실 출하",  columns:[
+		          		{key: "realTotQty", label: "수량", align: "right", width: "7%", formatter: "money" },
+			          	{key: "realTotWt", label: "중량", align: "right", width: "7%", formatter: "money" },
+			          	{key: "realTotAmt", label: "총금액", align: "right", width: "7%", formatter: "money" }
+		          	]},
+		        	{key: "shipYn", label: "출하상태", align: "center", width: "8%"},
+		        	{key: "shipDttm", label: "출하완료일", align: "center", width: "6%"},
+		        	{key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
+		        	{key: "odrCreatDiv", label: "오더구분", align: "center", width: "6%"},
 		        ]
 		    });
 			return this;
@@ -223,17 +203,14 @@
 		setData: function(_pageNo) {
 			firstGrid = this.target;
 			var formData = {
-				"coCd" : $("#coCd_S").val(),
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
 				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+				"coCd" : $("#coCd_S").val(),
 				"ownerCd" : $("#ownerCd_S").val(),
-				"typCd" : $("#typCd_S").val(),
-				"clntCd" : $("#clntCd_S").val(),
-				"dirtrsYn" : $("#dirtrsYn_S").val(),
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
-			postAjax("/user/od/od01/selectOrderList", formData, null, function(data){
+			postAjax("/user/ar/ar01/selectShipList", formData, null, function(data){
 				var list = data.resultList;
 				firstGrid.setData({
 					list : list,
@@ -250,7 +227,7 @@
 	
 	$(document).ready(function() {
 		//순서 맨 처음
-		mainDefaultLoad("발주서관리", "발주서관리");
+		mainDefaultLoad("매출관리", "출하요청관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
 		$("#reqDtFrom").val(lastWeek());
@@ -283,13 +260,13 @@
 		gridView.initView().setData(0);
 	}
 
-	function insertOrderModal(type){
+	function insertShipModal(type){
 		actionType = type;
 		
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/od/od01/OD0102P01.html", 920, 780, " ");
+		openModal("/static/html/user/ar/ar01/AR0102P01.html", 920, 780, " ");
 	}
 	
 	function openDaumPostcode() {
@@ -307,24 +284,24 @@
 		clntType = type; 
 		if(clntType == "PUR") {
 			modalTitle = "매입거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+			openSecondModal("/static/html/user/ar/ar01/AR0102P02.html", 500, 420, modalTitle);
 		} else if(clntType == "SELL") {
 			modalTitle = "매출거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+			openSecondModal("/static/html/user/ar/ar01/AR0102P02.html", 500, 420, modalTitle);
 		} else {
 			modalTitle = "거래처";
-			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+			openModal("/static/html/user/ar/ar01/AR0102P02.html", 500, 420, modalTitle);
 		} 	
 	}
 	
-	function deleteOrder() {
+	function deleteShip() {
 		if(confirm("삭제하시겠습니까?")){
 			var row = gridView.target.getList("selected")[0];
 			var formData = {
 				"ordrgSeq" : row.ordrgSeq,
 				"reqDt" : row.reqDt
 			}
-			deleteAjax("/user/od/od01/deleteOrder", formData, null, function(data){
+			deleteAjax("/user/ar/ar01/deleteShip", formData, null, function(data){
 				if(data.resultCode == 200){
 					alert(data.resultMessage);
 					gridView.setData(0);
