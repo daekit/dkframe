@@ -68,30 +68,46 @@
 				  <!-- 검색 콘텐츠 -->
       <div class="contents search">
         <div class="">
-            <!-- 테이블 인풋 2분할 -->
-            <table class="table_input type02">
-              <tr>
-                <td style="width:5%">
-                  <select id= "searchValue" style="width:100%">
-                  <option>전체</option>
-                  <option value="EST_CLNT_NM">수신처</option>
-                  <option value="NAME">견적담당자</option>
-                  
-                  </select>
-                </td>
+            <!-- 테이블 인풋 3분할 -->
+            <table class="table_input type04">
+            <tr>
+              <th>회사</th>
                 <td>
-                  <input type="text" id="searchName">
+               	  <select id="coCd" data-kind="CO">
+               	  </select>
                 </td>
-              </tr>
+              
+               	  <select id="selpchCd" data-kind="SELPCH" style="display:none">
+              
+              
+              <th>계획년월</th>
+                <td>
+               	  <input id="planYm" name="planYm" type="month" onchange="gridView.setData(0);">
+              </td>
+              <th>담당자</th>
+              <td>                                
+                <input type="hidden" id="salesMng" name="salesMng" style="width: 73%;">
+                <input type="text" id="salesMngNm" name="salesMngNm" style="width: 73%;" readonly="readonly">
+              	<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree();">
+               	  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                </button>
+              </td>
+              <th>부서</th>
+              <td>
+              	<input type="hidden" id="deptId" name="deptId" style="width: 73%;">
+                <input type="text" id="deptNm" name="deptNm" style="width: 73%;" readonly="readonly">
+              </td>
+            </tr>
             </table>
           </div>
     </div>
-    <div class="contents no_bg">
+    	<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="insertUpdateEst('C');" style="height: 30px; line-height: 28px;">+</a>
-	                <a onclick="deleteEst()" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="insertUpdatePlan('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deletePlan();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="copyPlan();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">전월복사</a>
 	            </div>
 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
 					<option value="10">10</option>
@@ -99,9 +115,11 @@
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
-				<input type="hidden" id="recordCnt">
-				<input type="hidden" id="basisPriceSeq">
+				<input type="hidden" id="planSeq" name="planSeq">
 			</div>
+			<!-- <div class="add_btn_small">
+	                <a onclick="copy();" style="height: 30px; line-height: 28px;">+</a>
+	        </div> -->
 		</div>
     	<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
@@ -110,14 +128,12 @@
 		
 </body>
 </html>
-
 <script type="text/javascript">
 
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
-	var firstGrid = null;
-		
+	var firstGrid = null;	
 	var gridView = {	
 		initView: function(){ 
 			this.target = new ax5.ui.grid();
@@ -134,9 +150,29 @@
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		            	insertUpdateEst("U");
+		            	insertUpdatePlan("U");
 		            }, 
+		            mergeCells : ["clntDivNm","salesAreaNm","prdtDivNm"],
+		            grouping: {
+		            	by: ["clntDivNm"],
+		            	columns: [
+		                    {
+		                        label: function () { return "소 계"; }, colspan: 4
+		                    },
+		                    {key: "planWt", collector: "sum", formatter: "money", align: "center"},
+		                    {key: "trstY", collector: "sum", formatter: "money", align: "right"},
+		                    {key: "trstN", 	collector: "sum", formatter: "money", align: "right"}
+		                ]
+		            },
 		        },
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan:4, align:"center"},
+			    		{key:"planWt", collector: "sum", formatter:"money", align:"center"},
+			    		{key: "trstY", collector: "sum", formatter: "money", align: "right"},
+	                    {key: "trstN", 	collector: "sum", formatter: "money", align: "right"}
+			    	]
+			    ],
 		        page: {
 		            navigationItemCount: 9,
 		            height: 30,
@@ -149,19 +185,19 @@
 		            	gridView.setData(this.page.selectPage);
 		            }
 		        },
+		        
 		        columns: [
-		            {key: "estDt", label: "발신일자", align: "center"},
-		            {key: "estCoprtNm", label: "발신처", align: "center"},
-		            {key: "estClntNm", label: "수신처", align: "center"},
-		            {key: "estRprc", label: "수신처 참조", align: "center"},
-		            {key: "estQty", label: "수량(합계)", align: "right"},
-		            {key: "estAmt", label: "수입 공급가액(합계)", align: "right"},
-		            {key: "bizTelNo", label: "사업자 전화번호", align: "center"},
-		            {key: "bizFaxNo", label: "사업자 FAX번호", align: "center"},
-		            {key: "mngEmail", label: "담당자 이메일", align: "center"},
-		            {key: "prjctNm", label: "프로젝트 명", align: "left"},
-		            {key: "rmk", label: "비고", align: "center"},
-		            {key: "name", label: "견적 담당자", align: "center"}
+		        	{key: "clntDivNm", label: "구분", align: "center", width: "11%"},
+		            {key: "salesAreaNm", label: "판매지역", align: "center", width: "11%"},
+		            {key: "prdtDivNm", label: "품목", align: "center", width: "11%"},
+		            {key: "clntNm", label: "거래선", align: "center", width: "13%"},
+		            {key: "planWt", label: "계획", align: "center", width: "9%"},
+		            {label: "실적",  columns:[
+		            	{key: "trstY", label: "국산", align: "right", width: "9%"},
+			            {key: "trstN", label: "수입", align: "right", width: "9%"}
+			        ]},
+		            {key: "trstAvg", label: "달성율", align: "right", width: "9%"},
+		            {key: "rmk", label: "비고", align: "center", width: "15%"}
 		        ]
 		    });
 			return this;
@@ -169,14 +205,15 @@
 		setData: function(_pageNo) {
 			firstGrid = this.target;
 			var formData = {
-				"searchValue" : $("#searchValue").val(),
-				"searchName"  : $("#searchName").val(),
+				"coCd" : $("#coCd").val(),
+				"planYm"  : $("#planYm").val(),
+				"planSalesId"  : $("#salesMng").val(),
 				"pageNo" : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val() 
 			}
 			
-			postAjax("/user/sd/sd03/selectMainEstList", formData, null, function(data){
-				var list = data.smelList;
+			postAjax("/user/sd/sd01/selectSellList", formData, null, function(data){
+				var list = data.sellList;
 				firstGrid.setData({
 					list : list,
 					page : {
@@ -192,40 +229,49 @@
 	
 	//화면로드시
 	$(document).ready(function() {
-		mainDefaultLoad("영업관리", "견적서 관리");
+		mainDefaultLoad("영업관리", "판매 계획 관리");
+		$("#userId").val(jwt.userId);
+		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
+		setCommonSelect($("#main_area select[data-kind]"));
 	    gridView.initView().setData(0);
+		$("#selpchCd").val("SELPCH2");
 	})	
-		
-	function setSelectCombo(){
-		var paramObj = {
-			"userId" : jwt.userId,
-			"wh" : "WH"
-		};
-		
-		postAjax("/user/sm/sm02/selectCmnCodeList", paramObj, null,  function(data){
-			
-			var whHtml = '<option value="" selected>전체선택</option>';
-			var cmnCodeInfo = data.cmnCodeInfo;
-			
-			$.each(cmnCodeInfo, function(index, item){
-				if(item.codeKind == 'WH'){
-					whHtml += '<option value='+item.codeId+'>';
-					whHtml += item.codeNm;
-					whHtml += '</option>';
-				}
-				
-				document.getElementById("searchOutCoCd").innerHTML = whHtml;
-				document.getElementById("searchInCoCd").innerHTML = whHtml;
-			});
-		});
+	
+	function openUserTree(){
+		openSecondModal("/static/html/user/sd/sd01/SD0101P02.html", 300, 500, "사용자 검색");
 	}
 	
-	function insertUpdateEst(type){
+	function insertUpdatePlan(type){
 		actionType = type;
 		if ( actionType == 'U' && selectGridValidation(firstGrid)){
 			return;
 		}
-		openModal("/static/html/user/sd/sd03/SD0301P01.html", 900, 700, " ");
+		if($('#salesMngNm').val() == "" && actionType == 'C'){
+			alert("담당자를 선택해주세요");
+			return;
+		}
+		openModal("/static/html/user/sd/sd01/SD0101P01.html", 400, 600," ");
+	}
+	
+	function copyPlan(){
+		if(firstGrid.list != ""){
+			var con = confirm("삭제후 전월복사 하시겠습니까?");
+			if(con == false){
+				return;
+			}
+		}
+		var formData = {
+			"planSeq" : $('#planSeq').val(),
+			"planYm" : $('#planYm').val(),
+			"userId" : jwt.userId,
+			"pgmId" : $('#pgmId').val()
+		}
+		postAjax("/user/sd/sd01/copyInsert", formData, null, function(data){
+			alert(data.resultMessage);           
+			gridView.setData(0);
+			modal.close();
+		});
+		
 	}
 	
 	function initSearch() {

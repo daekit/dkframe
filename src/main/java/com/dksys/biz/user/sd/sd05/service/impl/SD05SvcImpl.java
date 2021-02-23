@@ -73,7 +73,7 @@ public class SD05SvcImpl implements SD05Svc {
 	public int insertProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		int result = sd05Mapper.insertProject(paramMap);
 		//sd05Mapper.deleteProject(paramMap);
-		cm08Svc.uploadFile("TB_SD05M01", paramMap.get("reqDt")+paramMap.get("ordrgSeq"), mRequest);
+		cm08Svc.uploadFile("TB_SD05M01", paramMap.get("prjctCd"), mRequest);
 		return result;
 	}
 

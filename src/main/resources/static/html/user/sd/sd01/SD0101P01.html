@@ -1,0 +1,237 @@
+<body>
+  <div class="popup_area" style="width: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">판매계획 등록</h4>
+    </div>
+
+    <div class="popup_table">
+    	<form id="popForm">
+        <table id="detailTb">
+            <colgroup>
+                <col width="12%">
+                <col width="30%">
+                
+            </colgroup>
+            <tr>
+                <th>회사</th>
+                <td class="detailSell">                                
+                    <select id="coCd" name="coCd" data-kind="CO">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>판매/매출구분</th>
+                <td class="detailSell">                                
+                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="">견적일자</th>
+                <td>
+                	<input id="planYm" name="planYm" type="month" readonly="readonly">
+                </td>
+			</tr>
+			 <tr>
+                <th class="">판매지역</th>
+                <td>                                
+                    <select id="selesAreaCd" name="selesAreaCd" data-kind="SALESAREA">
+                    </select>
+                </td>
+            </tr>
+			<tr>
+				<th class="">수신 거래처</th>
+                <td>     
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 73%;">
+                    <input id="clntNm" name="clntNm" type="text" style="width: 83%;">
+                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch();">
+                		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                	</button>      
+                </td>
+			</tr>
+			<tr>
+				<th>메이커</th>
+                <td class="detailMakr">     
+                	<select id="selpchCd" name="selpchCd" data-kind="MAKR">
+                    </select>    
+                </td>
+			</tr>
+			<tr>
+                <th class="">제품구분</th>
+                <td>                                
+                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="">수량</th>
+                <td>                                
+                    <input type="text" id="planWt" name="planWt">
+                </td>
+            </tr>
+            <tr>
+                <th class="">강종</th>
+                <td>                                
+                    <select id="prdtStkn" name="prdtStkn" data-kind="PDSK">
+                    </select>
+                </td>
+            </tr>
+            <tr>                
+                <th class="">담당사원</th>
+                <td>                                
+                    <input type="hidden" id="planSalesId" name="planSalesId" style="width: 100%;">
+                    <input type="text" id="planSalesNm" name="planSalesNm" style="width: 100%;" readonly="readonly">
+                </td>
+            </tr>
+            <tr>                
+                <th class="">부서(팀)</th>
+                <td>                                
+                    <input type="hidden" id="panDeptId" name="panDeptId" style="width: 100%;">
+                    <input type="text" id="panDeptNm" name="panDeptNm" style="width: 100%;" readonly="readonly">
+                </td>
+            </tr>
+            <tr>
+                <th class="">비고</th>
+                <td>                                
+                    <textarea id="rmk" name="rmk" style="width: 100%;height: 50px;" ></textarea>
+                </td>
+            </tr>
+        </table>
+	        <input type="hidden" id="userId" name="userId">
+		    <input type="hidden" id="pgmId" name="pgmId" value="SD0101M01">
+		    <input type="hidden" id="planSeq" name="planSeq">
+        </form>
+    </div>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="actionBtn">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		$("#userId").val(jwt.userId);
+		setCommonSelect($(".popup_area select[data-kind]"));
+		setInit();
+	});
+	
+	function setInit() {
+		if(actionType == "C") {
+			$('#actionBtn').on("click", function(){insertPlan();});
+			$("#actionBtn").text("등록");
+			insertSetInit();
+		}else if(actionType == "U"){
+			updateSetInit();
+			$('#actionBtn').on("click", function(){updatePlan();});
+			$('#actionBtn').text("수정");
+		}
+	}
+	
+	function insertSetInit(){
+		$(".drctArea select").prop("disabled", true);
+		$(".detailSell select").prop("disabled", true);
+		$(".detailMakr select").prop("disabled", true);
+		$('#detailTb select[name="coCd"]').val($('#coCd').val());
+		$('#detailTb select[name="selpchCd"]').val($('#selpchCd').val());
+		$('#detailTb input[name="planYm"]').val($('#planYm').val());
+		$('#detailTb input[name="planSalesId"]').val($('#salesMng').val());
+		$('#detailTb input[name="planSalesNm"]').val($('#salesMngNm').val());
+		$('#detailTb input[name="panDeptId"]').val($('#deptId').val());
+		$('#detailTb input[name="panDeptNm"]').val($('#deptNm').val());
+	}
+	
+	function updateSetInit(){
+		$(".drctArea select").prop("disabled", true);
+		$(".detailSell select").prop("disabled", true);
+		$(".detailMakr select").prop("disabled", true);
+		$('#detailTb select[name="selpchCd"]').val($('#selpchCd').val());
+		
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"planSeq" : row.planSeq
+		}
+		postAjax("/user/sd/sd01/selectPlanInfo", formData, null, function(data){
+			setPlanInfo(data.result);
+		});
+	}
+	
+	function setPlanInfo(obj){
+		var estInfo = obj;
+		//메인정보 세팅
+		$.each(estInfo, function(key, value){
+			$('#'+key).val(value);
+			if(key == "planYm" && value.length <= 6){
+		    	var planYm = value;
+		    	var planYm2 = planYm.substr(0,4)+"-"+planYm.substr(4.2);
+		    	$('#planYm').val(planYm2);
+		    	$('#detailTb input[name="planYm"]').val(planYm2);
+			}
+		});
+	}
+	
+	//거래처 검색
+	function clntSearch() {
+		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 400, 400, "거래처검색");
+	}	
+	
+	//검색된 거래처 받아오는함수
+	function setDtlClntCd(params){
+		$("#clntCd").val(params.clntCd);
+		$("#clntNm").val(params.clntNm);
+	}
+	
+	
+	
+	function insertPlan() {
+		if(inputValidation($('input[required]'))) {
+			var formData = {
+					"coCd" : $('#detailTb select[name="coCd"]').val(),
+					"selpchCd" : $('#detailTb select[name="selpchCd"]').val(),
+					"planYm" : $('#detailTb input[name="planYm"]').val(),
+					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
+					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
+					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
+					"planWt" : $('#detailTb input[name="planWt"]').val(),
+					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
+					"planSalesId" : $('#detailTb input[name="planSalesId"]').val(),
+					"panDeptId" : $('#detailTb input[name="panDeptId"]').val(),
+					"rmk" : $('#detailTb textarea[name="rmk"]').val(),
+ 					"userId" : jwt.userId,
+					"pgmId" : $("#pgmId").val()
+			}
+			postAjax("/user/sd/sd01/insertPlan", formData, null, function(data){	
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updatePlan() {
+		if(inputValidation($('input[required]'))) {
+			var formData = {
+					"planSeq" : $('#planSeq').val(),
+					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
+					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
+					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
+					"planWt" : $('#detailTb input[name="planWt"]').val(),
+					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
+					"rmk" : $('#detailTb textarea[name="rmk"]').val(),
+ 					"userId" : jwt.userId,
+					"pgmId" : $("#pgmId").val()
+			}
+			putAjax("/user/sd/sd01/updatePlan", formData, null, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	} 
+	
+	
+</script>
