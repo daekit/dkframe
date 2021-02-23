@@ -73,7 +73,7 @@
 	                </td>
 	                <th>직송여부</th>
 	                <td>                                
-	                    <select id="dirtrsYn" name="dirtrsYn" onchange="setData();">
+	                    <select id="dirtrsYn" name="dirtrsYn" disabled="disabled">
 		                  	<option value="N" selected="selected">N</option>
 		                  	<option value="Y" >Y</option>
 		                </select>
@@ -82,7 +82,7 @@
 	            <tr>
 	                <th>거래처</th>
 	                <td>     
-	                    <input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">
+	                    <input type="hidden" id="clntCd" name="clntCd" style="width: 76%;" readonly="readonly">
 	                    <div class="search_form">
 	                    	<input type="text" id="clntNm" readonly="readonly">
 	                    	<a onclick="clntSearch('PUR');"><i class="i_search_w"></i></a>
@@ -93,7 +93,7 @@
 	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
 	                    <div class="search_form">
 		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
-	                    	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
+	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
 	                <th>요청일자</th>
@@ -111,12 +111,12 @@
 	                </td>
 	                <th>담당자Tel</th>
 	                <td>
-	                	<input type="text" id="dlvrDttm" name="dlvrDttm">
+	                	<input type="text" id="mngTel" name="mngTel">
 	                </td>
 	                <th>납품일시</th>
 	                <td>
-	                	<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar" style="width: 63% !important;">
-	                	<input type="text" id="dlvrDttm" name="dlvrDttm" style="width: 35% !important;">
+                		<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar">
+<!-- 	                	<input type="text" id="dlvrDttm" name="dlvrDttm" style="width: 35% !important;"> -->
 	                </td>
 	            </tr>
 	            <tr>
@@ -142,7 +142,7 @@
 	            <tr>
 	            	<th>운송비</th>
 	                <td colspan="5">     
-	                    <input id="transAmt" name="transAmt" type="text" style="width: 100%;">
+	                    <input id="transAmt" name="transAmt" type="text" onkeypress="onlyNumber(this);">
 	                </td>
 	            </tr>
 	        </table>
@@ -168,72 +168,92 @@
 	            	<th>총 금액</th>
 	            </tr>
 	            <tr>
-	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
-	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
-	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
-	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
-	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
-	            	<td><input id="ordrgRmk" name="ordrgRmk" type="text" style="text-align: right;"></td>
+	            	<td><input type="text" name="shipTotQty" style="text-align: right;" readonly="readonly" comma></td>
+	            	<td><input type="text" name="shipTotWt" style="text-align: right;" readonly="readonly" comma></td>
+	            	<td><input type="text" name="shipTotAmt" style="text-align: right;" readonly="readonly" comma></td>
+	            	<td><input type="text" name="realTotQty" style="text-align: right;" readonly="readonly" comma></td>
+	            	<td><input type="text" name="realTotWt" style="text-align: right;" readonly="readonly" comma></td>
+	            	<td><input type="text" name="realTotAmt" style="text-align: right;" readonly="readonly" comma></td>
 	            </tr>
             </table>
 	        <input type="hidden" id="userId" name="userId">
 	        <input type="hidden" id="pgmId" name="pgmId" value="AR0102P01">
-	        <input type="hidden" id="ordrgSeq" name="ordrgSeq">
-	        <input type="hidden" id="reqDt" name="reqDt">
+	        <input type="hidden" id="shipSeq" name="shipSeq">
+	        <input type="hidden" id="odrSeq" name="odrSeq">				<!-- 주문번호 -->
+	        <input type="hidden" id="ordDtlSeq" name="ordDtlSeq">		<!-- 주문상세번호 -->
+	        <input type="hidden" id="ordrgSeq" name="ordrgSeq">			<!-- 발주번호 -->
 	    </form>
     </div>
 
     <br>
     <!-- 테이블 -->
     <div class="popup_table">
-      <table id="detailTb">
-        <colgroup>
-            <col width="12%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="12%">
-        </colgroup>
+      <table>
         <tr>
           <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
-          <td colspan="8">
+          <td colspan="15">
             <div class="add_btn">
               <a onclick="addRow();">+</a>
               <a onclick="removeRow();">-</a>
             </div>
           </td>
         </tr>
+      </table>
+      
+     <div class="ofx_s" style="width:100%;">
+      <table id="detailTb" style="width: 1800px;">
+        <colgroup>
+        	<col width="7%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="4%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="6%">
+      		<col width="12%">
+        </colgroup>
         <tr>
-            <th>제품명</th>
-            <th>제품강종</th>
-            <th>제품단위</th>
-            <th>제품길이</th>
-            <th>기준단가</th>
-            <th>주문수량</th>
-            <th>주문중량</th>
-            <th>주문단가</th>
+            <th rowspan="2">제품명</th>
+            <th rowspan="2">제품강종</th>
+            <th rowspan="2">제품단위</th>
+            <th rowspan="2">제품길이</th>
+            <th colspan="4" style="text-align: center;">출하지시</th>
+            <th colspan="4" style="text-align: center;">실출하</th>
+            <th rowspan="2">상태</th>
+            <th rowspan="2">담당자</th>
+            <th rowspan="2">완료일자</th>
+            <th rowspan="2">차량번호</th>
+            <th rowspan="2">비고</th>
+        </tr>
+        <tr>
+            <th>수량</th>
+            <th>중량</th>
+            <th>단가</th>
             <th>금액</th>
-            <th>비고</th>
+            <th>수량</th>
+            <th>중량</th>
+            <th>단가</th>
+            <th>금액</th>
         </tr>
         <!-- // -->
         <tbody>
           <tr class="detailRow">
             <td>
-              <input type="hidden" name="ordrgDtlSeq">
+              <input type="hidden" name="shipDtlSeq">
               <input type="hidden" name="prdtCd">
-              <input type="hidden" name="prdtDivNm">
-              <input type="hidden" name="prdtSizeNm">
-              <input type="hidden" name="prdtErqkNm">
-              <input type="hidden" name="prdtSpecNm">
-              <input type="hidden" name="prdtCoilYn">
               <input type="hidden" name="pchsUpr">
               <input type="hidden" name="sellUpr">
               <input type="hidden" name="stockUpr">
+              <input type="hidden" name="prdtUpr">
               <div class="search_form">
                 <input type="text" name="prdtNm" readonly="readonly">
               	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
@@ -242,49 +262,90 @@
             <td><input type="text" name="prdtStknNm" readonly="readonly"></td>
             <td><input type="text" name="prdtUnitNm" readonly="readonly"></td>
             <td><input type="text" style="text-align: right;" name="prdtLen"></td>
-            <td><input type="text" name="prdtUpr" readonly="readonly"></td>
             <td>
-	            <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	            <input type="text" name="shipQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	        </td>
             <td>
-            	<input type="text" name="ordrgWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+            	<input type="text" name="shipWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
             </td>
             <td>
-            	<input type="text" name="ordrgUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+            	<input type="text" name="shipUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
             </td>
             <td>
-            	<input type="text" name="ordrgAmt" style="text-align: right;" readonly="readonly" comma>
+            	<input type="text" name="shipAmt" style="text-align: right;" readonly="readonly" comma>
             </td>
             <td>
-            	<input type="text" name="ordrgDtlRmk" style="width: 100%;">
+	            <input type="text" name="realShipQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
+	        </td>
+            <td>
+            	<input type="text" name="realShipWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
+            </td>
+            <td>
+            	<input type="text" name="realShipUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
+            </td>
+            <td>
+            	<input type="text" name="realShipAmt" style="text-align: right;" readonly="readonly" comma value="0">
+            </td>
+            <td>
+            	<input type="text" name="shipYn" readonly="readonly">
+            </td>
+            <td>
+            	<div class="search_form">
+	                <input type="hidden" name="shipProcId">
+	                <input type="text" name="shipProcNm" readonly="readonly">
+	            	<a onclick="openUserTree(this, 'SHIP');"><i class="i_search_w"></i></a>
+	            </div>
+            </td>
+            <td>
+            	<input type="text" name="shipDttm" readonly="readonly">
+            </td>
+            <td>
+            	<input type="text" name="shipVehNo">
+            </td>
+            <td>
+            	<input type="text" name="shipDtlRmk">
             </td>
           </tr>
-          <!--  -->
         </tbody>
-        <!-- \\ -->
       </table>
-      <table>
+      <table style="width: 1800px;">
       	<colgroup>
-            <col width="12%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="8%">
-            <col width="12%">
+      		<col width="7%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="4%">
+      		<col width="5%">
+      		<col width="5%">
+      		<col width="6%">
+      		<col width="12%">
         </colgroup>
       	<tr>
-            <th colspan="5" style="text-align: center;">합계</th>
-            <td id="totQty" style="text-align: right;" comma></td>
-            <td id="totWt" style="text-align: right;" comma></td>
+            <th colspan="4" style="text-align: center;">합계</th>
+            <td id="shipTotQty" style="text-align: right;" comma></td>
+            <td id="shipTotWt" style="text-align: right;" comma></td>
             <td>-</td>
-            <td id="totAmt" style="text-align: right;" comma></td>
+            <td id="shipTotAmt" style="text-align: right;" comma></td>
+            <td id="realTotQty" style="text-align: right;" comma></td>
+            <td id="realTotWt" style="text-align: right;" comma></td>
             <td>-</td>
+            <td id="realTotAmt" style="text-align: right;" comma></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
         </tr>
       </table>
+      </div>
     </div>
     <br>
     <div class="popup_table">
@@ -305,7 +366,7 @@
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
       <button id="actionBtn">등록</button>
-      <button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
+      <button id="shipYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
       <button class="close_btn" onclick="modal.close();">닫기</button>
     </div>
   </div>
@@ -317,6 +378,7 @@
 	
 	//매입매출구분
 	var clntType = null;
+	var treeType = null;
 	var fileArr = [];
 	var deleteFileArr = [];
 	var selectedIdx = 0;
@@ -342,7 +404,7 @@
 	                {key: "fileType", label: "파일타입", width: 140},
 	                {key: "fileSize", label: "파일크기", width: 140},
 	                {
-						key:"fileDelete", label: "삭제", width:60,
+						key:"fileDelete", label: "삭제", width: 55,
 						formatter:function() {
 							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
 						}
@@ -358,8 +420,7 @@
 	$(document).ready(function() {
 		fileGridView.initView();
 		setCommonSelect($(".popup_area select[data-kind]"));
-		$("#dirtrsYn").change();
-		$('#dlvrDttm, #ordrgProcDttm').datepicker({
+		$('#dlvrDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -369,34 +430,34 @@
 	
 	function setInit() {
 		if(actionType == "C"){
-			$('#actionBtn').on("click", function(){insertOrder();});
+			$('#actionBtn').on("click", function(){insertShip();});
 			$('#actionBtn').text("등록");
-			$("#reqDt").val(dateToStr(new Date()).replace(/\-/g,''));
+			$("#reqDt").val(dateToStr(new Date()));
 		}else if(actionType == "U"){
-			selectOrderInfo();
-			$('#actionBtn').on("click", function(){updateOrder();});
+			selectShipInfo();
+			$('#actionBtn').on("click", function(){updateShip();});
 			$('#actionBtn').text("수정");
-			$("#ordrgYnBtn").show();
+			$("#shipYnBtn").show();
 		}
 	}
 	
-	function selectOrderInfo() {
+	function selectShipInfo() {
 		var row = gridView.target.getList("selected")[0];
 		var formData = {
-			"ordrgSeq" : row.ordrgSeq,
+			"shipSeq" : row.shipSeq,
 			"reqDt" : row.reqDt.replace(/-/g, "")
 		}
-		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data){
-			setOrderInfo(data.result);
+		postAjax("/user/od/od01/selectShipInfo", formData, null, function(data){
+			setShipInfo(data.result);
 		});
 	}
 	
-	function setOrderInfo(obj) {
+	function setShipInfo(obj) {
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
-		if(orderInfo.ordrgYn == "Y") {
-			$("#ordrgYnBtn").hide();
+		if(orderInfo.shipYn == "Y") {
+			$("#shipYnBtn").hide();
 			$("#actionBtn").hide();
 		}
 		//메인정보 세팅
@@ -469,22 +530,6 @@
 		});
 	}
 	
-	function setFileInfo(fileInfo) {
-		// 첨부파일 set
-		$.each(fileInfo, function(idx, obj){
-			fileArr.push({
-				'fileKey' : obj.fileKey,
-		      	'fileName' : obj.fileName,
-		      	'fileType' : obj.fileType,
-		      	'fileSize' : obj.fileSize,
-		      	'file' : obj
-			});
-		});
-		
-		// 첨부파일 그리드 set
-		fileGridView.setData();
-	}
-	
 	function setFile(elem){
 		var tempFiles = elem.files;
 		$.each(tempFiles, function(idx, obj){
@@ -514,17 +559,16 @@
 	
 	function prdtSearch(el) {
 		selectedIdx = $(el).closest('tr').prevAll().length;
-		openSecondModal("/static/html/user/od/od01/OD0102P03.html", 500, 400, "제품검색");
+		openSecondModal("/static/html/user/ar/ar01/AR0102P03.html", 500, 400, "제품검색");
 	}
 	
 	function makeFormData() {
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
 		$("#userId").val(jwt.userId);
+		$("#reqDt").val($("#reqDt").val().replace(/-/g, ""));
 		var formData = new FormData($("#popForm")[0]);
-		formData.append("totQty", deleteCommaStr($("#totQty").html()));
-		formData.append("totWt", deleteCommaStr($("#totWt").html()));
-		formData.append("totAmt", deleteCommaStr($("#totAmt").html()));
+		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
 			deleteComma(elem);
@@ -537,8 +581,6 @@
 			}
 		});
 		
-		/* pchsUpr
-		sellUpr */
 		// 상세내역 추가
 		var detailArr = [];
 		$.each($('.detailRow'), function(idx, elem){
@@ -547,9 +589,9 @@
 				var value = elem.value;
 				var rowIdx = $(elem).closest('tr').prevAll().length;
 				if(elem.name == "pchsUpr" && elem.value == "") 
-					value = $($('.detailRow')[rowIdx]).find("[name='ordrgUpr']").val();
+					value = $($('.detailRow')[rowIdx]).find("[name='shipUpr']").val();
 				if(elem.name == "sellUpr" && elem.value == "")
-					value = $($('.detailRow')[rowIdx]).find("[name='ordrgUpr']").val();
+					value = $($('.detailRow')[rowIdx]).find("[name='shipUpr']").val();
 				detailObj[elem.name] = value;
 			});
 			detailArr.push(detailObj);
@@ -563,10 +605,21 @@
 		return formData;
 	}
 	
-	function insertOrder() {
+	function insertShip() {
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
-			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
+			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
+				alert(data.resultMessage);
+				gridView.setData(0);
+// 				modal.close();
+			});
+		}
+	}
+	
+	function updateShip() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
 				modal.close();
@@ -574,45 +627,59 @@
 		}
 	}
 	
-	function updateOrder() {
-		if(inputValidation($('input[required]'))) {
-			var formData = makeFormData();
-			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
-			});
-		}
-	}
-	
-	function openUserTree() {
+	function openUserTree(el, type) {
+		treeType = type; 
+		selectedIdx = $(el).closest('tr').prevAll().length;
 		openSecondModal("/static/html/user/od/od01/OD0102P04.html", 300, 500, "사용자 검색");
 	}
 	
 	function countAmt(el) {
 		var rowIdx = $(el).closest('tr').prevAll().length;
-		var ordrgQty = $("input[name='ordrgQty']")[rowIdx].value;
-		var ordrgUpr = $("input[name='ordrgUpr']")[rowIdx].value;
-		$("input[name='ordrgAmt']")[rowIdx].value = (deleteCommaStr(ordrgQty) * deleteCommaStr(ordrgUpr));
-		addComma($("input[name='ordrgAmt']")[rowIdx]);
+		var shipQty = $("input[name='shipQty']")[rowIdx].value;
+		var shipUpr = $("input[name='shipUpr']")[rowIdx].value;
+		var realShipQty = $("input[name='realShipQty']")[rowIdx].value;
+		var realShipUpr = $("input[name='realShipUpr']")[rowIdx].value;
+		$("input[name='shipAmt']")[rowIdx].value = (deleteCommaStr(shipQty) * deleteCommaStr(shipUpr));
+		$("input[name='realShipAmt']")[rowIdx].value = (deleteCommaStr(realShipQty) * deleteCommaStr(realShipUpr));
+		addComma($("input[name='shipAmt']")[rowIdx]);
+		addComma($("input[name='realShipAmt']")[rowIdx]);
 		countTot();
 	}
 	
 	function countTot() {
-		var totQty = 0;
-		var totWt = 0;
-		var totAmt = 0;
+		var shipTotQty = 0;
+		var shipTotWt = 0;
+		var shipTotAmt = 0;
+		var realTotQty = 0;
+		var realTotWt = 0;
+		var realTotAmt = 0;
 		$.each($(".detailRow"), function(idx, item){
-			var ordrgQty = $("input[name='ordrgQty']")[idx].value;
-			var ordrgWt = $("input[name='ordrgWt']")[idx].value;
-			var ordrgAmt = $("input[name='ordrgAmt']")[idx].value;
-			totQty += Number(deleteCommaStr(ordrgQty)); 
-			totWt += Number(deleteCommaStr(ordrgWt)); 
-			totAmt += Number(deleteCommaStr(ordrgAmt)); 
+			var shipQty = $("input[name='shipQty']")[idx].value;
+			var shipWt = $("input[name='shipWt']")[idx].value;
+			var shipAmt = $("input[name='shipAmt']")[idx].value;
+			var realShipQty = $("input[name='realShipQty']")[idx].value;
+			var realShipWt = $("input[name='realShipWt']")[idx].value;
+			var realShipAmt = $("input[name='realShipAmt']")[idx].value;
+			shipTotQty += Number(deleteCommaStr(shipQty)); 
+			shipTotWt += Number(deleteCommaStr(shipWt)); 
+			shipTotAmt += Number(deleteCommaStr(shipAmt));
+			realTotQty += Number(deleteCommaStr(realShipQty)); 
+			realTotWt += Number(deleteCommaStr(realShipWt)); 
+			realTotAmt += Number(deleteCommaStr(realShipAmt)); 
 		});
-		$("#totQty").html(addCommaStr(totQty));
-		$("#totWt").html(addCommaStr(totWt) );
-		$("#totAmt").html(addCommaStr(totAmt));
+		$("#shipTotQty").html(addCommaStr(shipTotQty));
+		$("#shipTotWt").html(addCommaStr(shipTotWt));
+		$("#shipTotAmt").html(addCommaStr(shipTotAmt));
+		$("#realTotQty").html(addCommaStr(realTotQty));
+		$("#realTotWt").html(addCommaStr(realTotWt));
+		$("#realTotAmt").html(addCommaStr(realTotAmt));
+		
+		$("input[name='shipTotQty']").val(addCommaStr(shipTotQty));
+		$("input[name='shipTotWt']").val(addCommaStr(shipTotWt));
+		$("input[name='shipTotAmt']").val(addCommaStr(shipTotAmt));
+		$("input[name='realTotQty']").val(addCommaStr(realTotQty));
+		$("input[name='realTotWt']").val(addCommaStr(realTotWt));
+		$("input[name='realTotAmt']").val(addCommaStr(realTotAmt));
 	}
 
 	function updateConfirm() {
