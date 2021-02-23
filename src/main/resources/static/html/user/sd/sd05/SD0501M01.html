@@ -14,7 +14,7 @@
     height: 20px;
     line-height: 20px;
     text-align: center;
-    border: 1px solid #dbdbdb;
+    bShip: 1px solid #dbdbdb;
     color: #444;
     background: #ffffff;
     box-shadow: 1px 1px rgba(0,0,0,0.15);
@@ -69,8 +69,6 @@
 	        <a onclick = "gridView.setData(0);">
 	          <button class="bg_gray">검 색</button>
 	         </a>
-	          <a id="loginBtn" class="btn btn-default btn-sm" onclick="insertProjectModal('C');">등록</a>
-			  <!-- <a id="loginBtn" class="btn btn-default btn-sm" onclick="updateProjectModal('U');">수정</a> -->
 	        </li>
 	      </ul>
     	</div>
@@ -103,8 +101,22 @@
               </tr>
             </table>
           </div>
-          
     </div>
+          <div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;">-</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div>
     	
 		<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
@@ -168,7 +180,8 @@
 				"coCd" : $("#coCd").val(),
 				"strtDt"  : $("#strtDt").val().replace(/\-/g,''),
 				"endDt"  : $("#endDt").val().replace(/\-/g,''),
-				"pageNo" : _pageNo + 1
+				"pageNo" : _pageNo + 1,
+				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
 				var list = data.sd0501m01;
@@ -198,7 +211,7 @@
 		
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
-		openModal("/static/html/user/sd/sd05/SD0501P01.html", 1000, 700, "프로젝트 등록");
+		openModal("/static/html/user/sd/sd05/SD0501P01.html", 1000, 700, "");
 	}
 	
 	/* function updateProjectModal(type) {
