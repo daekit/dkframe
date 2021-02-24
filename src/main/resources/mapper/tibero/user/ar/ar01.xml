@@ -106,6 +106,7 @@
             SHIP_AMT,
             PCHS_UPR,
             SELL_UPR,
+            STOCK_UPR,
             PRDT_UPR,
             SHIP_YN,
             SHIP_PROC_ID,
@@ -138,6 +139,7 @@
 			#{shipAmt},
 			#{pchsUpr},
 			#{sellUpr},
+			#{stockUpr},
 			#{prdtUpr},
 			'N',
 			#{shipProcId},
@@ -189,7 +191,7 @@
 				ROWNUM RNUM,
 				T.CO_CD,
 				FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
-		        T.REQ_DT,
+		        TO_CHAR(TO_DATE(T.REQ_DT), 'YYYY-MM-DD') AS REQ_DT,
 		        T.CLNT_CD,
 		        (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 		        T.SHIP_SEQ,
@@ -259,5 +261,187 @@
 		DELETE FROM TB_AR01M01
 		WHERE SHIP_SEQ = #{shipSeq}
 	</delete>
+	
+	<select id="selectShipInfo" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.CO_CD,
+			FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
+	        TO_CHAR(TO_DATE(T.REQ_DT), 'YYYY-MM-DD') AS REQ_DT,
+	        T.CLNT_CD,
+	        (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+	        T.SHIP_SEQ,
+	        T.PRJCT_CD,
+	        (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+	        T.MAKR_CD,
+	        T.WH_CD,
+	        T.TYP_CD,
+	        T.OWNER_CD,
+	        T.IMP_YN,
+	        T.SALES_AREA_CD,
+	        T.MNG_TEL,
+	        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+	        T.DIRTRS_YN,
+	        T.DLVR_RMK,
+	        T.ADDR_ZIP,
+	        T.ADDR_MAIN,
+	        T.ADDR_SUB,
+	        T.SHIP_RMK,
+	        T.SHIP_TOT_QTY,
+	        T.SHIP_TOT_WT,
+	        T.SHIP_TOT_AMT,
+	        T.REAL_TOT_QTY,
+	        T.REAL_TOT_WT,
+	        T.REAL_TOT_AMT,
+	        T.TRANS_AMT,
+	        T.ODR_SEQ,
+	        T.ORDRG_SEQ,
+	        T.SALES_MNG,
+	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+	        T.SHIP_YN,
+	        T.SHIP_PROC_ID,
+	        TO_CHAR(TO_DATE(T.SHIP_DTTM), 'YYYY-MM-DD') AS SHIP_DTTM,
+	        T.ODR_CREAT_DIV,
+	        T.ETC_FIELD1,
+	        T.ETC_FIELD2,
+	        T.ETC_FIELD3,
+	        T.CREAT_ID,
+	        T.CREAT_PGM,
+	        T.CREAT_DTTM,
+	        T.UDT_ID,
+	        T.UDT_PGM,
+	        T.UDT_DTTM
+		FROM TB_AR01M01 T
+		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+	</select>
+	
+	<select id="selectShipDetail" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.SHIP_SEQ,
+	        T.SHIP_DTL_SEQ,
+	        T.PRDT_CD,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+	        T.PRDT_UNIT,
+	        T.PRDT_UNIT AS PRDT_UNIT_NM,
+	        T.PRDT_LEN,
+	        T.SHIP_QTY,
+	        T.SHIP_WT,
+	        T.SHIP_UPR,
+	        T.SHIP_AMT,
+	        T.PCHS_UPR,
+	        T.SELL_UPR,
+	        T.STOCK_UPR,
+	        T.PRDT_UPR,
+	        T.CELL_CERTI_NO,
+	        T.SHIP_YN,
+	        T.SHIP_PROC_ID,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
+			TO_CHAR(T.SHIP_DTTM, 'yyyy-MM-dd') AS SHIP_DTTM,
+	        T.REAL_SHIP_QTY,
+	        T.REAL_SHIP_WT,
+	        T.REAL_SHIP_UPR,
+	        T.REAL_SHIP_AMT,
+	        T.SHIP_VEH_NO,
+	        T.SHIP_DTL_RMK,
+	        T.ODR_SEQ,
+	        T.ORD_DTL_SEQ,
+	        T.ETC_FIELD1,
+	        T.ETC_FIELD2,
+	        T.ETC_FIELD3,
+	        T.CREAT_ID,
+	        T.CREAT_PGM,
+	        T.CREAT_DTTM,
+	        T.UDT_ID,
+	        T.UDT_PGM,
+	        T.UDT_DTTM
+		FROM TB_AR01D01 T
+		WHERE SHIP_SEQ = #{shipSeq}
+	</select>
+	
+	<update id="updateShip" parameterType="Map">
+		UPDATE TB_AR01M01
+		SET
+		    CLNT_CD       = #{clntCd}, 
+			PRJCT_CD      = #{prjctCd}, 
+			MAKR_CD       = #{makrCd}, 
+			WH_CD         = #{whCd}, 
+			TYP_CD        = #{typCd}, 
+			OWNER_CD      = #{ownerCd}, 
+			IMP_YN        = #{impYn}, 
+			SALES_AREA_CD = #{salesAreaCd},
+			MNG_TEL       = #{mngTel}, 
+			DIRTRS_YN     = #{dirtrsYn}, 
+			DLVR_DTTM     = #{dlvrDttm}, 
+			DLVR_RMK      = #{dlvrRmk}, 
+			ADDR_ZIP      = #{addrZip}, 
+			ADDR_MAIN     = #{addrMain}, 
+			ADDR_SUB      = #{addrSub}, 
+			SHIP_RMK      = #{shipRmk}, 
+			SHIP_TOT_QTY  = #{shipTotQty},
+			SHIP_TOT_WT   = #{shipTotWt},
+			SHIP_TOT_AMT  = #{shipTotAmt},
+			REAL_TOT_QTY  = #{realTotQty},
+			REAL_TOT_WT   = #{realTotWt},
+			REAL_TOT_AMT  = #{realTotAmt},
+			TRANS_AMT     = #{transAmt}, 
+			SALES_MNG     = #{salesMng}, 
+			UDT_ID        = #{userId}, 
+			UDT_PGM       = #{pgmId}, 
+			UDT_DTTM      = SYSDATE
+		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+	</update>
+	
+	<update id="updateConfirm" parameterType="Map">
+		UPDATE TB_AR01M01 T
+		SET
+			TOT_QTY         = #{totQty},
+		    TOT_WT          = #{totWt},
+		    TOT_AMT         = #{totAmt},
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+	</update>
+	
+	<update id="updateConfirmDetail" parameterType="Map">
+		UPDATE TB_AR01D01 T
+		SET
+			PRDT_CD       = #{prdtCd},
+			PRDT_UNIT     = #{prdtUnitNm},
+			PRDT_LEN      = #{prdtLen},
+			SHIP_QTY      = #{shipQty},
+			SHIP_WT       = #{shipWt},
+			SHIP_UPR      = #{shipUpr},
+			SHIP_AMT      = #{shipAmt},
+			PCHS_UPR      = #{pchsUpr},
+			SELL_UPR      = #{sellUpr},
+			STOCK_UPR     = #{stockUpr},
+			PRDT_UPR      = #{prdtUpr},
+<!-- 			CELL_CERTI_NO = #{cellCertiNo}, -->
+			SHIP_YN       = 'Y',
+			SHIP_PROC_ID  = #{shipProcId},
+			SHIP_DTTM     = SYSDATE,
+			REAL_SHIP_QTY = #{realShipQty},
+			REAL_SHIP_WT  = #{realShipWt},
+			REAL_SHIP_UPR = #{realShipUpr},
+			REAL_SHIP_AMT = #{realShipAmt},
+			SHIP_VEH_NO   = #{shipVehNo},
+			SHIP_DTL_RMK  = #{shipDtlRmk},
+			ODR_SEQ       = #{odrSeq},
+			ORD_DTL_SEQ   = #{ordDtlSeq},
+			UDT_ID        = #{userId},
+			UDT_PGM       = #{pgmId},
+			UDT_DTTM	  = SYSDATE
+		WHERE SHIP_SEQ = #{shipSeq} AND SHIP_DTL_SEQ = #{shipDtlSeq}
+	</update>
+	
+	<select id="selectShipDetailInfo" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			T.*,
+			(SELECT PRDT_DIV FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_DIV,
+			(SELECT PRDT_STKN FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_STKN,
+			(SELECT PRDT_SIZE FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_SIZE
+		FROM TB_AR01D01 T
+		WHERE SHIP_SEQ = #{shipSeq} AND SHIP_DTL_SEQ = #{shipDtlSeq} 
+	</select>
 	
 </mapper>

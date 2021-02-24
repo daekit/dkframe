@@ -15,6 +15,12 @@ public interface AR01Svc {
 
 	int deleteShip(Map<String, String> paramMap);
 
+	Map<String, Object> selectShipInfo(Map<String, String> paramMap);
+
+	int updateShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+
+	int updateConfirm(Map<String, String> paramMap);
+
 
 	
 }
