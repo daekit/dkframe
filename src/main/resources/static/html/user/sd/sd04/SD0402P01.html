@@ -1,0 +1,663 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div class="tit_contents">
+		<h4 class="tit">주문 등록</h4>
+	</div>
+	<div class="popup_table">
+		<input type="file" id="file" style="display: none" multiple="multiple" onchange="setFile(this);" />
+		<form id="popForm">
+			<input type="hidden" id="pgmId" name="pgmId" value="SD0402P01">
+			<table>
+				<colgroup>
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th>회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO"></select>
+					</td>
+					<th>판매유형</th>
+					<td>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>직송여부</th>
+					<td>
+						<select id="dirtrsYn" name="dirtrsYn" onchange="ctrlDirect(this);">
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>거래처</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd">
+							<input type="text" id="clntNm" readonly> 
+							<a onclick="openClntSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>재고주체</th>
+					<td>
+						<select id="ownerCd" name="ownerCd" data-kind="OWNER">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>영업담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="salesMng" name="salesMng">
+							<input type="text" id="salesMngNm" readonly>
+							<a onclick="openUserTree(this);">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>Maker</th>
+					<td>
+						<select id="makrCd" name="makrCd" data-kind="MAKR">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>입고창고</th>
+					<td>
+						<select id="whCd" name="whCd" data-kind="WH">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>수입여부</th>
+					<td>
+						<select id="impYn" name="impYn">
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>프로젝트현장
+					</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd">
+							<input type="text" id="prjctNm"> 
+							<a onclick="openPrjctSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>요청일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="reqDt" name="reqDt" date>
+					</td>
+					<th>납기일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="dlvrDttm" name="dlvrDttm" direct date>
+					</td>
+				</tr>
+				<tr>
+					<th rowspan="2">착지주소</th>
+					<td colspan="3">
+						<div class="search_form">
+							<input type="text" id="addrZip" name="addrZip" readonly> 
+							<a onclick="openDaumPostcode();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>착지연락처</th>
+					<td>
+						<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);" maxlength="13">
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3">
+						<input type="text" id="addrMain" name="addrMain" placeholder="선택 주소지" readonly>
+					</td>
+					<td colspan="2">
+						<input type="text" id="addrSub" name="addrSub" placeholder="상세 주소 입력" maxlength="50">
+					</td>
+				</tr>
+				<tr>
+					<th>비고</th>
+					<td colspan="5">
+						<textarea class="form-control" id="odrRmk" name="odrRmk" style="height: 60px;" maxlength="500"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>총수량</th>
+					<td>
+						<input type="text" id="totQty" name="totQty" readonly>
+					</td>
+					<th>총중량</th>
+					<td>
+						<input type="text" id="totWt" name="totWt" readonly>
+					</td>
+					<th>총금액</th>
+					<td>
+						<input type="text" id="totAmt" name="totAmt" readonly>
+					</td>
+				</tr>
+				<tr>
+					<th>출하처리<br>완료여부</th>
+					<td>
+						<select id="shipYn" name="shipYn">
+							<option value="">선택</option>
+							<option value="Y">Y</option>
+							<option value="N">N</option>
+						</select>
+					</td>
+					<th>출하처리<br>완료담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="shipProcId" name="shipProcId">
+							<input type="text" id="shipProcNm" readonly>
+							<a onclick="openUserTree(this);">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>출하처리<br>완료일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="shipDttm" name="shipDttm" date>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 테이블 -->
+	<div class="popup_table">
+		<table id="detailTable">
+			<colgroup>
+				<col width="3%">
+				<col width="17%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="17%">
+			</colgroup>
+			<tr>
+				<td colspan="2" style="text-align: LEFT; border-right: 0;">※상세내역</td>
+				<td colspan="8">
+					<div class="add_btn">
+						<a onclick="addDetailRow();">+</a> 
+						<a onclick="removeDetailRow();">-</a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<th>제품명</th>
+				<th>제품단위</th>
+				<th>제품길이</th>
+				<th>기준단가</th>
+				<th>주문수량</th>
+				<th>주문중량</th>
+				<th>주문단가</th>
+				<th>금액</th>
+				<th>비고</th>
+			</tr>
+			<tbody>
+				<tr name="detailRow">
+					<input type="hidden" name="ordDtlSeq"> 
+					<td>
+						<input type="checkbox" name="detailChkBox">
+					</td>
+					<td>
+						<div class="search_form">
+							<input type="hidden" name="prdtCd">
+							<input type="text" name="prdtNm" readonly> 
+							<a onclick="prdtSearch(this);">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td>
+						<input type="text" name="prdtUnitNm" readonly>
+					</td>
+					<td>
+						<input type="text" name="prdtLen" onkeyup="addComma(this);" comma>
+					</td>
+					<td>
+						<input type="text" name="prdtUpr" readonly>
+					</td>
+					<td>
+						<input type="text" name="ordQty" onkeyup="addComma(this);countAmt(this);" comma required>
+					</td>
+					<td>
+						<input type="text" name="ordWt" onkeyup="addComma(this);countAmt(this);" comma>
+					</td>
+					<td>
+						<input type="text" name="ordUpr" onkeyup="addComma(this);countAmt(this);" comma>
+					</td>
+					<td>
+						<input type="text" name="ordAmt" comma readonly>
+					</td>
+					<td>
+						<input type="text" name="odrDtlRmk" maxlength="50">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<table>
+			<colgroup>
+				<col width="3%">
+				<col width="17%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="17%">
+			</colgroup>
+			<tr>
+				<th class="tc" colspan="5">합계</th>
+				<td id="totQtyDp" comma></td>
+				<td id="totWtDp" comma></td>
+				<td>-</td>
+				<td id="totAmtDp" comma></td>
+				<td>-</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="12%">
+			</colgroup>
+			<tr>
+				<th>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+				</th>
+				<td>
+					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 130px; width: 100%"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="actionBtn"></button>
+		<button class="close_btn" onclick="modal.close();">닫기</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var $userDiv = null;
+	var $targetRow = null;
+	var fileArr = [];
+	var deleteFileArr = [];
+	var fileGridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target : $('[data-ax5grid="file-grid"]'),
+				showLineNumber : true,
+				showRowSelector : false,
+				multipleSelect : false,
+				header : {
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
+					},
+					onDBLClick : function() {
+						downloadFile(this.dindex);
+					}
+				},
+				columns : [
+					{key: "fileName", label: "파일명", align: "center", width: "72%"},
+	                {key: "fileType", label: "파일타입", align: "center", width: "10%"},
+	                {key: "fileSize", label: "파일크기", align: "center", width: "10%"},
+	                {
+						key:"fileDelete", label: "삭제", align: "center", width: "8%",
+						formatter:function() {
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
+						}
+					}
+				]
+			});
+		},
+		setData : function() {
+			this.target.setData(fileArr);
+		}
+	}
+
+	$(document).ready(function() {
+		// 공통코드 SelectBox set
+		setCommonSelect($(".popup_area select[data-kind]"));
+		
+		// 파일 그리드 초기화
+		fileGridView.initView();
+		
+		// 직송여부 강제 변경
+		$("#dirtrsYn").change();
+		
+		// 요청일자 datepicker bind
+		$('#reqDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 납기일자 datepicker bind
+		$('#dlvrDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 출하처리 완료일자 datepicker bind
+		$('#shipDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		if (actionType == "C") {
+			$('#actionBtn').on("click", function() {insertOrder();});
+			$('#actionBtn').text("등록");
+		} else if (actionType == "U") {
+			selectOrderInfo();
+			$('#actionBtn').on("click", function() {updateOrder();});
+			$('#actionBtn').text("수정");
+		}
+	});
+	
+	function selectOrderInfo() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"ordrgSeq" : row.ordrgSeq,
+			"reqDt" : row.reqDt
+		}
+		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data) {
+			setOrderInfo(data.result);
+		});
+	}
+
+	function setOrderInfo(obj) {
+		var fileInfo = obj.fileList;
+		var orderInfo = obj.orderInfo;
+		var orderDetail = obj.orderDetail;
+		if (orderInfo.ordrgYn == "Y") {
+			$("#ordrgYnBtn").hide();
+			$("#actionBtn").hide();
+		}
+		//메인정보 세팅
+		$.each(orderInfo, function(key, value) {
+			$('#' + key).val(value);
+		});
+		$("#dirtrsYn").change();
+		
+		//상세정보 세팅
+		$.each(orderDetail, function(idx, item) {
+			if (idx != 0)addRow();
+			$.each(item, function(key, value) {
+				if ($(".detailRow").find("input[name=" + key + "]")[idx] != undefined) {
+					if (typeof value == "number") value = addCommaStr(value);
+					$(".detailRow").find("input[name=" + key + "]")[idx].value = value;
+				}
+			});
+			countTot();
+		});
+		
+		// 첨부파일 set
+		$.each(fileInfo, function(idx, obj) {
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+				'fileName' : obj.fileName,
+				'fileType' : obj.fileType,
+				'fileSize' : obj.fileSize,
+				'file' : obj
+			});
+		});
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
+	function ctrlDirect(elem) {
+		if ($(elem).val() == "N") {
+			$('[direct]').prop("disabled", true);
+		} else {
+			$('[direct]').prop("disabled", false);
+		}
+	}
+	
+	function openClntSearch() {
+		openSecondModal("/static/html/user/sd/sd04/SD0402P02.html", 500, 420, "거래처");
+	}
+	
+	function openUserTree(elem) {
+		$userDiv = $(elem).closest("div.search_form");
+		openSecondModal("/static/html/user/sd/sd04/SD0402P03.html", 300, 500, "사용자 검색");
+	}
+	
+	function openPrjctSearch() {
+		openSecondModal("/static/html/user/sd/sd04/SD0402P04.html", 700, 420, "프로젝트");
+	}
+	
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#addrZip').val(data.zonecode);
+				$('#addrMain').val(data.roadAddress || data.address);
+			}
+		}).open();
+	}
+
+	function addDetailRow(){
+		var detailRow = '';
+		detailRow += '<tr name="detailRow">';
+		detailRow += '<input type="hidden" name="ordDtlSeq">';
+		detailRow += '<td>';
+		detailRow += '<input type="checkbox" name="detailChkBox">';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<div class="search_form">';
+		detailRow += '<input type="hidden" name="prdtCd">';
+		detailRow += '<input type="text" name="prdtNm" readonly>'; 
+		detailRow += '<a onclick="prdtSearch(this);">';
+		detailRow += '<i class="i_search_w"></i>';
+		detailRow += '</a>';
+		detailRow += '</div>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="prdtUnitNm" readonly>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="prdtLen" onkeyup="addComma(this);" comma>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="prdtUpr" readonly>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="ordQty" onkeyup="addComma(this);countAmt(this);" comma required>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="ordWt" onkeyup="addComma(this);countAmt(this);" comma>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="ordUpr" onkeyup="addComma(this);countAmt(this);" comma>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="ordAmt" comma readonly>';
+		detailRow += '</td>';
+		detailRow += '<td>';
+		detailRow += '<input type="text" name="odrDtlRmk" maxlength="50">';
+		detailRow += '</td>';
+		detailRow += '</tr>';
+		$('#detailTable tbody:last').append(detailRow);
+	}
+	
+	function removeDetailRow(){
+		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			if($(elem).is(":checked")){
+				$(elem).closest('tr[name="detailRow"]').remove();
+			}
+		});
+		countTot();
+	}
+
+	function prdtSearch(el) {
+		$targetRow = $(el).closest('tr[name="detailRow"]');
+		openSecondModal("/static/html/user/sd/sd04/SD0402P05.html", 500, 420, "제품검색");
+	}
+	
+	function countAmt(el) {
+		$targetRow = $(el).closest('tr[name="detailRow"]');
+		var ordQty = $targetRow.find('input[name="ordQty"]').val();
+		var ordUpr = $targetRow.find('input[name="ordUpr"]').val();
+		$targetRow.find('input[name="ordAmt"]').val(deleteCommaStr(ordQty) * deleteCommaStr(ordUpr));
+		addComma($targetRow.find('input[name="ordAmt"]'));
+		countTot();
+	}
+
+	function countTot() {
+		var totQty = 0;
+		var totWt = 0;
+		var totAmt = 0;
+		$.each($('[name="detailRow"]'), function(idx, item) {
+			var ordQty = $("input[name='ordQty']")[idx].value;
+			var ordWt = $("input[name='ordWt']")[idx].value;
+			var ordAmt = $("input[name='ordAmt']")[idx].value;
+			totQty += Number(deleteCommaStr(ordQty));
+			totWt += Number(deleteCommaStr(ordWt));
+			totAmt += Number(deleteCommaStr(ordAmt));
+		});
+		
+		$("#totQty").val(addCommaStr(totQty));
+		$("#totWt").val(addCommaStr(totWt));
+		$("#totAmt").val(addCommaStr(totAmt));
+		
+		$("#totQtyDp").text(addCommaStr(totQty));
+		$("#totWtDp").text(addCommaStr(totWt));
+		$("#totAmtDp").text(addCommaStr(totAmt));
+	}
+
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {
+			"fileKey" : fileArr[idx].fileKey
+		}, null, function(data) {
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_"+ fileInfo.fileName, "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath=" + filePath;
+		});
+	}
+
+	function setFile(elem) {
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj) {
+			var testArr = obj.name.split(".");
+			fileArr.push({
+				'fileKey' : 0,
+				'fileName' : obj.name,
+				'fileType' : testArr[testArr.length - 1],
+				'fileSize' : obj.size,
+				'file' : obj
+			});
+		});
+		fileGridView.setData();
+		$(elem).val("");
+	}
+
+	function deleteFile(rowIndex) {
+		fileGridView.target.removeRow(rowIndex);
+
+		if (fileArr[rowIndex].fileKey) {
+			// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(fileArr[rowIndex].fileKey);
+		}
+
+		fileArr.splice(rowIndex, 1);
+	}
+
+	function insertOrder() {
+		if (inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/od/od01/insertOrder", formData, function(data) {
+				alert(data.resultMessage);
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+
+	function updateOrder() {
+		if (inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/od/od01/updateOrder", formData, function(data) {
+				alert(data.resultMessage);
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function makeFormData() {
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		$("#userId").val(jwt.userId);
+		var formData = new FormData($("#popForm")[0]);
+		formData.append("totQty", deleteCommaStr($("#totQty").html()));
+		formData.append("totWt", deleteCommaStr($("#totWt").html()));
+		formData.append("totAmt", deleteCommaStr($("#totAmt").html()));
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem) {
+			deleteComma(elem);
+		});
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj) {
+			// 신규파일만 추가
+			if (obj.fileKey == 0) {
+				formData.append("files", obj.file);
+			}
+		});
+
+		/* pchsUpr
+		sellUpr */
+		// 상세내역 추가
+		var detailArr = [];
+		$.each($('.detailRow'), function(idx, elem) {
+			var detailObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem) {
+				var value = elem.value;
+				var rowIdx = $(elem).closest('tr').prevAll().length;
+				if (elem.name == "pchsUpr" && elem.value == "")
+					value = $($('.detailRow')[rowIdx]).find("[name='ordrgUpr']").val();
+				if (elem.name == "sellUpr" && elem.value == "")
+					value = $($('.detailRow')[rowIdx]).find("[name='ordrgUpr']").val();
+				detailObj[elem.name] = value;
+			});
+			detailArr.push(detailObj);
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+
+		if (actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		}
+
+		return formData;
+	}
+</script>
