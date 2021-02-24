@@ -1,0 +1,108 @@
+<div class="popup_area">
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="30%">
+				<col width="">
+			</colgroup>
+			<tr>
+				<td>
+					<select data-search="searchType">
+						<option value="CLNT_NM">거래처명</option>
+					</select>
+				</td>
+				<td>
+					<div class="search_form">
+						<input type="text" onkeypress="if(event.keyCode == 13){clntGridView.setData(0);}" data-search="searchValue"> 
+						<a onclick="clntGridView.setData(0);">
+							<i class="i_search_w"></i>
+						</a>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<div class="ax5_grid" data-ax5grid="clnt-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%"></div>
+	</div>
+</div>
+<div class="popup_bottom_btn">
+	<button type="button" onclick="setClntInfo();">선택</button>
+	<button type="button" class="close_btn" onclick="secondModal.close();">닫기</button>
+</div>
+<script type="text/javascript">
+	var clntGridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : true,
+				multipleSelect : false,
+				target : $('[data-ax5grid="clnt-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
+					},
+					onDBLClick: function () {
+						this.self.select(this.dindex);
+		            	setClntInfo();
+		            }
+				},
+				page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						clntGridView.setData(this.page.selectPage);
+					}
+				},
+				columns : [
+					{key : "clntCd", label : "거래처코드", align : "center", hidden : true}, 
+					{key : "clntNm", label : "거래처명", align : "center", width : "30%"},
+					{key : "crn", label : "사업자 등록번호", align : "center", width : "30%"},
+					{key : "clntDivNm", label : "거래처 구분", align : "center"},
+					{key : "bizconNm", label : "업태", align : "center"}
+				]
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 10};
+			for(var i=0;i<$('.popup_area [data-search]').length;i++){
+				var tempElem = $('.popup_area [data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+			
+			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data) {
+				var list = data.clntList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+
+	$(document).ready(function() {
+		clntGridView.initView().setData(0);
+	});
+
+	function setClntInfo() {
+		if(selectGridValidation(clntGridView.target)) return;
+		var row = clntGridView.target.getList("selected")[0];
+		$('#clntCd').val(row.clntCd);
+		$('#clntNm').val(row.clntNm);
+		secondModal.close();
+	}
+</script>

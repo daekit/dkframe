@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="/static/css/sub.css" />
 	<link rel="stylesheet" href="/static/css/common.css" />
 	
-	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery-latest.min.js"></script>
 	<script src="/static/js/jquery.serializeObject.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
@@ -44,10 +44,10 @@
 			<ul class="btn_ul">
 				<li class="btn_r">
 					<a onclick="initSearch();">
-						<button class="bg_gray">초기화</button>
+						<button type="button" class="bg_gray">초기화</button>
 					</a>
 					<a onclick="gridView.setData(0);">
-						<button class="bg_gray">검 색</button>
+						<button type="button" class="bg_gray">검 색</button>
 					</a>
 				</li>
 			</ul>
@@ -60,7 +60,7 @@
 					<tr>
 						<th>회사</th>
 						<td>
-							<select id="coCd" data-kind="CO" data-search="coCd"> 
+							<select data-kind="CO" data-search="coCd"> 
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -106,7 +106,7 @@
 				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
-					<option value="20">20</option>
+					<option value="20" selected>20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
@@ -129,6 +129,7 @@
 			this.target.setConfig({
 				showRowSelector : true,
 				multipleSelect : false,
+				sortable : true,
 				target : $('[data-ax5grid="first-grid"]'),
 				header : {
 					align : "center",
@@ -158,12 +159,7 @@
 					{key : "etrdpsDt",label : "입금일자", align : "center", width : "7%"},
 					{key : "clntNm", label : "거래처", align : "center", width : "9%"}, 
 					{key : "setleTypNm", label : "결제방법", align : "center", width : "9%"}, 
-					{
-						key : "etrdpsAmt", label : "금액", align : "right", width : "9%",
-						formatter:function() {
-							return addCommaStr(this.value);
-						}
-					}, 
+					{key : "etrdpsAmt", label : "금액", align : "right", width : "9%", formatter: "money"}, 
 					{key : "etrdpsBkacNm", label : "입금계좌", align : "center", width : "9%"}, 
 					{key : "sumry", label : "적요", align : "center", width : "15%"}, 
 					{key : "bilTypNm", label : "어음종류", align : "center", width : "9%"}, 
@@ -204,7 +200,7 @@
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
-		$('#coCd').val(jwt.coCd).prop("disabled", true);
+		$('[data-search="coCd"]').val(jwt.coCd);
 		
 		// 시작일 (시작일 기준 -3개월)
 		$('#startDt').datepicker({
@@ -229,7 +225,7 @@
 		
 		// grid init
 		gridView.initView().setData(0);
-	})
+	});
 
 	// 검색조건 초기화
 	function initSearch() {
@@ -238,7 +234,10 @@
 		$('#endDt').datepicker("setDate", new Date());
 
 		// 조건
-		$(".contents.search select").val("");
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		
+		// 재검색
+		gridView.setData(0);
 	}
 	
 	// 입금 상세
@@ -249,15 +248,15 @@
 	
 	// 입금 삭제
 	function deleteEtrdps() {
-		if (confirm("삭제하시겠습니까?")) {
-			var row = gridView.target.getList("selected")[0];
-			var paramObj = {"etrdpsSeq": row.etrdpsSeq};
-			deleteAjax("/user/ar/ar05/deleteEtrdps", paramObj, null, function(data) {
-				alert(data.resultMessage);
-				if (data.resultCode == 200) {
-					gridView.setData(0);
-				}
-			});
-		}
+		if (selectGridValidation(gridView.target)) return;
+		if (!confirm("삭제하시겠습니까?")) return;
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"etrdpsSeq": row.etrdpsSeq};
+		deleteAjax("/user/ar/ar05/deleteEtrdps", paramObj, null, function(data) {
+			alert(data.resultMessage);
+			if (data.resultCode == 200) {
+				gridView.setData(0);
+			}
+		});
 	}
 </script>
