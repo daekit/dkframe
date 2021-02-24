@@ -167,6 +167,9 @@
 						, A.ETC_FIELD1
 						, A.ETC_FIELD2
 						, A.ETC_FIELD3
+						, A.STOCK_AMT
+						, A.PROPRT_STOCK_QTY
+						, A.STOCK_CHG_CD
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 				WHERE  A.PRDT_CD = C.PRDT_CD
 				AND A.CLNT_CD = E.CLNT_CD(+)
@@ -200,17 +203,110 @@
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
+	<select id="sm01CheckCnt" parameterType="Map" resultType="int">
+		SELECT COUNT(*) 
+		  FROM TB_SM01M01
+		 WHERE CO_CD = #{sCoCd}
+		   AND WH_CD = #{mWhCd}
+		   AND TYP_CD = #{mTypCd} 
+		   AND MAKR_CD = #{mMakrCd} 
+		   AND OWNER_CD = #{mOwnerCd}
+		   AND PRDT_CD = #{mPrdtCd} 
+		   AND IMP_YN = #{mImpYn} 
+		   AND PRJCT_CD = #{mPrjctCd}
+	</select>
+	
+	<insert id="sm01InsertStockMove" parameterType="Map">
+		INSERT INTO TB_SM01M01
+		(
+		   CO_CD,
+		   WH_CD,
+		   PRDT_CD,
+		   OWNER_CD,
+		   CLNT_CD,
+		   TYP_CD,
+		   MAKR_CD,
+		   PRJCT_CD,
+		   IMP_YN,
+		   STOCK_QTY,
+		   STOCK_UPR,
+		   STOCK_AMT,
+		   STD_UPR,
+		   PCHS_UPR,
+		   SELL_UPR,
+		   PROPRT_STOCK_QTY,
+		   STOCK_CHG_CD,
+		   CREAT_ID,
+		   CREAT_PGM, 
+		   UDT_DTTM
+		)
+		SELECT 
+		   #{sCoCd},
+		   #{sWhCd},
+		   PRDT_CD,
+		   OWNER_CD,
+		   CLNT_CD,
+		   TYP_CD,
+		   MAKR_CD,
+		   PRJCT_CD,
+		   IMP_YN,
+		   #{sMoveQty},
+		   STOCK_UPR,
+		   STOCK_AMT,
+		   STD_UPR,
+		   PCHS_UPR,
+		   SELL_UPR,
+		   PROPRT_STOCK_QTY,
+		   'STOCKCHG6',
+		   #{userId},
+		   'SM0201P01', 
+		   SYSDATE
+		FROM TB_SM01M01
+		WHERE CO_CD = #{mCoCd} 
+		  AND WH_CD = #{mWhCd}
+		  AND TYP_CD = #{mTypCd} 
+		  AND MAKR_CD = #{mMakrCd} 
+		  AND OWNER_CD = #{mOwnerCd}
+		  AND PRDT_CD = #{mPrdtCd} 
+		  AND IMP_YN = #{mImpYn} 
+		  AND PRJCT_CD = #{mPrjctCd}
+	</insert>
+	
 	<update id="sm01UpdateStockMove" parameterType="Map">
 		UPDATE TB_SM01M01 SET
 			STOCK_QTY = #{mStockQty}-#{sMoveQty}
-		WHERE
-				CO_CD = #{mCoCd}
-			AND WH_CD = #{mWhCd}
-			AND OWNER_CD = #{mOwnerCd}
-			AND TYP_CD = #{mTypCd}
-			AND MAKR_CD = #{mMakrCd}
-			AND PRJCT_CD = #{mPrjctCd}
-			AND PRDT_CD = #{mPrdtCd}
+		WHERE CO_CD = #{mCoCd} 
+		  AND WH_CD = #{mWhCd}
+		  AND TYP_CD = #{mTypCd} 
+		  AND MAKR_CD = #{mMakrCd} 
+		  AND OWNER_CD = #{mOwnerCd}
+		  AND PRDT_CD = #{mPrdtCd} 
+		  AND IMP_YN = #{mImpYn} 
+		  AND PRJCT_CD = #{mPrjctCd}
+	</update>
+	
+	<update id="sm01UpdateInsertStockMove" parameterType="Map">
+		UPDATE TB_SM01M01 A SET (
+			STOCK_QTY
+		) = (
+			SELECT STOCK_QTY + #{sMoveQty} AS STOCK_QTY FROM TB_SM01M01 
+			WHERE CO_CD = #{sCoCd} 
+			  AND WH_CD = #{sWhCd}
+			  AND TYP_CD = #{mTypCd} 
+			  AND MAKR_CD = #{mMakrCd} 
+			  AND OWNER_CD = #{mOwnerCd}
+			  AND PRDT_CD = #{mPrdtCd} 
+			  AND IMP_YN = #{mImpYn} 
+			  AND PRJCT_CD = #{mPrjctCd}
+			)
+		WHERE CO_CD = #{sCoCd} 
+		  AND WH_CD = #{sWhCd}
+		  AND TYP_CD = #{mTypCd} 
+		  AND MAKR_CD = #{mMakrCd} 
+		  AND OWNER_CD = #{mOwnerCd}
+		  AND PRDT_CD = #{mPrdtCd} 
+		  AND IMP_YN = #{mImpYn} 
+		  AND PRJCT_CD = #{mPrjctCd}	
 	</update>
 	
 	<insert id="sm02InsertStockMove" parameterType="Map">
