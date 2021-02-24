@@ -1,5 +1,7 @@
 package com.dksys.biz.config;
 
+import java.math.BigDecimal;
+
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 @SuppressWarnings("all")
@@ -32,6 +34,9 @@ public class CamelMap extends ListOrderedMap <String, Object> {
 
     @Override
     public Object put(String key, Object value) {
+    	if(value instanceof BigDecimal) {
+    		value = value.toString();
+    	}
     	return super.put(toCamelCase((String)key), value);
     }
 }
