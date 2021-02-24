@@ -21,7 +21,13 @@ public interface SM02Svc {
 	
 	public List<Map<String, String>> selectStockMoveStatMngmDtlList(Map<String, String> param);
 	
+	public int sm01CheckCnt(Map<String, String> param);
+	
+	public int sm01InsertStockMove(Map<String, String> param);
+	
 	public int sm01UpdateStockMove(Map<String, String> param);
+	
+	public int sm01UpdateInsertStockMove(Map<String, String> param);
 	
 	public int sm02InsertStockMove(Map<String, String> param);
 	

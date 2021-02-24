@@ -59,8 +59,23 @@ public class SM02Svcmpl implements SM02Svc {
 	}
 	
 	@Override
+	public int sm01CheckCnt(Map<String, String> param) {
+		return sm02Mapper.sm01CheckCnt(param);
+	}
+
+	@Override
+	public int sm01InsertStockMove(Map<String, String> param) {
+		return sm02Mapper.sm01InsertStockMove(param);
+	}
+
+	@Override
 	public int sm01UpdateStockMove(Map<String, String> param) {
 		return sm02Mapper.sm01UpdateStockMove(param);
+	}
+	
+	@Override
+	public int sm01UpdateInsertStockMove(Map<String, String> param) {
+		return sm02Mapper.sm01UpdateInsertStockMove(param);
 	}
 
 	@Override
