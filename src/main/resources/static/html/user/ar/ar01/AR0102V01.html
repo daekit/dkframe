@@ -33,7 +33,6 @@
 	                	<div class="search_form">
 			              <input type="hidden" id="prjctCd" name="prjctCd">
 			              <input type="text" id="prjctNm" name="prjctNm">
-			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	            </tr>
@@ -60,7 +59,7 @@
 	            <tr>
 	                <th>수입구분</th>
 	                <td>
-		                <select id="impYn" name="impYn">
+		                <select id="impYn" name="impYn" data-kind="OWNER">
 		                  	<option value="N" selected="selected">N</option>
 		                  	<option value="Y" >Y</option>
 		                </select>
@@ -85,7 +84,6 @@
 	                    <input type="hidden" id="clntCd" name="clntCd" style="width: 76%;" readonly="readonly">
 	                    <div class="search_form">
 	                    	<input type="text" id="clntNm" readonly="readonly">
-	                    	<a onclick="clntSearch('PUR');"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
 	                <th>영업담당자</th>
@@ -93,7 +91,6 @@
 	                    <input type="hidden" id="salesMng" name="salesMng">
 	                    <div class="search_form">
 		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
-	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
 	                <th>요청일자</th>
@@ -106,7 +103,6 @@
 	                <td>
 	                	<div class="search_form">
 		                    <input id="addrZip" name="addrZip" type="text" readonly="readonly">
-	                    	<a onclick="openDaumPostcode();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
 	                <th>담당자Tel</th>
@@ -192,10 +188,6 @@
         <tr>
           <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
           <td colspan="14">
-            <div class="add_btn">
-              <a onclick="addRow();">+</a>
-              <a onclick="removeDetailRow();">-</a>
-            </div>
           </td>
         </tr>
       </table>
@@ -261,7 +253,6 @@
               <input type="hidden" name="prdtUpr">
               <div class="search_form">
                 <input type="text" name="prdtNm" readonly="readonly">
-              	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
               </div>
             </td>
 <!--             <td><input type="text" name="prdtStknNm" readonly="readonly"></td> -->
@@ -298,7 +289,6 @@
             	<div class="search_form">
 	                <input type="hidden" name="shipProcId">
 	                <input type="text" name="shipProcNm" readonly="readonly">
-	            	<a onclick="openUserTree(this, 'SHIP');"><i class="i_search_w"></i></a>
 	            </div>
             </td>
             <td>
@@ -361,7 +351,7 @@
         </colgroup>
 	  	<tr>
 	  		<th>
-	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+	  			첨부파일
 	  		</th>
 	  		<td>
 	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
@@ -371,7 +361,8 @@
     </div>
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
-      <button id="actionBtn">등록</button>
+      <button id="actionBtn">수정</button>
+      <button id="shipYnBtn" onclick="updateConfirm();">출하처리</button>
       <button class="close_btn" onclick="modal.close();">닫기</button>
     </div>
   </div>
@@ -425,25 +416,16 @@
 	$(document).ready(function() {
 		fileGridView.initView();
 		setCommonSelect($(".popup_area select[data-kind]"));
-		$('#dlvrDttm').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		});
 		setInit();
+		$(".popup_area input").prop("readonly", true);
+		$(".popup_area select").prop("disabled", true);
 	});
 	
 	function setInit() {
-		if(actionType == "C"){
-			$('#actionBtn').on("click", function(){insertShip();});
-			$('#actionBtn').text("등록");
-			$("#reqDt").val(dateToStr(new Date()));
-		}else if(actionType == "U"){
-			selectShipInfo();
-			$('#actionBtn').on("click", function(){updateShip();});
-			$('#actionBtn').text("저장");
-			$("#shipYnBtn").show();
-		}
+		selectShipInfo();
+		$('#actionBtn').on("click", function(){updateShipModal();});
+		$('#actionBtn').text("수정");
+		$("#shipYnBtn").show();
 	}
 	
 	function selectShipInfo() {
@@ -475,12 +457,23 @@
 			if(idx != 0) addRow();
 			$.each(item, function(key, value){
 				if($(".detailRow").find("input[name="+key+"]")[idx] != undefined) {
-					if(typeof value == "number") value = addCommaStr(value); 
 					$(".detailRow").find("input[name="+key+"]")[idx].value = value;
-				} 
+				}
 			});
+			if(item.shipYn == "Y") {
+				$($("input[name='detailChkBox']")[idx]).prop("checked", true);
+				$($("input[name='detailChkBox']")[idx]).prop("disabled", true);
+			} else {
+				$($("input[name='detailChkBox']")[idx]).prop("disabled", false);
+			}
 			countTot();
 		});
+
+		//콤마 추가
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
+		
 		$.each(fileInfo, function(idx, obj){
 			fileArr.push({
 				'fileKey' : obj.fileKey,
@@ -493,28 +486,13 @@
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 	}
-	
+
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
-		countTot();
-	}
-	
-	function removeRow() {
-		var rowCnt = $("#detailTb > tbody:last > tr").length;
-		if(rowCnt > 1) {
-			$("#detailTb > tbody:last > tr:last").remove();
-		} else {
-			return false;
-		}
-		countTot();
-	}
-
-	function removeDetailRow(){
-		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
-			if($(elem).is(":checked")){
-				$(elem).closest('.detailRow').remove();
-			}
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
 		});
 		countTot();
 	}
@@ -541,95 +519,6 @@
 		});
 		fileGridView.setData();
 		$(elem).val("");
-	}
-	
-	function deleteFile(rowIndex) {
-		fileGridView.target.removeRow(rowIndex);
-		
-		if(fileArr[rowIndex].fileKey){
-		// 기 등록되어 있는 파일 삭제시
-			deleteFileArr.push(fileArr[rowIndex].fileKey);
-		}
-		
-		fileArr.splice(rowIndex, 1);
-	}
-	
-	function prdtSearch(el) {
-		selectedIdx = $(el).closest('tr').prevAll().length;
-		openSecondModal("/static/html/user/ar/ar01/AR0102P03.html", 500, 400, "제품검색");
-	}
-	
-	function makeFormData() {
-		$("#popForm input").prop("disabled", false);
-		$("#popForm select").prop("disabled", false);
-		$("#userId").val(jwt.userId);
-		$("#reqDt").val($("#reqDt").val().replace(/-/g, ""));
-		
-		//콤마 제거
-		$.each($('input[comma]'), function(idx, elem){
-			deleteComma(elem);
-		});
-		
-		var formData = new FormData($("#popForm")[0]);
-		
-		// 첨부파일 추가
-		$.each(fileArr, function(idx, obj){
-			// 신규파일만 추가
-			if(obj.fileKey == 0){
-				formData.append("files", obj.file);
-			}
-		});
-		
-		// 상세내역 추가
-		var detailArr = [];
-		$.each($('.detailRow'), function(idx, elem){
-			var detailObj = {};
-			$.each($(elem).find('[name]'), function(idx, elem){
-				var value = elem.value;
-				var rowIdx = $(elem).closest('tr').prevAll().length;
-				if(elem.name == "pchsUpr" && elem.value == "") 
-					value = $($('.detailRow')[rowIdx]).find("[name='shipUpr']").val();
-				if(elem.name == "sellUpr" && elem.value == "")
-					value = $($('.detailRow')[rowIdx]).find("[name='shipUpr']").val();
-				detailObj[elem.name] = value;
-			});
-			detailArr.push(detailObj);
-		});
-		formData.append("detailArr", JSON.stringify(detailArr));
-		
-		if(actionType == "U") {
-			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		} 
-		
-		return formData;
-	}
-	
-	function insertShip() {
-		if(inputValidation($('input[required]'))) {
-			var formData = makeFormData();
-			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
-				alert(data.resultMessage);
-				gridView.setData(0);
-				modal.close();
-			});
-		}
-	}
-	
-	function updateShip() {
-		if(inputValidation($('input[required]'))) {
-			var formData = makeFormData();
-			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
-			});
-		}
-	}
-	
-	function openUserTree(el, type) {
-		treeType = type; 
-		selectedIdx = $(el).closest('tr').prevAll().length;
-		openSecondModal("/static/html/user/od/od01/OD0102P04.html", 300, 500, "사용자 검색");
 	}
 	
 	function countAmt(el) {
@@ -680,9 +569,66 @@
 		$("input[name='realTotWt']").val(addCommaStr(realTotWt));
 		$("input[name='realTotAmt']").val(addCommaStr(realTotAmt));
 	}
-	
-	function prjctSearch() {
-		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420, "프로젝트");
+
+	function makeFormData() {
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		$("#userId").val(jwt.userId);
+		$("#reqDt").val($("#reqDt").val().replace(/-/g, ""));
+		
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		var formData = new FormData($("#popForm")[0]);
+		
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		// 상세내역 추가
+		var detailArr = [];
+		$.each($('.detailRow'), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
+				var detailObj = {};
+				$.each($(elem).find('[name]'), function(idx, elem){
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
+		});
+		
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		if(actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		} 
+		
+		return formData;
+	}
+
+	function updateConfirm() {
+		if($("input[name='detailChkBox']:checked").length == 0){
+			alert("출하내역을 선택해주세요");
+			return;
+		}
+		if($("input[name='detailChkBox']:checked").length == 0){
+			alert("출하내역을 선택해주세요");
+			return;
+		}
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/ar/ar01/updateConfirm", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
 	}
 	
 </script>
