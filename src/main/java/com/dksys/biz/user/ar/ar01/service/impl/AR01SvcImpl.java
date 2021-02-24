@@ -49,24 +49,22 @@ public class AR01SvcImpl implements AR01Svc {
 		ar01Mapper.deleteShipDetail(paramMap);
 		// 발주상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		String shipSeq = paramMap.get("shipSeq"); 
-		String odrSeq = paramMap.get("odrSeq"); 
-		String ordDtlSeq = paramMap.get("ordDtlSeq"); 
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfo == null) {
-				paramMap.put("pchsUpr", detailMap.get("shipUpr"));
-				paramMap.put("sellUpr", detailMap.get("shipUpr"));
-				paramMap.put("stockUpr", detailMap.get("shipUpr"));
+				detailMap.put("pchsUpr", "0");
+				detailMap.put("sellUpr", "0");
+				detailMap.put("stockUpr", "0");
 			} else {
-				paramMap.put("pchsUpr", detailMap.get("pchsUpr"));
-				paramMap.put("sellUpr", detailMap.get("sellUpr"));
-				paramMap.put("stockUpr", detailMap.get("stockUpr"));
+				detailMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+				detailMap.put("sellUpr", stockInfo.get("sellUpr"));
+				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 			}
-			detailMap.put("shipSeq", shipSeq);
-			detailMap.put("odrSeq", odrSeq);
-			detailMap.put("ordDtlSeq", ordDtlSeq);
+			detailMap.put("shipSeq", paramMap.get("shipSeq"));
+			detailMap.put("odrSeq", paramMap.get("odrSeq"));
+			detailMap.put("odrDtlSeq", paramMap.get("odrDtlSeq"));
+			detailMap.put("ordrgDtlSeq", paramMap.get("ordrgDtlSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.insertShipDetail(detailMap);
@@ -108,13 +106,11 @@ public class AR01SvcImpl implements AR01Svc {
 		ar01Mapper.deleteShipDetail(paramMap);
 		// 발주상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		String shipSeq = paramMap.get("shipSeq"); 
-		String odrSeq = paramMap.get("odrSeq"); 
-		String ordDtlSeq = paramMap.get("ordDtlSeq"); 
 		for(Map<String, String> detailMap : detailList) {
-			detailMap.put("shipSeq", shipSeq);
-			detailMap.put("odrSeq", odrSeq);
-			detailMap.put("ordDtlSeq", ordDtlSeq);
+			detailMap.put("shipSeq", paramMap.get("shipSeq"));
+			detailMap.put("odrSeq", paramMap.get("odrSeq"));
+			detailMap.put("odrDtlSeq", paramMap.get("odrDtlSeq"));
+			detailMap.put("ordrgDtlSeq", paramMap.get("ordrgDtlSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.insertShipDetail(detailMap);
@@ -135,13 +131,11 @@ public class AR01SvcImpl implements AR01Svc {
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
-		String shipSeq = paramMap.get("shipSeq");
-		String odrSeq = paramMap.get("odrSeq"); 
-		String ordDtlSeq = paramMap.get("ordDtlSeq");
 		for(Map<String, String> detailMap : detailList) {
-			detailMap.put("shipSeq", shipSeq);
-			detailMap.put("odrSeq", odrSeq);
-			detailMap.put("ordDtlSeq", ordDtlSeq);
+			detailMap.put("shipSeq", paramMap.get("shipSeq"));
+			detailMap.put("odrSeq", paramMap.get("odrSeq"));
+			detailMap.put("odrDtlSeq", paramMap.get("odrDtlSeq"));
+			detailMap.put("ordrgDtlSeq", paramMap.get("ordrgDtlSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.updateConfirmDetail(detailMap);
@@ -149,6 +143,9 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd", "SELPCH2");
+			paramMap.put("pchsUpr", detailMap.get("pchsUpr"));
+			paramMap.put("sellUpr", detailMap.get("realShipUpr"));
+			paramMap.put("stockUpr", detailMap.get("stockUpr"));
 			paramMap.put("trstQty", detailMap.get("shipQty"));
 			paramMap.put("trstWt", detailMap.get("shipWt"));
 			paramMap.put("trstUpr", detailMap.get("shipUpr"));
@@ -167,16 +164,16 @@ public class AR01SvcImpl implements AR01Svc {
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			paramMap.put("stockChgCd", "STOCKCHG02");
 			if(stockInfo == null) {
-				paramMap.put("pchsUpr", detailMap.get("shipUpr"));
-				paramMap.put("sellUpr", detailMap.get("shipUpr"));
-				paramMap.put("stockUpr", detailMap.get("shipUpr"));
-				paramMap.put("stdUpr", detailMap.get("shipUpr"));
+				paramMap.put("pchsUpr", detailMap.get("realShipUpr"));
+				paramMap.put("sellUpr", detailMap.get("realShipUpr"));
+				paramMap.put("stockUpr", detailMap.get("realShipUpr"));
+				paramMap.put("stdUpr", detailMap.get("realShipUpr"));
 				paramMap.put("stockQty", "-"+detailMap.get("realShipQty"));
 			} else {
 				paramMap.put("pchsUpr", detailMap.get("pchsUpr"));
 				paramMap.put("sellUpr", detailMap.get("sellUpr"));
 				paramMap.put("stockUpr", detailMap.get("stockUpr"));
-				paramMap.put("stdUpr", detailMap.get("stockUpr"));
+				paramMap.put("stdUpr", detailMap.get("realShipUpr"));
 				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realShipQty"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
 			}
