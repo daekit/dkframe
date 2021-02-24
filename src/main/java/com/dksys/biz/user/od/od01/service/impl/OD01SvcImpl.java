@@ -106,8 +106,9 @@ public class OD01SvcImpl implements OD01Svc {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		String ordrgSeq = paramMap.get("ordrgSeq");
 		for(Map<String, String> detailMap : detailList) {
-			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("ordrgSeq", ordrgSeq);
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			od01Mapper.updateConfirmDetail(detailMap);

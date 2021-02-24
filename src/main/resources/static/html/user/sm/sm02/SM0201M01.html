@@ -14,7 +14,7 @@
     height: 20px;
     line-height: 20px;
     text-align: center;
-    border: 1px solid #dbdbdb;
+    bShip: 1px solid #dbdbdb;
     color: #444;
     background: #ffffff;
     box-shadow: 1px 1px rgba(0,0,0,0.15);
@@ -55,9 +55,7 @@
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
 	<script src="/static/js/global.js"></script>
-	 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
-	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
 </head>
 
 
@@ -97,10 +95,11 @@
               <tr>
                 <th>운송일자</th>
                 <td>
-                      <input type="date" id="strtDt">
+                    <div class="date_input">
+                      <input type="text" id="strtDt" class="input_calendar">
                       <span>~</span>
-                      <input type="date" id="endDt">
-               
+                      <input type="text" id="endDt" class="input_calendar">
+                    </div>
                 </td>
                 <th>출고지</th>
                 <td>
@@ -117,18 +116,6 @@
           </div>
           
     </div>
-		
-		  <!-- 검색 콘텐츠 -->
-    	<!-- <div class="contents">
-	        <div class="form-inline form-group">
-	        	<span style="font-size: 15px; font-weight: bold; padding-right:10px;">운송일자</span>
-					<input id="strtDt" class="form-control" type="date" > <span>~</span> <input id="endDt" class="form-control" type="date">
-	        	<span style="font-size: 15px; font-weight: bold; padding-left:20px;">출고지</span>
-					<select id="searchOutCoCd" class="form-control"></select>
-				<span style="font-size: 15px; font-weight: bold; padding-left:20px;">입고지</span>
-					<select id="searchInCoCd" class="form-control"></select>
-	        </div>
-    	</div> -->
     	<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
 		</div>
@@ -220,14 +207,14 @@
 	
 	//화면로드시
 	$(document).ready(function() {
-	    $("#head_area").load("/static/html/header.html");
-	    $('.more_btn').click(function() {
-			$('.search_option').toggleClass('open');
-			$('.more_btn').toggleClass('on');
-		});
-	    setMenuAuth();
+		mainDefaultLoad("재고관리", "재고이동 현황관리");
 	    setSelectCombo();
 	    gridView.initView().setData(0);
+	    $('#strtDt, #endDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
 	})	
 		
 	function setSelectCombo(){

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar01.mapper.AR01Mapper">
+
+	<insert id="insertShip" parameterType="Map">
+		<selectKey keyProperty="shipSeq" resultType="String" order="BEFORE">
+			SELECT TB_AR01M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_AR01M01
+		(
+			CO_CD,
+            REQ_DT,
+            CLNT_CD,
+            SHIP_SEQ,
+            PRJCT_CD,
+            MAKR_CD,
+            WH_CD,
+            TYP_CD,
+            OWNER_CD,
+            IMP_YN,
+            SALES_AREA_CD,
+            MNG_TEL,
+            DLVR_DTTM,
+            DIRTRS_YN,
+            DLVR_RMK,
+            ADDR_ZIP,
+            ADDR_MAIN,
+            ADDR_SUB,
+            SHIP_RMK,
+            SHIP_TOT_QTY,
+            SHIP_TOT_WT,
+            SHIP_TOT_AMT,
+            REAL_TOT_QTY,
+            REAL_TOT_WT,
+            REAL_TOT_AMT,
+            TRANS_AMT,
+            ODR_SEQ,
+            ORDRG_SEQ,
+            SALES_MNG,
+            SHIP_YN,
+            ODR_CREAT_DIV,
+            CREAT_ID,
+            CREAT_PGM,
+            CREAT_DTTM,
+            UDT_ID,
+            UDT_PGM,
+            UDT_DTTM
+	    ) 
+	    VALUES
+	    (
+	    	#{coCd},
+			#{reqDt},
+			#{clntCd},
+			#{shipSeq},
+			#{prjctCd},
+			#{makrCd},
+			#{whCd},
+			#{typCd},
+			#{ownerCd},
+			#{impYn},
+			#{salesAreaCd},
+			#{mngTel},
+			#{dlvrDttm},
+			#{dirtrsYn},
+			#{dlvrRmk},
+			#{addrZip},
+			#{addrMain},
+			#{addrSub},
+			#{shipRmk},
+			#{shipTotQty},
+			#{shipTotWt},
+			#{shipTotAmt},
+			#{realTotQty},
+			#{realTotWt},
+			#{realTotAmt},
+			#{transAmt},
+			#{odrSeq},
+			#{ordrgSeq},
+			#{salesMng},
+			'N',
+			'ERP',
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE
+	    )
+	</insert>
+	
+	<insert id="insertShipDetail" parameterType="Map">
+		<selectKey keyProperty="shipDtlSeq" resultType="String" order="BEFORE">
+			SELECT TB_AR01D01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_AR01D01
+		(
+			SHIP_SEQ,
+            SHIP_DTL_SEQ,
+            PRDT_CD,
+            PRDT_UNIT,
+            PRDT_LEN,
+            SHIP_QTY,
+            SHIP_WT,
+            SHIP_UPR,
+            SHIP_AMT,
+            PCHS_UPR,
+            SELL_UPR,
+            PRDT_UPR,
+            SHIP_YN,
+            SHIP_PROC_ID,
+            SHIP_DTTM,
+            REAL_SHIP_QTY,
+            REAL_SHIP_WT,
+            REAL_SHIP_UPR,
+            REAL_SHIP_AMT,
+            SHIP_VEH_NO,
+            SHIP_DTL_RMK,
+            ODR_SEQ,
+            ORD_DTL_SEQ,
+            CREAT_ID,
+            CREAT_PGM,
+            CREAT_DTTM,
+            UDT_ID,
+            UDT_PGM,
+            UDT_DTTM
+	    ) 
+	    VALUES
+	    (
+	    	#{shipSeq},
+			#{shipDtlSeq},
+			#{prdtCd},
+			#{prdtUnitNm},
+			#{prdtLen},
+			#{shipQty},
+			#{shipWt},
+			#{shipUpr},
+			#{shipAmt},
+			#{pchsUpr},
+			#{sellUpr},
+			#{prdtUpr},
+			'N',
+			#{shipProcId},
+			#{shipDttm},
+			#{realShipQty},
+			#{realShipWt},
+			#{realShipUpr},
+			#{realShipAmt},
+			#{shipVehNo},
+			#{shipDtlRmk},
+			#{odrSeq},
+			#{ordDtlSeq},
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE
+	    )
+	</insert>
+	
+	<delete id="deleteShipDetail" parameterType="Map">
+		DELETE FROM TB_AR01D01
+		WHERE SHIP_SEQ = #{shipSeq}
+	</delete>
+	
+	<select id="selectShipCount" parameterType="Map" resultType="int">
+		SELECT 
+	 		COUNT(*) 
+	 	FROM TB_AR01M01
+	 	WHERE 1=1
+	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+			AND REQ_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+		</if>
+		<if test="coCd != null and !coCd.equals('')">
+			AND CO_CD = #{coCd}				
+		</if>
+	 	<if test="typCd != null and !typCd.equals('')">
+			AND TYP_CD = #{typCd}				
+		</if>
+		<if test="searchValue != null and !searchValue.equals('')">
+			AND ${searchType} LIKE '%${searchValue}%'				
+		</if>
+	</select>
+	
+	<select id="selectShipList" parameterType="Map" resultType="camelMap">
+		SELECT * FROM (
+			SELECT 
+				ROWNUM RNUM,
+				T.CO_CD,
+				FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
+		        T.REQ_DT,
+		        T.CLNT_CD,
+		        (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+		        T.SHIP_SEQ,
+		        T.PRJCT_CD,
+		        T.MAKR_CD,
+		        T.WH_CD,
+		        FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
+		        T.TYP_CD,
+		        T.OWNER_CD,
+		        T.IMP_YN,
+		        T.SALES_AREA_CD,
+		        T.MNG_TEL,
+		        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+		        T.DIRTRS_YN,
+		        T.DLVR_RMK,
+		        T.ADDR_ZIP,
+		        T.ADDR_MAIN,
+		        T.ADDR_SUB,
+		        T.SHIP_RMK,
+		        T.SHIP_TOT_QTY,
+		        T.SHIP_TOT_WT,
+		        T.SHIP_TOT_AMT,
+		        T.REAL_TOT_QTY,
+		        T.REAL_TOT_WT,
+		        T.REAL_TOT_AMT,
+		        T.TRANS_AMT,
+		        T.ODR_SEQ,
+		        T.ORDRG_SEQ,
+		        T.SALES_MNG,
+		        T.SHIP_YN,
+		        T.SHIP_PROC_ID,
+		        T.SHIP_DTTM,
+		        T.ODR_CREAT_DIV,
+		        T.ETC_FIELD1,
+		        T.ETC_FIELD2,
+		        T.ETC_FIELD3,
+		        T.CREAT_ID,
+		        T.CREAT_PGM,
+		        T.CREAT_DTTM,
+		        T.UDT_ID,
+		        T.UDT_PGM,
+		        T.UDT_DTTM,
+				ADDR_MAIN || ' ' || ADDR_SUB AS ADDR
+			FROM 
+			(
+			 	SELECT * FROM TB_AR01M01
+			 	WHERE 1=1
+			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+					AND REQ_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+				</if>
+				<if test="coCd != null and !coCd.equals('')">
+					AND CO_CD = #{coCd}				
+				</if>
+			 	<if test="typCd != null and !typCd.equals('')">
+					AND TYP_CD = #{typCd}				
+				</if>
+				<if test="searchValue != null and !searchValue.equals('')">
+					AND ${searchType} LIKE '%${searchValue}%'				
+				</if>
+				ORDER BY UDT_DTTM DESC
+			) T
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<delete id="deleteShip" parameterType="Map">
+		DELETE FROM TB_AR01M01
+		WHERE SHIP_SEQ = #{shipSeq}
+	</delete>
+	
+</mapper>

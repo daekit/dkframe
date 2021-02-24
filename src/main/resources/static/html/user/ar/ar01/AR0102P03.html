@@ -1,0 +1,114 @@
+<body>
+    <div class="popup_area" style="width: 100%;">
+    	<div class="popup_table">
+    		<table>
+    			<colgroup>
+                	<col width="30%">
+	                <col width="">
+	            </colgroup>
+    			<tr>	
+    				<td>
+    					<select id="searchType">
+		                  	<option value="PRDT_NM">제품명</option>
+		                </select>    
+    				</td>
+    				<td>
+    					<input type="text" id="searchValue" style="width: 85%;" onkeypress="if(event.keyCode == 13){popGridView.setData(0);}">
+    					<button type="button" class="btn btn-primary btn-sm" onclick="popGridView.setData(0);">검색</button>    
+    				</td>
+    			</tr>
+    		</table>
+    		<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%" ></div>
+    	</div>
+    </div>
+    <div class="popup_bottom_btn">
+      <button onclick="">선택</button>
+      <button class="close_btn" onclick="secondModal.close();">닫기</button>
+    </div>
+</body>
+<script type="text/javascript">
+	
+	var secondGrid = null;
+	
+	var popGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="second-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	setPrdtInfo();
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	popGridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		          	{key: "prdtCd ", label: "제품코드", align: "center", hidden: true},
+		          	{key: "prdtNm", label: "제품명", align: "center", width: "20%"},
+		            {key: "prdtStknNm", label: "제품강종", align: "center", width: "20%"},
+		            {key: "prdtUnitNm", label: "제품단위", align: "center", width: "20%"},
+		            {key: "prdtSizeNm", label: "제품사이즈", align: "center", width: "20%"},
+		        	{key: "ordrgUpr", label: "기준단가", align: "center", width: "20%"},
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			secondGrid = this.target;
+			var formData = {
+				"searchType" : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"impYn" : $("#impYn").val(),
+				"useYn" : "Y",
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : 10
+			}
+			postAjax("/admin/bm/bm01/selectMaterialList", formData, null, function(data){
+				var list = data.materialList;
+				secondGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		popGridView.initView().setData(0);
+	});
+
+	function setPrdtInfo() {
+		var row = popGridView.target.getList("selected")[0];
+		$.each(row, function(key, value){
+			if($("input[name="+key+"]")[selectedIdx] != undefined)
+				$("input[name="+key+"]")[selectedIdx].value = value;
+		});
+		$("input[name=prdtUpr]")[selectedIdx].value = row.ordrgUpr;
+		$("input[name=shipUpr]")[selectedIdx].value = row.ordrgUpr;
+		secondModal.close();
+	}
+</script>

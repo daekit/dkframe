@@ -21,8 +21,8 @@
 					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
 					,A.MNG_ID
 					,C.NAME AS MNG_NM
-					,A.STRT_DT
-					,A.END_DT
+					,TO_CHAR(TO_DATE(A.STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS STRT_DT
+					,TO_CHAR(TO_DATE(A.END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS END_DT
 					,A.TOT_WT
 					,A.ODR_NO
 					,A.ODR_DT
@@ -31,10 +31,11 @@
 					,A.ETC_FIELD2
 					,A.ETC_FIELD3
 					,A.CREAT_PGM
-					,to_char(A.CREAT_DTTM,'YYYYMMDD') as CREAT_DTTM
+					,TO_CHAR(A.CREAT_DTTM,'YYYY-MM-DD') AS CREAT_DTTM
+					,A.CREAT_DTTM
 					,A.UDT_ID
 					,A.UDT_PGM
-					,A.UDT_DTTM
+					,TO_CHAR(A.UDT_DTTM,'YYYY-MM-DD') AS UDT_DTTM
 				FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 				WHERE A.CLNT_CD = B.CLNT_CD
 				 AND  A.MNG_ID = C.ID
@@ -50,7 +51,7 @@
 				<if test="searchValue != null and !searchValue.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
 				</if>
-				ORDER BY CREAT_DTTM
+				ORDER BY A.PRJCT_CD
 			) D
 		)
 		WHERE
@@ -63,7 +64,7 @@
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
 			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 			MNG_ID AS SALES_MNG,
-			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS SALES_MNG_NM,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS SALES_EMP_NM,
 			TO_CHAR(TO_DATE(STRT_DT,'YYYYMMDD'),'YYYY-MM-DD') as STRT_DT2,
 			TO_CHAR(TO_DATE(END_DT,'YYYYMMDD'),'YYYY-MM-DD') as END_DT2,
 			TO_CHAR(CREAT_DTTM,'YYYY-MM-DD') as CREAT_DTTM2 
@@ -119,17 +120,28 @@
 	<select id="selectProjectCount" parameterType="Map" resultType="int">
 	 	SELECT 
 	 		COUNT(*) 
-	 	FROM TB_SD05M01
+	 	FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 	 	WHERE 1=1
-	 	<if test="searchValue != null and !searchValue.equals('')">
-			AND ${searchType} LIKE '%${searchValue}%'				
+	 	AND A.CLNT_CD = B.CLNT_CD
+		AND  A.MNG_ID = C.ID
+		<if test= "coCd != null and !coCd.equals('')">
+			AND A.CO_CD = #{coCd}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+		<![CDATA[
+			AND STRT_DT >= TO_DATE (#{strtDt} , 'YYYY-MM-DD' )
+			AND END_DT <= TO_DATE(#{endDt}, 'YYYY-MM-DD')
+		]]> 
+		</if>
+		<if test="searchValue != null and !searchValue.equals('')">
+			AND ${searchType} LIKE '%${searchValue}%'
 		</if>
 	</select>
 	
 	<update id="updateProject" parameterType="Map">
 		UPDATE TB_SD05M01 
 			SET 
-				 CO_CD = #{coCdDtl}
+				 CO_CD = #{coCd}
 				,MNG_ID = #{salesMng}
 				,MAKR_CD = #{makrCdDtl}
 				,STRT_DT = TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD') 
@@ -169,7 +181,7 @@
 				CREAT_DTTM
 			)VALUES(
 				#{prjctCd}, 
-				#{coCdDtl}, 
+				#{coCd}, 
 				#{salesMng}, 
 				#{makrCdDtl},
 				TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD'), 
@@ -180,7 +192,7 @@
 				#{tnkeyYnDtl}, 
 				#{rmkDtl}, 
 				#{userId}, 
-				'SD0501P01.html', 
+				#{pgmId}, 
 				SYSDATE
 		 	)
 	</insert>
