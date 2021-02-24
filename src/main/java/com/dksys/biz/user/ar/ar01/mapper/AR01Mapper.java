@@ -19,5 +19,17 @@ public interface AR01Mapper {
 	List<Map<String, String>> selectShipList(Map<String, String> paramMap);
 
 	int deleteShip(Map<String, String> paramMap);
+
+	Map<String, Object> selectShipInfo(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectShipDetail(Map<String, String> paramMap);
+
+	int updateShip(Map<String, String> paramMap);
+
+	int updateConfirm(Map<String, String> paramMap);
+
+	int updateConfirmDetail(Map<String, String> detailMap);
+
+	Map<String, String> selectShipDetailInfo(Map<String, String> detailMap);
 	
 }
