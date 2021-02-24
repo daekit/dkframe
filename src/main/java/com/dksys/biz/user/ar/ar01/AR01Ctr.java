@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +39,13 @@ public class AR01Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectShipInfo")
+    public String selectShipInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = ar01Svc.selectShipInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
 	@PostMapping(value = "/insertShip")
     public String insertShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
 		ar01Svc.insertShip(paramMap, mRequest);
@@ -51,6 +59,22 @@ public class AR01Ctr {
     	ar01Svc.deleteShip(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	return "jsonView";
+    }
+	
+	@PutMapping(value = "/updateShip")
+    public String updateShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+		ar01Svc.updateShip(paramMap, mRequest);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+	
+	@PutMapping(value = "/updateConfirm")
+    public String updateConfirm(@RequestParam Map<String, String> paramMap, ModelMap model) {
+		ar01Svc.updateConfirm(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
     	return "jsonView";
     }
 }

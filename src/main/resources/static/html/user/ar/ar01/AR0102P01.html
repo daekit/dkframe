@@ -90,7 +90,7 @@
 	                </td>
 	                <th>영업담당자</th>
 	                <td>                                
-	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
+	                    <input type="hidden" id="salesMng" name="salesMng">
 	                    <div class="search_form">
 		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
 	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
@@ -191,10 +191,10 @@
       <table>
         <tr>
           <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
-          <td colspan="15">
+          <td colspan="14">
             <div class="add_btn">
               <a onclick="addRow();">+</a>
-              <a onclick="removeRow();">-</a>
+              <a onclick="removeDetailRow();">-</a>
             </div>
           </td>
         </tr>
@@ -203,8 +203,9 @@
      <div class="ofx_s" style="width:100%;">
       <table id="detailTb" style="width: 1800px;">
         <colgroup>
+        	<col width="2%">
         	<col width="7%">
-      		<col width="5%">
+<!--       		<col width="5%"> -->
       		<col width="5%">
       		<col width="5%">
       		<col width="5%">
@@ -222,8 +223,9 @@
       		<col width="12%">
         </colgroup>
         <tr>
+        	<th rowspan="2"></th>
             <th rowspan="2">제품명</th>
-            <th rowspan="2">제품강종</th>
+<!--             <th rowspan="2">제품강종</th> -->
             <th rowspan="2">제품단위</th>
             <th rowspan="2">제품길이</th>
             <th colspan="4" style="text-align: center;">출하지시</th>
@@ -247,6 +249,9 @@
         <!-- // -->
         <tbody>
           <tr class="detailRow">
+          	<td>
+				<input type="checkbox" name="detailChkBox">
+			</td>
             <td>
               <input type="hidden" name="shipDtlSeq">
               <input type="hidden" name="prdtCd">
@@ -259,7 +264,7 @@
               	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
               </div>
             </td>
-            <td><input type="text" name="prdtStknNm" readonly="readonly"></td>
+<!--             <td><input type="text" name="prdtStknNm" readonly="readonly"></td> -->
             <td><input type="text" name="prdtUnitNm" readonly="readonly"></td>
             <td><input type="text" style="text-align: right;" name="prdtLen"></td>
             <td>
@@ -310,8 +315,9 @@
       </table>
       <table style="width: 1800px;">
       	<colgroup>
+      		<col width="2%">
       		<col width="7%">
-      		<col width="5%">
+<!--       		<col width="5%"> -->
       		<col width="5%">
       		<col width="5%">
       		<col width="5%">
@@ -366,7 +372,6 @@
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
       <button id="actionBtn">등록</button>
-      <button id="shipYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
       <button class="close_btn" onclick="modal.close();">닫기</button>
     </div>
   </div>
@@ -436,7 +441,7 @@
 		}else if(actionType == "U"){
 			selectShipInfo();
 			$('#actionBtn').on("click", function(){updateShip();});
-			$('#actionBtn').text("수정");
+			$('#actionBtn').text("저장");
 			$("#shipYnBtn").show();
 		}
 	}
@@ -447,26 +452,26 @@
 			"shipSeq" : row.shipSeq,
 			"reqDt" : row.reqDt.replace(/-/g, "")
 		}
-		postAjax("/user/od/od01/selectShipInfo", formData, null, function(data){
+		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
 	
 	function setShipInfo(obj) {
 		var fileInfo = obj.fileList;
-		var orderInfo = obj.orderInfo;
-		var orderDetail = obj.orderDetail;
-		if(orderInfo.shipYn == "Y") {
+		var shipInfo = obj.shipInfo;
+		var shipDetail = obj.shipDetail;
+		if(shipInfo.shipYn == "Y") {
 			$("#shipYnBtn").hide();
 			$("#actionBtn").hide();
 		}
 		//메인정보 세팅
-		$.each(orderInfo, function(key, value){
+		$.each(shipInfo, function(key, value){
 			$('#'+key).val(value);
 		});
-		$("#dirtrsYn").change();
+		
 		//상세정보 세팅
-		$.each(orderDetail, function(idx, item){
+		$.each(shipDetail, function(idx, item){
 			if(idx != 0) addRow();
 			$.each(item, function(key, value){
 				if($(".detailRow").find("input[name="+key+"]")[idx] != undefined) {
@@ -505,21 +510,13 @@
 		countTot();
 	}
 
-	function setData() {
-		if($("#dirtrsYn").val() == "N") {
-			$(".drctArea input").prop("disabled", true);
-			$(".drctArea input").val("");
-			$(".drctArea select").prop("disabled", true);
-			$(".drctArea select").val("");
-			$(".drctArea #sellClntBtn").off("click");
-		} else {
-			$(".drctArea input").prop("disabled", false);
-			$(".drctArea select").prop("disabled", false);
-			$(".drctArea #sellClntBtn").on("click", function(){
-				clntSearch('SELL');
-			});
-		}
-		$("#coCd").val(jwt.coCd);
+	function removeDetailRow(){
+		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			if($(elem).is(":checked")){
+				$(elem).closest('.detailRow').remove();
+			}
+		});
+		countTot();
 	}
 	
 	function downloadFile(idx) {
@@ -567,12 +564,14 @@
 		$("#popForm select").prop("disabled", false);
 		$("#userId").val(jwt.userId);
 		$("#reqDt").val($("#reqDt").val().replace(/-/g, ""));
-		var formData = new FormData($("#popForm")[0]);
 		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
 			deleteComma(elem);
 		});
+		
+		var formData = new FormData($("#popForm")[0]);
+		
 		// 첨부파일 추가
 		$.each(fileArr, function(idx, obj){
 			// 신규파일만 추가
@@ -611,7 +610,7 @@
 			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
 				alert(data.resultMessage);
 				gridView.setData(0);
-// 				modal.close();
+				modal.close();
 			});
 		}
 	}
@@ -680,17 +679,6 @@
 		$("input[name='realTotQty']").val(addCommaStr(realTotQty));
 		$("input[name='realTotWt']").val(addCommaStr(realTotWt));
 		$("input[name='realTotAmt']").val(addCommaStr(realTotAmt));
-	}
-
-	function updateConfirm() {
-		if(inputValidation($('input[required]'))) {
-			var formData = makeFormData();
-			filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
-			});
-		}
 	}
 	
 	function prjctSearch() {

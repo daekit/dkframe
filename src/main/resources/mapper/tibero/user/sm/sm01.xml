@@ -185,6 +185,130 @@
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 
 	</select>
 	
+	<select id="selectStockInfo" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			  A.CO_CD
+			, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+			, A.WH_CD
+			, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+			, A.OWNER_CD
+			, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+			, A.TYP_CD
+			, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+			, A.MAKR_CD 
+			, FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+			, A.PRDT_CD
+		    , C.PRDT_NM
+			, A.IMP_YN
+			, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+			, A.STOCK_CHG_CD
+			, FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
+			, A.STOCK_AMT
+			, A.STOCK_QTY
+			, A.STOCK_UPR
+			, A.STD_UPR
+			, A.PCHS_UPR 
+			, A.SELL_UPR 
+			, E.CLNT_NM
+			, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
+		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+		WHERE  A.PRDT_CD = C.PRDT_CD
+		AND A.CLNT_CD = E.CLNT_CD(+)
+			<if test="coCd != null and !coCd.equals('')">
+				AND A.CO_CD = #{coCd}
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+			 	AND A.WH_CD = #{whCd}
+			</if>
+			<if test="ownerCd != null and !ownerCd.equals('')">
+				AND A.OWNER_CD = #{ownerCd}
+			</if>
+			<if test="typCd != null and !typCd.equals('')">
+				AND A.TYP_CD = #{typCd}
+			</if>
+			<if test="makrCd != null and !makrCd.equals('')">
+				AND A.MAKR_CD = #{makrCd}
+			</if>
+			<if test="prdtCd != null and !prdtCd.equals('')">
+				AND C.PRDT_CD = #{prdtCd}
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND E.CLNT_CD = #{clntCd}
+			</if>
+		ORDER BY UDT_DTTM DESC
+	</select>
 	
+	<update id="updateStockSell" parameterType="Map">
+		MERGE INTO TB_SM01M01 A
+			USING DUAL
+			ON 
+			(
+					CO_CD    = #{coCd}
+				AND WH_CD    = #{whCd}
+				AND PRDT_CD  = #{prdtCd}
+				AND OWNER_CD = #{ownerCd}
+				AND CLNT_CD  = #{clntCd}
+				AND TYP_CD   = #{typCd}
+				AND MAKR_CD  = #{makrCd}
+				AND PRJCT_CD = #{prjctCd}
+				AND IMP_YN   = 'PRDTIMP'||#{impYn}
+			)
+		WHEN MATCHED THEN
+			UPDATE SET
+				STOCK_QTY    = #{stockQty},
+				SELL_UPR     = #{sellUpr},
+				STOCK_CHG_CD = #{stockChgCd},
+				UDT_ID       = #{userId},
+				UDT_PGM      = #{pgmId},
+				UDT_DTTM     = SYSDATE
+		WHEN NOT MATCHED THEN
+			INSERT
+			(
+				CO_CD,
+		        WH_CD,
+		        PRDT_CD,
+		        OWNER_CD,
+		        CLNT_CD,
+		        TYP_CD,
+		        MAKR_CD,
+		        PRJCT_CD,
+		        IMP_YN,
+		        STOCK_QTY,
+		        STOCK_UPR,
+		        STD_UPR,
+		        PCHS_UPR,
+		        SELL_UPR,
+		        STOCK_CHG_CD,
+		        CREAT_ID,
+		        CREAT_PGM,
+		        CREAT_DTTM,
+		        UDT_ID,
+		        UDT_PGM,
+		        UDT_DTTM
+			)
+			VALUES(
+				#{coCd},
+				#{whCd},
+				#{prdtCd},
+				#{ownerCd},
+				#{clntCd},
+				#{typCd},
+				#{makrCd},
+				#{prjctCd},
+				'PRDTIMP'||#{impYn},
+				#{stockQty},
+				#{stockUpr},
+				#{stdUpr},
+				#{pchsUpr},
+				#{sellUpr},
+				#{stockChgCd},
+				#{userId},
+				#{pgmId},
+				SYSDATE,
+				#{userId},
+				#{pgmId},
+				SYSDATE
+			)
+	</update>
 	
 </mapper>
