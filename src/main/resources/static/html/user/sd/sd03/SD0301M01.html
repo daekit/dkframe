@@ -61,17 +61,22 @@
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type02">
               <tr>
-                <td style="width:5%">
-                  <select id= "searchValue_S" style="width:100%">
-                  <option>전체</option>
-                  <option value="EST_CLNT_NM">수신처</option>
-                  <option value="NAME">견적담당자</option>
-                  
+              	<th>회사</th>
+              	<td >
+                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <option value="">전체</option>
                   </select>
                 </td>
                 <td>
+                  <select id= "searchValue_S">
+	                  <option>전체</option>
+	                  <option value="EST_CLNT_NM">수신처</option>
+	                  <option value="NAME">견적담당자</option>
+                  </select>
                   <input type="text" id="searchName_S">
                 </td>
+<!--                 <td>
+                </td> -->
               </tr>
             </table>
           </div>
@@ -140,18 +145,18 @@
 		            }
 		        },
 		        columns: [
-		            {key: "estDt", label: "발신일자", align: "center"},
-		            {key: "estCoprtNm", label: "발신처", align: "center"},
-		            {key: "estClntNm", label: "수신처", align: "center"},
-		            {key: "estRprc", label: "수신처 참조", align: "center"},
-		            {key: "estQty", label: "수량(합계)", align: "right"},
-		            {key: "estAmt", label: "수입 공급가액(합계)", align: "right"},
-		            {key: "bizTelNo", label: "사업자 전화번호", align: "center"},
-		            {key: "bizFaxNo", label: "사업자 FAX번호", align: "center"},
-		            {key: "mngEmail", label: "담당자 이메일", align: "center"},
-		            {key: "prjctNm", label: "프로젝트 명", align: "left"},
-		            {key: "rmk", label: "비고", align: "center"},
-		            {key: "name", label: "견적 담당자", align: "center"}
+		            {key: "estDt", label: "견적일자", align: "center", width: "7%"},
+		            {key: "estCoprtNm", label: "발신처", align: "center", width: "11%"},
+		            {key: "estClntNm", label: "수신처", align: "center", width: "9%"},
+		            {key: "estRprc", label: "수신처 참조", align: "center", width: "9%"},
+		            {key: "estQty", label: "수량(합계)", align: "right", width: "7%", formatter: "money"},
+		            {key: "estAmt", label: "수입 공급가액(합계)", align: "right", width: "7%", formatter: "money"},
+		            {key: "bizTelNo", label: "사업자 전화번호", align: "center", width: "9%"},
+		            {key: "bizFaxNo", label: "사업자 FAX번호", align: "center", width: "9%"},
+		            {key: "mngEmail", label: "담당자 이메일", align: "center", width: "13%"},
+		            {key: "prjctNm", label: "프로젝트 명", align: "left", width: "11%"},
+		            {key: "rmk", label: "비고", align: "center", width: "13%"},
+		            {key: "name", label: "견적 담당자", align: "center", width: "9%"}
 		        ]
 		    });
 			return this;
@@ -159,6 +164,7 @@
 		setData: function(_pageNo) {
 			firstGrid = this.target;
 			var formData = {
+				"coCd" 		  : $('#coCd_S').val(),	
 				"searchValue" : $("#searchValue_S").val(),
 				"searchName"  : $("#searchName_S").val(),
 				"pageNo" : _pageNo + 1,
@@ -183,6 +189,8 @@
 	//화면로드시
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "견적서 관리");
+		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
 	    gridView.initView().setData(0);
 	})	
 		
