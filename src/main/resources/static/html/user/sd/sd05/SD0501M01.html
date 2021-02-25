@@ -80,7 +80,8 @@
               <tr>
                 <th style="width:50px;">법인</th>
                 <td style="width:100px;">
-                  <select id= "coCd" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <option value="">전체</option>
                   </select>
                 </td>
                 <th>프로젝트기간</th>
@@ -169,7 +170,7 @@
 		            {key: "prjctNm", label: "프로젝트명", align: "center", width: "12%"},
 		            {key: "makrNm", label: "제조사", align: "center", width: "12%"},
 		            {key: "mngNm", label: "담당자", align: "center", width: "10%"},
-		            {key: "totWt", label: "총중량", align: "center", width: "10%"},
+		            {key: "totWt", label: "총중량", align: "center", width: "10%", formatter: "money"},
 		            {key: "tnkeyYn", label: "턴키여부", align: "center", width: "10%"},
 		            {key: "creatDttm", label: "등록일", align: "center", width: "10%"}
 		        ]
@@ -179,7 +180,7 @@
 		setData: function(_pageNo){
 			firstGrid = this.target;
 			var formData = {
-				"coCd" : $("#coCd").val(),
+				"coCd" : $("#coCd_S").val(),
 				"strtDt"  : $("#strtDt").val().replace(/\-/g,''),
 				"endDt"  : $("#endDt").val().replace(/\-/g,''),
 				"pageNo" : _pageNo + 1,
@@ -203,6 +204,7 @@
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "프로젝트 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
 		gridView.initView().setData(0);
 		$('#strtDt, #endDt').datepicker({
 			format : "yyyy-mm-dd",

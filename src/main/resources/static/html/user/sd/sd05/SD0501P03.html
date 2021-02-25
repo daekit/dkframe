@@ -1,140 +1,113 @@
-<body>
-    <!-- modalpopup  -->
-    <!-- modalpopup_area + open 클래스 추가시 오픈 -->
-    <div class="">
-        
-        <!-- <div class="modalpopup" style="width: 600px;"> -->
-            <!-- <div class="tit_contents">
-                <h4 class="tit">검색</h4>
 
-                <div class="fr">
-                    <a href="#" class="btn-layerClose">Close</a>
-                </div>
-            </div> -->
-            <div class="pop_contents">                   
-              <!-- <div class="pop_btn tr">
-                <a class="bg_gl fs-13">초기화</a>
-              </div>   -->
-              <!-- 테이블 -->
-              <div class="popup_table">
-                <!-- 테이블 선제거시 사용 <table class="border_none"> -->
-                <table>
-                  <colgroup>
-                    <col width="">
-                    <col width="">
-                    <col width="80px">
-                  </colgroup>
-                  <tbody>
-                    <tr>
-                      <td>
-                      <select id="clntDtlSelectValue" class="form-control" onchange="commonCodeList();"></select>
-                      </td>
-                      <td><input id="clntDtlSearchName" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}"></td>
-                      <td colspan="" onclick="serchVal();"><button>검색</button></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+<style>
+	#userTree .jstree-open > .jstree-anchor > .jstree-checkbox,
+	#userTree .jstree-closed > .jstree-anchor > .jstree-checkbox { display:none; }
+</style>
 
-              <div class="row">
-				<div data-ax5grid="clntSearch-grid" data-ax5grid-config="{}" style="height: 100px; width: 100%"></div>
-			  </div>
+<div class="popup_table" style="padding: 10px 10px 0 10px;">
+	<div class="input-group">
+		<input type="text" id="searchName" class="form-control" onkeyup="if(event.keyCode == 13){searchUser();}">
+		<span class="input-group-btn">
+			<button type="button" class="btn btn-primary btn-sm" onclick="searchUser();">검색</button>
+		</span>
+	</div>
+</div>
+<div style="text-align: left;">
+	<div id="userTree" style="overflow: auto; height: 410px; padding: 0 10px;"></div>
+</div>
+<div style="padding: 5px 0px;">
+	<button type="button" class="btn btn-default btn-sm" onclick="selectUser();">선택</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="secondModal.close();">닫기</button>	
+</div>
 
-            </div>
-
-            <div>
-              <button type="button" class="btn btn-default btn-sm" onclick="nameOnClick();">확인</button>
-              <button type="button" class="btn btn-default btn-sm" onclick="secondModal.close();">닫기</button>
-            </div>
-        </div>
-    <!-- </div> -->
-    <!--// modalpopup  -->
-</body>
 <script type="text/javascript">
-	var authId = null;
-	var authRole = null;
-	var actionType = null;
-	var clntSearchGrid = new ax5.ui.grid();
-	
 	$(document).ready(function() {
-		clntDtlSearchCombo.initCombo();
-		clntSearchGrid.setConfig({
-	    	showRowSelector: true,
-	    	multipleSelect: false,
-	        target: $('[data-ax5grid="clntSearch-grid"]'),
-	        header: {
-	        	 selector: false
-	        },
-	        body: {
-	        	 onClick: function () {
-	                this.self.select(this.dindex);
-	            },
-	            onDBLClick: function () {
-	            	
-	            }, 
-	        },
-	        
-	        columns: [
-	            {key: "clntCd", label: "거래처코드"},
-	            {key: "clntNm", label: "거래처명"}
-	        ]
-	    });
-		serchVal(0);
-		
+		initUserTree();
 	});
 	
-	function serchVal(_pageNo){
-		var targetObj = this.target;
-		var paramObj = {};
-		paramObj.searchValue = $('#clntDtlSelectValue').val();
-		paramObj.searchType = $('#clntDtlSelectName').val();
-		postAjax("/user/sd/sd05/selectProjectClntList", paramObj, null, function (data){
-			var list = data.sd0501p03;
-			clntSearchGrid.setData({
-				list : list,
-				page : {
-					//currentPage : _pageNo
-					
+	// 트리 초기화
+	 function initUserTree(userTree) {
+		$("#userTree").jstree(
+		{
+			"plugins": ['types', 'checkbox', 'search', 'sort'],
+			"core": {
+				"multiple": false,
+				"data": selectUserTree()
+			},
+			"types": {
+				"person": {"icon" : "glyphicon glyphicon-user"},
+				"unit": {
+					"icon": "glyphicon glyphicon-folder-close"
+				},
+				"unit-open": {
+					"icon": "glyphicon glyphicon-folder-open"
 				}
-			});
-		})
+			},
+			"checkbox": {
+		    	"keep_selected_style": false,
+		    	"three_state": false
+		    },
+		    "search": {
+		      	show_only_matches: false
+		    },
+		    "sort": function(a, b){
+		    	var nodeA = this.get_node(a);
+		    	var nodeB = this.get_node(b);
+		    	if(nodeA.original.type=="person" && nodeB.original.type=="unit"){
+		    		return -1;
+		    	}
+		    }
+		}).on("loaded.jstree", function() {
+		// 루트 노드 로드 완료 시
+			setUserTree();
+		}).on("select_node.jstree", function(e, data) {
+		// 노드 선택 시 발생 이벤트
+		}).on('open_node.jstree', function(e, data) {
+		// 노드 열릴 때
+			data.instance.set_type(data.node, 'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+		// 노드 닫힐 때
+			data.instance.set_type(data.node, 'unit');
+		});
 	}
 	
-	
-	var clntDtlSearchCombo = {
-		initCombo: function(param){
-			var formData = {"clntCD": "ACCOUNT"};
-			postAjax("/user/sd/sd05/selectProjectClntList", formData, null, function (data){
-				var list = data.sd0501p03; 
-				var optionHtml = '<option value="">전체</option>';
-				for (var i = 0; i < list.length; i++) {
-							optionHtml += '<option value=\"' +  list[i].clntCd + '\">'
-							+ list[i].clntNm + '</option>';
-				}
-				document.getElementById("clntDtlSelectValue").innerHTML = optionHtml;
-			})
-		}
-	} 
-	
-	/* function commonCodeList(param){
-		debugger;
-		var codeSelect = document.getElementById("coCd");
-		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
-	} */
-	
-	function nameOnClick(){
-		if (selectGridValidation(clntSearchGrid)) return;
-		var row = clntSearchGrid.getList("selected")[0];
-		clntCd = row.clntCd;
-		clntNm = row.clntNm;
-		var formData = {
-			"clntCd" : clntCd,
-			"clntNm" : clntNm
+	 // 트리 데이터 select
+	function selectUserTree() {
+		var userTree = null;
+		var paramObj = {
+			"coCd": $("#coCd").val(),
+			"useYn": "Y"
 		};
-		setDtlclntCd(formData);
+		postAjaxSync("/admin/cm/cm06/selectUserTree", paramObj, null, function(data){
+			userTree = data.userTree;
+		});
+		return userTree;
+	}
+	
+	// 트리 데이터 set
+	function setUserTree() {
+		var targetRow = $('tr[name="bizdeptRow"][target]');
+		var userId = targetRow.find('[name=salesEmpId]').val();
+		if(userId){
+			$('#userTree').jstree(true).select_node(userId);
+		}else{
+			// 루트노드 펼침
+			$('#userTree').jstree(true).open_node($('#userTree li[aria-level=1]').eq(0).attr('id'));
+		}
+	}
+	
+	// 트리 노드 검색
+	function searchUser(){
+		var searchName = $('#searchName').val();
+		$('#userTree').jstree(true).search(searchName);
+	}
+	
+	// 사용자 선택
+	function selectUser(){
+		var checkedId = $('#userTree').jstree(true).get_checked()[0];
+		var checkedNode = $('#userTree').jstree(true).get_node(checkedId);
+		$("#salesMng").val(checkedNode.id);
+		$("#salesMngNm").val(checkedNode.text);
 		secondModal.close();
 	}
-	
-	
 </script>
-</html>
