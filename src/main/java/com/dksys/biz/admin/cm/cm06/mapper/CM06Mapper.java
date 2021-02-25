@@ -20,4 +20,6 @@ public interface CM06Mapper {
 	
 	int updateUser(Map<String, String> paramMap);
 
+	int insertUserOauth(Map<String, String> paramMap);
+
 }

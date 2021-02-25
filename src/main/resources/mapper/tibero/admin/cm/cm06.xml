@@ -43,7 +43,7 @@
 			LEVEL_CD,
 			EMAIL, 
 			AUTH_INFO,
-			ENTER_DT,
+			TO_CHAR(ENTER_DT, 'yyyy-MM-dd') ENTER_DT,
 			USE_YN,
 			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') CREAT_DTTM,
 			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') UDT_DTTM
@@ -79,6 +79,7 @@
 			PASSWORD, 
 			EMP_NO, 
 			NAME, 
+			CO_CD,
 			DEPT_ID,
 			LEVEL_CD,
 			EMAIL, 
@@ -94,6 +95,7 @@
 			#{password},
 			#{empNo},
 			#{userNm},
+			SUBSTR(#{deptId}, 1, 3),
 			#{deptId},
 			#{levelCd},
 			#{email},
@@ -107,12 +109,44 @@
 		)
 	</insert>
 	
+	<insert id="insertUserOauth">
+		INSERT INTO OAUTH_CLIENT_DETAILS 
+		(
+			CLIENT_ID,
+		    RESOURCE_IDS,
+		    CLIENT_SECRET,
+		    SCOPE,
+		    AUTHORIZED_GRANT_TYPES,
+		    WEB_SERVER_REDIRECT_URI,
+		    AUTHORITIES,
+		    ACCESS_TOKEN_VALIDITY,
+		    REFRESH_TOKEN_VALIDITY,
+		    ADDITIONAL_INFORMATION,
+		    AUTOAPPROVE
+		)
+		VALUES
+		(
+			#{userId},
+		    '',
+		    #{password},
+		    'read,write',
+		    'authorization_code,password,implicit,refresh_token',
+		    'http://localhost/static/index.html',
+		    'ROLE_USER',
+		    36000,
+		    2592000,
+		    '',
+		    ''
+		);
+	</insert>
+	
 	<update id="updateUser">
 		UPDATE
 			TB_CM06M01
 		SET
 			EMP_NO = #{empNo},
 			NAME = #{userNm},
+			CO_CD = SUBSTR(#{deptId}, 1, 3),
 			DEPT_ID = #{deptId},
 			LEVEL_CD = #{levelCd},
 			EMAIL = #{email},
