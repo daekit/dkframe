@@ -1,0 +1,79 @@
+package com.dksys.biz.user.sd.sd04;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.dksys.biz.cmn.vo.PaginationInfo;
+import com.dksys.biz.user.sd.sd04.service.SD04Svc;
+import com.dksys.biz.util.MessageUtils;
+
+@Controller
+@RequestMapping("/user/sd/sd04")
+public class SD04Ctr {
+	
+	@Autowired
+	MessageUtils messageUtils;
+    
+    @Autowired
+    SD04Svc sd04Svc;
+	
+    @PostMapping(value = "/selectOrderList")
+	public String selectOrderList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = sd04Svc.selectOrderCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = sd04Svc.selectOrderList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
+    @PostMapping(value = "/selectOrderInfo")
+    public String selectOrderInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = sd04Svc.selectOrderInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
+    @PostMapping(value = "/insertOrder")
+    public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	try {
+    		sd04Svc.insertOrder(paramMap, mRequest);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+    
+    @PutMapping(value = "/updateOrder")
+    public String updateOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	sd04Svc.updateOrder(paramMap, mRequest);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+    
+    @DeleteMapping(value = "/deleteOrder")
+    public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	System.out.println();
+    	sd04Svc.deleteOrder(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	return "jsonView";
+    }
+    
+}

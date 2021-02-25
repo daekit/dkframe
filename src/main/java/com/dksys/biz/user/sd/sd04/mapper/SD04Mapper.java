@@ -1,0 +1,29 @@
+package com.dksys.biz.user.sd.sd04.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface SD04Mapper {
+
+	int selectOrderCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
+	
+	Map<String, String> selectOrderInfo(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectOrderDetail(Map<String, String> paramMap);
+	
+	int insertOrder(Map<String, String> paramMap);
+
+	int insertOrderDetail(Map<String, String> detailMap);
+
+	int deleteOrder(Map<String, String> paramMap);
+	
+	int deleteOrderDetail(Map<String, String> paramMap);
+
+	int updateOrder(Map<String, String> paramMap);
+
+}
