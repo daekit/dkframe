@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd04.mapper.SD04Mapper">
+
+	<insert id="insertOrder">
+		<selectKey keyProperty="odrSeq" resultType="String" order="BEFORE">
+			SELECT TB_SD04M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_SD04M01
+		(
+			CO_CD,
+			REQ_DT,
+			CLNT_CD,
+			ODR_SEQ,
+			PRJCT_CD,
+			MAKR_CD,
+			TYP_CD,
+			OWNER_CD,
+			IMP_YN,
+			WH_CD,
+			MNG_TEL,
+			<if test="dlvrDttm != null and !dlvrDttm.equals('')">
+				DLVR_DTTM,
+			</if>
+			ADDR_ZIP,
+			ADDR_MAIN,
+			ADDR_SUB,
+			ODR_RMK,
+			DIRTRS_YN,
+			TOT_QTY,
+			TOT_WT,
+			TOT_AMT,
+			SALES_MNG,
+			ODR_CREAT_DIV,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
+	    ) 
+	    VALUES
+	    (
+	    	#{coCd},
+			#{reqDt},
+			#{clntCd},
+			#{odrSeq},
+			#{prjctCd},
+			#{makrCd},
+			#{typCd},
+			#{ownerCd},
+			#{impYn},
+			#{whCd},
+			#{mngTel},
+			<if test="dlvrDttm != null and !dlvrDttm.equals('')">
+				TO_DATE(#{dlvrDttm}, 'YYYYMMDD'),
+			</if>
+			#{addrZip},
+			#{addrMain},
+			#{addrSub},
+			#{odrRmk},
+			#{dirtrsYn},
+			#{totQty},
+			#{totWt},
+			#{totAmt},
+			#{salesMng},
+			'ERP',
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE
+	    )
+	</insert>
+	
+	<insert id="insertOrderDetail">
+		<selectKey keyProperty="odrDtlSeq" resultType="String" order="BEFORE">
+			SELECT TB_SD04D01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_SD04D01
+		(
+			ODR_SEQ,
+			ODR_DTL_SEQ,
+			PRDT_CD,
+			PRDT_UNIT,
+			PRDT_LEN,
+			ODR_QTY,
+			ODR_WT,
+			ODR_UPR,
+			ODR_AMT,
+			PRDT_UPR,
+			STOCK_UPR,
+			PCHS_UPR,
+			SELL_UPR,
+			ODR_DTL_RMK,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
+        ) 
+        VALUES
+        (
+        	#{odrSeq},
+			#{odrDtlSeq},
+			#{prdtCd},
+			#{prdtUnitNm},
+			#{prdtLen},
+			#{odrQty},
+			#{odrWt},
+			#{odrUpr},
+			#{odrAmt},
+			#{prdtUpr},
+			#{stockUpr},
+			#{pchsUpr},
+			#{sellUpr},
+			#{odrDtlRmk},
+	        #{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE
+        )
+	</insert>
+	
+	<delete id="deleteOrderDetail" parameterType="Map">
+		DELETE FROM TB_SD04D01
+		WHERE ODR_SEQ = #{odrSeq}
+	</delete>
+</mapper>

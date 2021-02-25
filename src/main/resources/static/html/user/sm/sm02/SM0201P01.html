@@ -8,7 +8,6 @@
 	
 	var gridView1 = {
 		initView: function(){
-			debugger;
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
@@ -55,35 +54,36 @@
 		            {key: "clntNm", label: "거래처"},
 		            {key: "prdtNm", label: "제품"},
 		            {key: "impNm", label: "수입 구분"},
-		            {key: "stockQty", label: "현 재고 수량"},
+		            {key: "stockQty", label: "현 재고 수량(KG)", formatter: "money"},
 		            {key: "stockUpr", label: "재고단가", hidden:"true"},
 		            {key: "stdUpr", label: "기준단가", hidden:"true"},
 		            {key: "pchsUpr", label: "최종매입단가", hidden:"true"},
 		            {key: "sellUpr", label: "최종매출단가", hidden:"true"},
 		            {key: "etcField1", label: "여분필드(고정)", hidden:"true"},
 		            {key: "etcField2", label: "여분필드(숫자)", hidden:"true"},
-		            {key: "etcField3", label: "여분필드(가변)", hidden:"true"}
+		            {key: "etcField3", label: "여분필드(가변)", hidden:"true"},
+		            {key: "stockAmt", label: "단가", hidden:"true"},
+		            {key: "proprtStockQty", label: "적정재고수량(KG)", hidden:"true"},
+		            {key: "stockChgCd", label: "재고변동사유", hidden:"true"}
 		        ]
 		    });
 			return this;
 		},
 		setData: function(_pageNo) {
-			debugger;
 			searchGrid = this.target;
 			 var formData = {
 				"coCd"   : $("#searchDtlOutCoCd").val(),
 				"whCd"   : $("#searchDtlOutWhCd").val(),
-				"clntNm": $("#searchDtlClntCd").val(),
+				"clntNm": $("#searchDtlClntNm").val(),
 				"ownerCd"  : $("#searchDtlOwnerCd").val(),
 				"typCd" : $("#searchDtlTypCd").val(),
 				"makrCd" : $("#searchDtlMakr").val(),
 				"impYn" : $("#searchDtlImpYn").val(),
-				"prdtNm" : $("#searchDtlPrdtCd").val(),
+				"prdtNm" : $("#searchDtlPrdtNm").val(),
 				"pageNo" : _pageNo + 1
 			} 
 			
 			postAjax("/user/sm/sm02/selectStockMoveStatMngmDtlList", formData, null, function(data){
-				debugger;
 				var list = data.smsmDtlList;
 				searchGrid.setData({
 					list : list,
@@ -181,7 +181,6 @@
 		var whCdVal = $("#searchDtlWhCd").val();
 		var transDtVal = $("#searchTransDt").val().replace(/\-/g,'');
 		var moveQtyVal = $("#searchMoveQty").val();
-		debugger;
 		if(coCdVal == ""){
 			alert("입고회사는 필수항목 입니다.");
 			return;
@@ -205,6 +204,7 @@
 				"mCoCd" 	: searchGrid.list[idx].coCd,
 				"mWhCd"		: searchGrid.list[idx].whCd,
 				"mOwnerCd" 	: searchGrid.list[idx].ownerCd,
+				"mClntCd" 	: searchGrid.list[idx].clntCd,
 				"mTypCd" 	: searchGrid.list[idx].typCd,
 				"mMakrCd" 	: searchGrid.list[idx].makrCd,
 				"mPrdtCd" 	: searchGrid.list[idx].prdtCd,
@@ -217,10 +217,12 @@
 				"mEtcField1" : searchGrid.list[idx].etcField1,
 				"mEtcField2" : searchGrid.list[idx].etcField2,
 				"mEtcField3" : searchGrid.list[idx].etcField3,
+				"stockAmt" : searchGrid.list[idx].stockAmt,
+				"proprtStockQty" : searchGrid.list[idx].proprtStockQty,
+				"stockChgCd" : searchGrid.list[idx].stockChgCd,
 				"userId" 	: jwt.userId
 		}
 		putAjax("/user/sm/sm02/insertUpdateStockMove", formData, null, function(data){
-			debugger;
 			if(data.resultCode == 200){
 				if(insertOK){
 					alert("수정 되었습니다.");	
@@ -235,8 +237,7 @@
 	
 	//초기화 함수
 	function searchInit(){
-		debugger;
-		$("#searchDtlOutCoCd option:eq(0)").prop("selected",true);
+		$("#searchDtlOutCoCd option:eq(0)").prop("selected",true); 
 		$("#searchDtlOutWhCd option:eq(0)").prop("selected",true);
 		$("#searchDtlClntCd").val('');
 		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
@@ -248,15 +249,11 @@
 	
 	//거래처 검색
 	function clntSearch() {
-		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 500, 200, "거래처검색");
+		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 500, 420, "거래처");
 	}
 	//제품 검색
 	function prdtSearch() {
-		openSecondModal("/static/html/user/sm/sm02/SM0201P02.html", 500, 200, "제품 검색");
-	}
-	//검색된 거래처 받아오는함수
-	function setDtlClntCd(params){
-		$("#searchDtlClntCd").val(params.clntNm);
+		openSecondModal("/static/html/user/sm/sm02/SM0201P02.html", 500, 400, "제품 검색");
 	}
 	//검색된 제품 받아오는함수
 	function setDtlPrdtCd(params){
@@ -293,7 +290,9 @@
 		          			</td>
 		          			<th colspan= "2">거래처</th>
 		          			<td colspan="3"> 
-		          				<input id="searchDtlClntCd" style="width: 100px;" required ><button type="button" class="btn btn-primary" onclick="clntSearch();">검색</button>
+		          				<input type="hidden" id="searchDtlClntCd" name="searchDtlClntCd">
+		          				<input type="text" id="searchDtlClntNm" name="searchDtlClntNm" style="width: 90px;" required>
+		          				<button type="button" class="btn btn-primary" onclick="clntSearch();">검색</button>
 		          			</td>
 		          			<th colspan="2">재고주체</th>
 		          			<td colspan="3"> 
@@ -315,7 +314,8 @@
 		          			</td>
 		          			<th colspan= "2">제품</th>
 		          			<td colspan="3"> 
-		          				<input id="searchDtlPrdtCd" style="width: 100px;" required><button type="button" class="btn btn-primary" onclick="prdtSearch();">검색</button>
+		          				<input type="text" id="searchDtlPrdtNm" name="searchDtlPrdtNm" style="width: 90px;" required>
+		          				<button type="button" class="btn btn-primary" onclick="prdtSearch();">검색</button>
 		          			</td>
 		          		</tr>
 		          	</tbody>
@@ -350,7 +350,7 @@
           		<td colspan="3"> 
           		  <select id="searchDtlWhCd" required></select>
           		</td> 
-          		<th colspan= "2">이동 수량</th>
+          		<th colspan= "2">이동 수량(KG)</th>
       			<td colspan="3"> 
       				<input id="searchMoveQty" required>
       			</td>  

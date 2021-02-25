@@ -1,186 +1,108 @@
-<body>
-    <!-- modalpopup  -->
-    <!-- modalpopup_area + open 클래스 추가시 오픈 -->
-    <div class="">
-        
-        <!-- <div class="modalpopup" style="width: 600px;"> -->
-            <!-- <div class="tit_contents">
-                <h4 class="tit">검색</h4>
-
-                <div class="fr">
-                    <a href="#" class="btn-layerClose">Close</a>
-                </div>
-            </div> -->
-            <div class="pop_contents">                   
-              <!-- <div class="pop_btn tr">
-                <a class="bg_gl fs-13">초기화</a>
-              </div>   -->
-              <!-- 테이블 -->
-              <div class="popup_table">
-                <!-- 테이블 선제거시 사용 <table class="border_none"> -->
-                <table>
-                  <colgroup>
-                    <col width="">
-                    <col width="">
-                    <col width="80px">
-                  </colgroup>
-                  <tbody>
-                    <tr>
-                      <td>
-                      <select id="coCdDtlSelectSearch" class="form-control" onchange="commonCodeList();">
-                      </select>
-                      </td>
-                      <td><input id="userDtlSearch" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}"></td>
-                      <td colspan="" onclick="serchVal();"><button>검색</button></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="row">
-				<div data-ax5grid="search-grid" data-ax5grid-config="{}" style="height: 100px; width: 100%"></div>
-			  </div>
-
-            </div>
-
-            <div>
-              <button type="button" class="btn btn-default btn-sm" onclick="nameOnClick();">확인</button>
-              <button type="button" class="btn btn-default btn-sm" onclick="secondModal.close();">닫기</button>
-            </div>
-        </div>
-    <!-- </div> -->
-    <!--// modalpopup  -->
-</body>
+<div class="popup_area">
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="30%">
+				<col width="">
+			</colgroup>
+			<tr>
+				<td>
+					<select data-search="searchType">
+						<option value="CLNT_NM">거래처명</option>
+					</select>
+				</td>
+				<td>
+					<div class="search_form">
+						<input type="text" onkeypress="if(event.keyCode == 13){clntGridView.setData(0);}" data-search="searchValue"> 
+						<a onclick="clntGridView.setData(0);">
+							<i class="i_search_w"></i>
+						</a>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<div class="ax5_grid" data-ax5grid="clnt-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%"></div>
+	</div>
+</div>
+<div class="popup_bottom_btn">
+	<button type="button" onclick="setClntInfo();">선택</button>
+	<button type="button" class="close_btn" onclick="secondModal.close();">닫기</button>
+</div>
 <script type="text/javascript">
-	var authId = null;
-	var authRole = null;
-	var actionType = null;
-	var flg = "Y";
-	var searchGrid = new ax5.ui.grid();
-	
-	$(document).ready(function() {
-		
-		coCdDtlSearchCombo.initCombo();
-		searchGrid.setConfig({
-	    	showRowSelector: true,
-	    	multipleSelect: false,
-	        target: $('[data-ax5grid="search-grid"]'),
-	        header: {
-	        	 selector: false
-	        },
-	        body: {
-	        	 onClick: function () {
-	                this.self.select(this.dindex);
-	            },
-	            onDBLClick: function () {
-	            	
-	            }, 
-	        },
-	        /* page: {
-	            navigationItemCount: 9,
-	            height: 30,
-	            display: true,
-	            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-	            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-	            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-	            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-	            onChange: function () {
-	            	gridView.setData(this.page.selectPage);
-	            }
-	        }, */
-	        columns: [
-	            {key: "coCd", label: "회사"},
-	            {key: "name", label: "담당자"},
-	        ]
-	    });
-		serchVal(0);
-		
-	});
-	
-	function serchVal(_pageNo){
-		var targetObj = this.target;
-		var paramObj = {};
-		
-		var row = firstGrid.getList("selected")[0];
-		
-		if(flg == "Y"){
-			code = $("#coCdDtl option:selected").val();
-			$("#coCdDtlSelectSearch").val(code);
-			mngIdDtl = $("#mngIdDtl").val();
-			$("#userDtlSearch").val(mngIdDtl);
-			//$("#userDtlSearch").val();
-			flg = "N";
-		}
-		/* var selectSelpchCd = document.getElementById("coCdDtl");
-		document.getElementById("coCdDtlSelectSearch").innerHTML = selectSelpchCd.innerHTML; */
-		
-		paramObj.searchType = $('#coCdDtlSelectSearch').val();
-		paramObj.searchValue = $('#userDtlSearch').val();
-		postAjax("/user/sd/sd05/selectProjectNameList", paramObj, null, function (data){
-			var list = data.codeName;
-			searchGrid.setData({
-				list : list,
+	var clntGridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : true,
+				multipleSelect : false,
+				target : $('[data-ax5grid="clnt-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
+					},
+					onDBLClick: function () {
+						this.self.select(this.dindex);
+		            	setClntInfo();
+		            }
+				},
 				page : {
-					//currentPage : _pageNo
-					
-				}
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						clntGridView.setData(this.page.selectPage);
+					}
+				},
+				columns : [
+					{key : "clntCd", label : "거래처코드", align : "center", hidden : true}, 
+					{key : "clntNm", label : "거래처명", align : "center", width : "30%"},
+					{key : "crn", label : "사업자 등록번호", align : "center", width : "30%"},
+					{key : "clntDivNm", label : "거래처 구분", align : "center"},
+					{key : "bizconNm", label : "업태", align : "center"}
+				]
 			});
-		})
-	}
-	
-	
-	var coCdDtlSearchCombo = {
-		initCombo: function(param){
-			
-			var selectSelpchCd = document.getElementById("coCdDtl");
-			document.getElementById("coCdDtlSelectSearch").innerHTML = selectSelpchCd.innerHTML;
-			/* var row = firstGrid.getList("selected")[0];
-			var formObj = {"prjctCd": row.prjctCd, "userId": jwt.userId};
-			postAjax("/user/sd/sd05/selectProjectKeyList", formObj, null, function (data){
-				setUserDetailInfo(data.codeName);
-			}) */
-			
-			/* var formData = {"dtptId": "ACCOUNT"};
-			postAjax("/user/sd/sd05/selectProjectcoCdList", formData, null, function (data){
-				var list = data.codecoCd; 
-				var optionHtml = '<option value="">전체</option>';
-				for (var i = 0; i < list.length; i++) {
-							optionHtml += '<option value=\"' +  list[i].deptId + '\">'
-							+ list[i].deptNm + '</option>';
-				}
-				document.getElementById("coCdDtlSelectSearch").innerHTML = optionHtml;
-			}) */
-		}
-	} 
-	
-	function setUserDetailInfo(data){
-		$.each(data, function(key, value){
-			if(key == 'coCd'){
-				$("#coCdDtlSelectSearch").val(value).attr("selected", "selected");
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 10};
+			for(var i=0;i<$('.popup_area [data-search]').length;i++){
+				var tempElem = $('.popup_area [data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
-		});
-	} 
-	
-	function commonCodeList(param){
-		var codeSelect = document.getElementById("coCd");
-		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
-		
-		
+			
+			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data) {
+				var list = data.clntList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
 	}
-	
-	function nameOnClick(){
-		if (selectGridValidation(searchGrid)) return;
-		var row = searchGrid.getList("selected")[0];
-		coCd = row.coCd;
-		name = row.name;
-		var formData = {
-			"coCd" : coCd,
-			"name" : name
-		};
-		setDtlcoCd(formData);
+
+	$(document).ready(function() {
+		clntGridView.initView().setData(0);
+	});
+
+	function setClntInfo() {
+		if(selectGridValidation(clntGridView.target)) return;
+		var row = clntGridView.target.getList("selected")[0];
+		$('#clntCd').val(row.clntCd);
+		$('#clntNm').val(row.clntNm);
 		secondModal.close();
 	}
-	
-	
 </script>
-</html>

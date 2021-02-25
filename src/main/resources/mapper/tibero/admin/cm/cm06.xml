@@ -61,13 +61,16 @@
 			'person' AS TYPE,
 			B.DEPT_NM
 		FROM
-			TB_CM06M01 A , TB_CM04M01 B
-		WHERE
-			A.USE_YN = 'Y'
-			AND A.DEPT_ID = B.DEPT_ID
+			TB_CM06M01 A 
+			INNER JOIN TB_CM04M01 B on A.DEPT_ID = B.DEPT_ID	
+		<where>
+			<if test="useYn != null and !useYn.equals('')">
+				A.USE_YN = #{useYn}
+			</if>
 			<if test="coCd != null and !coCd.equals('')">
 				AND CO_CD = #{coCd}
 			</if>
+		</where>
 	</select>
 	
 	<insert id="insertUser">
