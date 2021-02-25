@@ -85,7 +85,9 @@ public class AR01SvcImpl implements AR01Svc {
 
 	@Override
 	public int deleteShip(Map<String, String> paramMap) {
-		return ar01Mapper.deleteShip(paramMap);
+		int result = ar01Mapper.deleteShip(paramMap);
+		result += ar01Mapper.deleteShipDetail(paramMap);
+		return result;
 	}
 
 	@Override
@@ -107,6 +109,13 @@ public class AR01SvcImpl implements AR01Svc {
 		// 발주상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
+			paramMap.put("prdtCd", detailMap.get("prdtCd"));
+			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+			if(stockInfo == null) {
+				detailMap.put("stockUpr", "0");
+			} else {
+				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
+			}
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
 			detailMap.put("odrDtlSeq", paramMap.get("odrDtlSeq"));
