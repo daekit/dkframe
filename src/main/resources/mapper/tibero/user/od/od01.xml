@@ -202,7 +202,7 @@
 	
 	<delete id="deleteOrderDetail" parameterType="Map">
 		DELETE FROM TB_OD01D01
-		WHERE ORDRG_SEQ = #{ordrgSeq}
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'N'
 	</delete>
 	
 	<insert id="insertOrderDetail" parameterType="Map">
@@ -226,12 +226,17 @@
 	        ORDRG_WT,
 	        ORDRG_UPR,
 	        ORDRG_AMT,
+	        REAL_DLVR_QTY,
+			REAL_DLVR_WT,
+			REAL_DLVR_UPR,
+			REAL_DLVR_AMT,
 	        SELL_UPR,
 	        PCHS_UPR,
-<!-- 	        STOCK_UPR, -->
+	        STOCK_UPR,
 	        PRDT_UPR,
 <!-- 	        PCHS_CERTI_NO, -->
 	        ORDRG_YN,
+	        ORDRG_PROC_ID,
 	        ORDRG_DTL_RMK,
 	        CREAT_ID,
 	        CREAT_PGM,
@@ -257,12 +262,17 @@
 	        #{ordrgWt},
 	        #{ordrgUpr},
 	        #{ordrgAmt},
+	        #{realDlvrQty},
+	        #{realDlvrWt},
+	        #{realDlvrUpr},
+	        #{realDlvrAmt},
 	        #{sellUpr},
 	        #{pchsUpr},
-<!-- 	        #{stockUpr}, -->
+	        #{stockUpr},
 	        #{prdtUpr},
 <!-- 	        PCHS_CERTI_NO, -->
 	        'N',
+	        #{ordrgProcId},
 	        #{ordrgDtlRmk},
 	        #{userId},
 		    #{pgmId},
@@ -342,6 +352,7 @@
 	        T.ORDRG_AMT,
 	        T.REAL_DLVR_QTY,
 	        T.REAL_DLVR_WT,
+	        T.REAL_DLVR_UPR,
 	        T.REAL_DLVR_AMT,
 	        T.SELL_UPR,
 	        T.PCHS_UPR,
@@ -350,7 +361,8 @@
 	        T.PCHS_CERTI_NO,
 	        T.ORDRG_YN,
 	        T.ORDRG_PROC_ID,
-	        T.ORDRG_PROC_DTTM,
+	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
+	        TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
 	        T.ORDRG_DTL_RMK,
 	        T.ETC_FIELD1,
 	        T.ETC_FIELD2,
@@ -422,10 +434,7 @@
 	<update id="updateConfirmDetail" parameterType="Map">
 		UPDATE TB_OD01D01 T
 		SET
-		    REAL_DLVR_AMT   = #{ordrgAmt},
-		    REAL_DLVR_QTY 	= #{ordrgQty},
-		    REAL_DLVR_WT 	= #{ordrgWt},
-		    ORDRG_PROC_ID   = #{userId},
+		    ORDRG_PROC_ID   = #{ordrgProcId},
 		    ORDRG_PROC_DTTM = SYSDATE,
 		    ORDRG_YN 		= 'Y',
 		    UDT_ID          = #{userId},

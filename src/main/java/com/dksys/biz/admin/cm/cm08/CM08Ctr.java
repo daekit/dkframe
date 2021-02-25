@@ -51,7 +51,10 @@ public class CM08Ctr {
 			File file = new File(filePath);
 			response.setContentType("application/octet-stream; charset=UTF-8");
 			response.setContentLength((int)file.length());
-			cm08Svc.setDisposition(request, response, filePath.split("_")[2]);
+			int idx = filePath.split("\\\\").length-1;
+			String fileName = filePath.split("\\\\")[idx];
+			fileName = fileName.substring(fileName.indexOf("_")+1);
+			cm08Svc.setDisposition(request, response, fileName);
 
 			OutputStream out = response.getOutputStream();
 	        FileInputStream fis = null;
