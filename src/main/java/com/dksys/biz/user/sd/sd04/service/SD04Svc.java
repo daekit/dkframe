@@ -15,8 +15,8 @@ public interface SD04Svc {
 	
 	void insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
-	int updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+	void updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
-	int deleteOrder(Map<String, String> paramMap);
+	void deleteOrder(Map<String, String> paramMap);
 
 }
