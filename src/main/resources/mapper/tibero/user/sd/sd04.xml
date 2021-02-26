@@ -2,7 +2,157 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.user.sd.sd04.mapper.SD04Mapper">
-
+	
+	<select id="selectOrderCount" resultType="int">
+		SELECT 
+	 		COUNT(*) 
+	 	FROM 
+	 		TB_SD04M01
+	 	<where>
+		 	<if test="coCd != null and !coCd.equals('')">
+				AND CO_CD = #{coCd}				
+			</if>
+			<if test="startDt != null and !startDt.equals('')">
+				<![CDATA[ AND TO_DATE(REQ_DT, 'YYYYMMDD') >= TO_DATE(#{startDt}, 'YYYY-MM-DD') ]]>
+			</if>
+			<if test="endDt != null and !endDt.equals('')">
+				<![CDATA[ AND TO_DATE(REQ_DT, 'YYYYMMDD') < TO_DATE(#{endDt}, 'YYYY-MM-DD') + 1 ]]>
+			</if>
+			<if test="ownerCd != null and !ownerCd.equals('')">
+				AND OWNER_CD = #{ownerCd}			
+			</if>
+			<if test="typCd != null and !typCd.equals('')">
+				AND TYP_CD = #{typCd}				
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}				
+			</if>
+			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+				AND DIRTRS_YN = #{dirtrsYn}				
+			</if>
+	 	</where>
+	</select>
+	
+	<select id="selectOrderList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT
+					ODR_SEQ,
+					TO_CHAR(TO_DATE(REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
+					DIRTRS_YN,
+					(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+					(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+					FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
+					FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
+					TOT_QTY,
+					TOT_WT,
+					TOT_AMT,
+					FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
+					IMP_YN,
+					ADDR_MAIN || ' ' || ADDR_SUB AS ADDR,
+					MNG_TEL,
+					DLVR_DTTM
+					ODR_RMK,
+					(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
+				FROM
+					TB_SD04M01 T
+				<where>
+					<if test="coCd != null and !coCd.equals('')">
+						AND CO_CD = #{coCd}				
+					</if>
+					<if test="startDt != null and !startDt.equals('')">
+						<![CDATA[ AND TO_DATE(REQ_DT, 'YYYYMMDD') >= TO_DATE(#{startDt}, 'YYYY-MM-DD') ]]>
+					</if>
+					<if test="endDt != null and !endDt.equals('')">
+						<![CDATA[ AND TO_DATE(REQ_DT, 'YYYYMMDD') < TO_DATE(#{endDt}, 'YYYY-MM-DD') + 1 ]]>
+					</if>
+					<if test="ownerCd != null and !ownerCd.equals('')">
+						AND OWNER_CD = #{ownerCd}			
+					</if>
+					<if test="typCd != null and !typCd.equals('')">
+						AND TYP_CD = #{typCd}				
+					</if>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND CLNT_CD = #{clntCd}				
+					</if>
+					<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+						AND DIRTRS_YN = #{dirtrsYn}				
+					</if>
+				</where>
+				ORDER BY CREAT_DTTM DESC
+			) A
+		)
+		WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<resultMap id="orderInfoMap" type="CamelMap">
+		<collection select="selectDetailList" property="DETAIL_LIST" column="{odrSeq=ODR_SEQ}" ofType="CamelMap"/>
+		<collection select="selectFileList" property="FILE_LIST" column="{fileTrgtKey=ODR_SEQ}" ofType="CamelMap"/>
+	</resultMap>
+	
+	<select id="selectOrderInfo" resultMap="orderInfoMap">
+		SELECT 
+			ODR_SEQ,
+			CO_CD,
+			TYP_CD,
+			DIRTRS_YN,
+			CLNT_CD,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+			OWNER_CD,
+			SALES_MNG,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+			MAKR_CD,
+			WH_CD,
+			IMP_YN,
+			PRJCT_CD,
+			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+			TO_CHAR(TO_DATE(REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
+			TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+			ADDR_ZIP,
+			ADDR_MAIN,
+			ADDR_SUB,
+			MNG_TEL,
+			ODR_RMK,
+			TOT_QTY,
+			TOT_WT,
+			TOT_AMT
+		FROM 
+			TB_SD04M01 T
+		WHERE
+			ODR_SEQ = #{odrSeq}
+	</select>
+	
+	<select id="selectDetailList" resultType="CamelMap">
+		SELECT
+			ODR_SEQ,
+			ODR_DTL_SEQ,
+			PRDT_CD,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			PRDT_UNIT,
+			PRDT_LEN,
+			PRDT_UPR,
+			ODR_QTY,
+			ODR_WT,
+			ODR_UPR,
+			ODR_AMT,
+			ODR_DTL_RMK
+		FROM
+			TB_SD04D01 T
+		WHERE
+			ODR_SEQ = #{odrSeq}
+	</select>
+	
+	<select id="selectFileList" resultType="CamelMap">
+		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_SD04M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
+	</select>
+	
 	<insert id="insertOrder">
 		<selectKey keyProperty="odrSeq" resultType="String" order="BEFORE">
 			SELECT TB_SD04M01_SQ01.NEXTVAL FROM DUAL
@@ -107,7 +257,7 @@
         	#{odrSeq},
 			#{odrDtlSeq},
 			#{prdtCd},
-			#{prdtUnitNm},
+			#{prdtUnit},
 			#{prdtLen},
 			#{odrQty},
 			#{odrWt},
@@ -127,7 +277,45 @@
         )
 	</insert>
 	
-	<delete id="deleteOrderDetail" parameterType="Map">
+	<update id="updateOrder">
+		UPDATE 
+			TB_SD04M01
+		SET
+			CO_CD = #{coCd},
+			REQ_DT = #{reqDt},
+			CLNT_CD = #{clntCd},
+			PRJCT_CD = #{prjctCd},
+			MAKR_CD = #{makrCd},
+			TYP_CD = #{typCd},
+			OWNER_CD = #{ownerCd},
+			IMP_YN = #{impYn},
+			WH_CD = #{whCd},
+			MNG_TEL = #{mngTel},
+			<if test="dlvrDttm != null and !dlvrDttm.equals('')">
+				DLVR_DTTM = TO_DATE(#{dlvrDttm}, 'YYYYMMDD'),
+			</if>
+			ADDR_ZIP = #{addrZip},
+			ADDR_MAIN = #{addrMain},
+			ADDR_SUB = #{addrSub},
+			ODR_RMK = #{odrRmk},
+			DIRTRS_YN = #{dirtrsYn},
+			TOT_QTY = #{totQty},
+			TOT_WT = #{totWt},
+			TOT_AMT = #{totAmt},
+			SALES_MNG = #{salesMng},
+			UDT_ID = #{userId},
+			UDT_PGM = #{pgmId},
+			UDT_DTTM = SYSDATE
+		WHERE
+			ODR_SEQ = #{odrSeq}
+	</update>
+	
+	<delete id="deleteOrder">
+		DELETE FROM TB_SD04M01
+		WHERE ODR_SEQ = #{odrSeq}
+	</delete>
+	
+	<delete id="deleteOrderDetail">
 		DELETE FROM TB_SD04D01
 		WHERE ODR_SEQ = #{odrSeq}
 	</delete>

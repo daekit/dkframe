@@ -41,8 +41,8 @@ public class SD04Ctr {
     
     @PostMapping(value = "/selectOrderInfo")
     public String selectOrderInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, Object> result = sd04Svc.selectOrderInfo(paramMap);
-    	model.addAttribute("result", result);
+    	Map<String, Object> orderInfo = sd04Svc.selectOrderInfo(paramMap);
+    	model.addAttribute("orderInfo", orderInfo);
     	return "jsonView";
     }
     
@@ -61,18 +61,27 @@ public class SD04Ctr {
     
     @PutMapping(value = "/updateOrder")
     public String updateOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-    	sd04Svc.updateOrder(paramMap, mRequest);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	try {
+    		sd04Svc.updateOrder(paramMap, mRequest);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
     	return "jsonView";
     }
     
     @DeleteMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	System.out.println();
-    	sd04Svc.deleteOrder(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	try {
+    		sd04Svc.deleteOrder(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
     	return "jsonView";
     }
     
