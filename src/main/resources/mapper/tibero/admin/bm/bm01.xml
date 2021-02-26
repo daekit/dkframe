@@ -24,8 +24,8 @@
 			, TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
 			, PRDT_DK_CD
 			, PRDT_MES_CD
-			<if test="impYn != null and !impYn.equals('')">
-			, NVL(FN_SD06_UPR_FROM_PRDT_CD(T.PRDT_DT, 'SELPCH1', 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
+			<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
+			, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
 			</if>
 <!-- 			, NVL((SELECT PCHS_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS PCHS_UPR -->
 <!-- 			, NVL((SELECT SELL_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS SELL_UPR -->
@@ -112,6 +112,11 @@
 			, PRDT_UNIT
 			, PRDT_WT
 			, PRDT_UPR
+			<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
+			, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
+			</if>			
+			, PCHS_UPR
+			, SELL_UPR
 			, TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
 			, PRDT_DK_CD
 			, PRDT_MES_CD
@@ -129,16 +134,18 @@
 		UPDATE TB_BM01M01 
 		SET
 			 PRDT_NM= #{prdtNm}
-			 , PRDT_DIV = #{prdtDiv}
-			 , PRDT_STKN = #{prdtStkn}
+			 , PRDT_DIV     = #{prdtDiv}
+			 , PRDT_STKN    = #{prdtStkn}
 			 , PRDT_ERQK_YN = #{prdtErqkYn}
-			 , PRDT_SIZE = #{prdtSize}
-			 , PRDT_SPEC = #{prdtSpec}
+			 , PRDT_SIZE    = #{prdtSize}
+			 , PRDT_SPEC    = #{prdtSpec}
 			 , PRDT_COIL_YN = #{prdtCoilYn}
-			 , PRDT_UNIT = #{prdtUnit}
-			 , PRDT_WT = #{prdtWt}
+			 , PRDT_UNIT    = #{prdtUnit}
+			 , PRDT_WT      = #{prdtWt}
 			 , PRDT_UPR = #{prdtUpr}
 			 , PRDT_DT = #{prdtDt}
+			 , PCHS_UPR = #{pchsUpr}
+			 , SELL_UPR = #{sellUpr}
 			 , PRDT_DK_CD = #{prdtDkCd}
 			 , PRDT_MES_CD = #{prdtMesCd}
 			 , USE_YN= #{useYn}
@@ -169,6 +176,8 @@
 		 		, PRDT_WT
 		 		, PRDT_UPR
 		 		, PRDT_DT
+		 		, PCHS_UPR
+			    , SELL_UPR
 		 		, PRDT_DK_CD
 		 		, PRDT_MES_CD
 		 		, USE_YN
@@ -195,6 +204,8 @@
 		 		, #{prdtWt}
 		 		, #{prdtUpr}
 		 		, #{prdtDt}
+		 		, #{pchsUpr}
+		 		, #{sellUpr}
 		 		, #{prdtDkCd}
 		 		, #{prdtMesCd}
 		 		, #{useYn}
