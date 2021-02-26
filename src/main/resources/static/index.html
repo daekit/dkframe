@@ -17,15 +17,31 @@
 <script type="text/javascript">
 
 	$(document).ready(function() {
+		var loginId = getCookie("loginId");
+		if(loginId != null) {
+			$("#id").val(loginId);
+			$("#idSaveCheck").prop("checked", true);
+		}
 		$("body").keydown(function(key) {
 			if (key.keyCode == 13) {
 				loginAction();
 			}
 		});
-		//jwt Token 존재할 시 메인으로 이동
-		/*if( getCookie("jwtToken") != null ){
-			location.href = "/static/html/main.html";
-		};*/
+		$("#idSaveCheck").change(function(){ // 체크박스에 변화가 발생시
+	        if($("#idSaveCheck").is(":checked")){ // ID 저장하기 체크했을 때,
+	            var loginId = $("#id").val();
+	            setCookie("loginId", loginId, 7); // 7일 동안 쿠키 보관
+	        }else{ // ID 저장하기 체크 해제 시,
+	            deleteCookie("loginId");
+	        }
+	    });
+		// ID 저장하기를 체크한 상태에서 ID를 입력하는 경우, 이럴 때도 쿠키 저장.
+	    $("#id").keyup(function(){ // ID 입력 칸에 ID를 입력할 때,
+	        if($("#idSaveCheck").is(":checked")){ // ID 저장하기를 체크한 상태라면,
+	            var loginId = $("#id").val();
+	            setCookie("loginId", loginId, 7); // 7일 동안 쿠키 보관
+	        }
+	    });
 	});
 	
 	function setupAuthorization(headerValue) {
@@ -100,6 +116,10 @@
       <ul>
         <li><input id="id" type="text" placeholder="ID"></li>
         <li><input id="pass" type="password" placeholder="Password"></li>
+        <li style="margin-top: 0px;">
+        	<input type="checkbox" id="idSaveCheck" style="width: 20px  !important; cursor: pointer;">
+        	<label style="font-size: larger;vertical-align:sub;">아이디 저장</label> 
+        </li>
       </ul>
       <button onclick="loginAction();">Login</button>
     </div>
