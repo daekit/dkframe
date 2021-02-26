@@ -329,8 +329,8 @@
 				body: {
 		            onDBLClick: function () {
 		            	if(this.item.fileKey){
-		            		location.href="/admin/cm/cm08/fileDownload?fileKey="+this.item.fileKey;
-		            	}
+							downloadFile(this.item.fileKey);
+						}
 		            }
 		        },
 	            columns: [
@@ -676,5 +676,13 @@
 	
 	function deleteRow(elem){
 		$(elem).closest('tr').remove();	
+	}
+	
+	function downloadFile(fileKey) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
 	}
 </script>

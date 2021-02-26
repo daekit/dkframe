@@ -50,8 +50,6 @@ public class BM02SvcImpl implements BM02Svc {
 		
 		// 거래처 insert 
 		bm02Mapper.insertClnt(paramMap);
-		// 파일 업로드
-		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
 		
 		// 사업부 delete
 		bm02Mapper.deleteBizdept(paramMap);
@@ -74,6 +72,9 @@ public class BM02SvcImpl implements BM02Svc {
 			pldgMap.put("pgmId", paramMap.get("pgmId"));
 			bm02Mapper.insertPldg(pldgMap);
 		}
+		
+		// 파일 업로드
+		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
 	}
 	
 	@Override
@@ -84,13 +85,6 @@ public class BM02SvcImpl implements BM02Svc {
 		
 		// 거래처 update
 		bm02Mapper.updateClnt(paramMap);
-		// 파일 업로드
-		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
-		// 파일 삭제
-		List<String> deleteFileList = gson.fromJson(paramMap.get("deleteFileArr"), stringList);
-		for(String fileKey : deleteFileList) {
-			cm08Svc.deleteFile(fileKey);
-		}
 		
 		// 사업부 delete
 		bm02Mapper.deleteBizdept(paramMap);
@@ -112,6 +106,14 @@ public class BM02SvcImpl implements BM02Svc {
 			pldgMap.put("userId", paramMap.get("userId"));
 			pldgMap.put("pgmId", paramMap.get("pgmId"));
 			bm02Mapper.insertPldg(pldgMap);
+		}
+		
+		// 파일 업로드
+		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
+		// 파일 삭제
+		List<String> deleteFileList = gson.fromJson(paramMap.get("deleteFileArr"), stringList);
+		for(String fileKey : deleteFileList) {
+			cm08Svc.deleteFile(fileKey);
 		}
 	}
 

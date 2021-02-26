@@ -12,18 +12,18 @@ public interface SD04Mapper {
 
 	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
 	
-	Map<String, String> selectOrderInfo(Map<String, String> paramMap);
+	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
 	
 	List<Map<String, String>> selectOrderDetail(Map<String, String> paramMap);
 	
 	int insertOrder(Map<String, String> paramMap);
 
 	int insertOrderDetail(Map<String, String> detailMap);
+	
+	int updateOrder(Map<String, String> paramMap);
 
 	int deleteOrder(Map<String, String> paramMap);
 	
 	int deleteOrderDetail(Map<String, String> paramMap);
-
-	int updateOrder(Map<String, String> paramMap);
 
 }

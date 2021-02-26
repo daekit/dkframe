@@ -1,0 +1,371 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div class="tit_contents">
+		<h4 class="tit">주문 조회</h4>
+	</div>
+	<div class="popup_table">
+		<form id="orderForm">
+			<table>
+				<colgroup>
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th>회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO" disabled></select>
+					</td>
+					<th>판매유형</th>
+					<td>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" disabled>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>직송여부</th>
+					<td>
+						<select id="dirtrsYn" name="dirtrsYn" disabled>
+							<option value="N">N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>거래처</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd">
+							<input type="text" id="clntNm" readonly> 
+						</div>
+					</td>
+					<th>재고주체</th>
+					<td>
+						<select id="ownerCd" name="ownerCd" data-kind="OWNER" disabled>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>영업담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="salesMng" name="salesMng">
+							<input type="text" id="salesMngNm" readonly>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>Maker</th>
+					<td>
+						<select id="makrCd" name="makrCd" data-kind="MAKR" disabled>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>입고창고</th>
+					<td>
+						<select id="whCd" name="whCd" data-kind="WH" disabled>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>수입여부</th>
+					<td>
+						<select id="impYn" name="impYn" disabled>
+							<option value="N">N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>프로젝트현장
+					</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd">
+							<input type="text" id="prjctNm" readonly> 
+						</div>
+					</td>
+					<th>요청일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="reqDt" name="reqDt" readonly>
+					</td>
+					<th>납기일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="dlvrDttm" name="dlvrDttm" readonly>
+					</td>
+				</tr>
+				<tr>
+					<th rowspan="2">착지주소</th>
+					<td colspan="3">
+						<div class="search_form">
+							<input type="text" id="addrZip" name="addrZip" readonly> 
+						</div>
+					</td>
+					<th>착지연락처</th>
+					<td>
+						<input type="text" id="mngTel" name="mngTel" readonly>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3">
+						<input type="text" id="addrMain" name="addrMain" readonly>
+					</td>
+					<td colspan="2">
+						<input type="text" id="addrSub" name="addrSub" maxlength="50" readonly>
+					</td>
+				</tr>
+				<tr>
+					<th>비고</th>
+					<td colspan="5">
+						<textarea class="form-control" id="odrRmk" name="odrRmk" style="height: 60px;" maxlength="500" readonly></textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>총수량</th>
+					<td>
+						<input type="text" id="totQty" name="totQty" comma readonly>
+					</td>
+					<th>총중량</th>
+					<td>
+						<input type="text" id="totWt" name="totWt" comma readonly>
+					</td>
+					<th>총금액</th>
+					<td>
+						<input type="text" id="totAmt" name="totAmt" comma readonly>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 테이블 -->
+	<div class="popup_table">
+		<table id="detailTable">
+			<colgroup>
+				<col width="3%">
+				<col width="17%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="17%">
+			</colgroup>
+			<tr>
+				<td colspan="10" style="text-align: LEFT; border-right: 0;">※상세내역</td>
+			</tr>
+			<tr>
+				<th></th>
+				<th>제품명</th>
+				<th>제품단위</th>
+				<th>제품길이</th>
+				<th>기준단가</th>
+				<th>주문수량</th>
+				<th>주문중량</th>
+				<th>주문단가</th>
+				<th>금액</th>
+				<th>비고</th>
+			</tr>
+		</table>
+		<table id="hiddenTable" style="display: none;">
+			<tr name="detailRow">
+				<input type="hidden" name="odrDtlSeq"> 
+				<td>
+					<input type="checkbox" name="detailChkBox">
+				</td>
+				<td>
+					<div class="search_form">
+						<input type="hidden" name="prdtCd">
+						<input type="text" name="prdtNm" readonly> 
+					</div>
+				</td>
+				<td>
+					<input type="text" name="prdtUnit" readonly>
+				</td>
+				<td>
+					<input type="text" name="prdtLen" comma readonly>
+				</td>
+				<td>
+					<input type="text" name="prdtUpr" comma readonly>
+				</td>
+				<td>
+					<input type="text" name="odrQty" comma readonly>
+				</td>
+				<td>
+					<input type="text" name="odrWt" comma readonly>
+				</td>
+				<td>
+					<input type="text" name="odrUpr" comma readonly>
+				</td>
+				<td>
+					<input type="text" name="odrAmt" comma readonly>
+				</td>
+				<td>
+					<input type="text" name="odrDtlRmk" readonly>
+				</td>
+			</tr>
+		</table>
+		<table>
+			<colgroup>
+				<col width="3%">
+				<col width="17%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="17%">
+			</colgroup>
+			<tr>
+				<th class="tc" colspan="5">합계</th>
+				<td id="totQtyDp" comma></td>
+				<td id="totWtDp" comma></td>
+				<td>-</td>
+				<td id="totAmtDp" comma></td>
+				<td>-</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="12%">
+			</colgroup>
+			<tr>
+				<th>첨부파일</th>
+				<td>
+					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 130px; width: 100%"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="">발주</button>
+		<button id="">출하</button>
+		<button onclick="modal.close(); openOrderDetail('U');">수정</button>
+		<button class="close_btn" onclick="modal.close();">닫기</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var fileArr = [];
+	var fileGridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target : $('[data-ax5grid="file-grid"]'),
+				showLineNumber : true,
+				showRowSelector : false,
+				multipleSelect : false,
+				header : {
+					selector : false
+				},
+				body : {
+					onDBLClick: function () {
+						if(this.item.fileKey){
+							downloadFile(this.item.fileKey);
+						}
+		            }
+				},
+				columns : [
+					{key: "fileName", label: "파일명", align: "center", width: "81%"},
+	                {key: "fileType", label: "파일타입", align: "center", width: "10%"},
+	                {key: "fileSize", label: "파일크기", align: "center", width: "10%"}
+				]
+			});
+			return this;
+		},
+		setData : function() {
+			var targetObj = this.target;
+			targetObj.setData({
+				list: fileArr,
+				page : {
+					totalElements : fileArr.length
+				}
+			});
+		}
+	}
+
+	$(document).ready(function() {
+		// 공통코드 SelectBox set
+		setCommonSelect($(".popup_area select[data-kind]"));
+		selectOrderInfo();
+	});
+	
+	function selectOrderInfo() {
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"odrSeq" : row.odrSeq};
+		postAjax("/user/sd/sd04/selectOrderInfo", paramObj, null, function(data) {
+			setOrderInfo(data.orderInfo);
+		});
+	}
+
+	function setOrderInfo(orderInfo) {
+		
+		//메인정보 세팅
+		$.each(orderInfo, function(key, value) {
+			if($('#'+key)[0]){
+				if($('#'+key).is('[comma]')){
+					value = addCommaStr(value);
+				}
+				
+				// 합계 set
+				if (key.indexOf('tot') != -1) {
+					$('#'+key+"Dp").text(value);
+				}
+				
+				$('#'+key).val(value);
+			}
+		});
+		
+		//상세정보 세팅
+		$.each(orderInfo.detailList, function(idx, obj) {
+			var $addedRow = addDetailRow();
+			for(var i=0;i<$addedRow.find('[name]').length;i++){
+				var detailItem = $addedRow.find('[name]')[i];
+				var itemValue = obj[detailItem.name];
+				if(itemValue){
+					if($(detailItem).is("[comma]")){
+						itemValue = addCommaStr(itemValue);
+					}
+					detailItem.value = itemValue;
+				}
+			}
+		});
+		
+		// 첨부파일 set
+		$.each(orderInfo.fileList, function(idx, obj) {
+			fileArr.push({
+				'fileKey' : obj.fileKey,
+				'fileName' : obj.fileName,
+				'fileType' : obj.fileType,
+				'fileSize' : obj.fileSize,
+				'file' : obj
+			});
+		});
+		// 첨부파일 그리드 set
+		fileGridView.initView().setData();
+	}
+	
+	function addDetailRow(){
+		var $detailRow = $('#hiddenTable tr[name="detailRow"]').clone();
+		$('#detailTable tbody').append($detailRow[0]);
+		return $detailRow;
+	}
+	
+	function downloadFile(fileKey) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+</script>
