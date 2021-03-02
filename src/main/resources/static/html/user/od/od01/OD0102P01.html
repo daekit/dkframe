@@ -659,8 +659,14 @@
 		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']")[rowIdx].value;
 		var realDlvrQty  = $("input[name='realDlvrQty']")[rowIdx].value;
 		var realDlvrUpr  = $("input[name='realDlvrUpr']")[rowIdx].value;
-		$("input[name='ordrgWt']")[rowIdx].value     = (deleteCommaStr(ordrgQty) * deleteCommaStr(prdtCnvrsnWt));
-		$("input[name='ordrgAmt']")[rowIdx].value    = (deleteCommaStr(ordrgQty) * deleteCommaStr(ordrgUpr));
+   // 실발주 단가가 없을 경우 지시단가로 초기값 정함.
+		if(realDlvrUpr == 0 && realDlvrQty != 0) 
+		 { $("input[name='realDlvrUpr']")[rowIdx].value = ordrgUpr; 
+		    realDlvrUpr  = ordrgUpr; }
+		
+		$("input[name='ordrgWt']")[rowIdx].value     = (deleteCommaStr(ordrgQty)    * deleteCommaStr(prdtCnvrsnWt));
+		$("input[name='ordrgAmt']")[rowIdx].value    = (deleteCommaStr(ordrgQty)    * deleteCommaStr(ordrgUpr));
+		$("input[name='realDlvrWt']")[rowIdx].value  = (deleteCommaStr(realDlvrQty) * deleteCommaStr(prdtCnvrsnWt));
 		$("input[name='realDlvrAmt']")[rowIdx].value = (deleteCommaStr(realDlvrQty) * deleteCommaStr(realDlvrUpr));
 		addComma($("input[name='ordrgAmt']")[rowIdx]);
 		addComma($("input[name='realDlvrAmt']")[rowIdx]);
