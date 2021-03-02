@@ -20,16 +20,15 @@
                 <th class="">회사</th>
                 <td>                                
                     <select id="coCd" name="coCd" data-kind="CO">
+                    <option value="">전체</option>
                     </select>
                 </td>
-                <th class="">프로젝트 담당자</th>
-                <td>                                
-                    <input type="hidden" id="salesMng" name="salesMng" style="width: 73%;">
-                    <input type="text" id="salesMngNm" name="salesMngNm" style="width: 73%;" readonly="readonly">
-                	<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree();">
-	                	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-	                </button>
-                </td>
+                <th class="">법인</th>
+                <td>
+                	<select id="coprtCd" name="coprtCd" data-kind="ESTCOPRT">
+                    </select>
+                </td>              
+
                 <th class="">등록일</th>
                 <td>
                 	<input id="creatDttm2" name="creatDtDtl" disabled>
@@ -42,36 +41,85 @@
                 		<input id="strtDt2" name="strtDtDtl" class="input_calendar"><span>~</span><input id="endDt2" name="endDtDtl" class="input_calendar">
                 	</div>
                 </td>
+                <th>매출처</th>
+                <td class="drctArea">
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
+                	<div class="search_form">
+	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
+                    	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+                    </div>
+                </td>               
                 <th class="">제조사</th>
                 <td>
                 	<select id="makrCd" name="makrCdDtl" data-kind="MAKR">
                     </select>
                 </td>
-                <th class="">총중량</th>
-                <td>                                
-                    <input id="totWt" name="totWtDtl" type="text" style="width: 75%;"><span>TON</span>
-                </td>
+
             </tr>
             <tr>
                 <th class="">프로젝트명</th>
-                <td>   
+                <td colspan="3">   
                 	<input id="prjctNm" name="prjctNmDtl" type="text" style="width: 100%;" >
                 </td>
-                <th class="">매출처</th>
-                <td>   
-                	<input type="hidden" id="clntCd" name="clntCd" style="width: 73%;">
-                	<input type="text" id="clntNm" name="clntNm" style="width: 73%;" required>
-                	<button type="button" class="btn btn-primary btn-sm" onclick="clntSearch();">
-	                	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-	                </button>
-                </td>
+                <th>프로젝트 담당자</th>
+                <td>                                
+                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
+                    <div class="search_form">
+	                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
+                    	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
+                    </div>
+                </td> 
+            </tr>
+            <tr>
+                <th class="">주소</th>
+                <td colspan="3">   
+					<div class="input-group" style="width: 100%;">
+                	    <input type="text" class="form-control" id="prjctAddr" name="prjctAddr" type="text" style="width: 100%;" >
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">검색</button>
+						</span>
+					</div>	
+				</td>
+               
+                <th class="">로스율(%)</th>
+                <td>                                
+                    <input id="lossRate" name="lossRate" type="text">
+                </td>            
+            </tr>
+            <tr>
+                <th class="">현장담당자</th>
+                <td>                                
+                    <input id="prjctMngNm" name="prjctMngNm" type="text">
+                </td>    
+                <th class="">전화번호</th>
+                <td>                                
+                    <input id="telNo" name="telNo" type="text">
+                </td>    
+                <th class="">MES참조번호</th>
+                <td>                                
+                    <input id="prjctMesCd" name="prjctMesCd" type="text">
+                </td>              
+            
+            </tr>
+            <tr>
+                <th class="">총중량(KG)</th>
+                <td>                                
+                    <input id="totWt" name="totWtDtl" type="text">
+                </td>      
                 <th class="">턴키여부</th>
                 <td>   
                 	<select id="tnkeyYn" name="tnkeyYnDtl" class="form-control">
                 		<option value="Y" selected>Y</option>
 						<option value="N">N</option>
 		      		</select>
-                </td>
+                </td>  
+                <th class="">사용여부</th>
+                <td>   
+                	<select id="useYn" name="useYn" class="form-control">
+                		<option value="Y" selected>Y</option>
+						<option value="N">N</option>
+		      		</select>
+                </td>                                       
             </tr>
             <tr>
                 <th class="">비고</th>
@@ -79,13 +127,13 @@
                     <textarea id="rmk" name="rmkDtl" style="width: 100%;height: 120px;" ></textarea>
                 </td>
             </tr>
+                            
         </table>
         <input type="hidden" id="userId" name="userId">
 	    <input type="hidden" id="pgmId" name="pgmId" value="SD0501M01">
 	    <input type="hidden" id="prjctCd" name="prjctCd">
       </form>
     </div>
-  
   
   <!-- 출하요청서 테이블 -->
 	<table class="popup_table" id="shipmentTable" style="display:none">
@@ -147,7 +195,7 @@
 	</table>
     <table>
 	  <colgroup>
-	    <col width="14%">
+	    <col width="12%">
 	    <col>
 	  </colgroup>
 	    <tr>
@@ -170,6 +218,7 @@
 </body>
 <link rel="stylesheet" href="/static/css/jstree/style.min.css" />
 <script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
 <script type="text/javascript">
 
 	var clntType = null;
@@ -205,8 +254,14 @@
 	            ]
 			});
 		},
-		setData: function(){
-			this.target.setData(fileArr);
+		setData : function() {
+			var targetObj = this.target;
+			targetObj.setData({
+				list: fileArr,
+				page : {
+					totalElements : fileArr.length
+				}
+			});
 		}
 	}
 	
@@ -377,9 +432,11 @@
 			$(this).closest('table').find('tbody').toggle();
 		});
 		fileGridView.initView();
-		$("#userId").val(jwt.userId);
 		setCommonSelect($(".popup_area select[data-kind]"));
+		$("#userId").val(jwt.userId);
+		$("#coCd").val(jwt.coCd);
 		if(actionType == "C") {
+			document.getElementById('creatDttm2').value= new Date().toISOString().slice(0, 10);
 			$('#actionBtn').on("click", function(){insertOrder();});
 			$("#actionBtn").text("등록");
 		}else if(actionType == "U"){
@@ -479,7 +536,7 @@
 	}
 	//사용자 검색
 	function openUserTree() {
-		openSecondModal("/static/html/user/sd/sd03/SD0301P02.html", 300, 500, "사용자 검색");
+		openSecondModal("/static/html/user/sd/sd05/SD0501P03.html", 300, 500, "사용자 검색");
 	}
 	//제조사 검색
 	function clntSearch() {
@@ -583,9 +640,17 @@
 		// 기 등록되어 있는 파일 삭제시
 			deleteFileArr.push(fileArr[rowIndex].fileKey);
 		}
-		
 		fileArr.splice(rowIndex, 1);
+		fileGridView.setData();
 	}
 	
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				$('#prjctAddr').val(data.roadAddress || data.address);
+			}
+		}).open();
+	}
+		
 </script>
 </html>

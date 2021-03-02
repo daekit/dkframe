@@ -45,8 +45,9 @@ public class CM06SvcImpl implements CM06Svc {
 	@Override
 	public void insertUser(Map<String, String> paramMap) throws Exception{
 		cm06Mapper.insertUser(paramMap);
+		cm06Mapper.insertUserOauth(paramMap);
 	}
-
+	
 	@Override
 	public void updateUser(Map<String, String> paramMap) throws Exception {
 		cm06Mapper.updateUser(paramMap);

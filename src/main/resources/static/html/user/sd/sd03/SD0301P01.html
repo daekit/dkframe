@@ -1,5 +1,5 @@
 <body>
-  <div class="popup_area" style="width: 100%;">
+  <div class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
         <h4 class="tit">견적서 등록</h4>
     </div>
@@ -34,7 +34,8 @@
                 </td>
                 <th class="">견적일자</th>
                 <td>
-                	<input id="estDt2" name="estDt2" type="date">
+                	<input type="text" id="estDt2" name="estDt2" class="input_calendar">
+                	<!-- <input id="estDt2" name="estDt2" type="date"> -->
                 </td>
             </tr>
             <tr>
@@ -239,8 +240,14 @@
 	            ]
 			});
 		},
-		setData: function(){
-			this.target.setData(fileArr);
+		setData : function() {
+			var targetObj = this.target;
+			targetObj.setData({
+				list: fileArr,
+				page : {
+					totalElements : fileArr.length
+				}
+			});
 		}
 	}
 	
@@ -248,6 +255,12 @@
 		fileGridView.initView();
 		$("#userId").val(jwt.userId);
 		setCommonSelect($(".popup_area select[data-kind]"));
+		document.getElementById('estDt2').value= new Date().toISOString().slice(0, 10);
+		$('#estDt2').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
 		setInit();
 	});
 	
@@ -351,7 +364,13 @@
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
-		return $("tr[name='tableCd']:last")[0]; 
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
+			$(this).prop("disabled", false);
+		});
+		return $("tr[name='tableCd']:last")[0];
+		
 	}
 	//list 행삭제	
 	function removeRow() {
@@ -572,6 +591,7 @@
 		}
 		
 		fileArr.splice(rowIndex, 1);
+		fileGridView.setData();
 	} 
 	
 	
