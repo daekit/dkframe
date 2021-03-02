@@ -43,10 +43,11 @@
 	<link rel="stylesheet" href="/static/css/sub.css" />
 	<link rel="stylesheet" href="/static/css/common.css" />
 	
-	<script src="/static/js/jquery-3.5.1.min.js"></script>
+	<script src="/static/js/jquery-latest.min.js"></script>
 	<script src="/static/js/jquery.serializeObject.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
 	<script src="/static/js/ax5/ax5core.min.js"></script>
 	<script src="/static/js/ax5/ax5grid.min.js"></script>
@@ -78,27 +79,28 @@
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type04">
               <tr>
-                <th style="width:50px;">법인</th>
+                <th style="width:50px;">회사</th>
                 <td style="width:100px;">
-                  <select id= "coCd" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <option value="">전체</option>
                   </select>
                 </td>
                 <th>프로젝트기간</th>
                 <td>
                     <div class="date_input">
-                      <input type="text" id="strtDt" class="input_calendar">
+                      <input type="text" id="strtDt_S" class="input_calendar">
                       <span>~</span>
-                      <input type="text" id="endDt" class="input_calendar">
+                      <input type="text" id="endDt_S" class="input_calendar">
                     </div>
                 </td>
                 <td style="width:100px;">
-                <select id="searchType" class="form-control" onchange="getData(0);" style="width:100%;">
-					<option value="MAKR_CD">제조사</option>
-					<option value="MNG_ID">담당자</option>
-				</select>
+                	<select id="searchType" style="width: 100%;">
+	                	<option value="CLNT_NM">거래처</option>
+	                	<option value="NAME">담당자</option>
+	                </select>
 				</td>
 				<td>
-				<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">
+				<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 				</td>
               </tr>
             </table>
@@ -164,15 +166,16 @@
 		            }
 		        },
 		        columns: [
-		            {key: "coNm", label: "회사", align: "center", width: "12%"},
-		            {key: "strtDt", label: "프로젝트시작일", align: "center", width: "12%"},
-		            {key: "endDt", label: "프로젝트종료일", align: "center", width: "12%"},
-		            {key: "prjctNm", label: "프로젝트명", align: "center", width: "12%"},
-		            {key: "makrNm", label: "제조사", align: "center", width: "12%"},
-		            {key: "mngNm", label: "담당자", align: "center", width: "10%"},
-		            {key: "totWt", label: "총중량", align: "center", width: "10%"},
-		            {key: "tnkeyYn", label: "턴키여부", align: "center", width: "10%"},
-		            {key: "creatDttm", label: "등록일", align: "center", width: "10%"}
+		            {key: "coNm",      label: "회사",        align: "left", width: "8%"},
+		            {key: "strtDt",    label: "프로젝트시작일", align: "center", width: "9%"},
+		            {key: "endDt",     label: "프로젝트종료일", align: "center", width: "9%"},
+		            {key: "prjctNm",   label: "프로젝트명",   align: "left", width: "20%"},
+		            {key: "makrNm",    label: "제조사",      align: "center", width: "8%"},
+		            {key: "clntNm",    label: "거래처",      align: "left", width: "14%"},
+		            {key: "mngNm",     label: "담당자",      align: "center", width: "8%"},
+		            {key: "totWt",     label: "총중량(KG)",  align: "right", width: "8%", formatter: "money"},
+		            {key: "tnkeyYn",   label: "턴키여부",    align: "center",  width: "6%"},
+		            {key: "creatDttm", label: "등록일",      align: "center", width: "10%"}
 		        ]
 			});
 			return this;
@@ -180,10 +183,12 @@
 		setData: function(_pageNo){
 			firstGrid = this.target;
 			var formData = {
-				"coCd" : $("#coCd").val(),
-				"strtDt"  : $("#strtDt").val().replace(/\-/g,''),
-				"endDt"  : $("#endDt").val().replace(/\-/g,''),
-				"pageNo" : _pageNo + 1,
+				"coCd"      : $("#coCd_S").val(),
+				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+				"searchType" : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"pageNo"    : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
@@ -191,10 +196,10 @@
 				firstGrid.setData({
 					list : list,
 					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
+						currentPage   : _pageNo,
+						pageSize      : data.paginationInfo.pageSize,
 						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
+						totalPages    : data.paginationInfo.totalPageCount
 					}
 				});
 			});
@@ -204,12 +209,28 @@
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "프로젝트 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
-		gridView.initView().setData(0);
-		$('#strtDt, #endDt').datepicker({
+		$("#coCd_S").val(jwt.coCd);
+		
+		// 시작일 (시작일 기준 -1개월)
+		$('#strtDt_S').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		});
+		$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		// 종료일
+		$('#endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		$('#endDt_S').datepicker("setDate", new Date());
+		
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+		gridView.initView().setData(0);
 	})
 	
 	
