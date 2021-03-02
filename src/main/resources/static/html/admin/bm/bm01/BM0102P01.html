@@ -82,7 +82,7 @@
 	          		<td><input name="prdtUpr" type="text" class="form-control"></td>
 	          		<th>단가 기준일</th>
 	          		<td>
-	          			<input type="date" name="prdtDt"  id="prdtDt" class="form-control">
+	          			<input name="prdtDt" onkeyup="dateMask(this);" id="prdtDt" class="form-control input_calendar">
 	          		</td>
 	          		<th>MES<br/>대응코드</th>
 	          		<td><input id="prdtMesCd" name="prdtMesCd" type="text" class="form-control"></td>
@@ -161,6 +161,11 @@
 			insertOK = false;
 		});
 		
+		$('#prdtDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
 		
 	});
 	
@@ -177,8 +182,8 @@
 		$.each(data, function(idx, item){
 			for(var i=0; i<$('#frm [name]').length; i++) {
 				if($('#frm [name]')[i].name == idx) {
-					if($('#frm [name]')[i].required){ //수정 못하도록 막는다.
-						$("#frm [name]")[i].disabled = true;
+					if($('#frm [name]')[i].required && idx != 'useYn'){ //수정 못하도록 막는다.
+							$("#frm [name]")[i].disabled = true;
 					}
 					$('#frm [name]')[i].value = item;	
 				}
