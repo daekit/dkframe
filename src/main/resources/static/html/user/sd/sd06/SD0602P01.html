@@ -99,27 +99,7 @@
 	
 	function insertOneMaster() {
 		
-		var isValid = true;
-		
-		$('input[required]').each(function(idx, elem){
-			if($.trim($(elem).val()) == ""){
-				alert("필수값을 입력해 주세요.");
-				$(elem).focus();
-				isValid = false;
-				return false;
-			}
-		});
-		
-		$('select[required]').each(function(idx, elem){
-			if($.trim($(elem).val()) == ""){
-				alert("필수값을 입력해 주세요.");
-				$(elem).focus();
-				isValid = false;
-				return false;
-			}
-		});
-		
-		if(isValid){
+		if(insertOK){
 				var formData = {
 						"basisPriceSeq" : $("#basisPriceSeqCd").val(),
 						"prdtDt" : $("#prdtDtInput").val().replace(/\-/g,''),
@@ -132,9 +112,13 @@
 				}
 				putAjax("/user/sd/sd06/insertOneMaster", formData, null, function(data){	
 					if(data.resultCode == 200){
-					alert(data.resultMessage);
+						if(actionType == 'C'){
+							alert("등록되었습니다.");
+						}else{
+							alert(data.resultMessage);
+						}
 						modal.close();
-						gridView.initView().setData(firstGrid.page.currentPage);
+						gridView.initView().setData(0);
 					}
 				});
 			
@@ -148,25 +132,43 @@
 	
 	function checkOverLap() {
 		
-		if(insertOK){
-			insertOneMaster(); 
-		}else{
+		var isValid = true;
 		
-			var formData = {
-					"prdtDt" : $("#prdtDtInput").val().replace(/\-/g,''),
-					"selpchCd" : $("#selpchCd").val(),
-					"prdtImpYn" : $("#prdtImpYn").val(),
-					"prdtDiv" : $("#prdtDivCd").val(),
-					"prdtUpr" : $("#prdtUpr").val(),
+		$('#frm [required]').each(function(idx, elem){
+				if($.trim($(elem).val()) == ""){
+					alert("필수값을 입력해 주세요.");
+					$(elem).focus();
+					isValid = false;
+				return false;
 			}
-			postAjax("/user/sd/sd06/checkOverLapMaster", formData, null, function(data){
-				alert(data.resultMessage);
-				if(data.resultCode == 200){
-					insertOK = true;
-					insertOneMaster();
+		});
+		
+		if(isValid){
+			if(insertOK){
+				insertOneMaster(); 
+			}else{
+			
+				var formData = {
+						"prdtDt" : $("#prdtDtInput").val().replace(/\-/g,''),
+						"selpchCd" : $("#selpchCd").val(),
+						"prdtImpYn" : $("#prdtImpYn").val(),
+						"prdtDiv" : $("#prdtDivCd").val(),
+						"prdtUpr" : $("#prdtUpr").val(),
 				}
-			})	
-		}		
+				postAjax("/user/sd/sd06/checkOverLapMaster", formData, null, function(data){
+					
+					if(data.resultCode != 200){
+						alert(data.resultMessage);	
+					}
+					if(data.resultCode == 200){
+						insertOK = true;
+						insertOneMaster();
+					}
+				})	
+			}	
+		}
+		
+			
 	}
 	
 	
@@ -214,7 +216,7 @@
 		          			<th colspan="2">기준날짜</th>
 		          			<td colspan="6"> 
 		          				
-		          				<input id="prdtDtInput"  class="input_calendar">
+		          				<input id="prdtDtInput"  onkeyup="dateMask(this);" class="input_calendar">
 		          			</td>
 		          		</tr>
 		          		<tr>
