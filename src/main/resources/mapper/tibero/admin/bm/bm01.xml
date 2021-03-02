@@ -25,7 +25,7 @@
 			, PRDT_DK_CD
 			, PRDT_MES_CD
 			<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
-			, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
+			, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
 			</if>
 <!-- 			, NVL((SELECT PCHS_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS PCHS_UPR -->
 <!-- 			, NVL((SELECT SELL_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS SELL_UPR -->
@@ -34,6 +34,9 @@
 			, ETC_FIELD1
 			, ETC_FIELD2
 			, ETC_FIELD3
+			, PCHS_UPR
+			, SELL_UPR
+			, PRDT_CNVRSN_WT
 			, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
 		FROM 
 		(
@@ -50,6 +53,7 @@
 				AND USE_YN = #{useYn}
 		) T
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+		ORDER BY PRDT_NM , PRDT_DIV, PRDT_STKN, PRDT_ERQK_YN, PRDT_SIZE, PRDT_SPEC, PRDT_COIL_YN
 	</select>
 	
 	<select id="selectMaterialCount" parameterType="Map" resultType="int">
@@ -111,6 +115,7 @@
 			, PRDT_COIL_YN
 			, PRDT_UNIT
 			, PRDT_WT
+			, PRDT_CNVRSN_WT
 			, PRDT_UPR
 			<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
 			, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
@@ -133,32 +138,30 @@
 	<update id ="updateMaterial" parameterType="Map">
 		UPDATE TB_BM01M01 
 		SET
-			 PRDT_NM= #{prdtNm}
-			 , PRDT_DIV     = #{prdtDiv}
-			 , PRDT_STKN    = #{prdtStkn}
-			 , PRDT_ERQK_YN = #{prdtErqkYn}
-			 , PRDT_SIZE    = #{prdtSize}
-			 , PRDT_SPEC    = #{prdtSpec}
-			 , PRDT_COIL_YN = #{prdtCoilYn}
-			 , PRDT_UNIT    = #{prdtUnit}
-			 , PRDT_WT      = #{prdtWt}
-			 , PRDT_UPR = #{prdtUpr}
-			 , PRDT_DT = #{prdtDt}
-			 , PCHS_UPR = #{pchsUpr}
-			 , SELL_UPR = #{sellUpr}
-			 , PRDT_DK_CD = #{prdtDkCd}
-			 , PRDT_MES_CD = #{prdtMesCd}
-			 , USE_YN= #{useYn}
-			 , ETC_FIELD1 = #{etcField1}
-			 , ETC_FIELD2 = #{etcField2}
-			 , ETC_FIELD3 = #{etcField3}
-			 , CREAT_ID = #{userId}
-			 , CREAT_PGM = #{pgmId}
-			 , CREAT_DTTM = SYSDATE
-			 , UDT_ID = #{userId}
-			 , UPD_PGM = #{pgmId}
-			 , UDT_DTTM= SYSDATE
-		WHERE PRDT_CD = #{prdtCd}
+			   PRDT_NM         = #{prdtNm}
+			 , PRDT_DIV        = #{prdtDiv}
+			 , PRDT_STKN       = #{prdtStkn}
+			 , PRDT_ERQK_YN    = #{prdtErqkYn}
+			 , PRDT_SIZE       = #{prdtSize}
+			 , PRDT_SPEC       = #{prdtSpec}
+			 , PRDT_COIL_YN    = #{prdtCoilYn}
+			 , PRDT_UNIT       = #{prdtUnit}
+			 , PRDT_WT         = #{prdtWt}
+			 , PRDT_CNVRSN_WT  = #{prdtCnvrsnWt}
+			 , PRDT_UPR        = #{prdtUpr}
+			 , PRDT_DT         = #{prdtDt}
+			 , PCHS_UPR        = #{pchsUpr}
+			 , SELL_UPR        = #{sellUpr}
+			 , PRDT_DK_CD      = #{prdtDkCd}
+			 , PRDT_MES_CD     = #{prdtMesCd}
+			 , USE_YN          = #{useYn}
+			 , ETC_FIELD1      = #{etcField1}
+			 , ETC_FIELD2      = #{etcField2}
+			 , ETC_FIELD3      = #{etcField3}
+			 , UDT_ID          = #{userId}
+			 , UPD_PGM         = #{pgmId}
+			 , UDT_DTTM        = SYSDATE
+		WHERE PRDT_CD          = #{prdtCd}
 	</update>
 	
 	<insert id="insertMaterial" parameterType="Map">
@@ -174,6 +177,7 @@
 		 		, PRDT_COIL_YN
 		 		, PRDT_UNIT
 		 		, PRDT_WT
+			    , PRDT_CNVRSN_WT
 		 		, PRDT_UPR
 		 		, PRDT_DT
 		 		, PCHS_UPR
@@ -202,6 +206,7 @@
 		 		, #{prdtCoilYn}
 		 		, #{prdtUnit}
 		 		, #{prdtWt}
+		 		, #{prdtCnvrsnWt}
 		 		, #{prdtUpr}
 		 		, #{prdtDt}
 		 		, #{pchsUpr}
