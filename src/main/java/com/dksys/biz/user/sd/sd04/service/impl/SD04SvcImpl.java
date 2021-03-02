@@ -2,6 +2,7 @@ package com.dksys.biz.user.sd.sd04.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,14 @@ public class SD04SvcImpl implements SD04Svc {
 	public Map<String, Object> selectOrderInfo(Map<String, String> paramMap) {
 		return sd04Mapper.selectOrderInfo(paramMap);
 	}
-	
+
+	@Override
+	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		//returnMap.put("odrInfo", sd04Mapper.getOdrInfo(paramMap)); // odrSeq , odrDtlSeqArr
+		//returnMap.put("odrDetail", sd04Mapper.getOdrInfoDetail(paramMap));
+		return returnMap;
+	}
 	@Override
 	public void insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
