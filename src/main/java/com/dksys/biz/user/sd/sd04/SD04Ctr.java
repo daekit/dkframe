@@ -1,5 +1,6 @@
 package com.dksys.biz.user.sd.sd04;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,13 @@ public class SD04Ctr {
     	return "jsonView";
     }
     
+    @PostMapping(value = "/getOrderInfo")
+    public String getOrderInfo(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	Map<String, Object> result = sd04Svc.getOrderInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
     @PostMapping(value = "/insertOrder")
     public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
@@ -84,5 +92,4 @@ public class SD04Ctr {
     	}
     	return "jsonView";
     }
-    
 }

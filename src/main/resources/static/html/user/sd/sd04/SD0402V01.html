@@ -249,7 +249,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="">발주</button>
-		<button id="">출하</button>
+		<button onclick="insertShipModal('O')">출하</button>
 		<button onclick="modal.close(); openOrderDetail('U');">수정</button>
 		<button class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
@@ -367,5 +367,29 @@
 			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
+	}
+
+	function insertShipModal(type){
+		var row = gridView.target.getList("selected")[0];
+		var detailArr = [];
+		$.each($("tr[name='detailRow']"), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked")) {
+				var detailObj = {};
+				$.each($(elem).find("input[name='odrDtlSeq']"), function(idx, elem){
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
+		});
+		if(detailArr.length > 0){
+			actionType = type;
+			odrSeq = row.odrSeq;
+			odrDtlSeqArr = detailArr;
+			modal.close();
+			openModal("/static/html/user/ar/ar01/AR0102P01.html", 920, 780, " ");
+		}else{
+			alert("주문내역을 선택하세요!");
+			return;
+		}
 	}
 </script>
