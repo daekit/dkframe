@@ -17,6 +17,8 @@ public interface AR01Svc {
 
 	Map<String, Object> selectShipInfo(Map<String, String> paramMap);
 
+	Map<String, Object> getOrderInfo(Map<String, Object> paramMap);
+	
 	int updateShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
 	int updateConfirm(Map<String, String> paramMap);
@@ -25,6 +27,4 @@ public interface AR01Svc {
 	
 	int selectDetailCount(Map<String, String> paramMap);
 
-
-	
 }

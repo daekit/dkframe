@@ -46,6 +46,13 @@ public class AR01Ctr {
     	return "jsonView";
     }
     
+    @PostMapping(value = "/getOrderInfo")
+    public String getOrderInfo(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	Map<String, Object> result = ar01Svc.getOrderInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
 	@PostMapping(value = "/insertShip")
     public String insertShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
 		ar01Svc.insertShip(paramMap, mRequest);

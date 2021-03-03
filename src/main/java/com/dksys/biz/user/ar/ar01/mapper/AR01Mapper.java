@@ -21,8 +21,12 @@ public interface AR01Mapper {
 	int deleteShip(Map<String, String> paramMap);
 
 	Map<String, Object> selectShipInfo(Map<String, String> paramMap);
+	
+	Map<String, String> getOrderInfo(Map<String, Object> paramMap);
 
 	List<Map<String, String>> selectShipDetail(Map<String, String> paramMap);
+	
+	List<Map<String, String>> getOrderDetail(Map<String, Object> paramMap);
 
 	int updateShip(Map<String, String> paramMap);
 
@@ -35,5 +39,5 @@ public interface AR01Mapper {
 	int selectConfirmCount(Map<String, String> paramMap);
 
 	int selectDetailCount(Map<String, String> paramMap);
-	
+
 }

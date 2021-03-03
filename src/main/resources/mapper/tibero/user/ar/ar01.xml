@@ -320,6 +320,38 @@
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</select>
 	
+	<select id="getOrderInfo" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.ODR_SEQ,
+			T.CO_CD,
+			T.TYP_CD,
+			T.DIRTRS_YN,
+            T.CLNT_CD,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+			T.OWNER_CD,
+			T.SALES_MNG,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+            T.MAKR_CD,
+            T.WH_CD,
+            T.IMP_YN,
+            T.PRJCT_CD,
+			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+            TO_CHAR(TO_DATE(T.REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
+            TO_CHAR(T.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+            T.ADDR_ZIP,
+			T.ADDR_MAIN,
+			T.ADDR_SUB,
+			T.MNG_TEL,
+			T.ODR_RMK AS DLVR_RMK,
+            T.TOT_QTY AS SHIP_TOT_QTY,
+            T.TOT_WT AS SHIP_TOT_WT,
+            T.TOT_AMT AS SHIP_TOT_AMT
+		FROM 
+			TB_SD04M01 T
+		WHERE
+			ODR_SEQ = #{odrSeq}
+	</select>
+	
 	<select id="selectShipDetail" parameterType="Map" resultType="camelMap">
 		SELECT 
 			T.SHIP_SEQ,
@@ -361,6 +393,34 @@
 	        T.UDT_DTTM
 		FROM TB_AR01D01 T
 		WHERE SHIP_SEQ = #{shipSeq}
+	</select>
+	
+	<select id="getOrderDetail" parameterType="Map" resultType="camelMap">
+		SELECT
+			T.ODR_SEQ,
+			T.ODR_DTL_SEQ,
+			T.PRDT_CD,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			FN_CM05M01_CD_TO_NM(B.PRDT_STKN) PRDT_STKN_NM,
+			T.PRDT_UNIT AS PRDT_UNIT_NM,
+			T.PRDT_LEN,
+			T.PRDT_UPR,
+			T.ODR_QTY AS SHIP_QTY,
+			T.ODR_WT AS SHIP_WT,
+			T.ODR_UPR AS SHIP_UPR,
+			T.ODR_AMT AS SHIP_AMT,
+			T.ODR_DTL_RMK AS ORDRG_DTL_RMK
+		FROM 
+			TB_SD04D01 T
+			INNER JOIN TB_BM01M01 B ON T.PRDT_CD = B.PRDT_CD
+		WHERE 
+			ODR_SEQ = #{odrSeq}
+			<if test="odrDtlSeqArr != null and odrDtlSeqArr.size != 0">
+				AND ODR_DTL_SEQ IN
+				<foreach item="odrDtlSeq" collection="odrDtlSeqArr" open="(" close=")" separator="," >
+					#{odrDtlSeq}
+				</foreach>
+			</if>
 	</select>
 	
 	<update id="updateShip" parameterType="Map">
