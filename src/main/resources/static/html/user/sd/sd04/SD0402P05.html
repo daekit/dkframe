@@ -4,9 +4,15 @@
     		<table>
     			<colgroup>
                 	<col width="30%">
+	                <col width="30%">
 	                <col width="">
 	            </colgroup>
-    			<tr>	
+    			<tr>
+    				<td>
+    					<select data-kind="PRDTDIV" data-search="prdtDiv" onchange="prdtGridView.setData(0);">
+		                  	<option value="">전체</option>
+		                </select>    
+    				</td>	
     				<td>
     					<select data-search="searchType">
 		                  	<option value="PRDT_NM">제품명</option>
@@ -64,22 +70,31 @@
 		        },
 		        columns: [
 		          	{key: "prdtCd ", label: "제품코드", align: "center", hidden: true},
-		          	{key: "prdtNm", label: "제품명", align: "center", width: "20%"},
-		            {key: "prdtStknNm", label: "제품강종", align: "center", width: "20%"},
-		            {key: "prdtUnitNm", label: "제품단위", align: "center", width: "20%"},
-		            {key: "prdtSizeNm", label: "제품사이즈", align: "center", width: "20%"},
-		        	{key: "ordrgUpr", label: "기준단가", align: "center", width: "20%"},
+		          	{key: "prdtNm", label: "제품명", align: "center", width: "30%"},
+		            {key: "prdtStknNm", label: "강종", align: "center", width: "20%"},
+		            {key: "prdtUnitNm", label: "단위", align: "center", width: "15%"},
+		            {key: "prdtSizeNm", label: "사이즈", align: "center", width: "15%"},
+		        	{key: "ordrgUpr", label: "기준단가", align: "right", width: "21%", formatter: "money"}
 		        ]
 		    });
 			return this;
 		}, 
 		setData: function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 10, "impYn": $("#impYn").val(), "useYn": "Y", "selpchCd": "SELPCH2"};
+			// SELPCH2: 매출, PRDTIMPY: 제품종류(일반), PRDTIMPY: 제품종류(수입) 
+			var paramObj = {
+				"selpchCd": "SELPCH2",
+				"impYn": "PRDTIMP"+$("#impYn").val(), 
+				"useYn": "Y",
+				"pageNo": _pageNo + 1, 
+				"recordCnt": 10 
+			};
+			
 			for(var i=0;i<$('.popup_area [data-search]').length;i++){
 				var tempElem = $('.popup_area [data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
+			
 			postAjax("/admin/bm/bm01/selectMaterialList", paramObj, null, function(data){
 				var list = data.materialList;
 				targetObj.setData({
@@ -96,6 +111,7 @@
 	}
 	
 	$(document).ready(function() {
+		setCommonSelect($(".popup_area select[data-kind]"));
 		prdtGridView.initView().setData(0);
 	});
 
