@@ -71,7 +71,6 @@ public class AR05SvcImpl implements AR05Svc {
 		ar05Mapper.updateEtrdps(etrdpsData);
 	}
 
-	// 삭제 구현하고 <String, Object> 고찰
 	@Override
 	public void deleteEtrdps(Map<String, String> paramMap) {
 		Map<String, String> etrdpsInfo = ar05Mapper.selectEtrdpsInfo(paramMap);

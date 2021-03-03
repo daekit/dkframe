@@ -19,6 +19,12 @@
 					,B.CLNT_NM
 					,A.MAKR_CD
 					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+					,A.PRJCT_ADDR_ZIP
+					,A.PRJCT_ADDR
+					,A.PRJCT_ADDR_SUB
+					,A.PRJCT_MNG_NM
+					,A.TEL_NO
+					,A.LOSS_RATE
 					,A.MNG_ID
 					,C.NAME AS MNG_NM
 					,TO_CHAR(TO_DATE(A.STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS STRT_DT
@@ -26,7 +32,9 @@
 					,A.TOT_WT
 					,A.ODR_NO
 					,A.ODR_DT
+					,A.USE_YN
 					,A.RMK
+					,A.PRJCT_MES_CD
 					,A.ETC_FIELD1
 					,A.ETC_FIELD2
 					,A.ETC_FIELD3
@@ -43,10 +51,8 @@
 		 			AND A.CO_CD = #{coCd}
 				</if>
 				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				<![CDATA[
-					AND STRT_DT >= TO_DATE (#{strtDt} , 'YYYY-MM-DD' )
-					AND END_DT <= TO_DATE(#{endDt}, 'YYYY-MM-DD')
-				]]> 
+				 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt}
+				 	 OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
 				</if>
 				<if test="searchValue != null and !searchValue.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
@@ -141,26 +147,28 @@
 	<update id="updateProject" parameterType="Map">
 		UPDATE TB_SD05M01 
 			SET 
-				 CO_CD        = #{coCd}
-				,MNG_ID       = #{salesMng}
-				,MAKR_CD      = #{makrCdDtl}
-				,STRT_DT      = TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD') 
-				,END_DT       = TO_CHAR(TO_DATE(#{endDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD')
-				,TOT_WT       = #{totWtDtl}
-				,PRJCT_NM     = #{prjctNmDtl}
-				,CLNT_CD      = #{clntCd}
-				,TNKEY_YN     = #{tnkeyYnDtl}
-				,RMK          = #{rmkDtl}
-		        ,COPRT_CD     = #{coprtCd}
-		        ,PRJCT_ADDR   = #{prjctAddr}
-		        ,PRJCT_MNG_NM = #{prjctMngNm}
-		        ,TEL_NO       = #{telNo}
-		        ,LOSS_RATE    = #{lossRate}
-		        ,USE_YN       = #{useYn}
-		        ,PRJCT_MES_CD = #{prjctMesCd}
-				,UDT_ID       = #{userId}
-				,UDT_PGM      = #{pgmId}										
-				,UDT_DTTM     = SYSDATE
+			 CO_CD          = #{coCd}
+			,MNG_ID         = #{salesMng}
+			,MAKR_CD        = #{makrCdDtl}
+			,STRT_DT        = TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD') 
+			,END_DT         = TO_CHAR(TO_DATE(#{endDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD')
+			,TOT_WT         = #{totWtDtl}
+			,PRJCT_NM       = #{prjctNmDtl}
+			,CLNT_CD        = #{clntCd}
+			,TNKEY_YN       = #{tnkeyYnDtl}
+			,RMK            = #{rmkDtl}
+			,COPRT_CD       = #{coprtCd}
+			,PRJCT_ADDR_ZIP = #{prjctAddrZip}
+			,PRJCT_ADDR     = #{prjctAddr}
+			,PRJCT_ADDR_SUB = #{prjctAddrSub}
+			,PRJCT_MNG_NM   = #{prjctMngNm}
+			,TEL_NO         = #{telNo}
+			,LOSS_RATE      = #{lossRate}
+			,USE_YN         = #{useYn}
+			,PRJCT_MES_CD   = #{prjctMesCd}
+			,UDT_ID         = #{userId}
+			,UDT_PGM        = #{pgmId}										
+			,UDT_DTTM       = SYSDATE
 		WHERE 
 			PRJCT_CD = #{prjctCd}
 			
@@ -184,7 +192,9 @@
 				TNKEY_YN,
 				RMK,
 	            COPRT_CD,
-	            PRJCT_ADDR,
+                PRJCT_ADDR_ZIP,
+                PRJCT_ADDR,
+                PRJCT_ADDR_SUB,
 	            PRJCT_MNG_NM,
 	            TEL_NO,
 	            LOSS_RATE,
@@ -206,7 +216,9 @@
 				#{tnkeyYnDtl}, 
 				#{rmkDtl},
 	            #{coprtCd},
-	            #{prjctAddr},
+                #{prjctAddrZip},
+                #{prjctAddr},
+                #{prjctAddrSub},
 	            #{prjctMngNm},
 	            #{telNo},
 	            #{lossRate},

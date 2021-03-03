@@ -46,14 +46,17 @@
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
 	        <li class="btn_r">
-	        <a onclick = "gridView.setData(0);">
-	          <button class="bg_gray">검 색</button>
-	         </a>
+		         <a onclick="initSearch();">
+							<button type="button" class="bg_gray">초기화</button>
+				</a>
+		        <a onclick = "gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		         </a>
 	        </li>
 	      </ul>
     	</div>
 		  <!-- 검색 콘텐츠 -->
-    <div class="contents">
+    <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type02">
@@ -61,27 +64,27 @@
                 <th>기준일자</th>
                 <td>
                     <div class="date_input">
-                      <input id="prdtDt"  class="input_calendar" onchange="gridView.setData(0);">
+                      <input id="prdtDt" onkeyup="dateMask(this);" class="input_calendar" data-search="prdtDt">
                     </div>
                 </td>
                 <th>매입/매출구분</th>
                 <td>
-                 	<select id ="SELPCH" data-kind="SELPCH" onchange="gridView.setData(0);">
-                 		<option value="">선택</option>
+                 	<select id ="SELPCH" data-kind="SELPCH" onchange="gridView.setData(0);" data-search="selpch">
+                 		<option value="">전체</option>
                  	</select>
                 </td>
               </tr>
               <tr>
                 <th>일반/수입구분</th>
                 <td>
-                  <select id= "PRDTIMP" data-kind="PRDTIMP" onchange="gridView.setData(0);">
-                  	<option value="">선택</option>
+                  <select id= "PRDTIMP" data-kind="PRDTIMP" onchange="gridView.setData(0);" data-search="prdtImp">
+                  	<option value="">전체</option>
                   </select>
                 </td>
                 <th >제품구분</th>
                 <td>
-                  <select id= "PRDTDIV"  data-kind="PRDTDIV" onchange="gridView.setData(0);">
-                  	<option value="">선택</option>
+                  <select id= "PRDTDIV"  data-kind="PRDTDIV" onchange="gridView.setData(0);" data-search="prdtDiv">
+                  	<option value="">전체</option>
                   </select>
                 </td>
               </tr>
@@ -112,6 +115,7 @@
 					<option value="100">100</option>
 				</select>
 				<input type="hidden" id="basisPriceSeq">
+				<input type="hidden" id="ErqkCd">
 			</div>
 		</div>
 	  <!-- 콘텐츠 -->
@@ -194,12 +198,11 @@
 		                $("#basisPriceSeq").val( this.item.basisPriceSeq ); 
 		                
 		                gridView2.initView().setData(0);
-		                gridView3.initView().setData(0);
-		                
+		          	  	gridView3.initView();
 		                
 		            },
 		            onDBLClick: function () {
-		            	//detailMaterial("U");
+		            
 		            },
 		        },
 		        page: {
@@ -221,7 +224,6 @@
 		        	{key: "prdtImpNm", label: "일반/수입\n구분", align: "center", width: "22%"},
 		        	{key: "prdtDivNm", label: "자재제품\n구분", align: "center", width: "22%"},
 		        	{key: "prdtUpr", label: "기준단가", align: "right", width: "18%"},
-		        	
 		            
 		        ]
 		    });
@@ -230,8 +232,9 @@
 		setData: function(_pageNo) {
 			
 			 $("#basisPriceSeq").val(""); 
-		       gridView2.initView().setData(0);
-               gridView3.initView().setData(0);
+			 $("#ErqkCd").val("");
+		       	gridView2.initView().setData(0);
+            	gridView3.initView().setData(0);
 			
 			firstGrid = this.target;
 			var formData = {
@@ -242,7 +245,6 @@
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
-			
 			
 			postAjax("/user/sd/sd06/selectUprList", formData, null, function(data){
 				var list = data.uprList;
@@ -275,6 +277,10 @@
 			        body: {
 			        	onClick: function () {
 			                this.self.select(this.dindex);
+			                $("#basisPriceSeq").val( this.item.basisPriceSeq ); 
+			                $("#ErqkCd").val(this.item.prdtErqkCd);
+			                gridView3.initView().setData(0);
+			          //      gridView3.initView().setData(0);
 			               
 			            },
 			            onDBLClick: function () {
@@ -296,6 +302,7 @@
 			        },
 			        columns: [
 			            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "",hidden: "true"},
+			            {key: "prdtErqkCd", label: "내진구분", align: "center", width: "",hidden: "true"},
 			        	{key: "prdtErqkNm", label: "내진", align: "center", width: "35%"},
 			        	{key: "prdtStknNm", label: "강종", align: "center", width: "34%"},
 			        	{key: "scAmt", label: "할증금액", align: "center", width: "34%"},
@@ -358,10 +365,10 @@
 			            }
 			        },
 			        columns: [
-			            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "17%", hidden: "true"},
-			        	{key: "prdtErqkNm", label: "내진", align: "center", width: "35%"},
-			        	{key: "prdtSizeNm", label: "사이즈", align: "center", width: "34%"},
-			        	{key: "scAmt", label: "할증금액", align: "center", width: "34%"},
+			            {key: "basisPriceSeq", label: "기준번호", align: "center",  hidden: "true"},
+			        	{key: "prdtErqkNm", label: "내진", align: "center",  hidden: "true"},
+			        	{key: "prdtSizeNm", label: "사이즈", align: "center", width: "50%"},
+			        	{key: "scAmt", label: "할증금액", align: "center", width: "51%"},
 			           ]
 			    });
 				return this;
@@ -370,6 +377,7 @@
 				thirdGrid = this.target;
 				var formData = {
 					"basisPriceSeq": $("#basisPriceSeq").val(),
+					"prdtErqkCd" : $("#ErqkCd").val(),
 					"pageNo" : _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val()
 				}
@@ -394,8 +402,6 @@
 		mainDefaultLoad("영업관리", "단가 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		gridView.initView().setData(0);
-		gridView2.initView().setData(0);
-		gridView3.initView().setData(0);
 		
 		 document.getElementById('prdtDt').value = new Date().toISOString().substring(0, 10);
 		 
@@ -410,6 +416,16 @@
 	})
 
 
+	// 검색조건 초기화
+	function initSearch() {
+		$('#prdtDt').datepicker("setDate", new Date());
+
+		// 조건
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		
+		// 재검색
+		gridView.setData(0);
+	}
 	
 	function updateUprList(type){
 		actionType = type;
@@ -442,12 +458,12 @@
 		if ( actionType == 'U' && selectGridValidation(thirdGrid))
 			return;
 		
-		if ( actionType == 'C' && selectGridValidation(firstGrid))
+		if ( actionType == 'C' && selectGridValidation(secondGrid))
 			return;
 		
 		openModal("/static/html/user/sd/sd06/SD0602P03.html", 800, 150, "철근 사이즈 관리");
 		
 	}
 	
-	
+
 </script>
