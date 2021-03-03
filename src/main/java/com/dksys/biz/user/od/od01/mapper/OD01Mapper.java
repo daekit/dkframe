@@ -21,8 +21,12 @@ public interface OD01Mapper {
 	int deleteOrder(Map<String, String> paramMap);
 
 	Map<String, String> selectOrderInfo(Map<String, String> paramMap);
-
+	
+	Map<String, String> getOrderInfo(Map<String, Object> paramMap);
+	
 	List<Map<String, String>> selectOrderDetail(Map<String, String> paramMap);
+	
+	List<Map<String, String>> getOrderDetail(Map<String, Object> paramMap);
 
 	int updateOrder(Map<String, String> paramMap);
 
@@ -31,5 +35,5 @@ public interface OD01Mapper {
 	int updateConfirmDetail(Map<String, String> detailMap);
 
 	Map<String, String> selectOrderDetailInfo(Map<String, String> detailMap);
-	
+
 }

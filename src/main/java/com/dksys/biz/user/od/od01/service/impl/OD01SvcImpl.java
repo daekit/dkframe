@@ -92,6 +92,14 @@ public class OD01SvcImpl implements OD01Svc {
 		returnMap.put("orderDetail", od01Mapper.selectOrderDetail(paramMap));
 		return returnMap;
 	}
+	
+	@Override
+	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("orderInfo", od01Mapper.getOrderInfo(paramMap));
+		returnMap.put("orderDetail", od01Mapper.getOrderDetail(paramMap));
+		return returnMap;
+	}
 
 	@Override
 	public int updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
@@ -185,5 +193,4 @@ public class OD01SvcImpl implements OD01Svc {
 		}
 		return result;
 	}
-
 }

@@ -46,6 +46,13 @@ public class OD01Ctr {
     	return "jsonView";
     }
     
+    @PostMapping(value = "/getOrderInfo")
+    public String getOrderInfo(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	Map<String, Object> result = od01Svc.getOrderInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
     @PostMapping(value = "/insertOrder")
     public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	od01Svc.insertOrder(paramMap, mRequest);
