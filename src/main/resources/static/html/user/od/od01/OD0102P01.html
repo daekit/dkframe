@@ -424,9 +424,21 @@
 			$('#actionBtn').on("click", function(){updateOrder();});
 			$('#actionBtn').text("저장");
 		}else if (actionType == "O"){
+			getOrderInfo();
+			$('#odrSeq').siblings('a').remove();
 			$('#actionBtn').on("click", function(){insertOrder();});
 			$('#actionBtn').text("등록");
 		}
+	}
+	
+	function getOrderInfo(){
+		var formData = {
+			"odrSeq": odrSeq,
+			"odrDtlSeqArr": odrDtlSeqArr
+		};
+		postAjax("/user/od/od01/getOrderInfo", formData, null, function(data){
+			setOrderInfo(data.result);
+		});
 	}
 	
 	function selectOrderInfo() {
@@ -447,6 +459,7 @@
 		if(orderInfo.ordrgYn == "Y") {
 			$("#actionBtn").hide();
 		}
+		
 		//메인정보 세팅
 		$.each(orderInfo, function(key, value){
 			$('#'+key).val(value);
@@ -477,17 +490,19 @@
 			addComma(elem);
 		});
 		
-		$.each(fileInfo, function(idx, obj){
-			fileArr.push({
-				'fileKey' : obj.fileKey,
-		      	'fileName' : obj.fileName,
-		      	'fileType' : obj.fileType,
-		      	'fileSize' : obj.fileSize,
-		      	'file' : obj
+		if(actionType != "O"){
+			$.each(fileInfo, function(idx, obj){
+				fileArr.push({
+					'fileKey' : obj.fileKey,
+			      	'fileName' : obj.fileName,
+			      	'fileType' : obj.fileType,
+			      	'fileSize' : obj.fileSize,
+			      	'file' : obj
+				});
 			});
-		});
-		// 첨부파일 그리드 set
-		fileGridView.setData();
+			// 첨부파일 그리드 set
+			fileGridView.setData();
+		}
 	}
 	
 	function addRow() {
