@@ -43,11 +43,6 @@
 	var firstGrid = null;
 	var actionType = null;
 	
-	$(document).ready(function() {
-		selectChildCodeList();
-		gridView.initView().setData(0);
-	});
-	
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -88,7 +83,7 @@
 		            {key: "exprtnYn", label: "만료여부", width: 150, align: "center"},
 		            {key: "exprtnDt", label: "만료일", width: 150, align: "center"},
 		            {key: "creatNm", label: "등록자", width: 150, align: "center"},
-		            {key: "udtDttm2", label: "최종변경일", width: 150, align: "center"},
+		            {key: "udtDttm", label: "최종변경일", width: 150, align: "center"},
 		        ]
 		    });
 			return this;
@@ -99,9 +94,8 @@
 			formData.pageNo = _pageNo + 1;
 			formData.recordCnt = 20;
 			postAjax("/admin/cm/cm09/selectNotiList", formData, null, function(data){
-				var list = data.notiList;
 				firstGrid.setData({
-					list : list,
+					list : data.notiList,
 					page : {
 						currentPage : _pageNo,
 						pageSize : data.paginationInfo.pageSize,
@@ -112,6 +106,11 @@
 			});
 		}
 	}
+	
+	$(document).ready(function() {
+		selectChildCodeList();
+		gridView.initView().setData(0);
+	});
 	
 	function selectChildCodeList() {
 		
@@ -128,7 +127,6 @@
 		});
 	}
 	
-	// 직급등록 모달 오픈
 	function insertNotiModal(type){
 		actionType = type;
 		openModal("/static/html/admin/cm/cm09/CM0902P01.html", 610, 520, "공지사항 등록");
