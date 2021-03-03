@@ -98,6 +98,14 @@ public class AR01SvcImpl implements AR01Svc {
 		returnMap.put("shipDetail", ar01Mapper.selectShipDetail(paramMap));
 		return returnMap;
 	}
+	
+	@Override
+	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("shipInfo", ar01Mapper.getOrderInfo(paramMap));
+		returnMap.put("shipDetail", ar01Mapper.getOrderDetail(paramMap));
+		return returnMap;
+	}
 
 	@Override
 	public int updateShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
