@@ -442,6 +442,15 @@ function before30day() {
 }
 
 
+function dateValidation() {
+	if($(".input_calendar")[0].value > $(".input_calendar")[1].value) {
+		alert("날짜를 확인해주세요");
+		$(".input_calendar")[0].value = "";
+		return;
+	} else {
+		$(".datepicker").remove();
+	}
+}
  
 // 양수만 입력 
 function naturalNumber(elem){
@@ -520,8 +529,3 @@ function dateMask(elem){
 	
 	
 }
-
-
-
-
-
