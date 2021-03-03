@@ -152,8 +152,8 @@
 				<col width="9%">
 				<col width="9%">
 				<col width="9%">
-				<col width="9%">
-				<col width="17%">
+				<col width="13%">
+				<col width="13%">
 			</colgroup>
 			<tr>
 				<td colspan="10" style="text-align: LEFT; border-right: 0;">※상세내역</td>
@@ -161,8 +161,8 @@
 			<tr>
 				<th></th>
 				<th class="tc">제품명</th>
-				<th class="tc">제품단위</th>
-				<th class="tc">제품길이</th>
+				<th class="tc">단위</th>
+				<th class="tc">길이</th>
 				<th class="tc">기준단가</th>
 				<th class="tc">주문수량</th>
 				<th class="tc">주문중량</th>
@@ -248,8 +248,8 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button type="button" onclick="openInsertOrder('O');">발주</button>
-		<button type="button" onclick="openInsertShip('O')">출하</button>
+		<button type="button" onclick="openInsertOrdrg();">발주</button>
+		<button type="button" onclick="openInsertShip()">출하</button>
 		<button type="button" onclick="modal.close(); openOrderDetail('U');">수정</button>
 		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
@@ -298,6 +298,10 @@
 		// 공통코드 SelectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
 		selectOrderInfo();
+		
+		// 주문 연동관련 전역변수 초기화 필요
+		odrSeq = null;
+		odrDtlSeqArr = [];
 	});
 	
 	function selectOrderInfo() {
@@ -370,34 +374,41 @@
 	}
 	
 	// 발주 등록
-	function openInsertOrder(type){
-		actionType = type;
-		modal.close();
-		openModal("/static/html/user/od/od01/OD0102P01.html", 950, 800, "");
+	function openInsertOrdrg(){
+		if(orderSequenceSet()){
+			modal.close();
+			openModal("/static/html/user/od/od01/OD0102P01.html", 1000, 800, "");
+		}
 	}
 
 	// 출하 등록
-	function openInsertShip(type){
-		var row = gridView.target.getList("selected")[0];
-		var detailArr = [];
-		$.each($("tr[name='detailRow']"), function(idx, elem){
-			if($(elem).find("input[name='detailChkBox']").is(":checked")) {
-				var detailObj = {};
-				$.each($(elem).find("input[name='odrDtlSeq']"), function(idx, elem){
-					detailObj[elem.name] = elem.value;
-				});
-				detailArr.push(detailObj);
+	function openInsertShip(){
+		if(orderSequenceSet()){
+			modal.close();
+			openModal("/static/html/user/ar/ar01/AR0102P01.html", 1000, 800, " ");
+		}
+	}
+	
+	// odrSeq, odrDtlSeq set
+	function orderSequenceSet(){
+		var tempArr = [];
+		$.each($('tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="detailChkBox"]').is(':checked')) {
+				var dtlSeqObj = {};
+				var dtlSeqElem = $(elem).find('input[name="odrDtlSeq"]')[0];
+				dtlSeqObj[dtlSeqElem.name] = dtlSeqElem.value;
+				tempArr.push(dtlSeqObj);
 			}
 		});
-		if(detailArr.length > 0){
-			actionType = type;
-			odrSeq = row.odrSeq;
-			odrDtlSeqArr = detailArr;
-			modal.close();
-			openModal("/static/html/user/ar/ar01/AR0102P01.html", 920, 780, " ");
+		
+		if(tempArr.length > 0){
+			actionType = 'O';
+			odrSeq = $('#odrSeq').val();
+			odrDtlSeqArr = tempArr;
+			return true;
 		}else{
-			alert("주문내역을 선택하세요!");
-			return;
+			alert("주문내역을 선택하세요.");
+			return false;
 		}
 	}
 </script>
