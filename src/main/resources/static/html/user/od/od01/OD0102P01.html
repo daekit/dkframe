@@ -257,16 +257,16 @@
 	            	<input type="text" name="ordrgAmt" style="text-align: right;" readonly="readonly" comma>
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+	            	<input type="text" name="realDlvrQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+	            	<input type="text" name="realDlvrWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+	            	<input type="text" name="realDlvrUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrAmt" style="text-align: right;" readonly="readonly" comma>
+	            	<input type="text" name="realDlvrAmt" style="text-align: right;" readonly="readonly" comma value="0">
 	            </td>
 	            <td>
 	            	<input type="text" name="ordrgYn" readonly="readonly" style="text-align: center;">
@@ -734,6 +734,31 @@
 	
 	function odrSearch() {
 		openSecondModal("/static/html/user/od/od01/OD0102P06.html", 700, 420, "주문서");
+	}
+
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#addrZip').val(data.zonecode);
+				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+			}
+		}).open();
+	}
+	
+	function clntSearch(type) {
+		var modalTitle = "";
+		clntType = type; 
+		if(clntType == "PUR") {
+			modalTitle = "매입거래처";
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		} else if(clntType == "SELL") {
+			modalTitle = "매출거래처";
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		} else {
+			modalTitle = "거래처";
+			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		} 	
 	}
 	
 </script>
