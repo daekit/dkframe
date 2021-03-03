@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<style>
+
+.add_btn_small{
+    display: inline-block;
+    float: right;
+    padding: 0px;
+}
+
+.add_btn_small a {
+    display: inline-block;
+    width: 33px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    bShip: 1px solid #dbdbdb;
+    color: #444;
+    background: #ffffff;
+    box-shadow: 1px 1px rgba(0,0,0,0.15);
+}
+
+
+</style>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+	
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+	        <a onclick = "gridView.setData(0);">
+	          <button class="bg_gray">검 색</button>
+	         </a>
+	        </li>
+	      </ul>
+    	</div>
+    	
+    	<div class="contents">
+        <div class="">
+            <!-- 테이블 인풋 3분할 -->
+            <table class="table_input type03">
+              <tr>
+                <th>회사</th>
+                <td>
+                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO">
+                  </select>
+                </td>
+                <th>운송일자</th>
+                <td>
+                    <div class="date_input">
+                      <input type="text" id="strtDt_S" class="input_calendar">
+                      <span>~</span>
+                      <input type="text" id="endDt_S" class="input_calendar">
+                    </div>
+                </td>
+                <th>운송업체</th>
+                <td>
+                  <input type="hidden" id="transCo_S" name="transCo_S">
+                  <div class="search_form" style="width: 50%;">
+	                <input type="text" id="transNm_S" name="transNm_S">
+	              	<a onclick="clntSearch('R');"><i class="i_search_w"></i></a>
+	              </div>
+                </td>
+				<!-- <td>
+				<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">
+				</td> -->
+              </tr>
+              <tr>
+                <th>상차지</th>
+                <td>
+                  <select id="whCd_S" name="whCd_S" style="width:100%;" data-kind="WH">
+                  </select>
+                </td>
+                <th>도착지</th>
+                <td>                                
+                    <input id="desNm_S" name="desNm_S" type="text" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+                </td>
+                <th>거래처</th>
+                <td>
+                  <input type="hidden" id="clntCd_S" name="clntCd_S">
+                  <div class="search_form" style="width: 50%;">
+	                <input type="text" id="clntNm_S" name="clntNm_S">
+	              	<a onclick="clntSearch('L');"><i class="i_search_w"></i></a>
+	              </div>
+                </td>
+				<!-- <td>
+				<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">
+				</td> -->
+              </tr>
+              <tr>
+                <th>지불처리 여부</th>
+                <td>
+                  <select id="procYn_S" name="procYn_S" style="width:100%;" data-kind="YN">
+                  </select>
+                </td>
+              </tr>
+            </table>
+          </div>
+    </div>
+          <div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+				<!-- <a onclick="gridView.upData(0);" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">지불완료</a> -->
+	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;">-</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div>
+    	
+		<div class="contents">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;
+	var chkGrid = [];
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center", 
+		        	selector: true
+		        },
+		        body: {
+		        	 onClick: function () {
+		        		 console.log("click");
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		        		 console.log("dblclick");
+		            	insertProjectModal("U");
+		            }, 
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		        	{key: "transSeq", label: "운반비시퀀스", align: "center", width: "7%", hidden:true},
+		            {key: "procYn", label: "지불완료", align: "center", width: "6%"},
+		            {key: "transDt", label: "운송일자", align: "center", width: "10%"},
+		            {key: "transNm", label: "운송업체", align: "left", width: "14%"},
+		            {key: "whNm", label: "상차지", align: "left", width: "10%"},
+		            {key: "desNm", label: "도착지", align: "center", width: "8%"},
+		            {key: "drivrNm", label: "운전기사", align: "center", width: "9%"},
+		            {key: "totWt", label: "중량", align: "right", width: "8%", formatter: "money"},
+		            {key: "transUpr", label: "단가", align: "right", width: "8%", formatter: "money"},
+		            {key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
+		            {key: "payCo", label: "지불회사", align: "left", width: "14%"},
+		            {key: "clntNm", label: "거래처", align: "left", width: "10%"},
+		            {key: "transRmk", label: "비고", align: "left", width: "14%"}
+		        ]
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			firstGrid = this.target;
+			var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"strtDt"  : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"  : $("#endDt_S").val().replace(/\-/g,''),
+				"transCo"  : $("#transCo_S").val(),
+				"whCd"  : $("#whCd_S").val(),
+				"desNm"  : $("#desNm_S").val(),
+				"clntCd"  : $("#clntCd_S").val(),
+				"procYn" : $("#procYn_S").val(),
+				"pageNo" : _pageNo + 1,
+				"recordCnt" : $("#recordCnt").val()
+			}
+			postAjax("/user/ar/ar03/selectCaryngList", formData, null, function(data){
+				var list = data.resultList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+		/* ,
+		upData: function(_pageNo){
+			firstGrid = this.target;
+			chkGrid = firstGrid.selectedDataIndexs;
+			var formData = {
+				
+			}
+			postAjax("/user/ar/ar03/updateCheckY", formData, null, function(data){
+				
+			});
+		} */
+	}
+	
+	$(document).ready(function() {
+		mainDefaultLoad("영업관리", "운반비 관리");
+		setCommonSelect($("#main_area select[data-kind]"));
+		
+		$('#strtDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		// 종료일
+		$('#endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		$('#endDt_S').datepicker("setDate", new Date());
+		gridView.initView().setData(0);
+	})
+	
+	
+	/*수정 or 등록 버튼 클릭시*/
+	function insertProjectModal(type) {
+		actionType = type;
+		
+		if ( actionType == 'U' && selectGridValidation(firstGrid))
+			return;
+		openModal("/static/html/user/ar/ar03/AR0301P01.html", 1000, 700, "");
+	}
+	
+	/*삭제 버튼 클릭시*/
+	function deleteProject() {
+		if (selectGridValidation(firstGrid))
+			return;
+		if (!confirm("삭제하시겠습니까?"))
+			return;
+		var formData = {
+			"authId" : firstGrid.getList("selected")[0].authId
+		}
+		deleteAjax("/admin/bm/account/deleteCode", formData, null, function(data) {
+			if (data.resultCode == 200) {
+				alert(data.resultMessage);
+				getData();
+			}
+		});
+	}
+	
+	//거래처,운송업체
+	function clntSearch(type) {
+		actionTp = type;
+		openSecondModal("/static/html/user/ar/ar03/AR0301P02.html", 500, 420, "거래처검색");
+	}
+
+</script>
