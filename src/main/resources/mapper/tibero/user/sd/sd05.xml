@@ -51,10 +51,8 @@
 		 			AND A.CO_CD = #{coCd}
 				</if>
 				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				<![CDATA[
-					AND TO_DATE(A.STRT_DT, 'YYYYMMDD') >= TO_DATE(#{strtDt}, 'YYYY-MM-DD') 
-				 	AND TO_DATE(A.END_DT , 'YYYYMMDD') < TO_DATE(#{endDt}, 'YYYY-MM-DD')
-				]]> 
+				 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt}
+				 	 OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
 				</if>
 				<if test="searchValue != null and !searchValue.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
