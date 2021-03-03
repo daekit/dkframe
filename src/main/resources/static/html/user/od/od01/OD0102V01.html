@@ -542,6 +542,7 @@
 				detailArr.push(detailObj);
 			}
 		});
+		
 		formData.append("detailArr", JSON.stringify(detailArr));
 		
 		if(actionType == "U") {
@@ -596,6 +597,16 @@
 	}
 
 	function updateConfirm() {
+		var checkCount = 0;
+		$.each($('.detailRow'), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+				checkCount++;
+			}
+		});
+		if(checkCount == 0){
+			alert("발주내역을 선택해주세요");
+			return;
+		}
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/od/od01/updateConfirm", formData, function(data){

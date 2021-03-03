@@ -31,5 +31,9 @@ public interface OD01Mapper {
 	int updateConfirmDetail(Map<String, String> detailMap);
 
 	Map<String, String> selectOrderDetailInfo(Map<String, String> detailMap);
+
+	int selectDetailCount(Map<String, String> paramMap);
+
+	int selectConfirmCount(Map<String, String> paramMap);
 	
 }
