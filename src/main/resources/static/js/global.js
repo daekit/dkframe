@@ -408,7 +408,9 @@ function mainDefaultLoad(menuNm, subMenuNm) {
 	$("#top_area").load("/static/html/top.html", function(){
 		$('#topMenu').text(menuNm);
 		$('#topSubMenu').text(subMenuNm);
+		$("#topUserNm").text(jwt.userNm);
 	});
+	
 }
 
 function dateToStr(str) {
