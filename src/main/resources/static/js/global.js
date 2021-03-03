@@ -441,4 +441,12 @@ function before30day() {
 	  return dateToStr(d)
 }
 
-
+function dateValidation() {
+	if($(".input_calendar")[0].value > $(".input_calendar")[1].value) {
+		alert("날짜를 확인해주세요");
+		$(".input_calendar")[0].value = "";
+		return;
+	} else {
+		$(".datepicker").remove();
+	}
+}
