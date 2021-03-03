@@ -61,9 +61,9 @@
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type02">
               <tr>
-              	<th>회사</th>
+              	<th class="hit">회사</th>
               	<td >
-                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);" required="required">
                   <option value="">전체</option>
                   </select>
                 </td>
@@ -146,44 +146,46 @@
 		            }
 		        },
 		        columns: [
-		            {key: "estDt", label: "견적일자", align: "center", width: "7%"},
-		            {key: "estCoprtNm", label: "발신처", align: "center", width: "9%"},
-		            {key: "estClntNm", label: "수신처", align: "center", width: "9%"},
-		            {key: "estRprc", label: "수신처 참조", align: "center", width: "9%"},
-		            {key: "estQty", label: "수량(합계)", align: "right", width: "7%", formatter: "money"},
-		            {key: "estAmt", label: "수입 공급가액(합계)", align: "right", width: "9%", formatter: "money"},
-		            {key: "bizTelNo", label: "사업자 전화번호", align: "center", width: "9%"},
-		            {key: "bizFaxNo", label: "사업자 FAX번호", align: "center", width: "9%"},
-		            {key: "mngEmail", label: "담당자 이메일", align: "center", width: "13%"},
-		            {key: "prjctNm", label: "프로젝트 명", align: "left", width: "11%"},
-		            {key: "rmk", label: "비고", align: "left", width: "13%"},
-		            {key: "name", label: "견적 담당자", align: "center", width: "7%"}
+		            {key: "estDt",      label: "견적일자",       align: "center", width: "7%"},
+		            {key: "estCoprtNm", label: "발신처",        align: "center", width: "9%"},
+		            {key: "estClntNm",  label: "수신처",        align: "left",   width: "9%"},
+		            {key: "estRprc",    label: "수신처 참조",     align: "left",   width: "9%"},
+		            {key: "estQty",     label: "수량(합계)",      align: "right",  width: "7%", formatter: "money"},
+		            {key: "estAmt",     label: "공급가액(합계)",   align: "right",   width: "9%", formatter: "money"},
+		            {key: "bizTelNo",   label: "사업자 전화번호",   align: "center", width: "9%"},
+		            {key: "bizFaxNo",   label: "사업자 FAX번호",   align: "center", width: "9%"},
+		            {key: "mngEmail",   label: "담당자 이메일",     align: "left",  width: "13%"},
+		            {key: "prjctNm",    label: "프로젝트 명",      align: "left",   width: "11%"},
+		            {key: "rmk",        label: "비고",           align: "left",   width: "13%"},
+		            {key: "name",       label: "견적 담당자",      align: "center", width: "7%"}
 		        ]
 		    });
 			return this;
 		},
 		setData: function(_pageNo) {
 			firstGrid = this.target;
-			var formData = {
-				"coCd" 		  : $('#coCd_S').val(),	
-				"searchValue" : $("#searchValue_S").val(),
-				"searchName"  : $("#searchName_S").val(),
-				"pageNo" : _pageNo + 1,
-				"recordCnt" : $("#recordCnt").val() 
-			}
-			
-			postAjax("/user/sd/sd03/selectMainEstList", formData, null, function(data){
-				var list = data.smelList;
-				firstGrid.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
+			if(inputValidation($('input[required]'))){
+				var formData = {
+					"coCd" 		  : $('#coCd_S').val(),	
+					"searchValue" : $("#searchValue_S").val(),
+					"searchName"  : $("#searchName_S").val(),
+					"pageNo" : _pageNo + 1,
+					"recordCnt" : $("#recordCnt").val() 
+				}
+				
+				postAjax("/user/sd/sd03/selectMainEstList", formData, null, function(data){
+					var list = data.smelList;
+					firstGrid.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
 				});
-			});
+			}
 		} 
 	}
 	
