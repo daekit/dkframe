@@ -135,9 +135,9 @@
 </html>
 
 <script type="text/javascript">
+	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
-	var actionType = null;
 	var gridView = {
 		initView : function() {
 			this.target = new ax5.ui.grid();
@@ -155,7 +155,7 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick : function() {
-						openModal("/static/html/user/sd/sd04/SD0402V01.html", 950, 800, "");
+						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
 					}
 				},
 				page : {
@@ -227,16 +227,28 @@
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).subtract(7, "day").toDate())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#startDt').datepicker("setDate", new Date($('#endDt').val()));
+			}
 		});
-		$('#startDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
 
 		// 종료일
 		$('#endDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
+		})
+		.datepicker("setDate", new Date())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
+			}
 		});
-		$('#endDt').datepicker("setDate", new Date());
 		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
@@ -260,32 +272,18 @@
 		gridView.setData(0);
 	}
 
-	function subShowHide(data) {
-		if ($(data).parent().find("ul").css("display") == 'none') {
-			$(data).parent().find("ul").show();
-		} else {
-			$(data).parent().find("ul").hide();
-		}
-	}
-
-	function setMenuIdx(url) {
-		$.get(url, function(data) {
-			$(".main").html(data);
-		});
-		setCookie("menuIdx", url, 1);
-	}
-
 	// 주문 상세
 	function openOrderDetail(actionType) {
 		this.actionType = actionType;
-		openModal("/static/html/user/sd/sd04/SD0402P01.html", 950, 800, "");
+		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
 	}
 	
 	// 거래처 검색
 	function clntSearch() {
 		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
 	}
-
+	
+	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
 	function deleteOrder() {
 		if (selectGridValidation(gridView.target)) return;
 		if (!confirm("삭제하시겠습니까?")) return;
@@ -298,7 +296,4 @@
 			}
 		});
 	}
-	
-	var odrSeq = null;
-	var odrDtlSeqArr = null;
 </script>
