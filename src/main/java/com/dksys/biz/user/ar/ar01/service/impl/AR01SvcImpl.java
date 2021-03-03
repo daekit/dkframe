@@ -149,7 +149,7 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd", "SELPCH2");
-			paramMap.put("pchsUpr", detailMap.get("pchsUpr"));
+			paramMap.put("pchsUpr", "0");
 			paramMap.put("sellUpr", detailMap.get("realShipUpr"));
 			paramMap.put("stockUpr", detailMap.get("stockUpr"));
 			paramMap.put("trstQty", detailMap.get("shipQty"));
