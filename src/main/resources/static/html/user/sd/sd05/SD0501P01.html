@@ -17,35 +17,36 @@
                 <col>
             </colgroup>
             <tr>
-                <th class="">회사</th>
+                <th class="hit">회사</th>
                 <td>                                
-                    <select id="coCd" name="coCd" data-kind="CO">
+                    <select id="coCd" name="coCd" data-kind="CO"  required="required">
                     <option value="">전체</option>
                     </select>
                 </td>
-                <th class="">법인</th>
+                <th class="hit">법인</th>
                 <td>
-                	<select id="coprtCd" name="coprtCd" data-kind="ESTCOPRT">
+                	<select id="coprtCd" name="coprtCd" data-kind="ESTCOPRT"  required="required">
                     </select>
                 </td>              
 
-                <th class="">등록일</th>
+                <th class="hit">등록일</th>
                 <td>
-                	<input id="creatDttm2" name="creatDtDtl" disabled>
+                	<input id="creatDttm2" name="creatDtDtl" disabled  required="required">
                 </td>
             </tr>
             <tr>
-                <th class="">프로젝트 기간</th>
+                <th class="hit">프로젝트 기간</th>
                 <td class="drctArea">
                 	<div class="date_input">
-                		<input id="strtDt2" name="strtDtDtl" class="input_calendar"><span>~</span><input id="endDt2" name="endDtDtl" class="input_calendar">
+                		<input id="strtDt2" name="strtDtDtl" class="input_calendar"  required="required"><span>~</span>
+                		<input id="endDt2" name="endDtDtl" class="input_calendar"  required="required">
                 	</div>
                 </td>
-                <th>매출처</th>
+                <th class="hit">매출처</th>
                 <td class="drctArea">
                 	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
                 	<div class="search_form">
-	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
+	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly"  required="required">
                     	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
                     </div>
                 </td>               
@@ -57,15 +58,15 @@
 
             </tr>
             <tr>
-                <th class="">프로젝트명</th>
+                <th class="hit">프로젝트명</th>
                 <td colspan="3">   
-                	<input id="prjctNm" name="prjctNmDtl" type="text" style="width: 100%;" >
+                	<input id="prjctNm" name="prjctNmDtl" type="text" style="width: 100%;"  required="required">
                 </td>
-                <th>프로젝트 담당자</th>
+                <th class="hit">프로젝트 담당자</th>
                 <td>                                
                     <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
                     <div class="search_form">
-	                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
+	                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly" required="required">
                     	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
                     </div>
                 </td> 
@@ -93,10 +94,7 @@
 					<input id="prjctAddrSub" name="prjctAddrSub" type="text" style="width: 100%;" placeholder="상세 주소 입력" maxlength="100">
 				</td>
                
-                <th class="">주문번호</th>
-              　<td>                                
-                    <input id="ordNo" name="ordNo" type="text">
-				</td>            
+         
             </tr>
             
             
@@ -162,7 +160,7 @@
 		</colgroup>
 		<thead>
 			<tr>
-				<td colspan="6" style="text-align: left;">출하요청서</td>
+				<td colspan="6" style="text-align: left;">출하요청서<span id="shipTotCnt"></span></td>
 				<td style="text-align: right;">
 					<a class="tbody_more_btn"></a>
 				</td>
@@ -171,7 +169,7 @@
 		<tbody>
 			<tr>
 				<td colspan="7">
-					<div class="contents">
+					<div class="contents" style="margin:0px;padding:0px;">
 						<div data-ax5grid="AR01-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
 					</div>
 				</td>
@@ -191,7 +189,7 @@
 		</colgroup>
 		<thead>
 			<tr>
-				<td colspan="6" style="text-align: left;">발주서</td>
+				<td colspan="6" style="text-align: left;">발주서<span id="ordrgTotCnt"></span></td>
 				<td style="text-align: right;">
 					<a class="tbody_more_btn"></a>
 				</td>
@@ -200,7 +198,7 @@
 		<tbody>
 			<tr>
 				<td colspan="7">
-					<div class="contents">
+					<div class="contents" style="margin:0px;padding:0px;">
 						<div data-ax5grid="OD01-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
 					</div>
 				</td>
@@ -222,7 +220,7 @@
 	  	</tr>
 	</table>
   	<div>
-		<button id="actionBtn">등록</button>
+		<button id="prjctActionBtn">등록</button>
 		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div> 
   </div>
@@ -295,6 +293,9 @@
 		        	onClick: function () {
 		                this.self.select(this.dindex); 
 		            },
+		            onDBLClick: function () {
+		            	viewOrderModal();
+		            },
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -352,9 +353,16 @@
 				});
 				if(OD01Grid.list.length == 0){
 					$("#ordrgTable").hide();
+				}else{
+					$("#ordrgTotCnt").html(" (총 " + OD01Grid.list.length +"건)");
 				}
 			});
 		}
+	}
+
+	function viewOrderModal() {
+		gridTarget = "PRJ";
+		openSecondModal("/static/html/user/od/od01/OD0102V01.html", 920, 780, " ");
 	}
 	
 	var AR01Grid = null;
@@ -373,6 +381,9 @@
 		        body: {
 		        	onClick: function () {
 		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	viewShipModal();
 		            },
 		        },
 		        page: {
@@ -432,9 +443,16 @@
 				});
 				if(AR01Grid.list.length == 0){
 					$("#shipmentTable").hide();
+				}else{
+					$("#shipTotCnt").html(" (총 " + AR01Grid.list.length +"건)");
 				}
 			});
 		}
+	}
+	
+	function viewShipModal() {
+		gridTarget = "PRJ";
+		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 920, 780, " ");
 	}
 	
 	$(document).ready( function() {
@@ -449,16 +467,16 @@
 		$("#coCd").val(jwt.coCd);
 		if(actionType == "C") {
 			document.getElementById('creatDttm2').value= new Date().toISOString().slice(0, 10);
-			$('#actionBtn').on("click", function(){insertOrder();});
-			$("#actionBtn").text("등록");
+			$('#prjctActionBtn').on("click", function(){insertOrder();});
+			$("#prjctActionBtn").text("등록");
 		}else if(actionType == "U"){
 			$("#ordrgTable").show();
 			$("#shipmentTable").show();
 			OD01GridView.initView();
 			AR01GridView.initView();
 			selectPrjInfo();
-			$('#actionBtn').on("click", function(){updateOrder();});
-			$('#actionBtn').text("수정");
+			$('#prjctActionBtn').on("click", function(){updateOrder();});
+			$('#prjctActionBtn').text("수정");
 		}
 	    $('#strtDt2').datepicker({
 			format : "yyyy-mm-dd",
