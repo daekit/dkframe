@@ -455,21 +455,11 @@
 			$('#actionBtn').on("click", function(){updateShip();});
 			$('#actionBtn').text("저장");
 		}else if(actionType == "O"){
-			selectOdrShipInfo();
+			getOrderInfo();
+			$('#odrSeq').siblings('a').remove();
 			$('#actionBtn').on("click", function(){insertShip();});
 			$('#actionBtn').text("등록");
-			$("#reqDt").val(dateToStr(new Date()));
 		}
-	}
-	
-	function selectOdrShipInfo() {
-		var formData = {
-			"odrSeq" : odrSeq,
-			"odrDtlSeqArr" : odrDtlSeqArr
-		}
-		postAjax("/user/sd/sd04/getOrderInfo", formData, null, function(data){
-			setOdrShipInfo(data.result);
-		});
 	}
 	
 	function selectShipInfo() {
@@ -479,6 +469,16 @@
 			"reqDt" : row.reqDt.replace(/-/g, "")
 		}
 		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
+			setShipInfo(data.result);
+		});
+	}
+	
+	function getOrderInfo(){
+		var formData = {
+			"odrSeq": odrSeq,
+			"odrDtlSeqArr": odrDtlSeqArr
+		};
+		postAjax("/user/ar/ar01/getOrderInfo", formData, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
@@ -519,17 +519,19 @@
 			addComma(elem);
 		});
 		
-		$.each(fileInfo, function(idx, obj){
-			fileArr.push({
-				'fileKey' : obj.fileKey,
-		      	'fileName' : obj.fileName,
-		      	'fileType' : obj.fileType,
-		      	'fileSize' : obj.fileSize,
-		      	'file' : obj
+		if(actionType != "O"){
+			$.each(fileInfo, function(idx, obj){
+				fileArr.push({
+					'fileKey' : obj.fileKey,
+			      	'fileName' : obj.fileName,
+			      	'fileType' : obj.fileType,
+			      	'fileSize' : obj.fileSize,
+			      	'file' : obj
+				});
 			});
-		});
-		// 첨부파일 그리드 set
-		fileGridView.setData();
+			// 첨부파일 그리드 set
+			fileGridView.setData();
+		}
 	}
 	
 	function addRow() {
