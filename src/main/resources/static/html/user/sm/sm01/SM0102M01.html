@@ -53,58 +53,61 @@
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
 	        <li class="btn_r">
-	        <a onclick = "gridView.setData(0);">
-	          <button class="bg_gray">검 색</button>
-	         </a>
+		        <a onclick="initSearch();">
+							<button type="button" class="bg_gray">초기화</button>
+				</a>
+		        <a onclick = "gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
 	        </li>
 	      </ul>
     	</div>
 		  <!-- 검색 콘텐츠 -->
-    <div class="contents">
+    <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 3분할 -->
             <table class="table_input type04">
               <tr>
                 <th>회사</th>
                 <td>
-                    <select id ="CO" data-kind="CO" onchange="gridView.setData(0);"  data-search="coCd>
-                  	  <option value="">선택</option>
+                    <select id ="CO" data-kind="CO" onchange="gridView.setData(0);"  data-search="coCd">
+                  	  <option value="">전체</option>
                     </select>                
                 </td>
                 <th>창고구분</th>
                 <td>
-                 	<select id ="WH" data-kind="WH" onchange="gridView.setData(0);">
-                  	  <option value="">선택</option>
+                 	<select id ="WH" data-kind="WH" onchange="gridView.setData(0);" data-search="wh">
+                  	  <option value="">전체</option>
                     </select>
                 </td>
                  <th>재고주체구분</th>
                 <td>
-                  <select id= "OWNER" data-kind="OWNER" onchange="gridView.setData(0);" >
-                  	  <option value="">선택</option>
+                  <select id= "OWNER" data-kind="OWNER" onchange="gridView.setData(0);" data-search="owner" >
+                  	  <option value="">전체</option>
                   </select>
                 </td>
                 <th>거래처</th>
                	 <td>
-                  <input type="text" id="clntNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+                  <input type="text" id="clntNm" data-search="clntNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
                 </td>
               </tr>
              
               <tr>
                 <th >판매유형</th>
                 <td>
-                  <select id= "SELLTYPE" data-kind="SELLTYPE" onchange="gridView.setData(0);">
+                  <select id= "SELLTYPE" data-kind="SELLTYPE" onchange="gridView.setData(0);" data-search="sellType">
                   	  <option value="">선택</option>
                   </select>
                 </td>
                  <th >제조사</th>
                 <td>
-                 <select id= "MAKR" data-kind="MAKR" onchange="gridView.setData(0);">
+                 <select id= "MAKR" data-kind="MAKR" onchange="gridView.setData(0);" data-search="mark">
                  	  <option value="">선택</option>
                   </select>
                 </td>
                  <th >제품</th>
                 <td>
-                  <input type="text" id="prdtNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+                  <input type="text" id="prdtNm"  data-search="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
                 </td>
               </tr>
             </table>
@@ -123,8 +126,6 @@
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
-				<input type="hidden" id="recordCnt">
-				<input type="hidden" id="basisPriceSeq">
 			</div>
 		</div>
 	  <!-- 콘텐츠 -->
@@ -183,23 +184,23 @@
 		        columns: [
 		        		{key: "whNm", label: "창고", align: "center", width: "6.5%"},
 		          	{key: "ownerNm", label: "재고 주체", align: "center", width: "6.5%"},
-		          	{key: "clntNm", label: "거래처", align: "center", width: "7%"},
+		          	{key: "clntNm", label: "거래처", align: "center", width: "9%"},
 		          	{key: "typNm", label: "판매 유형", align: "center", width: "6.5%"},
 		          	{key: "makrNm", label: "제조사", align: "center", width: "6.5%"},
 		          	{key: "prdtNm", label: "제품", align: "center", width: "8%"},
 		          	{key: "impNm", label: "수입 구분", align: "center", width: "6%"},
 		          	{label: "재고",  columns:[
-		          		{key: "stockQty", label: "수량(KG)", align: "right", width: "6%", styleClass:"grid-cell-blue", formatter:"money" },
-			          	{key: "stockUpr", label: "단가", align: "right", width: "6%", styleClass:"grid-cell-blue", formatter:"money" },
-			          	{key: "stockAmt", label: "금액", align: "right", width: "6%", styleClass:"grid-cell-blue", formatter:"money" }
+		          		{key: "stockQty", label: "수량(KG)", align: "right", width: "5.5%", styleClass:"grid-cell-blue", formatter:"money" },
+			          	{key: "stockUpr", label: "단가", align: "right", width: "5.5%", styleClass:"grid-cell-blue", formatter:"money" },
+			          	{key: "stockAmt", label: "금액", align: "right", width: "5.5%", styleClass:"grid-cell-blue", formatter:"money" }
 		          	]},
 		          	{key: "stdUpr", label: "기준 단가", align: "right", width: "5%", formatter:"money" },
-		         	{key: "stockChgNm", label: "재고 변동\n 사유", align: "center", width: "6%"},
+		         	{key: "stockChgNm", label: "재고<br/>변동 사유", align: "center", width: "6%"},
 			         
-		          	{key: "pchsUpr", label: "최종\n매입 단가", align: "right", width: "6%", formatter:"money" },
-		          	{key: "sellUpr", label: "최종\n매출 단가", align: "right", width: "6%", formatter:"money" },
-		          	{key: "chgNm", label: "재고 변동\n 구분", align: "center", width: "6%"},
-		          	{key: "udtDttm", label: "최종\n변경일", align: "center", width: "6%"},
+		          	{key: "pchsUpr", label: "최종<br/>매입 단가", align: "right", width: "6%", formatter:"money" },
+		          	{key: "sellUpr", label: "최종<br/>매출 단가", align: "right", width: "6%", formatter:"money" },
+		          	{key: "chgNm", label: "재고<br/>변동 구분", align: "center", width: "6%"},
+		          	{key: "udtDttm", label: "최종<br/>변경일", align: "center", width: "6%"},
 		          	
 		          	
 		        ]
@@ -253,8 +254,16 @@
 	})
 
 
-
-	
+	// 검색조건 초기화
+	function initSearch(){
+		
+		$(".contents.search [data-search]").val("");
+		
+		$('[data-search="coCd"]').val(jwt.coCd);
+		// 재검색
+		gridView.initView().setData(0);
+		
+	}
 
 	
 
