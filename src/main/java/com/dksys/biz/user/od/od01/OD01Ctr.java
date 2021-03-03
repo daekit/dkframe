@@ -72,10 +72,16 @@ public class OD01Ctr {
     
     @DeleteMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	System.out.println();
     	od01Svc.deleteOrder(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	return "jsonView";
+    }
+    
+    @PostMapping(value = "/selectConfirmCount")
+    public String selectConfirmCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int result = od01Svc.selectConfirmCount(paramMap);
+    	model.addAttribute("result", result);
     	return "jsonView";
     }
     

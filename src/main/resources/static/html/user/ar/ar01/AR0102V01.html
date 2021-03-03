@@ -4,7 +4,7 @@
         <h4 class="tit">출하요청서</h4>
     </div>
 
-    <div class="popup_table">
+    <div class="popup_table" id="arViewDiv">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
     	<form id="popForm">
 	        <table>
@@ -105,7 +105,6 @@
 	                <th>납품일시</th>
 	                <td>
                 		<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar">
-<!-- 	                	<input type="text" id="dlvrDttm" name="dlvrDttm" style="width: 35% !important;"> -->
 	                </td>
 	            </tr>
 	            <tr>
@@ -357,7 +356,7 @@
     <div class="popup_bottom_btn">
       <button id="actionBtn">수정</button>
       <button id="shipYnBtn" onclick="updateConfirm();">출하처리</button>
-      <button class="close_btn" onclick="modal.close();">닫기</button>
+      <button class="close_btn" onclick="modalClose();">닫기</button>
     </div>
   </div>
  
@@ -417,13 +416,23 @@
 	
 	function setInit() {
 		selectShipInfo();
-		$('#actionBtn').on("click", function(){updateShipModal();});
-		$('#actionBtn').text("수정");
-		$("#shipYnBtn").show();
+		if(gridTarget == "PRJ"){
+			$("#actionBtn").hide();
+			$("#shipYnBtn").hide();
+		}else{
+			$('#actionBtn').on("click", function(){updateShipModal();});
+			$('#actionBtn').text("수정");
+			$("#shipYnBtn").show();
+		}
 	}
 	
 	function selectShipInfo() {
-		var row = gridView.target.getList("selected")[0];
+		var row = null;
+		if(gridTarget == "PRJ"){
+			row = AR01GridView.target.getList("selected")[0];
+		}else{
+			row = gridView.target.getList("selected")[0];
+		}
 		var formData = {
 			"shipSeq" : row.shipSeq,
 			"reqDt" : row.reqDt.replace(/-/g, "")
@@ -443,7 +452,7 @@
 		}
 		//메인정보 세팅
 		$.each(shipInfo, function(key, value){
-			$('#'+key).val(value);
+			$('#arViewDiv #'+key).val(value);
 		});
 		
 		//상세정보 세팅
@@ -604,11 +613,13 @@
 	}
 
 	function updateConfirm() {
-		if($("input[name='detailChkBox']:checked").length == 0){
-			alert("출하내역을 선택해주세요");
-			return;
-		}
-		if($("input[name='detailChkBox']:checked").length == 0){
+		var checkCount = 0;
+		$.each($('.detailRow'), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+				checkCount++;
+			}
+		});
+		if(checkCount == 0){
 			alert("출하내역을 선택해주세요");
 			return;
 		}
@@ -619,6 +630,14 @@
 				gridView.setData(0);
 				modal.close();
 			});
+		}
+	}
+	
+	function modalClose(){
+		if(gridTarget == "PRJ"){
+			secondModal.close();
+		}else{
+			modal.close();
 		}
 	}
 	

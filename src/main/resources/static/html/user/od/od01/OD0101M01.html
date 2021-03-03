@@ -163,7 +163,7 @@
 	var authRole = null;
 	var actionType = null;
 	var firstGrid = null;
-	
+	var gridTarget = null;
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -322,19 +322,25 @@
 	}
 	
 	function deleteOrder() {
-		if(confirm("삭제하시겠습니까?")){
-			var row = gridView.target.getList("selected")[0];
-			var formData = {
-				"ordrgSeq" : row.ordrgSeq,
-				"reqDt" : row.reqDt
-			}
-			deleteAjax("/user/od/od01/deleteOrder", formData, null, function(data){
-				if(data.resultCode == 200){
-					alert(data.resultMessage);
-					gridView.setData(0);
-				}
-			});
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"ordrgSeq" : row.ordrgSeq,
+			"reqDt" : row.reqDt
 		}
+		postAjax("/user/od/od01/selectConfirmCount", formData, null, function(data){
+			if(data.result == 0) {
+				if(confirm("삭제하시겠습니까?")){
+					deleteAjax("/user/od/od01/deleteOrder", formData, null, function(data){
+						if(data.resultCode == 200){
+							alert(data.resultMessage);
+							gridView.setData(0);
+						}
+					});
+				}
+			} else {
+				alert("삭제할 수 없는 데이터 입니다.");	
+			}
+		});
 	}
 
 	function initSearch() {
@@ -351,16 +357,6 @@
 		modal.close();
 		actionType = "U";
 		openModal("/static/html/user/od/od01/OD0102P01.html", 920, 780, " ");
-	}
-	
-	function dateValidation() {
-		if($(".input_calendar")[0].value > $(".input_calendar")[1].value) {
-			alert("날짜를 확인해주세요");
-			$(".input_calendar")[0].value = "";
-			return;
-		} else {
-			$(".datepicker").remove();
-		}
 	}
 	
 </script>

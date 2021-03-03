@@ -226,7 +226,7 @@
 		        T.SALES_MNG,
 		        T.SHIP_YN,
 		        T.SHIP_PROC_ID,
-		        T.SHIP_DTTM,
+		        TO_CHAR(T.SHIP_DTTM, 'yyyy-MM-dd') AS SHIP_DTTM,
 		        T.ODR_CREAT_DIV,
 		        T.ETC_FIELD1,
 		        T.ETC_FIELD2,
@@ -305,7 +305,7 @@
 	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
 	        T.SHIP_YN,
 	        T.SHIP_PROC_ID,
-	        TO_CHAR(TO_DATE(T.SHIP_DTTM), 'YYYY-MM-DD') AS SHIP_DTTM,
+	        TO_CHAR(T.SHIP_DTTM, 'YYYY-MM-DD') AS SHIP_DTTM,
 	        T.ODR_CREAT_DIV,
 	        T.ETC_FIELD1,
 	        T.ETC_FIELD2,
@@ -401,12 +401,12 @@
 	<update id="updateConfirm" parameterType="Map">
 		UPDATE TB_AR01M01 T
 		SET
-			TOT_QTY         = #{totQty},
-		    TOT_WT          = #{totWt},
-		    TOT_AMT         = #{totAmt},
-		    UDT_ID          = #{userId},
-		    UDT_PGM         = #{pgmId},
-		    UDT_DTTM        = SYSDATE
+			SHIP_PROC_ID  = #{userId},
+			SHIP_YN       = 'Y',
+			SHIP_DTTM     = SYSDATE,
+		    UDT_ID        = #{userId},
+		    UDT_PGM       = #{pgmId},
+		    UDT_DTTM      = SYSDATE
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</update>
 	
@@ -430,6 +430,20 @@
 			(SELECT PRDT_SIZE FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_SIZE
 		FROM TB_AR01D01 T
 		WHERE SHIP_SEQ = #{shipSeq} AND SHIP_DTL_SEQ = #{shipDtlSeq} 
+	</select>
+	
+	<select id="selectDetailCount" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_AR01D01
+		WHERE SHIP_SEQ = #{shipSeq} 
+	</select>
+	
+	<select id="selectConfirmCount" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_AR01D01
+		WHERE SHIP_SEQ = #{shipSeq} AND SHIP_YN = 'Y' 
 	</select>
 	
 </mapper>
