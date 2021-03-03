@@ -81,18 +81,18 @@
 	            <!-- 테이블 인풋 3분할 -->
 	            <table class="table_input type03">
 	              <tr>
-	              	<th>회사</th>
+	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO">
+	                 	<select id="coCd_S" data-kind="CO" required="required">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	                <th>기간</th>
+	                <th class= "hit">기간</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" required="required">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar">
+	                      <input type="text" id="reqDtTo" class="input_calendar" required="required">
 	                    </div>
 	                </td>
 	                <th>재고주체</th>
@@ -222,29 +222,33 @@
 		}, 
 		setData: function(_pageNo) {
 			firstGrid = this.target;
-			var formData = {
-				"coCd" : $("#coCd_S").val(),
-				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
-				"ownerCd" : $("#ownerCd_S").val(),
-				"typCd" : $("#typCd_S").val(),
-				"clntCd" : $("#clntCd_S").val(),
-				"dirtrsYn" : $("#dirtrsYn_S").val(),
-				"pageNo" : _pageNo + 1, 
-				"recordCnt" : $("#recordCnt").val()
-			}
-			postAjax("/user/od/od01/selectOrderList", formData, null, function(data){
-				var list = data.resultList;
-				firstGrid.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
+			
+			if(inputValidation($('input[required]'))){
+			
+				var formData = {
+					"coCd" : $("#coCd_S").val(),
+					"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+					"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+					"ownerCd" : $("#ownerCd_S").val(),
+					"typCd" : $("#typCd_S").val(),
+					"clntCd" : $("#clntCd_S").val(),
+					"dirtrsYn" : $("#dirtrsYn_S").val(),
+					"pageNo" : _pageNo + 1, 
+					"recordCnt" : $("#recordCnt").val()
+				}
+				postAjax("/user/od/od01/selectOrderList", formData, null, function(data){
+					var list = data.resultList;
+					firstGrid.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
 				});
-			});
+			}
 		}
 	}
 	
@@ -336,6 +340,7 @@
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input[type='text']").val("");
+		$("#coCd_S").val(jwt.coCd);
 	}
 
 	function viewOrderModal() {
