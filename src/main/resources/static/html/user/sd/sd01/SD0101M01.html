@@ -61,16 +61,16 @@
             <!-- 테이블 인풋 3분할 -->
             <table class="table_input type04">
             <tr>
-              <th>회사</th>
+              <th class="hit">회사</th>
                 <td>
-               	  <select id="coCd" data-kind="CO" style="width: 100%;">
+               	  <select id="coCd" data-kind="CO" style="width: 100%;"  required="required">
                	  </select>
-               	  <select id="selpchCd" data-kind="SELPCH" style="display:none">
+               	  <select id="selpchCd" data-kind="SELPCH" style="display:none" >
                	  </select>
                 </td>
-              <th>계획년월</th>
+              <th class="hit">계획년월</th>
                 <td>
-               	  <input type="month" id="planYm" name="planYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;">
+               	  <input type="month" id="planYm" name="planYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;"  required="required">
                	  <!-- <input id="planYm" name="planYm" type="month" onchange="gridView.setData(0);"> -->
               </td>
               <th>담당자</th>
@@ -148,8 +148,8 @@
 		                    {
 		                        label: function () { return "소 계"; }, colspan: 4
 		                    },
-		                    {key: "planWt", collector: "sum", formatter: "money", align: "center"},
-		                    {key: "trstY", collector: "sum", formatter: "money", align: "right"},
+		                    {key: "planWt", collector: "sum", formatter: "money", align: "right"},
+		                    {key: "trstY",  collector: "sum", formatter: "money", align: "right"},
 		                    {key: "trstN", 	collector: "sum", formatter: "money", align: "right"}
 		                ]
 		            },
@@ -157,9 +157,9 @@
 		        footSum: [
 			    	[
 			    		{label: "총계", colspan:4, align:"center"},
-			    		{key:"planWt", collector: "sum", formatter:"money", align:"center"},
-			    		{key: "trstY", collector: "sum", formatter: "money", align: "right"},
-	                    {key: "trstN", 	collector: "sum", formatter: "money", align: "right"}
+			    		{key:"planWt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "trstY", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "trstN", collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
 		        page: {
@@ -176,14 +176,14 @@
 		        },
 		        
 		        columns: [
-		        	{key: "clntDivNm", label: "구분", align: "center", width: "11%"},
+		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "11%"},
 		            {key: "salesAreaNm", label: "판매지역", align: "center", width: "11%"},
-		            {key: "prdtDivNm", label: "품목", align: "center", width: "11%"},
-		            {key: "clntNm", label: "거래선", align: "center", width: "13%"},
-		            {key: "planWt", label: "계획", align: "center", width: "9%"},
+		            {key: "prdtDivNm",   label: "품목",   align: "center", width: "11%"},
+		            {key: "clntNm",      label: "거래선", align: "center", width: "13%"},
+		            {key: "planWt",      label: "계획",   align: "right", width: "9%", formatter: "money"},
 		            {label: "실적",  columns:[
-		            	{key: "trstY", label: "국산", align: "right", width: "9%", formatter: "money"},
-			            {key: "trstN", label: "수입", align: "right", width: "9%", formatter: "money"}
+		            	{key: "trstY", label: "국산",     align: "right", width: "9%", formatter: "money"},
+			            {key: "trstN", label: "수입",     align: "right", width: "9%", formatter: "money"}
 			        ]},
 		            {key: "trstAvg", label: "달성율", align: "right", width: "9%"},
 		            {key: "rmk", label: "비고", align: "center", width: "15%"}
@@ -193,26 +193,28 @@
 		},
 		setData: function(_pageNo) {
 			firstGrid = this.target;
-			var formData = {
-				"coCd" : $("#coCd").val(),
-				"planYm"  : $("#planYm").val(),
-				"planSalesId"  : $("#salesMng").val(),
-				"pageNo" : _pageNo + 1,
-				"recordCnt" : $("#recordCnt").val() 
-			}
-			
-			postAjax("/user/sd/sd01/selectSellList", formData, null, function(data){
-				var list = data.sellList;
-				firstGrid.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
+			if(inputValidation($('input[required]'))){
+				var formData = {
+					"coCd" : $("#coCd").val(),
+					"planYm"  : $("#planYm").val(),
+					"planSalesId"  : $("#salesMng").val(),
+					"pageNo" : _pageNo + 1,
+					"recordCnt" : $("#recordCnt").val() 
+				}
+				
+				postAjax("/user/sd/sd01/selectSellList", formData, null, function(data){
+					var list = data.sellList;
+					firstGrid.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
 				});
-			});
+			}
 		} 
 	}
 	
@@ -271,5 +273,7 @@
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input[type='text']").val("");
+		$("#coCd").val(jwt.coCd);
+		$("#selpchCd").val("SELPCH2");
 	}
 </script>
