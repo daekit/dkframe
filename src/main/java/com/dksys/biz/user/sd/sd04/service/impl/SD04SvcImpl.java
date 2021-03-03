@@ -48,14 +48,6 @@ public class SD04SvcImpl implements SD04Svc {
 	}
 
 	@Override
-	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
-		Map<String, Object> returnMap = new HashMap<String, Object>();
-		//returnMap.put("odrInfo", sd04Mapper.getOdrInfo(paramMap)); // odrSeq , odrDtlSeqArr
-		//returnMap.put("odrDetail", sd04Mapper.getOdrInfoDetail(paramMap));
-		return returnMap;
-	}
-	
-	@Override
 	public void insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
