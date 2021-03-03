@@ -7,6 +7,7 @@
 	</div>
 	<div class="popup_table">
 		<form id="orderForm">
+			<input type="hidden" id="odrSeq" name="odrSeq">
 			<table>
 				<colgroup>
 					<col width="12%">
@@ -247,15 +248,14 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button type="button" onclick="openInsertOrder();">발주</button>
-		<button type="button">출하</button>
+		<button type="button" onclick="openInsertOrder('O');">발주</button>
+		<button type="button" onclick="openInsertShip('O')">출하</button>
 		<button type="button" onclick="modal.close(); openOrderDetail('U');">수정</button>
 		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
 
 <script type="text/javascript">
-	var actionType = null;
 	var fileArr = [];
 	var fileGridView = {
 		initView : function() {
@@ -369,9 +369,35 @@
 		});
 	}
 	
-	function openInsertOrder(){
-		actionType = "O";
+	// 발주 등록
+	function openInsertOrder(type){
+		actionType = type;
 		modal.close();
 		openModal("/static/html/user/od/od01/OD0102P01.html", 950, 800, "");
+	}
+
+	// 출하 등록
+	function openInsertShip(type){
+		var row = gridView.target.getList("selected")[0];
+		var detailArr = [];
+		$.each($("tr[name='detailRow']"), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked")) {
+				var detailObj = {};
+				$.each($(elem).find("input[name='odrDtlSeq']"), function(idx, elem){
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
+		});
+		if(detailArr.length > 0){
+			actionType = type;
+			odrSeq = row.odrSeq;
+			odrDtlSeqArr = detailArr;
+			modal.close();
+			openModal("/static/html/user/ar/ar01/AR0102P01.html", 920, 780, " ");
+		}else{
+			alert("주문내역을 선택하세요!");
+			return;
+		}
 	}
 </script>
