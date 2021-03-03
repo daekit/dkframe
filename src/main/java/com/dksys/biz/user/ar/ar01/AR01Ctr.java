@@ -77,4 +77,12 @@ public class AR01Ctr {
     	model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
     	return "jsonView";
     }
+	
+	@PostMapping(value = "/selectConfirmCount")
+	public String selectConfirmCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		int result = ar01Svc.selectConfirmCount(paramMap);
+		model.addAttribute("result", result);
+		return "jsonView";
+	}
+	
 }

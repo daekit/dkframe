@@ -4,7 +4,7 @@
         <h4 class="tit">출하요청서</h4>
     </div>
 
-    <div class="popup_table">
+    <div class="popup_table" id="arViewDiv">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
     	<form id="popForm">
 	        <table>
@@ -105,7 +105,6 @@
 	                <th>납품일시</th>
 	                <td>
                 		<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar">
-<!-- 	                	<input type="text" id="dlvrDttm" name="dlvrDttm" style="width: 35% !important;"> -->
 	                </td>
 	            </tr>
 	            <tr>
@@ -130,13 +129,13 @@
 	            <tr>
 	            	<th>납기 비고</th>
 	                <td colspan="5">     
-	                    <input id="dlvrRmk" name="dlvrRmk" type="text">
+	                	<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500" readonly="readonly"></textarea>
 	                </td>
 	            </tr>
 	            <tr>
 	            	<th>출하 비고</th>
 	                <td colspan="5">     
-	                    <input id="shipRmk" name="shipRmk" type="text">
+	                	<textarea class="form-control" id="shipRmk" name="shipRmk" style="height: 60px;" maxlength="500" readonly="readonly"></textarea>
 	                </td>
 	            </tr>
 	        </table>
@@ -267,16 +266,16 @@
             	<input type="text" name="shipAmt" style="text-align: right;" readonly="readonly" comma>
             </td>
             <td>
-	            <input type="text" name="realShipQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
+	            <input type="text" name="realShipQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0" required>
 	        </td>
             <td>
-            	<input type="text" name="realShipWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
+            	<input type="text" name="realShipWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0" required>
             </td>
             <td>
-            	<input type="text" name="realShipUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
+            	<input type="text" name="realShipUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0" required>
             </td>
             <td>
-            	<input type="text" name="realShipAmt" style="text-align: right;" readonly="readonly" comma value="0">
+            	<input type="text" name="realShipAmt" style="text-align: right;" readonly="readonly" comma value="0" required>
             </td>
             <td>
             	<input type="text" name="shipYn" readonly="readonly" style="text-align: center;">
@@ -453,7 +452,7 @@
 		}
 		//메인정보 세팅
 		$.each(shipInfo, function(key, value){
-			$('#'+key).val(value);
+			$('#arViewDiv #'+key).val(value);
 		});
 		
 		//상세정보 세팅
@@ -614,11 +613,13 @@
 	}
 
 	function updateConfirm() {
-		if($("input[name='detailChkBox']:checked").length == 0){
-			alert("출하내역을 선택해주세요");
-			return;
-		}
-		if($("input[name='detailChkBox']:checked").length == 0){
+		var checkCount = 0;
+		$.each($('.detailRow'), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+				checkCount++;
+			}
+		});
+		if(checkCount == 0){
 			alert("출하내역을 선택해주세요");
 			return;
 		}

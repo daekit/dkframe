@@ -6,7 +6,7 @@
 
 <!--     <h6 class="fs-30 tc">견  적  서</h6> -->
 
-    <div class="popup_table">
+    <div class="popup_table" id="odViewDiv">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
     	<form id="popForm">
 	        <table>
@@ -130,7 +130,7 @@
 	            <tr>
 	            	<th>비고</th>
 	                <td colspan="5">     
-	                    <input id="ordrgRmk" name="ordrgRmk" type="text" style="width: 100%;">
+	                	<textarea class="form-control" id="ordrgRmk" name="ordrgRmk" style="height: 60px;" maxlength="500" readonly="readonly"></textarea>
 	                </td>
 	            </tr>
 	        </table>
@@ -418,7 +418,7 @@
 		}
 		//메인정보 세팅
 		$.each(orderInfo, function(key, value){
-			$('#'+key).val(value);
+			$('#odViewDiv #'+key).val(value);
 		});
 		
 		//상세정보 세팅
@@ -553,6 +553,7 @@
 				detailArr.push(detailObj);
 			}
 		});
+		
 		formData.append("detailArr", JSON.stringify(detailArr));
 		
 		if(actionType == "U") {
@@ -607,6 +608,16 @@
 	}
 
 	function updateConfirm() {
+		var checkCount = 0;
+		$.each($('.detailRow'), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+				checkCount++;
+			}
+		});
+		if(checkCount == 0){
+			alert("발주내역을 선택해주세요");
+			return;
+		}
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/od/od01/updateConfirm", formData, function(data){

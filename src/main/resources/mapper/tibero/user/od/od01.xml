@@ -482,9 +482,6 @@
 	<update id="updateConfirm" parameterType="Map">
 		UPDATE TB_OD01M01 T
 		SET
-			TOT_QTY         = #{totQty},
-		    TOT_WT          = #{totWt},
-		    TOT_AMT         = #{totAmt},
 		    ORDRG_PROC_ID   = #{userId},
 		    ORDRG_PROC_DTTM = SYSDATE,
 		    ORDRG_YN 		= 'Y',
@@ -511,6 +508,20 @@
 		INNER JOIN TB_BM01M01 B
 		   ON B.PRDT_CD = T.PRDT_CD
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq} 
+	</select>
+	
+	<select id="selectDetailCount" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} 
+	</select>
+	
+	<select id="selectConfirmCount" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'Y' 
 	</select>
 	
 </mapper>

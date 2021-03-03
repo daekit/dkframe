@@ -31,5 +31,9 @@ public interface AR01Mapper {
 	int updateConfirmDetail(Map<String, String> detailMap);
 
 	Map<String, String> selectShipDetailInfo(Map<String, String> detailMap);
+
+	int selectConfirmCount(Map<String, String> paramMap);
+
+	int selectDetailCount(Map<String, String> paramMap);
 	
 }

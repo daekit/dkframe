@@ -149,7 +149,7 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd", "SELPCH2");
-			paramMap.put("pchsUpr", detailMap.get("pchsUpr"));
+			paramMap.put("pchsUpr", "0");
 			paramMap.put("sellUpr", detailMap.get("realShipUpr"));
 			paramMap.put("stockUpr", detailMap.get("stockUpr"));
 			paramMap.put("trstQty", detailMap.get("shipQty"));
@@ -182,7 +182,21 @@ public class AR01SvcImpl implements AR01Svc {
 			}
 			sm01Mapper.updateStockSell(paramMap);
 		}
+		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
+			ar01Mapper.updateConfirm(paramMap);
+		}
 		return result;
 	}
 
+	@Override
+	public int selectConfirmCount(Map<String, String> paramMap) {
+		return ar01Mapper.selectConfirmCount(paramMap);
+	}
+	
+
+	@Override
+	public int selectDetailCount(Map<String, String> paramMap) {
+		return ar01Mapper.selectDetailCount(paramMap);
+	}
+	
 }
