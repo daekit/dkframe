@@ -46,14 +46,17 @@
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
 	        <li class="btn_r">
-	        <a onclick = "gridView.setData(0);">
-	          <button class="bg_gray">검 색</button>
-	         </a>
+		         <a onclick="initSearch();">
+							<button type="button" class="bg_gray">초기화</button>
+				</a>
+		        <a onclick = "gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		         </a>
 	        </li>
 	      </ul>
     	</div>
 		  <!-- 검색 콘텐츠 -->
-    <div class="contents">
+    <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type02">
@@ -61,27 +64,27 @@
                 <th>기준일자</th>
                 <td>
                     <div class="date_input">
-                      <input id="prdtDt" onkeyup="dateMask(this);" class="input_calendar" >
+                      <input id="prdtDt" onkeyup="dateMask(this);" class="input_calendar" data-search="prdtDt">
                     </div>
                 </td>
                 <th>매입/매출구분</th>
                 <td>
-                 	<select id ="SELPCH" data-kind="SELPCH" onchange="gridView.setData(0);">
-                 		<option value="">선택</option>
+                 	<select id ="SELPCH" data-kind="SELPCH" onchange="gridView.setData(0);" data-search="selpch">
+                 		<option value="">전체</option>
                  	</select>
                 </td>
               </tr>
               <tr>
                 <th>일반/수입구분</th>
                 <td>
-                  <select id= "PRDTIMP" data-kind="PRDTIMP" onchange="gridView.setData(0);">
-                  	<option value="">선택</option>
+                  <select id= "PRDTIMP" data-kind="PRDTIMP" onchange="gridView.setData(0);" data-search="prdtImp">
+                  	<option value="">전체</option>
                   </select>
                 </td>
                 <th >제품구분</th>
                 <td>
-                  <select id= "PRDTDIV"  data-kind="PRDTDIV" onchange="gridView.setData(0);">
-                  	<option value="">선택</option>
+                  <select id= "PRDTDIV"  data-kind="PRDTDIV" onchange="gridView.setData(0);" data-search="prdtDiv">
+                  	<option value="">전체</option>
                   </select>
                 </td>
               </tr>
@@ -413,6 +416,16 @@
 	})
 
 
+	// 검색조건 초기화
+	function initSearch() {
+		$('#prdtDt').datepicker("setDate", new Date());
+
+		// 조건
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		
+		// 재검색
+		gridView.setData(0);
+	}
 	
 	function updateUprList(type){
 		actionType = type;
@@ -452,5 +465,5 @@
 		
 	}
 	
-	
+
 </script>
