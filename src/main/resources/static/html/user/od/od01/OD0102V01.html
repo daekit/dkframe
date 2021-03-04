@@ -1,7 +1,7 @@
 <body>
   <div class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
-        <h4 class="tit">발주서 등록</h4>
+        <h4 class="tit">발주서 조회</h4>
     </div>
 
 <!--     <h6 class="fs-30 tc">견  적  서</h6> -->
@@ -382,7 +382,7 @@
 	
 	function setInit() {
 		selectOrderInfo();
-		if(gridTarget == "PRJ"){
+		if(openFrom == "SD0501P01" || openFrom == "SD0402V01"){
 			$("#actionBtn").hide();
 			$("#ordrgYnBtn").hide();
 		}else{
@@ -394,11 +394,14 @@
 	
 	function selectOrderInfo() {
 		var row = null;
-		if(gridTarget == "PRJ"){
+		if(openFrom == "SD0501P01"){
 			row = OD01GridView.target.getList("selected")[0];
+		}else if(openFrom == "SD0402V01"){
+			row = ordrgGridView.target.getList("selected")[0];
 		}else{
 			row = gridView.target.getList("selected")[0];
 		}
+		
 		var formData = {
 			"ordrgSeq" : row.ordrgSeq,
 			"reqDt" : row.reqDt.replace(/-/g, "")
@@ -629,7 +632,7 @@
 	}
 	
 	function modalClose(){
-		if(gridTarget == "PRJ"){
+		if(openFrom == "SD0501P01" || openFrom == "SD0402V01"){
 			secondModal.close();
 		}else{
 			modal.close();
