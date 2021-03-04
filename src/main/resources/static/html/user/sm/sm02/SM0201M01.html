@@ -79,6 +79,9 @@
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
 	        <li class="btn_r">
+	        <a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		    </a>
 	        <a onclick = "gridView.setData(0);">
 	          <button class="bg_gray">검 색</button>
 	        </a>
@@ -89,14 +92,14 @@
 	      </ul>
     	</div>
 				  <!-- 검색 콘텐츠 -->
-    <div class="contents">
+    <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type04">
               <tr>
               	<th class="hit">회사</th>
                 <td style="width:200px">
-                  <select id= "coCd_S" style="width:70%;" data-kind="CO" onchange="gridView.setData(0);"  required="required">
+                  <select id= "coCd_S" style="width:70%;" data-kind="CO" required="required">
                   <option value="">전체</option>
                   </select>
                 </td>
@@ -190,6 +193,7 @@
 		setData: function(_pageNo) {
 			firstGrid = this.target;
 			var formData = {
+				"coCd"   : $("#coCd_S").val(),
 				"strtDt" : $("#strtDt").val().replace(/\-/g,''),
 				"endDt"  : $("#endDt").val().replace(/\-/g,''),
 				"outWhCd": $("#searchOutCoCd").val(),
@@ -216,6 +220,7 @@
 	$(document).ready(function() {
 		mainDefaultLoad("재고관리", "재고이동 현황관리");
 		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
 		// 시작일 (시작일 기준 -1개월)
 		$('#strtDt').datepicker({
 			format : "yyyy-mm-dd",
@@ -258,8 +263,18 @@
 		});
 	}
 	
-	
 	function stockMovePopUp(){
 		openModal("/static/html/user/sm/sm02/SM0201P01.html", 1100, 600, "재고 이동");
+	}
+	
+	function initSearch() {
+		$(".contents.search input[type='hidden']").val("");
+		$(".contents.search input[type='text']").val("");
+		$("#searchOutCoCd option").eq(0).prop("selected", true);
+		$("#searchInCoCd option").eq(0).prop("selected", true);
+		$('#strtDt').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		$('#endDt').datepicker("setDate", new Date());
+		$("#coCd_S").val(jwt.coCd);
+		gridView.initView().setData(0);
 	}
 </script>
