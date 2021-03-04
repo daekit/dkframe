@@ -67,6 +67,9 @@
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
 	        <li class="btn_r">
+	        <a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		    </a>
 	        <a onclick = "gridView.setData(0);">
 	          <button class="bg_gray">검 색</button>
 	         </a>
@@ -74,7 +77,7 @@
 	      </ul>
     	</div>
     	
-    	<div class="contents">
+    	<div class="contents search">
         <div class="">
             <!-- 테이블 인풋 3분할 -->
             <table class="table_input type03">
@@ -82,6 +85,7 @@
                 <th>회사</th>
                 <td>
                   <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO">
+                  	<option value="">전체</option>
                   </select>
                 </td>
                 <th>운송일자</th>
@@ -96,7 +100,7 @@
                 <td>
                   <input type="hidden" id="transCo_S" name="transCo_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="transNm_S" name="transNm_S">
+	                <input type="text" id="transNm_S" name="transNm_S" disabled>
 	              	<a onclick="clntSearch('R');"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -118,7 +122,7 @@
                 <td>
                   <input type="hidden" id="clntCd_S" name="clntCd_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="clntNm_S" name="clntNm_S">
+	                <input type="text" id="clntNm_S" name="clntNm_S" disabled>
 	              	<a onclick="clntSearch('L');"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -243,23 +247,12 @@
 				});
 			});
 		}
-		/* ,
-		upData: function(_pageNo){
-			firstGrid = this.target;
-			chkGrid = firstGrid.selectedDataIndexs;
-			var formData = {
-				
-			}
-			postAjax("/user/ar/ar03/updateCheckY", formData, null, function(data){
-				
-			});
-		} */
 	}
 	
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "운반비 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
-		
+		$("#coCd_S").val(jwt.coCd);
 		$('#strtDt_S').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
@@ -308,5 +301,16 @@
 		actionTp = type;
 		openSecondModal("/static/html/user/ar/ar03/AR0301P02.html", 500, 420, "거래처검색");
 	}
-
+	
+	function initSearch() {
+		$(".contents.search input[type='hidden']").val("");
+		$(".contents.search input[type='text']").val("");
+		$("#whCd_S option").eq(0).prop("selected", true);
+		$("#procYn_S option").eq(0).prop("selected", true);
+		$("#searchType option").eq(0).prop("selected", true);
+		$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		$('#endDt_S').datepicker("setDate", new Date());
+		$("#coCd_S").val(jwt.coCd);
+		gridView.initView().setData(0);
+	}
 </script>
