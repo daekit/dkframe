@@ -103,8 +103,21 @@
     <br>
     <!-- 테이블 -->
     <div class="popup_table">
+      <table>
+        <tr>
+          <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
+          <td colspan="9">
+            <div class="add_btn">
+              <a onclick="addRow();">+</a>
+              <a onclick="removeDetailRow();">-</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="ofx_s" style="width:100%;">
       <table id="detailTb">
         <colgroup>
+        	<col width="5%">
             <col width="20%">
             <col width="12%">
             <col width="12%">
@@ -114,29 +127,22 @@
             <col width="14%">
         </colgroup>
         <tr>
-          <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
-          <td colspan="5">
-            <div class="add_btn">
-              <a onclick="addRow();">+</a>
-              <a onclick="removeRow();">-</a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-            <th style="text-align:center">제품구분</th>
-            <th style="text-align:center">제품강종</th>
-            <th style="text-align:center">사이즈(스펙)</th>
-            <th style="text-align:center">단위</th>
-            <th style="text-align:center">수량</th>
-            <th style="text-align:center">단가</th>
-            <th style="text-align:center">금액</th>
+        	<th rowspan="2"></th>
+            <th rowspan="2" style="text-align:center">제품구분</th>
+            <th rowspan="2" style="text-align:center">제품강종</th>
+            <th rowspan="2" style="text-align:center">사이즈(스펙)</th>
+            <th rowspan="2" style="text-align:center">단위</th>
+            <th rowspan="2" style="text-align:center">수량</th>
+            <th rowspan="2" style="text-align:center">단가</th>
+            <th rowspan="2" style="text-align:center">금액</th>
         </tr>
         <!-- // -->
         <tbody>
-          <tr id="tableCd" name="tableCd">
+          <tr class="detailRow" id="tableCd" name="tableCd">
+          	<td>
+				<input type="checkbox" name="detailChkBox">
+			</td>
             <td id="dtlGrid">
-              <!-- <select name="prdtDiv" data-kind="PRDTDIV" onChange="gridViewChange(this);" >
-              </select> -->
               <div class="search_form">
                 <input type="hidden" id="prdtDiv" name="prdtDiv" readonly="readonly">
               	<input type="hidden" id="prdtCd" name="prdtCd" readonly="readonly">
@@ -148,37 +154,42 @@
             	<input type="hidden" name="prdtStkn" readonly="readonly">
             	<input type="text" name="prdtStknNm" readonly="readonly" style="text-align:center">
             </td>
-            <!-- <td>
-              <select name="prdtStkn" data-kind="PDSK" onChange="gridDtlPrdtdiv11(this);">
-              </select>
-            </td> -->
             <td>
             	<input type="hidden" name="prdtSize" readonly="readonly">
             	<input type="text" name="prdtSizeNm" readonly="readonly" style="text-align:center">
             </td>
-            <!-- <td>
-              <select name="prdtSize" data-kind="PDSZ" onChange="gridDtlPrdtdiv11(this);">
-              </select>
-            </td> -->
             <td>
             	<input type="hidden" name="prdtUnit" readonly="readonly">
             	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align:center">
             </td>
-            <!-- <td>
-              <select name="prdtUnit" data-kind="PRDTUNIT" onChange="gridDtlPrdtdiv11(this);">
-              </select>
-            </td> -->
-            <td><input name="estQty" type="text" style="width: 100%; text-align:right" onChange="gridDtlPrdtAmt(this);" onkeyup="addComma(this);" comma></td>
-            <td><input name="prdtUpr" type="text" style="width: 100%; text-align:right" onChange="gridDtlPrdtAmt(this);" onkeyup="addComma(this);" comma></td>
+            <td><input name="estQty" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma></td>
+            <td><input name="prdtUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma></td>
             <td><input name="estAmt" type="text" style="width: 100%; text-align:right" comma>
             <input name="estPrdtSeq" type="hidden">
             <input name="prodCd" type="hidden"></td>
           </tr>
-          <!--  -->
         
         </tbody>
-        <!-- \\ -->
       </table>
+      <table>
+	      	<colgroup>
+				<col width="5%">
+	            <col width="20%">
+	            <col width="12%">
+	            <col width="12%">
+	            <col width="12%">
+	            <col width="10%">
+	            <col width="10%">
+	            <col width="14%">
+	        </colgroup>
+	      	<tr>
+	            <th colspan="5" style="text-align: center;">합계</th>
+	            <td id="totEstQty" style="text-align: right;" comma></td>
+	            <td id="totPrdtUpr" style="text-align: right;" comma></td>
+	            <td id="totEstAmt" style="text-align: right;" comma></td>
+	        </tr>
+	      </table>
+	   </div>
     </div>
    <table>
 	  <colgroup>
@@ -310,6 +321,7 @@
 				$(addedRow).find("input[name='"+key+"']").val(value);
 			});
 		});
+		countTot();
 		//콤마 세팅
 		$.each($('input[comma]'), function(idx, elem){
 			addComma(elem);
@@ -351,13 +363,13 @@
 		
 	}
 	//list 행삭제	
-	function removeRow() {
-		var rowCnt = $("#detailTb > tbody:last > tr").length;
-		if(rowCnt > 1) {
-			$("#detailTb > tbody:last > tr:last").remove();
-		} else {
-			return false;
-		}
+	function removeDetailRow(){
+		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			if($(elem).is(":checked")){
+				$(elem).closest('.detailRow').remove();
+			}
+		});
+		countTot();
 	}
 	
 	function gridDtlPrdtAmt(elem){
@@ -367,6 +379,7 @@
 		//$("input[name='estAmt']")[rowIdx].value = qtyVal * uprVal;
 		var estAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal)));
 		$("input[name='estAmt']")[rowIdx].value = addCommaStr(estAmt);
+		countTot();
 	}
 	
 	function insertEst() {
@@ -479,6 +492,24 @@
 		fileGridView.setData();
 	} 
 	
+	function countTot() {
+		var totEstQty = 0; 
+		var totPrdtUpr = 0; 
+		var totEstAmt = 0;
+		
+		$.each($(".detailRow"), function(idx, item){
+			var estQty	= $("input[name='estQty']")[idx].value; 
+			var prdtUpr	= $("input[name='prdtUpr']")[idx].value;
+			var estAmt	= $("input[name='estAmt']")[idx].value;
+			
+			totEstQty  += Number(deleteCommaStr(estQty)); 
+			totPrdtUpr += Number(deleteCommaStr(prdtUpr)); 
+			totEstAmt  += Number(deleteCommaStr(estAmt));
+		});
+		$("#totEstQty").html(addCommaStr(totEstQty));
+		$("#totPrdtUpr").html(addCommaStr(totPrdtUpr));
+		$("#totEstAmt").html(addCommaStr(totEstAmt));
+	} 
 	
 	function prdtSearch(el) {
 		selectedIdx = $(el).closest('tr').prevAll().length;
