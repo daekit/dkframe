@@ -55,6 +55,7 @@
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
 	<script src="/static/js/global.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -93,6 +94,12 @@
             <!-- 테이블 인풋 2분할 -->
             <table class="table_input type04">
               <tr>
+              	<th class="hit">회사</th>
+                <td style="width:200px">
+                  <select id= "coCd_S" style="width:70%;" data-kind="CO" onchange="gridView.setData(0);"  required="required">
+                  <option value="">전체</option>
+                  </select>
+                </td>
                 <th>운송일자</th>
                 <td>
                     <div class="date_input">
@@ -163,19 +170,19 @@
 		            }
 		        },
 		        columns: [
-		            {key: "outCoNm", label: "출고회사", align: "center"}, 
-		            {key: "ownerNm", label: "재고주체", align: "center"},
-		            {key: "typNm", label: "판매유형", align: "center"},
-		            {key: "makrNm", label: "제조사", align: "center"},
-		            {key: "prdtNm", label: "제품", align: "center"},
-		            {key: "impYn", label: "수입 구분", align: "center"},
-		            {key: "moWh", label: "이동 수량(KG)", align: "right", formatter: "money"},
-		            {key: "stdUpr", label: "기준 단가", align: "right", formatter: "money"},
-		            {key: "outWhNm", label: "출고지", align: "center"},
-		            {key: "inCoNm", label: "입고회사", align: "center"},
-		            {key: "inWhNm", label: "입고지", align: "center"},
-		            {key: "trstDt", label: "운송일자", align: "center"},
-		            {key: "creatDttm", label: "최종 변경일", align: "center"}
+		            {key: "outCoNm", label: "출고회사", align: "center", width: "7%"}, 
+		            {key: "ownerNm", label: "재고주체", align: "left", width: "7%"},
+		            {key: "typNm", label: "판매유형", align: "left", width: "7%"},
+		            {key: "makrNm", label: "제조사", align: "left", width: "7%"},
+		            {key: "prdtNm", label: "제품", align: "left", width: "13%"},
+		            {key: "impNm", label: "수입 구분", align: "center", width: "7%"},
+		            {key: "moWh", label: "이동 수량(KG)", align: "right", width: "7%", formatter: "money"},
+		            {key: "stdUpr", label: "기준 단가", align: "right", width: "7%", formatter: "money"},
+		            {key: "outWhNm", label: "출고지", align: "left", width: "9%"},
+		            {key: "inCoNm", label: "입고회사", align: "center", width: "7%"},
+		            {key: "inWhNm", label: "입고지", align: "left", width: "9%"},
+		            {key: "trstDt", label: "운송일자", align: "center", width: "7%"},
+		            {key: "creatDttm", label: "최종 변경일", align: "center", width: "7%"}
 		        ]
 		    });
 			return this;
@@ -208,13 +215,23 @@
 	//화면로드시
 	$(document).ready(function() {
 		mainDefaultLoad("재고관리", "재고이동 현황관리");
-	    setSelectCombo();
-	    gridView.initView().setData(0);
-	    $('#strtDt, #endDt').datepicker({
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 시작일 (시작일 기준 -1개월)
+		$('#strtDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		});
+		$('#strtDt').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		// 종료일
+		$('#endDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		$('#endDt').datepicker("setDate", new Date());
+	    setSelectCombo();
+	    gridView.initView().setData(0);
 	})	
 		
 	function setSelectCombo(){
