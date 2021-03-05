@@ -91,11 +91,11 @@
                   </select>
                 </td>
                 <th class="hit">기간</th>
-                <td style="width:300px">
+                <td>
                     <div class="date_input">
-                      <input type="text" id="strtDt_S" class="input_calendar"  required="required">
+                      <input type="text" id="strtDt_S" class="input_calendar"  required="required" onchange="dateValidation();">
                       <span>~</span>
-                      <input type="text" id="endDt_S" class="input_calendar"  required="required">
+                      <input type="text" id="endDt_S" class="input_calendar"  required="required" onchange="dateValidation();">
                     </div>
                 </td>
                 <td style="width: 30px"></td>
@@ -117,7 +117,7 @@
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
-	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="deleteProject();" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
 					<option value="10">10</option>
@@ -220,21 +220,17 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
 		
-		// 시작일 (시작일 기준 -1개월)
-		$('#strtDt_S').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		});
-		$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
-		// 종료일
-		$('#endDt_S').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		});
-		$('#endDt_S').datepicker("setDate", new Date());
+		//$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		//$('#endDt_S').datepicker("setDate", new Date());
+		$("#strtDt_S").val(lastWeek());
+		$("#endDt_S").val(dateToStr(new Date()));
 		
+		// 종료일
+		$('#strtDt_S, #endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			//autoclose : true
+		});
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
@@ -260,24 +256,29 @@
 	
 	/*삭제 버튼 클릭시*/
 	function deleteProject() {
-		if (selectGridValidation(firstGrid))
-			return;
-		if (!confirm("삭제하시겠습니까?"))
-			return;
+		var row = gridView.target.getList("selected")[0];
 		var formData = {
-			"authId" : firstGrid.getList("selected")[0].authId
+			"prjctCd" : row.prjctCd
 		}
-		deleteAjax("/admin/bm/account/deleteCode", formData, null, function(data) {
-			if (data.resultCode == 200) {
-				alert(data.resultMessage);
-				getData();
+		postAjax("/user/sd/sd05/selectConfirmCount", formData, null, function(data){
+			if(data.result == 0) {
+				if(confirm("삭제하시겠습니까?")){
+					putAjax("/user/sd/sd05/deleteProject", formData, null, function(data){
+						if(data.resultCode == 200){
+							alert(data.resultMessage);
+							gridView.setData(0);
+						}
+					});
+				}
+			} else {
+				alert("삭제할 수 없는 데이터 입니다.");	
 			}
 		});
 	}
+	
 	function openDaumPostcode() {
 		new daum.Postcode({
 			oncomplete:function(data){
-				debugger;
 				$('#prjctAddrZip').val(data.zonecode);
 				$('#prjctAddr').val((data.roadAddress || data.address) + ' ' + data.buildingName);
 			}

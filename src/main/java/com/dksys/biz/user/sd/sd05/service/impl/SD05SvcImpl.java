@@ -89,4 +89,14 @@ public class SD05SvcImpl implements SD05Svc {
 		}
 		return result;
 	}
+	
+	@Override
+	public int deleteProject(Map<String, String> param) {
+		return sd05Mapper.deleteProject(param);
+	}
+	
+	@Override
+	public int selectConfirmCount(Map<String, String> paramMap) {
+		return sd05Mapper.selectConfirmCount(paramMap);
+	}
 }
