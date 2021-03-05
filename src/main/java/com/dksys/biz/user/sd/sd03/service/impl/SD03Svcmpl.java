@@ -97,4 +97,11 @@ public class SD03Svcmpl implements SD03Svc {
 		}
 		return result;
 	}
+	
+	@Override
+	public int deleteEst(Map<String, String> paramMap) {
+		int result = sd03Mapper.deleteEst(paramMap);
+		result += sd03Mapper.deleteEstDetail(paramMap);
+		return result;
+	}
 }

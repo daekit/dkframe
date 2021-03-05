@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,6 +87,14 @@ public class SD03Ctr {
 			model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
+    	return "jsonView";
+    }
+	
+	@DeleteMapping(value = "/deleteEst")
+    public String deleteEst(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	sd03svc.deleteEst(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
     }
     
