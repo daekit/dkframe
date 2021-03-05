@@ -106,9 +106,9 @@
                 <th>운송일자</th>
                 <td>
                     <div class="date_input">
-                      <input type="text" id="strtDt" class="input_calendar">
+                      <input type="text" id="strtDt" class="input_calendar" onchange="dateValidation();">
                       <span>~</span>
-                      <input type="text" id="endDt" class="input_calendar">
+                      <input type="text" id="endDt" class="input_calendar" onchange="dateValidation();">
                     </div>
                 </td>
                 <th>출고지</th>
@@ -221,20 +221,16 @@
 		mainDefaultLoad("재고관리", "재고이동 현황관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		// 시작일 (시작일 기준 -1개월)
-		$('#strtDt').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		});
-		$('#strtDt').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+
+		$("#strtDt").val(lastWeek());
+		$("#endDt").val(dateToStr(new Date()));
+		
 		// 종료일
-		$('#endDt').datepicker({
+		$('#strtDt, #endDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-			autoclose : true
+			//autoclose : true
 		});
-		$('#endDt').datepicker("setDate", new Date());
 	    setSelectCombo();
 	    gridView.initView().setData(0);
 	})	
@@ -272,8 +268,8 @@
 		$(".contents.search input[type='text']").val("");
 		$("#searchOutCoCd option").eq(0).prop("selected", true);
 		$("#searchInCoCd option").eq(0).prop("selected", true);
-		$('#strtDt').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
-		$('#endDt').datepicker("setDate", new Date());
+		$("#strtDt").val(lastWeek());
+		$("#endDt").val(dateToStr(new Date()));
 		$("#coCd_S").val(jwt.coCd);
 		gridView.initView().setData(0);
 	}
