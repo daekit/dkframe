@@ -91,9 +91,9 @@
                 <th>운송일자</th>
                 <td>
                     <div class="date_input">
-                      <input type="text" id="strtDt_S" class="input_calendar">
+                      <input type="text" id="strtDt_S" class="input_calendar" onchange="dateValidation();">
                       <span>~</span>
-                      <input type="text" id="endDt_S" class="input_calendar">
+                      <input type="text" id="endDt_S" class="input_calendar" onchange="dateValidation();">
                     </div>
                 </td>
                 <th>운송업체</th>
@@ -253,19 +253,15 @@
 		mainDefaultLoad("영업관리", "운반비 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		$('#strtDt_S').datepicker({
+		
+		$("#strtDt_S").val(lastWeek());
+		$("#endDt_S").val(dateToStr(new Date()));
+		$('#strtDt_S, #endDt_S').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-			autoclose : true
+			//autoclose : true
 		});
-		$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
-		// 종료일
-		$('#endDt_S').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		});
-		$('#endDt_S').datepicker("setDate", new Date());
+		
 		gridView.initView().setData(0);
 	})
 	
@@ -308,8 +304,8 @@
 		$("#whCd_S option").eq(0).prop("selected", true);
 		$("#procYn_S option").eq(0).prop("selected", true);
 		$("#searchType option").eq(0).prop("selected", true);
-		$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
-		$('#endDt_S').datepicker("setDate", new Date());
+		$("#strtDt_S").val(lastWeek());
+		$("#endDt_S").val(dateToStr(new Date()));
 		$("#coCd_S").val(jwt.coCd);
 		gridView.initView().setData(0);
 	}
