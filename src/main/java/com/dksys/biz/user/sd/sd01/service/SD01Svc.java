@@ -20,5 +20,7 @@ public interface SD01Svc {
 	public int copyInsert(Map<String, String> param);
 
 	public int deleteCopy(Map<String, String> param);
+	
+	int deletePlan(Map<String, String> paramMap);
 
 }
