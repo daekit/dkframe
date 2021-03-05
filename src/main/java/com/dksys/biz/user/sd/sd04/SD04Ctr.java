@@ -46,6 +46,13 @@ public class SD04Ctr {
     	return "jsonView";
     }
     
+    @PostMapping(value = "/selectFixedOrderCount")
+    public String selectFixedOrderCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int fixedOrderCount = sd04Svc.selectFixedOrderCount(paramMap);
+    	model.addAttribute("fixedOrderCount", fixedOrderCount);
+    	return "jsonView";
+    }
+    
     @PostMapping(value = "/insertOrder")
     public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
