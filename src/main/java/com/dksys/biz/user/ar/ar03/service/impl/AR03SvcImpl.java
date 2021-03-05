@@ -50,6 +50,9 @@ public class AR03SvcImpl implements AR03Svc {
 		return ar03Mapper.updateCaryng(param);
 	}
 
-
+	@Override
+	public int deleteTrans(Map<String, String> paramMap) {
+    	return ar03Mapper.deleteTrans(paramMap);
+	}
 
 }

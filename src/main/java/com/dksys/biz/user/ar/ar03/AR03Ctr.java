@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,4 +82,13 @@ public class AR03Ctr {
 		}
     	return "jsonView";
     }
+	
+	@DeleteMapping(value = "/deleteTrans")
+    public String deleteTrans(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	ar03Svc.deleteTrans(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	return "jsonView";
+    }
+	
 }
