@@ -21,4 +21,6 @@ public interface SD01Mapper {
 	int copyInsert(Map<String, String> param);
 	
 	int deleteCopy(Map<String, String> param);
+	
+	int deletePlan(Map<String, String> paramMap);
 }

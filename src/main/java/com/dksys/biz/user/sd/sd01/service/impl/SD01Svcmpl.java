@@ -45,8 +45,15 @@ public class SD01Svcmpl implements SD01Svc {
     public int copyInsert(Map<String, String> param) {
     	return sd01Mapper.copyInsert(param);
     }
+    
     @Override
     public int deleteCopy(Map<String, String> param) {
     	return sd01Mapper.deleteCopy(param);
     }
+    
+    @Override
+	public int deletePlan(Map<String, String> paramMap) {
+    	return sd01Mapper.deletePlan(paramMap);
+		 
+	}
 }
