@@ -47,6 +47,7 @@
 				FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 				WHERE A.CLNT_CD = B.CLNT_CD
 				 AND  A.MNG_ID = C.ID
+				 AND  A.USE_YN = 'Y'
 				<if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
 				</if>
@@ -129,15 +130,14 @@
 	 	FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 	 	WHERE 1=1
 	 	AND A.CLNT_CD = B.CLNT_CD
+	 	AND A.USE_YN = 'Y'
 		AND  A.MNG_ID = C.ID
 		<if test= "coCd != null and !coCd.equals('')">
 			AND A.CO_CD = #{coCd}
 		</if>
 		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-		<![CDATA[
-			AND STRT_DT >= TO_DATE (#{strtDt} , 'YYYY-MM-DD' )
-			AND END_DT <= TO_DATE(#{endDt}, 'YYYY-MM-DD')
-		]]> 
+		 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt}
+		 	 OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
 		</if>
 		<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 			AND ${searchType} LIKE '%${searchValue}%'
@@ -230,9 +230,22 @@
 		 	)
 	</insert>
 	
-	<delete id="deleteProject" parameterType="Map">
-		DELETE FROM TB_SD05M01
+	<select id="selectConfirmCount" parameterType="Map" resultType="int">
+		SELECT COUNT(B.PRJCT_CD) + COUNT(C.PRJCT_CD) + COUNT(D.PRJCT_CD) CNT 
+		FROM TB_SD05M01 A,
+			 TB_AR01M01 B, 
+			 TB_OD01M01 C, 
+			 TB_SD04M01 D
+		WHERE A.PRJCT_CD = B.PRJCT_CD (+)
+		  AND A.PRJCT_CD = C.PRJCT_CD (+)
+		  AND A.PRJCT_CD = D.PRJCT_CD(+)
+		  AND A.PRJCT_CD = #{prjctCd}
+	</select>
+	
+	<update id="deleteProject" parameterType="Map">
+		UPDATE TB_SD05M01 
+		SET USE_YN = 'N'
 		WHERE PRJCT_CD = #{prjctCd}
-	</delete>
+	</update>
 	
 </mapper>
