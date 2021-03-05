@@ -84,7 +84,7 @@
               <tr>
                 <th>회사</th>
                 <td>
-                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO">
+                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
                   	<option value="">전체</option>
                   </select>
                 </td>
@@ -111,7 +111,7 @@
               <tr>
                 <th>상차지</th>
                 <td>
-                  <select id="whCd_S" name="whCd_S" style="width:100%;" data-kind="WH">
+                  <select id="whCd_S" name="whCd_S" style="width:100%;" data-kind="WH" onchange="gridView.setData(0);">
                   </select>
                 </td>
                 <th>도착지</th>
@@ -133,7 +133,7 @@
               <tr>
                 <th>지불처리 여부</th>
                 <td>
-                  <select id="procYn_S" name="procYn_S" style="width:100%;" data-kind="YN">
+                  <select id="procYn_S" name="procYn_S" style="width:100%;" data-kind="YN" onchange="gridView.setData(0);">
                   </select>
                 </td>
               </tr>
@@ -146,7 +146,7 @@
 				<div class="add_btn_small pdl10">
 				<!-- <a onclick="gridView.upData(0);" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">지불완료</a> -->
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
-	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="deleteTrans();" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
 					<option value="10">10</option>
@@ -312,5 +312,20 @@
 		$('#endDt_S').datepicker("setDate", new Date());
 		$("#coCd_S").val(jwt.coCd);
 		gridView.initView().setData(0);
+	}
+	
+	function deleteTrans() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"transSeq" : row.transSeq
+		}
+		if(confirm("삭제하시겠습니까?")){
+			deleteAjax("/user/ar/ar03/deleteTrans", formData, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		}
 	}
 </script>
