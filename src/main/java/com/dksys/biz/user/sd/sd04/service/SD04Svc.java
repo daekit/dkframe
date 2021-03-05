@@ -13,6 +13,8 @@ public interface SD04Svc {
 
 	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
 	
+	int selectFixedOrderCount(Map<String, String> paramMap);
+	
 	void insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
 	void updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);

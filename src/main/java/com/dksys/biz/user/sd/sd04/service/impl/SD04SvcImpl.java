@@ -2,7 +2,6 @@ package com.dksys.biz.user.sd.sd04.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +44,11 @@ public class SD04SvcImpl implements SD04Svc {
 	@Override
 	public Map<String, Object> selectOrderInfo(Map<String, String> paramMap) {
 		return sd04Mapper.selectOrderInfo(paramMap);
+	}
+	
+	@Override
+	public int selectFixedOrderCount(Map<String, String> paramMap) {
+		return sd04Mapper.selectFixedOrderCount(paramMap);
 	}
 
 	@Override
@@ -127,4 +131,5 @@ public class SD04SvcImpl implements SD04Svc {
 		sd04Mapper.deleteOrderDetail(paramMap);
 		// 첨부파일 삭제 보류!
 	}
+	
 }
