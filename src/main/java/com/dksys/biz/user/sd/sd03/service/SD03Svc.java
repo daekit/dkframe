@@ -20,4 +20,6 @@ public interface SD03Svc {
 	void insertEst(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
 	int updateEst(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+	
+	int deleteEst(Map<String, String> paramMap);
 }
