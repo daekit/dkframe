@@ -140,7 +140,7 @@
 		</form>
 	</div>
 	<br>
-	<!-- 테이블 -->
+	<!-- 상세내역 테이블 -->
 	<div class="popup_table">
 		<table id="detailTable">
 			<colgroup>
@@ -171,7 +171,7 @@
 				<th class="tc">비고</th>
 			</tr>
 		</table>
-		<table id="hiddenTable" style="display: none;">
+		<table id="frameTable" style="display: none;">
 			<tr name="detailRow">
 				<input type="hidden" name="odrDtlSeq"> 
 				<td>
@@ -233,6 +233,45 @@
 		</table>
 	</div>
 	<br>
+	<!-- 발주서 테이블 -->
+	<div class="popup_table" id="ordrgTable">
+		<table>
+			<thead>
+				<tr>
+					<td class="tl">발주서</td>
+					<td class="tr">
+						<a class="tbody_more_btn"></a>
+					</td>
+				</tr>
+			</thead>
+			<tr>
+				<td colspan="2">
+					<div class="ax5_grid" data-ax5grid="ordrg-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<!-- 출하요청서 테이블 -->
+	<div class="popup_table" id="shipTable">
+		<table>
+			<thead>
+				<tr>
+					<td class="tl">출하요청서</td>
+					<td class="tr">
+						<a class="tbody_more_btn"></a>
+					</td>
+				</tr>
+			</thead>
+			<tr>
+				<td colspan="2">
+					<div class="ax5_grid" data-ax5grid="ship-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<!-- 첨부파일 테이블 -->
 	<div class="popup_table">
 		<table>
 			<colgroup>
@@ -241,7 +280,7 @@
 			<tr>
 				<th>첨부파일</th>
 				<td>
-					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 130px; width: 100%"></div>
+					<div class="ax5_grid" data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 130px; width: 100%"></div>
 				</td>
 			</tr>
 		</table>
@@ -256,6 +295,7 @@
 </div>
 
 <script type="text/javascript">
+	var openFrom = "SD0402V01";
 	var fileArr = [];
 	var fileGridView = {
 		initView : function() {
@@ -294,14 +334,185 @@
 		}
 	}
 
+	var ordrgGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="ordrg-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	openSecondModal("/static/html/user/od/od01/OD0102V01.html", 1000, 800, "");
+		            }
+		        },
+		        page: {
+		            navigationItemCount: 10,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	ordrgGridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		        	{key: "ordrgSeq", label: "발주일련번호", align: "center", hidden: true},
+		          	{key: "reqDt", label: "요청일자", align: "center", width: "10%"},
+		            {key: "dirtrsYn", label: "직송구분", align: "center", width: "10%"},
+		            {key: "clntNm", label: "매입거래처", align: "left", width: "15%"},
+		        	{key: "prjctNm", label: "프로젝트", align: "left", width: "10%"},
+		        	{key: "sellClntNm", label: "매출거래처", align: "center", width: "15%"},
+		        	{key: "makrNm", label: "제조사", align: "left", width: "10%"},
+		        	{key: "whNm", label: "창고", align: "center", width: "10%"},
+		        	{key: "totQty", label: "수량(Kg)", align: "right", width: "10%", formatter: "money"},
+		        	{key: "totAmt", label: "발주금액", align: "right", width: "10%", formatter: "money"},
+		        	{key: "typNm", label: "판매유형", align: "center", width: "10%"},
+		        	{key: "ordrgYn", label: "매입확정여부", align: "center", width: "10%"},
+		        	{key: "sellYn", label: "매출확정여부", align: "center", width: "10%"},
+		        	{key: "impYn", label: "수입구분", align: "center", width: "10%"},
+		        	{key: "addr", label: "착지주소", align: "left", width: "30%"},
+		        	{key: "mngTel", label: "담당자연락처", align: "center", width: "10%"},
+		        	{key: "dlvrDttm", label: "납기일자", align: "center", width: "10%"},
+		        	{key: "ordrgRmk", label: "비고", align: "center", width: "10%"},
+		        	{key: "salesMngNm", label: "발주담당자", align: "center", width: "10%"}
+		        ]
+		    });
+			return this;
+		},
+		setData: function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {
+				"pageNo": _pageNo + 1,
+				"odrSeq": $('#odrSeq').val()
+			};
+			
+			postAjax("/user/od/od01/selectOrderList", paramObj, null, function(data){
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+				
+				if(data.paginationInfo.totalRecordCount == 0){
+					$('#ordrgTable').hide()
+				}
+			});
+		}
+	}
+	
+	var shipGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="ship-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 1000, 800, "");
+		            }
+		        },
+		        page: {
+		            navigationItemCount: 10,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	AR01GridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		          	{key: "coNm", label: "회사", align: "center", width: "10%"},
+		          	{key: "whNm", label: "창고", align: "center", width: "10%"},
+		            {key: "clntNm", label: "거래처", align: "left", width: "16%"},
+		            {key: "reqDt", label: "요청일자", align: "center", width: "10%"},
+		        	{key: "dirtrsYn", label: "직송구분", align: "center", width: "10%"},
+		        	{key: "dlvrDttm", label: "납기일시", align: "center", width: "10%"},
+		        	{label: "출하요청",  columns:[
+		          		{key: "shipTotQty", label: "수량", align: "right", width: "10%", formatter: "money" },
+			          	{key: "shipTotWt", label: "중량", align: "right", width: "10%", formatter: "money" },
+			          	{key: "shipTotAmt", label: "총금액", align: "right", width: "10%",formatter: "money" }
+		          	]},
+		          	{label: "실 출하",  columns:[
+		          		{key: "realTotQty", label: "수량", align: "right", width: "10%", formatter: "money" },
+			          	{key: "realTotWt", label: "중량", align: "right", width: "10%", formatter: "money" },
+			          	{key: "realTotAmt", label: "총금액", align: "right", width: "10%", formatter: "money" }
+		          	]},
+		        	{key: "shipYn", label: "출하상태", align: "center", width: "10%"},
+		        	{key: "shipDttm", label: "출하완료일", align: "center", width: "10%"},
+		        	{key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
+		        	{key: "odrCreatDiv", label: "오더구분", align: "center", width: "10%"}
+		        ]
+		    });
+			return this;
+		},
+		setData: function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {
+				"pageNo": _pageNo + 1,
+				"odrSeq": $('#odrSeq').val()
+			};
+			
+			postAjax("/user/ar/ar01/selectShipList", paramObj, null, function(data){
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+				
+				if(data.paginationInfo.totalRecordCount == 0){
+					$('#shipTable').hide()
+				}
+			});
+		}
+	}
+
 	$(document).ready(function() {
 		// 공통코드 SelectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
 		selectOrderInfo();
 		
-		// 주문 연동관련 전역변수 초기화 필요
+		// 주문 연동관련 전역변수 초기화
 		odrSeq = null;
 		odrDtlSeqArr = [];
+		
+		// 영역 접기/열기 이벤트 바인딩
+		$('a.tbody_more_btn').click(function() {
+			$(this).toggleClass('on');
+			$(this).closest('table').find('tbody').toggle();
+		});
 	});
 	
 	function selectOrderInfo() {
@@ -345,6 +556,12 @@
 			}
 		});
 		
+		// 발주서 set
+		ordrgGridView.initView().setData(0);
+		
+		// 출하요청서 set
+		shipGridView.initView().setData(0);
+		
 		// 첨부파일 set
 		$.each(orderInfo.fileList, function(idx, obj) {
 			fileArr.push({
@@ -360,7 +577,7 @@
 	}
 	
 	function addDetailRow(){
-		var $detailRow = $('#hiddenTable tr[name="detailRow"]').clone();
+		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
 		$('#detailTable tbody').append($detailRow[0]);
 		return $detailRow;
 	}
@@ -394,10 +611,7 @@
 		var tempArr = [];
 		$.each($('tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find('input[name="detailChkBox"]').is(':checked')) {
-				var dtlSeqObj = {};
-				var dtlSeqElem = $(elem).find('input[name="odrDtlSeq"]')[0];
-				dtlSeqObj[dtlSeqElem.name] = dtlSeqElem.value;
-				tempArr.push(dtlSeqObj);
+				tempArr.push($(elem).find('input[name="odrDtlSeq"]').val());
 			}
 		});
 		

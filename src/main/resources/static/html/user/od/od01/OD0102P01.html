@@ -225,11 +225,12 @@
 				</td>
 	            <td>
 	              <input type="hidden" name="ordrgDtlSeq">
+	              <input type="hidden" name="odrDtlSeq">
 	              <input type="hidden" name="prdtCd">
-	              <input type="hidden" name="prdtDivNm">
-	              <input type="hidden" name="prdtSizeNm">
-	              <input type="hidden" name="prdtErqkNm">
-	              <input type="hidden" name="prdtSpecNm">
+	              <input type="hidden" name="prdtDiv">
+	              <input type="hidden" name="prdtSize">
+	              <input type="hidden" name="prdtErqkYn">
+	              <input type="hidden" name="prdtSpec">
 	              <input type="hidden" name="prdtCoilYn">
 	              <input type="hidden" name="pchsUpr">
 	              <input type="hidden" name="sellUpr">
@@ -241,8 +242,14 @@
 	              	<button type="button" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
 	              </div>
 	            </td>
-	            <td><input type="text" name="prdtStknNm" readonly="readonly" style="text-align: center;"></td>
-	            <td><input type="text" name="prdtUnitNm" readonly="readonly" style="text-align: center;"></td>
+	            <td>
+	            	<input type="hidden" name="prdtStkn" readonly="readonly" style="text-align: center;">
+	            	<input type="text" name="prdtStknNm" readonly="readonly" style="text-align: center;">
+	            </td>
+	            <td>
+	            	<input type="hidden" name="prdtUnit" readonly="readonly" style="text-align: center;">
+	            	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align: center;">
+	            </td>
 	            <td><input type="text" style="text-align: right;" name="prdtLen"></td>
 	            <td>
 		            <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
@@ -257,16 +264,16 @@
 	            	<input type="text" name="ordrgAmt" style="text-align: right;" readonly="readonly" comma>
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+	            	<input type="text" name="realDlvrQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+	            	<input type="text" name="realDlvrWt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
+	            	<input type="text" name="realDlvrUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma value="0">
 	            </td>
 	            <td>
-	            	<input type="text" name="realDlvrAmt" style="text-align: right;" readonly="readonly" comma>
+	            	<input type="text" name="realDlvrAmt" style="text-align: right;" readonly="readonly" comma value="0">
 	            </td>
 	            <td>
 	            	<input type="text" name="ordrgYn" readonly="readonly" style="text-align: center;">
@@ -424,6 +431,8 @@
 			$('#actionBtn').on("click", function(){updateOrder();});
 			$('#actionBtn').text("저장");
 		}else if (actionType == "O"){
+			getOrderInfo();
+			$('#odrSeq').siblings('a').remove();
 			$('#actionBtn').on("click", function(){insertOrder();});
 			$('#actionBtn').text("등록");
 		}
@@ -440,6 +449,16 @@
 		});
 	}
 	
+	function getOrderInfo(){
+		var formData = {
+			"odrSeq": odrSeq,
+			"odrDtlSeqArr": odrDtlSeqArr
+		};
+		postAjax("/user/od/od01/getOrderInfo", formData, null, function(data){
+			setOrderInfo(data.result);
+		});
+	}
+	
 	function setOrderInfo(obj) {
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
@@ -447,6 +466,7 @@
 		if(orderInfo.ordrgYn == "Y") {
 			$("#actionBtn").hide();
 		}
+		
 		//메인정보 세팅
 		$.each(orderInfo, function(key, value){
 			$('#'+key).val(value);
@@ -477,17 +497,19 @@
 			addComma(elem);
 		});
 		
-		$.each(fileInfo, function(idx, obj){
-			fileArr.push({
-				'fileKey' : obj.fileKey,
-		      	'fileName' : obj.fileName,
-		      	'fileType' : obj.fileType,
-		      	'fileSize' : obj.fileSize,
-		      	'file' : obj
+		if(actionType != "O"){
+			$.each(fileInfo, function(idx, obj){
+				fileArr.push({
+					'fileKey' : obj.fileKey,
+			      	'fileName' : obj.fileName,
+			      	'fileType' : obj.fileType,
+			      	'fileSize' : obj.fileSize,
+			      	'file' : obj
+				});
 			});
-		});
-		// 첨부파일 그리드 set
-		fileGridView.setData();
+			// 첨부파일 그리드 set
+			fileGridView.setData();
+		}
 	}
 	
 	function addRow() {
@@ -719,6 +741,31 @@
 	
 	function odrSearch() {
 		openSecondModal("/static/html/user/od/od01/OD0102P06.html", 700, 420, "주문서");
+	}
+
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#addrZip').val(data.zonecode);
+				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+			}
+		}).open();
+	}
+	
+	function clntSearch(type) {
+		var modalTitle = "";
+		clntType = type; 
+		if(clntType == "PUR") {
+			modalTitle = "매입거래처";
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		} else if(clntType == "SELL") {
+			modalTitle = "매출거래처";
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		} else {
+			modalTitle = "거래처";
+			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		} 	
 	}
 	
 </script>

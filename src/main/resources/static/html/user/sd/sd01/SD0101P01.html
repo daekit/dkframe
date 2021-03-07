@@ -13,23 +13,23 @@
                 
             </colgroup>
             <tr>
-                <th>회사</th>
+                <th class="hit">회사</th>
                 <td class="detailSell">                                
-                    <select id="coCd" name="coCd" data-kind="CO">
+                    <select id="coCd" name="coCd" data-kind="CO" required="required">
                     </select>
                 </td>
             </tr>
             <tr>
-                <th>판매/매출구분</th>
+                <th class="hit">판매/매입구분</th>
                 <td class="detailSell">                                
-                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH">
+                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH" required="required">
                     </select>
                 </td>
             </tr>
             <tr>
-                <th class="">견적일자</th>
+                <th class="hit">계획년월</th>
                 <td>
-                	<input id="planYm" name="planYm" type="month" readonly="readonly">
+                	<input id="planYm" name="planYm" type="month" readonly="readonly" required="required">
                 </td>
 			</tr>
 			 <tr>
@@ -49,24 +49,30 @@
                     </div>
                 </td>
             </tr>
+
+                    <!--  <select id="makrCd" name="makrCd" data-kind="MAKR" required="required">
+                    </select> -->                   
+<!-- 매입계획 만들때 사용할 것. 현재는 폐기
 			<tr>
 				<th>메이커</th>
                 <td class="detailMakr">     
-                	<select id="makrCd" name="makrCd" data-kind="MAKR">
+                	<select id="makrCd" name="makrCd" data-kind="MAKR" required="required">
                     </select>    
                 </td>
 			</tr>
+ -->
 			<tr>
                 <th class="">제품구분</th>
                 <td>                                
                     <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV">
                     </select>
+
                 </td>
             </tr>
             <tr>
                 <th class="">수량</th>
                 <td>                                
-                    <input type="text" id="planWt" name="planWt">
+                    <input type="text" id="planWt" name="planWt" onkeyup="addComma(this);"  comma>
                 </td>
             </tr>
             <tr>
@@ -77,17 +83,17 @@
                 </td>
             </tr>
             <tr>                
-                <th class="">담당사원</th>
+                <th class="hit">담당사원</th>
                 <td>                                
                     <input type="hidden" id="planSalesId" name="planSalesId" style="width: 100%;">
-                    <input type="text" id="planSalesNm" name="planSalesNm" style="width: 100%;" readonly="readonly">
+                    <input type="text" id="planSalesNm" name="planSalesNm" style="width: 100%;" readonly="readonly" required="required">
                 </td>
             </tr>
             <tr>                
-                <th class="">부서(팀)</th>
+                <th class="hit">부서(팀)</th>
                 <td>                                
                     <input type="hidden" id="panDeptId" name="panDeptId" style="width: 100%;">
-                    <input type="text" id="panDeptNm" name="panDeptNm" style="width: 100%;" readonly="readonly">
+                    <input type="text" id="panDeptNm" name="panDeptNm" style="width: 100%;" readonly="readonly" required="required">
                 </td>
             </tr>
             <tr>
@@ -172,11 +178,15 @@
 		    	$('#detailTb input[name="planYm"]').val(planYm2);
 			}
 		});
+		//콤마 추가
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
 	}
 	
 	//거래처 검색
 	function clntSearch() {
-		openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 400, 400, "거래처검색");
+		openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 580, 400, "거래처검색");
 	}	
 	
 	//검색된 거래처 받아오는함수
@@ -189,6 +199,9 @@
 	
 	function insertPlan() {
 		if(inputValidation($('input[required]'))) {
+			$.each($('input[comma]'), function(idx, elem){
+				deleteComma(elem);
+			});
 			var formData = {
 					"coCd" : $('#detailTb select[name="coCd"]').val(),
 					"selpchCd" : $('#detailTb select[name="selpchCd"]').val(),
@@ -196,7 +209,7 @@
 					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
 					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
 					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
-					"planWt" : $('#detailTb input[name="planWt"]').val(),
+					"planWt" : deleteCommaStr($('#detailTb input[name="planWt"]').val()),
 					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
 					"planSalesId" : $('#detailTb input[name="planSalesId"]').val(),
 					"panDeptId" : $('#detailTb input[name="panDeptId"]').val(),
@@ -214,6 +227,9 @@
 	
 	function updatePlan() {
 		if(inputValidation($('input[required]'))) {
+			$.each($('input[comma]'), function(idx, elem){
+				deleteComma(elem);
+			});
 			var formData = {
 					"planSeq" : $('#planSeq').val(),
 					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
@@ -232,6 +248,4 @@
 			});
 		}
 	} 
-	
-	
 </script>

@@ -25,4 +25,8 @@ public interface SD05Svc {
 
 	int updateProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
+	int selectConfirmCount(Map<String, String> paramMap);
+	
+	int deleteProject(Map<String, String> param);
+	
 }

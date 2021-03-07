@@ -49,20 +49,20 @@
 					, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
 				FROM
 					TB_BM01M01 T
+				<where>
+			 		USE_YN = #{useYn}
+			 		<if test="prdtDiv != null and !prdtDiv.equals('')">
+			 			AND PRDT_DIV = #{prdtDiv}
+			 		</if>
+			 		<if test="searchValue != null and !searchValue.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'				
+					</if>
+					<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
+						<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYYMMDD')]]>				
+					</if>
+			 	</where>
+			 	ORDER BY PRDT_DIV, PRDT_NM, PRDT_STKN, PRDT_ERQK_YN, PRDT_SIZE, PRDT_SPEC, PRDT_COIL_YN
 			) A
-		 	<where>
-		 		USE_YN = #{useYn}
-		 		<if test="prdtDiv != null and !prdtDiv.equals('')">
-		 			AND PRDT_DIV = #{prdtDiv}
-		 		</if>
-		 		<if test="searchValue != null and !searchValue.equals('')">
-					AND ${searchType} LIKE '%${searchValue}%'				
-				</if>
-				<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
-					<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYYMMDD')]]>				
-				</if>
-		 	</where>
-		 	ORDER BY PRDT_DIV, PRDT_NM, PRDT_STKN, PRDT_ERQK_YN, PRDT_SIZE, PRDT_SPEC, PRDT_COIL_YN
 		)
 		WHERE 
 			RNUM BETWEEN ${firstIndex} AND ${lastIndex}

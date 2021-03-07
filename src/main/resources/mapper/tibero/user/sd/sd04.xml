@@ -142,7 +142,9 @@
 			ODR_WT,
 			ODR_UPR,
 			ODR_AMT,
-			ODR_DTL_RMK
+			ODR_DTL_RMK,
+			(SELECT COUNT(*) FROM TB_OD01D01 WHERE ODR_DTL_SEQ = T.ODR_DTL_SEQ) AS ORDRG_DTL_CNT,
+			(SELECT COUNT(*) FROM TB_AR01D01 WHERE ODR_DTL_SEQ = T.ODR_DTL_SEQ) AS SHIP_DTL_CNT
 		FROM
 			TB_SD04D01 T
 		WHERE
@@ -151,6 +153,23 @@
 	
 	<select id="selectFileList" resultType="CamelMap">
 		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_SD04M01' AND FILE_TRGT_KEY = #{fileTrgtKey}
+	</select>
+	
+	<select id="selectFixedOrderCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_SD04D01 A
+			LEFT JOIN TB_OD01D01 B ON A.ODR_DTL_SEQ = B.ODR_DTL_SEQ
+			LEFT JOIN TB_AR01D01 C ON A.ODR_DTL_SEQ = C.ODR_DTL_SEQ
+		WHERE
+			A.ODR_SEQ = #{odrSeq}
+			AND
+			(
+				B.ORDRG_SEQ IS NOT NULL
+				OR
+				C.SHIP_DTL_SEQ IS NOT NULL
+			)
 	</select>
 	
 	<insert id="insertOrder">
@@ -316,7 +335,21 @@
 	</delete>
 	
 	<delete id="deleteOrderDetail">
-		DELETE FROM TB_SD04D01
-		WHERE ODR_SEQ = #{odrSeq}
+		DELETE
+		FROM
+			TB_SD04D01
+		WHERE
+			ODR_DTL_SEQ IN (
+				SELECT
+					A.ODR_DTL_SEQ
+				FROM
+					TB_SD04D01 A
+					LEFT JOIN TB_OD01D01 B ON A.ODR_DTL_SEQ = B.ODR_DTL_SEQ
+					LEFT JOIN TB_AR01D01 C ON A.ODR_DTL_SEQ = C.ODR_DTL_SEQ
+				WHERE
+					A.ODR_SEQ = #{odrSeq}
+					AND B.ORDRG_SEQ IS NULL
+					AND C.SHIP_DTL_SEQ IS NULL
+			)
 	</delete>
 </mapper>

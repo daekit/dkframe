@@ -1,0 +1,361 @@
+<body>
+  <div class="popup_area of_a" style="width: 100%; height: 100%;">
+  	<div class="tit_contents">
+        <h4 class="tit">운반비 등록</h4>
+    </div>
+  
+    <div class="popup_table">
+    	<!-- <input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/> -->
+    	<form id="popForm">
+        <table>
+            <colgroup>
+                <col width="15%">
+                <col width="35%">
+                <col width="15%">
+                <col width="35%">
+                <col>
+            </colgroup>
+            <tr>
+            	<th class="">운송일자</th>
+                <td>
+                	<input type="text" id="transDt" name="transDt" class="input_calendar">
+                </td>
+                <th class="">회사</th>
+                <td>                                
+                    <select id="coCd" name="coCd" data-kind="CO">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>운송업체</th>
+                <td class="drctArea">
+                	<input type="hidden" id="transCo" name="transCo" style="width: 76%;">                   
+                	<div class="search_form">
+	                    <input type="text" id="transNm" name="transNm" readonly="readonly">
+                    	<a onclick="clntSearch('T');"><i class="i_search_w"></i></a>
+                    </div>
+                </td>
+                <th>거래처</th>
+                <td class="drctArea">
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
+                	<div class="search_form">
+	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
+                    	<a onclick="clntSearch('C');"><i class="i_search_w"></i></a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="">중량(KG)</th>
+                <td>   
+                	<input id="totWt" name="totWt" type="text" style="width: 100%;" onchange="transPrc();" onkeyup="addComma(this);" comma>
+                </td>
+                <th class="">중량(KG)</th>
+                <td>   
+                	<input id="totWt2" name="totWt2" type="text" style="width: 100%;" readonly="readonly" onkeyup="addComma(this);" comma>
+                </td>
+            </tr>
+            <tr>
+                <th class="">도착지</th>
+                <td>
+                	<input id="desCd" name="desCd" type="hidden" style="width: 100%;" >
+                	<input id="desNm" name="desNm" type="text" style="width: 100%;" >
+                </td>
+                <th class="">현장(프로젝트)</th>
+	            <td>
+	          	  <div class="search_form">
+	                <input type="hidden" id="prjctCd" name="prjctCd">
+	                <input type="text" id="prjctNm" name="prjctNm"  readonly="readonly">
+	              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
+	              </div>
+	            </td>
+            </tr>
+            <tr>
+                <th class="">상차지(창고)</th>
+                <td>                                
+                    <select id="whCd" name="whCd" data-kind="WH">
+                    </select>
+                </td>
+                <th class="">지불회사</th>
+                <td>   
+                	<input id="payCo" name="payCo" type="text">
+                </td>
+            </tr>
+            <tr>
+                <th class="">운전기사</th>
+                <td>   
+                	<input id="drivrNm" name="drivrNm" type="text">
+                </td>
+                <th class="">지불처리 완료여부</th>
+                <td>                                
+                    <select id="procYn" name="procYn" data-kind="YN">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="">운송단가</th>
+                <td>                                
+                    <input id="transUpr" name="transUpr" type="text" onchange="transPrc();" onkeyup="addComma(this);" comma>
+                </td>
+                <th class="">운송비</th>
+                <td>   
+                	<input id="transAmt" name="transAmt" type="text" comma>
+                </td>
+            </tr>
+            <tr>
+                <th class="">비고</th>
+           		<td colspan="5">                                     
+                    <input id="transRmk" name="transRmk" type="text">
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" id="userId" name="userId">
+	    <input type="hidden" id="pgmId" name="pgmId" value="AR0301M01">
+	    <input type="hidden" id="shipSeq" name="shipSeq">
+	    <input type="hidden" id="transSeq" name="transSeq">
+      </form>
+    </div>
+    <!-- 출하요청서 테이블 -->
+	<table class="popup_table" id="shipmentTable" style="display:none">
+		<colgroup>
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+			<col width="14%">
+		</colgroup>
+		<thead>
+			<tr>
+				<td colspan="6" style="text-align: left;">출하요청서</td>
+				<td style="text-align: right;">
+					<a class="tbody_more_btn"></a>
+				</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td colspan="7">
+					<div class="contents">
+						<div data-ax5grid="AR01-grid" data-ax5grid-config="{}" style="height: 150px; width: 1800px;"></div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+  	<div>
+		<button id="actionBtn">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+	</div> 
+  </div>
+  <!-- <div class="row">
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+  </div> -->
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+
+	var AR01Grid = null;
+	var AR01GridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="AR01-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	AR01GridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		          	{key: "coNm", label: "회사", align: "center", width: "10%"},
+		          	{key: "whNm", label: "창고", align: "center", width: "10%"},
+		            {key: "clntNm", label: "거래처", align: "left", width: "16%"},
+		            {key: "reqDt", label: "요청일자", align: "center", width: "10%"},
+		        	{key: "dirtrsYn", label: "직송구분", align: "center", width: "10%"},
+		        	{key: "dlvrDttm", label: "납기일시", align: "center", width: "10%"},
+		        	{label: "출하요청",  columns:[
+		          		{key: "shipTotQty", label: "수량", align: "right", width: "10%", formatter: "money" },
+			          	{key: "shipTotWt", label: "중량", align: "right", width: "10%", formatter: "money" },
+			          	{key: "shipTotAmt", label: "총금액", align: "right", width: "10%",formatter: "money" }
+		          	]},
+		          	{label: "실 출하",  columns:[
+		          		{key: "realTotQty", label: "수량", align: "right", width: "8%", formatter: "money" },
+			          	{key: "realTotWt", label: "중량", align: "right", width: "8%", formatter: "money" },
+			          	{key: "realTotAmt", label: "총금액", align: "right", width: "10%", formatter: "money" }
+		          	]},
+		        	{key: "shipYn", label: "출하상태", align: "center", width: "10%"},
+		        	{key: "shipDttm", label: "출하완료일", align: "center", width: "10%"},
+		        	{key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
+		        	{key: "odrCreatDiv", label: "오더구분", align: "center", width: "10%"},
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			AR01Grid = this.target;
+			var formData = {
+				"prjctCd" : $("#prjctCd").val(),
+				"shipSeq" : $("#shipSeq").val(),
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : $("#recordCnt").val()
+			}
+			postAjax("/user/ar/ar03/selectShipList", formData, null, function(data){
+				var list = data.resultList;
+				AR01Grid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+				if(AR01Grid.list.length == 0){
+					$("#shipmentTable").hide();
+				}
+			});
+		}
+	}
+	
+	
+	$(document).ready( function() {
+		// 영역 접기/열기 이벤트 바인딩
+		$("#userId").val(jwt.userId);
+		$("#coCd").val(jwt.coCd);
+		setCommonSelect($(".popup_area select[data-kind]"));
+		/* $('a.tbody_more_btn').click(function() {
+			$(this).toggleClass('on');
+			$(this).closest('table').find('tbody').toggle();
+		}); */
+		document.getElementById('transDt').value= new Date().toISOString().slice(0, 10);
+		$('#transDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		setInit();		
+	});
+	
+	function setInit() {
+		if(actionType == "C") {
+			$('#actionBtn').on("click", function(){insertCaryng();});
+			$("#actionBtn").text("등록");
+		}else if(actionType == "U"){
+			$("#ordrgTable").show();
+			$("#shipmentTable").show();
+			AR01GridView.initView();
+			selectCaryngInfo();
+			$('#actionBtn').on("click", function(){updateCaryng();});
+			$('#actionBtn').text("수정");
+		}
+	}
+	
+	function selectCaryngInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"transSeq" : row.transSeq,
+			"salesMng" : row.mngId
+		}
+		postAjax("/user/ar/ar03/selectCaryngInfo", formData, null, function(data){
+			setCaryngInfo(data.result);
+		});
+	}
+	
+	function setCaryngInfo(obj){
+		var transInfo = obj;
+		//메인정보 세팅
+		$.each(transInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+		//콤마세팅
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
+		//출하요청서
+		AR01GridView.setData(0);
+	}
+	
+	//중량*운송단가
+	function transPrc(){
+		var totVal = $('#totWt').val();
+		var transVal = $('#transUpr').val();
+		if(totVal !="" && transVal != ""){
+			var transAmt1 = (deleteCommaStr(totVal) * deleteCommaStr(transVal));
+			var transAmt = Math.floor(transAmt1/1000) * 1000;
+			$("#transAmt").val(addCommaStr(transAmt));
+		}
+	}
+	
+	/*select box 선택시*/
+	function commonCodeList(param){
+		var codeSelect = document.getElementById("coCdDtl");
+		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
+	}
+	
+	function insertCaryng() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updateCaryng() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			putAjax("/user/ar/ar03/updateCaryng", formData, null, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function makeFormData() {
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		var formData = new $('.popup_table:visible form')[0];
+		var tempObj = $(formData).serializeObject();
+		tempObj.coCd = jwt.coCd;
+		tempObj.userId = jwt.userId;
+		//formData[tempForm.id] = tempObj;
+		formData = tempObj;
+		return formData;
+	}
+	
+	//거래처 검색
+	function clntSearch(type) {
+		actionTp = type;
+		openSecondModal("/static/html/user/ar/ar03/AR0301P02.html", 500, 420, "거래처검색");
+	}
+	
+	function prjctSearch() {
+		openSecondModal("/static/html/user/ar/ar03/AR0301P03.html", 700, 420, "프로젝트");
+	}
+	
+</script>
+</html>

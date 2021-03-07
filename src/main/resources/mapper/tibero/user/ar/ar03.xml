@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar03.mapper.AR03Mapper">
+	
+	<select id="selectCaryngCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_AR03M01 
+		WHERE 1=1
+	</select>
+	
+	<select id="selectCaryngList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					 	 TRANS_SEQ
+						,A.CO_CD
+						,FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+						,TO_CHAR(TO_DATE(A.TRANS_DT,'YYYYMMDD'),'YYYY-MM-DD') AS TRANS_DT
+						,B.CLNT_NM AS TRANS_NM
+						,A.TRANS_CO
+						,FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+						,A.WH_CD
+						,A.DES_CD
+						,A.DES_NM
+						,A.DRIVR_NM
+						,A.SHIP_SEQ
+						,A.PRJCT_CD
+						,A.TOT_WT
+						,A.TRANS_UPR
+						,A.TRANS_AMT
+						,A.PAY_CO
+						,A.CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 C WHERE A.CLNT_CD = C.CLNT_CD) AS CLNT_NM
+						,A.PROC_YN
+						,A.TRANS_RMK
+						,A.ODR_CREAT_DIV
+						,A.CREAT_ID
+						,A.CREAT_PGM
+						,A.CREAT_DTTM
+						,A.UDT_ID
+						,A.UDT_PGM
+						,A.UDT_DTTM
+				FROM TB_AR03M01 A, TB_BM02M01 B
+				WHERE A.CLNT_CD = B.CLNT_CD
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+		 			AND A.TRANS_DT BETWEEN #{strtDt} AND #{endDt}
+				</if>
+				<if test= "transCo != null and !transCo.equals('')">
+		 			AND A.TRANS_CO = #{transCo}
+				</if>
+				<if test= "whCd != null and !whCd.equals('')">
+		 			AND A.WH_CD = #{whCd}
+				</if>
+				<if test= "desNm != null and !desNm.equals('')">
+		 			AND A.DES_NM = #{desNm}
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test= "procYn != null and !procYn.equals('')">
+		 			AND A.PROC_YN = #{procYn}
+				</if>
+			) D
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectCaryngInfo" parameterType="Map" resultType="camelMap">
+		SELECT T.*,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRANS_CO) AS TRANS_NM,
+			(SELECT CLNT_NM FROM TB_BM02M01 C WHERE T.CLNT_CD = C.CLNT_CD) AS CLNT_NM,
+			S.PRJCT_NM
+		FROM TB_AR03M01 T, TB_BM02M01 B, TB_SD05M01 S
+		WHERE 1=1
+		  AND T.CLNT_CD = B.CLNT_CD
+		  AND T.PRJCT_CD = S.PRJCT_CD
+		  AND T.TRANS_SEQ = #{transSeq}
+	</select>
+	
+	<select id="selectShipCount" parameterType="Map" resultType="int">
+		SELECT 
+	 		COUNT(*) 
+	 	FROM TB_AR01M01 A, TB_AR03M01 B
+	 	WHERE 1=1
+	 		AND A.SHIP_SEQ = B.SHIP_SEQ
+	</select>
+	
+	<select id="selectShipList" parameterType="Map" resultType="camelMap">
+		SELECT * FROM (
+			SELECT 
+				ROWNUM RNUM,
+				T.CO_CD,
+				FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
+		        TO_CHAR(TO_DATE(T.REQ_DT), 'YYYY-MM-DD') AS REQ_DT,
+		        T.CLNT_CD,
+		        (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+		        T.SHIP_SEQ,
+		        T.PRJCT_CD,
+		        T.MAKR_CD,
+		        T.WH_CD,
+		        FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
+		        T.TYP_CD,
+		        T.OWNER_CD,
+		        T.IMP_YN,
+		        T.SALES_AREA_CD,
+		        T.MNG_TEL,
+		        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+		        T.DIRTRS_YN,
+		        T.DLVR_RMK,
+		        T.ADDR_ZIP,
+		        T.ADDR_MAIN,
+		        T.ADDR_SUB,
+		        T.SHIP_RMK,
+		        T.SHIP_TOT_QTY,
+		        T.SHIP_TOT_WT,
+		        T.SHIP_TOT_AMT,
+		        T.REAL_TOT_QTY,
+		        T.REAL_TOT_WT,
+		        T.REAL_TOT_AMT,
+		        T.TRANS_AMT,
+		        T.ODR_SEQ,
+		        T.ORDRG_SEQ,
+		        T.SALES_MNG,
+		        T.SHIP_YN,
+		        T.SHIP_PROC_ID,
+		        T.SHIP_DTTM,
+		        T.ODR_CREAT_DIV,
+		        T.ETC_FIELD1,
+		        T.ETC_FIELD2,
+		        T.ETC_FIELD3,
+		        T.CREAT_ID,
+		        T.CREAT_PGM,
+		        T.CREAT_DTTM,
+		        T.UDT_ID,
+		        T.UDT_PGM,
+		        T.UDT_DTTM,
+				ADDR_MAIN || ' ' || ADDR_SUB AS ADDR
+			FROM 
+			(
+			 	SELECT A.* FROM TB_AR01M01 A, TB_AR03M01 B
+			 	WHERE 1=1
+			 	  AND A.SHIP_SEQ = B.SHIP_SEQ
+			 	  AND A.SHIP_SEQ = #{shipSeq}
+				ORDER BY UDT_DTTM DESC
+			) T
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<insert id="insertCaryng">
+		<selectKey keyProperty="transSeq" resultType="String" order="BEFORE">
+			SELECT TB_AR03M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_AR03M01(
+			TRANS_SEQ,
+			CO_CD,
+			TRANS_DT,
+			TRANS_CO,
+			WH_CD,
+			DES_NM,
+			DRIVR_NM,
+			PRJCT_CD,
+			TOT_WT,
+			TRANS_UPR,
+			TRANS_AMT,
+			PAY_CO,
+			CLNT_CD,
+			PROC_YN,
+			TRANS_RMK,
+			CREAT_PGM,
+			CREAT_ID,
+			CREAT_DTTM
+		)VALUES(
+			#{transSeq},
+			#{coCd},
+			TO_CHAR(TO_DATE(#{transDt},'YYYY-MM-DD'),'YYYYMMDD'),
+			#{transCo},
+			#{whCd},
+			#{desNm},
+			#{drivrNm},
+			#{prjctCd},
+			#{totWt},
+			#{transUpr},
+			#{transAmt},
+			#{payCo},
+			#{clntCd},
+			#{procYn},
+			#{transRmk},
+			#{pgmId},
+			#{userId},
+			SYSDATE
+		)
+	</insert>
+	
+	<update id="updateCaryng" parameterType="Map">
+		UPDATE TB_AR03M01
+		SET
+			 CO_CD = #{coCd}
+			,TRANS_DT = TO_CHAR(TO_DATE(#{transDt},'YYYY-MM-DD'),'YYYYMMDD')
+			,TRANS_CO = #{transCo}
+			,WH_CD = #{whCd}
+			,DES_NM = #{desNm}
+			,DRIVR_NM = #{drivrNm}
+			,PRJCT_CD = #{prjctCd}
+			,TOT_WT = #{totWt}
+			,TRANS_UPR = #{transUpr}
+			,TRANS_AMT = #{transAmt}
+			,PAY_CO = #{payCo}
+			,CLNT_CD = #{clntCd}
+			,PROC_YN = #{procYn}
+			,TRANS_RMK = #{transRmk}
+			,UDT_PGM = #{pgmId}
+			,UDT_ID = #{userId}
+			,UDT_DTTM = SYSDATE
+		WHERE
+			TRANS_SEQ = #{transSeq}
+	</update>
+	
+	<delete id="deleteTrans" parameterType="Map">
+		DELETE FROM TB_AR03M01
+		WHERE TRANS_SEQ = #{transSeq}
+	</delete>
+	
+</mapper>

@@ -12,10 +12,12 @@ public interface OD01Svc {
 	int selectOrderCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
-
+	
 	int deleteOrder(Map<String, String> paramMap);
 
 	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
+	
+	Map<String, Object> getOrderInfo(Map<String, Object> paramMap);
 
 	int updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
@@ -23,5 +25,4 @@ public interface OD01Svc {
 
 	int selectConfirmCount(Map<String, String> paramMap);
 
-	
 }

@@ -28,5 +28,6 @@ public interface SD03Mapper {
 	int updateEstDetail(Map<String, String> estMap);
 	
 	int deleteEstDetail(Map<String, String> paramMap);
-	//int deleteEst(Map<String, String> paramMap);
+	
+	int deleteEst(Map<String, String> paramMap);
 }

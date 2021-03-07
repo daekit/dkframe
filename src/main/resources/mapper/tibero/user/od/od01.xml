@@ -109,6 +109,9 @@
 		<if test="prjctCd != null and !prjctCd.equals('')">
 			AND PRJCT_CD = #{prjctCd}				
 		</if>
+		<if test="odrSeq != null and !odrSeq.equals('')">
+			AND ODR_SEQ = #{odrSeq}				
+		</if>
 	</select>
 	
 	<select id="selectOrderList" parameterType="Map" resultType="camelMap">
@@ -189,6 +192,9 @@
 				<if test="prjctCd != null and !prjctCd.equals('')">
 					AND PRJCT_CD = #{prjctCd}				
 				</if>
+				<if test="odrSeq != null and !odrSeq.equals('')">
+					AND ODR_SEQ = #{odrSeq}				
+				</if>
 				ORDER BY UDT_DTTM DESC
 			) T
 		)
@@ -213,6 +219,7 @@
 		(
 			ORDRG_SEQ,
 	        ORDRG_DTL_SEQ,
+			ODR_DTL_SEQ,
 	        PRDT_CD,
 	        PRDT_COIL_YN,
 	        PRDT_DIV,
@@ -249,14 +256,15 @@
         (
         	#{ordrgSeq},
 	        #{ordrgDtlSeq},
+	        #{odrDtlSeq},
 	        #{prdtCd},
 	        #{prdtCoilYn},
-	        #{prdtDivNm},
-	        #{prdtErqkNm},
-	        #{prdtSpecNm},
-	        #{prdtStknNm},
-	        #{prdtUnitNm},
-	        #{prdtSizeNm},
+	        #{prdtDiv},
+	        #{prdtErqkYn},
+	        #{prdtSpec},
+	        #{prdtStkn},
+	        #{prdtUnit},
+	        #{prdtSize},
 	        #{prdtLen},
 	        #{ordrgQty},
 	        #{ordrgWt},
@@ -333,6 +341,38 @@
 		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
 	</select>
 	
+	<select id="getOrderInfo" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.ODR_SEQ,
+			T.CO_CD,
+			T.TYP_CD,
+			T.DIRTRS_YN,
+            T.CLNT_CD AS SELL_CLNT_CD,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS SELL_CLNT_NM,
+			T.OWNER_CD,
+			T.SALES_MNG,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+            T.MAKR_CD,
+            T.WH_CD,
+            T.IMP_YN,
+            T.PRJCT_CD,
+			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+            T.REQ_DT,
+            TO_CHAR(T.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+            T.ADDR_ZIP,
+			T.ADDR_MAIN,
+			T.ADDR_SUB,
+			T.MNG_TEL,
+			T.ODR_RMK AS ORDRG_RMK,
+            T.TOT_QTY,
+            T.TOT_WT,
+            T.TOT_AMT
+		FROM 
+			TB_SD04M01 T
+		WHERE
+			ODR_SEQ = #{odrSeq}
+	</select>
+	
 	<select id="selectOrderDetail" parameterType="Map" resultType="camelMap">
 		SELECT 
 			T.ORDRG_SEQ,
@@ -373,18 +413,47 @@
 	        T.UDT_ID,
 	        T.UDT_PGM,
 	        T.UDT_DTTM,
-			T.PRDT_DIV AS PRDT_DIV_NM,
-			T.PRDT_SIZE AS PRDT_SIZE_NM,
-			T.PRDT_ERQK_YN AS PRDT_ERQK_NM,
-			T.PRDT_SPEC AS PRDT_SPEC_NM,
-			T.PRDT_STKN AS PRDT_STKN_NM,
-			T.PRDT_UNIT AS PRDT_UNIT_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_DIV) AS PRDT_DIV_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_SIZE) AS PRDT_SIZE_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_ERQK_YN) AS PRDT_ERQK_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_SPEC) AS PRDT_SPEC_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) AS PRDT_UNIT_NM,
 			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
 			PRDT_CNVRSN_WT
 		FROM TB_OD01D01 T
 		INNER JOIN TB_BM01M01 B
 		   ON B.PRDT_CD = T.PRDT_CD
 		WHERE ORDRG_SEQ = #{ordrgSeq}
+	</select>
+	
+	<select id="getOrderDetail" parameterType="Map" resultType="camelMap">
+		SELECT
+			T.ODR_SEQ,
+			T.ODR_DTL_SEQ,
+			T.PRDT_CD,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			FN_CM05M01_CD_TO_NM(B.PRDT_STKN) PRDT_STKN_NM,
+			T.PRDT_UNIT AS PRDT_UNIT_NM,
+			T.PRDT_LEN,
+			T.PRDT_UPR,
+			T.ODR_QTY AS ORDRG_QTY,
+			T.ODR_WT AS ORDRG_WT,
+			T.ODR_UPR AS ORDRG_UPR,
+			T.ODR_AMT AS ORDRG_AMT,
+			T.ODR_DTL_RMK AS ORDRG_DTL_RMK
+		FROM 
+			TB_SD04D01 T
+			INNER JOIN TB_BM01M01 B ON T.PRDT_CD = B.PRDT_CD
+		WHERE 
+			ODR_SEQ = #{odrSeq}
+			<if test="odrDtlSeqArr != null and odrDtlSeqArr.size != 0">
+				AND ODR_DTL_SEQ IN
+				<foreach item="odrDtlSeq" collection="odrDtlSeqArr" open="(" close=")" separator="," >
+					#{odrDtlSeq}
+				</foreach>
+			</if>
+		ORDER BY T.ODR_DTL_SEQ
 	</select>
 	
 	<update id="updateOrder" parameterType="Map">

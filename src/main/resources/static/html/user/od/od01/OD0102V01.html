@@ -1,12 +1,12 @@
 <body>
-  <div class="popup_area of_a" style="width: 100%; height: 100%;">
+  <div id="odViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
-        <h4 class="tit">발주서 등록</h4>
+        <h4 class="tit">발주서 조회</h4>
     </div>
 
 <!--     <h6 class="fs-30 tc">견  적  서</h6> -->
 
-    <div class="popup_table" id="odViewDiv">
+    <div class="popup_table">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
     	<form id="popForm">
 	        <table>
@@ -205,11 +205,12 @@
 				</td>
 	            <td>
 	              <input type="hidden" name="ordrgDtlSeq">
+	              <input type="hidden" name="odrDtlSeq">
 	              <input type="hidden" name="prdtCd">
-	              <input type="hidden" name="prdtDivNm">
-	              <input type="hidden" name="prdtSizeNm">
-	              <input type="hidden" name="prdtErqkNm">
-	              <input type="hidden" name="prdtSpecNm">
+	              <input type="hidden" name="prdtDiv">
+	              <input type="hidden" name="prdtSize">
+	              <input type="hidden" name="prdtErqkYn">
+	              <input type="hidden" name="prdtSpec">
 	              <input type="hidden" name="prdtCoilYn">
 	              <input type="hidden" name="pchsUpr">
 	              <input type="hidden" name="sellUpr">
@@ -218,8 +219,14 @@
 	              <input type="hidden" name="prdtCnvrsnWt">
 	              <input type="text" name="prdtNm" readonly="readonly">
 	            </td>
-	            <td><input type="text" name="prdtStknNm" readonly="readonly" style="text-align: center;"></td>
-	            <td><input type="text" name="prdtUnitNm" readonly="readonly" style="text-align: center;"></td>
+	            <td>
+	            	<input type="hidden" name="prdtStkn" readonly="readonly" style="text-align: center;">
+	            	<input type="text" name="prdtStknNm" readonly="readonly" style="text-align: center;">
+	            </td>
+	            <td>
+	            	<input type="hidden" name="prdtUnit" readonly="readonly" style="text-align: center;">
+	            	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align: center;">
+	            </td>
 	            <td><input type="text" style="text-align: right;" name="prdtLen"></td>
 	            <td>
 		            <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
@@ -382,7 +389,7 @@
 	
 	function setInit() {
 		selectOrderInfo();
-		if(gridTarget == "PRJ"){
+		if(openFrom == "SD0501P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			$("#actionBtn").hide();
 			$("#ordrgYnBtn").hide();
 		}else{
@@ -394,11 +401,14 @@
 	
 	function selectOrderInfo() {
 		var row = null;
-		if(gridTarget == "PRJ"){
+		if(openFrom == "SD0501P01"){
 			row = OD01GridView.target.getList("selected")[0];
+		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
+			row = ordrgGridView.target.getList("selected")[0];
 		}else{
 			row = gridView.target.getList("selected")[0];
 		}
+		
 		var formData = {
 			"ordrgSeq" : row.ordrgSeq,
 			"reqDt" : row.reqDt.replace(/-/g, "")
@@ -430,11 +440,11 @@
 				}
 			});
 			if(item.ordrgYn == "Y") {
-				$($("input[name='detailChkBox']")[idx]).prop("checked", true);
-				$($("input[name='detailChkBox']")[idx]).prop("disabled", true);
+				$($("#odViewDiv input[name='detailChkBox']")[idx]).prop("checked", true);
+				$($("#odViewDiv input[name='detailChkBox']")[idx]).prop("disabled", true);
 			} else {
-				$($("input[name='detailChkBox']")[idx]).prop("checked", false);
-				$($("input[name='detailChkBox']")[idx]).prop("disabled", false);
+				$($("#odViewDiv input[name='detailChkBox']")[idx]).prop("checked", false);
+				$($("#odViewDiv input[name='detailChkBox']")[idx]).prop("disabled", false);
 			}
 			countTot();
 		});
@@ -629,7 +639,7 @@
 	}
 	
 	function modalClose(){
-		if(gridTarget == "PRJ"){
+		if(openFrom == "SD0501P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			secondModal.close();
 		}else{
 			modal.close();

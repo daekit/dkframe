@@ -88,4 +88,19 @@ public class SD05Ctr {
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
     }
+	
+	@PostMapping(value = "/selectConfirmCount")
+	public String selectConfirmCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		int result = sd05Svc.selectConfirmCount(paramMap);
+		model.addAttribute("result", result);
+		return "jsonView";
+	}
+	
+	@PutMapping(value = "/deleteProject")
+	public String deleteProject(@RequestBody Map<String, String> param, ModelMap model) {
+		sd05Svc.deleteProject(param);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	return "jsonView";
+    }
 }

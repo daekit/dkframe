@@ -31,5 +31,7 @@ public interface SD05Mapper {
 
 	int updateProject(Map<String, String> param);
 	
-	int deleteProject(Map<String, String> paramMap);
+	int selectConfirmCount(Map<String, String> paramMap);
+	
+	int deleteProject(Map<String, String> param);
 }

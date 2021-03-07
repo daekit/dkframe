@@ -63,7 +63,6 @@ public class AR01SvcImpl implements AR01Svc {
 			}
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
-			detailMap.put("odrDtlSeq", paramMap.get("odrDtlSeq"));
 			detailMap.put("ordrgDtlSeq", paramMap.get("ordrgDtlSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
@@ -96,6 +95,14 @@ public class AR01SvcImpl implements AR01Svc {
 		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("shipSeq")));
 		returnMap.put("shipInfo", ar01Mapper.selectShipInfo(paramMap));
 		returnMap.put("shipDetail", ar01Mapper.selectShipDetail(paramMap));
+		return returnMap;
+	}
+	
+	@Override
+	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("shipInfo", ar01Mapper.getOrderInfo(paramMap));
+		returnMap.put("shipDetail", ar01Mapper.getOrderDetail(paramMap));
 		return returnMap;
 	}
 

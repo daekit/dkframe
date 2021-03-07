@@ -1,11 +1,16 @@
 <div class="popup_area">
-	<div class="popup_table">
+	<div class="popup_table_sub">
 		<table>
 			<colgroup>
 				<col width="30%">
 				<col width="">
 			</colgroup>
 			<tr>
+				<td>
+					<select id="clntDivCd" data-search="clntDivCd" data-kind="CLNTDIV" onchange="clntGridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
 				<td>
 					<select data-search="searchType">
 						<option value="CLNT_NM">거래처명</option>
@@ -62,11 +67,12 @@
 					}
 				},
 				columns : [
-					{key : "clntCd",    label : "거래처코드",    align : "center", hidden : true}, 
-					{key : "clntNm",    label : "거래처명",      align : "left",   width : "30%"},
-					{key : "crn",       label : "사업자 등록번호", align : "center", width : "30%"},
-					{key : "clntDivNm", label : "거래처 구분",    align : "center"},
-					{key : "bizconNm",  label : "업태",         align : "center"}
+					{key : "clntCd", label : "거래처코드", align : "center", hidden : true}, 
+					{key : "clntNm", label : "거래처명", align : "center", width : "30%"},
+					{key : "crn", label : "사업자 등록번호", align : "center", width : "30%"},
+					{key : "clntDivCd", label : "거래처 구분코드", align : "center", hidden : true},
+					{key : "clntDivNm", label : "거래처 구분", align : "center"},
+					{key : "bizconNm", label : "업태", align : "center"}
 				]
 			});
 			return this;
@@ -96,13 +102,25 @@
 
 	$(document).ready(function() {
 		clntGridView.initView().setData(0);
+		setCommonSelect($(".popup_table_sub select[data-kind]"));
 	});
 
 	function setClntInfo() {
 		if(selectGridValidation(clntGridView.target)) return;
 		var row = clntGridView.target.getList("selected")[0];
-		$('#clntCd').val(row.clntCd);
-		$('#clntNm').val(row.clntNm);
+		if(actionTp == "L"){
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
+		}else if(actionTp == "R"){
+			$('#clntCd_S').val(row.clntCd);
+			$('#transNm_S').val(row.clntNm);
+		}else if(actionTp == "C"){
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		}else if(actionTp == "T"){
+			$('#transCo').val(row.clntCd);
+			$('#transNm').val(row.clntNm);
+		}
 		secondModal.close();
 	}
 </script>
