@@ -207,19 +207,31 @@
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).subtract(3, "month").toDate())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#startDt').datepicker("setDate", new Date($('#endDt').val()));
+			}
 		});
-		$('#startDt').datepicker("setDate", moment(new Date()).subtract(3, "month").toDate());
 		
 		// 종료일
 		$('#endDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
+		})
+		.datepicker("setDate", new Date())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
+			}
 		});
-		$('#endDt').datepicker("setDate", new Date());
 		
 		// 검색조건 이벤트 bind
-		$('[data-search]').on("change", function(){
+		$('[data-search]').not('.input_calendar').on("change", function(){
 			gridView.setData(0);
 		});
 		

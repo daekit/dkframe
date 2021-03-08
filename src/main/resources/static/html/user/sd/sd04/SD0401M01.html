@@ -138,6 +138,7 @@
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
+	var fixedOrderCount = 0;
 	var gridView = {
 		initView : function() {
 			this.target = new ax5.ui.grid();
@@ -251,7 +252,7 @@
 		});
 		
 		// 검색조건 이벤트 bind
-		$('[data-search]').on("change", function(){
+		$('[data-search]').not('.input_calendar').on("change", function(){
 			gridView.setData(0);
 		});
 
@@ -285,11 +286,20 @@
 	
 	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
 	function deleteOrder() {
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"odrSeq" : row.odrSeq};
+		
+		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
+			fixedOrderCount = data.fixedOrderCount;
+			if(data.fixedOrderCount > 0){
+				alert("해당 주문으로 생성된 발주 또는 출하 내역이 있습니다.");
+			}
+		});
+		
+		if(fixedOrderCount > 0) return;
 		if (selectGridValidation(gridView.target)) return;
 		if (!confirm("삭제하시겠습니까?")) return;
-		var row = gridView.target.getList("selected")[0];
-		var formData = {"odrSeq" : row.odrSeq};
-		deleteAjax("/user/sd/sd04/deleteOrder", formData, null, function(data) {
+		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
 			alert(data.resultMessage);
 			if (data.resultCode == 200) {
 				gridView.setData(0);

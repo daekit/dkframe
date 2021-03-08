@@ -14,7 +14,7 @@ public interface SD04Mapper {
 	
 	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
 	
-	List<Map<String, String>> selectOrderDetail(Map<String, String> paramMap);
+	int selectFixedOrderCount(Map<String, String> paramMap);
 	
 	int insertOrder(Map<String, String> paramMap);
 
