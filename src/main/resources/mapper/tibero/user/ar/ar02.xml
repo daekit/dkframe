@@ -86,7 +86,7 @@
 			#{trstCertiNo},
 			#{selpchCd},
 			NULL,
-			NULL,
+			TO_CHAR(SYSDATE, 'yyyyMMdd'),
 			#{clntCd},
 			#{prdtCd},
 			#{ownerCd},
@@ -152,7 +152,160 @@
 			#{userId},
 			#{pgmId},
 			SYSDATE
-		);
+		)
 	</insert>
+	
+	<select id="selectSellCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*) FROM TB_AR02M01
+	 	WHERE 1=1
+		<if test="coCd != null and !coCd.equals('')">
+			AND CO_CD = #{coCd}				
+		</if>
+	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+			AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+		</if>
+	 	<if test="clntNm != null and !clntNm.equals('')">
+			AND CLNT_NM = #{clntNm}				
+		</if>
+	 	<if test="prdtDiv != null and !prdtDiv.equals('')">
+			AND PRDT_DIV = #{prdtDiv}				
+		</if>
+	 	<if test="estCoprt != null and !estCoprt.equals('')">
+			AND TAXIVC_COPRT = #{estCoprt}				
+		</if>
+	 	<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+			AND DIRTRS_YN = #{dirtrsYn}				
+		</if>
+	 	<if test="typCd != null and !typCd.equals('')">
+			AND TYP_CD = #{typCd}				
+		</if>
+		<if test="prjctCd != null and !prjctCd.equals('')">
+			AND PRJCT_CD = #{prjctCd}				
+		</if>
+		<if test="pdsk != null and !pdsk.equals('')">
+			AND PRDT_STKN = #{pdsk}				
+		</if>
+		<if test="bilgYn != null and bilgYn.equals('Y')">
+			AND BILG_CERT_NO IS NOT NULL 		
+		</if>
+		<if test="bilgYn != null and bilgYn.equals('N')">
+			AND BILG_CERT_NO IS NULL 		
+		</if>
+	</select>
+	
+	<select id="selectSellList" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM (
+			SELECT 
+				ROWNUM RNUM,
+				CO_CD,
+		        TRST_CERTI_NO,
+		        SELPCH_CD,
+		        TAXIVC_COPRT,
+		        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
+		        TO_CHAR(TO_DATE(TRST_DT), 'YYYY-MM-DD') AS TRST_DT,
+		        TRST_CLNT_CD,
+		        TRST_PRDT_CD,
+		        (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.TRST_PRDT_CD) AS PRDT_NM,
+		        OWNER_CD,
+		        IMP_YN,
+		        TYP_CD,
+		        FN_CM05M01_CD_TO_NM(TYP_CD) AS TYP_NM,
+		        TRSP_TYP_CD,
+		        TRST_RPRC_SEQ,
+		        TRST_DTL_SEQ,
+		        PRDT_LEN,
+		        ODR_NO,
+		        SALES_MNG,
+		        PRJCT_CD,
+		        (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+		        MAKR_CD,
+		        WH_CD,
+		        MNG_TEL,
+		        TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+		        DIRTRS_YN,
+		        PRDT_DIV,
+		        PRDT_STKN,
+		        FN_CM05M01_CD_TO_NM(PRDT_STKN) AS PRDT_STKN_NM,
+		        PRDT_SIZE,
+		        NVL(FN_CM05M01_CD_TO_NM(PRDT_SIZE), PRDT_SIZE) AS PRDT_SIZE_NM,
+		        PRDT_UNIT,
+		        PRDT_UPR,
+		        STOCK_UPR,
+		        PCHS_UPR,
+		        SELL_UPR,
+		        TRST_QTY,
+		        TRST_WT,
+		        TRST_UPR,
+		        TRST_AMT,
+		        REAL_TRST_QTY,
+		        REAL_TRST_WT,
+		        REAL_TRST_UPR,
+		        REAL_TRST_AMT,
+		        BILG_QTY,
+		        BILG_WT,
+		        BILG_UPR,
+		        BILG_AMT,
+		        TRST_DC_AMT,
+		        ETC_AMT,
+		        TRSP_RMK,
+		        TRANS_AMT,
+		        SHIP_VEH_NO,
+		        CLNT_NM,
+		        BILG_CERT_NO,
+		        CASE WHEN BILG_CERT_NO IS NOT NULL THEN 'Y' ELSE 'N' END BILG_YN,
+		        LOSS_RATE,
+		        ODR_CREAT_DIV,
+		        ETC_FIELD1,
+		        ETC_FIELD2,
+		        ETC_FIELD3,
+		        CREAT_ID,
+		        CREAT_PGM,
+		        TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') AS CREAT_DTTM,
+		        UDT_ID,
+		        UDT_PGM,
+		        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
+		        SALES_AREA_CD
+			FROM 
+			(
+			 	SELECT * FROM TB_AR02M01 T
+			 	WHERE 1=1
+				<if test="coCd != null and !coCd.equals('')">
+					AND CO_CD = #{coCd}				
+				</if>
+			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+					AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+				</if>
+			 	<if test="clntNm != null and !clntNm.equals('')">
+					AND CLNT_NM = #{clntNm}				
+				</if>
+			 	<if test="prdtDiv != null and !prdtDiv.equals('')">
+					AND PRDT_DIV = #{prdtDiv}				
+				</if>
+			 	<if test="estCoprt != null and !estCoprt.equals('')">
+					AND TAXIVC_COPRT = #{estCoprt}				
+				</if>
+			 	<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+					AND DIRTRS_YN = #{dirtrsYn}				
+				</if>
+			 	<if test="typCd != null and !typCd.equals('')">
+					AND TYP_CD = #{typCd}				
+				</if>
+				<if test="prjctCd != null and !prjctCd.equals('')">
+					AND PRJCT_CD = #{prjctCd}				
+				</if>
+				<if test="pdsk != null and !pdsk.equals('')">
+					AND PRDT_STKN = #{pdsk}				
+				</if>
+				<if test="bilgYn != null and bilgYn.equals('Y')">
+					AND BILG_CERT_NO IS NOT NULL 		
+				</if>
+				<if test="bilgYn != null and bilgYn.equals('N')">
+					AND BILG_CERT_NO IS NULL 		
+				</if>
+				ORDER BY UDT_DTTM DESC
+			) T
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
 	
 </mapper>
