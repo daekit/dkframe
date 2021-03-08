@@ -33,9 +33,14 @@
 					, TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
 					, PRDT_DK_CD
 					, PRDT_MES_CD
-					<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
-					, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
-					</if>
+					<choose>
+						<when test="clntCd != null and !clntCd.equals('')">
+						  , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD,#{clntCd}), 0) AS ORDRG_UPR
+						</when>
+						<otherwise>
+						  , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD,''), 0) AS ORDRG_UPR
+						</otherwise>
+					</choose>
 		<!-- 			, NVL((SELECT PCHS_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS PCHS_UPR -->
 		<!-- 			, NVL((SELECT SELL_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS SELL_UPR -->
 		<!-- 			, NVL((SELECT STOCK_UPR FROM TB_SM01M01 WHERE PRDT_CD = T.PRDT_CD), 0) AS STOCK_UPR -->
@@ -132,9 +137,14 @@
 			, PRDT_WT
 			, PRDT_CNVRSN_WT
 			, PRDT_UPR
-			<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
-			, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD), 0) AS ORDRG_UPR
-			</if>			
+			<choose>
+				<when test="clntCd != null and !clntCd.equals('')">
+				  , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD,#{clntCd}), 0) AS ORDRG_UPR
+				</when>
+				<otherwise>
+				  , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, 'PRDTIMP'||#{impYn}, T.PRDT_CD,''), 0) AS ORDRG_UPR
+				</otherwise>
+			</choose>
 			, PCHS_UPR
 			, SELL_UPR
 			, TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
