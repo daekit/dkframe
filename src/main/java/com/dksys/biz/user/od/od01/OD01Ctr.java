@@ -39,6 +39,17 @@ public class OD01Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectOrderDetailList")
+	public String selectOrderDetailList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = od01Svc.selectOrderDetailCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = od01Svc.selectOrderDetailList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
     @PostMapping(value = "/selectOrderInfo")
     public String selectOrderInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	Map<String, Object> result = od01Svc.selectOrderInfo(paramMap);
