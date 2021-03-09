@@ -10,8 +10,12 @@ public interface OD01Svc {
 	int insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
 	int selectOrderCount(Map<String, String> paramMap);
+	
+	int selectOrderDetailCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectOrderDetailList(Map<String, String> paramMap);
 	
 	int deleteOrder(Map<String, String> paramMap);
 

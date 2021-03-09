@@ -71,10 +71,20 @@ public class OD01SvcImpl implements OD01Svc {
 	public int selectOrderCount(Map<String, String> paramMap) {
 		return od01Mapper.selectOrderCount(paramMap);
 	}
+	
+	@Override
+	public int selectOrderDetailCount(Map<String, String> paramMap) {
+		return od01Mapper.selectOrderDetailCount(paramMap);
+	}
 
 	@Override
 	public List<Map<String, String>> selectOrderList(Map<String, String> paramMap) {
 		return od01Mapper.selectOrderList(paramMap);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectOrderDetailList(Map<String, String> paramMap) {
+		return od01Mapper.selectOrderDetailList(paramMap);
 	}
 
 	@Override
@@ -89,7 +99,7 @@ public class OD01SvcImpl implements OD01Svc {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("ordrgSeq")));
 		returnMap.put("orderInfo", od01Mapper.selectOrderInfo(paramMap));
-		returnMap.put("orderDetail", od01Mapper.selectOrderDetail(paramMap));
+		returnMap.put("orderDetail", od01Mapper.selectOrderDetailList(paramMap));
 		return returnMap;
 	}
 	
@@ -97,7 +107,7 @@ public class OD01SvcImpl implements OD01Svc {
 	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 		returnMap.put("orderInfo", od01Mapper.getOrderInfo(paramMap));
-		returnMap.put("orderDetail", od01Mapper.getOrderDetail(paramMap));
+		returnMap.put("orderDetail", od01Mapper.getOrderDetailList(paramMap));
 		return returnMap;
 	}
 
