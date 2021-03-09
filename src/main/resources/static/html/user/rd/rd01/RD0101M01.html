@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button type="button" class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="gridView.setData(0);">
+						<button type="button" class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search">
+			<!-- 테이블 인풋 3분할 -->
+			<table class="table_input type03">
+				<tr>
+					<th>회사</th>
+					<td>
+						<select data-kind="CO" data-search="coCd">
+							<option value="">전체</option>
+						</select>
+					</td>
+					<th>발주일자</th>
+					<td>
+						<div class="date_input">
+							<input type="text" class="input_calendar" id="reqDtFrom" data-search="reqDtFrom" date> 
+							<span>~</span> 
+							<input type="text" class="input_calendar" id="reqDtTo" data-search="reqDtTo" date>
+						</div>
+					</td>
+					<th>창고</th>
+					<td>
+						<select data-kind="WH" data-search="whCd">
+							<option value="">전체</option>
+						</select>
+						<span class="fr">
+							<a class="more_btn on"></a>
+						</span>
+					</td>
+				</tr>
+			</table>
+			<div class="search_contents_bottom">
+	       		<div class="search_option open">
+					<table class="table_input type03">
+						<tr>
+							<th>프로젝트</th>
+							<td>
+								<div class="search_form" style="width: 50%;">
+									<input type="hidden" data-search="prjctCd">
+									<input type="text" data-search="prjctNm" disabled> 
+									<button type="button" onclick="">
+										<i class="i_search_w"></i>
+									</button>
+								</div>
+							</td>
+							<th>제조사</th>
+							<td>
+								<select data-kind="MAKR" data-search="makrCd">
+									<option value="">전체</option>
+								</select>
+							</td> 
+							<th>거래처</th>
+							<td>
+								<div class="search_form" style="width: 50%;">
+									<input type="hidden" data-search="clntCd">
+									<input type="text" data-search="clntNm" disabled> 
+									<button type="button" onclick="clntSearch();">
+										<i class="i_search_w"></i>
+									</button>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>판매유형</th>
+							<td>
+								<select data-kind="SELLTYPE" data-search="typCd">
+									<option value="">전체</option>
+								</select>
+							</td>
+							<th>재고주체</th>
+							<td>
+								<select data-kind="OWNER" data-search="ownerCd">
+									<option value="">전체</option>
+								</select>
+							</td>
+							<th>수입구분</th>
+							<td>
+								<select data-search="impYn">
+									<option value="">전체</option>
+									<option value="Y">Y</option>
+									<option value="N">N</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>입고완료</th>
+							<td>
+								<select data-search="ordrgYn">
+									<option value="">전체</option>
+									<option value="Y">Y</option>
+									<option value="N">N</option>
+								</select>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+					<a onclick="openOrderDetail('C');">+</a> 
+					<a onclick="deleteOrder();">-</a>
+				</div>
+				<select class="prae_select" data-search="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select> 
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="inRslts-grid" data-ax5grid-config="{}" style="height: 300px; width: 100%"></div>
+		</div>
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="inRsltsDetail-grid" data-ax5grid-config="{}" style="height: 300px; width: 100%"></div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	var odrSeq = null;
+	var odrDtlSeqArr = [];
+	var fixedOrderCount = 0;
+	var gridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : true,
+				multipleSelect : false,
+				sortable : true,
+				target : $('[data-ax5grid="inRslts-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
+					},
+					onDBLClick : function() {
+						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
+					}
+				},
+				page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						gridView.setData(this.page.selectPage);
+					}
+				},
+				columns: [
+		          	{key: "ordrgSeq", label: "발주일련번호", align: "center", hidden: true},
+		          	{key: "ordrgYn", label: "입고완료", align: "center", width: "10%"},
+		            {key: "reqDt", label: "발주일자", align: "center", width: "10%"},
+		            {key: "clntNm", label: "거래처", align: "left", width: "10%"},
+		        	{key: "prjctNm", label: "프로젝트", align: "left", width: "10%"},
+		        	{key: "whNm", label: "창고", align: "center", width: "10%"},
+		        	{key: "typNm", label: "판매유형", align: "center", width: "10%"},
+		        	{key: "makrNm", label: "제조사", align: "left", width: "10%"},
+		        	{key: "impYn", label: "수입여부", align: "center", width: "10%"},
+		        	{key: "totQty", label: "수량", align: "right", width: "10%", formatter: "money"},
+		        	{key: "totWt", label: "중량", align: "right", width: "10%", formatter: "money"},
+		        	{key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
+		        	{key: "salesMng", label: "영업담당자", align: "center", width: "10%"},
+		        	{key: "ordrgRmk", label: "비고", align: "left", width: "10%"}
+		        ]
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo" : _pageNo + 1, "recordCnt": 10};
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				var elemValue = $(tempElem).val();
+				if($(tempElem).is('[date]')){
+					elemValue = deleteHyphenStr(elemValue);
+				}
+				paramObj[$(tempElem).data("search")] = elemValue;
+			}
+			
+			postAjax("/user/od/od01/selectOrderList", paramObj, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+
+	$(document).ready(function() {
+		// 페이지 타이틀 set
+		mainDefaultLoad("수불관리", "제품입고관리");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+
+		// 시작일 (시작일 기준 -3개월)
+		$('#reqDtFrom').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).subtract(3, "month").toDate())
+		.on("changeDate", function(){
+			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#reqDtFrom').datepicker("setDate", new Date($('#reqDtTo').val()));
+			}
+		});
+
+		// 종료일
+		$('#reqDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date())
+		.on("changeDate", function(){
+			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#reqDtTo').datepicker("setDate", new Date($('#reqDtFrom').val()));
+			}
+		});
+		
+		// 검색조건 접기/열기 이벤트 bind
+		$('.more_btn').click( function() {
+      		$('.search_contents_bottom .search_option').toggleClass('open');
+      		$(this).toggleClass('on');
+	    });
+		
+		// 검색조건 이벤트 bind
+		$('[data-search]').not('.input_calendar').on("change", function(){
+			gridView.setData(0);
+		});
+
+		// grid init
+		gridView.initView().setData(0);
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+		// 기간
+		$('#reqDtFrom').datepicker("setDate", moment(new Date()).subtract(3, "month").toDate());
+		$('#reqDtTo').datepicker("setDate", new Date());
+
+		// 조건
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		
+		// 재검색
+		gridView.setData(0);
+	}
+
+	// 주문 상세
+	function openOrderDetail(actionType) {
+		this.actionType = actionType;
+		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
+	}
+	
+	// 거래처 검색
+	function clntSearch() {
+		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
+	}
+	
+	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
+	function deleteOrder() {
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"odrSeq" : row.odrSeq};
+		
+		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
+			fixedOrderCount = data.fixedOrderCount;
+			if(data.fixedOrderCount > 0){
+				alert("해당 주문으로 생성된 발주 또는 출하 내역이 있습니다.");
+			}
+		});
+		
+		if(fixedOrderCount > 0) return;
+		if (selectGridValidation(gridView.target)) return;
+		if (!confirm("삭제하시겠습니까?")) return;
+		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
+			alert(data.resultMessage);
+			if (data.resultCode == 200) {
+				gridView.setData(0);
+			}
+		});
+	}
+</script>
