@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.rd.rd04.mapper.RD04Mapper">
+	
+	<select id="selectRcvpayCount" resultType="int">
+		SELECT 
+	 		COUNT(*) 
+		FROM TB_SM01M01 SM01
+		   , GOLDMOON.TB_BM01M01 BM01 
+		  WHERE SM01.PRDT_CD = BM01.PRDT_CD
+		 	<if test="coCd != null and !coCd.equals('')">
+				AND CO_CD = #{coCd}				
+			</if>
+			<if test="prdtDiv != null and !prdtDiv.equals('')">
+				AND BM01.PRDT_DIV = #{prdtDiv}			
+			</if>
+			<if test="prdtCd != null and !prdtCd.equals('')">
+				AND BM01.PRDT_CD = #{prdtCd}				
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+				AND WH_CD = #{whCd}				
+			</if>
+			<if test="ownerCd != null and !ownerCd.equals('')">
+				AND OWNER_CD = #{ownerCd}				
+			</if>
+			<if test="typCd != null and !typCd.equals('')">
+				AND TYP_CD = #{typCd}				
+			</if>
+			<if test="makrCd != null and !makrCd.equals('')">
+				AND MAKR_CD = #{makrCd}				
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}				
+			</if>
+			<if test="prdtimpCd != null and !prdtimpCd.equals('')">
+				AND IMP_YN = #{prdtimpCd}				
+			</if>
+	</select>
+	
+	<select id="selectRcvpayList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT WH_CD
+					 , CO_CD
+					 , SM01.PRDT_CD
+					 , BM01.PRDT_DIV
+					 , OWNER_CD
+					 , TYP_CD
+					 , MAKR_CD
+					 , CLNT_CD
+					 , IMP_YN
+					 , PRJCT_CD
+					 , FN_CM05M01_CD_TO_NM(BM01.PRDT_DIV) PRDT_DIV_NM
+					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
+					 , BM01.PRDT_NM
+					 , FN_CM05M01_CD_TO_NM(OWNER_CD) OWNER_NM
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = SM01.CLNT_CD) AS CLNT_NM
+					 , FN_CM05M01_CD_TO_NM(TYP_CD) TYP_NM
+					 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
+					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = SM01.PRJCT_CD) AS PRJCT_NM
+					 , FN_CM05M01_CD_TO_NM(IMP_YN) IMP_NM
+					 , STOCK_QTY -- 현재고
+				FROM TB_SM01M01 SM01
+				   , GOLDMOON.TB_BM01M01 BM01 
+				  WHERE SM01.PRDT_CD = BM01.PRDT_CD
+					<if test="coCd != null and !coCd.equals('')">
+						AND CO_CD = #{coCd}				
+					</if>
+					<if test="prdtDiv != null and !prdtDiv.equals('')">
+						AND BM01.PRDT_DIV = #{prdtDiv}			
+					</if>
+					<if test="prdtCd != null and !prdtCd.equals('')">
+						AND BM01.PRDT_CD = #{prdtCd}				
+					</if>
+					<if test="whCd != null and !whCd.equals('')">
+						AND WH_CD = #{whCd}				
+					</if>
+					<if test="ownerCd != null and !ownerCd.equals('')">
+						AND OWNER_CD = #{ownerCd}				
+					</if>
+					<if test="typCd != null and !typCd.equals('')">
+						AND TYP_CD = #{typCd}				
+					</if>
+					<if test="makrCd != null and !makrCd.equals('')">
+						AND MAKR_CD = #{makrCd}				
+					</if>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND CLNT_CD = #{clntCd}				
+					</if>
+					<if test="prdtimpCd != null and !prdtimpCd.equals('')">
+						AND IMP_YN = #{prdtimpCd}				
+					</if>
+					<if test="prjctCd != null and !prjctCd.equals('')">
+						AND PRJCT_CD = #{prjctCd}				
+					</if>
+			) A
+		)
+		WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+</mapper>
