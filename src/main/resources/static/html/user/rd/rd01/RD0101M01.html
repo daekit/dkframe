@@ -46,7 +46,7 @@
 					<a onclick="initSearch();">
 						<button type="button" class="bg_gray">초기화</button>
 					</a> 
-					<a onclick="gridView.setData(0);">
+					<a onclick="inRsltsGridView.setData(0);">
 						<button type="button" class="bg_gray">검 색</button>
 					</a>
 				</li>
@@ -91,7 +91,7 @@
 								<div class="search_form" style="width: 50%;">
 									<input type="hidden" data-search="prjctCd">
 									<input type="text" data-search="prjctNm" disabled> 
-									<button type="button" onclick="">
+									<button type="button" onclick="openPrjctSearch();">
 										<i class="i_search_w"></i>
 									</button>
 								</div>
@@ -107,7 +107,7 @@
 								<div class="search_form" style="width: 50%;">
 									<input type="hidden" data-search="clntCd">
 									<input type="text" data-search="clntNm" disabled> 
-									<button type="button" onclick="clntSearch();">
+									<button type="button" onclick="openClntSearch();">
 										<i class="i_search_w"></i>
 									</button>
 								</div>
@@ -154,12 +154,11 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a onclick="openOrderDetail('C');">+</a> 
-					<a onclick="deleteOrder();">-</a>
+					<a style="width:80px;" onclick="">제품입고</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
-					<option value="10">10</option>
-					<option value="20" selected>20</option>
+					<option value="10" selected>10</option>
+					<option value="20">20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select> 
@@ -172,18 +171,14 @@
 		</div>
 		<div class="contents">
 			<!-- 리스트 -->
-			<div class="ax5_grid" data-ax5grid="inRsltsDetail-grid" data-ax5grid-config="{}" style="height: 300px; width: 100%"></div>
+			<div class="ax5_grid" data-ax5grid="inRsltsDtl-grid" data-ax5grid-config="{}" style="height: 300px; width: 100%"></div>
 		</div>
 	</div>
 </body>
 </html>
 
 <script type="text/javascript">
-	var actionType = null;
-	var odrSeq = null;
-	var odrDtlSeqArr = [];
-	var fixedOrderCount = 0;
-	var gridView = {
+	var inRsltsGridView = {
 		initView : function() {
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
@@ -200,19 +195,7 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick : function() {
-						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
-					}
-				},
-				page : {
-					navigationItemCount : 10,
-					height : 30,
-					display : true,
-					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-					onChange : function() {
-						gridView.setData(this.page.selectPage);
+						inRsltsDtlGridView.setData(0);
 					}
 				},
 				columns: [
@@ -230,7 +213,27 @@
 		        	{key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
 		        	{key: "salesMng", label: "영업담당자", align: "center", width: "10%"},
 		        	{key: "ordrgRmk", label: "비고", align: "left", width: "10%"}
-		        ]
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan: 8, align: "center"},
+			    		{key:"totQty", collector: "sum", align: "right", formatter:"money"},
+			    		{key: "totWt", collector: "sum", align: "right", formatter:"money"},
+	                    {key: "transAmt", collector: "sum", align: "right", formatter:"money"}
+			    	]
+			    ],
+			    page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						inRsltsGridView.setData(this.page.selectPage);
+					}
+				}
 			});
 			return this;
 		},
@@ -247,6 +250,83 @@
 			}
 			
 			postAjax("/user/od/od01/selectOrderList", paramObj, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	var inRsltsDtlGridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : false,
+				multipleSelect : false,
+				sortable : true,
+				target : $('[data-ax5grid="inRsltsDtl-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
+					}
+				},
+				columns: [
+		          	{key: "ordrgSeq", label: "발주일련번호", align: "center", hidden: true},
+		          	{key: "ordrgDtlSeq", label: "발주상세일련번호", align: "center", hidden: true},
+		          	{key: "prdtNm", label: "제품", align: "left", width: "21%"},
+		            {key: "ordrgQty", label: "발주수량", align: "right", width: "10%", formatter: "money"},
+		            {key: "ordrgWt", label: "발주중량", align: "right", width: "10%", formatter: "money"},
+		            {key: "realDlvrQty", label: "입고수량", align: "right", width: "10%", formatter: "money"},
+		            {key: "realDlvrWt", label: "입고중량", align: "right", width: "10%", formatter: "money"},
+		        	{key: "prdtLen", label: "길이", align: "right", width: "10%", formatter: "money"},
+		        	{key: "prdtUnit", label: "단위", align: "center", width: "10%"},
+		        	{key: "ordrgProcNm", label: "입고담당자", align: "center", width: "10%"},
+		        	{key: "ordrgProcDttm", label: "입고완료일자", align: "center", width: "10%"}
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan: 1, align: "center"},
+			    		{key:"ordrgQty", collector: "sum", align: "right", formatter:"money"},
+			    		{key: "ordrgWt", collector: "sum", align: "right", formatter:"money"},
+	                    {key: "realDlvrQty", collector: "sum", align: "right", formatter:"money"},
+	                    {key: "realDlvrWt", collector: "sum", align: "right", formatter:"money"}
+			    	]
+			    ],
+			    page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						inRsltsGridView.setData(this.page.selectPage);
+					}
+				}
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {
+				"pageNo" : _pageNo + 1,
+				"recordCnt": 10,
+				"ordrgSeq": inRsltsGridView.target.getList("selected")[0].ordrgSeq
+			};
+			
+			postAjax("/user/od/od01/selectOrderDetailList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -304,12 +384,13 @@
 	    });
 		
 		// 검색조건 이벤트 bind
-		$('[data-search]').not('.input_calendar').on("change", function(){
-			gridView.setData(0);
+		$('select[data-search]').on("change", function(){
+			inRsltsGridView.setData(0);
 		});
 
 		// grid init
-		gridView.initView().setData(0);
+		inRsltsGridView.initView().setData(0);
+		inRsltsDtlGridView.initView();
 	});
 	
 	// 검색조건 초기화
@@ -322,40 +403,28 @@
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		
 		// 재검색
-		gridView.setData(0);
+		inRsltsGridView.setData(0);
 	}
-
-	// 주문 상세
-	function openOrderDetail(actionType) {
-		this.actionType = actionType;
-		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
+	
+	// 프로젝트 검색
+	function openPrjctSearch(){
+		openModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", function (grid) {
+			if(selectGridValidation(grid.target)) return;
+			var row = grid.target.getList("selected")[0];
+			$('[data-search="prjctCd"]').val(row.prjctCd);
+			$('[data-search="prjctNm"]').val(row.prjctNm);
+			modal.close();
+		});
 	}
 	
 	// 거래처 검색
-	function clntSearch() {
-		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
-	}
-	
-	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
-	function deleteOrder() {
-		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"odrSeq" : row.odrSeq};
-		
-		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
-			fixedOrderCount = data.fixedOrderCount;
-			if(data.fixedOrderCount > 0){
-				alert("해당 주문으로 생성된 발주 또는 출하 내역이 있습니다.");
-			}
-		});
-		
-		if(fixedOrderCount > 0) return;
-		if (selectGridValidation(gridView.target)) return;
-		if (!confirm("삭제하시겠습니까?")) return;
-		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
-			alert(data.resultMessage);
-			if (data.resultCode == 200) {
-				gridView.setData(0);
-			}
+	function openClntSearch() {
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", function (grid){
+			if(selectGridValidation(grid.target)) return;
+			var row = grid.target.getList("selected")[0];
+			$('[data-search="clntCd"]').val(row.clntCd);
+			$('[data-search="clntNm"]').val(row.clntNm);
+			modal.close();
 		});
 	}
 </script>

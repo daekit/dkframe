@@ -11,6 +11,8 @@ public interface OD01Mapper {
 	int insertOrder(Map<String, String> paramMap);
 
 	int selectOrderCount(Map<String, String> paramMap);
+	
+	int selectOrderDetailCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
 
@@ -24,9 +26,9 @@ public interface OD01Mapper {
 	
 	Map<String, String> getOrderInfo(Map<String, Object> paramMap);
 
-	List<Map<String, String>> selectOrderDetail(Map<String, String> paramMap);
+	List<Map<String, String>> selectOrderDetailList(Map<String, String> paramMap);
 	
-	List<Map<String, String>> getOrderDetail(Map<String, Object> paramMap);
+	List<Map<String, String>> getOrderDetailList(Map<String, Object> paramMap);
 
 	int updateOrder(Map<String, String> paramMap);
 
@@ -39,5 +41,5 @@ public interface OD01Mapper {
 	int selectDetailCount(Map<String, String> paramMap);
 
 	int selectConfirmCount(Map<String, String> paramMap);
-	
+
 }

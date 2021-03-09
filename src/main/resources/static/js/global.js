@@ -26,8 +26,9 @@ var menuIdx = getCookie("menuIdx");
 var mask = new ax5.ui.mask();
 var modal = new ax5.ui.modal();
 var secondModal = new ax5.ui.modal();
+var commonModal = {};
 
-var openModal = function(url, width, height, title) {
+var openModal = function(url, width, height, title, callBack) {
 	modal.open({
 		header: {
 			title: title,
@@ -56,11 +57,14 @@ var openModal = function(url, width, height, title) {
     	$.get(url, function(data) {    	        
     		targetEl.append(data);
       	});
+    	
+    	// commonModal 객체 set
+    	commonModal.closeTarget = modal;
+    	commonModal.callBack = callBack;
     });
 };
 
-
-var openSecondModal = function(url, width, height, title) {
+var openSecondModal = function(url, width, height, title, callBack) {
 	secondModal.open({
 		header: {
 			title: title,
@@ -80,6 +84,10 @@ var openSecondModal = function(url, width, height, title) {
     	$.get(url, function(data) {    	        
     		targetEl.append(data);
       	});
+    	
+    	// commonModal 객체 set
+    	commonModal.closeTarget = secondModal;
+    	commonModal.callBack = callBack;
     });
 };
 
