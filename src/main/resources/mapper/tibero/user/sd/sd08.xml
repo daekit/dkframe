@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd08.mapper.SD08Mapper">
+	
+	<select id="selectCplrUntpcCount" resultType="int">
+		SELECT 
+	 		COUNT(*) 
+		  FROM GOLDMOON.TB_SD08M01 A
+		     , GOLDMOON.TB_BM01M01 B
+		  WHERE A.PRDT_CD  = B.PRDT_CD 
+				<if test="coCd != null and !coCd.equals('')">
+			   	AND A.CO_CD = #{coCd}		
+				</if>
+				<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+			   	AND A.PRDT_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+				</if>
+				<if test="clntCd != null and !clntCd.equals('')">
+			   	AND A.CLNT_CD = #{clntCd}	
+				</if>
+				<if test="selpchCd != null and !selpchCd.equals('')">
+			   	AND A.SELPCH_CD = #{selpchCd};
+				</if>
+	</select>
+	
+	<select id="selectCplrUntpcList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT A.CO_CD
+					 , A.CLNT_CD
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM
+					 , TO_CHAR(TO_DATE(A.PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') PRDT_DT
+					 , A.SELPCH_CD
+					 , FN_CM05M01_CD_TO_NM(SELPCH_CD) SELPCH_NM
+					 , A.PRDT_CD
+					 , B.PRDT_NM
+					 , A.PRDT_UPR
+					 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_STKN), B.PRDT_STKN) PRDT_STKN_NM
+					 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_SIZE), B.PRDT_SIZE) PRDT_SIZE_NM
+					 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_SPEC), B.PRDT_SPEC) PRDT_SPEC_NM
+					 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_UNIT), B.PRDT_UNIT) PRDT_UNIT_NM
+					 , A.ETC_FIELD1
+					 , A.ETC_FIELD2
+					 , A.ETC_FIELD3
+					 , A.RMK
+					 , A.CREAT_ID
+					 , A.CREAT_PGM
+					 , A.CREAT_DTTM
+					 , A.UDT_ID
+					 , A.UDT_PGM
+					 , A.UDT_DTTM
+				  FROM GOLDMOON.TB_SD08M01 A
+				     , GOLDMOON.TB_BM01M01 B
+				  WHERE A.PRDT_CD  = B.PRDT_CD 
+						<if test="coCd != null and !coCd.equals('')">
+					   	AND A.CO_CD = #{coCd}		
+						</if>
+						<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+			   			AND A.PRDT_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+						</if>
+						<if test="clntCd != null and !clntCd.equals('')">
+					   	AND A.CLNT_CD = #{clntCd}	
+						</if>
+						<if test="selpchCd != null and !selpchCd.equals('')">
+					   	AND A.SELPCH_CD = #{selpchCd}
+						</if>
+			) A
+		)
+		WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectCplrUntpc" resultType="CamelMap">
+	SELECT A.CO_CD
+		 , A.CLNT_CD
+		 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM
+		 , TO_CHAR(TO_DATE(A.PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') PRDT_DT
+		 , A.SELPCH_CD
+		 , FN_CM05M01_CD_TO_NM(SELPCH_CD) SELPCH_NM
+		 , A.PRDT_CD
+		 , B.PRDT_NM
+		 , A.PRDT_UPR
+		 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_STKN), B.PRDT_STKN) PRDT_STKN_NM
+		 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_SIZE), B.PRDT_SIZE) PRDT_SIZE_NM
+		 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_SPEC), B.PRDT_SPEC) PRDT_SPEC_NM
+		 , NVL(FN_CM05M01_CD_TO_NM(B.PRDT_UNIT), B.PRDT_UNIT) PRDT_UNIT_NM
+		 , A.ETC_FIELD1
+		 , A.ETC_FIELD2
+		 , A.ETC_FIELD3
+		 , A.RMK
+		 , A.CREAT_ID
+		 , A.CREAT_PGM
+		 , A.CREAT_DTTM
+		 , A.UDT_ID
+		 , A.UDT_PGM
+		 , A.UDT_DTTM
+	  FROM GOLDMOON.TB_SD08M01 A
+	     , GOLDMOON.TB_BM01M01 B
+	  WHERE A.PRDT_CD  = B.PRDT_CD 
+			<if test="coCd != null and !coCd.equals('')">
+		   	AND A.CO_CD = #{coCd}		
+			</if>
+			<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+   			AND A.PRDT_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+		   	AND A.CLNT_CD = #{clntCd}	
+			</if>
+			<if test="selpchCd != null and !selpchCd.equals('')">
+		   	AND A.SELPCH_CD = #{selpchCd}
+			</if>
+			<if test="prdtCd != null and !prdtCd.equals('')">
+		   	AND A.PRDT_CD = #{prdtCd}
+			</if>
+	</select>
+	
+	<insert id="insertCplrUntpc" parameterType="Map">
+	INSERT INTO TB_SD08M01
+	(CO_CD,
+	 CLNT_CD,
+	 PRDT_DT,
+	 SELPCH_CD,
+	 PRDT_CD,
+	 PRDT_UPR,
+	 RMK,
+	 CREAT_ID,
+	 CREAT_PGM,
+	 CREAT_DTTM
+	 ) VALUES (
+	 #{coCd},
+	 #{clntCd},
+	 REPLACE(#{prdtDt}, '-', ''),
+	 #{selpchCd},
+	 #{prdtCd},
+	 #{prdtUpr},
+	 #{rmk},
+	 #{userId}, 
+	 #{pgmId}, 
+	 SYSDATE
+	 )
+	</insert>
+	
+	<update id="updateCplrUntpc" parameterType="Map">
+	UPDATE TB_SD08M01
+	SET PRDT_UPR = #{prdtUpr}
+	  , RMK = #{rmk}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHERE CO_CD = #{coCd}
+	  AND CLNT_CD = #{clntCd}
+	  AND PRDT_DT = REPLACE(#{prdtDt}, '-', '')
+	  AND SELPCH_CD = #{selpchCd}
+	  AND PRDT_CD  = #{prdtCd}
+	</update>
+	
+	<delete id="deleteCplrUntpc" parameterType="Map">
+	DELETE FROM TB_SD08M01 
+	 WHERE CO_CD = #{coCd}
+	   AND CLNT_CD = #{clntCd}
+	   AND PRDT_DT = REPLACE(#{prdtDt}, '-', '')
+	   AND SELPCH_CD = #{selpchCd}
+	   AND PRDT_CD  = #{prdtCd}
+	</delete>
+</mapper>

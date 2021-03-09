@@ -1,0 +1,257 @@
+<body>
+  <div id="cplrUntpcDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">업체 제품별 단가</h4>
+    </div>
+
+<!--     <h6 class="fs-30 tc">견  적  서</h6> -->
+
+    <div class="popup_table">
+    	<form id="popForm">
+	        <table>
+	            <colgroup>
+	                <col width="12%">
+	                <col width="">
+	                <col width="12%">
+	                <col width="">
+	                <col width="12%">
+	                <col width="">
+	            </colgroup>
+	            <tr>
+	                <th class="hit">회사</th>
+	                <td>
+	                    <select id="coCd" name="coCd" data-kind="CO" required="required">
+	                    	<option value="">선택</option>
+	                    </select>
+	                </td>
+	                <th class="hit">매입처</th>
+	                <td>                                
+                    	<input type="hidden" id="clntCd" name="clntCd">
+		                <div class="search_form" style="width: 100%;">
+				            <input type="text" id="clntNm" name="clntNm" disabled>
+				            <a id="btnClnt" onclick="clntSearch('S');"><i class="i_search_w"></i></a>
+			            </div>
+	                </td>
+	                <th class="hit">기준일자</th>
+	                <td>                                
+	                    <input type="text" id="prdtDt" name="prdtDt" class="input_calendar" required="required">
+	                </td>
+	            </tr>
+	            <tr>
+	                <th class="hit">제품</th>
+	                <td>     
+	                    <input type="hidden" id="prdtCd" name="prdtCd" required="required">
+		                <div class="search_form" style="width: 100%;">
+				            <input type="text" id="prdtNm" name="prdtNm" disabled>
+				            <a id="btnPrdt" onclick="prdtSearch();"><i class="i_search_w"></i></a>
+			            </div>
+	                </td>
+	                <th class="hit">매입매출구분</th>
+	                <td>	                    
+	                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH" required="required">
+	                    	<option value="">선택</option>
+	                    </select>
+	                </td>
+	                <th class="hit">단가</th>
+	                <td>   
+	                	<input type="text" id="prdtUpr" name="prdtUpr" style="width: 100%;" onkeyup="addComma(this);" required="required" comma>       
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>강종</th>
+	                <td style="border-left: 0px !important;">
+	                    <input id="prdtStknNm" name="prdtStknNm" type="text" style="width: 100%;" readonly="readonly">
+	                </td>
+	                <th>SIZE</th>
+	                <td style="border-left: 0px !important;">
+	                    <input id="prdtSizeNm" name="prdtSizeNm" type="text" style="width: 100%;" readonly="readonly">
+	                </td>
+	                <th>SPEC</th>
+	                <td style="border-left: 0px !important;">
+	                    <input id="prdtSpecNm" name="prdtSpecNm" type="text" style="width: 100%;" readonly="readonly">
+	                </td>
+	            </tr>
+	            <tr>
+	            	<th>비고</th>
+	                <td colspan="5">     
+	                	<textarea class="form-control" id="rmk" name="rmk" style="height: 150px;" maxlength="500"></textarea>
+	                </td>
+	            </tr>
+	        </table>
+	        <input type="hidden" id="userId" name="userId">
+	        <input type="hidden" id="pgmId" name="pgmId" value="SD0801P01">
+	    </form>
+    </div>
+
+    <br>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="actionBtn"></button>
+      <button class="close_btn" onclick="modalClose();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	
+	//매입매출구분
+	var clntType = null;
+	var treeType = null;
+	var fileArr = [];
+	var deleteFileArr = [];
+	var selectedIdx = 0;
+	
+	$(document).ready(function() {
+		setCommonSelect($(".popup_area select[data-kind]"));
+		$('#prdtDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		setInit();
+		//$(".popup_area input").prop("readonly", true);
+		//$(".popup_area select").prop("disabled", true);
+	});
+	
+	function setInit() {
+		//selectOrderInfo();
+		if(actionType == "C"){
+			$('#actionBtn').on("click", function(){insertCplrUntpc();});
+			$('#actionBtn').text("등록");
+		} else if(actionType == "U"){
+			$('#actionBtn').on("click", function(){updateCplrUntpc();});
+			$('#actionBtn').text("저장");
+			selectCplrUntpc();
+		}
+	}
+	
+	function selectOrderInfo() {
+		var row = null;
+
+		row = gridView.target.getList("selected")[0];
+		
+		
+		var formData = {
+			"ordrgSeq" : row.ordrgSeq,
+			"reqDt" : row.reqDt.replace(/-/g, "")
+		}
+		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data){
+			setOrderInfo(data.result);
+		});
+	}
+	
+	function setOrderInfo(obj) {
+		var fileInfo = obj.fileList;
+		var orderInfo = obj.orderInfo;
+		var orderDetail = obj.orderDetail;
+		if(orderInfo.ordrgYn == "Y") {
+			$("#ordrgYnBtn").hide();
+			$("#actionBtn").hide();
+		}
+		//메인정보 세팅
+		$.each(orderInfo, function(key, value){
+			$('#popup_table #'+key).val(value);
+		});
+		
+		
+		//콤마 추가
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
+		
+	}
+	
+	function makeFormData(){
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		$("#userId").val(jwt.userId);
+		
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		var formData = new FormData($("#popForm")[0]);
+		return formData;
+	}
+	
+	function selectCplrUntpc(){
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+				"clntCd" : row.clntCd,
+				"prdtCd" : row.prdtCd,
+				"selpchCd" : row.selpchCd,
+				"prdtDt" : row.prdtDt,
+				"coCd" : row.coCd,
+		}
+		postAjax("/user/sd/sd08/selectCplrUntpc", formData, null, function(data){
+			setCplrUntpcInfo(data.result);
+		});
+	}
+	
+	function setCplrUntpcInfo(obj){
+		
+		//메인정보 세팅
+		$.each(obj, function(key, value){
+			$('#popForm #'+key).val(value);
+		});
+		
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
+		
+
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		$('#popForm #coCd').prop("disabled", true);
+		$('#popForm #clntCd').prop("disabled", true);
+		$('#popForm #prdtDt').prop("disabled", true);
+		$('#popForm #prdtCd').prop("disabled", true);
+		$('#popForm #selpchCd').prop("disabled", true);
+		$('#popForm #clntNm').prop("disabled", true);
+		$('#popForm #prdtNm').prop("disabled", true);
+		$('#popForm #btnPrdt').css("visibility", "hidden");
+		$('#popForm #btnClnt').css("visibility", "hidden");
+	}
+	
+	function insertCplrUntpc() {
+		if(inputValidation($('[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/sd/sd08/insertCplrUntpc", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updateCplrUntpc() {
+		if(inputValidation($('[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/sd/sd08/updateCplrUntpc", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+
+	// 제품 조회
+	function prdtSearch(type) {
+		actionTp = type;
+		openSecondModal("/static/html/user/sd/sd08/SD0801P03.html", 500, 420, "제품검색");
+	}
+	
+	// 거래처
+	function clntSearch(type) {
+		actionTp = type;
+		openSecondModal("/static/html/user/sd/sd08/SD0801P02.html", 500, 420, "거래처검색");
+	}
+
+	function modalClose(){
+		modal.close();
+	}
+	
+</script>
