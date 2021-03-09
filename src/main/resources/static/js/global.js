@@ -333,6 +333,11 @@ function deleteHyphen(elem){
 	$(elem).val($(elem).val().replace(/-/g, ""));
 }
 
+//하이픈 제거 스트링변수용
+function deleteHyphenStr(value){
+	return value.replace(/-/g, "");
+}
+
 // 권한에 따른 메뉴 보여주기
 function setMenuAuth() {
 	var formData = {
