@@ -26,5 +26,10 @@ public class AR02SvcImpl implements AR02Svc {
 	public List<Map<String, String>> selectSellList(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellList(paramMap);
 	}
+
+	@Override
+	public int updatePchsSell(Map<String, String> paramMap) {
+		return ar02Mapper.updatePchsSell(paramMap);
+	}
 	
 }

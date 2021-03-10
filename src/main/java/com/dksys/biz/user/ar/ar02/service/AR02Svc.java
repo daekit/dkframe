@@ -9,4 +9,6 @@ public interface AR02Svc {
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
 
+	int updatePchsSell(Map<String, String> paramMap);
+
 }

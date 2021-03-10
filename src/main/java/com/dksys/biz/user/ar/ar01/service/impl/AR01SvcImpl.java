@@ -171,6 +171,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgWt", detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr", detailMap.get("realShipUpr"));
 			paramMap.put("bilgAmt", detailMap.get("realShipAmt"));
+			paramMap.put("clntNm", detailMap.get("clntNm"));
 			ar02Mapper.insertPchsSell(paramMap);
 			// 재고정보 update
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
