@@ -28,8 +28,16 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 
 	@Override
-	public int updatePchsSell(Map<String, String> paramMap) {
-		return ar02Mapper.updatePchsSell(paramMap);
+	@SuppressWarnings("all")
+	public int updatePchsSell(Map<String, Object> paramMap) {
+		int result = 0;
+		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
+		for (Map<String, String> detailMap : detailList) {
+			detailMap.put("userId", paramMap.get("userId").toString());
+			detailMap.put("pgmId", paramMap.get("pgmId").toString());
+			result += ar02Mapper.updatePchsSell(detailMap);
+		}
+		return result;
 	}
 	
 }

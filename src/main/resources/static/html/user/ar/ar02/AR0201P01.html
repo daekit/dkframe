@@ -8,23 +8,23 @@
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_P" data-kind="CO" required="required">
+	                 	<select id="coCd_P" data-kind="CO" disabled="disabled">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
 	                <th class= "hit">매출일자</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom_P" class="input_calendar" onchange="dateValidation();" required="required">
+	                      <input type="text" id="reqDtFrom_P" class="input_calendar" onchange="dateValidation();" disabled="disabled">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo_P" class="input_calendar" onchange="dateValidation();" required="required">
+	                      <input type="text" id="reqDtTo_P" class="input_calendar" onchange="dateValidation();" disabled="disabled">
 	                    </div>
 	                </td>
 	              	<th class= "hit">거래처</th>
 	                <td>
 	                  <input type="hidden" id="clntCd_P">
 	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_P" required="required">
+		                <input type="text" id="clntNm_P" disabled="disabled">
 		              </div>
 	                </td>
 	              </tr>
@@ -51,10 +51,14 @@
 	    </div>
 		<!-- 하단 버튼 -->
 	    <div class="popup_bottom_btn">
-	      <button id="actionBtn">저장</button>
+	      <button id="actionBtn" onclick="updatePchsSell();">저장</button>
 	      <button class="close_btn" onclick="modal.close();">닫기</button>
 	    </div>
 	</div>
+	<form id="popForm">
+		<input type="hidden" id="userId" name="userId">
+	    <input type="hidden" id="pgmId" name="pgmId" value="AR0201P01">
+	</form>
 </body>
 
 <script type="text/javascript">
@@ -156,7 +160,7 @@
 			language : "ko",
 // 			autoclose : true
 		});
-		$("#p01Div [required]").prop("disabled", true);
+// 		$("#p01Div [required]").prop("disabled", true);
 		popGridView.initView().setData(0);
 	});
 
@@ -193,15 +197,25 @@
 		});
 	}
 
-	function updateSell() {
+	function updatePchsSell() {
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
-			putAjax("/user/ar/ar02/updatePchsSell", formData, function(data){
+			putAjax("/user/ar/ar02/updatePchsSell", formData, null, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
 				modal.close();
 			});
 		}
+	}
+
+	function makeFormData() {
+		$("#userId").val(jwt.userId);
+		
+		var formData = $("#popForm").serializeObject();
+		// 상세내역 추가
+		formData["detailArr"] = secondGrid.getList();
+		
+		return formData;
 	}
 	
 </script>
