@@ -200,6 +200,7 @@
 				CO_CD,
 		        TRST_CERTI_NO,
 		        SELPCH_CD,
+		        FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
 		        TAXIVC_COPRT,
 		        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 		        TO_CHAR(TO_DATE(TRST_DT), 'YYYY-MM-DD') AS TRST_DT,
@@ -207,6 +208,7 @@
 		        TRST_PRDT_CD,
 		        (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.TRST_PRDT_CD) AS PRDT_NM,
 		        OWNER_CD,
+		        FN_CM05M01_CD_TO_NM(OWNER_CD) AS OWNER_NM,
 		        IMP_YN,
 		        TYP_CD,
 		        FN_CM05M01_CD_TO_NM(TYP_CD) AS TYP_NM,
@@ -219,7 +221,9 @@
 		        PRJCT_CD,
 		        (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 		        MAKR_CD,
+		        FN_CM05M01_CD_TO_NM(MAKR_CD) AS MAKR_NM,
 		        WH_CD,
+		        FN_CM05M01_CD_TO_NM(WH_CD) AS WH_NM,
 		        MNG_TEL,
 		        TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
 		        DIRTRS_YN,
@@ -245,15 +249,15 @@
 		        BILG_WT,
 		        BILG_UPR,
 		        BILG_AMT,
-		        TRST_DC_AMT,
-		        ETC_AMT,
+		        NVL(TRST_DC_AMT, '0') AS TRST_DC_AMT,
+		        NVL(ETC_AMT, '0') AS ETC_AMT,
 		        TRSP_RMK,
 		        TRANS_AMT,
 		        SHIP_VEH_NO,
 		        CLNT_NM,
 		        BILG_CERT_NO,
 		        CASE WHEN BILG_CERT_NO IS NOT NULL THEN 'Y' ELSE 'N' END BILG_YN,
-		        LOSS_RATE,
+		        NVL(LOSS_RATE, '0') AS LOSS_RATE,
 		        ODR_CREAT_DIV,
 		        ETC_FIELD1,
 		        ETC_FIELD2,
@@ -307,5 +311,64 @@
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
+	
+	<update id="updatePchsSell" parameterType="Map">
+		UPDATE TB_AR02M01
+		SET
+<!-- 			CO_CD           = #{coCd}, -->
+<!-- 	        TRST_CERTI_NO   = #{}, -->
+<!-- 	        SELPCH_CD       = #{}, -->
+<!-- 	        TAXIVC_COPRT    = #{}, -->
+<!-- 	        TRST_DT         = #{}, -->
+<!-- 	        TRST_CLNT_CD    = #{}, -->
+<!-- 	        TRST_PRDT_CD    = #{}, -->
+<!-- 	        OWNER_CD        = #{}, -->
+<!-- 	        IMP_YN          = #{}, -->
+<!-- 	        TYP_CD          = #{}, -->
+<!-- 	        TRSP_TYP_CD     = #{}, -->
+<!-- 	        TRST_RPRC_SEQ   = #{}, -->
+<!-- 	        TRST_DTL_SEQ    = #{}, -->
+<!-- 	        PRDT_LEN        = #{}, -->
+<!-- 	        ODR_NO          = #{}, -->
+<!-- 	        SALES_MNG       = #{}, -->
+<!-- 	        PRJCT_CD        = #{}, -->
+<!-- 	        MAKR_CD         = #{}, -->
+<!-- 	        WH_CD           = #{}, -->
+<!-- 	        MNG_TEL         = #{}, -->
+<!-- 	        DLVR_DTTM       = #{}, -->
+<!-- 	        DIRTRS_YN       = #{}, -->
+<!-- 	        PRDT_DIV        = #{}, -->
+<!-- 	        PRDT_STKN       = #{}, -->
+<!-- 	        PRDT_SIZE       = #{}, -->
+<!-- 	        PRDT_UNIT       = #{}, -->
+<!-- 	        PRDT_UPR        = #{}, -->
+<!-- 	        STOCK_UPR       = #{}, -->
+<!-- 	        PCHS_UPR        = #{}, -->
+<!-- 	        SELL_UPR        = #{}, -->
+<!-- 	        TRST_QTY        = #{trstQty}, -->
+<!-- 	        TRST_WT         = #{trstWt}, -->
+<!-- 	        TRST_UPR        = #{trstUpr}, -->
+<!-- 	        TRST_AMT        = #{trstAmt}, -->
+<!-- 	        REAL_TRST_QTY   = #{realTrstQty}, -->
+<!-- 	        REAL_TRST_WT    = #{realTrstWt}, -->
+<!-- 	        REAL_TRST_UPR   = #{realTrstUpr}, -->
+<!-- 	        REAL_TRST_AMT   = #{realTrstAmt}, -->
+	        BILG_QTY        = #{bilgQty},
+	        BILG_WT         = #{bilgWt},
+	        BILG_UPR        = #{bilgUpr},
+	        BILG_AMT        = #{bilgAmt},
+	        TRST_DC_AMT     = #{trstDcAmt},
+	        ETC_AMT         = #{etcAmt},
+	        TRSP_RMK        = #{trspRmk},
+	        TRANS_AMT       = #{transAmt},
+	        SHIP_VEH_NO     = #{shipVehNo},
+	        LOSS_RATE       = #{lossRate},
+	        ODR_CREAT_DIV   = #'ERP',
+	        UDT_ID          = #{userId},
+	        UDT_PGM         = #{pgmId},
+	        UDT_DTTM        = #SYSDATE
+<!-- 	        SALES_AREA_CD   = #{} -->
+		WHERE TRST_CERTI_NO = #{trstCertiNo}
+	</update>
 	
 </mapper>

@@ -1,0 +1,207 @@
+<body>
+	<div id="p01Div" class="popup_area of_a" style="width: 100%; height: 100%;">
+		<!-- 검색 콘텐츠 -->
+	    <div class="contents search">
+	        <div class="">
+	            <!-- 테이블 인풋 3분할 -->
+	            <table class="table_input type03">
+	              <tr>
+	              	<th class= "hit">회사</th>
+	                <td>
+	                 	<select id="coCd_P" data-kind="CO" required="required">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
+	                <th class= "hit">매출일자</th>
+	                <td>
+	                    <div class="date_input">
+	                      <input type="text" id="reqDtFrom_P" class="input_calendar" onchange="dateValidation();" required="required">
+	                      <span>~</span>
+	                      <input type="text" id="reqDtTo_P" class="input_calendar" onchange="dateValidation();" required="required">
+	                    </div>
+	                </td>
+	              	<th class= "hit">거래처</th>
+	                <td>
+	                  <input type="hidden" id="clntCd_P">
+	                  <div class="search_form" style="width: 50%;">
+		                <input type="text" id="clntNm_P" required="required">
+		              </div>
+	                </td>
+	              </tr>
+	            </table>
+	        </div>
+	    </div>
+		<!-- // 콘텐츠 -->
+
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+					할인금액: <input type="text" id="allAmt" style="text-align: right;" onkeyup="addComma(this);">
+					<a onclick="setUprBatch();" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
+					<a onclick="setDcAmt('trstDcAmt');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
+				</div>
+			</div>
+		</div>
+	  	<!-- 콘텐츠 -->
+	    <div class="contents">
+	      	<!-- 리스트 -->
+	        <div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 450px; width: 100%" ></div>
+	    </div>
+		<!-- 하단 버튼 -->
+	    <div class="popup_bottom_btn">
+	      <button id="actionBtn">저장</button>
+	      <button class="close_btn" onclick="modal.close();">닫기</button>
+	    </div>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	var actionType = null;
+	var secondGrid = null;
+	
+	var popGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="second-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+// 		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+// 		            	viewShipModal();
+		            },
+		        },
+		        columns: [
+		        	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100},
+		          	{key: "bilgYn",         label: "전표발행여부",	align: "center",	width: 100},
+		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 100},
+		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 100},
+		            {key: "taxivcCoprtNm",	label: "판매법인", 	align: "left", 		width: 100},
+		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 120},
+		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}},
+		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "bilgQty",        label: "청구수량", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "bilgUpr",        label: "청구단가", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "bilgWt",         label: "청구중량", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}},
+		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}},
+		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100, editor: {type:"text"}},
+		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
+		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 100},
+		        	{key: "bilgCertNo",     label: "청구서번호", 	align: "center", 	width: 100},
+		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 100},
+		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 100},
+		        	{key: "typNm", 		    label: "판매유형",  	align: "center", 	width: 100},
+		        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 100},
+		        	
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 			align:"center",	  colspan:6},
+			    		{key: "realTrstQty",	collector: "sum", formatter:"money", align: "right"},
+			    		{key: "prdtUpr", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgUpr", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {label: "-", 			align:"center"									 },
+	                    {key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "etcAmt", 		collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			secondGrid = this.target;
+			var list = gridView.target.getList("selected");
+			$.each(list, function(idx, item){
+				list[idx].__selected__ = false;
+			});
+			secondGrid.setData({
+				list : list,
+				page : {
+					totalElements : list.length
+				}
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		setCommonSelect($("#p01Div select[data-kind]"));
+		$("#coCd_P").val($("#coCd_S").val());
+		$("#reqDtFrom_P").val($("#reqDtFrom").val());
+		$("#reqDtTo_P").val($("#reqDtTo").val());
+		$("#clntCd_P").val($("#clntCd_S").val());
+		$("#clntNm_P").val($("#clntNm_S").val());
+		$('#reqDtFrom_P, #reqDtTo_P').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+// 			autoclose : true
+		});
+		$("#p01Div [required]").prop("disabled", true);
+		popGridView.initView().setData(0);
+	});
+
+	function clntSearch(type) {
+		var modalTitle = "거래처";
+		clntType = type;
+		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+	}
+	
+	function setDcAmt(targetName) {
+		if($("#allAmt").val() == "") {
+			alert("할인금액을 입력해주세요.");
+			return;
+		}
+		var amt = deleteCommaStr($("#allAmt").val());
+		var list = secondGrid.getList();
+		$.each(list, function(idx, item){
+			secondGrid.setValue(idx, targetName, amt);
+		});
+		$("#allAmt").val("");
+	}
+
+	function setUprBatch() {
+		var list = secondGrid.getList();
+		$.each(list, function(idx, item){
+			var bilgUpr = item.prdtUpr - item.trstDcAmt;
+			var realTrstAmt = item.realTrstQty * bilgUpr;
+			var bilgAmt = Number(realTrstAmt) + Number(item.transAmt) + Number(item.etcAmt);
+			var lossRate = Number(item.trstDcAmt) / Number(item.prdtUpr) * 100;
+			secondGrid.setValue(idx, "bilgUpr", bilgUpr);
+			secondGrid.setValue(idx, "realTrstAmt", realTrstAmt);
+			secondGrid.setValue(idx, "bilgAmt", bilgAmt);
+			secondGrid.setValue(idx, "lossRate", lossRate);
+		});
+	}
+
+	function updateSell() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			putAjax("/user/ar/ar02/updatePchsSell", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+</script>

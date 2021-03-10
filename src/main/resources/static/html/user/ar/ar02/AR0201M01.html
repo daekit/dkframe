@@ -6,7 +6,7 @@ th {
 	width: 90px !important;
 }
 
-.add_btn_small{
+.add_btn_small {
     display: inline-block;
     padding: 0px;
 }
@@ -169,17 +169,19 @@ th {
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+					<a onclick="prjctCal();" style="height: 30px; line-height: 28px; width: 90px;">매출실적 정산</a>
+					<a onclick="rejectSell();" style="height: 30px; line-height: 28px; width: 40px;">반품</a>
+					<a onclick="" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
+					<a onclick="" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="" style="height: 30px; line-height: 28px;">-</a>
+				</div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
-				<div class="add_btn_small pdr10">
-					<a onclick="prjctCal();" style="height: 30px; line-height: 28px; width: 90px;">프로젝트 정산</a>
-					<a onclick="rejectPurSell();" style="height: 30px; line-height: 28px; width: 40px;">반품</a>
-					<a onclick="" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
-				</div>
 			</div>
 		</div>
 	  	<!-- 콘텐츠 -->
@@ -188,17 +190,15 @@ th {
 	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
 	    </div>
 	</div>
-		
 </body>
 </html>
 
 <script type="text/javascript">
 
-	var authId = null;
-	var authRole = null;
+	var clntType = null;
 	var actionType = null;
-	var openFrom = null;
 	var firstGrid = null;
+	
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -232,6 +232,7 @@ th {
 		            }
 		        },
 		        columns: [
+		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: "6%"},
 		          	{key: "bilgYn",         label: "전표발행여부",	align: "center",	width: "6%"},
 		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: "6%"},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: "6%"},
@@ -239,11 +240,19 @@ th {
 		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: "8%"},
 		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: "6%",	formatter: "money"},
 		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: "6%", 	formatter: "money"},
+		        	{key: "bilgQty",        label: "청구수량", 	align: "right", 	width: "6%", 	formatter: "money"},
 		        	{key: "bilgUpr",        label: "청구단가", 	align: "right", 	width: "6%", 	formatter: "money"},
-		        	{key: "transAmt",       label: "물품금액",		align: "right",  	width: "6%", 	formatter: "money"},
+		        	{key: "bilgWt",         label: "청구중량", 	align: "right", 	width: "6%", 	formatter: "money"},
+		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: "6%", 	formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: "6%", 	formatter: "money"},
-		        	{key: "odrCreatDiv",    label: "청구운송비",  	align: "right", 	width: "6%", 	formatter: "money"},
+		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: "6%", 	formatter: "money"},
+		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: "6%", 	formatter: "money"},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: "6%",	formatter: "money"},
+		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: "6%",	formatter: "money"},
+		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: "8%"},
+		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: "8%"},
+		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: "8%"},
+		        	{key: "bilgCertNo",     label: "청구서번호", 	align: "center", 	width: "6%"},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: "9%"},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: "6%"},
 		        	{key: "typNm", 		    label: "판매유형",  	align: "center", 	width: "6%"},
@@ -380,19 +389,20 @@ th {
 		} else {
 			modalTitle = "거래처";
 			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} 	
+		}
 	}
 
 	function prjctSearch() {
 		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420, "프로젝트");
 	}
 
-	function rejectPurSell() {
+	function rejectSell() {
 		alert("개발중");
 	}
-
+	
 	function prjctCal() {
-		
+		modalTitle = "매출실적 정산";
+		openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, modalTitle);
 	}
 	
 </script>
