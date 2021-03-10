@@ -36,11 +36,11 @@ public class AR02Ctr {
     	return "jsonView";
 	}
     
-    @PutMapping(value = "updatePchsSell")
-    public String updatePchsSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    @PutMapping(value = "/updatePchsSell")
+    public String updatePchsSell(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	ar02Svc.updatePchsSell(paramMap);
     	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
     }
     
