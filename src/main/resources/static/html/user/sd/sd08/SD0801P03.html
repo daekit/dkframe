@@ -13,12 +13,8 @@
 		                </select>    
     				</td>
     				<td>
-    					<div class="search_form">
-							<input type="text"  id="searchValue" onkeypress="if(event.keyCode == 13){popGridView.setData(0);}"> 
-							<a onclick="popGridView.setData(0);">
-								<i class="i_search_w"></i>
-							</a>
-						</div> 
+    					<input type="text" id="searchValue" style="width: 85%;" onkeypress="if(event.keyCode == 13){popGridView.setData(0);}">
+    					<button type="button" class="btn btn-primary btn-sm" onclick="popGridView.setData(0);">검색</button>    
     				</td>
     			</tr>
     		</table>
@@ -66,12 +62,15 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "prdtCd",     label: "제품코드",  align: "center", hidden: true},
-		          	{key: "prdtNm",     label: "제품명",    align: "left",  width: "40%"},
-		            {key: "prdtStknNm", label: "제품강종",  align: "center", width: "15%"},
-		            {key: "prdtUnitNm", label: "제품단위",  align: "center", width: "15%"},
-		            {key: "prdtSizeNm", label: "제품사이즈", align: "center", width: "15%"},
-		        	{key: "ordrgUpr",   label: "기준단가",  align: "center", width: "15%"},
+		          	{key: "prdtCd",    label: "제품코드",  align: "center", hidden: true},
+		          	{key: "prdtDiv",    label: "제품구분",  align: "center", hidden: true},
+		          	{key: "prdtDivNm",    label: "제품구분명",  align: "center", hidden: true},
+		          	{key: "prdtSpecNm",    label: "제품규격",  align: "center", hidden: true},
+		          	{key: "prdtNm",     label: "제품명",   align: "left",   width: "34%"},
+		            {key: "prdtStknNm", label: "제품강종",  align: "center", width: "20%"},
+		            {key: "prdtSizeNm", label: "제품사이즈", align: "center", width: "13%"},
+		            {key: "prdtUnitNm", label: "제품단위",  align: "center", width: "13%"},
+		        	{key: "ordrgUpr",   label: "기준단가",  align: "center", width: "20%"},
 		        ]
 		    });
 			return this;
@@ -81,10 +80,10 @@
 			var formData = {
 				"searchType" : $("#searchType").val(),
 				"searchValue" : $("#searchValue").val(),
-				"impYn" : $("#impYn").val(),
-				"clntCd" : $("#clntCd").val(),
+				"prdtDiv" : "PRDTDIV22",
+				/* "impYn" : "PRDTIMPN", //일반 */
 				"useYn" : "Y",
-				"selpchCd": "SELPCH1",  // 매입
+				/* "selpchCd": "SELPCH2",  // 매출 */
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : 10
 			}
@@ -108,13 +107,16 @@
 	});
 
 	function setPrdtInfo() {
+		if(selectGridValidation(popGridView.target)) return;
 		var row = popGridView.target.getList("selected")[0];
-		$.each(row, function(key, value){
-			if($("input[name="+key+"]")[selectedIdx] != undefined)
-				$("input[name="+key+"]")[selectedIdx].value = value;
-		});
-		$("input[name=prdtUpr]")[selectedIdx].value = row.ordrgUpr;
-		countAmt($("input[name=prdtUpr]")[selectedIdx]);
+		$("#popForm #prdtCd").val(row.prdtCd);
+		$("#popForm #prdtNm").val(row.prdtNm);
+		$("#popForm #prdtDiv").val(row.prdtDiv);
+		$("#popForm #prdtDivNm").val(row.prdtDivNm);
+		$("#popForm #prdtStknNm").val(row.prdtStknNm);
+		$("#popForm #prdtSizeNm").val(row.prdtSizeNm);
+		$("#popForm #prdtUnitNm").val(row.prdtUnitNm);
+		$("#popForm #prdtSpecNm").val(row.prdtSpecNm);
 		secondModal.close();
 	}
 </script>

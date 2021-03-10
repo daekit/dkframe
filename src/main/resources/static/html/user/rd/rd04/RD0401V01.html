@@ -1,0 +1,249 @@
+<body>
+  <div class="popup_area of_a" style="width: 100%; height: 100%;">
+  	<div class="tit_contents">
+        <h4 class="tit">제품수불 내역 상세</h4>
+    </div>
+    <input type="hidden" id="coCd" name="coCd">
+  <!-- 제품수불 상세 테이블 -->
+
+<div class="contents" style="margin:0px;padding:0px;">
+	<div data-ax5grid=main-grid data-ax5grid-config="{}" style="height: 60px; width: 100%"></div>
+</div>
+<div class="" style="margin:0px;padding:10px;">
+
+</div>
+  <!-- 발주서 테이블 -->
+  
+<div class="contents" style="margin:0px;padding:0px;">
+	<table class="form-group popup_table" id="scndTable">
+		<colgroup>
+			<col width="48%">
+			<col width="48%">
+		</colgroup>
+		<thead>
+			<tr>
+				<td style="text-align: left;">제품입고상세<!-- <span id="ordrgTotCnt"></span> --></td>
+				<td style="text-align: left;">제품출고상세<!-- <span id="ordrgTotCnt"></span> --></td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<div class="contents" style="margin:0px;padding:0px;width:100%;min-width:450px">
+						<div data-ax5grid="RD04-grid01" data-ax5grid-config="{}" style="height: 450px; width: 100%"></div>
+					</div>
+				</td>
+				<td>
+					<div class="contents" style="margin:0px;padding:0px;width:100%; min-width:450px">
+						<div data-ax5grid="RD04-grid02" data-ax5grid-config="{}" style="height: 450px; width: 100%"></div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div> 
+</div>
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+var data;
+	var mainGridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : false,
+				multipleSelect : false,
+				sortable : true,
+				target : $('[data-ax5grid="main-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+
+		        page: {
+		            display: false
+		        },
+				columns: [
+		          	{key: "prdtDivNm",     label: "제품구분",   align: "center",  width: "5%"},
+		            {key: "whNm",  label: "창고",   align: "left",  width: "5%"},
+		            {key: "prdtNm",    label: "제품",    align: "left",    width: "10%"},
+		        	{key: "ownerNm",   label: "재고주체",   align: "left",    width: "6%"},
+		        	{key: "clntNm",    label: "거래처",    align: "left",    width: "10%"},
+		        	{key: "typNm",      label: "판매유형",      align: "center", width: "7%"},
+		        	{key: "makrNm",    label: "제조사",  align: "left",   width: "10%"},
+		        	{key: "prjctNm",    label: "프로젝트",    align: "left",  width: "10%"},
+		        	{key: "impNm",     label: "수입여부",    align: "center", width: "5%"},
+		        	{key: "",     label: "전월재고",    align: "right", width: "8%", formatter: "money"},
+		        	{key: "",      label: "입고",    align: "right",   width: "8%", formatter: "money"},
+		        	{key: "",    label: "출고", align: "right", width: "8%", formatter: "money"},
+		        	{key: "stockQty",  label: "현재고",    align: "right", width: "8%", formatter: "money"},
+		        ]
+			});
+			return this;
+		},
+		setData : function() {
+			var targetObj = this.target;
+			var row = gridView.target.getList("selected")[0];
+			var formData = {
+					coCd : row.coCd,
+					prdtDiv : row.prdtDiv,
+					prdtCd : row.prdtCd,
+					whCd : row.whCd,
+					ownerCd : row.ownerCd,
+					typCd : row.typCd,
+					makrCd : row.makrCd,
+					clntCd : row.clntCd,
+					prdtimpCd : row.impYn,
+					prjctCd : row.prjctCd
+			}
+
+			postAjax("/user/rd/rd04/selectRcvpayList", formData, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData(list);
+			});
+		}
+	}
+
+	var grid01View = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : false,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="RD04-grid01"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					page : {
+						navigationItemCount : 10,
+						height : 30,
+						display : true,
+						firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+						prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+						nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+						lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+						onChange : function() {
+							gridView.setData(this.page.selectPage);
+						}
+					},
+					columns: [
+			          	{key: "prdtDivNm",     label: "일자",   align: "center",  width: "20%"},
+			            {key: "whNm",  label: "입출고거래유형",   align: "center",  width: "20%"},
+			            {key: "prdtNm",    label: "제품길이",    align: "right",    width: "20%"},
+			        	{key: "ownerNm",   label: "수량",   align: "right",    width: "20%"},
+			        	{key: "ownerNm",   label: "중량",   align: "right",    width: "20%"}
+			        ]
+				});
+				return this;
+			},
+			setData : function(_pageNo) {
+				var targetObj = this.target;
+				var row = gridView.target.getList("selected")[0];
+				var formData = {
+						coCd : row.coCd,
+						prdtDiv : row.prdtDiv,
+						prdtCd : row.prdtCd,
+						whCd : row.whCd,
+						ownerCd : row.ownerCd,
+						typCd : row.typCd,
+						makrCd : row.makrCd,
+						clntCd : row.clntCd,
+						prdtimpCd : row.impYn,
+						prjctCd : row.prjctCd
+				}
+
+				postAjax("/user/rd/rd04/selectRcvpayList", formData, null, function(data) {
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				});
+			}
+		}
+	
+	var grid02View = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : false,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="RD04-grid02"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					page : {
+						navigationItemCount : 10,
+						height : 30,
+						display : true,
+						firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+						prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+						nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+						lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+						onChange : function() {
+							gridView.setData(this.page.selectPage);
+						}
+					},
+					columns: [
+			          	{key: "prdtDivNm",     label: "일자",   align: "center",  width: "20%"},
+			            {key: "whNm",  label: "입출고거래유형",   align: "center",  width: "20%"},
+			            {key: "prdtNm",    label: "제품길이",    align: "right",    width: "20%"},
+			        	{key: "ownerNm",   label: "수량",   align: "right",    width: "20%"},
+			        	{key: "ownerNm",   label: "중량",   align: "right",    width: "20%"}
+			        ]
+				});
+				return this;
+			},
+			setData : function(_pageNo) {
+				var targetObj = this.target;
+				var row = gridView.target.getList("selected")[0];
+				var formData = {
+						coCd : row.coCd,
+						prdtDiv : row.prdtDiv,
+						prdtCd : row.prdtCd,
+						whCd : row.whCd,
+						ownerCd : row.ownerCd,
+						typCd : row.typCd,
+						makrCd : row.makrCd,
+						clntCd : row.clntCd,
+						prdtimpCd : row.impYn,
+						prjctCd : row.prjctCd
+				}
+
+				postAjax("/user/rd/rd04/selectRcvpayList", formData, null, function(data) {
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				});
+			}
+		}
+	$(document).ready( function() {
+		mainGridView.initView().setData();
+		grid01View.initView().setData(0);
+		grid02View.initView().setData(0);
+	});
+
+	
+
+</script>
+</html>

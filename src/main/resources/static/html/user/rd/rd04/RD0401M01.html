@@ -32,7 +32,6 @@
 	<script src="/static/js/ax5/ax5modal.min.js"></script>
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
-	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>	
 	<script src="/static/js/global.js"></script>
 </head>
 
@@ -55,23 +54,44 @@
 		</div>
 		<!-- 검색 콘텐츠 -->
 		<div class="contents search">
+			<input type="hidden" id="selectedData" name="selectedData"/>
 			<div class="">
 				<!-- 테이블 인풋 3분할 -->
 				<table class="table_input type03">
 					<tr>
-						<th>회사</th>
+						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd">
+							<select data-kind="CO" data-search="coCd"  required="required">
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>기간</th>
+						<th class="hit">기준년월</th>
 						<td>
-							<div class="date_input">
-								<input type="text" class="input_calendar" id="startDt" data-search="startDt"> 
-								<span>~</span> 
-								<input type="text" class="input_calendar" id="endDt" data-search="endDt">
+							<input type="month" id="planYm" name="planYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;">
+						</td>
+						<th>제품구분</th>
+						<td>
+							<select data-kind="PRDTDIV" data-search="prdtDiv">
+								<option value="">전체</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th>제품</th>
+						<td>
+			                <input type="hidden" data-search="prdtCd">
+							<div class="search_form" style="width: 50%;">
+								<input type="text" data-search="prdtNm" disabled> 
+								<button type="button" onclick="prdtSearch('SEARCH');">
+									<i class="i_search_w"></i>
+								</button>
 							</div>
+						</td>
+						<th>창고</th>
+						<td>
+							<select data-kind="WH" data-search="whCd">
+								<option value="">전체</option>
+							</select>
 						</td>
 						<th>재고주체</th>
 						<td>
@@ -83,27 +103,43 @@
 					<tr>
 						<th>판매유형</th>
 						<td>
-							<select data-kind="SELLTYPE" data-search="typeCd">
+							<select data-kind="SELLTYPE" data-search="typCd">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>제조사</th>
+						<td>
+							<select data-kind="MAKR" data-search="makrCd">
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>거래처</th>
 						<td>
+							<input type="hidden" data-search="clntCd">
 							<div class="search_form" style="width: 50%;">
-								<input type="hidden" data-search="clntCd">
 								<input type="text" data-search="clntNm" disabled> 
-								<button type="button" onclick="clntSearch();">
+								<button type="button" onclick="clntSearch('SEARCH');">
 									<i class="i_search_w"></i>
 								</button>
 							</div>
 						</td>
-						<th>직송구분</th>
+					</tr>
+					<tr>
+						<th>수입구분</th>
 						<td>
-							<select data-search="dirtrsYn">
+							<select data-kind="PRDTIMP" data-search="prdtimpCd">
 								<option value="">전체</option>
-								<option value="N">N</option>
-								<option value="Y">Y</option>
 							</select>
+						</td>
+						<th>프로젝트</th>
+						<td>
+							<div class="search_form" style="width: 50%;">
+							<input type="hidden" data-search="prjctCd" id="prjctCd">
+								<input type="text" data-search="prjctNm" id="prjctNm" disabled> 
+								<button type="button" onclick="prjctSearch('SEARCH');">
+									<i class="i_search_w"></i>
+								</button>
+							</div>
 						</td>
 					</tr>
 				</table>
@@ -113,10 +149,6 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
-				<div class="add_btn_small pdl10">
-					<a onclick="openOrderDetail('C');">+</a> 
-					<a onclick="deleteOrder();">-</a>
-				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -138,12 +170,11 @@
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
-	var fixedOrderCount = 0;
 	var gridView = {
 		initView : function() {
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
-				showRowSelector : true,
+				showRowSelector : false,
 				multipleSelect : false,
 				sortable : true,
 				target : $('[data-ax5grid="first-grid"]'),
@@ -156,9 +187,25 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick : function() {
-						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
+						$("#selectedData").val(gridView.target.getList("selected"));
+						openModal("/static/html/user/rd/rd04/RD0401V01.html", 1400, 680, "");
 					}
 				},
+				footSum: [
+			    	[
+			    		{label: "총계", colspan:3, align:"center"},
+	                    {},
+	                    {},
+	                    {},
+	                    {},
+	                    {},
+	                    {},
+	                    {},
+	                    {},
+	                    {},
+	                    {key: "stockQty", collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
 				page : {
 					navigationItemCount : 10,
 					height : 30,
@@ -172,22 +219,30 @@
 					}
 				},
 				columns: [
-		          	{key: "odrSeq",    label: "주문일련번호", align: "center", hidden: true},
-		          	{key: "reqDt",     label: "요청일자",   align: "center",  width: 80},
-		            {key: "dirtrsYn",  label: "직송구분",   align: "center",  width: "5%"},
-		            {key: "clntNm",    label: "거래처",    align: "left",    width: 120},
-		        	{key: "prjctNm",   label: "프로젝트",   align: "left",    width: 160},
-		        	{key: "makrNm",    label: "제조사",    align: "left",    width: 100},
-		        	{key: "whNm",      label: "창고",      align: "center", width: "5%"},
-		        	{key: "totQty",    label: "수량(Kg)",  align: "right",   width: 80, formatter: "money"},
-		        	{key: "totAmt",    label: "주문금액",    align: "right",  width: 100, formatter: "money"},
-		        	{key: "typNm",     label: "판매유형",    align: "center", width: "5%"},
-		        	{key: "impYn",     label: "수입구분",    align: "center", width: "5%"},
-		        	{key: "addr",      label: "착지주소",    align: "left",   width: "10%"},
-		        	{key: "mngTel",    label: "담당자연락처", align: "center", width: "10%"},
-		        	{key: "dlvrDttm",  label: "납기일자",    align: "center", width: 80},
-		        	{key: "ordrgRmk",  label: "비고",      align: "left",    width: "11%"},
-		        	{key: "salesMngNm",label: "주문담당자",  align: "center",  width: "5%"}
+					{key: "coCd", hidden: true},
+					{key: "prdtCd", hidden: true},
+					{key: "whCd", hidden: true},
+					{key: "ownerCd", hidden: true},
+					{key: "typCd", hidden: true},
+					{key: "makrCd", hidden: true},
+					{key: "clntCd", hidden: true},
+					{key: "prdtimpCd", hidden: true},
+					{key: "prjctCd", hidden: true},
+					{key: "prjctNm", hidden: true},
+					{key: "prdtDiv", hidden: true},
+		          	{key: "prdtDivNm",     label: "제품구분",   align: "center",  width: "5%"},
+		            {key: "whNm",  label: "창고",   align: "left",  width: "5%"},
+		            {key: "prdtNm",    label: "제품",    align: "left",    width: "10%"},
+		        	{key: "ownerNm",   label: "재고주체",   align: "left",    width: "6%"},
+		        	{key: "clntNm",    label: "거래처",    align: "left",    width: "10%"},
+		        	{key: "typNm",      label: "판매유형",      align: "center", width: "7%"},
+		        	{key: "makrNm",    label: "제조사",  align: "left",   width: "10%"},
+		        	{key: "prjctNm",    label: "프로젝트",    align: "left",  width: "10%"},
+		        	{key: "impNm",     label: "수입여부",    align: "center", width: "5%"},
+		        	{key: "",     label: "전월재고",    align: "right", width: "8%", formatter: "money"},
+		        	{key: "",      label: "입고",    align: "right",   width: "8%", formatter: "money"},
+		        	{key: "",    label: "출고", align: "right", width: "8%", formatter: "money"},
+		        	{key: "stockQty",  label: "현재고",    align: "right", width: "8%", formatter: "money"},
 		        ]
 			});
 			return this;
@@ -200,7 +255,7 @@
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
 			
-			postAjax("/user/sd/sd04/selectOrderList", paramObj, null, function(data) {
+			postAjax("/user/rd/rd04/selectRcvpayList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -217,42 +272,17 @@
 
 	$(document).ready(function() {
 		// 페이지 타이틀 set
-		mainDefaultLoad("영업관리", "주문관리");
+		mainDefaultLoad("수불관리", "제품수불관리");
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 
-		// 시작일 (시작일 기준 -7일)
-		$('#startDt').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).subtract(7, "day").toDate())
-		.on("changeDate", function(){
-			if($('#startDt').val() > $('#endDt').val()){
-				alert("날짜를 확인해주세요");
-				$('#startDt').datepicker("setDate", new Date($('#endDt').val()));
-			}
-		});
-
-		// 종료일
-		$('#endDt').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		})
-		.datepicker("setDate", new Date())
-		.on("changeDate", function(){
-			if($('#startDt').val() > $('#endDt').val()){
-				alert("날짜를 확인해주세요");
-				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
-			}
-		});
+		// 기준년월
+		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
 		
 		// 검색조건 이벤트 bind
-		$('[data-search]').not('.input_calendar').on("change", function(){
+		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
 
@@ -263,8 +293,7 @@
 	// 검색조건 초기화
 	function initSearch() {
 		// 기간
-		$('#startDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
-		$('#endDt').datepicker("setDate", new Date());
+		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
 
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
@@ -284,26 +313,14 @@
 		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
 	}
 	
-	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
-	function deleteOrder() {
-		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"odrSeq" : row.odrSeq};
-		
-		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
-			fixedOrderCount = data.fixedOrderCount;
-			if(data.fixedOrderCount > 0){
-				alert("해당 주문으로 생성된 발주 또는 출하 내역이 있습니다.");
-			}
-		});
-		
-		if(fixedOrderCount > 0) return;
-		if (selectGridValidation(gridView.target)) return;
-		if (!confirm("삭제하시겠습니까?")) return;
-		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
-			alert(data.resultMessage);
-			if (data.resultCode == 200) {
-				gridView.setData(0);
-			}
-		});
+	// 제품 검색
+	function prdtSearch() {
+		openModal("/static/html/user/rd/rd04/RD0401P01.html", 500, 400, "제품검색");
 	}
+	
+	// 프로젝트 검색
+	function prjctSearch() {
+		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420, "프로젝트");
+	}
+
 </script>

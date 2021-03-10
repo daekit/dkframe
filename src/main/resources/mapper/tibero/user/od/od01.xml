@@ -88,6 +88,9 @@
 	 		COUNT(*) 
 	 	FROM TB_OD01M01
 	 	WHERE 1=1
+	 	<if test="odrSeq != null and !odrSeq.equals('')">
+			AND ODR_SEQ = #{odrSeq}				
+		</if>
 	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 			AND REQ_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 		</if>
@@ -109,9 +112,27 @@
 		<if test="prjctCd != null and !prjctCd.equals('')">
 			AND PRJCT_CD = #{prjctCd}				
 		</if>
-		<if test="odrSeq != null and !odrSeq.equals('')">
-			AND ODR_SEQ = #{odrSeq}				
+		<if test="whCd != null and !whCd.equals('')">
+			AND WH_CD = #{whCd}
 		</if>
+		<if test="makrCd != null and !makrCd.equals('')">
+			AND MAKR_CD = #{makrCd}
+		</if>
+		<if test="impYn != null and !impYn.equals('')">
+			AND IMP_YN = #{impYn}
+		</if>
+		<if test="ordrgYn != null and !ordrgYn.equals('')">
+			AND ORDRG_YN = #{ordrgYn}
+		</if>
+	</select>
+	
+	<select id="selectOrderDetailCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_OD01D01
+		WHERE
+			ORDRG_SEQ = #{ordrgSeq}
 	</select>
 	
 	<select id="selectOrderList" parameterType="Map" resultType="camelMap">
@@ -171,6 +192,9 @@
 			(
 			 	SELECT * FROM TB_OD01M01
 			 	WHERE 1=1
+			 	<if test="odrSeq != null and !odrSeq.equals('')">
+					AND ODR_SEQ = #{odrSeq}				
+				</if>
 			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 					AND REQ_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 				</if>			 		
@@ -192,8 +216,17 @@
 				<if test="prjctCd != null and !prjctCd.equals('')">
 					AND PRJCT_CD = #{prjctCd}				
 				</if>
-				<if test="odrSeq != null and !odrSeq.equals('')">
-					AND ODR_SEQ = #{odrSeq}				
+				<if test="whCd != null and !whCd.equals('')">
+					AND WH_CD = #{whCd}
+				</if>
+				<if test="makrCd != null and !makrCd.equals('')">
+					AND MAKR_CD = #{makrCd}
+				</if>
+				<if test="impYn != null and !impYn.equals('')">
+					AND IMP_YN = #{impYn}
+				</if>
+				<if test="ordrgYn != null and !ordrgYn.equals('')">
+					AND ORDRG_YN = #{ordrgYn}
 				</if>
 				ORDER BY UDT_DTTM DESC
 			) T
@@ -373,7 +406,7 @@
 			ODR_SEQ = #{odrSeq}
 	</select>
 	
-	<select id="selectOrderDetail" parameterType="Map" resultType="camelMap">
+	<select id="selectOrderDetailList" parameterType="Map" resultType="camelMap">
 		SELECT 
 			T.ORDRG_SEQ,
 	        T.ORDRG_DTL_SEQ,
@@ -427,7 +460,7 @@
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</select>
 	
-	<select id="getOrderDetail" parameterType="Map" resultType="camelMap">
+	<select id="getOrderDetailList" parameterType="Map" resultType="camelMap">
 		SELECT
 			T.ODR_SEQ,
 			T.ODR_DTL_SEQ,

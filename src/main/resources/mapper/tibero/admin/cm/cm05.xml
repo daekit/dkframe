@@ -23,7 +23,10 @@
 		FROM
 		(
 			SELECT
-				ROWNUM AS RNUM, A.*
+				ROWNUM AS RNUM, A.*,
+			        (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_KIND) AS CODE_KIND_NM,
+			        (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_RPRC) AS CODE_RPRC_NM,
+			        (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_ETC)  AS CODE_ETC_NM
 			FROM 
 			(
 				SELECT
@@ -72,34 +75,40 @@
 	
 	<select id="selectCodeInfo" resultType="CamelMap">
 		SELECT
-			CODE_ID,
-			CODE_NM,
-			CODE_KIND,
-			CODE_DESC,
-			CODE_RPRC,
-			SORT_NO,
-			USE_YN
+			A.CODE_ID,
+			A.CODE_NM,
+			A.CODE_KIND,
+			A.CODE_DESC,
+			A.CODE_RPRC,
+			A.SORT_NO,
+			A.USE_YN,			
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_KIND) AS CODE_KIND_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_RPRC) AS CODE_RPRC_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_ETC)  AS CODE_ETC_NM
 		FROM
-			TB_CM05M01
+			TB_CM05M01 AS A
 		WHERE
-			CODE_ID = #{codeId}
+			A.CODE_ID = #{codeId}
 	</select>
 	
 	<select id="selectCodeInfoList" parameterType="Map" resultType="CamelMap">
 		SELECT
-			CODE_ID, 
-			CODE_NM, 
-			CODE_KIND, 
-			CODE_DESC, 
-			SORT_NO,
-			USE_YN, 
-			CREAT_ID, 
-			CREAT_DTTM
+			A.CODE_ID, 
+			A.CODE_NM, 
+			A.CODE_KIND, 
+			A.CODE_DESC, 
+			A.SORT_NO,
+			A.USE_YN, 
+			A.CREAT_ID, 
+			A.CREAT_DTTM,			
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_KIND) AS CODE_KIND_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_RPRC) AS CODE_RPRC_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_ETC)  AS CODE_ETC_NM
 		FROM
-			TB_CM05M01
+			TB_CM05M01 AS A
 		WHERE
-			CODE_KIND = #{codeKind}
-		ORDER BY SORT_NO ASC
+			A.CODE_KIND = #{codeKind}
+		ORDER BY A.SORT_NO ASC
 	</select>
 	
 	<insert id="insertCode" parameterType="Map">
@@ -112,6 +121,7 @@
 				CODE_KIND = #{codeKind},
 				CODE_DESC = #{codeDesc},
 				CODE_RPRC = #{codeRprc},
+				CODE_ETC  = #{codeEtc},
 				SORT_NO = #{sortNo},
 				USE_YN = #{useYn},
 				UDT_ID = #{userId},
@@ -125,6 +135,7 @@
 			CODE_KIND,
 			CODE_DESC,
 			CODE_RPRC,
+			CODE_ETC,
 			SORT_NO,
 			USE_YN,
 			CREAT_ID,
@@ -137,6 +148,7 @@
 			#{codeKind},
 			#{codeDesc},
 			#{codeRprc},
+			#{codeEtc},
 			#{sortNo},
 			#{useYn},
 			#{userId},

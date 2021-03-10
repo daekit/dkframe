@@ -32,7 +32,6 @@
 	<script src="/static/js/ax5/ax5modal.min.js"></script>
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
-	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>	
 	<script src="/static/js/global.js"></script>
 </head>
 
@@ -54,18 +53,18 @@
 			</ul>
 		</div>
 		<!-- 검색 콘텐츠 -->
-		<div class="contents search">
+		<div class="contents search" id="searchDiv">
+			<input type="hidden" id="selectedData" name="selectedData"/>
 			<div class="">
 				<!-- 테이블 인풋 3분할 -->
 				<table class="table_input type03">
 					<tr>
-						<th>회사</th>
+						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd">
-								<option value="">전체</option>
+							<select data-kind="CO" data-search="coCd"  required="required">
 							</select>
 						</td>
-						<th>기간</th>
+						<th class="hit">기준일자</th>
 						<td>
 							<div class="date_input">
 								<input type="text" class="input_calendar" id="startDt" data-search="startDt"> 
@@ -73,37 +72,26 @@
 								<input type="text" class="input_calendar" id="endDt" data-search="endDt">
 							</div>
 						</td>
-						<th>재고주체</th>
-						<td>
-							<select data-kind="OWNER" data-search="ownerCd">
-								<option value="">전체</option>
-							</select>
-						</td>
+						<th>거래처</th>
+			                <td>
+			                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
+			                  <div class="search_form" style="width: 50%;">
+				                <input type="text" id="clntNm" name="clntNm" disabled>
+				              	<a onclick="clntSearch('L');"><i class="i_search_w"></i></a>
+				              </div>
+			                </td>
 					</tr>
 					<tr>
-						<th>판매유형</th>
+						<th>매입/매출구분</th>
 						<td>
-							<select data-kind="SELLTYPE" data-search="typeCd">
+			                <select data-kind="SELPCH" data-search="selpchCd">
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>거래처</th>
+						<th></th>
+						<td></td>
+						<th></th>
 						<td>
-							<div class="search_form" style="width: 50%;">
-								<input type="hidden" data-search="clntCd">
-								<input type="text" data-search="clntNm" disabled> 
-								<button type="button" onclick="clntSearch();">
-									<i class="i_search_w"></i>
-								</button>
-							</div>
-						</td>
-						<th>직송구분</th>
-						<td>
-							<select data-search="dirtrsYn">
-								<option value="">전체</option>
-								<option value="N">N</option>
-								<option value="Y">Y</option>
-							</select>
 						</td>
 					</tr>
 				</table>
@@ -114,9 +102,9 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a onclick="openOrderDetail('C');">+</a> 
-					<a onclick="deleteOrder();">-</a>
-				</div>
+	                <a onclick="viewCplrUntpcModal('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteCplrUntpcOrder();" style="height: 30px; line-height: 28px;">-</a>
+	            </div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -138,7 +126,6 @@
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
-	var fixedOrderCount = 0;
 	var gridView = {
 		initView : function() {
 			this.target = new ax5.ui.grid();
@@ -156,7 +143,7 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick : function() {
-						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
+						viewCplrUntpcModal("U");
 					}
 				},
 				page : {
@@ -172,22 +159,20 @@
 					}
 				},
 				columns: [
-		          	{key: "odrSeq",    label: "주문일련번호", align: "center", hidden: true},
-		          	{key: "reqDt",     label: "요청일자",   align: "center",  width: 80},
-		            {key: "dirtrsYn",  label: "직송구분",   align: "center",  width: "5%"},
-		            {key: "clntNm",    label: "거래처",    align: "left",    width: 120},
-		        	{key: "prjctNm",   label: "프로젝트",   align: "left",    width: 160},
-		        	{key: "makrNm",    label: "제조사",    align: "left",    width: 100},
-		        	{key: "whNm",      label: "창고",      align: "center", width: "5%"},
-		        	{key: "totQty",    label: "수량(Kg)",  align: "right",   width: 80, formatter: "money"},
-		        	{key: "totAmt",    label: "주문금액",    align: "right",  width: 100, formatter: "money"},
-		        	{key: "typNm",     label: "판매유형",    align: "center", width: "5%"},
-		        	{key: "impYn",     label: "수입구분",    align: "center", width: "5%"},
-		        	{key: "addr",      label: "착지주소",    align: "left",   width: "10%"},
-		        	{key: "mngTel",    label: "담당자연락처", align: "center", width: "10%"},
-		        	{key: "dlvrDttm",  label: "납기일자",    align: "center", width: 80},
-		        	{key: "ordrgRmk",  label: "비고",      align: "left",    width: "11%"},
-		        	{key: "salesMngNm",label: "주문담당자",  align: "center",  width: "5%"}
+					{key: "coCd", label:"회사코드", hidden: true},
+					{key: "clntCd", label:"거래처코드", hidden: true},
+					{key: "prdtCd", label:"제품코드", hidden: true},
+					{key: "selpchCd", label:"매입/매출코드", hidden: true},
+		          	{key: "clntNm",     label: "업체",   align: "left",  width: "10%"},
+		            {key: "prdtDt",  label: "기준일자",   align: "center",  width: "7%"},
+		            {key: "selpchNm",  label: "매입/매출 구분",   align: "center",  width: "7%"},
+		            {key: "prdtNm",    label: "제품",    align: "left",    width: "10%"},
+		        	{key: "prdtStknNm",   label: "강종",   align: "center",    width: "7%"},
+		        	{key: "prdtSizeNm",    label: "SIZE",    align: "right",    width: "7%"},
+		        	{key: "prdtSpecNm",      label: "규격",      align: "left", width: "7%"},
+		        	{key: "prdtUnitNm",    label: "단위",  align: "center",   width: "7%"},
+		        	{key: "prdtUpr",    label: "단가",    align: "right",  width: "10%", formatter: "money"},
+		        	{key: "rmk",     label: "비고",    align: "left", width: "28%"}
 		        ]
 			});
 			return this;
@@ -195,29 +180,30 @@
 		setData : function(_pageNo) {
 			var targetObj = this.target;
 			var paramObj = {"pageNo" : _pageNo + 1};
-			for(var i=0;i<$('[data-search]').length;i++){
-				var tempElem = $('[data-search]')[i];
-				paramObj[$(tempElem).data("search")] = $(tempElem).val();
-			}
-			
-			postAjax("/user/sd/sd04/selectOrderList", paramObj, null, function(data) {
-				var list = data.resultList;
-				targetObj.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
+			if(inputValidation($('[required]'))){
+				for(var i=0;i<$('[data-search]').length;i++){
+					var tempElem = $('[data-search]')[i];
+					paramObj[$(tempElem).data("search")] = $(tempElem).val();
+				}
+				postAjax("/user/sd/sd08/selectCplrUntpcList", paramObj, null, function(data) {
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
 				});
-			});
+			}
 		}
 	}
 
 	$(document).ready(function() {
 		// 페이지 타이틀 set
-		mainDefaultLoad("영업관리", "주문관리");
+		mainDefaultLoad("영업관리", "커플러 단가관리");
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
@@ -252,7 +238,7 @@
 		});
 		
 		// 검색조건 이벤트 bind
-		$('[data-search]').not('.input_calendar').on("change", function(){
+		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
 
@@ -268,42 +254,42 @@
 
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
+		$('[data-search="coCd"]').val(jwt.coCd);
 		
 		// 재검색
 		gridView.setData(0);
 	}
 
-	// 주문 상세
-	function openOrderDetail(actionType) {
+	// 커플러 단가 상세 팝업
+	function viewCplrUntpcModal(actionType) {
 		this.actionType = actionType;
-		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
+		openModal("/static/html/user/sd/sd08/SD0801P01.html", 1000, 400, "");
 	}
 	
-	// 거래처 검색
-	function clntSearch() {
-		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
-	}
-	
-	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
-	function deleteOrder() {
+	// 커플러 단가 삭제
+	function deleteCplrUntpcOrder(){
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"odrSeq" : row.odrSeq};
-		
-		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
-			fixedOrderCount = data.fixedOrderCount;
-			if(data.fixedOrderCount > 0){
-				alert("해당 주문으로 생성된 발주 또는 출하 내역이 있습니다.");
-			}
-		});
-		
-		if(fixedOrderCount > 0) return;
-		if (selectGridValidation(gridView.target)) return;
-		if (!confirm("삭제하시겠습니까?")) return;
-		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
-			alert(data.resultMessage);
-			if (data.resultCode == 200) {
-				gridView.setData(0);
-			}
-		});
+		var formData = {
+				"clntCd" : row.clntCd,
+				"prdtCd" : row.prdtCd,
+				"selpchCd" : row.selpchCd,
+				"prdtDt" : row.prdtDt,
+				"coCd" : row.coCd
+		}
+		if(confirm("삭제하시겠습니까?")){
+			putAjax("/user/sd/sd08/deleteCplrUntpc", formData, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		}
 	}
+	
+	// 거래처,운송업체
+	function clntSearch(type) {
+		actionTp = type;
+		openModal("/static/html/user/sd/sd08/SD0801P02.html", 500, 420, "거래처검색");
+	}
+
 </script>

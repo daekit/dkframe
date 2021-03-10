@@ -1,4 +1,6 @@
-<div class="container-fluid">
+
+<div id="popup_area">
+ <div class="container-fluid">
 	<div class="row">
 		<div class="form-group">
 			<form id="codeForm">
@@ -10,28 +12,41 @@
 						<col width="30%">
 					</colgroup>
 					<tr>
-						<th>코드ID</th>
+						<th class="hit">코드ID</th>
 						<td><input type="text" class="form-control" id="codeId" name="codeId" required></td>
-						<th>상위코드ID</th>
-						<td><input type="text" class="form-control" id="codeKind" name="codeKind" required></td>
+						<th class="hit">상위코드ID</th>
+						<td>
+							<select class="form-control input-sm" id="codeKind" name="codeKind" data-kind="ROOT" readonly>
+							     <option value="WH">창고구분</option>
+							</select>
+						</td>		
 					</tr>
 					<tr>
-						<th>코드명</th>
+						<th class="hit">코드명</th>
 						<td><input type="text" class="form-control" id="codeNm" name="codeNm" required></td>
-						<th>코드설명</th>
+						<th class="hit">코드설명</th>
 						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc" required></td>
 					</tr>
 					<tr>
-						<th>부모코드ID</th>
-						<td><input type="text" class="form-control" id="codeRprc" name="codeRprc" ></td>
-						    <input type="hidden" class="form-control" id="codeEtc" name="codeEtc" >
+						<th class="hit">창고구분</th>
+						<td>
+							<select class="form-control input-sm" id="codeRprc" name="codeRprc" data-kind="WHDIV" required>
+							     <option value="">선택</option>
+							</select>						
+						</td>
 						<th>정렬값</th>
 						<td><input type="text" class="form-control" id="sortNo" name="sortNo" onkeyup="onlyNumber(this)"></td>
 					</tr>
 					<tr>
-						<th>사용여부</th>
-						<td colspan="3">
-							<select class="form-control input-sm" id="useYn" name="useYn">
+						<th class="hit">법인</th>
+						<td>
+							<select class="form-control input-sm" id="codeEtc name="codeEtc" data-kind="ESTCOPRT" required>
+							     <option value="">선택</option>
+							</select>						
+						</td>
+						<th class="hit">사용여부</th>
+						<td>
+							<select class="form-control input-sm" id="useYn" name="useYn" required>
 								<option value="Y">사용</option>
 								<option value="N">미사용</option>
 							</select>
@@ -41,6 +56,7 @@
 			</form>
 		</div>
 	</div>
+ </div>
 </div>
 <div>
 	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick="insertCode();"></button>
@@ -53,11 +69,14 @@
 			$('#codeKind').val(getCodeKind());
 			$('#codeKind').prop("readOnly", true);
 			$('#actionBtn').text("등록");
+			
 		}else if(actionType == "U"){
 			selectCodeInfo();
 			$('#codeId').prop("readOnly", true);
 			$('#actionBtn').text("저장");
 		}
+		// 공통코드 set
+		setCommonSelect($('#popup_area [data-kind]'));
 	});
 	
 	function selectCodeInfo(){
