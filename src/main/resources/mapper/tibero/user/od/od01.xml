@@ -513,7 +513,11 @@
 	</update>
 	
 	<select id="selectOrderDetailInfo" parameterType="Map" resultType="CamelMap">
-		SELECT T.* , B.PRDT_CNVRSN_WT   FROM TB_OD01D01 T
+		SELECT 
+			T.*,
+			B.PRDT_CNVRSN_WT,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+		FROM TB_OD01D01 T
 		INNER JOIN TB_BM01M01 B
 		   ON B.PRDT_CD = T.PRDT_CD
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq} 

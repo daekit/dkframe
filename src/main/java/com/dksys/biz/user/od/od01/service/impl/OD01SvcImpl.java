@@ -161,6 +161,7 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("bilgWt", detailMap.get("realDlvrWt"));
 			paramMap.put("bilgUpr", detailMap.get("realDlvrUpr"));
 			paramMap.put("bilgAmt", detailMap.get("realDlvrAmt"));
+			paramMap.put("clntNm", detailMap.get("clntNm"));
 			ar02Mapper.insertPchsSell(paramMap);
 			// 재고정보 update
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
