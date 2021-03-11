@@ -30,4 +30,15 @@ public class RD04Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+	
+    @PostMapping(value = "/selectRcvpayDtlList")
+	public String selectRcvpayDtlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = rd04Svc.selectRcvpayDtlCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	System.out.println(paramMap);
+    	List<Map<String, String>> resultList = rd04Svc.selectRcvpayDtlList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
 }

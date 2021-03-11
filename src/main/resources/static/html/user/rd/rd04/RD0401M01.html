@@ -67,7 +67,7 @@
 						</td>
 						<th class="hit">기준년월</th>
 						<td>
-							<input type="month" id="planYm" name="planYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;">
+							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;">
 						</td>
 						<th>제품구분</th>
 						<td>
@@ -127,8 +127,10 @@
 					<tr>
 						<th>수입구분</th>
 						<td>
-							<select data-kind="PRDTIMP" data-search="prdtimpCd">
+							<select data-search="impYn">
 								<option value="">전체</option>
+								<option value="N">N</option>
+								<option value="Y">Y</option>
 							</select>
 						</td>
 						<th>프로젝트</th>
@@ -200,9 +202,9 @@
 	                    {},
 	                    {},
 	                    {},
-	                    {},
-	                    {},
-	                    {},
+	                    {key: "bfrStockQty", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "selpch1Qty", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "selpch2Qty", collector: "sum", formatter:"money", align: "right"},
 	                    {key: "stockQty", collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
@@ -226,7 +228,7 @@
 					{key: "typCd", hidden: true},
 					{key: "makrCd", hidden: true},
 					{key: "clntCd", hidden: true},
-					{key: "prdtimpCd", hidden: true},
+					{key: "closeYm", hidden: true},
 					{key: "prjctCd", hidden: true},
 					{key: "prjctNm", hidden: true},
 					{key: "prdtDiv", hidden: true},
@@ -238,10 +240,10 @@
 		        	{key: "typNm",      label: "판매유형",      align: "center", width: "7%"},
 		        	{key: "makrNm",    label: "제조사",  align: "left",   width: "10%"},
 		        	{key: "prjctNm",    label: "프로젝트",    align: "left",  width: "10%"},
-		        	{key: "impNm",     label: "수입여부",    align: "center", width: "5%"},
-		        	{key: "",     label: "전월재고",    align: "right", width: "8%", formatter: "money"},
-		        	{key: "",      label: "입고",    align: "right",   width: "8%", formatter: "money"},
-		        	{key: "",    label: "출고", align: "right", width: "8%", formatter: "money"},
+		        	{key: "impYn",     label: "수입여부",    align: "center", width: "5%"},
+		        	{key: "bfrStockQty",     label: "전월재고",    align: "right", width: "8%", formatter: "money"},
+		        	{key: "selpch1Qty",      label: "입고",    align: "right",   width: "8%", formatter: "money"},
+		        	{key: "selpch2Qty",    label: "출고", align: "right", width: "8%", formatter: "money"},
 		        	{key: "stockQty",  label: "현재고",    align: "right", width: "8%", formatter: "money"},
 		        ]
 			});
@@ -279,7 +281,7 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 
 		// 기준년월
-		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
@@ -293,7 +295,7 @@
 	// 검색조건 초기화
 	function initSearch() {
 		// 기간
-		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
