@@ -154,7 +154,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="">제품입고</a>
+					<a style="width:80px;" onclick="openPrdtIn();">제품입고</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10" selected>10</option>
@@ -193,8 +193,6 @@
 				body : {
 					onClick : function() {
 						this.self.select(this.dindex);
-					},
-					onDBLClick : function() {
 						inRsltsDtlGridView.setData(0);
 					}
 				},
@@ -395,13 +393,13 @@
 	
 	// 검색조건 초기화
 	function initSearch() {
+		// 조건
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		
 		// 기간
 		$('#reqDtFrom').datepicker("setDate", moment(new Date()).subtract(3, "month").toDate());
 		$('#reqDtTo').datepicker("setDate", new Date());
 
-		// 조건
-		$(".contents.search [data-search]").not('.input_calendar').val("");
-		
 		// 재검색
 		inRsltsGridView.setData(0);
 	}
@@ -409,7 +407,7 @@
 	// 프로젝트 검색
 	function openPrjctSearch(){
 		openModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", function (grid) {
-			if(selectGridValidation(grid.target)) return;
+			if(selectGridValidation(grid.target)) return false;
 			var row = grid.target.getList("selected")[0];
 			$('[data-search="prjctCd"]').val(row.prjctCd);
 			$('[data-search="prjctNm"]').val(row.prjctNm);
@@ -419,12 +417,18 @@
 	
 	// 거래처 검색
 	function openClntSearch() {
-		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", function (grid){
-			if(selectGridValidation(grid.target)) return;
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", function (grid) {
+			if(selectGridValidation(grid.target)) return false;
 			var row = grid.target.getList("selected")[0];
 			$('[data-search="clntCd"]').val(row.clntCd);
 			$('[data-search="clntNm"]').val(row.clntNm);
 			modal.close();
 		});
+	}
+	
+	// 제품입고
+	function openPrdtIn(){
+		if(selectGridValidation(inRsltsGridView.target)) return false;
+		openModal("/static/html/user/rd/rd01/RD0102P01.html", 1000, 650, "");
 	}
 </script>
