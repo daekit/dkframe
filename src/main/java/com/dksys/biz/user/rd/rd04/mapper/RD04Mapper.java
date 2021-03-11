@@ -12,4 +12,8 @@ public interface RD04Mapper {
 
 	List<Map<String, String>> selectRcvpayList(Map<String, String> paramMap);
 
+	int selectRcvpayDtlCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectRcvpayDtlList(Map<String, String> paramMap);
+
 }

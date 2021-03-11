@@ -26,4 +26,14 @@ public class RD04SvcImpl implements RD04Svc {
 	public List<Map<String, String>> selectRcvpayList(Map<String, String> paramMap) {
 		return rd04Mapper.selectRcvpayList(paramMap);
 	}
+    
+	@Override
+	public int selectRcvpayDtlCount(Map<String, String> paramMap) {
+		return rd04Mapper.selectRcvpayDtlCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectRcvpayDtlList(Map<String, String> paramMap) {
+		return rd04Mapper.selectRcvpayDtlList(paramMap);
+	}
 }

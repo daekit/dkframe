@@ -76,10 +76,10 @@ var data;
 		        	{key: "typNm",      label: "판매유형",      align: "center", width: "7%"},
 		        	{key: "makrNm",    label: "제조사",  align: "left",   width: "10%"},
 		        	{key: "prjctNm",    label: "프로젝트",    align: "left",  width: "10%"},
-		        	{key: "impNm",     label: "수입여부",    align: "center", width: "5%"},
-		        	{key: "",     label: "전월재고",    align: "right", width: "8%", formatter: "money"},
-		        	{key: "",      label: "입고",    align: "right",   width: "8%", formatter: "money"},
-		        	{key: "",    label: "출고", align: "right", width: "8%", formatter: "money"},
+		        	{key: "impYn",     label: "수입여부",    align: "center", width: "5%"},
+		        	{key: "bfrStockQty",     label: "전월재고",    align: "right", width: "8%", formatter: "money"},
+		        	{key: "selpch1Qty",      label: "입고",    align: "right",   width: "8%", formatter: "money"},
+		        	{key: "selpch2Qty",    label: "출고", align: "right", width: "8%", formatter: "money"},
 		        	{key: "stockQty",  label: "현재고",    align: "right", width: "8%", formatter: "money"},
 		        ]
 			});
@@ -89,6 +89,7 @@ var data;
 			var targetObj = this.target;
 			var row = gridView.target.getList("selected")[0];
 			var formData = {
+					closeYm : row.closeYm,
 					coCd : row.coCd,
 					prdtDiv : row.prdtDiv,
 					prdtCd : row.prdtCd,
@@ -100,7 +101,7 @@ var data;
 					prdtimpCd : row.impYn,
 					prjctCd : row.prjctCd
 			}
-
+console.log(formData);
 			postAjax("/user/rd/rd04/selectRcvpayList", formData, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData(list);
@@ -132,12 +133,21 @@ var data;
 							gridView.setData(this.page.selectPage);
 						}
 					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {key: "", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstWt", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
 					columns: [
-			          	{key: "prdtDivNm",     label: "일자",   align: "center",  width: "20%"},
-			            {key: "whNm",  label: "입출고거래유형",   align: "center",  width: "20%"},
-			            {key: "prdtNm",    label: "제품길이",    align: "right",    width: "20%"},
-			        	{key: "ownerNm",   label: "수량",   align: "right",    width: "20%"},
-			        	{key: "ownerNm",   label: "중량",   align: "right",    width: "20%"}
+			          	{key: "trstDt",     label: "일자",   align: "center",  width: "20%"},
+			            {key: "trspTypCd",  label: "입출고거래유형",   align: "center",  width: "20%"},
+			            {key: "prdtLen",    label: "제품길이",    align: "right",    width: "20%"},
+			        	{key: "realTrstQty",   label: "수량",   align: "right",    width: "20%"},
+			        	{key: "realTrstWt",   label: "중량",   align: "right",    width: "20%"}
 			        ]
 				});
 				return this;
@@ -146,6 +156,7 @@ var data;
 				var targetObj = this.target;
 				var row = gridView.target.getList("selected")[0];
 				var formData = {
+						closeYm : row.closeYm,
 						coCd : row.coCd,
 						prdtDiv : row.prdtDiv,
 						prdtCd : row.prdtCd,
@@ -154,11 +165,12 @@ var data;
 						typCd : row.typCd,
 						makrCd : row.makrCd,
 						clntCd : row.clntCd,
-						prdtimpCd : row.impYn,
-						prjctCd : row.prjctCd
+						impYn : row.impYn,
+						prjctCd : row.prjctCd,
+						selpchCd : 'SELPCH1' // 입고
 				}
-
-				postAjax("/user/rd/rd04/selectRcvpayList", formData, null, function(data) {
+				postAjax("/user/rd/rd04/selectRcvpayDtlList", formData, null, function(data) {
+					console.log(data);
 					var list = data.resultList;
 					targetObj.setData({
 						list : list,
@@ -197,12 +209,21 @@ var data;
 							gridView.setData(this.page.selectPage);
 						}
 					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {key: "", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstWt", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
 					columns: [
-			          	{key: "prdtDivNm",     label: "일자",   align: "center",  width: "20%"},
-			            {key: "whNm",  label: "입출고거래유형",   align: "center",  width: "20%"},
-			            {key: "prdtNm",    label: "제품길이",    align: "right",    width: "20%"},
-			        	{key: "ownerNm",   label: "수량",   align: "right",    width: "20%"},
-			        	{key: "ownerNm",   label: "중량",   align: "right",    width: "20%"}
+			          	{key: "trstDt",     label: "일자",   align: "center",  width: "20%"},
+			            {key: "trspTypCd",  label: "입출고거래유형",   align: "center",  width: "20%"},
+			            {key: "prdtLen",    label: "제품길이",    align: "right",    width: "20%"},
+			        	{key: "realTrstQty",   label: "수량",   align: "right",    width: "20%"},
+			        	{key: "realTrstWt",   label: "중량",   align: "right",    width: "20%"}
 			        ]
 				});
 				return this;
@@ -211,6 +232,7 @@ var data;
 				var targetObj = this.target;
 				var row = gridView.target.getList("selected")[0];
 				var formData = {
+						closeYm : row.closeYm,
 						coCd : row.coCd,
 						prdtDiv : row.prdtDiv,
 						prdtCd : row.prdtCd,
@@ -219,11 +241,13 @@ var data;
 						typCd : row.typCd,
 						makrCd : row.makrCd,
 						clntCd : row.clntCd,
-						prdtimpCd : row.impYn,
-						prjctCd : row.prjctCd
+						impYn : row.impYn,
+						prjctCd : row.prjctCd,
+						selpchCd : 'SELPCH2' // 출고
 				}
 
-				postAjax("/user/rd/rd04/selectRcvpayList", formData, null, function(data) {
+				postAjax("/user/rd/rd04/selectRcvpayDtlList", formData, null, function(data) {
+					console.log(data);
 					var list = data.resultList;
 					targetObj.setData({
 						list : list,
