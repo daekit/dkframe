@@ -154,7 +154,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="openPrdtIn();">제품입고</a>
+					<a style="width:80px;" onclick="openPrdtInOut();">제품입고</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10" selected>10</option>
@@ -194,6 +194,9 @@
 					onClick : function() {
 						this.self.select(this.dindex);
 						inRsltsDtlGridView.setData(0);
+					},
+					onDBLClick : function() {
+						openPrdtInOut();
 					}
 				},
 				columns: [
@@ -247,7 +250,7 @@
 				paramObj[$(tempElem).data("search")] = elemValue;
 			}
 			
-			postAjax("/user/od/od01/selectOrderList", paramObj, null, function(data) {
+			postAjaxSync("/user/od/od01/selectOrderList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -324,7 +327,7 @@
 				"ordrgSeq": inRsltsGridView.target.getList("selected")[0].ordrgSeq
 			};
 			
-			postAjax("/user/od/od01/selectOrderDetailList", paramObj, null, function(data) {
+			postAjaxSync("/user/od/od01/selectOrderDetailList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -388,7 +391,8 @@
 
 		// grid init
 		inRsltsGridView.initView().setData(0);
-		inRsltsDtlGridView.initView();
+		inRsltsGridView.target.select(0);
+		inRsltsDtlGridView.initView().setData(0);
 	});
 	
 	// 검색조건 초기화
@@ -427,7 +431,7 @@
 	}
 	
 	// 제품입고
-	function openPrdtIn(){
+	function openPrdtInOut(){
 		if(selectGridValidation(inRsltsGridView.target)) return false;
 		openModal("/static/html/user/rd/rd01/RD0102P01.html", 1000, 650, "");
 	}

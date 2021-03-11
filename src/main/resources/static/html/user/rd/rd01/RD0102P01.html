@@ -150,10 +150,43 @@
 					<input type="text" class="tr" name="ordrgQty" comma readonly>
 				</td>
 				<td>
-					<input type="text" class="tr" name="realDlvrQty" comma readonly>
+					<input type="text" class="tr" name="realDlvrQty" data comma readonly>
 				</td>
 				<td>
 					<input type="text" class="tr" name="intendDlvrQty" onkeyup="addComma(this); countTot();" data comma>
+				</td>
+			</tr>
+		</table>
+		<table id="fixedTable" style="display: none;">
+			<tr name="detailRow">
+				<input type="hidden" name="ordrgDtlSeq">
+				<td>
+					<input type="checkbox" name="detailChkBox" disabled>
+				</td>
+				<td>
+					<input type="hidden" name="prdtCd">
+					<input type="text" name="prdtNm" readonly> 
+				</td>
+				<td>
+					<input type="text" class="tc" name="prdtStkn" readonly>
+				</td>
+				<td>
+					<input type="text" class="tc" name="prdtSpec" readonly>
+				</td>
+				<td>
+					<input type="text" class="tc" name="prdtUnit" readonly>
+				</td>
+				<td>
+					<input type="text" class="tr" name="prdtLen" comma readonly>
+				</td>
+				<td>
+					<input type="text" class="tr" name="ordrgQty" comma readonly>
+				</td>
+				<td>
+					<input type="text" class="tr" name="realDlvrQty" comma readonly>
+				</td>
+				<td>
+					<input type="text" class="tr" name="intendDlvrQty" comma readonly>
 				</td>
 			</tr>
 		</table>
@@ -253,7 +286,11 @@
 		//상세정보 세팅
 		$.each(result.orderDetail, function(idx, obj) {
 			var $addedRow = null;
-			$addedRow = addDetailRow();
+			if(obj.ordrgYn == "N") {
+				$addedRow = addDetailRow();
+			} else {
+				$addedRow = addFixedRow();
+			}
 			
 			for(var i=0;i<$addedRow.find('[name]').length;i++){
 				var detailItem = $addedRow.find('[name]')[i];
@@ -276,7 +313,7 @@
 	}
 	
 	function addFixedRow(){
-		var $fixedRow = $('#fixedTable tr[name="fixedRow"]').clone();
+		var $fixedRow = $('#fixedTable tr[name="detailRow"]').clone();
 		$('#detailTable tbody').append($fixedRow[0]);
 		return $fixedRow;
 	}
@@ -302,6 +339,7 @@
 	}
 	
 	function inOutPrdt(inOutType){
+		
 		var detailRows = $('#detailTable tr[name="detailRow"]');
 		if(detailRows.find('[name="detailChkBox"]:checked').length == 0){
 			alert("선택된 제품이 없습니다.");
@@ -319,30 +357,52 @@
 		var ordrgObjArr = [];
 		$.each(detailRows, function(idx, elem){
 			var ordrgObj = {};
-			$.each($(elem).find('[name][data]'), function(idx, elem){
-				var elemValue = elem.value;
-				if($(elem).is('[comma]')){
-					elemValue = deleteCommaStr(elem.value);
-				}
-				ordrgObj[elem.name] = elemValue;
-			});
-			ordrgObj["inOutType"] = inOutType;
-			ordrgObjArr.push(ordrgObj);
+			if($(elem).find('[name="detailChkBox"]').is(':checked')){
+				$.each($(elem).find('[name][data]'), function(idx, elem){
+					var elemValue = elem.value;
+					if($(elem).is('[comma]')){
+						elemValue = deleteCommaStr(elem.value);
+					}
+					ordrgObj[elem.name] = elemValue;
+				});
+				ordrgObj["inOutType"] = inOutType;
+				ordrgObjArr.push(ordrgObj);
+			}
 		});
+		
+		var isValid = true;
+		if(inOutType == "out"){
+			$.each(ordrgObjArr, function(idx, obj){
+				var realDlvrQty = obj.realDlvrQty;
+				var intendDlvrQty = obj.intendDlvrQty;
+				if(Number(realDlvrQty) - Number(intendDlvrQty) < 0){
+					alert("누적입고량 보다 많은 수량을 취소할 수 없습니다.");
+					isValid = false;
+					return false; //break;
+				}
+			});	
+		}
+		if(!isValid) return false;
 		
 		putAjax("/user/rd/rd01/inOutPrdt", ordrgObjArr, null, function(data){
 			alert(data.resultMessage);
 			if(data.resultCode == 200){
 				$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+					// grid set
+					inRsltsDtlGridView.setData(0);
+					
 					if($(elem).find('[name="detailChkBox"]').is(":checked")){
+						var ordrgQty = deleteCommaStr($(elem).find('[name="ordrgQty"]').val());
 						var realDlvrQty = deleteCommaStr($(elem).find('[name="realDlvrQty"]').val());
 						var intendDlvrQty = deleteCommaStr($(elem).find('[name="intendDlvrQty"]').val());
+						
 						if(inOutType == "in"){
 							realDlvrQty = Number(realDlvrQty) + Number(intendDlvrQty);
 						} else if (inOutType == "out"){
 							realDlvrQty = Number(realDlvrQty) - Number(intendDlvrQty);
 						}
 						$(elem).find('[name="realDlvrQty"]').val(addCommaStr(realDlvrQty));
+						$(elem).find('[name="intendDlvrQty"]').val(addCommaStr(ordrgQty-realDlvrQty));
 					}
 				});
 				countTot();
