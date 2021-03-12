@@ -15,6 +15,7 @@ import com.dksys.biz.util.MessageUtils;
 
 @Controller
 @RequestMapping("/user/rd/rd01")
+
 public class RD01Ctr {
 	
 	@Autowired
