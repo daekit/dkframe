@@ -9,24 +9,20 @@
     			<tr>	
     				<td>
     					<select id="searchType">
-		                  	<option value="PRJCT_NM">프로젝트명</option>
+		                  	<option value="PRDT_NM">제품명</option>
 		                </select>    
     				</td>
     				<td>
-    					<div class="search_form">
-							<input type="text"  id="searchValue" onkeypress="if(event.keyCode == 13){popGridView.setData(0);}"> 
-							<a onclick="popGridView.setData(0);">
-								<i class="i_search_w"></i>
-							</a>
-						</div>
+    					<input type="text" id="searchValue" style="width: 85%;" onkeypress="if(event.keyCode == 13){popGridView.setData(0);}">
+    					<button type="button" class="btn btn-primary btn-sm" onclick="popGridView.setData(0);">검색</button>    
     				</td>
     			</tr>
     		</table>
-    		<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 320px;" ></div>
+    		<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%" ></div>
     	</div>
     </div>
     <div class="popup_bottom_btn">
-      <button onclick="setPrjctInfo();">선택</button>
+      <button onclick="">선택</button>
       <button class="close_btn" onclick="secondModal.close();">닫기</button>
     </div>
 </body>
@@ -50,7 +46,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	setPrjctInfo();
+		            	setPrdtInfo();
 		            },
 		        },
 		        page: {
@@ -66,14 +62,12 @@
 		            }
 		        },
 		        columns: [
-		            {key: "prjctCd", label: "회사",        align: "center", hidden: true},
-		            {key: "coNm",    label: "회사",        align: "center", width: "15%"},
-		            {key: "strtDt",  label: "프로젝트시작일", align: "center", width: "15%"},
-		            {key: "endDt",   label: "프로젝트종료일", align: "center", width: "15%"},
-		            {key: "prjctNm", label: "프로젝트명",   align: "left",   width: "20%"},
-		            {key: "makrNm",  label: "제조사",      align: "center", width: "12%"},
-		            {key: "mngNm",   label: "담당자",      align: "center", width: "15%"},
-		            {key: "totWt",   label: "총중량",      align: "center", width: "10%" , formatter: "money"},
+		          	{key: "prdtCd ", label: "제품코드", align: "center", hidden: true},
+		          	{key: "prdtNm", label: "제품명", align: "center", width: "40%"},
+		            {key: "prdtStknNm", label: "제품강종", align: "center", width: "15%"},
+		            {key: "prdtUnitNm", label: "제품단위", align: "center", width: "15%"},
+		            {key: "prdtSizeNm", label: "제품사이즈", align: "center", width: "15%"},
+		        	{key: "ordrgUpr", label: "기준단가", align: "center", width: "15%"},
 		        ]
 		    });
 			return this;
@@ -81,14 +75,17 @@
 		setData: function(_pageNo) {
 			secondGrid = this.target;
 			var formData = {
-				"coCd" : $("#coCd").val(),
 				"searchType" : $("#searchType").val(),
 				"searchValue" : $("#searchValue").val(),
+				"impYn" : $("#impYn").val(),
+				"clntCd" : $("#clntCd").val(),
+				"useYn" : "Y",
+				"selpchCd": "SELPCH2",  // 매출
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : 10
 			}
-			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
-				var list = data.sd0501m01;
+			postAjax("/admin/bm/bm01/selectMaterialList", formData, null, function(data){
+				var list = data.materialList;
 				secondGrid.setData({
 					list : list,
 					page : {
@@ -106,15 +103,12 @@
 		popGridView.initView().setData(0);
 	});
 
-	function setPrjctInfo(div) {
+	function setPrdtInfo() {
 		var row = popGridView.target.getList("selected")[0];
-		if($("#prjctCd").length == 0) {
-			$("#prjctCd_S").val(row.prjctCd);
-			$("#prjctNm_S").val(row.prjctNm);
-		} else {
-			$("#prjctCd").val(row.prjctCd);
-			$("#prjctNm").val(row.prjctNm);
-		}
+		$.each(row, function(key, value){
+			if($("input[name="+key+"]") != undefined)
+				$("input[name="+key+"]").val(value);
+		});
 		secondModal.close();
 	}
 </script>
