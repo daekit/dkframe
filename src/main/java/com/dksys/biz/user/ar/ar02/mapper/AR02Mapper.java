@@ -16,5 +16,7 @@ public interface AR02Mapper {
 
 	int updatePchsSell(Map<String, String> detailMap);
 
+	int deleteSell(Map<String, String> paramMap);
+
 	
 }

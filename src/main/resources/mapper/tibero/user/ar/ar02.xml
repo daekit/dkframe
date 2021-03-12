@@ -157,7 +157,7 @@
 	
 	<select id="selectSellCount" parameterType="Map" resultType="int">
 		SELECT COUNT(*) FROM TB_AR02M01
-	 	WHERE 1=1
+	 	WHERE SELPCH_CD = #{selpchCd}
 		<if test="coCd != null and !coCd.equals('')">
 			AND CO_CD = #{coCd}				
 		</if>
@@ -252,7 +252,7 @@
 		        NVL(TRST_DC_AMT, '0') AS TRST_DC_AMT,
 		        NVL(ETC_AMT, '0') AS ETC_AMT,
 		        TRSP_RMK,
-		        TRANS_AMT,
+		        NVL(TRANS_AMT, '0') AS TRANS_AMT,
 		        SHIP_VEH_NO,
 		        CLNT_NM,
 		        BILG_CERT_NO,
@@ -272,7 +272,7 @@
 			FROM 
 			(
 			 	SELECT * FROM TB_AR02M01 T
-			 	WHERE 1=1
+			 	WHERE SELPCH_CD = #{selpchCd}
 				<if test="coCd != null and !coCd.equals('')">
 					AND CO_CD = #{coCd}				
 				</if>
@@ -372,5 +372,10 @@
 <!-- 	        SALES_AREA_CD   = #{} -->
 		WHERE TRST_CERTI_NO = #{trstCertiNo}
 	</update>
+	
+	<delete id="deleteSell" parameterType="Map">
+		DELETE FROM TB_AR02M01
+		WHERE TRST_CERTI_NO = #{trstCertiNo}
+	</delete>
 	
 </mapper>

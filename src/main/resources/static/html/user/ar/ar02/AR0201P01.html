@@ -1,3 +1,8 @@
+<style>
+ .grid-cell-blue{
+        background: #dcf0f8;
+    }
+</style>
 <body>
 	<div id="p01Div" class="popup_area of_a" style="width: 100%; height: 100%;">
 		<!-- 검색 콘텐츠 -->
@@ -38,8 +43,8 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					할인금액: <input type="text" id="allAmt" style="text-align: right;" onkeyup="addComma(this);">
-					<a onclick="setUprBatch();" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
+					할인할증: <input type="text" id="allAmt" style="text-align: right;" onkeyup="addComma(this);">
+					<a onclick="setDcAmt('bilgUpr');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
 					<a onclick="setDcAmt('trstDcAmt');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
 				</div>
 			</div>
@@ -66,6 +71,11 @@
 	var actionType = null;
 	var secondGrid = null;
 	
+	ax5.ui.grid.formatter["capital"] = function(){
+	    // console.log(this);
+	    return this.value.toUpperCase();
+	}
+	
 	var popGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -85,6 +95,16 @@
 		            onDBLClick: function () {
 // 		            	viewShipModal();
 		            },
+		            onDataChanged: function() {
+		            	var realTrstAmt = this.item.bilgQty * this.item.bilgUpr;
+		        		var bilgAmt = Number(this.item.realTrstAmt) - Number(this.item.trstDcAmt) + Number(this.item.transAmt);
+		        		if(realTrstAmt != this.item.realTrstAmt) {
+		        			this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
+		        		}
+		        		if(bilgAmt != this.item.bilgAmt) {
+		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
+		        		}
+		            }
 		        },
 		        columns: [
 		        	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100},
@@ -93,17 +113,17 @@
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 100},
 		            {key: "taxivcCoprtNm",	label: "판매법인", 	align: "left", 		width: 100},
 		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 120},
-		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}},
-		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "bilgQty",        label: "청구수량", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "bilgUpr",        label: "청구단가", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "bilgWt",         label: "청구중량", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}},
-		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}},
-		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}},
+		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "bilgQty",        label: "청구수량", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgUpr",        label: "청구단가", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgWt",         label: "청구중량", 	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money"},
+		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100, editor: {type:"text"}},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 100},
@@ -122,7 +142,7 @@
 	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgUpr", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
-	                    {key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "realTrstAmt", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {label: "-", 			align:"center"									 },
 	                    {key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
@@ -172,28 +192,32 @@
 	
 	function setDcAmt(targetName) {
 		if($("#allAmt").val() == "") {
-			alert("할인금액을 입력해주세요.");
+			alert("할인할증을 입력해주세요.");
 			return;
 		}
-		var amt = deleteCommaStr($("#allAmt").val());
+		var allAmt = Number(deleteCommaStr($("#allAmt").val()));		
 		var list = secondGrid.getList();
-		$.each(list, function(idx, item){
-			secondGrid.setValue(idx, targetName, amt);
+		var setValue = 0;
+		var totAmt = 0;
+		$.each(list, function(idx, item) {
+			if(targetName == "bilgUpr") {
+				setValue = item.prdtUpr - Number(allAmt);
+			} else {
+				setValue = Math.round(allAmt / list.length);
+				idx == list.length-1 ? setValue = allAmt - totAmt : totAmt += setValue;
+				var lossRate = Math.round(setValue / Number(item.realTrstAmt) * 100);
+				secondGrid.setValue(idx, "lossRate", lossRate);
+			}
+			secondGrid.setValue(idx, targetName, setValue);
 		});
-		$("#allAmt").val("");
+// 		$("#allAmt").val("");
 	}
 
 	function setUprBatch() {
 		var list = secondGrid.getList();
 		$.each(list, function(idx, item){
-			var bilgUpr = item.prdtUpr - item.trstDcAmt;
-			var realTrstAmt = item.realTrstQty * bilgUpr;
-			var bilgAmt = Number(realTrstAmt) + Number(item.transAmt) + Number(item.etcAmt);
-			var lossRate = Number(item.trstDcAmt) / Number(item.prdtUpr) * 100;
+			var bilgUpr = item.prdtUpr - Number($("#allAmt").val());
 			secondGrid.setValue(idx, "bilgUpr", bilgUpr);
-			secondGrid.setValue(idx, "realTrstAmt", realTrstAmt);
-			secondGrid.setValue(idx, "bilgAmt", bilgAmt);
-			secondGrid.setValue(idx, "lossRate", lossRate);
 		});
 	}
 
@@ -216,6 +240,13 @@
 		formData["detailArr"] = secondGrid.getList();
 		
 		return formData;
+	}
+	
+	function calAmt(el) {
+		var realTrstAmt = el.item.bilgQty * el.item.bilgUpr;
+		var bilgAmt = Number(el.item.realTrstAmt) - Number(el.item.trstDcAmt) + Number(el.item.transAmt);
+        secondGrid.setValue(el.dindex, "realTrstAmt", realTrstAmt);
+        secondGrid.setValue(el.dindex, "bilgAmt", bilgAmt);
 	}
 	
 </script>
