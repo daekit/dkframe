@@ -13,4 +13,6 @@ public interface AR02Svc {
 
 	int deleteSell(Map<String, String> paramMap);
 
+	int insertPchsSell(Map<String, String> paramMap);
+
 }
