@@ -52,4 +52,12 @@ public class AR02Ctr {
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
     }
+
+	@PostMapping(value = "/insertPchsSell")
+    public String insertPchsSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		ar02Svc.insertPchsSell(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	return "jsonView";
+    }
 }

@@ -42,7 +42,7 @@
 	            <tr>
 	                <th>매출일자</th>
 	                <td>                             
-	                    <input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar">
+	                    <input type="text" id="trstDt" name="trstDt" class="input_calendar">
 	                </td>
 	                <th>담당자연락처</th>
 	                <td>                                
@@ -70,6 +70,7 @@
 	                <td>                                
 	                    <div class="search_form">
 	                    	<input type="hidden" name="prdtCd">
+	                    	<input type="hidden" name="prdtCnvrsnWt">
 			                <input type="text" name="prdtNm" readonly="readonly" required="required" >
 			              	<button type="button" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
 			            </div>
@@ -115,17 +116,17 @@
 	            <tr>
 	                <th>기타금액</th>
 	                <td>                             
-	                    <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="etcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	                </td>
 	                <th>실거래수량</th>
 	                <td>                                
-	                    <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="realTrstQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	                </td>
 	            </tr>
 	            <tr>
 	                <th>운송비</th>
 	                <td>                             
-	                    <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="transAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	                </td>
 	                <th>영업담당</th>
 	                <td>                                
@@ -139,22 +140,22 @@
 	            <tr>
 	                <th>청구금액</th>
 	                <td>                             
-	                    <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	                </td>
 	                <th>전표발행여부</th>
 	                <td>                                
-	                    <input type="text" name="ordrgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="bilgYn" style="text-align: center;" readonly="readonly">
 	                </td>
 	            </tr>
-	            <tr>
+	            <tr>  
 	                <th>비고</th>
 	                <td colspan="3">                             
-	                    <textarea class="form-control" id="ordrgRmk" name="ordrgRmk" type="text" style="height: 60px;" maxlength="500"></textarea>
+	                    <textarea class="form-control" id="trspRmk" name="trspRmk" type="text" style="height: 60px;" maxlength="500"></textarea>
 	                </td>
 	            </tr>
 	        </table>
 	        <input type="hidden" id="userId" name="userId">
-	        <input type="hidden" id="pgmId" name="pgmId" value="AR0201P01">
+	        <input type="hidden" id="pgmId" name="pgmId" value="AR0202P01">
 	    </form>
     </div>
     <br>
@@ -176,7 +177,7 @@
 	
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
-		$('#dlvrDttm').datepicker({
+		$('#trstDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -186,16 +187,14 @@
 	
 	function setInit() {
 		if(actionType == "C"){
-			$('#actionBtn').on("click", function(){insertShip();});
+			$('#actionBtn').on("click", function(){insertPchsSell();});
 			$('#actionBtn').text("등록");
-			$("#reqDt").val(dateToStr(new Date()));
 		}else if(actionType == "U"){
 			selectShipInfo();
 			$('#actionBtn').on("click", function(){updateShip();});
 			$('#actionBtn').text("저장");
 		}else if(actionType == "O"){
 			getOrderInfo();
-			$('#odrSeq').siblings('a').remove();
 			$('#actionBtn').on("click", function(){insertShip();});
 			$('#actionBtn').text("등록");
 		}
@@ -208,16 +207,6 @@
 			"reqDt" : row.reqDt.replace(/-/g, "")
 		}
 		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
-			setShipInfo(data.result);
-		});
-	}
-	
-	function getOrderInfo(){
-		var formData = {
-			"odrSeq": odrSeq,
-			"odrDtlSeqArr": odrDtlSeqArr
-		};
-		postAjax("/user/ar/ar01/getOrderInfo", formData, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
@@ -267,47 +256,22 @@
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
 		$("#userId").val(jwt.userId);
-		$("#reqDt").val($("#reqDt").val().replace(/-/g, ""));
+		$("#trstDt").val($("#trstDt").val().replace(/-/g, ""));
 		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
 			deleteComma(elem);
 		});
 		
-		var formData = new FormData($("#popForm")[0]);
-		
-		// 첨부파일 추가
-		$.each(fileArr, function(idx, obj){
-			// 신규파일만 추가
-			if(obj.fileKey == 0){
-				formData.append("files", obj.file);
-			}
-		});
-		
-		// 상세내역 추가
-		var detailArr = [];
-		$.each($('.detailRow'), function(idx, elem){
-			if($(elem).find("input[name='shipYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "") {
-				var detailObj = {};
-				$.each($(elem).find('[name]'), function(idx, elem){
-					detailObj[elem.name] = elem.value;
-				});
-				detailArr.push(detailObj);
-			}
-		});
-		formData.append("detailArr", JSON.stringify(detailArr));
-		
-		if(actionType == "U") {
-			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		} 
+		var formData = new FormData($("#popForm")[0]).serializeObject();
 		
 		return formData;
 	}
 	
-	function insertShip() {
+	function insertPchsSell() {
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
-			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
+			postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
 				alert(data.resultMessage);
 				gridView.setData(0);
 				modal.close();
@@ -333,27 +297,13 @@
 	}
 	
 	function countAmt(el) {
-		var ordrgQty     = $("input[name='ordrgQty']")[rowIdx].value;
-		var ordrgUpr     = $("input[name='ordrgUpr']")[rowIdx].value;
-		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']")[rowIdx].value;
-		var realDlvrQty  = $("input[name='realDlvrQty']")[rowIdx].value;
-		var realDlvrUpr  = $("input[name='realDlvrUpr']")[rowIdx].value;
-   // 실발주 단가가 없을 경우 지시단가로 초기값 정함.
-		if(realDlvrUpr == 0 && realDlvrQty != 0) 
-		 { $("input[name='realDlvrUpr']")[rowIdx].value = ordrgUpr; 
-		    realDlvrUpr  = ordrgUpr; }
-		
-		$("input[name='ordrgWt']")[rowIdx].value     = (deleteCommaStr(ordrgQty)    * deleteCommaStr(prdtCnvrsnWt));
-		$("input[name='ordrgAmt']")[rowIdx].value    = (deleteCommaStr(ordrgQty)    * deleteCommaStr(ordrgUpr));
-		$("input[name='realDlvrWt']")[rowIdx].value  = (deleteCommaStr(realDlvrQty) * deleteCommaStr(prdtCnvrsnWt));
-		$("input[name='realDlvrAmt']")[rowIdx].value = (deleteCommaStr(realDlvrQty) * deleteCommaStr(realDlvrUpr));
-		addComma($("input[name='ordrgAmt']")[rowIdx]);
-		addComma($("input[name='realDlvrAmt']")[rowIdx]);
-		countTot();
-	}
-	
-	function countTot() {
-		
+		var bilgQty = $("input[name='bilgQty']").val();
+		var bilgUpr = $("input[name='bilgUpr']").val();
+		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']").val();
+		$("input[name='bilgWt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(prdtCnvrsnWt)));
+		$("input[name='bilgAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr)));
+		addComma($("input[name='bilgWt']"));
+		addComma($("input[name='bilgAmt']"));
 	}
 	
 </script>
