@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.od.od02.mapper.OD02Mapper">
+	
+	<select id="selectPurchaseCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_AR02M01 
+		WHERE 1=1
+		<if test= "coCd != null and !coCd.equals('')">
+				AND CO_CD = #{coCd}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+				AND TRST_DT BETWEEN #{strtDt} AND #{endDt}
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+				AND TRST_CLNT_CD = #{clntCd}
+		</if>
+		<if test= "prdtDiv != null and !prdtDiv.equals('')">
+				AND PRDT_DIV = #{prdtDiv}
+		</if>
+		<if test= "prdtStkn != null and !prdtStkn.equals('')">
+				AND PRDT_STKN = #{prdtStkn}
+		</if>
+		<if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+				AND TAXIVC_COPRT = #{taxivcCoprt}
+		</if>
+		<if test= "bilgCertNo != null and !bilgCertNo.equals('')">
+				AND BILG_CERT_NO = #{bilgCertNo}
+		</if>
+	</select>
+	
+	<select id="selectPurchaseList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					   A.CO_CD
+					  ,A.TAXIVC_COPRT
+					  ,(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
+					  ,TO_CHAR(TO_DATE(A.TRST_DT,'YYYYMMDD'),'YYYY-MM-DD') AS TRST_DT
+					  ,A.TRST_CLNT_CD
+					  ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM 
+					  ,A.TRST_PRDT_CD
+					  ,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
+					  ,A.SALES_MNG
+					  ,A.PRJCT_CD
+					  ,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM
+					  ,A.MAKR_CD
+					  ,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+					  ,A.PRDT_DIV
+					  ,(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.PRDT_DIV) AS PRDT_NM
+					  ,A.PRDT_STKN
+					  ,(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.PRDT_STKN) AS PRDT_STKN_NM
+					  ,A.PRDT_SIZE
+					  ,(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.PRDT_SIZE) AS PRDT_SIZE_NM
+					  ,A.TRANS_AMT
+					  ,A.REAL_TRST_QTY
+					  ,A.REAL_TRST_UPR
+					  ,A.BILG_QTY
+					  ,A.BILG_UPR
+					  ,A.BILG_AMT
+					  ,A.BILG_QTY * A.BILG_UPR AS KIND_AMT
+					  ,A.TRST_DC_AMT
+					  ,A.TRSP_RMK
+					  ,NVL2(A.BILG_CERT_NO,'Y','N') AS BILG_CERT_NO
+				FROM TB_AR02M01 A
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+		 			AND A.TRST_DT BETWEEN #{strtDt} AND #{endDt}
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND A.TRST_CLNT_CD = #{clntCd}
+				</if>
+				<if test= "prdtDiv != null and !prdtDiv.equals('')">
+		 			AND A.PRDT_DIV = #{prdtDiv}
+				</if>
+				<if test= "prdtStkn != null and !prdtStkn.equals('')">
+		 			AND A.PRDT_STKN = #{prdtStkn}
+				</if>
+				<if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+		 			AND A.TAXIVC_COPRT = #{taxivcCoprt}
+				</if>
+				<if test= "bilgCertNo != null and !bilgCertNo.equals('')">
+		 			AND A.BILG_CERT_NO = #{bilgCertNo}
+				</if>
+			) D
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+</mapper>
