@@ -1,0 +1,121 @@
+<body>
+    <div class="popup_area" style="width: 100%;">
+    	<div class="popup_table">
+    		<table>
+    			<colgroup>
+                	<col width="30%">
+	                <col width="">
+	            </colgroup>
+    			<tr>	
+    				<td>
+    					<select id="searchType">
+		                  	<option value="PRJCT_NM">프로젝트명</option>
+		                </select>    
+    				</td>
+    				<td>
+    					<div class="search_form">
+							<input type="text"  id="searchValue" onkeypress="if(event.keyCode == 13){popGridView.setData(0);}"> 
+							<a onclick="popGridView.setData(0);">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+    				</td>
+    			</tr>
+    		</table>
+    		<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 320px;" ></div>
+    	</div>
+    </div>
+    <div class="popup_bottom_btn">
+      <button onclick="setPrjctInfo();">선택</button>
+      <button class="close_btn" onclick="secondModal.close();">닫기</button>
+    </div>
+</body>
+<script type="text/javascript">
+	
+	var secondGrid = null;
+	
+	var popGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="second-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	setPrjctInfo();
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	popGridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		            {key: "prjctCd", label: "회사",        align: "center", hidden: true},
+		            {key: "coNm",    label: "회사",        align: "center", width: "15%"},
+		            {key: "strtDt",  label: "프로젝트시작일", align: "center", width: "15%"},
+		            {key: "endDt",   label: "프로젝트종료일", align: "center", width: "15%"},
+		            {key: "prjctNm", label: "프로젝트명",   align: "left",   width: "20%"},
+		            {key: "makrNm",  label: "제조사",      align: "center", width: "12%"},
+		            {key: "mngNm",   label: "담당자",      align: "center", width: "15%"},
+		            {key: "totWt",   label: "총중량",      align: "center", width: "10%" , formatter: "money"},
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			secondGrid = this.target;
+			var formData = {
+				"coCd" : $("#coCd").val(),
+				"searchType" : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : 10
+			}
+			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
+				var list = data.sd0501m01;
+				secondGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		popGridView.initView().setData(0);
+	});
+
+	function setPrjctInfo() {
+		var row = popGridView.target.getList("selected")[0];
+		if(actionPrjctType == "S"){
+			$("#prjctCd_S").val(row.prjctCd);
+			$("#prjctNm_S").val(row.prjctNm);
+		}else if(actionPrjctType == "P"){
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		}
+		
+		secondModal.close();
+	}
+</script>

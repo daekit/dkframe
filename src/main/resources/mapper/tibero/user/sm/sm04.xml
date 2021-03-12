@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sm.sm04.mapper.SM04Mapper">
+	
+	<select id="selectPrdtAcinsCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_SM03M01 
+		WHERE 1=1
+		<if test= "coCd != null and !coCd.equals('')">
+ 			AND CO_CD = #{coCd}
+		</if>
+		<if test="acinsDt != null and !acinsDt.equals('') and endDt != null and !endDt.equals('')">
+ 			AND ACINS_DT = #{acinsDt}
+		</if>
+		<if test= "whCd != null and !whCd.equals('')">
+ 			AND WH_CD = #{whCd}
+		</if>
+		<if test= "prdtCd != null and !prdtCd.equals('')">
+ 			AND PRDT_CD = #{prdtCd}
+		</if>
+		<if test= "prjctCd != null and !prjctCd.equals('')">
+ 			AND PRJCT_CD = #{prjctCd}
+		</if>
+		<if test= "ownerCd != null and !ownerCd.equals('')">
+ 			AND OWNER_CD = #{ownerCd}
+		</if>
+		<if test= "typCd != null and !typCd.equals('')">
+ 			AND TYP_CD = #{typCd}
+		</if>
+		<if test= "makrCd != null and !makrCd.equals('')">
+ 			AND MAKR_CD = #{makrCd}
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND CLNT_CD = #{clntCd}
+		</if>
+		<if test= "impYn != null and !impYn.equals('')">
+ 			AND IMP_YN = #{impYn}
+		</if>
+	</select>
+	
+	<select id="selectPrdtAcinsList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					A.CO_CD,
+					A.ACINS_DT,
+					A.WH_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.WH_CD) AS WH_NM,
+					A.PRDT_CD,
+					(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) AS PRDT_NM,
+					A.OWNER_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.OWNER_CD) AS OWNER_NM,
+					A.CLNT_CD,
+					(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM,
+					A.TYP_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.TYP_CD) AS TYP_NM,
+					A.MAKR_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.MAKR_CD) AS MAKR_NM,
+					A.PRJCT_CD,
+					(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM,
+					A.IMP_YN,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.IMP_YN) AS IMP_NM,
+					A.STOCK_QTY,
+					A.ACINS_QTY,
+					A.STOCK_QTY - A.ACINS_QTY AS STOCK_ACINS_QTY,
+					A.RMK
+				FROM TB_SM03M01 A
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test="acinsDt != null and !acinsDt.equals('')">
+		 			AND A.ACINS_DT = #{acinsDt}
+				</if>
+				<if test= "whCd != null and !whCd.equals('')">
+		 			AND A.WH_CD = #{whCd}
+				</if>
+				<if test= "prdtCd != null and !prdtCd.equals('')">
+		 			AND A.PRDT_CD = #{prdtCd}
+				</if>
+				<if test= "prjctCd != null and !prjctCd.equals('')">
+		 			AND A.PRJCT_CD = #{prjctCd}
+				</if>
+				<if test= "ownerCd != null and !ownerCd.equals('')">
+		 			AND A.OWNER_CD = #{ownerCd}
+				</if>
+				<if test= "typCd != null and !typCd.equals('')">
+		 			AND A.TYP_CD = #{typCd}
+				</if>
+				<if test= "makrCd != null and !makrCd.equals('')">
+		 			AND A.MAKR_CD = #{makrCd}
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test= "impYn != null and !impYn.equals('')">
+		 			AND A.IMP_YN = #{impYn}
+				</if>
+			) D
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectPrdtAcinsInfo" parameterType="Map" resultType="camelMap">
+		SELECT T.*,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,	
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_NM,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.OWNER_CD) AS OWNER_NM,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.TYP_CD) AS TYP_NM,
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.MAKR_CD) AS MAKR_NM,
+			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+		FROM TB_SM03M01 T
+		WHERE 1=1
+			AND	CO_CD = #{coCd}
+			AND ACINS_DT = #{acinsDt}
+			AND WH_CD = #{whCd}
+			AND PRJCT_CD = #{prjctCd}
+			AND PRDT_CD = #{prdtCd}
+			AND OWNER_CD = #{ownerCd}
+			AND CLNT_CD = #{clntCd}
+			AND TYP_CD = #{typCd}
+			AND MAKR_CD = #{makrCd}
+			AND PRJCT_CD = #{prjctCd}
+			AND IMP_YN = #{impYn}
+	</select>
+	
+	<insert id="insertPrdtAcins" parameterType="Map">
+		INSERT INTO TB_SM03M01 (
+			 CO_CD
+			,ACINS_DT
+			,WH_CD
+			,PRDT_CD
+			,OWNER_CD
+			,CLNT_CD
+			,TYP_CD
+			,MAKR_CD
+			,PRJCT_CD
+			,IMP_YN
+			,STOCK_QTY
+			,ACINS_QTY
+			,ACINS_ID
+			,RMK
+			,CREAT_ID
+			,CREAT_PGM
+			,CREAT_DTTM
+		)VALUES(
+			 #{coCd}
+			,TO_CHAR(TO_DATE(#{acinsDt},'YYYY-MM-DD'),'YYYYMMDD')
+			,#{whCd}
+			,#{prdtCd}
+			,#{ownerCd}
+			,#{clntCd}
+			,#{typCd}
+			,#{makrCd}
+			,#{prjctCd}
+			,#{impYn}
+			,#{stockQty}
+			,#{acinsQty}
+			,#{userId}
+			,#{rmk}
+			,#{userId}
+			,#{pgmId}
+			,SYSDATE
+		)
+	</insert>
+	
+	<update id="updatePrdtAcins" parameterType="Map">
+		UPDATE TB_SM03M01
+		   SET 
+			 ACINS_QTY		= #{acinsQty}
+			,RMK			= #{rmk}
+			,UDT_ID         = #{userId}
+			,UDT_PGM        = #{pgmId}										
+			,UDT_DTTM       = SYSDATE
+		WHERE
+			  CO_CD = #{coCd}
+		  AND ACINS_DT = TO_CHAR(TO_DATE(#{acinsDt},'YYYY-MM-DD'),'YYYYMMDD')
+		  AND WH_CD = #{whCd}
+		  AND PRDT_CD = #{prdtCd}
+		  AND OWNER_CD = #{ownerCd}
+		  AND CLNT_CD = #{clntCd}
+		  AND TYP_CD = #{typCd}
+		  AND MAKR_CD = #{makrCd}
+		  AND PRJCT_CD = #{prjctCd}
+		  AND IMP_YN = #{impYn}
+	</update>
+	
+	<delete id="deletePrdtAcins" parameterType="Map">
+		 DELETE FROM TB_SM03M01
+		  WHERE CO_CD = #{coCd}
+			AND ACINS_DT = #{acinsDt}
+			AND WH_CD = #{whCd}
+			AND PRJCT_CD = #{prjctCd}
+			AND PRDT_CD = #{prdtCd}
+			AND OWNER_CD = #{ownerCd}
+			AND CLNT_CD = #{clntCd}
+			AND TYP_CD = #{typCd}
+			AND MAKR_CD = #{makrCd}
+			AND PRJCT_CD = #{prjctCd}
+			AND IMP_YN = #{impYn}
+	</delete>
+	
+	<insert id="copyInsert">
+		INSERT INTO TB_SM03M01 (
+			 CO_CD
+			,ACINS_DT
+			,WH_CD
+			,PRDT_CD
+			,OWNER_CD
+			,CLNT_CD
+			,TYP_CD
+			,MAKR_CD
+			,PRJCT_CD
+			,IMP_YN
+			,STOCK_QTY
+			,ACINS_QTY
+			,ACINS_ID
+			,CREAT_PGM
+			,CREAT_DTTM
+			,UDT_ID
+			,UDT_PGM
+		)
+		SELECT
+			 CO_CD
+			,TO_CHAR(TO_DATE(SYSDATE,'YYYY-MM-DD'),'YYYYMMDD')
+			,WH_CD
+			,PRDT_CD
+			,OWNER_CD
+			,CLNT_CD
+			,TYP_CD
+			,MAKR_CD
+			,PRJCT_CD
+			,IMP_YN
+			,STOCK_QTY
+			,'0'
+			,#{userId}
+			,#{pgmId}
+			,SYSDATE
+			,#{userId}
+			,#{pgmId}
+		FROM TB_SM01M01
+	</insert>
+	
+	<delete id="deleteCopy">
+		DELETE FROM TB_SM03M01
+		WHERE ACINS_DT = TO_CHAR(TO_DATE(#{acinsDt}, 'YYYY-MM-DD'),'YYYYMMDD')
+	</delete>
+</mapper>
