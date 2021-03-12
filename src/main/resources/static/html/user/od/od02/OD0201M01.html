@@ -72,7 +72,10 @@
 		    </a>
 	        <a onclick = "gridView.setData(0);">
 	          <button class="bg_gray">검 색</button>
-	         </a>
+	        </a>
+	        <a onclick = "updateSave();">
+	          <button class="bg_gray">저 장</button>
+	        </a>
 	        </li>
 	      </ul>
     	</div>
@@ -88,7 +91,7 @@
                   	<option value="">전체</option>
                   </select>
                 </td>
-                <th>운송일자</th>
+                <th>매입일자</th>
                 <td>
                     <div class="date_input">
                       <input type="text" id="strtDt_S" class="input_calendar" onchange="dateValidation();">
@@ -96,12 +99,12 @@
                       <input type="text" id="endDt_S" class="input_calendar" onchange="dateValidation();">
                     </div>
                 </td>
-                <th>운송업체</th>
+                <th>거래처</th>
                 <td>
-                  <input type="hidden" id="transCo_S" name="transCo_S">
+                  <input type="hidden" id="trst_ClntCd_S" name="trst_ClntCd_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="transNm_S" name="transNm_S" disabled>
-	              	<a onclick="clntSearch('R');"><i class="i_search_w"></i></a>
+	                <input type="text" id="trst_ClntNm_S" name="trst_ClntNm_S" disabled>
+	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
 				<!-- <td>
@@ -109,32 +112,29 @@
 				</td> -->
               </tr>
               <tr>
-                <th>상차지</th>
+                <th>제품유형</th>
                 <td>
-                  <select id="whCd_S" name="whCd_S" style="width:100%;" data-kind="WH" onchange="gridView.setData(0);">
+                  <select id="prdtDiv_S" name="prdtDiv_S" style="width:100%;" data-kind="PRDTDIV" onchange="gridView.setData(0);">
                   <option value="">전체</option>
                   </select>
                 </td>
-                <th>도착지</th>
-                <td>                                
-                    <input id="desNm_S" name="desNm_S" type="text" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
-                </td>
-                <th>거래처</th>
+                <th>강종</th>
                 <td>
-                  <input type="hidden" id="clntCd_S" name="clntCd_S">
-                  <div class="search_form" style="width: 50%;">
-	                <input type="text" id="clntNm_S" name="clntNm_S" disabled>
-	              	<a onclick="clntSearch('L');"><i class="i_search_w"></i></a>
-	              </div>
+                  <select id="prdtStkn_S" name="prdtStkn_S" style="width:100%;" data-kind="PDSK" onchange="gridView.setData(0);">
+                  <option value="">전체</option>
+                  </select>
                 </td>
-				<!-- <td>
-				<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">
-				</td> -->
+                <th>매입법인</th>
+                <td>
+                  <select id="taxivcCoprt_S" name="taxivcCoprt_S" style="width:100%;" data-kind="ESTCOPRT" onchange="gridView.setData(0);">
+                  <option value="">전체</option>
+                  </select>
+                </td>
               </tr>
               <tr>
-                <th>지불처리 여부</th>
+                <th>전표발행여부</th>
                 <td>
-                  <select id="procYn_S" name="procYn_S" style="width:100%;" data-kind="YN" onchange="gridView.setData(0);">
+                  <select id="bilgCertNo_S" name="bilgCertNo_S" style="width:100%;" data-kind="YN" onchange="gridView.setData(0);">
                   <option value="">전체</option>
                   </select>
                 </td>
@@ -147,6 +147,11 @@
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
 				<!-- <a onclick="gridView.upData(0);" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">지불완료</a> -->
+					<a onclick="" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">반입</a>
+					<a onclick="" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">전표 발행</a>
+		            <span>할인금액</span><input type="text" id="trstDcAmt_S" name="trstDcAmt_S" style="width: 80px;">
+					<a onclick="purchaseUpr();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">단가일괄적용</a>
+					<a onclick="" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">할인금액배부</a>
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteTrans();" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
@@ -176,7 +181,8 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				showRowSelector: true,
-		    	multipleSelect: false,
+		    	multipleSelect: true,
+		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
 		        	align: "center", 
@@ -184,18 +190,16 @@
 		        },
 		        body: {
 		        	 onClick: function () {
-		        		 console.log("click");
-		                this.self.select(this.dindex);
+ 		                //this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		        		 console.log("dblclick");
-		            	insertProjectModal("U");
+		            	//insertProjectModal("U");
 		            }, 
 		        },
 		        page: {
 		            navigationItemCount: 9,
 		            height: 30,
-		            display: true,
+		            display:true,
 		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
 		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
 		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
@@ -205,19 +209,24 @@
 		            }
 		        },
 		        columns: [
-		        	{key: "transSeq", label: "운반비시퀀스", align: "center", width: "7%", hidden:true},
-		            {key: "procYn", label: "지불완료", align: "center", width: "6%"},
-		            {key: "transDt", label: "운송일자", align: "center", width: "10%"},
-		            {key: "transNm", label: "운송업체", align: "left", width: "14%"},
-		            {key: "whNm", label: "상차지", align: "left", width: "10%"},
-		            {key: "desNm", label: "도착지", align: "center", width: "8%"},
-		            {key: "drivrNm", label: "운전기사", align: "center", width: "9%"},
-		            {key: "totWt", label: "중량", align: "right", width: "8%", formatter: "money"},
-		            {key: "transUpr", label: "단가", align: "right", width: "8%", formatter: "money"},
-		            {key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
-		            {key: "payCo", label: "지불회사", align: "left", width: "14%"},
-		            {key: "clntNm", label: "거래처", align: "left", width: "10%"},
-		            {key: "transRmk", label: "비고", align: "left", width: "14%"}
+		            {key: "bilgCertNo", label: "전표발행여부", align: "center", width: "6%"},
+		            {key: "trstDt", label: "매입일자", align: "center", width: "10%"},
+		            {key: "taxivcCoprtNm", label: "매입법인", align: "left", width: "14%"},
+		            {key: "prjctNm", label: "현장", align: "left", width: "10%"},
+		            {key: "trstPrdtNm", label: "제품명", align: "center", width: "8%"},
+		            {key: "prdtNm", label: "제품구분", align: "center", width: "8%"},
+		            {key: "realTrstQty", label: "실거래수량", align: "center", width: "9%", formatter: "money"},
+		            {key: "bilgQty", label: "청구수량", align: "center", width: "9%", formatter: "money"},
+		            {key: "realTrstUpr", label: "기준단가", align: "right", width: "8%", formatter: "money"},
+		            {key: "bilgUpr", label: "매입단가", align: "right", width: "8%", editor: {type: "money", updateRow: ['bilgUpr']}},
+		            {key: "kindAmt", label: "물품금액", align: "right", width: "10%", formatter: "money"},
+		            {key: "trstDcAmt", label: "할인금액", align: "left", width: "14%", formatter: "money"},
+		            {key: "transAmt", label: "운송비", align: "left", width: "10%", formatter: "money"},
+		            {key: "bilgAmt", label: "매입금액", align: "left", width: "14%", formatter: "money"},
+		            {key: "trspRmk", label: "비고", align: "left", width: "14%"},
+		            {key: "makrNm", label: "제조사", align: "left", width: "14%"},
+		            {key: "prdtStknNm", label: "강종", align: "left", width: "14%"},
+		            {key: "prdtSizeNm", label: "사이즈", align: "left", width: "14%"},
 		        ]
 			});
 			return this;
@@ -228,15 +237,15 @@
 				"coCd" : $("#coCd_S").val(),
 				"strtDt"  : $("#strtDt_S").val().replace(/\-/g,''),
 				"endDt"  : $("#endDt_S").val().replace(/\-/g,''),
-				"transCo"  : $("#transCo_S").val(),
-				"whCd"  : $("#whCd_S").val(),
-				"desNm"  : $("#desNm_S").val(),
 				"clntCd"  : $("#clntCd_S").val(),
-				"procYn" : $("#procYn_S").val(),
+				"prdtDiv" : $("#prdtDiv_S").val(),
+				"prdtStkn" : $("#prdtStkn_S").val(),
+				"taxivcCoprt" : $("#taxivcCoprt_S").val(),
+				"bilgCertNo" : $("#bilgCertNo_S").val(),
 				"pageNo" : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val()
 			}
-			postAjax("/user/ar/ar03/selectCaryngList", formData, null, function(data){
+			postAjax("/user/od/od02/selectPurchaseList", formData, null, function(data){
 				var list = data.resultList;
 				firstGrid.setData({
 					list : list,
@@ -252,7 +261,7 @@
 	}
 	
 	$(document).ready(function() {
-		mainDefaultLoad("영업관리", "운반비 관리");
+		mainDefaultLoad("수불관리", "매입내역 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
 		
@@ -295,9 +304,8 @@
 	}
 	
 	//거래처,운송업체
-	function clntSearch(type) {
-		actionTp = type;
-		openSecondModal("/static/html/user/ar/ar03/AR0301P02.html", 500, 420, "거래처검색");
+	function clntSearch() {
+		openSecondModal("/static/html/user/od/od02/OD0201P02.html", 500, 420, "거래처검색");
 	}
 	
 	function initSearch() {
@@ -326,4 +334,29 @@
 			});
 		}
 	}
+	
+	function purchaseUpr() {
+		debugger;
+		for(var i=0; i<firstGrid.list.length; i++){
+			var chkVal = firstGrid.selectedDataIndexs;
+			for(j=0; j<chkVal.length; j++){
+				var dcAmt = firstGrid.list[i].bilgUpr - $("#trstDcAmt_S").val();
+				if(i==j){
+					firstGrid.updateRow($.extend({}, firstGrid.list[i], {bilgUpr: dcAmt}), i);
+				}
+			}
+// 			firstGrid.list[i].bilgUpr = dcAmt;
+		}
+	}
+	
+	/* function updateSave() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	} */
 </script>
