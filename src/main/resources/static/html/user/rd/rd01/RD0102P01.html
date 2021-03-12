@@ -6,7 +6,6 @@
 		<h4 class="tit">제품입고</h4>
 	</div>
 	<div class="popup_table">
-		<input type="hidden" id="pgmId" value="RD0102P01">
 		<table>
 			<colgroup>
 				<col width="13%">
@@ -126,12 +125,14 @@
 		</table>
 		<table id="frameTable" style="display: none;">
 			<tr name="detailRow">
-				<input type="hidden" name="ordrgDtlSeq" data> 
+				<input type="hidden" name="ordrgDtlSeq"> 
+				<input type="hidden" name="ordrgUpr">
+				<input type="hidden" name="realDlvrUpr">
+				<input type="hidden" name="prdtCnvrsnWt"> 
 				<td>
 					<input type="checkbox" name="detailChkBox">
 				</td>
 				<td>
-					<input type="hidden" name="prdtCd">
 					<input type="text" name="prdtNm" readonly> 
 				</td>
 				<td>
@@ -150,21 +151,19 @@
 					<input type="text" class="tr" name="ordrgQty" comma readonly>
 				</td>
 				<td>
-					<input type="text" class="tr" name="realDlvrQty" data comma readonly>
+					<input type="text" class="tr" name="realDlvrQty" comma readonly>
 				</td>
 				<td>
-					<input type="text" class="tr" name="intendDlvrQty" onkeyup="addComma(this); countTot();" data comma>
+					<input type="text" class="tr" name="intendDlvrQty" onkeyup="addComma(this); countTot();" comma>
 				</td>
 			</tr>
 		</table>
 		<table id="fixedTable" style="display: none;">
 			<tr name="detailRow">
-				<input type="hidden" name="ordrgDtlSeq">
 				<td>
 					<input type="checkbox" name="detailChkBox" disabled>
 				</td>
 				<td>
-					<input type="hidden" name="prdtCd">
 					<input type="text" name="prdtNm" readonly> 
 				</td>
 				<td>
@@ -251,8 +250,8 @@
 	<br>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button type="button" onclick="inOutPrdt('in');">제품입고</button>
-		<button type="button" onclick="inOutPrdt('out');">입고취소</button>
+		<button type="button" id="inBtn" onclick="inOutPrdt('in');">제품입고</button>
+		<button type="button" id="outBtn" onclick="inOutPrdt('out');">입고취소</button>
 		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
@@ -273,7 +272,7 @@
 	}
 
 	function setOrderInfo(result) {
-		//메인정보 세팅
+		// 메인정보 세팅
 		$.each(result.orderInfo, function(key, value) {
 			if($('#'+key)[0]){
 				if($('#'+key).is('[comma]')){
@@ -283,7 +282,7 @@
 			}
 		});
 		
-		//상세정보 세팅
+		// 상세정보 세팅
 		$.each(result.orderDetail, function(idx, obj) {
 			var $addedRow = null;
 			if(obj.ordrgYn == "N") {
@@ -304,6 +303,13 @@
 			}
 		});
 		countTot();
+		
+		// 모든 상세내역이 입고완료일 경우 버튼 숨김 처리
+		if(result.orderInfo.ordrgYn == "Y"){
+			$('#inBtn').hide(); 
+			$('#outBtn').hide();
+		}
+		
 	}
 	
 	function addDetailRow(){
@@ -355,58 +361,84 @@
 		if (!confirm(cfrmMsg)) return false;
 		
 		var ordrgObjArr = [];
+		var isValid = true;
 		$.each(detailRows, function(idx, elem){
 			var ordrgObj = {};
 			if($(elem).find('[name="detailChkBox"]').is(':checked')){
-				$.each($(elem).find('[name][data]'), function(idx, elem){
-					var elemValue = elem.value;
-					if($(elem).is('[comma]')){
-						elemValue = deleteCommaStr(elem.value);
+				var ordrgDtlSeq = $(elem).find('[name="ordrgDtlSeq"]').val();
+				
+				var realDlvrQty = Number(deleteCommaStr($(elem).find('[name="realDlvrQty"]').val()));
+				var intendDlvrQty = Number(deleteCommaStr($(elem).find('[name="intendDlvrQty"]').val()));
+				
+				var prdtCnvrsnWt = Number($(elem).find('[name="prdtCnvrsnWt"]').val());
+				var realDlvrWt = 0;
+				
+				var ordrgUpr = Number($(elem).find('[name="ordrgUpr"]').val());
+				var realDlvrUpr = Number($(elem).find('[name="realDlvrUpr"]').val());
+				var realDlvrAmt = 0;
+				
+				// 유효성 check
+				if(inOutType == "in"){
+					realDlvrQty = realDlvrQty + intendDlvrQty;
+				}else if(inOutType == "out"){
+					realDlvrQty = realDlvrQty - intendDlvrQty;
+					if(realDlvrQty < 0){
+						isValid = false;
+						alert("누적입고량 보다 많은 수량을 취소할 수 없습니다.");
 					}
-					ordrgObj[elem.name] = elemValue;
-				});
-				ordrgObj["inOutType"] = inOutType;
+				}
+				
+				// 실중량
+				realDlvrWt = realDlvrQty * prdtCnvrsnWt;
+				
+				// 실납품금액
+				if(realDlvrUpr){
+					// 실납품단가가 있을때 (실납품금액 = 계산된 수량 * 실납품단가)
+					realDlvrAmt = realDlvrQty * realDlvrUpr;
+				}else{
+					// 실납품단가가 없을때 (실납품금액 = 계산된 수량 * 발주단가)
+					realDlvrAmt = realDlvrQty * ordrgUpr;
+					// 실납품단 0일때 발주단가로 update
+					realDlvrUpr = ordrgUpr;
+				}
+				
+				ordrgObj.ordrgDtlSeq = ordrgDtlSeq;
+				ordrgObj.realDlvrQty = realDlvrQty;
+				ordrgObj.realDlvrWt = realDlvrWt;
+				ordrgObj.realDlvrUpr = realDlvrUpr;
+				ordrgObj.realDlvrAmt = realDlvrAmt;
+				ordrgObj.userId = jwt.userId;
+				ordrgObj.pgmId = "RD0102P01";
 				ordrgObjArr.push(ordrgObj);
 			}
 		});
 		
-		var isValid = true;
-		if(inOutType == "out"){
-			$.each(ordrgObjArr, function(idx, obj){
-				var realDlvrQty = obj.realDlvrQty;
-				var intendDlvrQty = obj.intendDlvrQty;
-				if(Number(realDlvrQty) - Number(intendDlvrQty) < 0){
-					alert("누적입고량 보다 많은 수량을 취소할 수 없습니다.");
-					isValid = false;
-					return false; //break;
-				}
-			});	
-		}
-		if(!isValid) return false;
-		
-		putAjax("/user/rd/rd01/inOutPrdt", ordrgObjArr, null, function(data){
-			alert(data.resultMessage);
-			if(data.resultCode == 200){
-				$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-					// grid set
-					inRsltsDtlGridView.setData(0);
-					
-					if($(elem).find('[name="detailChkBox"]').is(":checked")){
-						var ordrgQty = deleteCommaStr($(elem).find('[name="ordrgQty"]').val());
-						var realDlvrQty = deleteCommaStr($(elem).find('[name="realDlvrQty"]').val());
-						var intendDlvrQty = deleteCommaStr($(elem).find('[name="intendDlvrQty"]').val());
+		if(isValid){
+			putAjax("/user/rd/rd01/inOutPrdt", ordrgObjArr, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+						// grid set
+						inRsltsDtlGridView.setData(0);
 						
-						if(inOutType == "in"){
-							realDlvrQty = Number(realDlvrQty) + Number(intendDlvrQty);
-						} else if (inOutType == "out"){
-							realDlvrQty = Number(realDlvrQty) - Number(intendDlvrQty);
+						if($(elem).find('[name="detailChkBox"]').is(":checked")){
+							var ordrgQty = Number(deleteCommaStr($(elem).find('[name="ordrgQty"]').val()));
+							var realDlvrQty = Number(deleteCommaStr($(elem).find('[name="realDlvrQty"]').val()));
+							var intendDlvrQty = Number(deleteCommaStr($(elem).find('[name="intendDlvrQty"]').val()));
+							
+							if(inOutType == "in"){
+								realDlvrQty = realDlvrQty + intendDlvrQty;
+							} else if (inOutType == "out"){
+								realDlvrQty = realDlvrQty - intendDlvrQty;
+							}
+							
+							$(elem).find('[name="realDlvrQty"]').val(addCommaStr(realDlvrQty));
+							$(elem).find('[name="intendDlvrQty"]').val(addCommaStr(ordrgQty-realDlvrQty));
 						}
-						$(elem).find('[name="realDlvrQty"]').val(addCommaStr(realDlvrQty));
-						$(elem).find('[name="intendDlvrQty"]').val(addCommaStr(ordrgQty-realDlvrQty));
-					}
-				});
-				countTot();
-			}
-		});
+					});
+					countTot();
+				}
+			});
+		}
 	}
 </script>
