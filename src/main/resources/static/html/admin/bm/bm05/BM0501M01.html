@@ -1,0 +1,188 @@
+<div class="row">
+	<span style="font-size: 25px; font-weight: bold;">재질코드관리</span>
+</div>
+<div class="row">
+	<div class="form-group form-inline">
+		<select class="form-control division" id="rootDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="0" style="display: none;">
+			<option value="">공통코드 선택</option>
+			<option value="ROOT">공통코드</option>
+		</select>
+		<select class="form-control division" id="codeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="1" style="display: none;">
+			<option value="">코드분류 선택</option>
+		</select>
+		<select class="form-control division" id="largeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="2" style="display: none;">
+			<option value="">대분류 선택</option>
+		</select>
+		<select class="form-control division" id="midDiv" onchange="gridView.setData(0);" data-depth="3" style="display: none;">
+			<option value="">중분류 선택</option>
+		</select>
+		<select class="form-control" id="useType" onchange="gridView.setData(0);">
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
+		<select class="form-control" id="searchType">
+			<option value="CODE_ID">코드ID</option>
+			<option value="CODE_NM">코드명</option>
+			<option value="CODE_DESC">설명</option>
+		</select>
+		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
+		<div style="float: right;">
+			<a class="btn btn-default btn-sm" onclick="detailCode('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="detailCode('U');">수정</a>
+			<a class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+</div>
+<script type="text/javascript">
+	var actionType = null;
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="first-grid"]'),
+				showRowSelector: true,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	detailCode("U");
+		            },
+		        },
+	            columns: [
+	                {key: "codeId",     label: "코드ID",   width: 150},
+	                {key: "codeNm",     label: "코드명",    width: 150},
+	                {key: "codeKind",   label: "상위코드ID", width: 150, hidden:true},
+	                {key: "codeKindNm", label: "분류명",    width: 150},
+	                {key: "codeRprc",   label: "부모코드ID", width: 150 , hidden:true},
+	                {key: "codeRprcNm", label: "제품구분",   width: 150},
+	                {key: "codeEtc",    label: "참조",     width: 150 },
+	                {key: "codeEtcNm",  label: "???",      width: 150, hidden:true},
+	                {key: "codeDesc",   label: "설명",      width: 150},
+	                {key: "sortNo",     label: "정렬값",    width: 150},
+	                {key: "creatDttm",  label: "등록일",    width: 100}
+	            ],
+	            page: {
+	                navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+	            }
+			});
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			
+			// 분류값 set
+			paramObj.codeKind = getCodeKind();
+			
+			// 사용여부 set
+			paramObj.useYn = $('#useType').val();
+			
+			// 검색구분 set
+			paramObj.searchType = $('#searchType').val();
+			
+			// 검색어 set
+			paramObj.searchValue = $('#searchValue').val();
+			
+			postAjax("/admin/cm/cm05/selectCodeList", paramObj, null, function(data){
+				targetObj.setData({
+					list: data.codeList,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		gridView.initView();
+		$('#rootDiv').val("ROOT").trigger('change');
+	});
+	
+	function selectChildCodeList(obj) {
+		
+		var codeKind = $(obj).val();
+		var target = $(obj).next('select.division');
+		var paramObj = {"codeKind": codeKind};
+		
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, item){
+				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += item.codeNm;
+				optionHtml += '</option>';
+			});
+			initDivision(obj);
+			$(target).append(optionHtml);
+		});
+	}
+	
+	function initDivision(obj){
+		var divSiblings = $(obj).siblings('select.division');
+		for(var i=0;i<divSiblings.length;i++){
+			var divSibling = divSiblings[i];
+			if($(obj).data('depth') < $(divSibling).data('depth')){
+				$(divSibling).find('option[value!=""]').remove();
+			}
+		}
+	}
+	
+	function getCodeKind(){
+		var codeKind = "PDSK";
+		
+/*		if($('#codeDiv').val()){
+			if($('#largeDiv').val()){
+				if($('#midDiv').val()){
+					codeKind = $('#midDiv').val();
+				}else{
+					codeKind = $('#largeDiv').val();
+				}
+			}else{
+				codeKind = $('#codeDiv').val();
+			}
+		}
+*/
+		return codeKind;
+	}
+	
+	function detailCode(type) {
+		if(type == "U"){
+			if(selectGridValidation(gridView.target)) return;
+		}
+		
+		actionType = type;
+		openModal("/static/html/admin/bm/bm05/BM0502P01.html", 600, 250, "재질코드");
+	}
+
+	function deleteCode() {
+		if(!confirm("삭제하시겠습니까?")) return;
+		
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"codeId": row.codeId, "userId": jwt.userId};
+		putAjax("/admin/cm/cm05/deleteCode", paramObj, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			}
+		});
+	}
+</script>
