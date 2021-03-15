@@ -193,7 +193,9 @@
 		</table>
 		<table id="frameTable" style="display: none;">
 			<tr name="detailRow">
-				<input type="hidden" name="odrDtlSeq"> 
+				<input type="hidden" name="odrDtlSeq">
+				<input type="hidden" name="ordrgDtlCnt" value="0">
+				<input type="hidden" name="shipDtlCnt" value="0">
 				<td>
 					<input type="checkbox" name="detailChkBox">
 				</td>
@@ -233,8 +235,10 @@
 			</tr>
 		</table>
 		<table id="fixedTable" style="display: none;">
-			<tr name="fixedRow">
-				<input type="hidden" name="odrDtlSeq"> 
+			<tr name="detailRow">
+				<input type="hidden" name="odrDtlSeq">
+				<input type="hidden" name="ordrgDtlCnt" value="0">
+				<input type="hidden" name="shipDtlCnt" value="0">
 				<td>
 					<input type="checkbox" name="detailChkBox" disabled>
 				</td>
@@ -280,15 +284,15 @@
 				<col width="9%">
 				<col width="9%">
 				<col width="9%">
-				<col width="9%">
-				<col width="17%">
+				<col width="13%">
+				<col width="13%">
 			</colgroup>
 			<tr>
 				<th class="tc" colspan="5">합계</th>
-				<td id="totQtyDp"></td>
-				<td id="totWtDp"></td>
+				<td class="tr" id="totQtyDp"></td>
+				<td class="tr" id="totWtDp"></td>
 				<td>-</td>
-				<td id="totAmtDp"></td>
+				<td class="tr" id="totAmtDp"></td>
 				<td>-</td>
 			</tr>
 		</table>
@@ -583,7 +587,7 @@
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		}).datepicker("setDate", new Date());
+		})
 		
 		// 납기일자 datepicker bind
 		$('#dlvrDttm').datepicker({
@@ -599,6 +603,7 @@
 			addDetailRow();
 			countTot();
 			$('#coCd').val(jwt.coCd);
+			$('#reqDt').datepicker("setDate", new Date());
 			$('#odrActionBtn').on("click", function() {insertOrder();});
 			$('.tit_contents .tit').text("주문 등록");
 			$('#odrActionBtn').text("등록");
@@ -630,7 +635,7 @@
 				}
 				
 				if($('#'+key).is('[date]')){
-					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate())
+					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}
 				
 				$('#'+key).val(value);
@@ -718,7 +723,7 @@
 	}
 	
 	function addFixedRow(){
-		var $fixedRow = $('#fixedTable tr[name="fixedRow"]').clone();
+		var $fixedRow = $('#fixedTable tr[name="detailRow"]').clone();
 		$('#detailTable tbody').append($fixedRow[0]);
 		return $fixedRow;
 	}
@@ -860,10 +865,16 @@
 		var detailArr = [];
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem) {
 			var detailObj = {};
-			$.each($(elem).find('[name]'), function(idx, elem) {
-				detailObj[elem.name] = elem.value;
-			});
-			detailArr.push(detailObj);
+			var ordrgDtlCnt = Number($(elem).find('[name="ordrgDtlCnt"]').val());
+			var shipDtlCnt = Number($(elem).find('[name="shipDtlCnt"]').val());
+			
+			// 상세내역으로 발주 또는 출하건이 없는경우에만 insert
+			if(ordrgDtlCnt == 0 && shipDtlCnt == 0){
+				$.each($(elem).find('[name]'), function(idx, elem) {
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
 		});
 		formData.append("detailArr", JSON.stringify(detailArr));
 		
