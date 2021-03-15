@@ -89,7 +89,7 @@
 						</td>
 						<th>단가 기준일</th>
 						<td>
-							<input type="text" class="form-control input_calendar" id="prdtDt" name="prdtDt" onkeyup="dateMask(this);">
+							<input type="text" class="form-control input_calendar" id="prdtDt" name="prdtDt" onkeyup="dateMask(this);" date>
 						</td>
 						<th>MES대응코드</th>
 						<td>
@@ -139,10 +139,14 @@
 
 	$(document).ready(function() {
 		
+		$("#userId").val(jwt.userId);
 		setCommonSelect($("#popup_area select[data-kind]"));
 		
-		$("#userId").val(jwt.userId);
-		
+		$('#prdtDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
 		
 		if(actionType == "U") {
 			$('#actionBtn').on("click", function(){updateMaterial();});
@@ -154,7 +158,7 @@
 		} else {
 			$('#actionBtn').on("click", function(){insertMaterial();});
 			$("#actionBtn").html("등록");
-			 document.getElementById("prdtDt").value = new Date().toISOString().substring(0, 10);
+			$('#prdtDt').datepicker("setDate", new Date());
            // 등록 시 기본값 설정
 			$("#prdtCnvrsnWt").val(1);
 			 
@@ -162,12 +166,6 @@
 		
 		$('[required]').on("change", function(){
 			insertOK = false;
-		});
-		
-		$('#prdtDt').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
 		});
 		
 	});
@@ -192,6 +190,10 @@
 				
 				if($('#'+key).is('[required]') && key != "useYn"){
 					$('#'+key).prop("disabled", true);	
+				}
+				
+				if($('#'+key).is('[date]')){
+					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}
 			}
 		});
