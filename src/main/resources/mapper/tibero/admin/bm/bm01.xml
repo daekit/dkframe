@@ -3,6 +3,28 @@
 
 <mapper namespace="com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper">
 
+	<select id="selectMaterialCount" parameterType="Map" resultType="int">
+	 	SELECT 
+	 		COUNT(*) 
+	 	FROM 
+	 		TB_BM01M01
+	 	<where>
+	 		USE_YN = #{useYn}
+	 		<if test="prdtDiv != null and !prdtDiv.equals('')">
+	 			AND PRDT_DIV = #{prdtDiv}
+	 		</if>
+	 		<if test="prdtStkn != null and !prdtStkn.equals('')">
+	 			AND PRDT_STKN = #{prdtStkn}
+	 		</if>
+	 		<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'				
+			</if>
+			<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
+				<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYY-MM-DD')]]>				
+			</if>
+	 	</where>
+	</select>
+
 	<select id="selectMaterialList" parameterType="Map" resultType="CamelMap">
 		SELECT
 			*
@@ -62,11 +84,14 @@
 			 		<if test="prdtDiv != null and !prdtDiv.equals('')">
 			 			AND PRDT_DIV = #{prdtDiv}
 			 		</if>
+			 		<if test="prdtStkn != null and !prdtStkn.equals('')">
+			 			AND PRDT_STKN = #{prdtStkn}
+			 		</if>
 			 		<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'				
 					</if>
 					<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
-						<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYYMMDD')]]>				
+						<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYY-MM-DD')]]>				
 					</if>
 			 	</where>
 			 	ORDER BY PRDT_DIV, PRDT_NM, PRDT_STKN, PRDT_ERQK_YN, PRDT_SIZE, PRDT_SPEC, PRDT_COIL_YN
@@ -74,25 +99,6 @@
 		)
 		WHERE 
 			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
-	</select>
-	
-	<select id="selectMaterialCount" parameterType="Map" resultType="int">
-	 	SELECT 
-	 		COUNT(*) 
-	 	FROM 
-	 		TB_BM01M01
-	 	<where>
-	 		USE_YN = #{useYn}
-	 		<if test="prdtDiv != null and !prdtDiv.equals('')">
-	 			AND PRDT_DIV = #{prdtDiv}
-	 		</if>
-	 		<if test="searchValue != null and !searchValue.equals('')">
-				AND ${searchType} LIKE '%${searchValue}%'				
-			</if>
-			<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
-				<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYYMMDD')]]>				
-			</if>
-	 	</where>
 	</select>
 	
 	<select id="checkOverLap" parameterType="Map" resultType="int">
