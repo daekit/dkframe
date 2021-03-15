@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar07.mapper.AR07Mapper">
+	
+	<select id="selectMtClosCditCount" resultType="int">
+	WITH AR05 AS (
+	SELECT CO_CD
+		 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
+		 , CLNT_CD
+		 , SUM(ETRDPS_AMT) ETRDPS_AMT
+	  FROM TB_AR05M01
+	  <where>
+	  <if test="coCd != null and !coCd.equals('')">
+	  AND CO_CD = #{coCd}				
+	  </if>	
+	  <if test="closeYm != null and !closeYm.equals('')">
+	  AND SUBSTRING(ETRDPS_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')				
+	  </if>
+	  <if test="clntCd != null and !clntCd.equals('')">
+	  AND CLNT_CD = #{clntCd}				
+	  </if>
+	  </where>
+	  GROUP BY CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), CLNT_CD
+	),
+	AR02 AS (
+	SELECT CO_CD
+		 , TRST_CLNT_CD CLNT_CD
+		 , SUBSTRING(TRST_DT, 0, 6) TRST_YM
+		 , SUM(REAL_TRST_UPR) REAL_TRST_UPR
+	  FROM TB_AR02M01 
+	  <where>
+	  <if test="coCd != null and !coCd.equals('')">
+	  AND CO_CD = #{coCd}				
+	  </if>	
+	  <if test="closeYm != null and !closeYm.equals('')">
+	  AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')				
+	  </if>
+	  <if test="clntCd != null and !clntCd.equals('')">
+	  AND TRST_CLNT_CD = #{clntCd}				
+	  </if>
+	  </where>
+	  GROUP BY CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD 
+	)
+	SELECT COUNT(*) 		
+	  FROM 
+	  (SELECT A.CO_CD,
+		      A.ETRDPS_YM,
+		      A.CLNT_CD,
+		      C.TRMEND_CREDIT_AMT BASIS_AMT, --전월 기말잔액 (당월기초)
+		      A.ETRDPS_AMT CLMN_AMT, -- 입금관리 당월 입금(당월수금)
+		      B.REAL_TRST_UPR TOT_AMT, -- 매출거래내역 당월매출(당월매출)
+		      C.BASIS_CREDIT_AMT BFR_BASIS_AMT, -- 전월기초
+		      C.CELL_CLMN_AMT BFR_CLMN_AMT, --전월수금
+		      C.CELL_TOT_AMT BFR_TOT_AMT, --전월매출
+		      C.TRMEND_CREDIT_AMT BFR_TRMEND_AMT --전월기말
+	  	 FROM AR05 A
+	     	, AR02 B
+	     	, TB_AR07M01 C
+		WHERE A.CO_CD  = B.CO_CD(+)
+		  AND A.CO_CD = C.CO_CD (+)
+		  AND A.ETRDPS_YM = B.TRST_YM(+)
+		  AND A.ETRDPS_YM = C.CLOSE_YM (+)
+		  AND A.CLNT_CD = B.CLNT_CD(+)
+		  AND A.CLNT_CD = C.CLNT_CD(+)
+		  <if test="coCd != null and !coCd.equals('')">
+		  AND A.CO_CD = #{coCd}				
+		  </if>	
+		  <if test="closeYm != null and !closeYm.equals('')">
+		  AND A.ETRDPS_YM = REPLACE(#{closeYm}, '-', '')				
+		  </if>
+		  <if test="clntCd != null and !clntCd.equals('')">
+		  AND A.CLNT_CD = #{clntCd}				
+		  </if>
+		  )
+	</select>
+	
+	<select id="selectMtClosCditList" resultType="CamelMap">
+	WITH AR05 AS (
+	SELECT CO_CD
+		 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
+		 , CLNT_CD
+		 , SUM(ETRDPS_AMT) ETRDPS_AMT
+	  FROM TB_AR05M01
+	  <where>
+	  <if test="coCd != null and !coCd.equals('')">
+	  AND CO_CD = #{coCd}				
+	  </if>	
+	  <if test="closeYm != null and !closeYm.equals('')">
+	  AND SUBSTRING(ETRDPS_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')				
+	  </if>
+	  <if test="clntCd != null and !clntCd.equals('')">
+	  AND CLNT_CD = #{clntCd}				
+	  </if>
+	  </where>
+	  GROUP BY CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), CLNT_CD
+	),
+	AR02 AS (
+	SELECT CO_CD
+		 , TRST_CLNT_CD CLNT_CD
+		 , SUBSTRING(TRST_DT, 0, 6) TRST_YM
+		 , SUM(REAL_TRST_UPR) REAL_TRST_UPR
+	  FROM TB_AR02M01
+	  <where> 
+	  <if test="coCd != null and !coCd.equals('')">
+	  AND CO_CD = #{coCd}				
+	  </if>	
+	  <if test="closeYm != null and !closeYm.equals('')">
+	  AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')				
+	  </if>
+	  <if test="clntCd != null and !clntCd.equals('')">
+	  AND TRST_CLNT_CD = #{clntCd}				
+	  </if>
+	  </where>
+	  GROUP BY CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD 
+	)
+	SELECT
+		*
+	FROM
+	(
+		SELECT
+			ROWNUM AS RNUM, A.*
+		FROM
+		(
+			SELECT (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,
+				   SUBSTRING(ETRDPS_YM, 0, 4) || '-' || SUBSTRING(ETRDPS_YM, 5,2) CLOSE_YM,
+				   (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+				   CASE WHEN ETRDPS_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN BASIS_AMT
+				   		ELSE BFR_BASIS_AMT END BASIS_AMT,
+				   CASE WHEN ETRDPS_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN CLMN_AMT
+				   		ELSE BFR_CLMN_AMT END CLMN_AMT,
+				   CASE WHEN ETRDPS_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN TOT_AMT
+				   		ELSE BFR_TOT_AMT END TOT_AMT,
+				   CASE WHEN ETRDPS_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN BASIS_AMT + TOT_AMT - CLMN_AMT
+				   		ELSE BFR_TRMEND_AMT END TRMEND_AMT	   		
+			  FROM 
+			  (SELECT A.CO_CD,
+				      A.ETRDPS_YM,
+				      A.CLNT_CD,
+				      NVL(C.TRMEND_CREDIT_AMT, 0) BASIS_AMT, --전월 기말잔액 (당월기초)
+				      NVL(A.ETRDPS_AMT, 0) CLMN_AMT, -- 입금관리 당월 입금(당월수금)
+				      NVL(B.REAL_TRST_UPR, 0) TOT_AMT, -- 매출거래내역 당월매출(당월매출)
+				      NVL(C.BASIS_CREDIT_AMT, 0) BFR_BASIS_AMT, -- 전월기초
+				      NVL(C.CELL_CLMN_AMT, 0) BFR_CLMN_AMT, --전월수금
+				      NVL(C.CELL_TOT_AMT, 0) BFR_TOT_AMT, --전월매출
+				      NVL(C.TRMEND_CREDIT_AMT, 0) BFR_TRMEND_AMT --전월기말
+			  	 FROM AR05 A
+			     	, AR02 B
+			     	, TB_AR07M01 C
+				WHERE A.CO_CD  = B.CO_CD(+)
+				  AND A.CO_CD = C.CO_CD (+)
+				  AND A.ETRDPS_YM = B.TRST_YM(+)
+				  AND A.ETRDPS_YM = C.CLOSE_YM (+)
+				  AND A.CLNT_CD = B.CLNT_CD(+)
+				  AND A.CLNT_CD = C.CLNT_CD (+)
+				  <if test="coCd != null and !coCd.equals('')">
+				  AND A.CO_CD = #{coCd}				
+				  </if>	
+				  <if test="closeYm != null and !closeYm.equals('')">
+				  AND A.ETRDPS_YM = REPLACE(#{closeYm}, '-', '')				
+				  </if>
+				  <if test="clntCd != null and !clntCd.equals('')">
+				  AND A.CLNT_CD = #{clntCd}				
+				  </if>
+			) T
+		) A
+	)
+	WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+</mapper>
