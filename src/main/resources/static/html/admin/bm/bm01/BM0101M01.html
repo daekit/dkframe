@@ -6,7 +6,7 @@
 		<div class="form-control">
 			<input class="input_calendar" data-search="searchPrdtDt" onkeyup="dateMask(this);">
 		</div>
-		<select class="form-control" data-kind="PRDTDIV" data-search="prdtDiv" onchange="setPrdtStkn(this);">
+		<select class="form-control" data-kind="PRDTDIV" data-search="prdtDiv" onchange="setPrdtStkn(this, 'main'); gridView.setData(0);">
 			<option value="">전체</option>
 		</select>
 		<select class="form-control" data-search="prdtStkn" onchange="gridView.setData(0);">
@@ -34,6 +34,7 @@
 
 <script type="text/javascript">
 	var actionType = null;
+	var prdtStknTarget = null;
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -123,7 +124,8 @@
 		gridView.initView().setData(0);
 	})
 	
-	function setPrdtStkn(elem){
+	function setPrdtStkn(elem, target){
+		prdtStknTarget = target;
 		var paramObj = {"codeKind" : $(elem).val()};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
 			var optionHtml = '<option value="">전체</option>';
@@ -133,17 +135,19 @@
 				optionHtml += obj.codeNm;
 				optionHtml += '</option>';
 			});
-			$('[data-search="prdtStkn"]').html(optionHtml);
+			
+			if(prdtStknTarget == "main"){
+				$('[data-search="prdtStkn"]').html(optionHtml);
+			} else if(prdtStknTarget == "popup"){
+				$('#prdtStkn').html(optionHtml);
+			}
 		});
-		
-		gridView.setData(0);
 	}
 	
 	function detailMaterial(type) {
 		actionType = type;
 		openModal("/static/html/admin/bm/bm01/BM0102P01.html", 800, 420, "자재코드");
 	}
-
 	
 	function deleteMaterial() {
 		if (selectGridValidation(gridView.target)) return false;
