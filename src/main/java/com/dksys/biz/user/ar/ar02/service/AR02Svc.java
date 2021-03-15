@@ -15,4 +15,6 @@ public interface AR02Svc {
 
 	int insertPchsSell(Map<String, String> paramMap);
 
+	Map<String, String> selectSellInfo(Map<String, String> paramMap);
+
 }

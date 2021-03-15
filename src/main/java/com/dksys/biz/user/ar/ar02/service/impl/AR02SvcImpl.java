@@ -49,5 +49,10 @@ public class AR02SvcImpl implements AR02Svc {
 	public int insertPchsSell(Map<String, String> paramMap) {
 		return ar02Mapper.insertPchsSell(paramMap);
 	}
+
+	@Override
+	public Map<String, String> selectSellInfo(Map<String, String> paramMap) {
+		return ar02Mapper.selectSellInfo(paramMap);
+	}
 	
 }
