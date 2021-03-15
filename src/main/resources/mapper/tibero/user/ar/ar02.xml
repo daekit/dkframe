@@ -22,9 +22,7 @@
 			TRSP_TYP_CD,
 			TRST_RPRC_SEQ,
 			TRST_DTL_SEQ,
-			<if test="prdtLen != null and !prdtLen.equals('')">
-				PRDT_LEN,
-			</if>
+			PRDT_LEN,
 			ODR_NO,
 			SALES_MNG,
 			PRJCT_CD,
@@ -33,21 +31,11 @@
 			MNG_TEL,
 			DLVR_DTTM,
 			DIRTRS_YN,
-			<if test="prdtDiv != null and !prdtDiv.equals('')">
-				PRDT_DIV,
-			</if>
-			<if test="prdtStkn != null and !prdtStkn.equals('')">
-				PRDT_STKN,
-			</if>
-			<if test="prdtSize != null and !prdtSize.equals('')">
-				PRDT_SIZE,
-			</if>
-			<if test="prdtUnit != null and !prdtUnit.equals('')">
-				PRDT_UNIT,
-			</if>
-			<if test="prdtUpr != null and !prdtUpr.equals('')">
-				PRDT_UPR,
-			</if>
+			PRDT_DIV,
+			PRDT_STKN,
+			PRDT_SIZE,
+			PRDT_UNIT,
+			PRDT_UPR,
 			STOCK_UPR,
 			PCHS_UPR,
 			SELL_UPR,
@@ -87,68 +75,54 @@
 			#{coCd},
 			#{trstCertiNo},
 			#{selpchCd},
-			NULL,
-			TO_CHAR(SYSDATE, 'yyyyMMdd'),
+			#{estCoprt, jdbcType=VARCHAR},
+			#{trstDt, jdbcType=VARCHAR},
 			#{clntCd},
-			<if test="prdtCd != null and !prdtCd.equals('')">
-				#{prdtCd},
-			</if>
+			#{prdtCd, jdbcType=VARCHAR},
 			#{ownerCd},
 			#{impYn},
 			#{typCd},
 			NULL,
 			NULL,
 			NULL,
-			<if test="prdtLen != null and !prdtLen.equals('')">
-				#{prdtLen},
-			</if>
+			#{prdtLen, jdbcType=VARCHAR},
 			NULL,
 			#{salesMng},
 			#{prjctCd},
 			#{makrCd},
-			#{whCd},
+			#{whCd, jdbcType=VARCHAR},
 			#{mngTel},
-			#{dlvrDttm},
-			#{dirtrsYn},
-			<if test="prdtDiv != null and !prdtDiv.equals('')">
-				#{prdtDiv},
-			</if>
-			<if test="prdtStkn != null and !prdtStkn.equals('')">
-				#{prdtStkn},
-			</if>
-			<if test="prdtSize != null and !prdtSize.equals('')">
-				#{prdtSize},
-			</if>
-			<if test="prdtUnit != null and !prdtUnit.equals('')">
-				#{prdtUnit},
-			</if>
-			<if test="prdtUpr != null and !prdtUpr.equals('')">
-				#{prdtUpr},
-			</if>
+			#{dlvrDttm, jdbcType=VARCHAR},
+			#{dirtrsYn, jdbcType=VARCHAR},
+			#{prdtDiv, jdbcType=VARCHAR},
+			#{prdtStkn, jdbcType=VARCHAR},
+			#{prdtSize, jdbcType=VARCHAR},
+			#{prdtUnit, jdbcType=VARCHAR},
+			#{prdtUpr, jdbcType=VARCHAR},
 			NULL,
-			#{pchsUpr},
-			#{sellUpr},
-			#{trstQty},
-			#{trstWt},
-			#{trstUpr},
-			#{trstAmt},
-			#{realTrstQty},
-			#{realTrstWt},
-			#{realTrstUpr},
-			#{realTrstAmt},
-			#{bilgQty},
-			#{bilgWt},
-			#{bilgUpr},
-			#{bilgAmt},
+			#{pchsUpr, jdbcType=VARCHAR},
+			#{sellUpr, jdbcType=VARCHAR},
+			#{trstQty, jdbcType=VARCHAR},
+			#{trstWt, jdbcType=VARCHAR},
+			#{trstUpr, jdbcType=VARCHAR},
+			#{trstAmt, jdbcType=VARCHAR},
+			#{realTrstQty, jdbcType=VARCHAR},
+			#{realTrstWt, jdbcType=VARCHAR},
+			#{realTrstUpr, jdbcType=VARCHAR},
+			#{realTrstAmt, jdbcType=VARCHAR},
+			#{bilgQty, jdbcType=VARCHAR},
+			#{bilgWt, jdbcType=VARCHAR},
+			#{bilgUpr, jdbcType=VARCHAR},
+			#{bilgAmt, jdbcType=VARCHAR},
+			#{trstDcAmt, jdbcType=VARCHAR},
+			#{etcAmt, jdbcType=VARCHAR},
+			#{trspRmk, jdbcType=VARCHAR},
+			#{transAmt, jdbcType=VARCHAR},
+			#{shipVehNo, jdbcType=VARCHAR},
+			#{clntNm, jdbcType=VARCHAR},
 			NULL,
 			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			'ERP',
 			NULL,
 			NULL,
 			NULL,
@@ -211,6 +185,7 @@
 		        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 		        TO_CHAR(TO_DATE(TRST_DT), 'YYYY-MM-DD') AS TRST_DT,
 		        TRST_CLNT_CD,
+		        TRST_CLNT_CD AS CLNT_CD,
 		        TRST_PRDT_CD,
 		        (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.TRST_PRDT_CD) AS PRDT_NM,
 		        OWNER_CD,
@@ -321,61 +296,20 @@
 	<update id="updatePchsSell" parameterType="Map">
 		UPDATE TB_AR02M01
 		SET
-<!-- 			CO_CD           = #{coCd}, -->
-<!-- 	        TRST_CERTI_NO   = #{}, -->
-<!-- 	        SELPCH_CD       = #{}, -->
-<!-- 	        TAXIVC_COPRT    = #{}, -->
-<!-- 	        TRST_DT         = #{}, -->
-<!-- 	        TRST_CLNT_CD    = #{}, -->
-<!-- 	        TRST_PRDT_CD    = #{}, -->
-<!-- 	        OWNER_CD        = #{}, -->
-<!-- 	        IMP_YN          = #{}, -->
-<!-- 	        TYP_CD          = #{}, -->
-<!-- 	        TRSP_TYP_CD     = #{}, -->
-<!-- 	        TRST_RPRC_SEQ   = #{}, -->
-<!-- 	        TRST_DTL_SEQ    = #{}, -->
-<!-- 	        PRDT_LEN        = #{}, -->
-<!-- 	        ODR_NO          = #{}, -->
-<!-- 	        SALES_MNG       = #{}, -->
-<!-- 	        PRJCT_CD        = #{}, -->
-<!-- 	        MAKR_CD         = #{}, -->
-<!-- 	        WH_CD           = #{}, -->
-<!-- 	        MNG_TEL         = #{}, -->
-<!-- 	        DLVR_DTTM       = #{}, -->
-<!-- 	        DIRTRS_YN       = #{}, -->
-<!-- 	        PRDT_DIV        = #{}, -->
-<!-- 	        PRDT_STKN       = #{}, -->
-<!-- 	        PRDT_SIZE       = #{}, -->
-<!-- 	        PRDT_UNIT       = #{}, -->
-<!-- 	        PRDT_UPR        = #{}, -->
-<!-- 	        STOCK_UPR       = #{}, -->
-<!-- 	        PCHS_UPR        = #{}, -->
-<!-- 	        SELL_UPR        = #{}, -->
-<!-- 	        TRST_QTY        = #{trstQty}, -->
-<!-- 	        TRST_WT         = #{trstWt}, -->
-<!-- 	        TRST_UPR        = #{trstUpr}, -->
-<!-- 	        TRST_AMT        = #{trstAmt}, -->
-<!-- 	        REAL_TRST_QTY   = #{realTrstQty}, -->
-<!-- 	        REAL_TRST_WT    = #{realTrstWt}, -->
-<!-- 	        REAL_TRST_UPR   = #{realTrstUpr}, -->
-<!-- 	        REAL_TRST_AMT   = #{realTrstAmt}, -->
 	        BILG_QTY        = #{bilgQty},
 	        BILG_WT         = #{bilgWt},
 	        BILG_UPR        = #{bilgUpr},
 	        BILG_AMT        = #{bilgAmt},
 	        TRST_DC_AMT     = #{trstDcAmt},
 	        ETC_AMT         = #{etcAmt},
-	        TRSP_RMK        = #{trspRmk},
+	        TRSP_RMK    	= #{trspRmk, jdbcType=VARCHAR},
 	        TRANS_AMT       = #{transAmt},
-	        <if test="shipVehNo != null and !shipVehNo.equals('')">
-				SHIP_VEH_NO = #{shipVehNo},
-			</if>
+			SHIP_VEH_NO 	= #{shipVehNo, jdbcType=VARCHAR},
 	        LOSS_RATE       = #{lossRate},
 	        ODR_CREAT_DIV   = 'ERP',
 	        UDT_ID          = #{userId},
 	        UDT_PGM         = #{pgmId},
 	        UDT_DTTM        = SYSDATE
-<!-- 	        SALES_AREA_CD   = #{} -->
 		WHERE TRST_CERTI_NO = #{trstCertiNo}
 	</update>
 	
@@ -383,5 +317,118 @@
 		DELETE FROM TB_AR02M01
 		WHERE TRST_CERTI_NO = #{trstCertiNo}
 	</delete>
+	
+	<select id="selectSellInfo" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			CO_CD,
+	        TRST_CERTI_NO,
+	        SELPCH_CD,
+	        FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
+	        TAXIVC_COPRT,
+	        TAXIVC_COPRT AS EST_COPRT,
+	        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
+	        TO_CHAR(TO_DATE(TRST_DT), 'YYYY-MM-DD') AS TRST_DT,
+	        TRST_CLNT_CD,
+	        TRST_PRDT_CD,
+	        TRST_PRDT_CD AS PRDT_CD,
+	        (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.TRST_PRDT_CD) AS PRDT_NM,
+	        OWNER_CD,
+	        FN_CM05M01_CD_TO_NM(OWNER_CD) AS OWNER_NM,
+	        IMP_YN,
+	        TYP_CD,
+	        FN_CM05M01_CD_TO_NM(TYP_CD) AS TYP_NM,
+	        TRSP_TYP_CD,
+	        TRST_RPRC_SEQ,
+	        TRST_DTL_SEQ,
+	        PRDT_LEN,
+	        ODR_NO,
+	        SALES_MNG,
+	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+	        PRJCT_CD,
+	        (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+	        MAKR_CD,
+	        FN_CM05M01_CD_TO_NM(MAKR_CD) AS MAKR_NM,
+	        WH_CD,
+	        FN_CM05M01_CD_TO_NM(WH_CD) AS WH_NM,
+	        MNG_TEL,
+	        TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+	        DIRTRS_YN,
+	        PRDT_DIV,
+	        FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM,
+	        PRDT_STKN,
+	        FN_CM05M01_CD_TO_NM(PRDT_STKN) AS PRDT_STKN_NM,
+	        PRDT_SIZE,
+	        NVL(FN_CM05M01_CD_TO_NM(PRDT_SIZE), PRDT_SIZE) AS PRDT_SIZE_NM,
+	        PRDT_UNIT,
+	        FN_CM05M01_CD_TO_NM(PRDT_UNIT) AS PRDT_UNIT_NM,
+	        PRDT_UPR,
+	        STOCK_UPR,
+	        PCHS_UPR,
+	        SELL_UPR,
+	        TRST_QTY,
+	        TRST_WT,
+	        TRST_UPR,
+	        TRST_AMT,
+	        REAL_TRST_QTY,
+	        REAL_TRST_WT,
+	        REAL_TRST_UPR,
+	        REAL_TRST_AMT,
+	        BILG_QTY,
+	        BILG_WT,
+	        BILG_UPR,
+	        BILG_AMT,
+	        NVL(TRST_DC_AMT, '0') AS TRST_DC_AMT,
+	        NVL(ETC_AMT, '0') AS ETC_AMT,
+	        TRSP_RMK,
+	        NVL(TRANS_AMT, '0') AS TRANS_AMT,
+	        SHIP_VEH_NO,
+	        CLNT_NM,
+	        BILG_CERT_NO,
+	        CASE WHEN BILG_CERT_NO IS NOT NULL THEN 'Y' ELSE 'N' END BILG_YN,
+	        NVL(LOSS_RATE, '0') AS LOSS_RATE,
+	        ODR_CREAT_DIV,
+	        ETC_FIELD1,
+	        ETC_FIELD2,
+	        ETC_FIELD3,
+	        CREAT_ID,
+	        CREAT_PGM,
+	        TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') AS CREAT_DTTM,
+	        UDT_ID,
+	        UDT_PGM,
+	        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
+	        SALES_AREA_CD
+		FROM TB_AR02M01 T
+		WHERE TRST_CERTI_NO = #{trstCertiNo}
+	</select>
+	
+	<select id="selectBilgInfo" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			CO_CD,
+	        TAXIVC_COPRT,
+	        TRST_CLNT_CD AS CLNT_CD,
+	        SELPCH_CD,
+	        SUM(TRST_QTY) AS TRST_QTY,
+	        SUM(TRST_WT) AS TRST_WT,
+	        SUM(TRST_UPR) AS TRST_UPR,
+	        SUM(TRST_AMT) AS TRST_AMT,
+	        SUM(REAL_TRST_QTY) AS REAL_TRST_QTY,
+	        SUM(REAL_TRST_WT) AS REAL_TRST_WT,
+	        SUM(REAL_TRST_UPR) AS REAL_TRST_UPR,
+	        SUM(REAL_TRST_AMT) AS REAL_TRST_AMT,
+	        SUM(BILG_QTY) AS BILG_QTY,
+	        SUM(BILG_WT) AS BILG_WT,
+	        SUM(BILG_UPR) AS BILG_UPR,
+	        SUM(BILG_AMT) AS BILG_AMT,
+	        SUM(TRST_DC_AMT) AS TRST_DC_AMT,
+			SUM(ETC_AMT) AS ETC_AMT,
+			SUM(TRANS_AMT) AS TRANS_AMT,
+	        CLNT_NM
+		FROM TB_AR02M01 T
+		WHERE TRST_CERTI_NO IN
+		<foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		GROUP BY CO_CD, TAXIVC_COPRT, TRST_CLNT_CD, SELPCH_CD, CLNT_NM
+	</select>
 	
 </mapper>

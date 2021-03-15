@@ -37,6 +37,13 @@ public class AR02Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectSellInfo")
+    public String selectSellInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> result = ar02Svc.selectSellInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
     @PutMapping(value = "/updatePchsSell")
     public String updatePchsSell(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	ar02Svc.updatePchsSell(paramMap);
