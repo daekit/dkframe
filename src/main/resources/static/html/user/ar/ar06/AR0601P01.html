@@ -1,0 +1,211 @@
+<body>
+  <div class="popup_area" style="width: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">계산서 담당자 관리</h4>
+    </div>
+
+    <div class="popup_table">
+    	<form id="popForm">
+        <table id="detailTb">
+            <colgroup>
+                <col width="12%">
+                <col width="30%">
+                
+            </colgroup>
+            <tr>
+                <th class="hit">회사</th>
+                <td class="detailSell">                                
+                    <select id="coCd" name="coCd" data-kind="CO" required>
+                    <option value="">선택</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+            <th class="hit">거래처</th>
+                <td class="drctArea">
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
+                	<div class="search_form">
+	                    <input type="text" id="clntNm" name="clntNm" disabled required="required">
+                    	<button type="button" id="btnClntSearch" onclick="clntSearch('P');"><i class="i_search_w"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="">수신담당자명</th>
+                <td>                                
+                    <input type="text" id="taxRcvNm" name="taxRcvNm" maxlength="40">
+                </td>
+			</tr>
+            <tr>
+                <th class="">수신자 이메일</th>
+                <td>                                
+                    <input type="text" id="taxRcvEmail" name="taxRcvEmail" onkeyup="exceptKorean(this);" maxlength="100">
+                </td>
+            </tr>
+            <tr>
+                <th class="">수신자 이메일2</th>
+                <td>                                
+                    <input type="text" id="taxRcvEmail2" name="taxRcvEmail2" onkeyup="exceptKorean(this);" maxlength="100">
+                </td>
+            </tr>
+            <tr>
+                <th class="">수신자 팩스번호</th>
+                <td>                                
+                    <input type="text" id="taxRcvFax" name="taxRcvFax" onkeyup="telNumberFormatter(this);" maxlength="13">
+                </td>
+            </tr>
+            <tr>
+                <th class="">수신자 전화번호</th>
+                <td>                                
+                    <input type="text" id="taxRcvTel" name="taxRcvTel" onkeyup="telNumberFormatter(this);" maxlength="13">
+                </td>
+            </tr>
+            <tr>
+                <th class="">수신자 휴대전화</th>
+                <td>                                
+                    <input type="text" id="taxMoblphon" name="taxMoblphon" onkeyup="telNumberFormatter(this);" maxlength="13">
+                </td>
+            </tr>
+			<tr>
+			    <th class="">수신자 부서</th>
+                <td>                                
+                    <input type="text" id="taxRcvDept" name="taxRcvDept">
+                </td>
+			</tr>
+			<tr>
+                <th class="">사용여부</th>
+                <td class="">
+                  <select id="useYn" name="useYn" style="width:100%;">
+                    <option value="">전체</option>
+                    <option value="N">N</option>
+                    <option value="Y">Y</option>
+                  </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="">비고</th>
+                <td>                                
+                    <textarea id="taxRmk" name="taxRmk" style="width: 100%;height: 50px;" ></textarea>
+                </td>
+            </tr>
+        </table>
+	        <input type="hidden" id="userId" name="userId">
+		    <input type="hidden" id="pgmId" name="pgmId" value="AR0601M01">
+		    <input type="hidden" id="taxRcvSn" name="taxRcvSn">
+        </form>
+    </div>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="actionBtn">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		$("#userId").val(jwt.userId);
+		setCommonSelect($(".popup_area select[data-kind]"));
+		$("#coCd").val(jwt.coCd);
+		setInit();
+	});
+	function setInit() {
+		if(actionType == "C") {
+			$('#actionBtn').on("click", function(){insertTaxInvoice();});
+			$("#actionBtn").text("등록");
+			insertSetInit();
+		}else if(actionType == "U"){
+			updateSetInit();
+			$('#actionBtn').on("click", function(){updateTaxInvoice();});
+			$('#actionBtn').text("수정");
+		}
+	}
+	
+	function insertSetInit(){
+		$("#acinsDt").val(dateToStr(new Date()));
+	}
+	
+	function updateSetInit(){
+		$('#btnPrdtSearch').prop("disabled", true);
+		$('#btnClntSearch').prop("disabled", true);
+		$('#btnPrjctSearch').prop("disabled", true);
+		$(".drctArea select").prop("disabled", true);
+		$(".detailSell select").prop("disabled", true);
+		/*$(".detailMakr select").prop("disabled", true);
+		$('#detailTb select[name="selpchCd"]').val($('#selpchCd').val()); */
+		
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"coCd" : row.coCd,
+			"clntCd" : row.clntCd,
+			"taxRcvSn" : row.taxRcvSn
+		}
+		postAjax("/user/ar/ar06/selectTaxInvoiceInfo", formData, null, function(data){
+			setTaxInvoiceInfo(data.result);
+		});
+	}
+	
+	function setTaxInvoiceInfo(obj){
+		var taxInvoiceInfo = obj;
+		//메인정보 세팅
+		$.each(taxInvoiceInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+	}
+	
+	function insertTaxInvoice() {
+		if (inputValidation($('[required]'))) {
+			var formData = {
+					"coCd" : $('#coCd').val(),
+					"clntCd" : $('#clntCd').val(),
+					"taxRcvSn" : $('#taxRcvSn').val(),
+					"taxRcvNm" : $('#taxRcvNm').val(),
+					"taxRcvEmail" : $('#taxRcvEmail').val(),
+					"taxRcvEmail2" : $('#taxRcvEmail2').val(),
+					"taxRcvFax" : $('#taxRcvFax').val(),
+					"taxRcvTel" : $('#taxRcvTel').val(),
+					"taxMoblphon" : $('#taxMoblphon').val(),
+					"taxRcvDept" : $('#taxRcvDept').val(),
+					"useYn" : $('#useYn').val(),
+					"taxRmk" : $('#taxRmk').val(),
+ 					"userId" : jwt.userId,
+					"pgmId" : $("#pgmId").val()
+			}
+			postAjax("/user/ar/ar06/insertTaxInvoice", formData, null, function(data){	
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updateTaxInvoice() {
+		if(inputValidation($('input[required]'))) {
+			var formData = {
+					"coCd" : $('#coCd').val(),
+					"clntCd" : $('#clntCd').val(),
+					"taxRcvSn" : $('#taxRcvSn').val(),
+					"taxRcvNm" : $('#taxRcvNm').val(),
+					"taxRcvEmail" : $('#taxRcvEmail').val(),
+					"taxRcvEmail2" : $('#taxRcvEmail2').val(),
+					"taxRcvFax" : $('#taxRcvFax').val(),
+					"taxRcvTel" : $('#taxRcvTel').val(),
+					"taxMoblphon" : $('#taxMoblphon').val(),
+					"taxRcvDept" : $('#taxRcvDept').val(),
+					"useYn" : $('#useYn').val(),
+					"taxRmk" : $('#taxRmk').val(),
+ 					"userId" : jwt.userId,
+					"pgmId" : $("#pgmId").val()
+			}
+			putAjax("/user/ar/ar06/updateTaxInvoice", formData, null, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	} 
+	
+</script>
