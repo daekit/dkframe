@@ -10,5 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface AR04Mapper {
 
 	int insertBilg(Map<String, String> bilgInfo);
+
+	int getBilgCertNo();
 	
 }
