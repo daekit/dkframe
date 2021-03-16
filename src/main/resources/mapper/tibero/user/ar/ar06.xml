@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar06.mapper.AR06Mapper">
+	
+	<select id="selectTaxInvoiceCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_AR06M01 
+		WHERE 1=1
+		<if test= "coCd != null and !coCd.equals('')">
+ 			AND CO_CD = #{coCd}
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND CLNT_CD = #{clntCd}
+		</if>
+		<if test= "useYn != null and !useYn.equals('')">
+ 			AND USE_YN = #{useYn}
+		</if>
+	</select>
+	
+	<select id="selectTaxInvoiceList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					A.CO_CD,
+					A.TAX_RCV_SN,
+					A.CLNT_CD,
+					(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM,
+					A.TAX_RCV_NM,
+					A.TAX_RCV_EMAIL,
+					A.TAX_RCV_EMAIL2,
+					A.TAX_RCV_FAX,
+					A.TAX_RCV_TEL,
+					A.TAX_MOBLPHON,
+					A.TAX_RCV_DEPT,
+					A.USE_YN,
+					A.CREAT_ID,
+					A.CREAT_PGM,
+					A.CREAT_DTTM,
+					A.UDT_DTTM
+				FROM TB_AR06M01 A
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test= "useYn != null and !useYn.equals('')">
+		 			AND A.USE_YN = #{useYn}
+				</if>
+			) D
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectTaxInvoiceInfo" parameterType="Map" resultType="camelMap">
+		SELECT T.*,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+		FROM TB_AR06M01 T
+		WHERE 1=1
+			AND	CO_CD = #{coCd}
+			AND CLNT_CD = #{clntCd}
+			AND TAX_RCV_SN = #{taxRcvSn}
+	</select>
+	
+	<insert id="insertTaxInvoice" parameterType="Map">
+		<selectKey keyProperty="taxRcvSn" resultType="String" order="BEFORE">
+			SELECT TB_AR06M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_AR06M01 (
+			CO_CD,
+			CLNT_CD,
+			TAX_RCV_SN,
+			TAX_RCV_NM,
+			TAX_RCV_EMAIL,
+			TAX_RCV_EMAIL2,
+			TAX_RCV_FAX,
+			TAX_RCV_TEL,
+			TAX_MOBLPHON,
+			TAX_RCV_DEPT,
+			USE_YN,
+			TAX_RMK,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM
+		)VALUES(
+			 #{coCd}
+			,#{clntCd}
+			,#{taxRcvSn}
+			,#{taxRcvNm}
+			,#{taxRcvEmail}
+			,#{taxRcvEmail2}
+			,#{taxRcvFax}
+			,#{taxRcvTel}
+			,#{taxMoblphon}
+			,#{taxRcvDept}
+			,#{useYn}
+			,#{taxRmk}
+			,#{userId}
+			,#{pgmId}
+			,SYSDATE
+		)
+	</insert>
+	
+	<update id="updateTaxInvoice" parameterType="Map">
+		UPDATE TB_AR06M01
+		   SET
+		     TAX_RCV_NM 	= #{taxRcvNm}
+			,TAX_RCV_EMAIL	= #{taxRcvEmail}
+			,TAX_RCV_EMAIL2	= #{taxRcvEmail2}
+			,TAX_RCV_FAX	= #{taxRcvFax}
+			,TAX_RCV_TEL	= #{taxRcvTel}
+			,TAX_MOBLPHON	= #{taxMoblphon}
+			,TAX_RCV_DEPT	= #{taxRcvDept}
+			,USE_YN			= #{useYn}
+			,TAX_RMK		= #{taxRmk}
+			,UDT_ID         = #{userId}
+			,UDT_PGM        = #{pgmId}										
+			,UDT_DTTM       = SYSDATE
+		WHERE
+			  CO_CD = #{coCd}
+		  AND CLNT_CD = #{clntCd}
+		  AND TAX_RCV_SN = #{taxRcvSn}
+	</update>
+	
+	<delete id="deleteTaxInvoice" parameterType="Map">
+		 DELETE FROM TB_AR06M01
+		  WHERE CO_CD = #{coCd}
+			AND CLNT_CD = #{clntCd}
+			AND TAX_RCV_SN = #{taxRcvSn}
+	</delete>
+	
+</mapper>
