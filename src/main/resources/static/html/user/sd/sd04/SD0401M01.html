@@ -92,7 +92,7 @@
 							<div class="search_form" style="width: 50%;">
 								<input type="hidden" data-search="clntCd">
 								<input type="text" data-search="clntNm" disabled> 
-								<button type="button" onclick="clntSearch();">
+								<button type="button" onclick="openClntSearch();">
 									<i class="i_search_w"></i>
 								</button>
 							</div>
@@ -280,8 +280,14 @@
 	}
 	
 	// 거래처 검색
-	function clntSearch() {
-		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
+	function openClntSearch() {
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", function (grid) {
+			if(selectGridValidation(grid.target)) return false;
+			var row = grid.target.getList("selected")[0];
+			$('[data-search="clntCd"]').val(row.clntCd);
+			$('[data-search="clntNm"]').val(row.clntNm);
+			modal.close();
+		});
 	}
 	
 	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
