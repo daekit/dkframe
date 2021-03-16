@@ -15,7 +15,7 @@
 	<div id="userTree" style="overflow: auto; height: 410px; padding: 0 10px;"></div>
 </div>
 <div style="padding: 5px 0px;">
-	<button type="button" class="btn btn-default btn-sm" onclick="commonModal.callBack($('#userTree').jstree(true));">선택</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="executeCallBack();">선택</button>
 	<button type="button" class="btn btn-default btn-sm" onclick="commonModal.closeTarget.close();">닫기</button>	
 </div>
 <script type="text/javascript">
@@ -30,7 +30,7 @@
 			"plugins": ['types', 'checkbox', 'search', 'sort'],
 			"core": {
 				"multiple": false,
-				"data": selectUserTree()
+				"data": setUserTree()
 			},
 			"types": {
 				"person": {"icon" : "glyphicon glyphicon-user"},
@@ -57,7 +57,7 @@
 		    }
 		}).on("loaded.jstree", function() {
 		// 루트 노드 로드 완료 시
-			setUserTree();
+			selectNode();
 		}).on("select_node.jstree", function(e, data) {
 		// 노드 선택 시 발생 이벤트
 		}).on('open_node.jstree', function(e, data) {
@@ -69,8 +69,8 @@
 		});
 	}
 	
-	// 트리 데이터 select
-	function selectUserTree() {
+	// 트리 데이터 set
+	function setUserTree() {
 		var userTree = null;
 		postAjaxSync("/admin/cm/cm06/selectUserTree", commonModal.paramObj, null, function(data){
 			userTree = data.userTree;
@@ -78,8 +78,8 @@
 		return userTree;
 	}
 	
-	// 트리 데이터 set
-	function setUserTree() {
+	// 트리 노드 select
+	function selectNode() {
 		var userId = commonModal.paramObj.userId;
 		if(userId){
 			$('#userTree').jstree(true).select_node(userId);
@@ -93,5 +93,14 @@
 	function searchUser(){
 		var nodeName = $('#nodeName').val();
 		$('#userTree').jstree(true).search(nodeName);
+	}
+	
+	function executeCallBack(){
+		if($('#userTree').jstree(true).get_checked() == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		commonModal.callBack($('#userTree').jstree(true));
+		commonModal.closeTarget.close();
 	}
 </script>

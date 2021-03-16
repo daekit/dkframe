@@ -26,7 +26,7 @@
     	</div>
     </div>
     <div class="popup_bottom_btn">
-	    <button onclick="commonModal.callBack(prjctGridView);">선택</button>
+	    <button onclick="executeCallBack();">선택</button>
 	    <button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
     </div>
 </body>
@@ -47,7 +47,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	commonModal.callBack(prjctGridView);
+		            	executeCallBack();
 		            }
 		        },
 		        page: {
@@ -77,7 +77,10 @@
 		}, 
 		setData: function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 10, "coCd": jwt.coCd};
+			var paramObj = commonModal.paramObj;
+			paramObj.pageNo = _pageNo + 1;
+			paramObj.recordCnt = 10;
+			
 			for(var i=0;i<$('.popup_area [data-search]').length;i++){
 				var tempElem = $('.popup_area [data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -101,4 +104,10 @@
 	$(document).ready(function() {
 		prjctGridView.initView().setData(0);
 	});
+	
+	function executeCallBack(){
+		if(selectGridValidation(prjctGridView.target)) return;
+		commonModal.callBack(prjctGridView);
+		commonModal.closeTarget.close();
+	}
 </script>

@@ -203,7 +203,7 @@
 					<div class="search_form">
 						<input type="hidden" name="prdtCd">
 						<input type="text" name="prdtNm" readonly> 
-						<a onclick="openPrdtSearch(this);">
+						<a onclick="openSecondPrdtSearch(this);">
 							<i class="i_search_w"></i>
 						</a>
 					</div>
@@ -361,7 +361,6 @@
 
 <script type="text/javascript">
 	var openFrom = "SD0402P01";
-	var $userDiv = null;
 	var $targetRow = null;
 	var fileArr = [];
 	var deleteFileArr = [];
@@ -696,11 +695,9 @@
 	// 거래처 검색
 	function openSecondClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
-			if(selectGridValidation(grid.target)) return;
 			var row = grid.target.getList("selected")[0];
 			$('#clntCd').val(row.clntCd);
 			$('#clntNm').val(row.clntNm);
-			secondModal.close();
 		});
 	}
 	
@@ -715,20 +712,18 @@
 		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
 			var checkedId = tree.get_checked()[0];
 			var checkedNode = tree.get_node(checkedId);
-			
 			$('#salesMng').val(checkedNode.id);
 			$('#salesMngNm').val(checkedNode.text);
-			secondModal.close();
 		});
 	}
 	
 	// 프로젝트 검색
 	function openSecondPrjctSearch(){
-		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", {}, function (grid) {
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$("#prjctCd").val(row.prjctCd);
 			$("#prjctNm").val(row.prjctNm);
-			secondModal.close();
 		});
 	}
 	
@@ -765,10 +760,26 @@
 			alert("삭제할 상세내역을 선택해주세요.");
 		}
 	}
-
-	function openPrdtSearch(elem) {
+	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
-		openSecondModal("/static/html/user/sd/sd04/SD0402P05.html", 500, 420, "제품검색");
+		
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(), 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnitNm);
+			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
+		});
 	}
 	
 	function countAmt(elem) {
