@@ -28,7 +28,7 @@ var modal = new ax5.ui.modal();
 var secondModal = new ax5.ui.modal();
 var commonModal = {};
 
-var openModal = function(url, width, height, title, callBack) {
+var openModal = function(url, width, height, title, paramObj, callBack) {
 	modal.open({
 		header: {
 			title: title,
@@ -61,10 +61,11 @@ var openModal = function(url, width, height, title, callBack) {
     	// commonModal 객체 set
     	commonModal.closeTarget = modal;
     	commonModal.callBack = callBack;
+    	commonModal.paramObj = paramObj;
     });
 };
 
-var openSecondModal = function(url, width, height, title, callBack) {
+var openSecondModal = function(url, width, height, title, paramObj, callBack) {
 	secondModal.open({
 		header: {
 			title: title,
@@ -88,6 +89,7 @@ var openSecondModal = function(url, width, height, title, callBack) {
     	// commonModal 객체 set
     	commonModal.closeTarget = secondModal;
     	commonModal.callBack = callBack;
+    	commonModal.paramObj = paramObj;
     });
 };
 

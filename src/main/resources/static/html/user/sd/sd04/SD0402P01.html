@@ -44,7 +44,7 @@
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd" required>
 							<input type="text" id="clntNm" readonly> 
-							<a onclick="openClntSearch();">
+							<a onclick="openSecondClntSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -60,7 +60,7 @@
 						<div class="search_form">
 							<input type="hidden" id="salesMng" name="salesMng">
 							<input type="text" id="salesMngNm" readonly>
-							<a onclick="openUserTree(this);">
+							<a onclick="openSecondUserSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -93,7 +93,7 @@
 						<div class="search_form">
 							<input type="hidden" id="prjctCd" name="prjctCd">
 							<input type="text" id="prjctNm" readonly> 
-							<a onclick="openPrjctSearch();">
+							<a onclick="openSecondPrjctSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -693,17 +693,43 @@
 		}
 	}
 	
-	function openClntSearch() {
-		openSecondModal("/static/html/user/sd/sd04/SD0402P02.html", 500, 420, "거래처");
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			if(selectGridValidation(grid.target)) return;
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+			secondModal.close();
+		});
 	}
 	
-	function openUserTree(elem) {
-		$userDiv = $(elem).closest("div.search_form");
-		openSecondModal("/static/html/user/sd/sd04/SD0402P03.html", 300, 500, "사용자 검색");
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			
+			$('#salesMng').val(checkedNode.id);
+			$('#salesMngNm').val(checkedNode.text);
+			secondModal.close();
+		});
 	}
 	
-	function openPrjctSearch() {
-		openSecondModal("/static/html/user/sd/sd04/SD0402P04.html", 700, 420, "프로젝트");
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+			secondModal.close();
+		});
 	}
 	
 	function openDaumPostcode() {
