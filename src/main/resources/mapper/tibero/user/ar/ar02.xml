@@ -403,32 +403,68 @@
 	
 	<select id="selectBilgInfo" parameterType="Map" resultType="CamelMap">
 		SELECT 
-			CO_CD,
-	        TAXIVC_COPRT,
-	        TRST_CLNT_CD AS CLNT_CD,
-	        SELPCH_CD,
-	        SUM(TRST_QTY) AS TRST_QTY,
-	        SUM(TRST_WT) AS TRST_WT,
-	        SUM(TRST_UPR) AS TRST_UPR,
-	        SUM(TRST_AMT) AS TRST_AMT,
-	        SUM(REAL_TRST_QTY) AS REAL_TRST_QTY,
-	        SUM(REAL_TRST_WT) AS REAL_TRST_WT,
-	        SUM(REAL_TRST_UPR) AS REAL_TRST_UPR,
-	        SUM(REAL_TRST_AMT) AS REAL_TRST_AMT,
-	        SUM(BILG_QTY) AS BILG_QTY,
-	        SUM(BILG_WT) AS BILG_WT,
-	        SUM(BILG_UPR) AS BILG_UPR,
-	        SUM(BILG_AMT) AS BILG_AMT,
-	        SUM(TRST_DC_AMT) AS TRST_DC_AMT,
-			SUM(ETC_AMT) AS ETC_AMT,
-			SUM(TRANS_AMT) AS TRANS_AMT,
-	        CLNT_NM
-		FROM TB_AR02M01 T
-		WHERE TRST_CERTI_NO IN
-		<foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
-			#{item}
-		</foreach>
-		GROUP BY CO_CD, TAXIVC_COPRT, TRST_CLNT_CD, SELPCH_CD, CLNT_NM
+			 T1.*,
+			 B.CRN AS TAXIVC_COPRT_NO,
+			 B.REPST_NM AS TAXIVC_COPRT_CEO,
+			 B.CLNT_NM AS TAXIVC_COPRT_NM,
+			 NVL(B.BIZCON_NM, '-') AS TAX_COPRT_BIZCON,	        
+			 NVL(B.BSTY_NM, '-') AS TAXVIC_COPRT_BSTY,	        
+			 '1' AS COMII_EM,
+			 B.BIZ_TEL_NO AS COMII_TE,
+			 B.BIZ_FAX_NO AS COMII_FX,	        
+			 '01' AS CTAIV_BJ_1	  
+		FROM (
+			SELECT 
+				CO_CD,
+		        TAXIVC_COPRT AS TAXIVC_COPRT_CD,
+		        (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = TAXIVC_COPRT) AS TAXIVC_COPRT,
+		        TRST_CLNT_CD AS CLNT_CD,
+		        CLNT_NM,
+		        SELPCH_CD,	        
+		        SUM(TRST_QTY) AS TRST_QTY,
+		        SUM(TRST_WT) AS TRST_WT,
+		        SUM(TRST_UPR) AS TRST_UPR,
+		        SUM(TRST_AMT) AS TRST_AMT,
+		        SUM(REAL_TRST_QTY) AS REAL_TRST_QTY,
+		        SUM(REAL_TRST_WT) AS REAL_TRST_WT,
+		        SUM(REAL_TRST_UPR) AS REAL_TRST_UPR,
+		        SUM(REAL_TRST_AMT) AS REAL_TRST_AMT,
+		        SUM(BILG_QTY) AS BILG_QTY,
+		        SUM(BILG_WT) AS BILG_WT,
+		        SUM(BILG_UPR) AS BILG_UPR,
+		        SUM(BILG_AMT) AS BILG_AMT,
+		        SUM(TRST_DC_AMT) AS TRST_DC_AMT,
+				SUM(ETC_AMT) AS ETC_AMT,
+				SUM(TRANS_AMT) AS TRANS_AMT,
+				SUM(BILG_AMT) AS BILG_AMT,
+				COUNT(*) AS TAX_DMS5_7240,
+		        SUM(BILG_AMT) AS TAX_MOA5_23,
+		        SUM(BILG_AMT)*0.1 AS TAX_MOA5_124,
+		        SUM(BILG_AMT) + SUM(BILG_AMT)*0.1 AS TAX_MOA5_388,
+		        'PAYDIV01' AS RFF_CNO,
+		        '1' AS RFF_VA,
+		        '01' AS RFF_GN1,
+		        '01' AS RFF_GN2,
+		        '00' AS RFF_AEA,
+		        '9' AS BGM_1225,
+		        '1' AS BGM_4343,
+		        'S' AS XML_FLOW,
+		        #{userId} AS TAX_CREAT_ID,
+		        #{userNm} AS TAX_CREAT_NM      
+			FROM TB_AR02M01 T
+			WHERE TRST_CERTI_NO IN
+			<foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+			GROUP BY CO_CD, TAXIVC_COPRT, TRST_CLNT_CD, SELPCH_CD, CLNT_NM
+		) T1 
+		INNER JOIN TB_BM02M01 B ON T1.TAXIVC_COPRT = B.CLNT_CD
 	</select>
+	
+	<update id="updatePchsSellBilg" parameterType="Map">
+		UPDATE TB_AR02M01
+		SET BILG_CERT_NO = #{bilgCertNo}
+		WHERE TRST_CERTI_NO = #{trstCertiNo}
+	</update>
 	
 </mapper>

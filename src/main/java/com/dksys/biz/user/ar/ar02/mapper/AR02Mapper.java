@@ -22,5 +22,7 @@ public interface AR02Mapper {
 
 	Map<String, String> selectBilgInfo(Map<String, Object> param);
 
+	int updatePchsSellBilg(Map<String, String> sellParam);
+
 	
 }
