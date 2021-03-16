@@ -125,7 +125,6 @@ public class AR01SvcImpl implements AR01Svc {
 			}
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
-			detailMap.put("odrDtlSeq", paramMap.get("odrDtlSeq"));
 			detailMap.put("ordrgDtlSeq", paramMap.get("ordrgDtlSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
