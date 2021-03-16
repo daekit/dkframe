@@ -95,7 +95,7 @@ var openSecondModal = function(url, width, height, title, paramObj, callBack) {
 function parseJwt (token) {
 	if(token == null) {
 		if(location.href.search("/static/index.html") == -1) {
-			alert("토큰이 만료되었습니다.");
+//			alert("토큰이 만료되었습니다.");
         	location.href = "/static/index.html";
 		} else {
 			return;
@@ -146,7 +146,7 @@ function postAjax(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)) {
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -174,7 +174,7 @@ function postAjaxSync(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)) {
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -198,7 +198,7 @@ function deleteAjax(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -222,7 +222,7 @@ function putAjax(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -245,7 +245,7 @@ function filePostAjax(url, data, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -268,7 +268,7 @@ function filePutAjax(url, data, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
