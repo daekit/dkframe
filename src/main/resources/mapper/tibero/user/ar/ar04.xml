@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.user.ar.ar04.mapper.AR04Mapper">
-
 	<insert id="insertBilg" parameterType="Map">
 		INSERT INTO TB_AR04M01 
 		(
@@ -200,4 +199,335 @@
 		SELECT TB_AR04M01_SQ01.NEXTVAL FROM DUAL
 	</select>
 	
+	<select id="selectTaxBilgCount" resultType="int">
+		SELECT COUNT(*)
+		FROM TB_AR04M01 A
+		 <where>
+			<if test="coCd != null and !coCd.equals('')">
+			   AND A.CO_CD = #{coCd}
+			</if>
+			<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+			   AND A.SELL_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+			   AND A.CLNT_CD = #{clntCd}
+			</if>
+			<if test="selpchCd != null and !selpchCd.equals('')">
+			   AND A.SELPCH_CD = #{selpchCd}
+			</if>
+			<if test="taxBilgNo != null and !taxBilgNo.equals('')">
+			   AND A.TAX_BILG_NO = #{taxBilgNo}
+			</if>
+			<if test="taxAdmsYn != null and !taxAdmsYn.equals('')">
+			   AND A.TAX_ADMS_YN = #{taxAdmsYn}
+			</if>
+			<if test="xmlFlow != null and !xmlFlow.equals('')">
+			   AND A.XML_FLOW = #{xmlFlow}
+			</if>
+			<if test="accSlipYn != null and !accSlipYn.equals('')">
+			   AND A.ACC_SLIP_YN = #{accSlipYn}
+			</if>
+		   </where>
+	</select>
+	
+	<select id="selectTaxBilgList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT A.BILG_CERT_NO,
+						A.CO_CD,
+						TO_CHAR(TO_DATE(A.SELL_DT, 'YYYYMMDD'), 'YYYY-MM-DD') SELL_DT,
+						FN_CM05M01_CD_TO_NM(A.SELPCH_CD) SELPCH_CD,
+						A.CLNT_CD,
+						A.CLNT_NM,
+						TO_CHAR(TO_DATE(A.TAX_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TAX_DT,
+						A.TAX_BILG_NO,
+						A.TAX_DMS5_7240,
+						A.TAX_MOA5_23,
+						A.TAX_MOA5_124,
+						A.TAX_MOA5_388,
+						FN_CM05M01_CD_TO_NM(A.RFF_CNO) RFF_CNO,
+						FN_CM05M01_CD_TO_NM(A.RFF_VA) RFF_VA,
+						A.TAX_DIV_CD,
+						FN_CM05M01_CD_TO_NM(A.RFF_GN1) RFF_GN1,
+						FN_CM05M01_CD_TO_NM(A.RFF_GN2) RFF_GN2,
+						FN_CM05M01_CD_TO_NM(A.RFF_AEA) RFF_AEA,
+						FN_CM05M01_CD_TO_NM(A.BGM_1225) BGM_1225,
+						A.BGM_4343,
+						FN_CM05M01_CD_TO_NM(A.XML_FLOW) XML_FLOW,
+						A.TAX_CREAT_ID,
+						A.TAX_CREAT_NM,
+						A.TAXIVC_COPRT,
+						A.TAXIVC_COPRT_NO,
+						A.TAXIVC_COPRT_CEO,
+						A.TAXIVC_COPRT_NM,
+						A.TAX_COPRT_BIZCON,
+						A.TAXVIC_COPRT_BSTY,
+						A.CTAII_MD_2,
+						A.COMII_AL,
+						A.COMII_EM,
+						A.COMII_TE,
+						A.COMII_FX,
+						A.CTAIV_BJ_1,
+						A.TAXIVC_RCV_CRN,
+						A.TAXIVC_RCV_CEO,
+						A.TAXIVC_RCV_ADDR,
+						A.TAXIVC_RCV_BIZCON,
+						A.TAXIVC_RCV_BSTY,
+						A.TAX_RCV_SN,
+						A.TAX_RCV_NM,
+						A.TAX_RCV_EMAIL,
+						A.TAX_RCV_EMAIL2,
+						A.TAX_RCV_FAX,
+						A.TAX_RCV_TEL,
+						A.TAX_MOBLPHON,
+						A.FTXAC1_1,
+						A.FTXAC2_1,
+						A.FTXAC3_1,
+						A.TAX_MOA5_22,
+						A.TAX_MOA5_212,
+						A.TAX_MOA5_308,
+						A.TAX_MOA5_9,
+						A.TRST_QTY,
+						A.TRST_WT,
+						A.TRST_UPR,
+						A.TRST_AMT,
+						A.REAL_TRST_QTY,
+						A.REAL_TRST_WT,
+						A.REAL_TRST_UPR,
+						A.REAL_TRST_AMT,
+						A.BILG_QTY,
+						A.BILG_WT,
+						A.BILG_UPR,
+						A.BILG_AMT,
+						A.TRANS_AMT,
+						A.TRST_DC_AMT,
+						A.ETC_AMT,
+						A.SND_YN,
+						A.SND_DTTM,
+						A.SND_PROC_ID,
+						A.CSEQ_RCV_YN,
+						TO_CHAR(A.CSEQ_RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') CSEQ_RCV_DTTM,
+						A.TAX_ADMS_YN,
+						TO_CHAR(A.TAX_ADMS_DTTM, 'YYYY-MM-DD HH24:MI:SS') TAX_ADMS_DTTM,
+						A.RCV_YN,
+						A.RCV_DTTM,
+						A.RCV_PROC_ID,
+						A.ACC_SLIP_NO,
+						A.ACC_SLIP_YN,
+						TO_CHAR(A.ACC_SLIP_DTTM, 'YYYY-MM-DD HH24:MI:SS') ACC_SLIP_DTTM,
+						A.ACC_PROC_ID,
+						A.ETC_FIELD1,
+						A.ETC_FIELD2,
+						A.ETC_FIELD3
+					  FROM TB_AR04M01 A
+					  <where>
+						<if test="coCd != null and !coCd.equals('')">
+						   AND A.CO_CD = #{coCd}
+						</if>
+						<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+			   				AND A.SELL_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+						</if>
+						<if test="clntCd != null and !clntCd.equals('')">
+						   AND A.CLNT_CD = #{clntCd}
+						</if>
+						<if test="selpchCd != null and !selpchCd.equals('')">
+						   AND A.SELPCH_CD = #{selpchCd}
+						</if>
+						<if test="taxBilgNo != null and !taxBilgNo.equals('')">
+						   AND A.TAX_BILG_NO = #{taxBilgNo}
+						</if>
+						<if test="taxAdmsYn != null and !taxAdmsYn.equals('')">
+						   AND A.TAX_ADMS_YN = #{taxAdmsYn}
+						</if>
+						<if test="xmlFlow != null and !xmlFlow.equals('')">
+						   AND A.XML_FLOW = #{xmlFlow}
+						</if>
+						<if test="accSlipYn != null and !accSlipYn.equals('')">
+						   AND A.ACC_SLIP_YN = #{accSlipYn}
+						</if>
+					   </where>
+				 ORDER BY SELL_DT DESC
+			) A
+		)
+		WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectTaxBilg" resultType="CamelMap">
+	SELECT A.BILG_CERT_NO,
+		A.CO_CD,
+		TO_CHAR(TO_DATE(A.SELL_DT, 'YYYYMMDD'), 'YYYY-MM-DD') SELL_DT,
+		A.SELPCH_CD,
+		A.CLNT_CD,
+		A.CLNT_NM,
+		TO_CHAR(TO_DATE(A.TAX_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TAX_DT,
+		A.TAX_BILG_NO,
+		A.TAX_DMS5_7240,
+		A.TAX_MOA5_23,
+		A.TAX_MOA5_124,
+		A.TAX_MOA5_388,
+		A.RFF_CNO,
+		A.RFF_VA,
+		A.TAX_DIV_CD,
+		A.RFF_GN1,
+		A.RFF_GN2,
+		A.RFF_AEA,
+		A.BGM_1225,
+		A.BGM_4343,
+		A.XML_FLOW,
+		A.TAX_CREAT_ID,
+		A.TAX_CREAT_NM,
+		A.TAXIVC_COPRT,
+		A.TAXIVC_COPRT_NO,
+		A.TAXIVC_COPRT_CEO,
+		A.TAXIVC_COPRT_NM,
+		A.TAX_COPRT_BIZCON,
+		A.TAXVIC_COPRT_BSTY,
+		A.CTAII_MD_2,
+		A.COMII_AL,
+		A.COMII_EM,
+		A.COMII_TE,
+		A.COMII_FX,
+		A.CTAIV_BJ_1,
+		A.TAXIVC_RCV_CRN,
+		A.TAXIVC_RCV_CEO,
+		A.TAXIVC_RCV_ADDR,
+		A.TAXIVC_RCV_BIZCON,
+		A.TAXIVC_RCV_BSTY,
+		A.TAX_RCV_SN,
+		A.TAX_RCV_NM,
+		A.TAX_RCV_EMAIL,
+		A.TAX_RCV_EMAIL2,
+		A.TAX_RCV_FAX,
+		A.TAX_RCV_TEL,
+		A.TAX_MOBLPHON,
+		A.FTXAC1_1,
+		A.FTXAC2_1,
+		A.FTXAC3_1,
+		A.TAX_MOA5_22,
+		A.TAX_MOA5_212,
+		A.TAX_MOA5_308,
+		A.TAX_MOA5_9,
+		A.TRST_QTY,
+		A.TRST_WT,
+		A.TRST_UPR,
+		A.TRST_AMT,
+		A.REAL_TRST_QTY,
+		A.REAL_TRST_WT,
+		A.REAL_TRST_UPR,
+		A.REAL_TRST_AMT,
+		A.BILG_QTY,
+		A.BILG_WT,
+		A.BILG_UPR,
+		A.BILG_AMT,
+		A.TRANS_AMT,
+		A.TRST_DC_AMT,
+		A.ETC_AMT,
+		A.SND_YN,
+		A.SND_DTTM,
+		A.SND_PROC_ID,
+		A.CSEQ_RCV_YN,
+		TO_CHAR(A.CSEQ_RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') CSEQ_RCV_DTTM,
+		A.TAX_ADMS_YN,
+		TO_CHAR(A.TAX_ADMS_DTTM, 'YYYY-MM-DD HH24:MI:SS') TAX_ADMS_DTTM,
+		A.RCV_YN,
+		A.RCV_DTTM,
+		A.RCV_PROC_ID,
+		A.ACC_SLIP_NO,
+		A.ACC_SLIP_YN,
+		TO_CHAR(A.ACC_SLIP_DTTM, 'YYYY-MM-DD HH24:MI:SS') ACC_SLIP_DTTM,
+		A.ACC_PROC_ID,
+		A.ETC_FIELD1,
+		A.ETC_FIELD2,
+		A.ETC_FIELD3
+	  FROM TB_AR04M01 A
+	 WHERE BILG_CERT_NO = #{bilgCertNo}
+	</select>
+	
+	<update id="updateTaxBilg">
+	UPDATE TB_AR04M01
+	SET SELL_DT = REPLACE(#{sellDt}, '-', '')
+	  , SELPCH_CD = #{selpchCd}
+	  , CLNT_CD = #{clntCd}
+	  , CLNT_NM = #{clntNm}
+	  , TAX_BILG_NO = #{taxBilgNo}
+	  , RFF_CNO = #{rffCno}
+	  , RFF_AEA = #{rffAea}
+	  , TAX_MOA5_23 = #{taxMoa523}
+	  , TAX_MOA5_124 = #{taxMoa5124}
+	  , TAX_MOA5_388 = #{taxMoa5388}
+	  , TAXIVC_COPRT = #{taxivcCoprt}
+	  , TAXIVC_COPRT_NO = #{taxivcCoprtNo}
+	  , TAXIVC_COPRT_CEO = #{taxivcCoprtCeo}
+	  , TAXIVC_COPRT_NM = #{taxivcCoprtNm}
+	  , TAX_COPRT_BIZCON = #{taxCoprtBizcon}
+	  , TAXVIC_COPRT_BSTY = #{taxvicCoprtBsty}
+	  , CTAIV_BJ_1 = #{ctaivBj1}
+	  , TAXIVC_RCV_CRN = #{taxivcRcvCrn}
+	  , TAXIVC_RCV_CEO = #{taxivcRcvCeo}
+	  , TAXIVC_RCV_ADDR = #{taxivcRcvAddr}
+	  , TAXIVC_RCV_BIZCON = #{taxivcRcvBizcon}
+	  , TAXIVC_RCV_BSTY = #{taxivcRcvBsty}
+	  , TAX_RCV_SN = #{taxRcvSn}
+	  , TAX_RCV_NM = #{taxRcvNm}
+	  , TAX_RCV_EMAIL = #{taxRcvEmail}
+	  , TAX_RCV_EMAIL2 = #{taxRcvEmail2}
+	  , TAX_RCV_FAX = #{taxRcvFax}
+	  , TAX_RCV_TEL = #{taxRcvTel}
+	  , TAX_MOBLPHON = #{taxMoblphon}
+	  , FTXAC1_1 = #{ftxac11}
+	  , FTXAC2_1 = #{ftxac21}
+	  , FTXAC3_1 = #{ftxac31}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHERE BILG_CERT_NO = #{bilgCertNo}
+	</update>
+	
+	<select id="selectTaxRcvCount" resultType="int">
+	SELECT COUNT(*)
+	  FROM TB_AR06M01
+	 WHERE CO_CD = #{coCd}
+	   AND CLNT_CD = #{clntCd} 
+	<if test="taxRcvNm != null and !taxRcvNm.equals('')">
+	   AND TAX_RCV_NM = #{taxRcvNm}
+	</if>
+	</select>
+	
+	<select id="selectTaxRcvList" resultType="CamelMap">
+	SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+			SELECT CO_CD,
+					CLNT_CD,
+					TAX_RCV_SN,
+					TAX_RCV_NM,
+					TAX_RCV_EMAIL,
+					TAX_RCV_EMAIL2,
+					TAX_RCV_FAX,
+					TAX_RCV_TEL,
+					TAX_MOBLPHON,
+					TAX_RCV_DEPT
+			  FROM TB_AR06M01
+			 WHERE CO_CD = #{coCd}
+			   AND CLNT_CD = #{clntCd} 
+			<if test="taxRcvNm != null and !taxRcvNm.equals('')">
+			   AND TAX_RCV_NM = #{taxRcvNm}
+			</if>
+			) A
+		)
+		WHERE
+		RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
 </mapper>
