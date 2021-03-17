@@ -92,7 +92,7 @@
 							<div class="search_form" style="width: 50%;">
 								<input type="hidden" data-search="clntCd">
 								<input type="text" data-search="clntNm" disabled> 
-								<button type="button" onclick="clntSearch();">
+								<button type="button" onclick="openClntSearch();">
 									<i class="i_search_w"></i>
 								</button>
 							</div>
@@ -173,21 +173,21 @@
 				},
 				columns: [
 		          	{key: "odrSeq",    label: "주문일련번호", align: "center", hidden: true},
-		          	{key: "reqDt",     label: "요청일자",   align: "center",  width: 80},
-		            {key: "dirtrsYn",  label: "직송구분",   align: "center",  width: "5%"},
+		          	{key: "reqDt",     label: "주문일자",   align: "center",  width: 80},
+		        	{key: "salesMngNm",label: "주문담당자",  align: "center",  width: 80},
+		        	{key: "dlvrDttm",  label: "납기일자",    align: "center", width: 80},
+		            {key: "dirtrsYn",  label: "직송",   align: "center",  width: 50},
 		            {key: "clntNm",    label: "거래처",    align: "left",    width: 120},
 		        	{key: "prjctNm",   label: "프로젝트",   align: "left",    width: 160},
 		        	{key: "makrNm",    label: "제조사",    align: "left",    width: 100},
-		        	{key: "whNm",      label: "창고",      align: "center", width: "5%"},
-		        	{key: "totQty",    label: "수량(Kg)",  align: "right",   width: 80, formatter: "money"},
+		        	{key: "whNm",      label: "창고",      align: "center", width: 60},
+		        	{key: "totQty",    label: "수량(Kg)",  align: "right",   width: 90, formatter: "money"},
 		        	{key: "totAmt",    label: "주문금액",    align: "right",  width: 100, formatter: "money"},
 		        	{key: "typNm",     label: "판매유형",    align: "center", width: "5%"},
-		        	{key: "impYn",     label: "수입구분",    align: "center", width: "5%"},
-		        	{key: "addr",      label: "착지주소",    align: "left",   width: "10%"},
-		        	{key: "mngTel",    label: "담당자연락처", align: "center", width: "10%"},
-		        	{key: "dlvrDttm",  label: "납기일자",    align: "center", width: 80},
-		        	{key: "ordrgRmk",  label: "비고",      align: "left",    width: "11%"},
-		        	{key: "salesMngNm",label: "주문담당자",  align: "center",  width: "5%"}
+		        	{key: "impYn",     label: "수입",    	   align: "center", width: 60},
+		        	{key: "addr",      label: "착지주소",    align: "left",   width: 160},
+		        	{key: "mngTel",    label: "담당자연락처", align: "center", width: 90},
+		        	{key: "ordrgRmk",  label: "비고",      align: "left",    width: 200}
 		        ]
 			});
 			return this;
@@ -280,8 +280,12 @@
 	}
 	
 	// 거래처 검색
-	function clntSearch() {
-		openModal("/static/html/user/sd/sd04/SD0401P01.html", 500, 420, "거래처 검색");
+	function openClntSearch() {
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('[data-search="clntCd"]').val(row.clntCd);
+			$('[data-search="clntNm"]').val(row.clntNm);
+		});
 	}
 	
 	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.

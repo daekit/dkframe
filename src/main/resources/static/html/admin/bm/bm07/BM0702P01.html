@@ -1,0 +1,125 @@
+
+<div id="popup_area">
+ <div class="container-fluid">
+	<div class="row">
+		<div class="form-group">
+			<form id="codeForm">
+				<table class="popup_table">
+					<colgroup>
+						<col width="20%">
+						<col width="30%">
+						<col width="20%">
+						<col width="30%">
+					</colgroup>
+					<tr>
+						<th class="hit">코드ID</th>
+						<td><input type="text" class="form-control" id="codeId" name="codeId" required></td>
+						<th class="hit">상위코드ID</th>
+						<td>
+							<select class="form-control input-sm" id="codeKind" name="codeKind" data-kind="ROOT" readonly>
+							     <option value="ESTCOPRT">법인코드</option>
+							</select>
+						</td>		
+					</tr>
+					<tr>
+						<th class="hit">코드명</th>
+						<td><input type="text" class="form-control" id="codeNm" name="codeNm" required></td>
+						<th class="hit">코드설명</th>
+						<td><input type="text" class="form-control" id="codeDesc" name="codeDesc" required></td>
+					</tr>
+					<tr>
+						<th class="hit">회사구분</th>
+						<td> 
+						 	<select class="form-control input-sm" id="codeRprc" name="codeRprc" data-kind="CO" required>
+							     <option value="">선택</option>
+							</select>
+						 
+						</td>
+						<th>정렬값</th>
+						<td><input type="text" class="form-control" id="sortNo" name="sortNo" onkeyup="onlyNumber(this)"></td>
+					</tr>
+					<tr>
+						<th class="hit">거래처</th>
+			                <td>
+								<div class="search_form" style="width: 100%;">
+									<input type="hidden" id="codeEtc" name="codeEtc">
+									<input type="text"   id="codeEtcNm" disabled required> 
+									<button type="button" onclick="openClntSearch();">
+										<i class="i_search_w"></i>
+									</button>
+								</div>
+	                        </td>
+						<th class="hit">사용여부</th>
+						<td>
+							<select class="form-control input-sm" id="useYn" name="useYn" required>
+								<option value="Y">사용</option>
+								<option value="N">미사용</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+ </div>
+</div>
+<div>
+	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick="insertCode();"></button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		if(actionType == "C"){
+			$('#codeKind').val(getCodeKind());
+			$('#codeKind').prop("readOnly", true);
+			$('#actionBtn').text("등록");
+			
+		}else if(actionType == "U"){
+			selectCodeInfo();
+			$('#codeId').prop("readOnly", true);
+			$('#actionBtn').text("저장");
+		}
+		// 공통코드 set
+		setCommonSelect($('#popup_area [data-kind]'));
+	});
+	
+	function selectCodeInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"codeId": row.codeId};
+		postAjax("/admin/cm/cm05/selectCodeInfo", paramObj, null, function(data){
+			setCodeInfo(data.codeInfo);
+		});
+	}
+	
+	function setCodeInfo(codeInfo){
+		$.each(codeInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+	}
+	
+	function insertCode() {
+		var formData = $('#codeForm').serializeObject();
+		formData.actionType = actionType;
+		formData.userId = jwt.userId;
+		
+		if(inputValidation($('#codeForm input[required]'))){
+			postAjax("/admin/cm/cm05/insertCode", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
+			});
+		}
+	}
+	
+	// 거래처 검색
+	function openClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#codeEtc').val(row.clntCd);
+			$('#codeEtcNm').val(row.clntNm);
+		});
+	}
+</script>

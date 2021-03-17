@@ -1,28 +1,24 @@
-
 <style>
 	#userTree .jstree-open > .jstree-anchor > .jstree-checkbox,
 	#userTree .jstree-closed > .jstree-anchor > .jstree-checkbox { display:none; }
 </style>
 
 <div class="popup_table" style="padding: 10px 10px 0 10px;">
-	<div class="input-group">
-		<input type="text" id="searchName" class="form-control" onkeyup="if(event.keyCode == 13){searchUser();}">
-		<span class="input-group-btn">
-			<button type="button" class="btn btn-primary btn-sm" onclick="searchUser();">검색</button>
-		</span>
+	<div class="search_form">
+		<input type="text" id="nodeName" onkeypress="if(event.keyCode == 13){searchUser();}"> 
+		<a onclick="searchUser();">
+			<i class="i_search_w"></i>
+		</a>
 	</div>
 </div>
 <div style="text-align: left;">
 	<div id="userTree" style="overflow: auto; height: 410px; padding: 0 10px;"></div>
 </div>
 <div style="padding: 5px 0px;">
-	<button type="button" class="btn btn-default btn-sm" onclick="selectUser();">선택</button>
-	<button type="button" class="btn btn-default btn-sm" onclick="secondModal.close();">닫기</button>	
+	<button type="button" class="btn btn-default btn-sm" onclick="executeCallBack();">선택</button>
+	<button type="button" class="btn btn-default btn-sm" onclick="commonModal.closeTarget.close();">닫기</button>	
 </div>
-
 <script type="text/javascript">
-	var userGrid = new ax5.ui.grid();
-	
 	$(document).ready(function() {
 		initUserTree();
 	});
@@ -34,7 +30,7 @@
 			"plugins": ['types', 'checkbox', 'search', 'sort'],
 			"core": {
 				"multiple": false,
-				"data": selectUserTree()
+				"data": setUserTree()
 			},
 			"types": {
 				"person": {"icon" : "glyphicon glyphicon-user"},
@@ -61,7 +57,7 @@
 		    }
 		}).on("loaded.jstree", function() {
 		// 루트 노드 로드 완료 시
-			setUserTree();
+			selectNode();
 		}).on("select_node.jstree", function(e, data) {
 		// 노드 선택 시 발생 이벤트
 		}).on('open_node.jstree', function(e, data) {
@@ -73,23 +69,18 @@
 		});
 	}
 	
-	// 트리 데이터 select
-	function selectUserTree() {
+	// 트리 데이터 set
+	function setUserTree() {
 		var userTree = null;
-		var paramObj = {
-			"coCd": $('tr[name="bizdeptRow"][target]').find('[name="salesCoCd"]').val(),
-			"useYn": "Y"
-		};
-		postAjaxSync("/admin/cm/cm06/selectUserTree", paramObj, null, function(data){
+		postAjaxSync("/admin/cm/cm06/selectUserTree", commonModal.paramObj, null, function(data){
 			userTree = data.userTree;
 		});
 		return userTree;
 	}
 	
-	// 트리 데이터 set
-	function setUserTree() {
-		var targetRow = $('tr[name="bizdeptRow"][target]');
-		var userId = targetRow.find('[name=salesEmpId]').val();
+	// 트리 노드 select
+	function selectNode() {
+		var userId = commonModal.paramObj.userId;
 		if(userId){
 			$('#userTree').jstree(true).select_node(userId);
 		}else{
@@ -100,17 +91,16 @@
 	
 	// 트리 노드 검색
 	function searchUser(){
-		var searchName = $('#searchName').val();
-		$('#userTree').jstree(true).search(searchName);
+		var nodeName = $('#nodeName').val();
+		$('#userTree').jstree(true).search(nodeName);
 	}
 	
-	// 사용자 선택
-	function selectUser(){
-		var checkedId = $('#userTree').jstree(true).get_checked()[0];
-		var checkedNode = $('#userTree').jstree(true).get_node(checkedId);
-		var targetRow = $('tr[name="bizdeptRow"][target]');
-		targetRow.find('[name=salesEmpId]').val(checkedNode.id);
-		targetRow.find('[name=salesEmpNm]').val(checkedNode.text);
-		secondModal.close();
+	function executeCallBack(){
+		if($('#userTree').jstree(true).get_checked() == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		commonModal.callBack($('#userTree').jstree(true));
+		commonModal.closeTarget.close();
 	}
 </script>

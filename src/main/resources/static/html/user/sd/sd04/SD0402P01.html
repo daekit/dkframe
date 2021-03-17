@@ -44,7 +44,7 @@
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd" required>
 							<input type="text" id="clntNm" readonly> 
-							<a onclick="openClntSearch();">
+							<a onclick="openSecondClntSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -60,7 +60,7 @@
 						<div class="search_form">
 							<input type="hidden" id="salesMng" name="salesMng">
 							<input type="text" id="salesMngNm" readonly>
-							<a onclick="openUserTree(this);">
+							<a onclick="openSecondUserSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -93,12 +93,12 @@
 						<div class="search_form">
 							<input type="hidden" id="prjctCd" name="prjctCd">
 							<input type="text" id="prjctNm" readonly> 
-							<a onclick="openPrjctSearch();">
+							<a onclick="openSecondPrjctSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
-					<th class="hit">요청일자</th>
+					<th class="hit">주문일자</th>
 					<td>
 						<input type="text" class="input_calendar" id="reqDt" name="reqDt" date required>
 					</td>
@@ -109,7 +109,7 @@
 				</tr>
 				<tr>
 					<th rowspan="2">착지주소</th>
-					<td colspan="3">
+					<td>
 						<div class="search_form">
 							<input type="text" id="addrZip" name="addrZip" readonly> 
 							<a onclick="openDaumPostcode();">
@@ -117,6 +117,7 @@
 							</a>
 						</div>
 					</td>
+					<td colspan="2"></td>
 					<th>착지연락처</th>
 					<td>
 						<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);" maxlength="13">
@@ -193,7 +194,9 @@
 		</table>
 		<table id="frameTable" style="display: none;">
 			<tr name="detailRow">
-				<input type="hidden" name="odrDtlSeq"> 
+				<input type="hidden" name="odrDtlSeq">
+				<input type="hidden" name="ordrgDtlCnt" value="0">
+				<input type="hidden" name="shipDtlCnt" value="0">
 				<td>
 					<input type="checkbox" name="detailChkBox">
 				</td>
@@ -201,7 +204,7 @@
 					<div class="search_form">
 						<input type="hidden" name="prdtCd">
 						<input type="text" name="prdtNm" readonly> 
-						<a onclick="openPrdtSearch(this);">
+						<a onclick="openSecondPrdtSearch(this);">
 							<i class="i_search_w"></i>
 						</a>
 					</div>
@@ -233,8 +236,10 @@
 			</tr>
 		</table>
 		<table id="fixedTable" style="display: none;">
-			<tr name="fixedRow">
-				<input type="hidden" name="odrDtlSeq"> 
+			<tr name="detailRow">
+				<input type="hidden" name="odrDtlSeq">
+				<input type="hidden" name="ordrgDtlCnt" value="0">
+				<input type="hidden" name="shipDtlCnt" value="0">
 				<td>
 					<input type="checkbox" name="detailChkBox" disabled>
 				</td>
@@ -280,15 +285,15 @@
 				<col width="9%">
 				<col width="9%">
 				<col width="9%">
-				<col width="9%">
-				<col width="17%">
+				<col width="13%">
+				<col width="13%">
 			</colgroup>
 			<tr>
 				<th class="tc" colspan="5">합계</th>
-				<td id="totQtyDp"></td>
-				<td id="totWtDp"></td>
+				<td class="tr" id="totQtyDp"></td>
+				<td class="tr" id="totWtDp"></td>
 				<td>-</td>
-				<td id="totAmtDp"></td>
+				<td class="tr" id="totAmtDp"></td>
 				<td>-</td>
 			</tr>
 		</table>
@@ -357,7 +362,6 @@
 
 <script type="text/javascript">
 	var openFrom = "SD0402P01";
-	var $userDiv = null;
 	var $targetRow = null;
 	var fileArr = [];
 	var deleteFileArr = [];
@@ -583,7 +587,7 @@
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		}).datepicker("setDate", new Date());
+		})
 		
 		// 납기일자 datepicker bind
 		$('#dlvrDttm').datepicker({
@@ -599,6 +603,7 @@
 			addDetailRow();
 			countTot();
 			$('#coCd').val(jwt.coCd);
+			$('#reqDt').datepicker("setDate", new Date());
 			$('#odrActionBtn').on("click", function() {insertOrder();});
 			$('.tit_contents .tit').text("주문 등록");
 			$('#odrActionBtn').text("등록");
@@ -630,7 +635,7 @@
 				}
 				
 				if($('#'+key).is('[date]')){
-					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate())
+					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}
 				
 				$('#'+key).val(value);
@@ -645,16 +650,16 @@
 			}else {
 				$addedRow = addDetailRow();
 			}
-			for(var i=0;i<$addedRow.find('[name]').length;i++){
-				var detailItem = $addedRow.find('[name]')[i];
-				var itemValue = obj[detailItem.name];
+			
+			$.each($addedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
 				if(itemValue){
-					if($(detailItem).is("[comma]")){
+					if($(elem).is("[comma]")){
 						itemValue = addCommaStr(itemValue);
 					}
-					detailItem.value = itemValue;
+					$(elem).val(itemValue);
 				}
-			}
+			});
 		});
 		countTot();
 		
@@ -688,17 +693,39 @@
 		}
 	}
 	
-	function openClntSearch() {
-		openSecondModal("/static/html/user/sd/sd04/SD0402P02.html", 500, 420, "거래처");
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
 	}
 	
-	function openUserTree(elem) {
-		$userDiv = $(elem).closest("div.search_form");
-		openSecondModal("/static/html/user/sd/sd04/SD0402P03.html", 300, 500, "사용자 검색");
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng').val(checkedNode.id);
+			$('#salesMngNm').val(checkedNode.text);
+		});
 	}
 	
-	function openPrjctSearch() {
-		openSecondModal("/static/html/user/sd/sd04/SD0402P04.html", 700, 420, "프로젝트");
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
 	}
 	
 	function openDaumPostcode() {
@@ -718,7 +745,7 @@
 	}
 	
 	function addFixedRow(){
-		var $fixedRow = $('#fixedTable tr[name="fixedRow"]').clone();
+		var $fixedRow = $('#fixedTable tr[name="detailRow"]').clone();
 		$('#detailTable tbody').append($fixedRow[0]);
 		return $fixedRow;
 	}
@@ -734,10 +761,26 @@
 			alert("삭제할 상세내역을 선택해주세요.");
 		}
 	}
-
-	function openPrdtSearch(elem) {
+	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
-		openSecondModal("/static/html/user/sd/sd04/SD0402P05.html", 500, 420, "제품검색");
+		
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(), 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnitNm);
+			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
+		});
 	}
 	
 	function countAmt(elem) {
@@ -860,10 +903,16 @@
 		var detailArr = [];
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem) {
 			var detailObj = {};
-			$.each($(elem).find('[name]'), function(idx, elem) {
-				detailObj[elem.name] = elem.value;
-			});
-			detailArr.push(detailObj);
+			var ordrgDtlCnt = Number($(elem).find('[name="ordrgDtlCnt"]').val());
+			var shipDtlCnt = Number($(elem).find('[name="shipDtlCnt"]').val());
+			
+			// 상세내역으로 발주 또는 출하건이 없는경우에만 insert
+			if(ordrgDtlCnt == 0 && shipDtlCnt == 0){
+				$.each($(elem).find('[name]'), function(idx, elem) {
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
 		});
 		formData.append("detailArr", JSON.stringify(detailArr));
 		

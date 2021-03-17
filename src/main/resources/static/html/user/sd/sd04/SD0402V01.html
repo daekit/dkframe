@@ -87,7 +87,7 @@
 							<input type="text" id="prjctNm" readonly> 
 						</div>
 					</td>
-					<th>요청일자</th>
+					<th>주문일자</th>
 					<td>
 						<input type="text" class="input_calendar" id="reqDt" name="reqDt" readonly>
 					</td>
@@ -98,11 +98,12 @@
 				</tr>
 				<tr>
 					<th rowspan="2">착지주소</th>
-					<td colspan="3">
+					<td>
 						<div class="search_form">
 							<input type="text" id="addrZip" name="addrZip" readonly> 
 						</div>
 					</td>
+					<td colspan="2"></td>
 					<th>착지연락처</th>
 					<td>
 						<input type="text" id="mngTel" name="mngTel" readonly>
@@ -219,15 +220,15 @@
 				<col width="9%">
 				<col width="9%">
 				<col width="9%">
-				<col width="9%">
-				<col width="17%">
+				<col width="13%">
+				<col width="13%">
 			</colgroup>
 			<tr>
 				<th class="tc" colspan="5">합계</th>
-				<td id="totQtyDp" comma></td>
-				<td id="totWtDp" comma></td>
+				<td class="tr" id="totQtyDp" comma></td>
+				<td class="tr" id="totWtDp" comma></td>
 				<td>-</td>
-				<td id="totAmtDp" comma></td>
+				<td class="tr" id="totAmtDp" comma></td>
 				<td>-</td>
 			</tr>
 		</table>
@@ -544,16 +545,15 @@
 		//상세정보 세팅
 		$.each(orderInfo.detailList, function(idx, obj) {
 			var $addedRow = addDetailRow();
-			for(var i=0;i<$addedRow.find('[name]').length;i++){
-				var detailItem = $addedRow.find('[name]')[i];
-				var itemValue = obj[detailItem.name];
+			$.each($addedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
 				if(itemValue){
-					if($(detailItem).is("[comma]")){
+					if($(elem).is("[comma]")){
 						itemValue = addCommaStr(itemValue);
 					}
-					detailItem.value = itemValue;
+					$(elem).val(itemValue);
 				}
-			}
+			});
 		});
 		
 		// 발주서 set

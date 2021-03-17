@@ -18,12 +18,19 @@ import com.dksys.biz.util.MessageUtils;
 @Controller
 @RequestMapping("/user/ar/ar04")
 public class AR04Ctr {
-
 	@Autowired
 	MessageUtils messageUtils;
     
     @Autowired
     AR04Svc ar04Svc;
+	
+	@PostMapping(value = "/insertBilg")
+	public String insertBilg(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		ar04Svc.insertBilg(paramMap);
+		model.addAttribute("resultCode", 200);
+		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		return "jsonView";
+	}
 	
     @PostMapping(value = "/selectTaxBilgList")
 	public String selectTaxBilgList(@RequestBody Map<String, String> paramMap, ModelMap model) {

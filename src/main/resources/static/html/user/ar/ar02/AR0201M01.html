@@ -100,7 +100,7 @@ th {
 	              	<th class= "hit">거래처</th>
 	                <td>
 	                  <input type="hidden" id="clntCd_S">
-	                  <div class="search_form" style="width: 50%;">
+	                  <div class="search_form">
 		                <input type="text" id="clntNm_S">
 		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
 		              </div>
@@ -170,9 +170,9 @@ th {
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a onclick="prjctCal();" style="height: 30px; line-height: 28px; width: 90px;">매출실적 정산</a>
-					<a onclick="rejectSell();" style="height: 30px; line-height: 28px; width: 40px;">반품</a>
-					<a onclick="" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
+					<a onclick="sellCal();" style="height: 30px; line-height: 28px; width: 90px;">매출실적 정산</a>
+					<a onclick="insertSellModal('U');" style="height: 30px; line-height: 28px; width: 40px;">반품</a>
+					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSell();" style="height: 30px; line-height: 28px;">-</a>
 				</div>
@@ -235,9 +235,10 @@ th {
 		        columns: [
 		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: "6%"},
 		          	{key: "bilgYn",         label: "전표발행여부",	align: "center",	width: "6%"},
-		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: "6%"},
+		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 120},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: "6%"},
 		            {key: "taxivcCoprtNm",	label: "판매법인", 	align: "left", 		width: "8%"},
+		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: "8%"},
 		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: "8%"},
 		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: "6%",	formatter: "money"},
 		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: "6%", 	formatter: "money"},
@@ -252,7 +253,6 @@ th {
 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: "6%",	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: "8%"},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: "8%"},
-		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: "8%"},
 		        	{key: "bilgCertNo",     label: "청구서번호", 	align: "center", 	width: "6%"},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: "9%"},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: "6%"},
@@ -365,9 +365,18 @@ th {
 	}
 	
 	function insertSellModal(type){
-		var modalTitle = "매출등록";
+		var modalTitle = "";
 		actionType = type;
-		openModal("/static/html/user/ar/ar02/AR0202P01.html", 700, 600, modalTitle);
+		if(type == "U") {
+			modalTitle = "반품";
+			if(gridView.target.getList("selected").length == 0) {
+				alert("반품 건을 선택해 주세요.");
+				return;
+			}
+		} else {
+			modalTitle = "매출등록";
+		}
+		openModal("/static/html/user/ar/ar02/AR0202P01.html", 700, 650, modalTitle);
 	}
 	
 	function viewShipModal() {
@@ -398,14 +407,33 @@ th {
 	function prjctSearch() {
 		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420, "프로젝트");
 	}
-
-	function rejectSell() {
-		alert("개발중");
-	}
 	
-	function prjctCal() {
+	function sellCal() {
 		modalTitle = "매출실적 정산";
 		openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, modalTitle);
 	}
 	
+	function insertBilg() {
+		var flag = false;
+		var list = gridView.target.getList("selected");
+		var trstCertiNoArr = [];
+		$.each(list, function(idx, obj){
+			if(obj.bilgYn == "Y") flag = true;
+			trstCertiNoArr.push(obj.trstCertiNo);
+		});
+		if(flag) {
+			alert("이미 발행된 건이 있습니다.");
+			return;
+		};
+		var formData = {
+			"trstCertiNo" : trstCertiNoArr,
+			"userId" : jwt.userId,
+			"userNm" : jwt.userNm,
+			"pgmId" : "AR0201M01"
+		}
+		postAjax("/user/ar/ar04/insertBilg", formData, null, function(data){
+			alert(data.resultMessage);
+			gridView.setData(0);
+		});
+	}
 </script>

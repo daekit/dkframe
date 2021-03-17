@@ -33,11 +33,9 @@
 							<td>
 								<input type="text" class="form-control" id="crn" name="crn" onkeyup="crnFormatter(this);" maxlength="12">
 							</td>
-							<th>거래처구분</th>
+							<th>법인번호</th>
 							<td>
-								<select class="form-control input-sm" id="clntDivCd" name="clntDivCd" data-kind="CLNTDIV">
-									<option value="">선택</option>
-								</select>
+								<input type="text" class="form-control" id="coprtNo" name="coprtNo" maxlength="14">
 							</td>
 						</tr>
 						<tr>
@@ -49,9 +47,11 @@
 							<td>
 								<input type="text" class="form-control" id="bizconNm" name="bizconNm" maxlength="25">
 							</td>
-							<th>종목</th>
+							<th>거래처구분</th>
 							<td>
-								<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
+								<select class="form-control input-sm" id="clntDivCd" name="clntDivCd" data-kind="CLNTDIV">
+									<option value="">선택</option>
+								</select>
 							</td>
 						</tr>
 						<tr>
@@ -64,7 +64,10 @@
 									</span>
 								</div>
 							</td>
-							<td colspan="2"></td>
+							<th>종목</th>
+							<td>
+								<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
+							</td>
 							<th>기본여신금액</th>
 							<td colspan="3">
 								<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);" comma readonly>
@@ -264,10 +267,11 @@
 				<tbody>
 					<tr>
 						<td colspan="6">
-	<!-- 						<div class="add_btn">
+						<!--
+							<div class="add_btn">
 								<a onclick="addPldgRow();" >추가</a>
 							</div>
-	 -->
+	 					-->
 						</td>
 					</tr>
 					<tr>
@@ -315,7 +319,7 @@
 
 <script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
 <script type="text/javascript">
-
+	var $targetRow = null;
 	var clntFileArr = [];
 	var deleteFileArr = [];
 	var fileGridView = {
@@ -604,7 +608,7 @@
 		bizdeptRow += '<input type="hidden" class="form-control" name="salesEmpId">';
 		bizdeptRow += '<input type="text" class="form-control" name="salesEmpNm" readonly>';
 		bizdeptRow += '<span class="input-group-btn">';
-		bizdeptRow += '<button type="button" class="btn btn-primary btn-sm" onclick="openUserTree(this);">검색</button>';
+		bizdeptRow += '<button type="button" class="btn btn-primary btn-sm" onclick="openSecondUserSearch(this);">검색</button>';
 		bizdeptRow += '</span>';
 		bizdeptRow += '</div>';
 		bizdeptRow += '</td>';
@@ -622,15 +626,27 @@
 		changedRow.find('[name="salesEmpNm"]').val("");
 	}
 	
-	function openUserTree(elem){
-		var targetRow = $(elem).closest('tr[name="bizdeptRow"]');
-		if(!targetRow.find('[name="salesCoCd"]').val()){
+	function openSecondUserSearch(elem){
+		$targetRow = $(elem).closest('tr[name="bizdeptRow"]');
+		
+		if(!$targetRow.find('[name="salesCoCd"]').val()){
 			alert("영업회사를 선택해주세요.");
+			$targetRow.find('[name="salesCoCd"]').focus();
 			return false;
 		}
-		$('tr[name="bizdeptRow"]').removeAttr("target");
-		targetRow.attr("target", true);
-		openSecondModal("/static/html/admin/bm/bm02/BM0202P02.html", 300, 500, "사용자 검색");
+		
+		var paramObj = {
+			"coCd" : $targetRow.find('[name="salesCoCd"]').val(),
+			"userId": $targetRow.find('[name="salesEmpId"]').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$targetRow.find('[name=salesEmpId]').val(checkedNode.id);
+			$targetRow.find('[name=salesEmpNm]').val(checkedNode.text);
+		});
 	}
 	
 	function addPldgRow(){

@@ -25,7 +25,7 @@
 	</div>
 </div>
 <div class="popup_bottom_btn">
-	<button type="button" onclick="commonModal.callBack(clntGridView);">선택</button>
+	<button type="button" onclick="executeCallBack();">선택</button>
 	<button type="button" class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
 </div>
 <script type="text/javascript">
@@ -45,8 +45,7 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick: function () {
-						this.self.select(this.dindex);
-						commonModal.callBack(clntGridView);
+						executeCallBack();
 		            }
 				},
 				page : {
@@ -73,7 +72,10 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 10};
+			var paramObj = {};
+			paramObj.pageNo = _pageNo + 1;
+			paramObj.recordCnt = 10;
+			
 			for(var i=0;i<$('.popup_area [data-search]').length;i++){
 				var tempElem = $('.popup_area [data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -97,4 +99,10 @@
 	$(document).ready(function() {
 		clntGridView.initView().setData(0);
 	});
+	
+	function executeCallBack(){
+		if(selectGridValidation(clntGridView.target)) return;
+		commonModal.callBack(clntGridView);
+		commonModal.closeTarget.close();
+	}
 </script>

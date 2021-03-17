@@ -28,7 +28,7 @@ var modal = new ax5.ui.modal();
 var secondModal = new ax5.ui.modal();
 var commonModal = {};
 
-var openModal = function(url, width, height, title, callBack) {
+var openModal = function(url, width, height, title, paramObj, callBack) {
 	modal.open({
 		header: {
 			title: title,
@@ -61,10 +61,11 @@ var openModal = function(url, width, height, title, callBack) {
     	// commonModal 객체 set
     	commonModal.closeTarget = modal;
     	commonModal.callBack = callBack;
+    	commonModal.paramObj = paramObj;
     });
 };
 
-var openSecondModal = function(url, width, height, title, callBack) {
+var openSecondModal = function(url, width, height, title, paramObj, callBack) {
 	secondModal.open({
 		header: {
 			title: title,
@@ -88,13 +89,14 @@ var openSecondModal = function(url, width, height, title, callBack) {
     	// commonModal 객체 set
     	commonModal.closeTarget = secondModal;
     	commonModal.callBack = callBack;
+    	commonModal.paramObj = paramObj;
     });
 };
 
 function parseJwt (token) {
 	if(token == null) {
 		if(location.href.search("/static/index.html") == -1) {
-			alert("토큰이 만료되었습니다.");
+//			alert("토큰이 만료되었습니다.");
         	location.href = "/static/index.html";
 		} else {
 			return;
@@ -145,7 +147,7 @@ function postAjax(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)) {
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -173,7 +175,7 @@ function postAjaxSync(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)) {
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -197,7 +199,7 @@ function deleteAjax(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -221,7 +223,7 @@ function putAjax(url, data, contentType, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -244,7 +246,7 @@ function filePostAjax(url, data, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }
@@ -267,7 +269,7 @@ function filePutAjax(url, data, callback) {
 	    },
         error: function (data) {
         	if(tokenErrorMsg.includes(data.responseJSON.error)){
-        		alert("토큰이 만료되었습니다.");
+//        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
         }

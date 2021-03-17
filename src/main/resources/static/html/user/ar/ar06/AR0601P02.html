@@ -1,11 +1,16 @@
 <div class="popup_area">
-	<div class="popup_table">
+	<div class="popup_table_sub">
 		<table>
 			<colgroup>
 				<col width="30%">
 				<col width="">
 			</colgroup>
 			<tr>
+				<td>
+					<select id="clntDivCd" data-search="clntDivCd" data-kind="CLNTDIV" onchange="clntGridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
 				<td>
 					<select data-search="searchType">
 						<option value="CLNT_NM">거래처명</option>
@@ -26,7 +31,7 @@
 </div>
 <div class="popup_bottom_btn">
 	<button type="button" onclick="setClntInfo();">선택</button>
-	<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
+	<button type="button" class="close_btn" onclick="secondModal.close();">닫기</button>
 </div>
 <script type="text/javascript">
 	var clntGridView = {
@@ -65,6 +70,7 @@
 					{key : "clntCd", label : "거래처코드", align : "center", hidden : true}, 
 					{key : "clntNm", label : "거래처명", align : "center", width : "30%"},
 					{key : "crn", label : "사업자 등록번호", align : "center", width : "30%"},
+					{key : "clntDivCd", label : "거래처 구분코드", align : "center", hidden : true},
 					{key : "clntDivNm", label : "거래처 구분", align : "center"},
 					{key : "bizconNm", label : "업태", align : "center"}
 				]
@@ -96,13 +102,19 @@
 
 	$(document).ready(function() {
 		clntGridView.initView().setData(0);
+		setCommonSelect($(".popup_table_sub select[data-kind]"));
 	});
 
 	function setClntInfo() {
 		if(selectGridValidation(clntGridView.target)) return;
 		var row = clntGridView.target.getList("selected")[0];
-		$('[data-search="clntCd"]').val(row.clntCd);
-		$('[data-search="clntNm"]').val(row.clntNm);
-		modal.close();
+		if(actionClntType == "S"){
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
+		}if(actionClntType == "P"){
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		}
+		secondModal.close();
 	}
 </script>

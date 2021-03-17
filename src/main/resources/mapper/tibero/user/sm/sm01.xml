@@ -54,9 +54,9 @@
 					    , FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
 					    , A.STOCK_CHG_CD
 					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
-						, A.STOCK_AMT
 						, A.STOCK_QTY
 						, A.STOCK_UPR
+						, (A.STOCK_QTY*A.STOCK_UPR) as STOCK_AMT
 						, A.STD_UPR
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
@@ -144,16 +144,17 @@
 						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
 					    , A.CHG_CD
 					    , FN_CM05M01_CD_TO_NM(A.CHG_CD) AS CHG_NM
+					    , A.CHG_QTY
 					    , A.STOCK_CHG_CD
 					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
-						, A.STOCK_AMT
-						, A.STOCK_QTY
 						, A.STOCK_UPR
+						, A.STOCK_QTY
+						, (nvl(A.STOCK_UPR,0) * nvl(A.STOCK_QTY,0)) as STOCK_AMT
 						, A.STD_UPR
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
 						, E.CLNT_NM
-						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
+						, TO_CHAR(A.PROC_DTTM, 'YYYY-MM-DD') AS PROC_DTTM 
 				FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD = C.PRDT_CD 
 				AND A.CLNT_CD = E.CLNT_CD(+)
@@ -178,7 +179,7 @@
 						<if test="clntNm != null and !clntNm.equals('')">
 								AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 						</if>
-				ORDER BY UDT_DTTM DESC
+				ORDER BY PROC_DTTM DESC, A.TRST_NO DESC, A.CLNT_CD,  A.TYP_CD, A.PRDT_CD
 			)D
 		)
 		WHERE

@@ -18,5 +18,11 @@ public interface AR02Mapper {
 
 	int deleteSell(Map<String, String> paramMap);
 
+	Map<String, String> selectSellInfo(Map<String, String> paramMap);
+
+	Map<String, String> selectBilgInfo(Map<String, Object> param);
+
+	int updatePchsSellBilg(Map<String, String> sellParam);
+
 	
 }

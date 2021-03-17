@@ -5,6 +5,8 @@ import java.util.Map;
 
 public interface AR04Svc {
 
+	int insertBilg(Map<String, Object> paramMap);
+	
 	public List<Map<String, String>> selectTaxBilgList(Map<String, String> param);
 	
 	public int selectTaxBilgCount(Map<String, String> param);	
@@ -16,4 +18,5 @@ public interface AR04Svc {
 	public List<Map<String, String>> selectTaxRcvList(Map<String, String> param);
 	
 	public int selectTaxRcvCount(Map<String, String> param);	
+
 }

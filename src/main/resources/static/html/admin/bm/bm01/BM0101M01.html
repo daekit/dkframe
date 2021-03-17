@@ -1,44 +1,40 @@
-
-	<div class="row form-group">
-		<span style="font-size: 25px; font-weight: bold;">자재코드 관리</span>
+<div class="row">
+	<span style="font-size: 25px; font-weight: bold;">자재코드 관리</span>
+</div>
+<div class="row">
+	<div class="form-group form-inline">
+		<div class="form-control">
+			<input class="input_calendar" data-search="searchPrdtDt" onkeyup="dateMask(this);">
+		</div>
+		<select class="form-control" data-kind="PRDTDIV" data-search="prdtDiv" onchange="setPrdtStkn(this, 'main'); gridView.setData(0);">
+			<option value="">전체</option>
+		</select>
+		<select class="form-control" data-search="prdtStkn" onchange="gridView.setData(0);">
+			<option value="">전체</option>
+		</select>
+		<select class="form-control" data-search="useYn" onchange="gridView.setData(0);">
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
+		<select class="form-control" data-search="searchType">
+			<option value="PRDT_NM">제품명</option>
+		</select>
+		<input type="text" class="form-control" data-search="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}"> 
+		<button type="button" class="btn btn-primary" onclick="gridView.setData(0);">검색</button>
 		<div style="float: right;">
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailMaterial('C');">등록</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="detailMaterial('U');">수정</a>
-			<a id="loginBtn" class="btn btn-default btn-sm" onclick="deleteMaterial();">삭제</a>
+			<a class="btn btn-default btn-sm" onclick="detailMaterial('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="detailMaterial('U');">수정</a>
+			<a class="btn btn-default btn-sm" onclick="deleteMaterial();">삭제</a>
 		</div>
 	</div>
-	<div class="row">
-		<div class="form-inline form-group">
-			<!--  <span style="font-weight: bold;">단가 기준일</span >&nbsp; 
-			<input id= "searchPrdtDt" type="date" class="form-control"  onchange="search();">-->
-			<div class="form-control">
-				<input id="searchPrdtDt" onkeyup="dateMask(this);" class="input_calendar">
-				
-			</div>
-		
-			<select id="searchType" class="form-control" >
-				<option value="PRDT_NM">제품명</option>
-			</select>
-			<input id="searchValue" type="text" class="form-control" onkeypress="if(event.keyCode == 13){search();}">&nbsp; 
-			<button class="btn btn-primary" type="button" onclick="search();">검색</button>
-			&nbsp;
-			<select id="useType" class="form-control" onchange="search();">
-				<option value="Y">사용</option>
-				<option value="N">미사용</option>
-			</select>
-		</div>
-	</div>
-	<div class="row">
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
-	</div>
+</div>
+<div class="row">
+	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+</div>
 
 <script type="text/javascript">
-	
-	var authId = null;
-	var authRole = null;
 	var actionType = null;
-	var firstGrid = null;
-	
+	var prdtStknTarget = null;
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -60,7 +56,7 @@
 		            },
 		        },
 		        page: {
-		            navigationItemCount: 9,
+		            navigationItemCount: 10,
 		            height: 30,
 		            display: true,
 		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
@@ -72,42 +68,37 @@
 		            }
 		        },
 		        columns: [
-		        	{key: "prdtCd",       label: "제품코드",		align: "center",	hidden: "true"},
-		        	{key: "prdtNm",       label: "제품명",		align: "left",		width:200},
-		        	{key: "prdtUnitNm",   label: "단위",			align: "center",	width:60},
-		        	{key: "prdtDivNm",    label: "제품구분",		align: "center"},
-		        	{key: "prdtStknNm",   label: "제품강종",		align: "center"},
-		        	{key: "prdtSpecNm",   label: "제품규격",		align: "left",		width:200},
-		        	{key: "prdtSizeNm",   label: "사이즈",		align: "left",		width:200},
-		        	{key: "prdtErqkNm",   label: "내진",			align: "center",	width:60},
-		        	{key: "prdtCoilYn",   label: "코일",			align: "center",	width:60},
-		        	{key: "prdtWt",       label: "단위중량",		align: "right",		width:80},
-		        	{key: "prdtCnvrsnWt", label: "환산중량",		align: "right",		width:80},
-		        	{key: "prdtUpr",      label: "기준단가",		align: "right"},
-		        	{key: "prdtDt",       label: "기준일자",		align: "center"},
-		        	{key: "prdtDkCd",     label: "동국제강 제품코드", align: "center"},
-		        	{key: "prdtMesCd",    label: "MES대응코드",	align: "center"},
-		        	{key: "useYn",        label: "사용",			align: "center",	width:60},
-		        	{key: "etcField1",    label: "여분필드(고정)",	align: "center",	hidden: "true"},
-		        	{key: "etcField2",    label: "여분필드(숫자)",	align: "right",		hidden: "true"},
-		        	{key: "etcField3",    label: "여분필드(가변)",	align: "center",	hidden: "true"},
+		        	{key: "prdtCd",       label: "제품코드",		  align: "center",	hidden: "true"},
+		        	{key: "prdtNm",       label: "제품명",		      align: "left",	width:200},
+		        	{key: "prdtUnitNm",   label: "단위",			  align: "center",	width:60},
+		        	{key: "prdtDivNm",    label: "제품구분",		  align: "center"},
+		        	{key: "prdtStknNm",   label: "제품강종",		  align: "center"},
+		        	{key: "prdtSpecNm",   label: "제품규격",		  align: "left",	width:100},
+		        	{key: "prdtSizeNm",   label: "사이즈",		      align: "left",	width:100},
+		        	{key: "prdtErqkNm",   label: "내진",			  align: "center",	width:60},
+		        	{key: "prdtCoilYn",   label: "코일",			  align: "center",	width:60},
+		        	{key: "prdtWt",       label: "단위중량",		  align: "right",	width:80},
+		        	{key: "prdtCnvrsnWt", label: "환산중량",		  align: "right",	width:80},
+		        	{key: "prdtUpr",      label: "기준단가",		  align: "right"},
+		        	{key: "prdtDt",       label: "기준일자",		  align: "center"},
+		        	{key: "prdtDkCd",     label: "동국제강 제품코드", align: "center",  width:150},
+		        	{key: "prdtMesCd",    label: "MES대응코드",	      align: "center"},
+		        	{key: "useYn",        label: "사용",			  align: "center",	width:60}
 		        ]
 		    });
 			return this;
-		}, 
+		},
 		setData: function(_pageNo) {
-			firstGrid = this.target;
-			var formData = {
-				"useYn" : $("#useType").val(),
-				"searchType" : $("#searchType").val(),
-				"searchValue" : $("#searchValue").val(),
-				"searchPrdtDt" : $("#searchPrdtDt").val().replace(/\-/g,''),
-				"pageNo" : _pageNo + 1, 
-				"recordCnt" : 20
-			}
-			postAjax("/admin/bm/bm01/selectMaterialList", formData, null, function(data){
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1};
+			
+			$.each($('[data-search]'), function(idx, elem){
+				paramObj[$(elem).data("search")] = $(elem).val();
+			});
+			
+			postAjax("/admin/bm/bm01/selectMaterialList", paramObj, null, function(data){
 				var list = data.materialList;
-				firstGrid.setData({
+				targetObj.setData({
 					list : list,
 					page : {
 						currentPage : _pageNo,
@@ -121,42 +112,55 @@
 	}
 	
 	$(document).ready(function() {
-		 document.getElementById("searchPrdtDt").value = new Date().toISOString().substring(0, 10);
-		gridView.initView().setData(0);
-		$('#searchPrdtDt').datepicker({
+		setCommonSelect($('select[data-kind]'));
+		
+		$('[data-search="searchPrdtDt"]').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		});
+		})
+		.datepicker("setDate", new Date());
 		
+		gridView.initView().setData(0);
 	})
 	
-	function search() {
-		gridView.initView().setData(0);
+	function setPrdtStkn(elem, target){
+		prdtStknTarget = target;
+		var paramObj = {"codeKind" : $(elem).val()};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '<option value="">전체</option>';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, obj){
+				optionHtml += '<option value='+obj.codeId+'>';
+				optionHtml += obj.codeNm;
+				optionHtml += '</option>';
+			});
+			
+			if(prdtStknTarget == "main"){
+				$('[data-search="prdtStkn"]').html(optionHtml);
+			} else if(prdtStknTarget == "popup"){
+				$('#prdtStkn').html(optionHtml);
+			}
+		});
 	}
 	
 	function detailMaterial(type) {
 		actionType = type;
-		
-		if ( actionType == 'U' && selectGridValidation(firstGrid))
-			return;
-		
 		openModal("/static/html/admin/bm/bm01/BM0102P01.html", 800, 420, "자재코드");
 	}
-
 	
 	function deleteMaterial() {
-		if (selectGridValidation(firstGrid))
-			return;
-		if (!confirm("삭제하시겠습니까?"))
-			return;
-		var formData = {
-			"prdtCd" : firstGrid.getList("selected")[0].prdtCd
+		if (selectGridValidation(gridView.target)) return false;
+		if (!confirm("삭제하시겠습니까?")) return false;
+		
+		var paramObj = {
+			"prdtCd" : gridView.target.getList("selected")[0].prdtCd
 		}
-		deleteAjax("/admin/bm/bm01/deleteMaterial", formData, null, function(data) {
+		
+		deleteAjax("/admin/bm/bm01/deleteMaterial", paramObj, null, function(data) {
 			if (data.resultCode == 200) {
 				alert(data.resultMessage);
-				gridView.initView().setData(firstGrid.page.currentPage);
+				gridView.setData(gridView.target.page.currentPage);
 			}
 		});
 	}

@@ -7,7 +7,11 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface AR04Mapper {
+	
+	int insertBilg(Map<String, String> bilgInfo);
 
+	int getBilgCertNo();
+	
 	int selectTaxBilgCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectTaxBilgList(Map<String, String> paramMap);
