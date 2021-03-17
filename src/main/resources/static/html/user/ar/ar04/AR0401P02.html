@@ -1,11 +1,16 @@
 <div class="popup_area">
-	<div class="popup_table">
+	<div class="popup_table_sub">
 		<table>
 			<colgroup>
 				<col width="30%">
 				<col width="">
 			</colgroup>
 			<tr>
+				<td>
+					<select id="clntDivCd" data-search="clntDivCd" data-kind="CLNTDIV" onchange="clntGridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
 				<td>
 					<select data-search="searchType">
 						<option value="CLNT_NM">거래처명</option>
@@ -25,8 +30,8 @@
 	</div>
 </div>
 <div class="popup_bottom_btn">
-	<button type="button" onclick="executeCallBack();">선택</button>
-	<button type="button" class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+	<button type="button" onclick="setClntInfo();">선택</button>
+	<button type="button" class="close_btn" onclick="secondModal.close();">닫기</button>
 </div>
 <script type="text/javascript">
 	var clntGridView = {
@@ -45,7 +50,8 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick: function () {
-						executeCallBack();
+						this.self.select(this.dindex);
+		            	setClntInfo();
 		            }
 				},
 				page : {
@@ -61,9 +67,10 @@
 					}
 				},
 				columns : [
-					{key : "clntCd", label : "거래처코드", hidden : true}, 
+					{key : "clntCd", label : "거래처코드", align : "center", hidden : true}, 
 					{key : "clntNm", label : "거래처명", align : "center", width : "30%"},
 					{key : "crn", label : "사업자 등록번호", align : "center", width : "30%"},
+					{key : "clntDivCd", label : "거래처 구분코드", align : "center", hidden : true},
 					{key : "clntDivNm", label : "거래처 구분", align : "center"},
 					{key : "bizconNm", label : "업태", align : "center"}
 				]
@@ -72,10 +79,7 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {};
-			paramObj.pageNo = _pageNo + 1;
-			paramObj.recordCnt = 10;
-			
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 10};
 			for(var i=0;i<$('.popup_area [data-search]').length;i++){
 				var tempElem = $('.popup_area [data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -98,11 +102,20 @@
 
 	$(document).ready(function() {
 		clntGridView.initView().setData(0);
+		setCommonSelect($(".popup_table_sub select[data-kind]"));
 	});
-	
-	function executeCallBack(){
+
+	function setClntInfo() {
 		if(selectGridValidation(clntGridView.target)) return;
-		commonModal.callBack(clntGridView);
-		commonModal.closeTarget.close();
+		var row = clntGridView.target.getList("selected")[0];
+		if(actionTp == "L"){
+			$('#searchDiv #clntCd').val(row.clntCd);
+			$('#searchDiv #clntNm').val(row.clntNm);
+			modal.close();
+		}else if(actionTp == "S"){
+			$('#popForm #clntCd').val(row.clntCd);
+			$('#popForm #clntNm').val(row.clntNm);
+			secondModal.close();
+		}
 	}
 </script>

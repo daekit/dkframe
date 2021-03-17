@@ -329,6 +329,7 @@
 	        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 	        TO_CHAR(TO_DATE(TRST_DT), 'YYYY-MM-DD') AS TRST_DT,
 	        TRST_CLNT_CD,
+	        TRST_CLNT_CD AS CLNT_CD,
 	        TRST_PRDT_CD,
 	        TRST_PRDT_CD AS PRDT_CD,
 	        (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.TRST_PRDT_CD) AS PRDT_NM,
@@ -404,7 +405,7 @@
 	<select id="selectBilgInfo" parameterType="Map" resultType="CamelMap">
 		SELECT 
 			 T1.*,
-			 CASE WHEN SELL_PAY_DIV_CD = 'PAYDIV01' THEN '2' ELSE '1' END RFF_CNO,
+			 SELL_PAY_DIV_CD AS RFF_CNO,
 			 B.CRN AS TAXIVC_COPRT_NO,
 			 B.REPST_NM AS TAXIVC_COPRT_CEO,
 			 B.CLNT_NM AS TAXIVC_COPRT_NM,
@@ -423,7 +424,7 @@
 		        CLNT_NM,
 		        SELPCH_CD,	        
 		        SUM(TRST_QTY) AS TRST_QTY,
-		        SUM(TRST_WT) AS TRST_WT,
+		        NVL(SUM(TRST_WT), 0) AS TRST_WT,
 		        SUM(TRST_UPR) AS TRST_UPR,
 		        SUM(TRST_AMT) AS TRST_AMT,
 		        SUM(REAL_TRST_QTY) AS REAL_TRST_QTY,
@@ -442,15 +443,15 @@
 		        SUM(BILG_AMT) AS TAX_MOA5_23,
 		        SUM(BILG_AMT)*0.1 AS TAX_MOA5_124,
 		        SUM(BILG_AMT) + SUM(BILG_AMT)*0.1 AS TAX_MOA5_388,
-		        '1' AS RFF_VA,
-		        '01' AS RFF_GN1,
-		        '01' AS RFF_GN2,
-		        '00' AS RFF_AEA,
-		        '9' AS BGM_1225,
+		        CASE WHEN SELPCH_CD = 'SELPCH2' THEN 'PAYDIV01' ELSE 'PAYDIV02' END RFF_VA,
+		        'RFFGN101' AS RFF_GN1,
+		        'RFFGN201' AS RFF_GN2,
+		        'RFFAEA00' AS RFF_AEA,
+		        'BGM122599' AS BGM_1225,
 		        '1' AS BGM_4343,
 		        'S' AS XML_FLOW,
 		        #{userId} AS TAX_CREAT_ID,
-		        #{userNm} AS TAX_CREAT_NM      
+		        #{userNm} AS TAX_CREAT_NM
 			FROM TB_AR02M01 T
 			WHERE TRST_CERTI_NO IN
 			<foreach item="item" index="index" collection="list" open="(" close=")" separator=",">

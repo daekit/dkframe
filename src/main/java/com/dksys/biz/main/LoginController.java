@@ -52,9 +52,10 @@ public class LoginController {
     public String login(@RequestBody Map<String, String> param, ModelMap model) {
     	User user = loginService.selectUserInfo(param);
     	if(user == null) {
-    		model.addAttribute("msg", "가입된 ID가 아입니다.");
-    	} 
-    	if(passwordEncoder.matches(param.get("password"), user.getPassword())) {
+    		model.addAttribute("msg", "ID를 확인해주세요.");
+    	} else if(!passwordEncoder.matches(param.get("password"), user.getPassword())) {
+    		model.addAttribute("msg", "비밀번호를 확인해주세요.");
+    	} else {
     		model.addAttribute("msg", "success");
     	}
         return "jsonView";

@@ -99,7 +99,7 @@
 	                	<input type="hidden" id="sellClntCd" name="sellClntCd" style="width: 76%;">                   
 	                	<div class="search_form">
 		                    <input type="text" id="sellClntNm" name="sellClntNm" readonly="readonly">
-	                    	<a onclick="clntSearch('SELL');"><i class="i_search_w"></i></a>
+	                    	<button type="button" onclick="clntSearch('SELL');"><i class="i_search_w"></i></button>
 	                    </div>
 	                </td>
 	            </tr>
@@ -116,7 +116,7 @@
 	                	<input type="text" id="mngTel" name="mngTel" style="width: 100%;">
 	                </td>
 	                <th>납기일자</th>
-	                <td class="drctArea">
+	                <td>
 	                	<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar">
 	                </td>
 	            </tr>
@@ -413,13 +413,13 @@
 	$(document).ready(function() {
 		fileGridView.initView();
 		setCommonSelect($(".popup_area select[data-kind]"));
-		$("#dirtrsYn").change();
 		$('#dlvrDttm, #ordrgProcDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		});
 		setInit();
+		$("#dirtrsYn").change();
 	});
 	
 	function setInit() {
@@ -473,7 +473,7 @@
 			$('#'+key).val(value);
 		});
 		
-		$("#dirtrsYn").change();
+// 		$("#dirtrsYn").change();
 		//상세정보 세팅
 		$.each(orderDetail, function(idx, item){
 			if(idx != 0) addRow();
@@ -545,13 +545,14 @@
 			$(".drctArea input").val("");
 			$(".drctArea select").prop("disabled", true);
 			$(".drctArea select").val("");
-			$(".drctArea #sellClntBtn").off("click");
+			$(".drctArea button").prop("disabled", true);
+			$(".drctArea select").val("");
+			$(".drctArea #sellClntCd").val("");
+			$(".drctArea #sellClntNm").val("");
 		} else {
 			$(".drctArea input").prop("disabled", false);
 			$(".drctArea select").prop("disabled", false);
-			$(".drctArea #sellClntBtn").on("click", function(){
-				clntSearch('SELL');
-			});
+			$(".drctArea button").prop("disabled", false);
 		}
 		$("#coCd").val(jwt.coCd);
 	}
@@ -691,7 +692,9 @@
 		$("input[name='ordrgAmt']")[rowIdx].value    = (deleteCommaStr(ordrgQty)    * deleteCommaStr(ordrgUpr));
 		$("input[name='realDlvrWt']")[rowIdx].value  = (deleteCommaStr(realDlvrQty) * deleteCommaStr(prdtCnvrsnWt));
 		$("input[name='realDlvrAmt']")[rowIdx].value = (deleteCommaStr(realDlvrQty) * deleteCommaStr(realDlvrUpr));
+		addComma($("input[name='ordrgWt']")[rowIdx]);
 		addComma($("input[name='ordrgAmt']")[rowIdx]);
+		addComma($("input[name='realDlvrWt']")[rowIdx]);
 		addComma($("input[name='realDlvrAmt']")[rowIdx]);
 		countTot();
 	}

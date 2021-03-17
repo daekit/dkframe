@@ -24,13 +24,13 @@ public interface SM02Mapper {
 	
 	List<Map<String, String>> selectStockMoveStatMngmDtlList(Map<String, String> param);
 	
-	int sm01CheckCnt(Map<String, String> param);
+	/* int sm01CheckCnt(Map<String, Object> param); */
 	
-	int sm01InsertStockMove(Map<String, String> param);
+	/* int sm01InsertStockMove(Map<String, Object> param); */
 
 	int sm01UpdateStockMove(Map<String, String> param);
 
-	int sm01UpdateInsertStockMove(Map<String, String> param);
+	int sm01UpdateInsertStockMove(Map<String, String> detailMap);
 	
 	int sm02InsertStockMove(Map<String, String> param);
 	
