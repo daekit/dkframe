@@ -32,7 +32,7 @@
 					</td>
 					<th>직송여부</th>
 					<td>
-						<select id="dirtrsYn" name="dirtrsYn" onchange="ctrlDirect(this);">
+						<select id="dirtrsYn" name="dirtrsYn">
 							<option value="N" selected>N</option>
 							<option value="Y">Y</option>
 						</select>
@@ -104,7 +104,7 @@
 					</td>
 					<th>납기일자</th>
 					<td>
-						<input type="text" class="input_calendar" id="dlvrDttm" name="dlvrDttm" direct date>
+						<input type="text" class="input_calendar" id="dlvrDttm" name="dlvrDttm" date>
 					</td>
 				</tr>
 				<tr>
@@ -195,6 +195,7 @@
 		<table id="frameTable" style="display: none;">
 			<tr name="detailRow">
 				<input type="hidden" name="odrDtlSeq">
+				<input type="hidden" name="prdtCnvrsnWt">
 				<input type="hidden" name="ordrgDtlCnt" value="0">
 				<input type="hidden" name="shipDtlCnt" value="0">
 				<td>
@@ -219,13 +220,13 @@
 					<input type="text" name="prdtUpr" comma readonly>
 				</td>
 				<td>
-					<input type="text" name="odrQty" onkeyup="addComma(this);countAmt(this);" comma>
+					<input type="text" name="odrQty" onkeyup="addComma(this); calOdrWt(this); countAmt(this);" comma>
 				</td>
 				<td>
-					<input type="text" name="odrWt" onkeyup="addComma(this);countAmt(this);" comma >
+					<input type="text" name="odrWt" onkeyup="addComma(this); countAmt(this);" comma >
 				</td>
 				<td>
-					<input type="text" name="odrUpr" onkeyup="addComma(this);countAmt(this);" comma>
+					<input type="text" name="odrUpr" onkeyup="addComma(this); countAmt(this);" comma>
 				</td>
 				<td>
 					<input type="text" name="odrAmt" comma readonly>
@@ -238,6 +239,7 @@
 		<table id="fixedTable" style="display: none;">
 			<tr name="detailRow">
 				<input type="hidden" name="odrDtlSeq">
+				<input type="hidden" name="prdtCnvrsnWt">
 				<input type="hidden" name="ordrgDtlCnt" value="0">
 				<input type="hidden" name="shipDtlCnt" value="0">
 				<td>
@@ -299,44 +301,6 @@
 		</table>
 	</div>
 	<br>
-	<!-- 발주서 테이블 -->
-	<div class="popup_table" id="ordrgTable" style="display: none;">
-		<table>
-			<thead>
-				<tr>
-					<td class="tl">발주서</td>
-					<td class="tr">
-						<a class="tbody_more_btn"></a>
-					</td>
-				</tr>
-			</thead>
-			<tr>
-				<td colspan="2">
-					<div class="ax5_grid" data-ax5grid="ordrg-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<br>
-	<!-- 출하요청서 테이블 -->
-	<div class="popup_table" id="shipTable" style="display: none;">
-		<table>
-			<thead>
-				<tr>
-					<td class="tl">출하요청서</td>
-					<td class="tr">
-						<a class="tbody_more_btn"></a>
-					</td>
-				</tr>
-			</thead>
-			<tr>
-				<td colspan="2">
-					<div class="ax5_grid" data-ax5grid="ship-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<br>
 	<!-- 첨부파일 테이블 -->
 	<div class="popup_table">
 		<table>
@@ -384,11 +348,11 @@
 		            }
 				},
 				columns : [
-					{key: "fileName", label: "파일명", align: "center", width: "72%"},
-	                {key: "fileType", label: "파일타입", align: "center", width: "10%"},
-	                {key: "fileSize", label: "파일크기", align: "center", width: "10%"},
+					{key: "fileName", label: "파일명", align: "center", width: 580},
+	                {key: "fileType", label: "파일타입", align: "center", width: 80},
+	                {key: "fileSize", label: "파일크기", align: "center", width: 80},
 	                {
-						key:"fileDelete", label: "삭제", align: "center", width: "8%",
+						key:"fileDelete", label: "삭제", align: "center", width: 80,
 						formatter:function() {
 							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
 						}
@@ -407,172 +371,8 @@
 		}
 	}
 	
-	var ordrgGridView = {
-		initView: function(){
-			this.target = new ax5.ui.grid();
-			this.target.setConfig({
-		    	showRowSelector: false,
-		    	multipleSelect: false,
-		    	sortable: true,
-		        target: $('[data-ax5grid="ordrg-grid"]'),
-		        header: {
-		        	align: "center",
-		        	selector: false
-		        },
-		        body: {
-		        	onClick: function () {
-		                this.self.select(this.dindex); 
-		            },
-		            onDBLClick: function () {
-		            	openSecondModal("/static/html/user/od/od01/OD0102V01.html", 1000, 800, "");
-		            }
-		        },
-		        page: {
-		            navigationItemCount: 10,
-		            height: 30,
-		            display: true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	ordrgGridView.setData(this.page.selectPage);
-		            }
-		        },
-		        columns: [
-		        	{key: "ordrgSeq", label: "발주일련번호", align: "center", hidden: true},
-		          	{key: "reqDt", label: "요청일자", align: "center", width: "10%"},
-		            {key: "dirtrsYn", label: "직송구분", align: "center", width: "10%"},
-		            {key: "clntNm", label: "매입거래처", align: "left", width: "15%"},
-		        	{key: "prjctNm", label: "프로젝트", align: "left", width: "10%"},
-		        	{key: "sellClntNm", label: "매출거래처", align: "center", width: "15%"},
-		        	{key: "makrNm", label: "제조사", align: "left", width: "10%"},
-		        	{key: "whNm", label: "창고", align: "center", width: "10%"},
-		        	{key: "totQty", label: "수량(Kg)", align: "right", width: "10%", formatter: "money"},
-		        	{key: "totAmt", label: "발주금액", align: "right", width: "10%", formatter: "money"},
-		        	{key: "typNm", label: "판매유형", align: "center", width: "10%"},
-		        	{key: "ordrgYn", label: "매입확정여부", align: "center", width: "10%"},
-		        	{key: "sellYn", label: "매출확정여부", align: "center", width: "10%"},
-		        	{key: "impYn", label: "수입구분", align: "center", width: "10%"},
-		        	{key: "addr", label: "착지주소", align: "left", width: "30%"},
-		        	{key: "mngTel", label: "담당자연락처", align: "center", width: "10%"},
-		        	{key: "dlvrDttm", label: "납기일자", align: "center", width: "10%"},
-		        	{key: "ordrgRmk", label: "비고", align: "center", width: "10%"},
-		        	{key: "salesMngNm", label: "발주담당자", align: "center", width: "10%"}
-		        ]
-		    });
-			return this;
-		},
-		setData: function(_pageNo) {
-			var targetObj = this.target;
-			var paramObj = {
-				"pageNo": _pageNo + 1,
-				"odrSeq": $('#odrSeq').val()
-			};
-			
-			postAjax("/user/od/od01/selectOrderList", paramObj, null, function(data){
-				var list = data.resultList;
-				targetObj.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
-				});
-				
-				if(data.paginationInfo.totalRecordCount > 0){
-					$('#ordrgTable').show();
-				}
-			});
-		}
-	}
-	
-	var shipGridView = {
-		initView: function(){
-			this.target = new ax5.ui.grid();
-			this.target.setConfig({
-		    	showRowSelector: false,
-		    	multipleSelect: false,
-		    	sortable: true,
-		        target: $('[data-ax5grid="ship-grid"]'),
-		        header: {
-		        	align: "center",
-		        	selector: false
-		        },
-		        body: {
-		        	onClick: function () {
-		                this.self.select(this.dindex); 
-		            },
-		            onDBLClick: function () {
-		            	openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 1000, 800, "");
-		            }
-		        },
-		        page: {
-		            navigationItemCount: 10,
-		            height: 30,
-		            display: true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	AR01GridView.setData(this.page.selectPage);
-		            }
-		        },
-		        columns: [
-		          	{key: "coNm", label: "회사", align: "center", width: "10%"},
-		          	{key: "whNm", label: "창고", align: "center", width: "10%"},
-		            {key: "clntNm", label: "거래처", align: "left", width: "16%"},
-		            {key: "reqDt", label: "요청일자", align: "center", width: "10%"},
-		        	{key: "dirtrsYn", label: "직송구분", align: "center", width: "10%"},
-		        	{key: "dlvrDttm", label: "납기일시", align: "center", width: "10%"},
-		        	{label: "출하요청",  columns:[
-		          		{key: "shipTotQty", label: "수량", align: "right", width: "10%", formatter: "money" },
-			          	{key: "shipTotWt", label: "중량", align: "right", width: "10%", formatter: "money" },
-			          	{key: "shipTotAmt", label: "총금액", align: "right", width: "10%",formatter: "money" }
-		          	]},
-		          	{label: "실 출하",  columns:[
-		          		{key: "realTotQty", label: "수량", align: "right", width: "10%", formatter: "money" },
-			          	{key: "realTotWt", label: "중량", align: "right", width: "10%", formatter: "money" },
-			          	{key: "realTotAmt", label: "총금액", align: "right", width: "10%", formatter: "money" }
-		          	]},
-		        	{key: "shipYn", label: "출하상태", align: "center", width: "10%"},
-		        	{key: "shipDttm", label: "출하완료일", align: "center", width: "10%"},
-		        	{key: "transAmt", label: "운송비", align: "right", width: "10%", formatter: "money"},
-		        	{key: "odrCreatDiv", label: "오더구분", align: "center", width: "10%"}
-		        ]
-		    });
-			return this;
-		},
-		setData: function(_pageNo) {
-			var targetObj = this.target;
-			var paramObj = {
-				"pageNo": _pageNo + 1,
-				"odrSeq": $('#odrSeq').val()
-			};
-			
-			postAjax("/user/ar/ar01/selectShipList", paramObj, null, function(data){
-				var list = data.resultList;
-				targetObj.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
-				});
-				
-				if(data.paginationInfo.totalRecordCount > 0){
-					$('#shipTable').show();
-				}
-			});
-		}
-	}
-
 	$(document).ready(function() {
+		
 		// 공통코드 SelectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
 		
@@ -614,8 +414,6 @@
 			$('#odrActionBtn').text("저장");
 		}
 		
-		// 직송여부 강제 변경
-		$("#dirtrsYn").change();
 	});
 	
 	function selectOrderInfo() {
@@ -663,12 +461,6 @@
 		});
 		countTot();
 		
-		// 발주서 set
-		ordrgGridView.initView().setData(0);
-		
-		// 출하요청서 set
-		shipGridView.initView().setData(0);
-		
 		// 첨부파일 set
 		$.each(orderInfo.fileList, function(idx, obj) {
 			fileArr.push({
@@ -682,15 +474,6 @@
 	
 		// 첨부파일 그리드 set
 		fileGridView.setData();
-	}
-	
-	function ctrlDirect(elem) {
-		if ($(elem).val() == "N") {
-			$('[direct]').prop("disabled", true);
-			$('[direct]').val("");
-		} else {
-			$('[direct]').prop("disabled", false);
-		}
 	}
 	
 	// 거래처 검색
@@ -723,8 +506,12 @@
 		var paramObj = {"coCd": $('#coCd').val()}
 		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
+			
 			$("#prjctCd").val(row.prjctCd);
 			$("#prjctNm").val(row.prjctNm);
+			$('#addrZip').val(row.prjctAddrZip);
+			$('#addrMain').val(row.prjctAddr);
+			$('#addrSub').val(row.prjctAddrSub);
 		});
 	}
 	
@@ -777,17 +564,26 @@
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
 			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
 			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnitNm);
 			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
 		});
 	}
 	
+	function calOdrWt(elem){
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		var odrQty = Number(deleteCommaStr($targetRow.find('input[name="odrQty"]').val()));
+		var prdtCnvrsnWt = Number(deleteCommaStr($targetRow.find('input[name="prdtCnvrsnWt"]').val()));
+		var odrWt = odrQty * prdtCnvrsnWt;
+		$targetRow.find('input[name="odrWt"]').val(addCommaStr(odrWt));
+	}
+	
 	function countAmt(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
-		var odrQty = $targetRow.find('input[name="odrQty"]').val();
-		var odrUpr = $targetRow.find('input[name="odrUpr"]').val();
-		$targetRow.find('input[name="odrAmt"]').val(addCommaStr(deleteCommaStr(odrQty) * deleteCommaStr(odrUpr)));
+		var odrQty = Number(deleteCommaStr($targetRow.find('input[name="odrQty"]').val()));
+		var odrUpr = Number(deleteCommaStr($targetRow.find('input[name="odrUpr"]').val()));
+		$targetRow.find('input[name="odrAmt"]').val(addCommaStr(odrQty * odrUpr));
 		countTot();
 	}
 
