@@ -33,5 +33,9 @@ public interface SM02Mapper {
 	int sm01UpdateInsertStockMove(Map<String, String> detailMap);
 	
 	int sm02InsertStockMove(Map<String, String> param);
+
+	int sm01UpdateInsertBarterStockMove(Map<String, String> detailMap);
+	
+	int sm02InsertBarterStockMove(Map<String, String> param);
 	
 }
