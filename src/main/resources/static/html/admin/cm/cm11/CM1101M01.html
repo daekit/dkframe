@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<table class="form-group popup_table" id="scndTable">
+				<colgroup>
+					<col width="48%">
+					<col width="48%">
+				</colgroup>
+				<thead>
+					<tr>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">발주 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">출하 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<div class="contents" style="margin:0px;padding:0px;width:100%;min-width:450px">
+								<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 750px; width: 100%"></div>
+							</div>
+						</td>
+						<td>
+							<div class="contents" style="margin:0px;padding:0px;width:100%; min-width:450px">
+								<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 750px; width: 100%"></div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	var odrSeq = null;
+	var odrDtlSeqArr = [];
+	var gridView = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : true,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="first-grid"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
+					page : {
+						display : true,
+					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {key: "ordrgQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realDlvrQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+			          	{key: "ordrgYn",     label: "확정",   	align: "center",  width: 60},
+			          	{key: "recptYn",     label: "접수",   	align: "center",  width: 60},
+			          	{key: "reqDt",     label: "요청일",   	align: "center",  width: 100},
+			          	{key: "clntNm",     label: "거래처",   	align: "left",  width: 140},
+			          	{key: "prjctNm",     label: "프로젝트",   	align: "left",  width: 140},
+			          	{key: "whNm",     label: "창고",   	align: "left",  width: 110},
+			          	{key: "ordrgQty",     label: "요청량",   	align: "right",  width: 80, formatter: "money"},
+			          	{key: "realDlvrQty",     label: "출하량",   	align: "right",  width: 80, formatter: "money"}
+			        ]
+				});
+				return this;
+			},
+			setData : function() {
+				var targetObj = this.target;
+				var paramObj = {};
+				postAjax("/user/cm/cm10/selectOrdrgNList", paramObj, null, function(data) {
+					var list = data.resultList;
+					console.log(data);
+					targetObj.setData({
+						list : list,
+						page : {
+							totalElements : data.paginationInfo.totalRecordCount
+						}
+					});
+				});				
+			}
+		}
+	
+
+	var gridView2 = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : true,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="second-grid"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
+					page : {
+						display : true,
+					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {key: "shipTotQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTotQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+			          	{key: "shipYn",     label: "확정",   	align: "center",  width: 60},
+			          	{key: "recptYn",     label: "접수",   	align: "center",  width: 60},
+			          	{key: "reqDt",     label: "요청일",   	align: "center",  width: 100},
+			          	{key: "clntNm",     label: "거래처",   	align: "left",  width: 140},
+			          	{key: "prjctNm",     label: "프로젝트",   	align: "left",  width: 140},
+			          	{key: "whNm",     label: "창고",   	align: "left",  width: 110},
+			          	{key: "shipTotQty",     label: "요청량",   	align: "right",  width: 80, formatter: "money"},
+			          	{key: "realTotQty",     label: "출하량",   	align: "right",  width: 80, formatter: "money"}
+			        ]
+				});
+				return this;
+			},
+			setData : function(_pageNo) {
+				var targetObj = this.target;
+				var paramObj = {};
+				postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
+					console.log(data);
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							totalElements : data.paginationInfo.totalRecordCount
+						}
+					});
+				});				
+			}
+		}
+
+	$(document).ready(function() {
+		// 페이지 타이틀 set
+		mainDefaultLoad("대시보드", "실무자 현황");
+		// grid init
+		gridView.initView().setData();
+		gridView2.initView().setData();
+	});
+
+
+</script>
