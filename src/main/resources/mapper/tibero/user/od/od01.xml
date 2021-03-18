@@ -466,32 +466,33 @@
 	
 	<select id="getOrderDetailList" parameterType="Map" resultType="camelMap">
 		SELECT
-			T.ODR_SEQ,
-			T.ODR_DTL_SEQ,
-			T.PRDT_CD,
-			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			D.ODR_SEQ,
+			D.ODR_DTL_SEQ,
+			D.PRDT_CD,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = D.PRDT_CD) AS PRDT_NM,
 			FN_CM05M01_CD_TO_NM(B.PRDT_STKN) PRDT_STKN_NM,
-			T.PRDT_UNIT AS PRDT_UNIT_NM,
-			T.PRDT_LEN,
-			T.PRDT_UPR,
-			T.ODR_QTY AS ORDRG_QTY,
+			D.PRDT_UNIT AS PRDT_UNIT_NM,
+			D.PRDT_LEN,
+			D.PRDT_UPR,
+			D.ODR_QTY AS ORDRG_QTY,
 			B.PRDT_CNVRSN_WT,
-			T.ODR_WT AS ORDRG_WT,
-			T.ODR_UPR AS ORDRG_UPR,
-			T.ODR_AMT AS ORDRG_AMT,
-			T.ODR_DTL_RMK AS ORDRG_DTL_RMK
+			D.ODR_WT AS ORDRG_WT,
+			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS ORDRG_UPR,
+			D.ODR_AMT AS ORDRG_AMT,
+			D.ODR_DTL_RMK AS ORDRG_DTL_RMK
 		FROM 
-			TB_SD04D01 T
-			INNER JOIN TB_BM01M01 B ON T.PRDT_CD = B.PRDT_CD
+			TB_SD04M01 M
+			INNER JOIN TB_SD04D01 D ON M.ODR_SEQ = D.ODR_SEQ
+			INNER JOIN TB_BM01M01 B ON D.PRDT_CD = B.PRDT_CD
 		WHERE 
-			ODR_SEQ = #{odrSeq}
+			M.ODR_SEQ = #{odrSeq}
 			<if test="odrDtlSeqArr != null and odrDtlSeqArr.size != 0">
-				AND ODR_DTL_SEQ IN
+				AND D.ODR_DTL_SEQ IN
 				<foreach item="odrDtlSeq" collection="odrDtlSeqArr" open="(" close=")" separator="," >
 					#{odrDtlSeq}
 				</foreach>
 			</if>
-		ORDER BY T.ODR_DTL_SEQ
+		ORDER BY D.ODR_DTL_SEQ
 	</select>
 	
 	<update id="updateOrder" parameterType="Map">
