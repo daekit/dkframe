@@ -203,7 +203,6 @@
 				<if test="prdtNm != null and !prdtNm.equals('')">
 						AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
 				</if>
-			ORDER BY CO_CD, WH_CD, OWNER_CD, TYP_CD, MAKR_CD, PRDT_CD, CLNT_CD DESC
 			)D
 		)
 		WHERE
@@ -432,6 +431,162 @@
 			#{makrCd},
 			#{prjctCd}, 
 			#{prdtCd}, 
+			#{impYn},
+			#{coCd}, 
+			#{sWhCd},	
+			#{stockUpr},
+			#{stdUpr}, 
+			#{pchsUpr}, 
+			#{sellUpr},
+			#{moveQty},
+			#{sRmk},
+			#{userId}, 
+			'SM0201P01.html', 
+			sysdate, 
+			TO_CHAR(TO_DATE(#{sTransDt}, 'YYYY-MM-DD'),'YYYYMMDD')
+	 	)
+	</insert>
+	
+	<update id="sm01UpdateInsertBarterStockMove" parameterType="Map">
+		MERGE INTO TB_SM01M01 A
+		USING (
+		   SELECT 
+		   CO_CD,
+		   #{sWhCd} AS WH_CD,
+		   #{sPrdtCd} AS PRDT_CD,
+		   OWNER_CD,
+		   CLNT_CD,
+		   #{sellType} AS TYP_CD,
+		   MAKR_CD,
+		   PRJCT_CD,
+		   IMP_YN,
+		   #{moveQty} AS STOCK_QTY,
+		   STOCK_UPR,
+		   STOCK_AMT,
+		   STD_UPR,
+		   PCHS_UPR,
+		   SELL_UPR,
+		   PROPRT_STOCK_QTY,
+		   'STOCKCHG6',
+		   'jinho.jeong',
+		   'SM0101M01', 
+		   SYSDATE FROM TB_SM01M01
+		   WHERE CO_CD = #{coCd}
+			  AND WH_CD = #{whCd}
+			  AND PRDT_CD = #{prdtCd}
+			  AND OWNER_CD = #{ownerCd}
+			  AND CLNT_CD = #{clntCd}
+			  AND TYP_CD = #{typCd} 
+			  AND MAKR_CD = #{makrCd} 
+			  AND PRJCT_CD = #{prjctCd}
+			  AND IMP_YN = #{impYn})S 
+		ON (
+			  A.CO_CD = S.CO_CD
+		  AND A.WH_CD = S.WH_CD
+		  AND A.CLNT_CD = S.CLNT_CD
+		  AND A.TYP_CD = S.TYP_CD
+		  AND A.MAKR_CD = S.MAKR_CD
+		  AND A.OWNER_CD = S.OWNER_CD
+		  AND A.PRDT_CD = S.PRDT_CD
+		  AND A.IMP_YN = S.IMP_YN
+		  AND A.PRJCT_CD = S.PRJCT_CD
+		)
+		WHEN MATCHED THEN 
+			UPDATE SET (
+				  STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+				WHERE CO_CD = #{coCd}
+				  AND WH_CD = #{sWhCd}
+				  AND PRDT_CD = #{sPrdtCd}
+				  AND OWNER_CD = #{ownerCd}
+				  AND CLNT_CD = #{clntCd} 
+				  AND TYP_CD = #{sellType}
+				  AND MAKR_CD = #{makrCd} 
+				  AND PRJCT_CD = #{prjctCd}
+				  AND IMP_YN = #{impYn} 
+				)
+		WHEN NOT MATCHED THEN 
+		INSERT
+		(
+		   CO_CD,
+		   WH_CD,
+		   PRDT_CD,
+		   OWNER_CD,
+		   CLNT_CD,
+		   TYP_CD,
+		   MAKR_CD,
+		   PRJCT_CD,
+		   IMP_YN,
+		   STOCK_QTY,
+		   STOCK_UPR,
+		   STOCK_AMT,
+		   STD_UPR,
+		   PCHS_UPR,
+		   SELL_UPR,
+		   PROPRT_STOCK_QTY,
+		   STOCK_CHG_CD,
+		   CREAT_ID,
+		   CREAT_PGM, 
+		   UDT_DTTM
+		)VALUES(
+		   S.CO_CD,
+		   S.WH_CD,
+		   S.PRDT_CD,
+		   S.OWNER_CD,
+		   S.CLNT_CD,
+		   S.TYP_CD,
+		   S.MAKR_CD,
+		   S.PRJCT_CD,
+		   S.IMP_YN,
+		   S.STOCK_QTY,
+		   S.STOCK_UPR,
+		   S.STOCK_AMT,
+		   S.STD_UPR,
+		   S.PCHS_UPR,
+		   S.SELL_UPR,
+		   S.PROPRT_STOCK_QTY,
+		   'STOCKCHG6',
+		   'jinho.jeong',
+		   'SM0101M01', 
+		   SYSDATE)
+	</update>
+	
+	<insert id="sm02InsertBarterStockMove" parameterType="Map">
+		INSERT INTO TB_SM02M01
+		(
+			TRST_NO, 
+			OUT_CO_CD,	
+			OUT_WH_CD, 
+			OWNER_CD,
+			CLNT_CD, 
+			TYP_CD, 
+			MAKR_CD, 
+			PRJCT_CD, 
+			PRDT_CD, 
+			IMP_YN, 
+			IN_CO_CD, 
+			IN_WH_CD, 
+			STOCK_UPR, 
+			STD_UPR,
+			PCHS_UPR, 
+			SELL_UPR,	
+			MO_WH, 
+			RMK,	
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM, 
+			TRST_DT				
+		)
+	 	VALUES
+	 	(
+			TB_SM02M01_SQ01.NEXTVAL, 
+			#{coCd}, 
+			#{whCd}, 
+			#{ownerCd}, 
+			#{clntCd},
+			#{typCd}, 
+			#{makrCd},
+			#{prjctCd}, 
+			#{sPrdtCd}, 
 			#{impYn},
 			#{coCd}, 
 			#{sWhCd},	
