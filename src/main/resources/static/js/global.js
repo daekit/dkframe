@@ -1,5 +1,7 @@
 // 그리도 총건수 표기 커스텀
-ax5.ui.grid.tmpl.page_status = function(){return '<span>총 {{totalElements}}건</span>';};
+if(ax5.ui.grid){
+	ax5.ui.grid.tmpl.page_status = function(){return '<span>총 {{totalElements}}건</span>';};
+}
 
 var setCookie = function(name, value, exp) {
 	var date = new Date();
