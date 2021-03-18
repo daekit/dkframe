@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd07.mapper.SD07Mapper">
+	
+	<update id="saveCloseInfo">
+		MERGE INTO TB_SD07M01 A
+			USING DUAL
+			ON (A.CO_CD = #{coCd} AND A.CLOSE_YM = #{closeYm})
+		WHEN MATCHED THEN
+			UPDATE SET
+				PCHS_CLOSE_YN = #{pchsCloseYn},
+				PCHS_CLOSE_ID = #{userId},
+				PCHS_CLOSE_DTTM = TO_DATE(#{pchsCloseDttm}, 'YYYY-MM-DD'),
+				SELL_CLOSE_YN = #{sellCloseYn},
+				SELL_CLOSE_ID = #{userId},
+				SELL_CLOSE_DTTM = TO_DATE(#{sellCloseDttm}, 'YYYY-MM-DD'),
+				ETRDPS_CLOSE_YN = #{etrdpsCloseYn},
+				ETRDPS_CLOSE_ID = #{userId},
+				ETRDPS_CLOSE_DTTM = TO_DATE(#{etrdpsCloseDttm}, 'YYYY-MM-DD'),
+				STOCK_CLOSE_YN = #{stockCloseYn},
+				STOCK_CLOSE_ID = #{userId},
+				STOCK_CLOSE_DTTM = TO_DATE(#{stockCloseDttm}, 'YYYY-MM-DD'),
+				UDT_ID = #{userId},
+				UDT_PGM = #{pgmId},
+				UDT_DTTM = SYSDATE
+		WHEN NOT MATCHED THEN
+		INSERT
+		(
+			CO_CD,
+			CLOSE_YM,
+			PCHS_CLOSE_YN,
+			PCHS_CLOSE_ID,
+			PCHS_CLOSE_DTTM,
+			SELL_CLOSE_YN,
+			SELL_CLOSE_ID,
+			SELL_CLOSE_DTTM,
+			ETRDPS_CLOSE_YN,
+			ETRDPS_CLOSE_ID,
+			ETRDPS_CLOSE_DTTM,
+			STOCK_CLOSE_YN,
+			STOCK_CLOSE_ID,
+			STOCK_CLOSE_DTTM,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
+		)
+		VALUES(
+			#{coCd},
+			#{closeYm},
+			#{pchsCloseYn},
+			#{userId},
+			TO_DATE(#{pchsCloseDttm}, 'YYYY-MM-DD'),
+			#{sellCloseYn},
+			#{userId},
+			TO_DATE(#{sellCloseDttm}, 'YYYY-MM-DD'),
+			#{etrdpsCloseYn},
+			#{userId},
+			TO_DATE(#{etrdpsCloseDttm}, 'YYYY-MM-DD'),
+			#{stockCloseYn},
+			#{userId},
+			TO_DATE(#{stockCloseDttm}, 'YYYY-MM-DD'),
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE
+		)	
+	</update>
+	
+</mapper>

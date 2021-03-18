@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<form id="closeForm">
+			<!-- 페이지 상단 -->
+			<div class="contents no_bg">
+				<ul class="btn_ul">
+					<li class="btn_r">
+						<a onclick="initSearch();">
+							<button type="button" class="bg_gray">초기화</button>
+						</a> 
+						<a onclick="">
+							<button type="button" class="bg_gray">검 색</button>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<!-- 검색 콘텐츠 -->
+			<div class="contents search">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type02">
+					<tr>
+						<th>회사</th>
+						<td>
+							<select name="coCd" data-kind="CO" data-search="coCd">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>마감대상년월</th>
+						<td>
+							<div class="date_input">
+								<input type="text" class="input_calendar" name="closeYm" data-search="closeYm" date> 
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<!-- 콘텐츠 -->
+			<div class="contents no_bg">
+				<!-- 콘텐츠 타이틀 -->
+				<div class="add_btn_small pdl10">
+					<a style="width:80px;" onclick="saveCloseInfo();">저장</a>
+				</div>
+				<div class="add_btn_small pdl10">
+					<a style="width:80px;" onclick="">마감실행</a>
+				</div>
+			</div>
+			<!-- 콘텐츠 -->
+			<div class="contents">
+				<div class="popup_area">
+					<div class="popup_table">
+						<table>
+							<colgroup>
+								<col width="15%">
+								<col width="">
+								<col width="15%">
+								<col width="">
+							</colgroup>
+							<tr>
+								<th>매입마감일자</th>
+								<td>
+									<input type="text" class="input_calendar" id="pchsCloseDttm" name="pchsCloseDttm" date> 
+								</td>
+								<th>매입마감여부</th>
+								<td>
+									<ul class="dp_ib">
+										<li class="pdr10">
+											<input type="radio" id="pchsCloseY" name="pchsCloseYn" value="Y">
+											<label for="pchsCloseY">예</label>
+										</li>
+										<li>
+											<input type="radio" id="pchsCloseN" name="pchsCloseYn" value="N" checked>
+											<label for="pchsCloseN">아니오</label>
+										</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<th>매출마감일자</th>
+								<td>
+									<input type="text" class="input_calendar" id="sellCloseDttm" name="sellCloseDttm" date>
+								</td>
+								<th>매출마감여부</th>
+								<td>
+									<ul class="dp_ib">
+										<li class="pdr10">
+											<input type="radio" id="sellCloseY" name="sellCloseYn" value="Y">
+											<label for="sellCloseY">예</label>
+										</li>
+										<li>
+											<input type="radio" id="sellCloseN" name="sellCloseYn" value="N" checked>
+											<label for="sellCloseN">아니오</label>
+										</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<th>재고마감일자</th>
+								<td>
+									<input type="text" class="input_calendar" id="stockCloseDttm" name="stockCloseDttm" date>
+								</td>
+								<th>재고마감여부</th>
+								<td>
+									<ul class="dp_ib">
+										<li class="pdr10">
+											<input type="radio" id="stockCloseY" name="stockCloseYn" value="Y">
+											<label for="stockCloseY">예</label>
+										</li>
+										<li>
+											<input type="radio" id="stockCloseN" name="stockCloseYn" value="N" checked>
+											<label for="stockCloseN">아니오</label>
+										</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<th>입금마감일자</th>
+								<td>
+									<input type="text" class="input_calendar" id="etrdpsCloseDttm" name="etrdpsCloseDttm" date>
+								</td>
+								<th>입금마감여부</th>
+								<td>
+									<ul class="dp_ib">
+										<li class="pdr10">
+											<input type="radio" id="etrdpsCloseY" name="etrdpsCloseYn" value="Y">
+											<label for="etrdpsCloseY">예</label>
+										</li>
+										<li>
+											<input type="radio" id="etrdpsCloseN" name="etrdpsCloseYn" value="N" checked>
+											<label for="etrdpsCloseN">아니오</label>
+										</li>
+									</ul>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<br>
+					<div class="popup_table">
+						<table>
+							<colgroup>
+								<col width="15%">
+								<col width="">
+								<col width="15%">
+								<col width="">
+							</colgroup>
+							<tr>
+								<th>재고마감여부</th>
+								<td>
+									
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+							</tr>
+							<tr>
+								<th>입금마감여부</th>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<br>
+					<div class="popup_table">
+						<table>
+							<colgroup>
+								<col width="15%">
+								<col width="">
+							</colgroup>
+							<tr>
+								<th rowspan="6">마감실행결과</th>
+							</tr>
+							<tr>
+								<td class="tc">
+									입고자료취합
+								</td>
+							</tr>
+							<tr>
+								<td class="tc">
+									출고자료취합
+								</td>
+							</tr>
+							<tr>
+								<td class="tc">
+									재고마감
+								</td>
+							</tr>
+							<tr>
+								<td class="tc">
+									입금자료취합
+								</td>
+							</tr>
+							<tr>
+								<td class="tc">
+									채권마감
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+		//merge문 작성완료!! 정보 긁어와서 있으면 뿌리고 없으면 초기 상태로 둘것!!
+		
+		// 페이지 타이틀 set
+		mainDefaultLoad("영업관리", "월마감관리");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+
+		// 마감년월 set
+		$('[data-search="closeYm"]').datepicker({
+			format : "yyyy-mm",
+			minViewMode: 1,
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date());
+		
+		// 매입마감일 set
+		$('#pchsCloseDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		
+		// 매출마감일 set
+		$('#sellCloseDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		
+		// 재고마감일 set
+		$('#etrdpsCloseDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		
+		// 입금마감일 set
+		$('#stockCloseDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+		
+	}
+	
+	// 저장
+	function saveCloseInfo(){
+		var formData = $('#closeForm').serializeObject();
+		formData.closeYm = deleteHyphenStr(formData.closeYm);
+		formData.userId = jwt.userId;
+		formData.pgmId = "SD0701M01";
+		
+		putAjax("/user/sd/sd07/saveCloseInfo", formData, null, function(data){
+			alert(data.resultMessage);
+		});
+	}
+</script>
