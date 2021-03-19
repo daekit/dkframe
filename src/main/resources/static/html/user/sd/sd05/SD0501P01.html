@@ -561,12 +561,20 @@
 	}
 	//사용자 검색
 	function openUserTree() {
-		openSecondModal("/static/html/user/sd/sd05/SD0501P03.html", 300, 500, "사용자 검색");
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng').val(checkedNode.id);
+			$('#salesMngNm').val(checkedNode.text);
+		});
 	}
-	//제조사 검색
-	/* function clntSearch() {
-		openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 500, 420, "거래처검색");
-	} */
+	//거래처
 	function clntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];

@@ -45,7 +45,7 @@
 		          				</select>
 		          			</td>
 		          		</tr>
-		          		<tr>
+		          		<tr name="tableCd">
 		          			<th colspan="2">판매유형</th>
 		          			<td colspan="3"> 
 		          				<select id="searchDtlTypCd" data-kind="SELLTYPE" onchange="gridView1.setData(0);" required>
@@ -69,7 +69,7 @@
 			                	<input type="hidden" id="searchDtlPrdtCd" name="searchDtlPrdtCd" style="width: 76%;">                   
 			                	<div class="search_form">
 				                    <input type="text" id="searchDtlPrdtNm" name="searchDtlPrdtNm" readonly="readonly">
-			                    	<a onclick="prdtSearch('S');"><i class="i_search_w"></i></a>
+			                    	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
 			                    </div>
 			                </td>	
 		          		</tr>
@@ -143,7 +143,7 @@
 			this.target.setConfig({
 				showRowSelector: false,
 		    	multipleSelect: false,
-		    	sortable: true,
+		    	//sortable: true,
 		    	target: $('[data-ax5grid="search-grid"]'),
 		        header: {
 		        	align: "center", 
@@ -174,16 +174,16 @@
 		            }
 		        },
 		        columns: [
-		            {key: "coNm",     label: "출고 회사",      align : "center", width : "10%"},
-		            {key: "whNm",     label: "출고지"  ,      align : "center", width : "10%"},
-		            {key: "ownerNm",  label: "재고주체",       align : "center", width : "10%"},
-		            {key: "typNm",    label: "판매 유형",      align : "center", width : "10%"},
-		            {key: "makrNm",   label: "제조사",        align : "center", width : "10%"},
-		            {key: "clntNm",   label: "거래처",        align : "left",   width : "10%"},
-		            {key: "prdtNm",   label: "제품",          align : "left",   width : "10%"},
-		            {key: "impNm",    label: "수입 구분",      align : "center", width : "10%"},
-		            {key: "stockQty", label: "현 재고 수량(KG)",align : "right",  width : "10%", formatter: "money"},
-		            {key: "moveQty", label: "이동 수량(KG)",align : "right",  width : "10%", formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		            {key: "coNm",     label: "출고 회사",      align : "center", width : 120},
+		            {key: "whNm",     label: "출고지"  ,      align : "center", width : 120},
+		            {key: "ownerNm",  label: "재고주체",       align : "center", width : 120},
+		            {key: "typNm",    label: "판매 유형",      align : "center", width : 120},
+		            {key: "makrNm",   label: "제조사",        align : "center", width : 120},
+		            {key: "clntNm",   label: "거래처",        align : "left",   width : 120},
+		            {key: "prdtNm",   label: "제품",          align : "left",   width : 120},
+		            {key: "impNm",    label: "수입 구분",      align : "center", width : 120},
+		            {key: "stockQty", label: "현 재고 수량(KG)",align : "right",  width : 120, formatter: "money"},
+		            {key: "moveQty", label: "이동 수량(KG)",align : "right",  width : 120, formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		            {key: "coCd", label: "재고단가", hidden:"true"},
 		            {key: "stockUpr", label: "재고단가", hidden:"true"},
 		            {key: "stdUpr", label: "기준단가", hidden:"true"},
@@ -354,15 +354,38 @@
 	
 	//거래처 검색
 	function clntSearch() {
-		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 500, 420, "거래처");
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#searchDtlClntCd').val(row.clntCd);
+			$('#searchDtlClntNm').val(row.clntNm);
+		});
 	}
-	//제품 검색
-	function prdtSearch(type) {
-		actionPrdtType = type;
-		openSecondModal("/static/html/user/sm/sm02/SM0201P02.html", 500, 400, "제품 검색");
-	}
-	//검색된 제품 받아오는함수
-	function setDtlPrdtCd(params){
-		$("#searchDtlPrdtCd").val(params.prdtNm);
+	
+	// 제품 검색
+	function prdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": "N", 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			debugger;
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="searchDtlPrdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="searchDtlPrdtNm"]').val(row.prdtNm);
+			/*$targetRow.find('input[name="prdtStkn"]').val(row.prdtStkn);
+			$targetRow.find('input[name="prdtStknNm"]').val(row.prdtStknNm);
+			$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
+			$targetRow.find('input[name="prdtSizeNm"]').val(row.prdtSizeNm);
+			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnit);
+			$targetRow.find('input[name="prdtUnitNm"]').val(row.prdtUnitNm);
+			$targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
+			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
+			$targetRow.find('input[name="odrUpr"]').val(row.ordrgUpr); */
+		});
 	}
 </script>

@@ -45,7 +45,7 @@
 		          				</select>
 		          			</td>
 		          		</tr>
-		          		<tr>
+		          		<tr name="tableCd">
 		          			<th colspan="2">판매유형</th>
 		          			<td colspan="3"> 
 		          				<select id="searchDtlTypCd" data-kind="SELLTYPE" onchange="gridView1.setData(0);" required>
@@ -69,7 +69,7 @@
 			                	<input type="hidden" id="searchDtlPrdtCd" name="searchDtlPrdtCd" style="width: 76%;">                   
 			                	<div class="search_form">
 				                    <input type="text" id="searchDtlPrdtNm" name="searchDtlPrdtNm" readonly="readonly">
-			                    	<a onclick="prdtSearch('S');"><i class="i_search_w"></i></a>
+			                    	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
 			                    </div>
 			                </td>	
 		          		</tr>
@@ -95,7 +95,7 @@
       	<div class="contents">
           <table>
           	<tbody>
-          	  <tr>
+          	  <tr name="tableCd2">
           		<th colspan="2">입고지</th>
           		<td colspan="3"> 
           		  <select id="searchDtlWhCd" data-kind="WH" required></select>
@@ -113,7 +113,7 @@
                 	<input type="hidden" id="searchMovePrdtCd" name="searchMovePrdtCd" style="width: 76%;">                   
                 	<div class="search_form">
 	                    <input type="text" id="searchMovePrdtNm" name="searchMovePrdtNm" readonly="readonly">
-                    	<a onclick="prdtSearch('M');"><i class="i_search_w"></i></a>
+                    	<a onclick="prdtSearch2(this);"><i class="i_search_w"></i></a>
                     </div>
                 </td>     	  
           	  </tr>
@@ -365,15 +365,43 @@
 	
 	//거래처 검색
 	function clntSearch() {
-		openSecondModal("/static/html/user/sm/sm02/SM0201P03.html", 500, 420, "거래처");
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#searchDtlClntCd').val(row.clntCd);
+			$('#searchDtlClntNm').val(row.clntNm);
+		});
 	}
 	//제품 검색
-	function prdtSearch(type) {
-		actionPrdtType = type;
-		openSecondModal("/static/html/user/sm/sm02/SM0201P02.html", 500, 400, "제품 검색");
+	function prdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": "N", 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="searchDtlPrdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="searchDtlPrdtNm"]').val(row.prdtNm);
+		});
 	}
-	//검색된 제품 받아오는함수
-	function setDtlPrdtCd(params){
-		$("#searchDtlPrdtCd").val(params.prdtNm);
+	
+	//제품 검색
+	function prdtSearch2(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd2"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": "N", 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="searchMovePrdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="searchMovePrdtNm"]').val(row.prdtNm);
+		});
 	}
 </script>
