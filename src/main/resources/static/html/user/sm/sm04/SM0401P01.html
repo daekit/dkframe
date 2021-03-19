@@ -33,13 +33,13 @@
                   </select>
                 </td>
             </tr>
-            <tr>
+            <tr name="tableCd2">
             <th class="hit">제품</th>
                 <td class="drctArea">
                   <input type="hidden" id="prdtCd" name="prdtCd">
                   <div class="search_form">
 	                <input type="text" id="prdtNm" name="prdtNm" disabled required="required">
-	              	<button type="button" id="btnPrdtSearch" onclick="prdtSearch('P');"><i class="i_search_w"></i></button>
+	              	<button type="button" id="btnPrdtSearch" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
 	              </div>
                 </td>
             </tr>
@@ -57,7 +57,7 @@
                 	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
                 	<div class="search_form">
 	                    <input type="text" id="clntNm" name="clntNm" disabled required="required">
-                    	<button type="button" id="btnClntSearch" onclick="clntSearch('P');"><i class="i_search_w"></i></button>
+                    	<button type="button" id="btnClntSearch" onclick="clntSearch();"><i class="i_search_w"></i></button>
                     </div>
                 </td>
             </tr>
@@ -83,7 +83,7 @@
                 <div class = "search_form">
 		        <input type="hidden" id="prjctCd" name="prjctCd" required>
 		        <input type="text" id="prjctNm" name="prjctNm" disabled>
-		        <button type="button" id="btnPrjctSearch" onclick="prjctSearch('P');"><i class="i_search_w"></i></button>
+		        <button type="button" id="btnPrjctSearch" onclick="prjctSearch();"><i class="i_search_w"></i></button>
 		        </div>
               </td>
             </tr>
@@ -146,7 +146,6 @@
 	});
 	
 	function setInit() {
-		debugger;
 		if(actionType == "C") {
 			$('#actionBtn').on("click", function(){insertPrdtAcins();});
 			$("#actionBtn").text("등록");
@@ -264,4 +263,37 @@
 		}
 	} 
 	
+	//거래처 검색
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
+	}
+	//제품검색
+	function prdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd2"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": "N", 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+		});
+	}
+	//프로젝트 검색
+	function prjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+	}
 </script>

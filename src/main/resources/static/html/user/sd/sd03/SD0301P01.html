@@ -144,7 +144,7 @@
           	<td>
 				<input type="checkbox" name="detailChkBox">
 			</td>
-            <td id="dtlGrid">
+            <td>
               <div class="search_form">
                 <input type="hidden" id="prdtDiv" name="prdtDiv" readonly="readonly">
               	<input type="hidden" id="prdtCd" name="prdtCd" readonly="readonly">
@@ -206,7 +206,7 @@
 	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
 	  		</th>
 	  		<td>
-	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 828px"></div>
+	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 1040px"></div>
 	  		</td>
 	  	</tr>
 	</table>
@@ -243,7 +243,7 @@
 		            },
 		        },
 	            columns: [
-	                {key: "fileName", label: "파일명", width: 380},
+	                {key: "fileName", label: "파일명", width: 680},
 	                {key: "fileType", label: "파일타입", width: 120},
 	                {key: "fileSize", label: "파일크기", width: 120},
 	                {
@@ -345,14 +345,66 @@
 		fileGridView.setData();
 	}
 	
-	//거래처 검색
+	//거래처
 	function clntSearch() {
-		openSecondModal("/static/html/user/sd/sd03/SD0301P03.html", 540, 420, "수신거래처");
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#estClntCd').val(row.clntCd);
+			$('#estClntNm').val(row.clntNm);
+		});
 	}
 	
 	//사용자 검색
 	function openUserTree() {
-		openSecondModal("/static/html/user/sd/sd03/SD0301P02.html", 300, 500, "사용자 검색");
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$("#salesMng").val(checkedNode.id);
+			$("#salesMngNm").val(checkedNode.text);
+		});
+	}
+	// 제품 검색
+	function prdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": "N", 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+			$targetRow.find('input[name="prdtStkn"]').val(row.prdtStkn);
+			$targetRow.find('input[name="prdtStknNm"]').val(row.prdtStknNm);
+			$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
+			$targetRow.find('input[name="prdtSizeNm"]').val(row.prdtSizeNm);
+			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnit);
+			$targetRow.find('input[name="prdtUnitNm"]').val(row.prdtUnitNm);
+			/* $targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
+			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
+			$targetRow.find('input[name="odrUpr"]').val(row.ordrgUpr); */
+		});
+	}
+	
+	
+	// 프로젝트 검색
+	function prjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
 	}
 	
 	//list 행추가
@@ -516,12 +568,4 @@
 		$("#totEstAmt").html(addCommaStr(totEstAmt));
 	} 
 	
-	function prdtSearch(el) {
-		selectedIdx = $(el).closest('tr').prevAll().length;
-		openSecondModal("/static/html/user/sd/sd03/SD0301P04.html", 500, 410, "제품검색");
-	}
-	
-	function prjctSearch() {
-		openSecondModal("/static/html/user/sd/sd03/SD0301P05.html", 700, 420, "프로젝트");
-	}
 </script>

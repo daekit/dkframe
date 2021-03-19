@@ -235,9 +235,23 @@
 		}); */
 	})	
 	
-	function openUserTree(){
-		openSecondModal("/static/html/user/sd/sd01/SD0101P02.html", 300, 500, "사용자 검색");
+	//사용자 검색
+	function openUserTree() {
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng').val(checkedNode.id);
+			$('#salesMngNm').val(checkedNode.text);
+			$("#deptNm").val(checkedNode.original.deptNm);
+			$("#deptId").val(checkedNode.parent);
+		});
 	}
+	
 	
 	function insertUpdatePlan(type){
 		actionType = type;

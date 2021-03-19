@@ -40,7 +40,7 @@
                 	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
                 	<div class="search_form">
 	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
-                    	<a onclick="clntSearch('C');"><i class="i_search_w"></i></a>
+                    	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
                     </div>
                 </td>
             </tr>
@@ -347,14 +347,24 @@
 		return formData;
 	}
 	
-	//거래처 검색
-	function clntSearch(type) {
-		actionTp = type;
-		openSecondModal("/static/html/user/ar/ar03/AR0301P02.html", 500, 420, "거래처검색");
+	//거래처
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
 	}
 	
-	function prjctSearch() {
-		openSecondModal("/static/html/user/ar/ar03/AR0301P03.html", 700, 420, "프로젝트");
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
 	}
 	
 </script>
