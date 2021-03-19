@@ -33,6 +33,7 @@
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
 	<script src="/static/js/global.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
 <body>
@@ -45,27 +46,47 @@
 			<!-- 리스트 -->
 			<table class="form-group popup_table" id="scndTable">
 				<colgroup>
-					<col width="48%">
-					<col width="48%">
+					<col width="23%">
+					<col width="23%">
+					<col width="23%">
+					<col width="23%">
 				</colgroup>
 				<thead>
 					<tr>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">발주 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">출하 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매출실적(제품)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매출실적(거래처)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매입실적(거래처)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">생산실적(제품)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td>
-							<div class="contents" style="margin:0px;padding:0px;width:100%;min-width:450px">
-								<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 750px; width: 100%"></div>
+							<div class="contents" style="margin:0px;padding:0px;width:100%;">
+								<div data-ax5grid="grid01" data-ax5grid-config="{}" style="height:250px; width: 100%"></div>
 							</div>
 						</td>
 						<td>
-							<div class="contents" style="margin:0px;padding:0px;width:100%; min-width:450px">
-								<div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 750px; width: 100%"></div>
+							<div class="contents" style="margin:0px;padding:0px;width:100%; ">
+								<div data-ax5grid="grid02" data-ax5grid-config="{}" style="height: 250px; width: 100%"></div>
 							</div>
 						</td>
+						<td>
+							<div class="contents" style="margin:0px;padding:0px;width:100%; ">
+								<div data-ax5grid="grid03" data-ax5grid-config="{}" style="height: 250px; width: 100%"></div>
+							</div>
+						</td>
+						<td>
+							<div class="contents" style="margin:0px;padding:0px;width:100%; ">
+								<div data-ax5grid="grid04" data-ax5grid-config="{}" style="height: 250px; width: 100%"></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+		      			<td><div id="chart_div"></div></td>
+		      			<td><div id="chart_div2"></div></td>
+		      			<td><div id="chart_div3"></div></td>
+		      			<td><div id="chart_div3"></div></td>
 					</tr>
 				</tbody>
 			</table>
@@ -78,6 +99,8 @@
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
+
+	
 	var gridView = {
 			initView : function() {
 				this.target = new ax5.ui.grid();
@@ -85,7 +108,7 @@
 					showRowSelector : true,
 					multipleSelect : false,
 					sortable : true,
-					target : $('[data-ax5grid="first-grid"]'),
+					target : $('[data-ax5grid="grid01"]'),
 					header : {
 						align : "center",
 						selector : false
@@ -101,24 +124,172 @@
 					footSum: [
 				    	[
 				    		{label: "합계", align:"center"},
-		                    {},
-		                    {},
-		                    {},
-		                    {},
-		                    {},
-		                    {key: "ordrgQty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "realDlvrQty", collector: "sum", formatter:"money", align: "right"}
+		                    {key: "trstQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"}
 				    	]
 				    ],
 					columns: [
-			          	{key: "ordrgYn",     label: "확정",   	align: "center",  width: 60},
-			          	{key: "recptYn",     label: "접수",   	align: "center",  width: 60},
-			          	{key: "reqDt",     label: "요청일",   	align: "center",  width: 100},
-			          	{key: "clntNm",     label: "거래처",   	align: "left",  width: 140},
-			          	{key: "prjctNm",     label: "프로젝트",   	align: "left",  width: 140},
-			          	{key: "whNm",     label: "창고",   	align: "left",  width: 110},
-			          	{key: "ordrgQty",     label: "요청량",   	align: "right",  width: 80, formatter: "money"},
-			          	{key: "realDlvrQty",     label: "출하량",   	align: "right",  width: 80, formatter: "money"}
+			          	{key: "prdtNm",     label: "제품",   	align: "left", width: 80},
+			          	{key: "trstQty",     label: "계획",   	formatter:"money", align: "right",  width: 80},
+			          	{key: "realTrstQty",     label: "실적",  formatter:"money", align: "right",  width: 80}
+			        ]
+				});
+				return this;
+			},
+			setData : function() {
+				var targetObj = this.target;
+				var paramObj = {};
+				postAjax("/user/cm/cm11/selectPrdtSelpch2List", paramObj, null, function(data) {
+					var list = data.resultList;
+					console.log(data);
+					targetObj.setData({
+						list : list,
+						page : {
+							totalElements : data.paginationInfo.totalRecordCount
+						}
+					});
+					google.charts.setOnLoadCallback(function drawChart(){
+						var chartData = new google.visualization.DataTable(data.chartData);
+						
+						var chart = new google.visualization.LineChart(document.getElementById("chart_div"));
+						chart.draw(chartData);
+					});
+				});
+				
+				
+			}
+		}
+	var gridView2 = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : true,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="grid02]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
+					page : {
+						display : true,
+					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {key: "trstQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+			          	{key: "prdtNm",     label: "확정",   	align: "center",  width: 60},
+			          	{key: "trstQty",     label: "접수",   	align: "center",  width: 60},
+			          	{key: "realTrstQty",     label: "요청일",   	align: "center",  width: 100}
+			        ]
+				});
+				return this;
+			},
+			setData : function() {
+				var targetObj = this.target;
+				var paramObj = {};
+				postAjax("/user/cm/cm11/selectClntSelpch2List", paramObj, null, function(data) {
+					var list = data.resultList;
+					console.log(data);
+					targetObj.setData({
+						list : list,
+						page : {
+							totalElements : data.paginationInfo.totalRecordCount
+						}
+					});
+				});				
+			}
+		}
+	var gridView3 = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : true,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="grid03"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
+					page : {
+						display : true,
+					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {key: "trstQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+			          	{key: "prdtNm",     label: "확정",   	align: "center",  width: 60},
+			          	{key: "trstQty",     label: "접수",   	align: "center",  width: 60},
+			          	{key: "realTrstQty",     label: "요청일",   	align: "center",  width: 100}
+			        ]
+				});
+				return this;
+			},
+			setData : function() {
+				var targetObj = this.target;
+				var paramObj = {};
+				postAjax("/user/cm/cm11/selectClntSelpch1List", paramObj, null, function(data) {
+					var list = data.resultList;
+					console.log(data);
+					targetObj.setData({
+						list : list,
+						page : {
+							totalElements : data.paginationInfo.totalRecordCount
+						}
+					});
+				});				
+			}
+		}
+	var gridView4 = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : true,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="grid04"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
+					page : {
+						display : true,
+					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {key: "trstQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+			          	{key: "prdtNm",     label: "확정",   	align: "center",  width: 60},
+			          	{key: "trstQty",     label: "접수",   	align: "center",  width: 60},
+			          	{key: "realTrstQty",     label: "요청일",   	align: "center",  width: 100}
 			        ]
 				});
 				return this;
@@ -138,76 +309,19 @@
 				});				
 			}
 		}
-	
-
-	var gridView2 = {
-			initView : function() {
-				this.target = new ax5.ui.grid();
-				this.target.setConfig({
-					showRowSelector : true,
-					multipleSelect : false,
-					sortable : true,
-					target : $('[data-ax5grid="second-grid"]'),
-					header : {
-						align : "center",
-						selector : false
-					},
-					body : {
-						onClick : function() {
-							this.self.select(this.dindex);
-						}
-					},
-					page : {
-						display : true,
-					},
-					footSum: [
-				    	[
-				    		{label: "합계", align:"center"},
-		                    {},
-		                    {},
-		                    {},
-		                    {},
-		                    {},
-		                    {key: "shipTotQty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "realTotQty", collector: "sum", formatter:"money", align: "right"}
-				    	]
-				    ],
-					columns: [
-			          	{key: "shipYn",     label: "확정",   	align: "center",  width: 60},
-			          	{key: "recptYn",     label: "접수",   	align: "center",  width: 60},
-			          	{key: "reqDt",     label: "요청일",   	align: "center",  width: 100},
-			          	{key: "clntNm",     label: "거래처",   	align: "left",  width: 140},
-			          	{key: "prjctNm",     label: "프로젝트",   	align: "left",  width: 140},
-			          	{key: "whNm",     label: "창고",   	align: "left",  width: 110},
-			          	{key: "shipTotQty",     label: "요청량",   	align: "right",  width: 80, formatter: "money"},
-			          	{key: "realTotQty",     label: "출하량",   	align: "right",  width: 80, formatter: "money"}
-			        ]
-				});
-				return this;
-			},
-			setData : function(_pageNo) {
-				var targetObj = this.target;
-				var paramObj = {};
-				postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
-					console.log(data);
-					var list = data.resultList;
-					targetObj.setData({
-						list : list,
-						page : {
-							totalElements : data.paginationInfo.totalRecordCount
-						}
-					});
-				});				
-			}
-		}
 
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("대시보드", "실무자 현황");
 		// grid init
 		gridView.initView().setData();
-		gridView2.initView().setData();
-	});
+		//gridView2.initView().setData();
+		//gridView3.initView().setData();
+		
 
+		
+	});
+	
+	google.charts.load('current', {'packages':['corechart']});
 
 </script>
