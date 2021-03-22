@@ -433,7 +433,7 @@
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = shipGridView.target.getList("selected")[0];
 		}else{
-			row = gridView.target.getList("selected")[0];
+			row = gridView.target.getList()[selectedRowIdx];
 		}
 		var formData = {
 			"shipSeq" : row.shipSeq,
@@ -496,6 +496,15 @@
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
+			$(this).prop("disabled", false);
+		});
+		$(row).find('input[name=realShipQty]').val("0");
+		$(row).find('input[name=realShipWt]').val("0");
+		$(row).find('input[name=realShipUpr]').val("0");
+		$(row).find('input[name=realShipAmt]').val("0");
 		countTot();
 	}
 	
@@ -599,6 +608,8 @@
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
+					if(elem.name == "shipProcId" && elem.value == "") elem.value = jwt.userId;
+					if(elem.name == "shipProcNm" && elem.value == "") elem.value = jwt.userNm;
 					detailObj[elem.name] = elem.value;
 				});
 				detailArr.push(detailObj);

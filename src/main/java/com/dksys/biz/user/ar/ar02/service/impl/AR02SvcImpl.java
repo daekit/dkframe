@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
+import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -16,6 +17,9 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Autowired
     AR02Mapper ar02Mapper;
+	
+	@Autowired
+    SM01Mapper sm01Mapper;
 	
 	@Override
 	public int selectSellCount(Map<String, String> paramMap) {
@@ -47,7 +51,33 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Override
 	public int insertPchsSell(Map<String, String> paramMap) {
-		return ar02Mapper.insertPchsSell(paramMap);
+		int result = 0;
+		int stockQty = 0;
+		result = ar02Mapper.insertPchsSell(paramMap);
+		// 재고정보 update
+		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+		paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
+		paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
+		paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
+		paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
+		if(stockInfo == null) {
+			paramMap.put("stockQty", paramMap.get("realTrstQty"));
+		} else {
+			if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(paramMap.get("realTrstQty"));
+			} else {
+				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("sellUpr", stockInfo.get("sellUpr"));
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(paramMap.get("realTrstQty"));
+			}
+			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
+			paramMap.put("stockQty", String.valueOf(stockQty));
+		}
+		sm01Mapper.updateStockSell(paramMap);
+		return result;
 	}
 
 	@Override
