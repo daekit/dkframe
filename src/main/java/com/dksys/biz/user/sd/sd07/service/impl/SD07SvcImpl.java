@@ -15,6 +15,11 @@ public class SD07SvcImpl implements SD07Svc {
 	
     @Autowired
     SD07Mapper sd7Mapper;
+    
+    @Override
+	public Map<String, String> selectCloseInfo(Map<String, String> paramMap) {
+		return sd7Mapper.selectCloseInfo(paramMap);
+	}
 
 	@Override
 	public void saveCloseInfo(Map<String, String> paramMap) {
