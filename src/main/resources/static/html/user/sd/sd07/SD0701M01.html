@@ -46,7 +46,7 @@
 							<button type="button" class="bg_gray">초기화</button>
 						</a> 
 						<a onclick="">
-							<button type="button" class="bg_gray">검 색</button>
+							<button type="button" class="bg_gray" onclick="selectCloseInfo();">검 색</button>
 						</a>
 					</li>
 				</ul>
@@ -58,14 +58,14 @@
 					<tr>
 						<th>회사</th>
 						<td>
-							<select name="coCd" data-kind="CO" data-search="coCd">
+							<select id="coCd" name="coCd" data-kind="CO" data-search="coCd">
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>마감대상년월</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" name="closeYm" data-search="closeYm" date> 
+								<input type="text" class="input_calendar" id="closeYm" name="closeYm" data-search="closeYm" date> 
 							</div>
 						</td>
 					</tr>
@@ -105,7 +105,7 @@
 											<label for="pchsCloseY">예</label>
 										</li>
 										<li>
-											<input type="radio" id="pchsCloseN" name="pchsCloseYn" value="N" checked>
+											<input type="radio" id="pchsCloseN" name="pchsCloseYn" value="N">
 											<label for="pchsCloseN">아니오</label>
 										</li>
 									</ul>
@@ -124,7 +124,7 @@
 											<label for="sellCloseY">예</label>
 										</li>
 										<li>
-											<input type="radio" id="sellCloseN" name="sellCloseYn" value="N" checked>
+											<input type="radio" id="sellCloseN" name="sellCloseYn" value="N">
 											<label for="sellCloseN">아니오</label>
 										</li>
 									</ul>
@@ -143,7 +143,7 @@
 											<label for="stockCloseY">예</label>
 										</li>
 										<li>
-											<input type="radio" id="stockCloseN" name="stockCloseYn" value="N" checked>
+											<input type="radio" id="stockCloseN" name="stockCloseYn" value="N">
 											<label for="stockCloseN">아니오</label>
 										</li>
 									</ul>
@@ -162,7 +162,7 @@
 											<label for="etrdpsCloseY">예</label>
 										</li>
 										<li>
-											<input type="radio" id="etrdpsCloseN" name="etrdpsCloseYn" value="N" checked>
+											<input type="radio" id="etrdpsCloseN" name="etrdpsCloseYn" value="N">
 											<label for="etrdpsCloseN">아니오</label>
 										</li>
 									</ul>
@@ -182,7 +182,16 @@
 							<tr>
 								<th>재고마감여부</th>
 								<td>
-									
+									<ul class="dp_ib">
+										<li class="pdr10">
+											<input type="radio" name="testYn" value="Y" disabled>
+											<label>예</label>
+										</li>
+										<li>
+											<input type="radio" name="testYn" value="N" disabled>
+											<label>아니오</label>
+										</li>
+									</ul>
 								</td>
 								<td>
 								</td>
@@ -192,6 +201,16 @@
 							<tr>
 								<th>입금마감여부</th>
 								<td>
+									<ul class="dp_ib">
+										<li class="pdr10">
+											<input type="radio" name="testYn" value="Y" disabled>
+											<label>예</label>
+										</li>
+										<li>
+											<input type="radio" name="testYn" value="N" disabled>
+											<label>아니오</label>
+										</li>
+									</ul>
 								</td>
 								<td>
 								</td>
@@ -246,18 +265,15 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		
-		//merge문 작성완료!! 정보 긁어와서 있으면 뿌리고 없으면 초기 상태로 둘것!!
-		
 		// 페이지 타이틀 set
 		mainDefaultLoad("영업관리", "월마감관리");
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
-		$('[data-search="coCd"]').val(jwt.coCd);
-
+		$('#coCd').val(jwt.coCd);
+		
 		// 마감년월 set
-		$('[data-search="closeYm"]').datepicker({
+		$('#closeYm').datepicker({
 			format : "yyyy-mm",
 			minViewMode: 1,
 			language : "ko",
@@ -265,42 +281,86 @@
 		})
 		.datepicker("setDate", new Date());
 		
-		// 매입마감일 set
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			selectCloseInfo();
+		});
+		
+		// 매입마감일 datepicker bind
 		$('#pchsCloseDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		});
 		
-		// 매출마감일 set
+		// 매출마감일 datepicker bind
 		$('#sellCloseDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		});
 		
-		// 재고마감일 set
+		// 재고마감일 datepicker bind
 		$('#etrdpsCloseDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		});
 		
-		// 입금마감일 set
+		// 입금마감일 datepicker bind
 		$('#stockCloseDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).endOf("month").toDate());
+		});
+		
+		// 월마감정보 select
+		selectCloseInfo();
 	});
 	
 	// 검색조건 초기화
 	function initSearch() {
 		
+	}
+	
+	// 월마감정보 select
+	function selectCloseInfo(){
+		var paramObj = {};
+		for(var i=0;i<$('[data-search]').length;i++){
+			var $tempElem = $('[data-search]').eq(i);
+			var tempValue = $tempElem.val();
+			if($tempElem.is('[date]')){
+				tempValue = deleteHyphenStr(tempValue);
+			}
+			paramObj[$tempElem.data("search")] = tempValue;
+		}
+		
+		postAjax("/user/sd/sd07/selectCloseInfo", paramObj, null, function(data){
+			setCloseInfo(data.closeInfo);
+		});
+	}
+	
+	// 월마감정보 set
+	function setCloseInfo(closeInfo){
+		if(closeInfo){
+			$.each(closeInfo, function(key, value){
+				var $tempElem = $('[name="'+key+'"]');
+				if(!$tempElem.is('[data-search]')){
+					if($tempElem[0]){
+						if($tempElem.is('[date]')){
+							$tempElem.datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+						}
+						
+						if($tempElem.prop("type") == "radio"){
+							$tempElem.filter('[value="'+value+'"]').prop("checked", true);
+						}
+					}
+				}
+			});
+		}else{
+			$('[date]').not('#closeYm').datepicker("setDate", moment($('#closeYm').val(), 'YYYY-MM').endOf("month").toDate());
+			$('input:radio[value="N"]').not('[disabled]').prop("checked", true);
+		}
 	}
 	
 	// 저장
