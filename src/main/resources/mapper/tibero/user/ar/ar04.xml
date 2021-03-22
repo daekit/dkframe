@@ -531,6 +531,10 @@
 		WHERE
 		RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
+	
+	<select id="selectMsgId" resultType="String">
+	SELECT TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') || '000001' || LPAD(#{msgId}, 4, '0') FROM DUAL
+	</select>
 		
 	<select id="selectBgmSeq" resultType="String">
 	SELECT 'KM' || TO_CHAR(SYSDATE, 'YYYYMMDD') || LPAD(COUNT(*) + 1, 4, '0')
@@ -627,8 +631,8 @@
 	 ,MOA5_308
 	 ,MOA5_9
 	 ,UDT_DATE)
-	SELECT TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') || '000001' || LPAD(#{msgId}, 4, '0')
-		 , '1'
+	SELECT #{xmlMsgId}
+		 , '1' <!-- XMLDOC_SEQ 무조건 1 -->
 		 , 'S'
 		 , 0
 		 , '938'
@@ -721,6 +725,52 @@
 	<update id="updateTaxBilgNo">
 	UPDATE TB_AR04M01
 	   SET TAX_BILG_NO = #{bgm1004}
+	     , TAX_DT = TO_CHAR(SYSDATE, 'YYYYMMDD')
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
+	
+	<insert id="insertTaxItem">
+	INSERT INTO TAX_ITEM
+		(XML_MSG_ID
+		 , XMLDOC_SEQ
+		 , ITEM_SEQ
+		 , MOA9_5004
+		 , ARD_5007
+		 , ARD_5006
+		 , ARD___113A
+		 , ARD___113B
+		 , ARD___5104
+		 , DMS_1056
+		 , DMS_1000
+		 , MOA10_23
+		 , MOA10_124
+		 , MOA10_146
+		 , MEA10_6154
+		 , MEA10_6314
+		 , MOA10_5004
+		 , MOA10_6345
+		 , UDT_DATE)
+	SELECT #{xmlMsgId}
+		 , '1' <!-- XMLDOC_SEQ 무조건 1 -->
+		 , (SELECT NVL(MAX(ITEM_SEQ), 0) + 1 FROM TAX_ITEM WHERE XML_MSG_ID = '202103221451170000010002' AND XMLDOC_SEQ = '1')
+		 , (SELECT DTM_2380 FROM TAX_HD WHERE XML_MSG_ID = #{xmlMsgId} AND XMLDOC_SEQ = '1')
+		 , NULL
+		 , (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD)
+		 , NULL <!-- ARD__113A 중국일떄만 사용 -->
+		 , NULL <!-- ARD__113B 중국일떄만 사용 -->
+		 , NULL <!-- ARD__5104 중국일떄만 사용 -->
+		 , (SELECT PRDT_SPEC FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD)
+		 , TRSP_RMK
+		 , NVL(REAL_TRST_AMT, 0)
+		 , 0 <!-- 공급세액 -->
+		 , NVL(REAL_TRST_UPR, 0)
+		 , (SELECT PRDT_UNIT FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD)
+		 , NVL(REAL_TRST_QTY, 0)
+		 , NULL <!-- MOA10_5004 외화금액 -->
+		 , NULL <!-- MOA10_6345 외화통화코드 -->
+		 , SYSDATE
+		 FROM TB_AR02M01 A
+		WHERE BILG_CERT_NO = #{bilgCertNo}
+		  AND CO_CD = #{coCd}
+	</insert>
 </mapper>

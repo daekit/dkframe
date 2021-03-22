@@ -1,5 +1,6 @@
 package com.dksys.biz.user.ar.ar04.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,21 +90,38 @@ public class AR04SvcImpl implements AR04Svc {
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
 		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
+		//List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
 		Map<String, Object> param = new HashMap<String, Object>();
 		Map<String, String> taxHdInfo = new HashMap<String, String>();
 		for(int i = 0; i < list.size(); i++) {
-			int msgId = i;
-
+			int msgId = i + 1;
+			String xmlMsgId = "";
 			Map<String, String> taxHdParam = new HashMap<String, String>();
+			System.out.println("========1111111============");
+			taxHdParam.put("msgId", Integer.toString(msgId));
+			xmlMsgId = ar04Mapper.selectMsgId(msgId);
 			String bgm1004 = ar04Mapper.selectBgmSeq();
 			taxHdParam.put("userId", userId);
 			taxHdParam.put("userNm", userNm);
 			taxHdParam.put("pgmId", pgmId);
 			taxHdParam.put("bgm1004", bgm1004);
-			taxHdParam.put("msgId", Integer.toString(msgId));
-			taxHdParam.put("bilgCertNo", list.get(i));
+			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
+			taxHdParam.put("coCd", list.get(i).split(",")[1]);
+			System.out.println("=========22222===========");
+			
+			System.out.println(taxHdParam);
+			//taxHdParam.put("coCd", cdCdList.get(i));
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
 			ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
+
+			System.out.println("=========33333=========== :   ");
+			//List<Map<String, String>> sellList = ar04Mapper.selectSellList(taxHdParam);
+			//for(int j = 0; j < sellList.size(); j++) {
+			//	System.out.println("=========444444=========== :   " + j);
+			System.out.println(taxHdParam);
+				result = ar04Mapper.insertTaxItem(taxHdParam);
+			//}
 		}
 		return result;
 	}
