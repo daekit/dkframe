@@ -19,4 +19,6 @@ public interface AR04Svc {
 	
 	public int selectTaxRcvCount(Map<String, String> param);	
 
+	int insertTaxHd(Map<String, Object> paramMap);
+
 }

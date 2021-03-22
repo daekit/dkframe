@@ -132,12 +132,19 @@
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select> 
-				<a onclick="initSearch();">
-					<button type="button" class="bg_gray">회계 전송</button>
-				</a> 
-				<a onclick="initSearch();">
-					<button type="button" class="bg_gray">전자세금계산서 발행</button>
-				</a> 
+				<ul class="btn_ul">
+					<li class="btn_r">
+						<a onclick="viewCplrUntpcModal('U');" style="float:right; margin-left:5px">
+							<button type="button" class="bg_gray">세금계산서 관리</button>
+						</a> 
+						<a onclick="" style="float:right; margin-left:5px">
+							<button type="button" class="bg_gray">회계 전송</button>
+						</a> 
+						<!-- <a onclick="insertTaxHd();" style="float:right; margin-left:5px">
+							<button type="button" class="bg_gray">전자세금계산서 발행</button>
+						</a>  -->
+					</li>
+				</ul>
 			</div>
 		</div>
 		<!-- 콘텐츠 -->
@@ -158,18 +165,23 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				showRowSelector : true,
-				multipleSelect : false,
+				multipleSelect : true,
 				sortable : true,
 				target : $('[data-ax5grid="first-grid"]'),
 				header : {
 					align : "center",
-					selector : false
+					selector : true
 				},
 				body : {
 					onClick : function() {
-						this.self.select(this.dindex);
+						//this.self.select(this.dindex);
 					},
 					onDBLClick : function() {
+						var list = gridView.target.getList("selected");
+						$.each(list, function(idx, obj){
+							gridView.target.select(obj.__index);
+						});
+						this.self.select(this.dindex);
 						viewCplrUntpcModal("U");
 					}
 				},
@@ -260,11 +272,8 @@
 					var tempElem = $('[data-search]')[i];
 					paramObj[$(tempElem).data("search")] = $(tempElem).val();
 				}
-				console.log(paramObj);
 				postAjax("/user/ar/ar04/selectTaxBilgList", paramObj, null, function(data) {
 					var list = data.resultList;
-					console.log(data);
-					console.log(list);
 					targetObj.setData({
 						list : list,
 						page : {
@@ -340,6 +349,14 @@
 
 	// 세금계산서 수정 화면
 	function viewCplrUntpcModal(actionType) {
+		var rowLength = gridView.target.getList("selected").length;
+		if(rowLength == 0) {
+			alert("세금계산서를 선택해 주세요.");
+			return;
+		} else if(rowLength > 1) {
+			alert("세금계산서 관리 한건 씩 가능합니다.");
+			return;
+		}
 		this.actionType = actionType;
 		openModal("/static/html/user/ar/ar04/AR0401P01.html", 1000, 600, "");
 	}
@@ -354,6 +371,40 @@
 	function prjtSearch(type) {
 		actionTp = type;
 		openModal("/static/html/user/ar/ar04/AR0401P03.html", 500, 420, "프로젝트검색");
+	}
+	
+	//세금계산서발행
+	function insertTaxHd(){
+		var flag = false;
+		var clntFlag = false;
+		var list = gridView.target.getList("selected");
+		var bilgCertNoArr = [];
+		$.each(list, function(idx, obj){
+			if(obj.taxBilgNo) flag = true;
+			bilgCertNoArr.push(obj.bilgCertNo);
+		});
+		if(flag) {
+			alert("이미 발행된 건이 있습니다.");
+			return;
+		};
+		var rowLength = gridView.target.getList("selected").length;
+		if(rowLength == 0) {
+			alert("세금계산서를 선택해 주세요.");
+			return;
+		}
+		if(!confirm(rowLength + "건을 발행하시겠습니까?")){
+			return;
+		}
+		var formData = {
+			"bilgCertNoArr" : bilgCertNoArr,
+			"userId" : jwt.userId,
+			"userNm" : jwt.userNm,
+			"pgmId" : "AR0401M01"
+		}
+		postAjax("/user/ar/ar04/insertTaxHd", formData, null, function(data){
+			alert(data.resultMessage);
+			gridView.setData(0);
+		});
 	}
 
 </script>

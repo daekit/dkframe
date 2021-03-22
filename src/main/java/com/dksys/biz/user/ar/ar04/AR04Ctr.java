@@ -47,7 +47,6 @@ public class AR04Ctr {
 	public String selectTaxBilg(@RequestBody Map<String, String> paramMap, ModelMap model) {
 
     	Map<String, String> result = ar04Svc.selectTaxBilg(paramMap);
-    	System.out.println(result);
     	model.addAttribute("result", result);
     	return "jsonView";
 	}
@@ -74,5 +73,13 @@ public class AR04Ctr {
     	List<Map<String, String>> taxRcvList = ar04Svc.selectTaxRcvList(paramMap);
     	model.addAttribute("taxRcvList", taxRcvList);
     	return "jsonView";
+	}
+	
+	@PostMapping(value = "/insertTaxHd")
+	public String insertTaxHd(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		ar04Svc.insertTaxHd(paramMap);
+		model.addAttribute("resultCode", 200);
+		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		return "jsonView";
 	}
 }
