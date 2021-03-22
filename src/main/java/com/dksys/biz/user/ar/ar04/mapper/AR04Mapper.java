@@ -23,5 +23,10 @@ public interface AR04Mapper {
 	int selectTaxRcvCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectTaxRcvList(Map<String, String> paramMap);
+	
+	String selectBgmSeq();
 
+	int insertTaxHd(Map<String, String> bilgInfo);
+	
+	int updateTaxBilgNo(Map<String, String> bilgCertNo);
 }

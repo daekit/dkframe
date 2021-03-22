@@ -80,4 +80,31 @@ public class AR04SvcImpl implements AR04Svc {
 	public List<Map<String, String>> selectTaxRcvList(Map<String, String> paramMap) {
 		return ar04Mapper.selectTaxRcvList(paramMap);
 	}
+	
+	@SuppressWarnings("all")
+	@Override
+	public int insertTaxHd(Map<String, Object> paramMap) {
+		int result = 0;
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
+		Map<String, Object> param = new HashMap<String, Object>();
+		Map<String, String> taxHdInfo = new HashMap<String, String>();
+		for(int i = 0; i < list.size(); i++) {
+			int msgId = i;
+
+			Map<String, String> taxHdParam = new HashMap<String, String>();
+			String bgm1004 = ar04Mapper.selectBgmSeq();
+			taxHdParam.put("userId", userId);
+			taxHdParam.put("userNm", userNm);
+			taxHdParam.put("pgmId", pgmId);
+			taxHdParam.put("bgm1004", bgm1004);
+			taxHdParam.put("msgId", Integer.toString(msgId));
+			taxHdParam.put("bilgCertNo", list.get(i));
+			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
+			ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
+		}
+		return result;
+	}
 }
