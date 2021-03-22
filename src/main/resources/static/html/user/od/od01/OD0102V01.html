@@ -401,13 +401,14 @@
 	}
 	
 	function selectOrderInfo() {
+		debugger;
 		var row = null;
 		if(openFrom == "SD0501P01"){
 			row = OD01GridView.target.getList("selected")[0];
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = ordrgGridView.target.getList("selected")[0];
 		}else{
-			row = gridView.target.getList("selected")[0];
+			row = gridView.target.getList()[selectedRowIdx];
 		}
 		
 		var formData = {
@@ -471,6 +472,15 @@
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
+			$(this).prop("disabled", false);
+		});
+		$(row).find('input[name=realDlvrQty]').val("0");
+		$(row).find('input[name=realDlvrWt]').val("0");
+		$(row).find('input[name=realDlvrUpr]').val("0");
+		$(row).find('input[name=realDlvrAmt]').val("0");
 		countTot();
 	}
 	

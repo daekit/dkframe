@@ -178,7 +178,7 @@ public class OD01SvcImpl implements OD01Svc {
 			// 재고정보 update
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-			paramMap.put("stockChgCd", "STOCKCHG02");
+			paramMap.put("stockChgCd", "STOCKCHG01");
 			if(stockInfo == null) {
 				paramMap.put("pchsUpr", detailMap.get("realDlvrUpr"));
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
@@ -186,19 +186,21 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("stdUpr", detailMap.get("realDlvrUpr"));
 				paramMap.put("stockQty", detailMap.get("realDlvrQty"));
 			} else {
-				paramMap.put("pchsUpr", detailMap.get("pchsUpr"));
-				paramMap.put("sellUpr", detailMap.get("sellUpr"));
-				paramMap.put("stockUpr", detailMap.get("stockUpr"));
-				paramMap.put("stdUpr", detailMap.get("realDlvrUpr"));
+				paramMap.put("pchsUpr", detailMap.get("realDlvrUpr"));
+				paramMap.put("sellUpr", stockInfo.get("sellUpr"));
+				paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+				paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
 			}
 			sm01Mapper.updateStockSell(paramMap);
 			if("Y".equals(paramMap.get("dirtrsYn"))) {
 				paramMap.put("selpchCd", "SELPCH2");
+				paramMap.put("stockChgCd", "STOCKCHG02");
 				paramMap.put("cnltCd", paramMap.get("sellClntCd"));
 				paramMap.put("cnltNm", paramMap.get("sellClntNm"));
 				stockInfo = sm01Mapper.selectStockInfo(paramMap);
+				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
 				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
 				ar02Mapper.insertPchsSell(paramMap);

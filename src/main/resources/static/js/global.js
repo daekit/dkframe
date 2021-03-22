@@ -460,6 +460,32 @@ function before30day() {
 	  return dateToStr(d)
 }
 
+function formatDate(date) {
+	var myMonth = date.getMonth() + 1;
+	var myWeekDay = date.getDate();
+
+	var addZero = function(num) {
+		if (num < 10) {
+			num = "0" + num;
+		}
+		return num;
+	}
+	var md = addZero(myMonth) + "-" + addZero(myWeekDay);
+	return md;
+}
+
+function getMonth(type) {
+	var now = new Date();
+	var nowYear = now.getYear();
+	var returnDate;
+	if(type == "S") {
+		returnDate = new Date(now.getYear(), now.getMonth(), 1);
+	} else {
+		returnDate = new Date(now.getYear(), now.getMonth() + 1, 0);
+	}
+	nowYear += (nowYear < 2000) ? 1900 : 0;
+	return nowYear + "-" + formatDate(returnDate);
+}
 
 function dateValidation() {
 	if($(".input_calendar")[0].value > $(".input_calendar")[1].value) {

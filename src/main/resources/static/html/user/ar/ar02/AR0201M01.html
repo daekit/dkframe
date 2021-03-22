@@ -254,8 +254,8 @@ th {
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "bilgCertNo",     label: "청구서번호", 	align: "center", 	width: 80},
@@ -310,16 +310,16 @@ th {
 		mainDefaultLoad("매출관리", "매출실적관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		$("#reqDtFrom").val(lastWeek());
-		$("#reqDtTo").val(dateToStr(new Date()));
+		$("#reqDtFrom").val(getMonth("S"));
+		$("#reqDtTo").val(getMonth("E"));
 		$('#reqDtFrom, #reqDtTo').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-// 			autoclose : true
+		// 			autoclose : true
 		});
 		gridView.initView().setData(0);
 	})
-	
+
 	function changeRecordCnt() {
 		$("#recordCnt").val($(".prae_select").val());
 		gridView.initView().setData(0);
@@ -328,29 +328,31 @@ th {
 	function clntSearch(type) {
 		var modalTitle = "거래처";
 		clntType = type;
-		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420,
+				modalTitle);
 	}
-	
+
 	function deleteSell() {
 		var row = gridView.target.getList("selected")[0];
 		var formData = {
 			"trstCertiNo" : row.trstCertiNo
 		}
-		if(gridView.target.getList("selected").length > 1) {
+		if (gridView.target.getList("selected").length > 1) {
 			alert("삭제는 한건씩 진행해주세요");
 			return;
 		}
-		if(row.bilgCertNo == undefined) {
-			if(confirm("삭제하시겠습니까?")){
-				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data){
-					if(data.resultCode == 200){
-						alert(data.resultMessage);
-						gridView.setData(0);
-					}
-				});
+		if (row.bilgCertNo == undefined) {
+			if (confirm("삭제하시겠습니까?")) {
+				deleteAjax("/user/ar/ar02/deleteSell", formData, null,
+						function(data) {
+							if (data.resultCode == 200) {
+								alert(data.resultMessage);
+								gridView.setData(0);
+							}
+						});
 			}
 		} else {
-			alert("삭제할 수 없는 데이터 입니다.");	
+			alert("삭제할 수 없는 데이터 입니다.");
 		}
 	}
 
@@ -358,16 +360,16 @@ th {
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
 	}
-	
+
 	function insertSellModal(type) {
 		var modalTitle = "";
 		actionType = type;
-		if(type == "U") {
+		if (type == "U") {
 			var rowLength = gridView.target.getList("selected").length;
-			if(rowLength == 0) {
+			if (rowLength == 0) {
 				alert("반품 건을 선택해 주세요.");
 				return;
-			} else if(rowLength > 1) {
+			} else if (rowLength > 1) {
 				alert("반품은 한건 씩 가능합니다.");
 				return;
 			}
@@ -375,13 +377,14 @@ th {
 		} else {
 			modalTitle = "매출등록";
 		}
-		openModal("/static/html/user/ar/ar02/AR0202P01.html", 700, 650, modalTitle);
+		openModal("/static/html/user/ar/ar02/AR0202P01.html", 700, 650,
+				modalTitle);
 	}
-	
+
 	function viewShipModal() {
 		openModal("/static/html/user/ar/ar02/AR0202V01.html", 920, 780, " ");
 	}
-	
+
 	function updateShipModal() {
 		modal.close();
 		actionType = "U";
@@ -390,71 +393,78 @@ th {
 
 	function clntSearch(type) {
 		var modalTitle = "";
-		clntType = type; 
-		if(clntType == "PUR") {
+		clntType = type;
+		if (clntType == "PUR") {
 			modalTitle = "매입거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} else if(clntType == "SELL") {
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500,
+					420, modalTitle);
+		} else if (clntType == "SELL") {
 			modalTitle = "매출거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500,
+					420, modalTitle);
 		} else {
 			modalTitle = "거래처";
-			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420,
+					modalTitle);
 		}
 	}
 
 	function prjctSearch() {
-		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420, "프로젝트");
+		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420,
+				"프로젝트");
 	}
-	
+
 	function sellCal() {
 		modalTitle = "매출실적 정산";
-		openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, modalTitle);
+		openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650,
+				modalTitle);
 	}
-	
+
 	function insertBilg() {
 		var flag = false;
 		var clntFlag = false;
 		var list = gridView.target.getList("selected");
 		var trstCertiNoArr = [];
-		$.each(list, function(idx, obj){
-			if(obj.bilgYn == "Y") flag = true;
-			if(idx > 0) {
-				list[idx].clntCd && list[idx-1].clntCd;
+		$.each(list, function(idx, obj) {
+			if (obj.bilgYn == "Y")
+				flag = true;
+			if (idx > 0) {
+				list[idx].clntCd && list[idx - 1].clntCd;
 				clntFlag = true;
 			}
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
-		if(flag) {
+		if (flag) {
 			alert("이미 발행된 건이 있습니다.");
 			return;
-		};
-		if(clntFlag) {
+		}
+		;
+		if (clntFlag) {
 			alert("동일한 거래처끼리만 전표발행이 가능합니다.");
 			return;
-		};
+		}
+		;
 		var formData = {
 			"trstCertiNo" : trstCertiNoArr,
 			"userId" : jwt.userId,
 			"userNm" : jwt.userNm,
 			"pgmId" : "AR0201M01"
 		}
-		postAjax("/user/ar/ar04/insertBilg", formData, null, function(data){
+		postAjax("/user/ar/ar04/insertBilg", formData, null, function(data) {
 			alert(data.resultMessage);
 			gridView.setData(0);
 		});
 	}
-	
+
 	function checkValidation(el) {
 		var list = gridView.target.getList("selected");
 		var clickedIdx = $(el.target).closest('tr').prevAll().length;
-		$.each(list, function(idx, obj){
-			if(obj.clntCd != gridView.target.getList()[clickedIdx].clntCd) {
+		$.each(list, function(idx, obj) {
+			if (obj.clntCd != gridView.target.getList()[clickedIdx].clntCd) {
 				alert("같은 거래처끼리 선택해야 합니다.");
 				gridView.target.select(clickedIdx);
 				return false;
-			} 
+			}
 		});
 	}
-	
 </script>
