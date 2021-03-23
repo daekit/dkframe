@@ -19,9 +19,6 @@
 	 		<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'				
 			</if>
-			<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
-				<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYY-MM-DD')]]>				
-			</if>
 	 	</where>
 	</select>
 
@@ -76,6 +73,8 @@
 					, PCHS_UPR
 					, SELL_UPR
 					, PRDT_CNVRSN_WT
+					, PRDT_LEN
+					, PRDT_STOCK_CD
 					, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
 				FROM
 					TB_BM01M01 T
@@ -90,10 +89,7 @@
 			 		<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'				
 					</if>
-					<if test="searchPrdtDt != null and !searchPrdtDt.equals('')">
-						<![CDATA[AND TO_DATE(PRDT_DT, 'YYYYMMDD') <= TO_DATE(#{searchPrdtDt}, 'YYYY-MM-DD')]]>				
-					</if>
-			 	</where>
+		 	</where>
 			 	ORDER BY PRDT_DIV, PRDT_NM, PRDT_STKN, PRDT_ERQK_YN, PRDT_SIZE, PRDT_SPEC, PRDT_COIL_YN
 			) A
 		)
@@ -166,6 +162,8 @@
 			, ETC_FIELD1
 			, ETC_FIELD2
 			, ETC_FIELD3
+			, PRDT_LEN
+			, PRDT_STOCK_CD
 			, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
 	 	
 	 	FROM TB_BM01M01
@@ -198,6 +196,8 @@
 			 , UDT_ID          = #{userId}
 			 , UPD_PGM         = #{pgmId}
 			 , UDT_DTTM        = SYSDATE
+		 	 , PRDT_LEN		   = #{prdtLen}
+			 , PRDT_STOCK_CD   = #{prdtStockCd}			 
 		WHERE PRDT_CD          = #{prdtCd}
 	</update>
 	
@@ -230,7 +230,10 @@
 		 		, CREAT_DTTM
 		 		, UDT_ID
 		 		, UPD_PGM
-		 		, UDT_DTTM) 	
+		 		, UDT_DTTM
+		 	    , PRDT_LEN
+			    , PRDT_STOCK_CD 		 
+		 		) 	
 		 	VALUES
 		 	(
 		 		 TB_BM01M01_SQ01.NEXTVAL
@@ -260,7 +263,8 @@
 		 		, #{userId}
 		 		, #{pgmId}
 		 		, SYSDATE
-		 		
+		 		, #{prdtLen}
+		 		, #{prdtStockCd}	
 		 	)
 	</insert>
 	
