@@ -7,8 +7,12 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface SD07Mapper {
 
-	Map<String, String> selectCloseInfo(Map<String, String> paramMap);
+	Map<String, String> selectClose(Map<String, String> paramMap);
 
-	int saveCloseInfo(Map<String, String> paramMap);
+	int saveClose(Map<String, String> paramMap);
+
+	int deleteClose(Map<String, String> paramMap);
+	
+	int insertClose(Map<String, String> paramMap);
 
 }

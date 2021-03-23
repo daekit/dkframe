@@ -4,8 +4,10 @@ import java.util.Map;
 
 public interface SD07Svc {
 
-	Map<String, String> selectCloseInfo(Map<String, String> paramMap);
+	Map<String, String> selectClose(Map<String, String> paramMap);
 
-	void saveCloseInfo(Map<String, String> paramMap);
+	void saveClose(Map<String, String> paramMap);
+
+	void excuteClose(Map<String, String> paramMap);
 
 }

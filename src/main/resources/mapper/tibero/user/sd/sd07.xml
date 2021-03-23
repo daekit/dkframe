@@ -3,7 +3,7 @@
 
 <mapper namespace="com.dksys.biz.user.sd.sd07.mapper.SD07Mapper">
 
-	<select id="selectCloseInfo" resultType="CamelMap">
+	<select id="selectClose" resultType="CamelMap">
 		SELECT 
 			CO_CD,
 			CLOSE_YM,
@@ -38,7 +38,7 @@
 			AND CLOSE_YM = #{closeYm}
 	</select>
 	
-	<update id="saveCloseInfo">
+	<update id="saveClose">
 		MERGE INTO TB_SD07M01 A
 			USING DUAL
 			ON (A.CO_CD = #{coCd} AND A.CLOSE_YM = #{closeYm})
@@ -106,5 +106,121 @@
 			SYSDATE
 		)	
 	</update>
+	
+	<delete id="deleteClose">
+		DELETE
+		FROM
+			TB_SM01D01
+		WHERE
+			CLOSE_YM = #{closeYm}
+	</delete>
+	
+	<insert id="insertClose">
+		INSERT INTO TB_SM01D01(
+			CLOSE_YM, 
+			CO_CD, 
+			WH_CD, 
+			PRDT_CD, 
+			OWNER_CD, 
+			CLNT_CD, 
+			TYP_CD, 
+			MAKR_CD, 
+			PRJCT_CD, 
+			IMP_YN, 
+			STOCK_QTY,
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM, 
+			UDT_ID, 
+			UDT_PGM, 
+			UDT_DTTM
+		)
+		SELECT 
+			CLOSE_YM,
+		    CO_CD,
+		    WH_CD,
+		    TRST_PRDT_CD,
+		    OWNER_CD,
+		    TRST_CLNT_CD,
+		    TYP_CD,
+		    MAKR_CD,
+		    PRJCT_CD,
+		    IMP_YN,
+		    SUM(STOCK_QTY) + SUM(TRST_QTY1) - SUM(TRST_QTY2) AS STOCK_QTY,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE
+		FROM 
+		(
+			SELECT  
+		   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
+		    	CO_CD,
+		    	WH_CD,
+		    	TRST_PRDT_CD,
+		    	OWNER_CD,
+		    	TRST_CLNT_CD,
+		    	TYP_CD,
+		    	MAKR_CD,
+		    	PRJCT_CD,
+		    	IMP_YN,
+		    	0 AS STOCK_QTY,
+		    	SUM(DECODE(SELPCH_CD, 'SELPCH1', TRST_QTY, 0)) TRST_QTY1,
+		    	SUM(DECODE(SELPCH_CD, 'SELPCH2', TRST_QTY, 0)) TRST_QTY2
+			FROM 
+				TB_AR02M01
+			WHERE
+				<![CDATA[
+				    TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND
+				    TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+				]]>
+		   	GROUP BY 
+		   		SUBSTRING(TRST_DT,1,6),
+		    	CO_CD,
+		    	WH_CD,
+		    	TRST_PRDT_CD,
+		    	OWNER_CD,
+		    	TRST_CLNT_CD,
+		    	TYP_CD,
+		    	MAKR_CD,
+		    	PRJCT_CD,
+		    	IMP_YN
+		    
+			UNION ALL
+		   
+		 	SELECT
+		 		TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') CLOSE_YM,
+		  		CO_CD,
+		  		WH_CD,
+		  		PRDT_CD,
+		  		OWNER_CD,
+		  		CLNT_CD,
+		  		TYP_CD,
+		  		MAKR_CD,
+		  		PRJCT_CD,
+		  		IMP_YN,
+		  		STOCK_QTY,
+		  		0,
+		  		0
+		 	FROM
+		  		TB_SM01D01
+		 	WHERE
+		 		CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
+		)
+		GROUP BY 
+			CLOSE_YM,
+		    CO_CD,
+		    WH_CD,
+		    TRST_PRDT_CD,
+		    OWNER_CD,
+		    TRST_CLNT_CD,
+		    TYP_CD,
+		    MAKR_CD,
+		    PRJCT_CD,
+		    IMP_YN
+	</insert>
 	
 </mapper>
