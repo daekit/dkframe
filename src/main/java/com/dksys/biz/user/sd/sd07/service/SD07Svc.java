@@ -8,6 +8,8 @@ public interface SD07Svc {
 
 	void saveClose(Map<String, String> paramMap);
 
-	void excuteClose(Map<String, String> paramMap);
+	void excuteStockClose(Map<String, String> paramMap);
+
+	void excuteCreditClose(Map<String, String> paramMap);
 
 }

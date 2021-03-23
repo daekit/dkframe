@@ -107,15 +107,16 @@
 		)	
 	</update>
 	
-	<delete id="deleteClose">
+	<delete id="deleteStockClose">
 		DELETE
 		FROM
 			TB_SM01D01
 		WHERE
-			CLOSE_YM = #{closeYm}
+			CO_CD = #{coCd}
+			AND CLOSE_YM = #{closeYm}
 	</delete>
 	
-	<insert id="insertClose">
+	<insert id="insertStockClose">
 		INSERT INTO TB_SM01D01(
 			CLOSE_YM, 
 			CO_CD, 
@@ -146,7 +147,7 @@
 		    MAKR_CD,
 		    PRJCT_CD,
 		    IMP_YN,
-		    SUM(STOCK_QTY) + SUM(TRST_QTY1) - SUM(TRST_QTY2) AS STOCK_QTY,
+		    SUM(STOCK_QTY) + SUM(REAL_TRST_QTY1) - SUM(REAL_TRST_QTY2) AS STOCK_QTY,
 		    #{userId},
 		    #{pgmId},
 		    SYSDATE,
@@ -155,6 +156,28 @@
 		    SYSDATE
 		FROM 
 		(
+			SELECT
+		 		TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
+		  		CO_CD,
+		  		WH_CD,
+		  		PRDT_CD,
+		  		OWNER_CD,
+		  		CLNT_CD,
+		  		TYP_CD,
+		  		MAKR_CD,
+		  		PRJCT_CD,
+		  		IMP_YN,
+		  		STOCK_QTY,
+		  		0 AS REAL_TRST_QTY1,
+		  		0 AS REAL_TRST_QTY2
+		 	FROM
+		  		TB_SM01D01
+		 	WHERE
+		 		CO_CD = #{coCd}
+		 		AND CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
+		 	
+		 	UNION ALL	
+		 	
 			SELECT  
 		   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
 		    	CO_CD,
@@ -167,15 +190,15 @@
 		    	PRJCT_CD,
 		    	IMP_YN,
 		    	0 AS STOCK_QTY,
-		    	SUM(DECODE(SELPCH_CD, 'SELPCH1', TRST_QTY, 0)) TRST_QTY1,
-		    	SUM(DECODE(SELPCH_CD, 'SELPCH2', TRST_QTY, 0)) TRST_QTY2
+		    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY1,
+		    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY2
 			FROM 
 				TB_AR02M01
 			WHERE
+				CO_CD = #{coCd}
 				<![CDATA[
-				    TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
-				    AND
-				    TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+					AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
 				]]>
 		   	GROUP BY 
 		   		SUBSTRING(TRST_DT,1,6),
@@ -188,27 +211,6 @@
 		    	MAKR_CD,
 		    	PRJCT_CD,
 		    	IMP_YN
-		    
-			UNION ALL
-		   
-		 	SELECT
-		 		TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') CLOSE_YM,
-		  		CO_CD,
-		  		WH_CD,
-		  		PRDT_CD,
-		  		OWNER_CD,
-		  		CLNT_CD,
-		  		TYP_CD,
-		  		MAKR_CD,
-		  		PRJCT_CD,
-		  		IMP_YN,
-		  		STOCK_QTY,
-		  		0,
-		  		0
-		 	FROM
-		  		TB_SM01D01
-		 	WHERE
-		 		CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
 		)
 		GROUP BY 
 			CLOSE_YM,
@@ -221,6 +223,114 @@
 		    MAKR_CD,
 		    PRJCT_CD,
 		    IMP_YN
+	</insert>
+	
+	<delete id="deleteCreditClose">
+		DELETE
+		FROM
+			TB_AR07M01
+		WHERE
+			CO_CD = #{coCd}
+			AND CLOSE_YM = #{closeYm}
+	</delete>
+	
+	<insert id="insertCreditClose">
+		INSERT INTO TB_AR07M01(
+			CO_CD, 
+			CLOSE_YM, 
+			CLNT_CD, 
+			BASIS_CREDIT_AMT, 
+			CELL_CLMN_AMT, 
+			CELL_TOT_AMT, 
+			TRMEND_CREDIT_AMT, 
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM, 
+			UDT_ID, 
+			UDT_PGM, 
+			UDT_DTTM
+		)
+		SELECT
+			CO_CD,
+			CLOSE_YM,
+			CLNT_CD,
+			SUM(BASIS_CREDIT_AMT) AS BASIS_CREDIT_AMT,
+			SUM(CELL_CLMN_AMT) AS CELL_CLMN_AMT,
+			SUM(CELL_TOT_AMT) AS CELL_TOT_AMT,
+			SUM(BASIS_CREDIT_AMT) + SUM(CELL_TOT_AMT) - SUM(CELL_CLMN_AMT) AS TRMEND_CREDIT_AMT,
+			#{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE
+		FROM
+		(
+			SELECT
+				CO_CD,
+				TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
+				CLNT_CD,
+				TRMEND_CREDIT_AMT AS BASIS_CREDIT_AMT,
+				0 AS CELL_CLMN_AMT,
+				0 AS CELL_TOT_AMT,
+				0 AS TRMEND_CREDIT_AMT
+			FROM
+				TB_AR07M01
+			WHERE
+				CO_CD = #{coCd}
+				AND CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
+			
+			UNION ALL
+			
+			SELECT
+				CO_CD,
+				SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
+				TRST_CLNT_CD,
+				0 AS BASIS_CREDIT_AMT,
+				0 AS CELL_CLMN_AMT,
+				SUM(BILG_AMT) + SUM(BILG_VAT_AMT) AS CELL_TOT_AMT,
+				0 AS TRMEND_CREDIT_AMT
+			FROM 
+				TB_AR02M01
+			WHERE
+				SELPCH_CD = 'SELPCH2'
+				AND CO_CD = #{coCd}
+				<![CDATA[
+					AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+			    ]]>
+			GROUP BY
+				CO_CD,
+				SUBSTRING(TRST_DT,1,6),
+				TRST_CLNT_CD
+				
+			UNION ALL 
+			
+			SELECT 
+				CO_CD,
+				SUBSTRING(ETRDPS_DT,1,6) AS CLOSE_YM,
+				CLNT_CD,
+				0 AS BASIS_CREDIT_AMT,
+				SUM(ETRDPS_AMT) AS CELL_CLMN_AMT,
+				0 AS CELL_TOT_AMT,
+				0 AS TRMEND_CREDIT_AMT
+			FROM 
+				TB_AR05M01
+			WHERE
+				CO_CD = #{coCd}
+				<![CDATA[
+					AND TO_DATE(ETRDPS_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND TO_DATE(ETRDPS_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+				]]>
+			GROUP BY
+				CO_CD,
+				SUBSTRING(ETRDPS_DT,1,6),
+				CLNT_CD
+		)
+		GROUP BY
+			CO_CD,
+			CLOSE_YM,
+			CLNT_CD
 	</insert>
 	
 </mapper>

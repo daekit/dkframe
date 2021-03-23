@@ -11,8 +11,12 @@ public interface SD07Mapper {
 
 	int saveClose(Map<String, String> paramMap);
 
-	int deleteClose(Map<String, String> paramMap);
+	int deleteStockClose(Map<String, String> paramMap);
 	
-	int insertClose(Map<String, String> paramMap);
+	int insertStockClose(Map<String, String> paramMap);
+
+	int deleteCreditClose(Map<String, String> paramMap);
+
+	int insertCreditClose(Map<String, String> paramMap);
 
 }
