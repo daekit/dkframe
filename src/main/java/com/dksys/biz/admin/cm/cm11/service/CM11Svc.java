@@ -16,5 +16,9 @@ public interface CM11Svc {
 	public List<Map<String, String>> selectClntSelpch1List(Map<String, String> param);
 	
 	public int selectClntSelpch1Count(Map<String, String> param);
+
+	public List<Map<String, String>> selectFacList(Map<String, String> param);
+
+	public List<Map<String, String>> selectMonthlyStat(Map<String, String> param);
 	
 }
