@@ -10,10 +10,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
+import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.od.od01.mapper.OD01Mapper;
 import com.dksys.biz.user.od.od01.service.OD01Svc;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
@@ -33,6 +35,9 @@ public class OD01SvcImpl implements OD01Svc {
     
     @Autowired
     SM01Mapper sm01Mapper;
+    
+    @Autowired
+    AR02Svc ar02Svc;
     
     @Autowired
     CM08Svc cm08Svc;
@@ -206,6 +211,10 @@ public class OD01SvcImpl implements OD01Svc {
 				ar02Mapper.insertPchsSell(paramMap);
 				sm01Mapper.updateStockSell(paramMap);
 			}
+		}
+		if(ar02Svc.checkLoan(paramMap)) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			return 0;
 		}
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirm(paramMap);

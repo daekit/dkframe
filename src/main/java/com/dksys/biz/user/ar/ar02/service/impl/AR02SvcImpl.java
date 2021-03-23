@@ -1,5 +1,6 @@
 package com.dksys.biz.user.ar.ar02.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,5 +85,25 @@ public class AR02SvcImpl implements AR02Svc {
 	public Map<String, String> selectSellInfo(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellInfo(paramMap);
 	}
-	
+
+	public boolean checkLoan(Map<String, String> paramMap) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("loanCd", 'C');
+		map.put("clntCd", paramMap.get("clntCd"));
+		map.put("coCd", paramMap.get("coCd"));
+		map.put("amt", paramMap.get("realTrstAmt"));
+		long result = ar02Mapper.callCreditLoan(map);
+		if(result < Integer.parseInt(paramMap.get("realTrstAmt"))) {
+			return true;
+		} else {
+			map.put("loanCd", 'P');
+			ar02Mapper.callCreditLoan(map);
+		}
+		return false;
+	}
+
+	@Override
+	public List<Map<String, String>> selectSellSumList(Map<String, String> paramMap) {
+		return ar02Mapper.selectSellSumList(paramMap);
+	}
 }
