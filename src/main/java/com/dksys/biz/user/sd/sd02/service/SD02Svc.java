@@ -1,11 +1,11 @@
-package com.dksys.biz.user.sd.sd01.service;
+package com.dksys.biz.user.sd.sd02.service;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-public interface SD01Svc {
+public interface SD02Svc {
 	
 	public int selectSellCount(Map<String, String> param);
 	

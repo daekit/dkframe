@@ -1,4 +1,4 @@
-package com.dksys.biz.user.sd.sd01;
+package com.dksys.biz.user.sd.sd02;
 
 import java.util.List;
 import java.util.Map;
@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
-import com.dksys.biz.user.sd.sd01.service.SD01Svc;
+import com.dksys.biz.user.sd.sd02.service.SD02Svc;
 import com.dksys.biz.util.MessageUtils;
 
 
 @Controller
-@RequestMapping("/user/sd/sd01")
-public class SD01Ctr {
+@RequestMapping("/user/sd/sd02")
+public class SD02Ctr {
  
 	//단가 관리 컨트롤러 UNIT PRICE -> UPR 표기
 	
@@ -29,22 +29,22 @@ public class SD01Ctr {
 	MessageUtils messageUtils;
 	
     @Autowired
-    SD01Svc sd01svc;
+    SD02Svc sd02svc;
     
     @PostMapping(value = "/selectSellList")
     public String selectSellList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = sd01svc.selectSellCount(param);
+    	int totalCnt = sd02svc.selectSellCount(param);
     	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     
-    	List<Map<String, String>> sellList = sd01svc.selectSellList(param);
+    	List<Map<String, String>> sellList = sd02svc.selectSellList(param);
     	model.addAttribute("sellList", sellList);
         return "jsonView";
     }
     
     @PostMapping(value = "/selectPlanInfo")
     public String selectPlanInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, String> result = sd01svc.selectPlanInfo(paramMap);
+    	Map<String, String> result = sd02svc.selectPlanInfo(paramMap);
     	model.addAttribute("result", result);
     	return "jsonView";
     }
@@ -52,7 +52,7 @@ public class SD01Ctr {
     @PostMapping(value = "/insertPlan")
     public String insertPlan(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
     	try {
-	    	sd01svc.insertPlan(param);
+	    	sd02svc.insertPlan(param);
 	    	model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch(Exception e) {
@@ -65,7 +65,7 @@ public class SD01Ctr {
     @PutMapping(value = "/updatePlan")
     public String updatePlan(@RequestBody Map<String, String> param, ModelMap model) {
     	try {
-			 sd01svc.updatePlan(param);
+			 sd02svc.updatePlan(param);
 			 model.addAttribute("resultUpr", 200);
 			 model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	}catch(Exception e) {
@@ -78,8 +78,8 @@ public class SD01Ctr {
     @PostMapping(value = "/copyInsert")
     public String copyInsert(@RequestBody Map<String, String> param, ModelMap model) {
     	try {
-    		sd01svc.deleteCopy(param);
-	    	sd01svc.copyInsert(param);
+    		sd02svc.deleteCopy(param);
+	    	sd02svc.copyInsert(param);
 	    	model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch(Exception e) {
@@ -91,7 +91,7 @@ public class SD01Ctr {
     
     @DeleteMapping(value = "/deletePlan")
     public String deleteEst(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	sd01svc.deletePlan(paramMap);
+    	sd02svc.deletePlan(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";

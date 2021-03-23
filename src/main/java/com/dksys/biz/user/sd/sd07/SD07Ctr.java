@@ -24,17 +24,17 @@ public class SD07Ctr {
     @Autowired
     SD07Svc sd07Svc;
     
-    @PostMapping(value = "/selectCloseInfo")
-    public String selectCloseInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, String> closeInfo = sd07Svc.selectCloseInfo(paramMap);
+    @PostMapping(value = "/selectClose")
+    public String selectClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> closeInfo = sd07Svc.selectClose(paramMap);
     	model.addAttribute("closeInfo", closeInfo);
     	return "jsonView";
 	}
 	
-    @PutMapping(value = "/saveCloseInfo")
-	public String saveCloseInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    @PutMapping(value = "/saveClose")
+	public String saveClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd07Svc.saveCloseInfo(paramMap);
+    		sd07Svc.saveClose(paramMap);
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("save"));
     	}catch (Exception e){
@@ -43,4 +43,31 @@ public class SD07Ctr {
     	}
     	return "jsonView";
 	}
+    
+    @PostMapping(value = "/excuteStockClose")
+	public String excuteStockClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		sd07Svc.excuteStockClose(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+	}
+    
+    @PostMapping(value = "/excuteCreditClose")
+	public String excuteCreditClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		sd07Svc.excuteCreditClose(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+	}
+    
 }

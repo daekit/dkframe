@@ -38,7 +38,9 @@
 			SELECT
 				ROWNUM AS RNUM, D.*
 			FROM(
-				SELECT A.CO_CD
+				SELECT   
+		                  A.STOK_SEQ 
+		             	, A.CO_CD
 						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
 						, A.WH_CD
 						, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
@@ -63,6 +65,9 @@
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
 						, E.CLNT_NM
+						, A.PRDT_SIZE
+						, A.PRDT_SPEC
+						, A.PRDT_LEN
 						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 				WHERE  A.PRDT_CD = C.PRDT_CD
@@ -130,8 +135,10 @@
 			SELECT
 				ROWNUM AS RNUM, D.*
 			FROM(
-				SELECT A.CO_CD
-						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+				SELECT 
+		                  A.STOK_SEQ 
+			            , A.CO_CD
+			 			, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
 						, A.WH_CD
 						, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
 						, A.OWNER_CD
@@ -158,6 +165,9 @@
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
 						, E.CLNT_NM
+						, A.PRDT_SIZE
+						, A.PRDT_SPEC
+						, A.PRDT_LEN
 						, TO_CHAR(A.PROC_DTTM, 'YYYY-MM-DD') AS PROC_DTTM 
 				FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD = C.PRDT_CD 
@@ -191,8 +201,9 @@
 	</select>
 	
 	<select id="selectStockInfo" parameterType="Map" resultType="CamelMap">
-		SELECT 
-			  A.CO_CD
+		SELECT
+		      A.STOK_SEQ 
+			, A.CO_CD
 			, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
 			, A.WH_CD
 			, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
@@ -217,6 +228,9 @@
 			, A.PCHS_UPR 
 			, A.SELL_UPR 
 			, E.CLNT_NM
+			, A.PRDT_SIZE
+			, A.PRDT_SPEC
+			, A.PRDT_LEN
 			, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD   = C.PRDT_CD
@@ -258,7 +272,8 @@
 				UDT_DTTM     = SYSDATE
 		WHEN NOT MATCHED THEN
 			INSERT
-			(
+			(   
+		        STOK_SEQ ,
 				CO_CD,
 		        WH_CD,
 		        PRDT_CD,
@@ -279,9 +294,13 @@
 		        CREAT_DTTM,
 		        UDT_ID,
 		        UDT_PGM,
-		        UDT_DTTM
+		        UDT_DTTM,
+			    PRDT_SIZE,
+			    PRDT_SPEC,
+			    PRDT_LEN
 			)
 			VALUES(
+			    TB_SM01M01_SQ01.NEXTVAL, 
 				#{coCd},
 				#{whCd},
 				#{prdtCd},
@@ -302,7 +321,10 @@
 				SYSDATE,
 				#{userId},
 				#{pgmId},
-				SYSDATE
+				SYSDATE,
+				#{prdtSize},
+				#{prdtSpec},
+				#{prdtLen}
 			)
 	</update>
 	

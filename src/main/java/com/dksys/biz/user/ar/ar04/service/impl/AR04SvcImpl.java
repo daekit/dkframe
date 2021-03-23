@@ -96,7 +96,6 @@ public class AR04SvcImpl implements AR04Svc {
 			int msgId = i + 1;
 			String xmlMsgId = "";
 			Map<String, String> taxHdParam = new HashMap<String, String>();
-			System.out.println("========1111111============");
 			taxHdParam.put("msgId", Integer.toString(msgId));
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);
 			String bgm1004 = ar04Mapper.selectBgmSeq();
@@ -107,20 +106,12 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("xmlMsgId", xmlMsgId);
 			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
 			taxHdParam.put("coCd", list.get(i).split(",")[1]);
-			System.out.println("=========22222===========");
 			
-			System.out.println(taxHdParam);
-			//taxHdParam.put("coCd", cdCdList.get(i));
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
 			ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
 
-			System.out.println("=========33333=========== :   ");
-			//List<Map<String, String>> sellList = ar04Mapper.selectSellList(taxHdParam);
-			//for(int j = 0; j < sellList.size(); j++) {
-			//	System.out.println("=========444444=========== :   " + j);
 			System.out.println(taxHdParam);
-				result = ar04Mapper.insertTaxItem(taxHdParam);
-			//}
+			result = ar04Mapper.insertTaxItem(taxHdParam);
 		}
 		return result;
 	}

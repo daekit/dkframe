@@ -1,4 +1,4 @@
-package com.dksys.biz.user.sd.sd01.mapper;
+package com.dksys.biz.user.sd.sd02.mapper;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface SD01Mapper {
+public interface SD02Mapper {
 	
 	int selectSellCount(Map<String, String> param);
 	
