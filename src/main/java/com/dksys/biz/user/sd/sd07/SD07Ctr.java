@@ -44,10 +44,10 @@ public class SD07Ctr {
     	return "jsonView";
 	}
     
-    @PostMapping(value = "/excuteClose")
-	public String excuteClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    @PostMapping(value = "/excuteStockClose")
+	public String excuteStockClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd07Svc.excuteClose(paramMap);
+    		sd07Svc.excuteStockClose(paramMap);
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
     	}catch (Exception e){
@@ -56,4 +56,18 @@ public class SD07Ctr {
     	}
     	return "jsonView";
 	}
+    
+    @PostMapping(value = "/excuteCreditClose")
+	public String excuteCreditClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		sd07Svc.excuteCreditClose(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+	}
+    
 }
