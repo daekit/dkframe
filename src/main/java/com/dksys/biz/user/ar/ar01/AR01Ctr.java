@@ -79,9 +79,14 @@ public class AR01Ctr {
 	
 	@PutMapping(value = "/updateConfirm")
     public String updateConfirm(@RequestParam Map<String, String> paramMap, ModelMap model) {
-		ar01Svc.updateConfirm(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
+		int result = ar01Svc.updateConfirm(paramMap);
+		if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
+		}
     	return "jsonView";
     }
 	

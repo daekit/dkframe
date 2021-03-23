@@ -126,7 +126,7 @@
 	                <th>프로젝트명</th>
 	                <td colspan="3">
 	                	<div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd">
+			              <input type="hidden" id="prjctCd" name="prjctCd" value="0">
 			              <input type="text" id="prjctNm" name="prjctNm">
 			              <button type="button" onclick="prjctSearch();"><i class="i_search_w"></i></button>
 			            </div>
@@ -625,10 +625,14 @@
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('.detailRow'), function(idx, elem){
+		$.each($('.detailRow'), function(midx, elem){
 			if($(elem).find("input[name='shipYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "") {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
+					if(elem.name == "realShipQty" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=shipQty]")[0].value;
+					if(elem.name == "realShipWt" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=shipWt]")[0].value;
+					if(elem.name == "realShipUpr" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=shipUpr]")[0].value;
+					if(elem.name == "realShipAmt" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=shipAmt]")[0].value;
 					detailObj[elem.name] = elem.value;
 				});
 				detailArr.push(detailObj);
@@ -638,7 +642,7 @@
 		
 		if(actionType == "U") {
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		} 
+		}
 		
 		return formData;
 	}

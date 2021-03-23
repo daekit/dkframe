@@ -401,7 +401,6 @@
 	}
 	
 	function selectOrderInfo() {
-		debugger;
 		var row = null;
 		if(openFrom == "SD0501P01"){
 			row = OD01GridView.target.getList("selected")[0];
@@ -562,13 +561,14 @@
 				formData.append("files", obj.file);
 			}
 		});
-		
 		// 상세내역 추가
 		var detailArr = [];
 		$.each($('.detailRow'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
+					if(elem.name == "ordrgProcId" && elem.value == "") elem.value = jwt.userId;
+					if(elem.name == "ordrgProcNm" && elem.value == "") elem.value = jwt.userNm;
 					detailObj[elem.name] = elem.value;
 				});
 				detailArr.push(detailObj);
