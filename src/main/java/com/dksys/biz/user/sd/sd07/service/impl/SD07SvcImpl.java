@@ -27,9 +27,15 @@ public class SD07SvcImpl implements SD07Svc {
 	}
 
 	@Override
-	public void excuteClose(Map<String, String> paramMap) {
-		sd7Mapper.deleteClose(paramMap);
-		sd7Mapper.insertClose(paramMap);
+	public void excuteStockClose(Map<String, String> paramMap) {
+		sd7Mapper.deleteStockClose(paramMap);
+		sd7Mapper.insertStockClose(paramMap);
+	}
+
+	@Override
+	public void excuteCreditClose(Map<String, String> paramMap) {
+		sd7Mapper.deleteCreditClose(paramMap);
+		sd7Mapper.insertCreditClose(paramMap);
 	}
 
 }
