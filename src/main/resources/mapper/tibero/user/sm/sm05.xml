@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sm.sm05.mapper.SM05Mapper">
+	
+	<select id="selectPchsAggrCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_AR02M01 
+		WHERE 1=1
+		<if test= "coCd != null and !coCd.equals('')">
+ 			AND CO_CD = #{coCd}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('')">
+ 			AND TRST_DT BETWEEN TO_CHAR(TO_DATE(#{strtDt}, 'YYYY-MM-DD'), 'YYYYMMDD') AND TO_CHAR(TO_DATE(#{endDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND TRST_CLNT_CD = #{clntCd}
+		</if>
+		<if test= "trspRmk != null and !trspRmk.equals('')">
+ 			AND TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+		</if>
+		<if test="salesMng != null and !salesMng.equals('')">
+			AND SALES_MNG = #{salesMng}
+		</if>
+		<if test="prdtDiv != null and !prdtDiv.equals('')">
+			AND PRDT_DIV = #{prdtDiv}
+		</if>
+		<if test="prdtStkn != null and !prdtStkn.equals('')">
+			AND PRDT_STKN = #{prdtStkn}
+		</if>
+		<if test= "prjctCd != null and !prjctCd.equals('')">
+ 			AND PRJCT_CD = #{prjctCd}
+		</if>
+		<if test= "bilgCertNo_S != null and !bilgCertNo_S.equals('')">
+ 			AND BILG_CERT_NO = #{bilgCertNo_S}
+		</if>
+		<if test= "selpch != null and !selpch.equals('')">
+ 			AND SELPCH_CD = #{selpch}
+		</if>
+		
+	</select>
+	
+	<select id="selectPchsAggrList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					 CO_CD
+					,TRST_CERTI_NO
+					,SELPCH_CD
+					,TAXIVC_COPRT
+					,TRST_DT
+					,TRST_CLNT_CD
+					,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD) AS CLNT_NM
+					,TRST_PRDT_CD
+					,OWNER_CD
+					,IMP_YN
+					,TYP_CD
+					,TRSP_TYP_CD
+					,TRST_RPRC_SEQ
+					,TRST_DTL_SEQ
+					,PRDT_LEN
+					,ODR_NO
+					,SALES_MNG
+					,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
+					,PRJCT_CD
+					,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+					,MAKR_CD
+					,WH_CD
+					,MNG_TEL
+					,DLVR_DTTM
+					,DIRTRS_YN
+					,PRDT_DIV
+					,PRDT_STKN
+					,PRDT_SIZE
+					,PRDT_UNIT
+					,PRDT_UPR
+					,STOCK_UPR
+					,PCHS_UPR
+					,SELL_UPR
+					,TRST_QTY
+					,TRST_WT
+					,TRST_UPR
+					,TRST_AMT
+					,REAL_TRST_QTY
+					,REAL_TRST_WT
+					,REAL_TRST_UPR
+					,REAL_TRST_AMT
+					,BILG_QTY
+					,BILG_WT
+					,BILG_UPR
+					,BILG_AMT
+					,BILG_VAT_AMT
+					,BILG_AMT + BILG_VAT_AMT AS TOTAL_AMT
+					,TRST_DC_AMT
+					,ETC_AMT
+					,TRSP_RMK
+					,TRANS_AMT
+					,SHIP_VEH_NO
+					,CLNT_NM
+					,BILG_CERT_NO
+					,LOSS_RATE
+					,ODR_CREAT_DIV
+					,ETC_FIELD1
+					,ETC_FIELD2
+					,ETC_FIELD3
+					,CREAT_ID
+					,CREAT_PGM
+					,CREAT_DTTM
+					,SALES_AREA_CD
+					,SITE_CD
+				FROM TB_AR02M01 T
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND CO_CD = #{coCd}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('')">
+		 			AND TRST_DT BETWEEN TO_CHAR(TO_DATE(#{strtDt}, 'YYYY-MM-DD'), 'YYYYMMDD') AND TO_CHAR(TO_DATE(#{endDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND TRST_CLNT_CD = #{clntCd}
+				</if>
+				<if test= "trspRmk != null and !trspRmk.equals('')">
+		 			AND TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+				</if>
+				<if test="salesMng != null and !salesMng.equals('')">
+					AND SALES_MNG = #{salesMng}
+				</if>
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
+					AND PRDT_DIV = #{prdtDiv}
+				</if>
+				<if test="prdtStkn != null and !prdtStkn.equals('')">
+					AND PRDT_STKN = #{prdtStkn}
+				</if>
+				<if test= "prjctCd != null and !prjctCd.equals('')">
+		 			AND PRJCT_CD = #{prjctCd}
+				</if>
+				<if test= "selpch != null and !selpch.equals('')">
+		 			AND SELPCH_CD = #{selpch}
+				</if>
+				<if test= "bilgCertNo_S != null and !bilgCertNo_S.equals('')">
+		 			AND BILG_CERT_NO = #{bilgCertNo_S}
+				</if>
+				<if test= 'bill == "Y"'>
+		 			AND BILG_CERT_NO IS NOT NULL
+				</if>
+				<if test= 'bill == "N"'>
+		 			AND BILG_CERT_NO IS NULL
+				</if>
+			) D
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="bilgCertNoList" parameterType="Map" resultType="CamelMap">
+		SELECT
+			 BILG_CERT_NO
+		FROM TB_AR02M01 T
+		WHERE 1=1
+		<if test= "coCd != null and !coCd.equals('')">
+ 			AND CO_CD = #{coCd}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('')">
+ 			AND TRST_DT BETWEEN TO_CHAR(TO_DATE(#{strtDt}, 'YYYY-MM-DD'), 'YYYYMMDD') AND TO_CHAR(TO_DATE(#{endDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND TRST_CLNT_CD = #{clntCd}
+		</if>
+		<if test= "trspRmk != null and !trspRmk.equals('')">
+ 			AND TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+		</if>
+		<if test="salesMng != null and !salesMng.equals('')">
+			AND SALES_MNG = #{salesMng}
+		</if>
+		<if test="prdtDiv != null and !prdtDiv.equals('')">
+			AND PRDT_DIV = #{prdtDiv}
+		</if>
+		<if test="prdtStkn != null and !prdtStkn.equals('')">
+			AND PRDT_STKN = #{prdtStkn}
+		</if>
+		<if test= "selpch != null and !selpch.equals('')">
+ 			AND SELPCH_CD = #{selpch}
+		</if>
+		<if test= "prjctCd != null and !prjctCd.equals('')">
+ 			AND PRJCT_CD = #{prjctCd}
+		</if>
+		<if test= "bilgCertNo_S != null and !bilgCertNo_S.equals('')">
+ 			AND BILG_CERT_NO = #{bilgCertNo_S}
+		</if>
+			AND BILG_CERT_NO IS NOT NULL
+	</select>
+	
+	<select id="bilgCertNullNoList" parameterType="Map" resultType="CamelMap">
+		SELECT
+			 BILG_CERT_NO
+		FROM TB_AR02M01 T
+		WHERE 1=1
+		<if test= "coCd != null and !coCd.equals('')">
+ 			AND CO_CD = #{coCd}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('')">
+ 			AND TRST_DT BETWEEN TO_CHAR(TO_DATE(#{strtDt}, 'YYYY-MM-DD'), 'YYYYMMDD') AND TO_CHAR(TO_DATE(#{endDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND TRST_CLNT_CD = #{clntCd}
+		</if>
+		<if test= "trspRmk != null and !trspRmk.equals('')">
+ 			AND TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+		</if>
+		<if test="salesMng != null and !salesMng.equals('')">
+			AND SALES_MNG = #{salesMng}
+		</if>
+		<if test="prdtDiv != null and !prdtDiv.equals('')">
+			AND PRDT_DIV = #{prdtDiv}
+		</if>
+		<if test="prdtStkn != null and !prdtStkn.equals('')">
+			AND PRDT_STKN = #{prdtStkn}
+		</if>
+		<if test= "prjctCd != null and !prjctCd.equals('')">
+ 			AND PRJCT_CD = #{prjctCd}
+		</if>
+		<if test= "selpch != null and !selpch.equals('')">
+ 			AND SELPCH_CD = #{selpch}
+		</if>
+		<if test= "bilgCertNo_S != null and !bilgCertNo_S.equals('')">
+ 			AND BILG_CERT_NO = #{bilgCertNo_S}
+		</if>
+			AND BILG_CERT_NO IS NULL
+	</select>
+</mapper>

@@ -1,0 +1,299 @@
+<body>
+  <div class="popup_area" style="width: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">판매계획 등록</h4>
+    </div>
+
+    <div class="popup_table">
+    	<form id="popForm">
+        <table id="detailTb">
+            <colgroup>
+                <col width="12%">
+                <col width="30%">
+                
+            </colgroup>
+            <tr>
+                <th class="hit">회사</th>
+                <td class="detailSell">                                
+                    <select id="coCd" name="coCd" data-kind="CO" required>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="hit">실사일자</th>
+                <td>
+                	<input type="text" id="acinsDt" name="acinsDt" class="input_calendar" disabled required="required" date>
+                </td>
+			</tr>
+            <tr>
+                <th class="hit">창고</th>
+                <td class="detailSell">                                
+                  <select id="whCd" name="whCd" style="width:100%;" data-kind="WH" required>
+                    <option value="">선택</option>
+                  </select>
+                </td>
+            </tr>
+            <tr name="tableCd2">
+            <th class="hit">제품</th>
+                <td class="drctArea">
+                  <input type="hidden" id="prdtCd" name="prdtCd">
+                  <div class="search_form">
+	                <input type="text" id="prdtNm" name="prdtNm" disabled required="required">
+	              	<button type="button" id="btnPrdtSearch" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
+	              </div>
+                </td>
+            </tr>
+            <tr>
+              <th class="hit">재고주체</th>
+              <td class="detailSell">
+                <select id="ownerCd" name="ownerCd" style="width:100%;" data-kind="OWNER" required>
+                <option value="">선택</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+            <th class="hit">거래처</th>
+                <td class="drctArea">
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
+                	<div class="search_form">
+	                    <input type="text" id="clntNm" name="clntNm" disabled required="required">
+                    	<button type="button" id="btnClntSearch" onclick="clntSearch();"><i class="i_search_w"></i></button>
+                    </div>
+                </td>
+            </tr>
+			<tr>
+			  <th class="hit">판매유형</th>
+              <td class="detailSell">
+                <select id="typCd" name="typCd" style="width:100%;" data-kind="SELLTYPE" required>
+                <option value="">선택</option>
+                </select>
+              </td>
+			</tr>
+			<tr>
+              <th class="hit">제조사</th>
+              <td class="detailSell">
+                <select id="makrCd" name="makrCd" style="width:100%;" data-kind="MAKR" required>
+                <option value="">선택</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th class="hit">프로젝트</th>
+              <td>
+                <div class = "search_form">
+		        <input type="hidden" id="prjctCd" name="prjctCd" required>
+		        <input type="text" id="prjctNm" name="prjctNm" disabled>
+		        <button type="button" id="btnPrjctSearch" onclick="prjctSearch();"><i class="i_search_w"></i></button>
+		        </div>
+              </td>
+            </tr>
+            <tr>
+              <th class="hit">수입여부</th>
+              <td class="detailSell">
+                <select id="impYn" name="impYn" style="width:100%;" required>
+                  <option value="">전체</option>
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+                <th class="">재고수량</th>
+                <td>                                
+                    <input type="text" id="stockQty" name="stockQty" onkeyup="addComma(this);" disabled  comma>
+                </td>
+            </tr>
+            <tr>
+                <th class="hit">실사수량</th>
+                <td>                                
+                    <input type="text" id="acinsQty" name="acinsQty" onkeyup="addComma(this);" required="required"  comma>
+                </td>
+            </tr>
+            <tr>
+                <th class="">비고</th>
+                <td>                                
+                    <textarea id="rmk" name="rmk" style="width: 100%;height: 50px;" ></textarea>
+                </td>
+            </tr>
+        </table>
+	        <input type="hidden" id="userId" name="userId">
+		    <input type="hidden" id="pgmId" name="pgmId" value="SM0401P01">
+        </form>
+    </div>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="actionBtn">등록</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		$("#userId").val(jwt.userId);
+		
+		setCommonSelect($(".popup_area select[data-kind]"));
+		$('#acinsDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		setInit();
+	});
+	
+	function setInit() {
+		if(actionType == "C") {
+			$('#actionBtn').on("click", function(){insertPrdtAcins();});
+			$("#actionBtn").text("등록");
+			insertSetInit();
+		}else if(actionType == "U"){
+			updateSetInit();
+			$('#actionBtn').on("click", function(){updatePrdtAcins();});
+			$('#actionBtn').text("수정");
+		}
+	}
+	
+	function insertSetInit(){
+		$("#acinsDt").val(dateToStr(new Date()));
+	}
+	
+	function updateSetInit(){
+		$('#btnPrdtSearch').prop("disabled", true);
+		$('#btnClntSearch').prop("disabled", true);
+		$('#btnPrjctSearch').prop("disabled", true);
+		$(".drctArea select").prop("disabled", true);
+		$(".detailSell select").prop("disabled", true);
+		/*$(".detailMakr select").prop("disabled", true);
+		$('#detailTb select[name="selpchCd"]').val($('#selpchCd').val()); */
+		
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"coCd" : row.coCd,
+			"acinsDt" : row.acinsDt,
+			"whCd" : row.whCd,
+			"prdtCd" : row.prdtCd,
+			"ownerCd" : row.ownerCd,
+			"clntCd" : row.clntCd,
+			"typCd" : row.typCd,
+			"makrCd" : row.makrCd,
+			"prjctCd" : row.prjctCd,
+			"impYn" : row.impYn
+		}
+		postAjax("/user/sm/sm04/selectPrdtAcinsInfo", formData, null, function(data){
+			setPrdtAcinsInfo(data.result);
+		});
+	}
+	
+	function setPrdtAcinsInfo(obj){
+		var prdtAcinsInfo = obj;
+		//메인정보 세팅
+		$.each(prdtAcinsInfo, function(key, value){
+			$('#'+key).val(value);
+			if($('#popForm').find('#'+key).is("[date]")){
+				$('#popForm').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+			}
+		});
+		//콤마 추가
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
+	}
+	
+	function insertPrdtAcins() {
+		if (inputValidation($('[required]'))) {
+			$.each($('input[comma]'), function(idx, elem){
+				deleteComma(elem);
+			});
+			var formData = {
+					"coCd" : $('#coCd').val(),
+					"acinsDt" : $('#acinsDt').val(),
+					"whCd" : $('#whCd').val(),
+					"prdtCd" : $('#prdtCd').val(),
+					"ownerCd" : $('#ownerCd').val(),
+					"clntCd" : $('#clntCd').val(),
+					"typCd" : $('#typCd').val(),
+					"makrCd" : $('#makrCd').val(),
+					"prjctCd" : $('#prjctCd').val(),
+					"impYn" : $('#impYn').val(),
+					"stockQty" : $('#stockQty').val(),
+					"acinsQty" : $('#acinsQty').val(),
+					"rmk" : $('#rmk').val(),
+ 					"userId" : jwt.userId,
+					"pgmId" : $("#pgmId").val()
+			}
+			postAjax("/user/sm/sm04/insertPrdtAcins", formData, null, function(data){	
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updatePrdtAcins() {
+		if(inputValidation($('input[required]'))) {
+			$.each($('input[comma]'), function(idx, elem){
+				deleteComma(elem);
+			});
+			var formData = {
+					"coCd" : $('#coCd').val(),
+					"acinsDt" : $('#acinsDt').val(),
+					"whCd" : $('#whCd').val(),
+					"prdtCd" : $('#prdtCd').val(),
+					"ownerCd" : $('#ownerCd').val(),
+					"clntCd" : $('#clntCd').val(),
+					"typCd" : $('#typCd').val(),
+					"makrCd" : $('#makrCd').val(),
+					"prjctCd" : $('#prjctCd').val(),
+					"impYn" : $('#impYn').val(),
+					"stockQty" : $('#stockQty').val(),
+					"acinsQty" : $('#acinsQty').val(),
+					"rmk" : $('#rmk').val(),
+ 					"userId" : jwt.userId,
+					"pgmId" : $("#pgmId").val()
+			}
+			putAjax("/user/sm/sm04/updatePrdtAcins", formData, null, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	} 
+	
+	//거래처 검색
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
+	}
+	//제품검색
+	function prdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd2"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": "N", 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
+			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+		});
+	}
+	//프로젝트 검색
+	function prjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+	}
+</script>
