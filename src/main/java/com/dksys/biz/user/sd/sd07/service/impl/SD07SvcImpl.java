@@ -17,13 +17,19 @@ public class SD07SvcImpl implements SD07Svc {
     SD07Mapper sd7Mapper;
     
     @Override
-	public Map<String, String> selectCloseInfo(Map<String, String> paramMap) {
-		return sd7Mapper.selectCloseInfo(paramMap);
+	public Map<String, String> selectClose(Map<String, String> paramMap) {
+		return sd7Mapper.selectClose(paramMap);
 	}
 
 	@Override
-	public void saveCloseInfo(Map<String, String> paramMap) {
-		sd7Mapper.saveCloseInfo(paramMap);
+	public void saveClose(Map<String, String> paramMap) {
+		sd7Mapper.saveClose(paramMap);
+	}
+
+	@Override
+	public void excuteClose(Map<String, String> paramMap) {
+		sd7Mapper.deleteClose(paramMap);
+		sd7Mapper.insertClose(paramMap);
 	}
 
 }

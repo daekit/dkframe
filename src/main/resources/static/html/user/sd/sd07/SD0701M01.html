@@ -31,6 +31,15 @@
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
 	<script src="/static/js/global.js"></script>
+	
+	<style>
+		span.complete{
+			color: springgreen;
+		}
+		span.fail{
+			color: red;
+		}
+	</style>
 </head>
 
 <body>
@@ -46,7 +55,7 @@
 							<button type="button" class="bg_gray">초기화</button>
 						</a> 
 						<a onclick="">
-							<button type="button" class="bg_gray" onclick="selectCloseInfo();">검 색</button>
+							<button type="button" class="bg_gray" onclick="selectClose();">검 색</button>
 						</a>
 					</li>
 				</ul>
@@ -75,10 +84,10 @@
 			<div class="contents no_bg">
 				<!-- 콘텐츠 타이틀 -->
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="saveCloseInfo();">저장</a>
+					<a style="width:80px;" onclick="saveClose();">저장</a>
 				</div>
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="">마감실행</a>
+					<a style="width:80px;" onclick="excuteClose();">마감실행</a>
 				</div>
 			</div>
 			<!-- 콘텐츠 -->
@@ -230,27 +239,27 @@
 								<th rowspan="6">마감실행결과</th>
 							</tr>
 							<tr>
-								<td class="tc">
-									입고자료취합
+								<td class="tl">
+									입고자료취합 --> <span name="stockStatus">작업전</span>
 								</td>
 							</tr>
 							<tr>
-								<td class="tc">
-									출고자료취합
+								<td class="tl">
+									출고자료취합 --> <span name="stockStatus">작업전</span>
 								</td>
 							</tr>
 							<tr>
-								<td class="tc">
-									재고마감
+								<td class="tl">
+									재고마감 --> <span name="stockStatus">작업전</span>
 								</td>
 							</tr>
 							<tr>
-								<td class="tc">
+								<td class="tl">
 									입금자료취합
 								</td>
 							</tr>
 							<tr>
-								<td class="tc">
+								<td class="tl">
 									채권마감
 								</td>
 							</tr>
@@ -283,7 +292,7 @@
 		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
-			selectCloseInfo();
+			selectClose();
 		});
 		
 		// 매입마감일 datepicker bind
@@ -315,7 +324,7 @@
 		});
 		
 		// 월마감정보 select
-		selectCloseInfo();
+		selectClose();
 	});
 	
 	// 검색조건 초기화
@@ -324,7 +333,7 @@
 	}
 	
 	// 월마감정보 select
-	function selectCloseInfo(){
+	function selectClose(){
 		var paramObj = {};
 		for(var i=0;i<$('[data-search]').length;i++){
 			var $tempElem = $('[data-search]').eq(i);
@@ -335,7 +344,7 @@
 			paramObj[$tempElem.data("search")] = tempValue;
 		}
 		
-		postAjax("/user/sd/sd07/selectCloseInfo", paramObj, null, function(data){
+		postAjax("/user/sd/sd07/selectClose", paramObj, null, function(data){
 			setCloseInfo(data.closeInfo);
 		});
 	}
@@ -364,14 +373,34 @@
 	}
 	
 	// 저장
-	function saveCloseInfo(){
+	function saveClose(){
 		var formData = $('#closeForm').serializeObject();
 		formData.closeYm = deleteHyphenStr(formData.closeYm);
 		formData.userId = jwt.userId;
 		formData.pgmId = "SD0701M01";
 		
-		putAjax("/user/sd/sd07/saveCloseInfo", formData, null, function(data){
+		putAjax("/user/sd/sd07/saveClose", formData, null, function(data){
 			alert(data.resultMessage);
 		});
+	}
+	
+	// 마감실행
+	function excuteClose(){
+		var paramObj = {
+			"closeYm": deleteHyphenStr($('#closeYm').val()),
+			"userId": jwt.userId,
+			"pgmId": "SD0701M01"
+		}
+		
+		postAjaxSync("/user/sd/sd07/excuteClose", paramObj, null, function(data){
+			if(data.resultCode == 200){
+				$('span[name="stockStatus"]').text("완료");
+				$('span[name="stockStatus"]').addClass("complete");
+			}else{
+				$('span[name="stockStatus"]').text("실패");
+				$('span[name="stockStatus"]').addClass("fail");
+			}
+		});
+		
 	}
 </script>
