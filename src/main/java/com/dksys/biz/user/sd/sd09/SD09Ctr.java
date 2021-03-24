@@ -1,4 +1,4 @@
-package com.dksys.biz.user.sd.sd08;
+package com.dksys.biz.user.sd.sd09;
 
 import java.util.List;
 import java.util.Map;
@@ -13,41 +13,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
-import com.dksys.biz.user.sd.sd08.service.SD08Svc;
+import com.dksys.biz.user.sd.sd09.service.SD09Svc;
 import com.dksys.biz.util.MessageUtils;
 
 @Controller
-@RequestMapping("/user/sd/sd08")
-public class SD08Ctr {
+@RequestMapping("/user/sd/sd09")
+public class SD09Ctr {
 
 	@Autowired
 	MessageUtils messageUtils;
-	
+    
     @Autowired
-    SD08Svc sd08Svc;
+    SD09Svc sd09Svc;
 	
-    @PostMapping(value = "/selectCplrUntpcList")
-	public String selectCplrUntpcList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int totalCnt = sd08Svc.selectCplrUntpcCount(paramMap);
+    @PostMapping(value = "/selectSiteList")
+	public String selectSiteList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = sd09Svc.selectSiteCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, String>> resultList = sd08Svc.selectCplrUntpcList(paramMap);
+    	List<Map<String, String>> resultList = sd09Svc.selectSiteList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
-	
-    @PostMapping(value = "/selectCplrUntpc")
-	public String selectCplrUntpc(@RequestBody Map<String, String> paramMap, ModelMap model) {    	
-    	Map<String, String> result = sd08Svc.selectCplrUntpc(paramMap);
+    @PostMapping(value = "/selectSiteDetail")
+	public String selectSiteDetail(@RequestBody Map<String, String> paramMap, ModelMap model) {    	
+    	Map<String, String> result = sd09Svc.selectSiteDetail(paramMap);
     	model.addAttribute("result", result);
     	return "jsonView";
 	}
     
-    @PostMapping(value = "/insertCplrUntpc")
-    public String insertCplrUntpc(@RequestParam Map<String, String> paramMap, ModelMap model) {
+    @PostMapping(value = "/insertSite")
+    public String insertSite(@RequestParam Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd08Svc.insertCplrUntpc(paramMap);
+    		sd09Svc.insertSite(paramMap);
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch (Exception e){
@@ -57,11 +56,10 @@ public class SD08Ctr {
     	return "jsonView";
     }
     
-    @PostMapping(value = "/updateCplrUntpc")
+    @PostMapping(value = "/updateSite")
     public String updateCplrUntpc(@RequestParam Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd08Svc.updateCplrUntpc(paramMap);
-
+    		sd09Svc.updateSite(paramMap);
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	}catch (Exception e){
@@ -71,10 +69,10 @@ public class SD08Ctr {
     	return "jsonView";
     }
     
-    @PutMapping(value = "/deleteCplrUntpc")
+    @PutMapping(value = "/deleteSite")
     public String deleteCplrUntpc(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd08Svc.deleteCplrUntpc(paramMap);
+    		sd09Svc.deleteSite(paramMap);
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	}catch (Exception e){

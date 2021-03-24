@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sd.sd09.mapper.SD09Mapper">
+	
+	<select id="selectSiteCount" resultType="int">
+	SELECT 
+ 		COUNT(*) 
+	  FROM TB_SD09M01
+	 	<where>
+	 	<if test="coCd != null and coCd != ''">
+	 	AND CO_CD = #{coCd}
+	 	</if>
+	 	<if test="clntCd != null and clntCd != ''">
+	    AND CLNT_CD = #{clntCd}
+	 	</if>
+	 	<if test="siteNm != null and siteNm != ''">
+	    AND SITE_NM = #{siteNm}
+	 	</if>
+	 	</where>
+	</select>
+	
+	<select id="selectSiteList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT CO_CD
+					 , FN_CM05M01_CD_TO_NM(CO_CD) CO_NM
+					 , SITE_CD
+					 , CLNT_CD
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+					 , PRJCT_CD
+					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+					 , SITE_NM
+					 , SITE_ADDR_ZIP
+					 , SITE_ADDR
+					 , SITE_ADDR_SUB
+					 , SITE_ADDR || '  ' || SITE_ADDR_SUB AS ADDR_FULL 
+					 , SITE_MNG_NM
+					 , TEL_NO
+					 , USE_YN
+					 , RMK
+					 , SITE_MES_CD
+					 , ETC_FIELD1
+					 , ETC_FIELD2
+					 , ETC_FIELD3
+				  FROM TB_SD09M01 T
+				 	<where>
+				 	<if test="coCd != null and coCd != ''">
+				 	AND CO_CD = #{coCd}
+				 	</if>
+				 	<if test="clntCd != null and clntCd != ''">
+				    AND CLNT_CD = #{clntCd}
+				 	</if>
+				 	<if test="siteNm != null and siteNm != ''">
+				    AND SITE_NM = #{siteNm}
+				 	</if>
+				 	<if test="useYn != null and useYn != ''">
+				    AND USE_YN = #{useYn}
+				 	</if>
+				 	</where>
+				 ORDER BY SITE_CD
+			) A
+		)
+		WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectSiteDetail" resultType="CamelMap">
+	SELECT CO_CD
+		 , FN_CM05M01_CD_TO_NM(CO_CD) CO_NM
+		 , SITE_CD
+		 , CLNT_CD
+		 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+		 , PRJCT_CD
+		 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+		 , SITE_NM
+		 , SITE_ADDR_ZIP
+		 , SITE_ADDR
+		 , SITE_ADDR_SUB
+		 , SITE_MNG_NM
+		 , TEL_NO
+		 , USE_YN
+		 , RMK
+		 , SITE_MES_CD
+		 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
+	  FROM TB_SD09M01 T
+	 WHERE CO_CD = #{coCd}
+	   AND SITE_CD = #{siteCd}
+	</select>
+	
+	<insert id="insertSite" parameterType="Map">
+	INSERT INTO TB_SD09M01
+	(CO_CD
+	 , SITE_CD
+	 , CLNT_CD
+	 , PRJCT_CD
+	 , SITE_NM
+	 , SITE_ADDR_ZIP
+	 , SITE_ADDR
+	 , SITE_ADDR_SUB
+	 , SITE_MNG_NM
+	 , TEL_NO
+	 , USE_YN
+	 , RMK
+	 , CREAT_ID
+	 , CREAT_PGM
+	 , CREAT_DTTM
+	 ) VALUES (
+	 #{coCd}
+	 , (SELECT NVL(MAX(SITE_CD), 0) + 1 FROM TB_SD09M01 WHERE CO_CD = #{coCd})
+	 , #{clntCd}
+	 , #{prjctCd}
+	 , #{siteNm}
+	 , #{siteAddrZip}
+	 , #{siteAddr}
+	 , #{siteAddrSub}
+	 , #{siteMngNm}
+	 , #{telNo}
+	 , #{useYn}
+	 , #{rmk}
+	 , #{userId}
+	 , #{pgmId} 
+	 , SYSDATE
+	 )
+	</insert>
+	
+	<update id="updateSite" parameterType="Map">
+	UPDATE TB_SD09M01
+	SET CLNT_CD = #{clntCd}
+	  , PRJCT_CD = #{prjctCd}
+	  , SITE_NM = #{siteNm}
+	  , SITE_ADDR_ZIP = #{siteAddrZip}
+	  , SITE_ADDR = #{siteAddr}
+	  , SITE_ADDR_SUB = #{siteAddrSub}
+	  , SITE_MNG_NM = #{siteMngNm}
+	  , TEL_NO = #{telNo}
+	  , USE_YN = #{useYn}
+	  , RMK = #{rmk}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHERE CO_CD = #{coCd}
+	  AND SITE_CD = #{siteCd}
+	</update>
+	
+	<delete id="deleteSite" parameterType="Map">
+	DELETE FROM TB_SD09M01 
+	 WHERE CO_CD = #{coCd}
+	   AND SITE_CD = #{siteCd}
+	</delete>
+</mapper>
