@@ -124,7 +124,9 @@
             CREAT_DTTM,
             UDT_ID,
             UDT_PGM,
-            UDT_DTTM
+            UDT_DTTM,
+            PRDT_SIZE,
+            PRDT_SPEC
 	    ) 
 	    VALUES
 	    (
@@ -157,7 +159,9 @@
 			SYSDATE,
 			#{userId},
 			#{pgmId},
-			SYSDATE
+			SYSDATE,
+			#{prdtSpec},
+			#{prdtSize}
 	    )
 	</insert>
 	
@@ -275,6 +279,9 @@
 				<if test="searchValue != null and !searchValue.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'				
 				</if>
+			 	<if test="shipYn != null and !shipYn.equals('')">
+					AND SHIP_YN = #{shipYn}				
+				</if>
 				ORDER BY UDT_DTTM DESC
 			) T
 		)
@@ -354,6 +361,8 @@
             T.IMP_YN,
             T.PRJCT_CD,
 			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+            T.SITE_CD,
+			(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
             TO_CHAR(TO_DATE(T.REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
             TO_CHAR(T.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
             T.ADDR_ZIP,
@@ -379,6 +388,8 @@
 	        T.PRDT_UNIT,
 	        T.PRDT_UNIT AS PRDT_UNIT_NM,
 	        T.PRDT_LEN,
+	        T.PRDT_SPEC,
+	        T.PRDT_SIZE,
 	        T.SHIP_QTY,
 	        T.SHIP_WT,
 	        T.SHIP_UPR,
@@ -508,11 +519,11 @@
 	<select id="selectShipDetailInfo" parameterType="Map" resultType="CamelMap">
 		SELECT 
 			T.*,
-			(SELECT PRDT_DIV FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_DIV,
-			(SELECT PRDT_STKN FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_STKN,
-			(SELECT PRDT_SIZE FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) PRDT_SIZE,
-			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD) TAXIVC_COPRT,
-			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS CLNT_NM
+			(SELECT PRDT_DIV    FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_DIV,
+			(SELECT PRDT_STKN   FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_STKN,
+			(SELECT CODE_ETC    FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD)   AS TAXIVC_COPRT,
+			(SELECT CLNT_NM     FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS CLNT_NM,
+			(SELECT SELL_VAT_CD FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS SELL_VAT_CD
 		FROM TB_AR01D01 T
 		INNER JOIN TB_AR01M01 M
 		   ON M.SHIP_SEQ = T.SHIP_SEQ

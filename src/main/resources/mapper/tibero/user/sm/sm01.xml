@@ -267,9 +267,16 @@
 				AND MAKR_CD   = #{makrCd}
 				AND PRJCT_CD  = #{prjctCd}
 				AND IMP_YN    = #{impYn}
+				<if test="prdtSize != null and !prdtSize.equals('')">
 				AND PRDT_SIZE = #{prdtSize}
-				AND PRDT_SPEC = #{prdtSpec}
-				AND PRDT_LEN  = #{prdtLen}
+				</if>
+				<if test="prdtSpec != null and !prdtSpec.equals('')">
+				AND PRDT_SPEC = #{prdtSpec}	
+				</if>			
+				<if test="prdtLen != null and !prdtLen.equals('')">
+						AND PRDT_LEN  = #{prdtLen}
+				</if>
+				
 			)
 		WHEN MATCHED THEN
 			UPDATE SET
@@ -331,9 +338,9 @@
 				#{userId},
 				#{pgmId},
 				SYSDATE,
-				#{prdtSize},
-				#{prdtSpec},
-				#{prdtLen}
+				#{prdtSize, jdbcType=VARCHAR},
+				#{prdtSpec, jdbcType=VARCHAR},
+				#{prdtLen, jdbcType=VARCHAR}
 			)
 	</update>
 	
