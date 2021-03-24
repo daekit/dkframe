@@ -97,9 +97,9 @@
 								</button>
 							</div>
 						</td>
-						<th>직송구분</th>
+						<th>종료여부</th>
 						<td>
-							<select data-search="dirtrsYn">
+							<select data-search="closeYn">
 								<option value="">전체</option>
 								<option value="N">N</option>
 								<option value="Y">Y</option>
@@ -117,12 +117,15 @@
 					<a onclick="openOrderDetail('C');">+</a> 
 					<a onclick="deleteOrder();">-</a>
 				</div>
+				<div class="add_btn_small pdl10">
+					<a style="width:80px;" onclick="closeOrder();">주문종료</a>
+				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
-				</select> 
+				</select>
 			</div>
 		</div>
 		<!-- 콘텐츠 -->
@@ -144,7 +147,7 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				showRowSelector : true,
-				multipleSelect : false,
+				multipleSelect : true,
 				sortable : true,
 				target : $('[data-ax5grid="first-grid"]'),
 				header : {
@@ -156,6 +159,8 @@
 						this.self.select(this.dindex);
 					},
 					onDBLClick : function() {
+						gridView.target.clearSelect();
+						this.self.select(this.dindex);
 						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
 					}
 				},
@@ -172,23 +177,24 @@
 					}
 				},
 				columns: [
-		          	{key: "odrSeq",    label: "주문일련번호", align: "center", hidden: true},
-		          	{key: "reqDt",     label: "주문일자",   align: "center",  width: 80},
-		        	{key: "salesMngNm",label: "주문담당자",  align: "center",  width: 80},
-		        	{key: "dlvrDttm",  label: "납기일자",    align: "center", width: 80},
-		            {key: "dirtrsYn",  label: "직송",   align: "center",  width: 60},
-		            {key: "clntNm",    label: "거래처",    align: "left",    width: 120},
-		        	{key: "prjctNm",   label: "프로젝트",   align: "left",    width: 160},
-		        	{key: "makrNm",    label: "제조사",    align: "left",    width: 100},
-		        	{key: "whNm",      label: "창고",      align: "center", width: 60},
-		        	{key: "totQty",    label: "수량(Kg)",  align: "right",   width: 90, formatter: "money"},
-		        	{key: "totAmt",    label: "주문금액",    align: "right",  width: 100, formatter: "money"},
-		        	{key: "typNm",     label: "판매유형",    align: "center", width: 80},
-		        	{key: "impYn",     label: "수입",    	   align: "center", width: 60},
-		        	{key: "addr",      label: "착지주소",    align: "left",   width: 160},
-		        	{key: "mngTel",    label: "담당자연락처", align: "center", width: 90},
-		        	{key: "ordrgRmk",  label: "비고",      align: "left",    width: 200}
-		        ]
+		          	{key: "odrSeq",      label: "주문일련번호",  align: "center",  hidden: true},
+		          	{key: "closeYn",     label: "종료",      align: "center",  width: 60},
+		          	{key: "reqDt",       label: "주문일자",      align: "center",  width: 80},
+		        	{key: "salesMngNm",  label: "주문담당자",    align: "center",  width: 80},
+		        	{key: "dlvrDttm",    label: "납기일자",      align: "center",  width: 80},
+		            {key: "clntNm",      label: "거래처",        align: "left",    width: 120},
+		        	{key: "prjctNm",     label: "프로젝트",      align: "left",    width: 160},
+		        	{key: "makrNm",      label: "제조사",        align: "left",    width: 100},
+		        	{key: "whNm",        label: "창고",          align: "center",  width: 60},
+		        	{key: "totQty",      label: "수량(Kg)",      align: "right",   width: 90,  formatter: "money"},
+		        	{key: "totAmt",      label: "주문금액",      align: "right",   width: 100, formatter: "money"},
+		        	{key: "typNm",       label: "판매유형",      align: "center",  width: 80},
+		        	{key: "impYn",       label: "수입",    	    align: "center",   width: 60},
+		        	{key: "dirtrsYn",    label: "직송",   	    align: "center",   width: 60},
+		        	{key: "addr",        label: "착지주소",      align: "left",    width: 160},
+		        	{key: "mngTel",      label: "담당자연락처",  align: "center",  width: 90},
+		        	{key: "ordrgRmk",    label: "비고",          align: "left",    width: 200}
+		        ]                                               
 			});
 			return this;
 		},
@@ -290,9 +296,10 @@
 	
 	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
 	function deleteOrder() {
+		if (selectGridValidation(gridView.target)) return;
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"odrSeq" : row.odrSeq};
 		
+		var paramObj = {"odrSeq" : row.odrSeq};
 		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
 			fixedOrderCount = data.fixedOrderCount;
 			if(data.fixedOrderCount > 0){
@@ -301,9 +308,35 @@
 		});
 		
 		if(fixedOrderCount > 0) return;
-		if (selectGridValidation(gridView.target)) return;
 		if (!confirm("삭제하시겠습니까?")) return;
 		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
+			alert(data.resultMessage);
+			if (data.resultCode == 200) {
+				gridView.setData(0);
+			}
+		});
+	}
+	
+	// 주문종료
+	function closeOrder(){
+		if(gridView.target.getList("selected").length == 0) {
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		if (!confirm("선택된 주문을 모두 종료하시겠습니까?")) return;
+		
+		var paramObjList = [];
+		var selectedRows = gridView.target.getList("selected");
+		
+		for(var i=0;i<selectedRows.length;i++){
+			var selectedRow = selectedRows[i];
+			var paramObj = {};
+			paramObj.odrSeq = selectedRow.odrSeq;
+			paramObj.userId = jwt.userId;
+			paramObjList.push(paramObj);
+		}
+		
+		putAjax("/user/sd/sd04/closeOrder", paramObjList, null, function(data) {
 			alert(data.resultMessage);
 			if (data.resultCode == 200) {
 				gridView.setData(0);

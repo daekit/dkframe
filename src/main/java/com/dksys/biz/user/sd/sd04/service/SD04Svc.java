@@ -21,4 +21,6 @@ public interface SD04Svc {
 	
 	void deleteOrder(Map<String, String> paramMap);
 
+	void closeOrder(List<Map<String, String>> paramMapList);
+
 }

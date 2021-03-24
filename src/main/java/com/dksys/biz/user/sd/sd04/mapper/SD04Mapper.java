@@ -26,4 +26,8 @@ public interface SD04Mapper {
 	
 	int deleteOrderDetail(Map<String, String> paramMap);
 
+	int closeOrder(Map<String, String> paramMap);
+
+	int closeOrderDetail(Map<String, String> paramMap);
+
 }
