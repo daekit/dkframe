@@ -221,7 +221,7 @@ public class AR01SvcImpl implements AR01Svc {
  
 			ar02Mapper.insertPchsSell(paramMap);
 			
-			if ( detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString()))
+			if ( detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
 				// 재고정보 update
 				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
