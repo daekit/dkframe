@@ -114,11 +114,11 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a onclick="openOrderDetail('C');">+</a> 
+					<a onclick="openInsertOrder();">+</a> 
 					<a onclick="deleteOrder();">-</a>
 				</div>
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="closeOrder();">주문종료</a>
+					<a style="width:80px;" onclick="closeOrderList();">주문종료</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
@@ -161,7 +161,7 @@
 					onDBLClick : function() {
 						gridView.target.clearSelect();
 						this.self.select(this.dindex);
-						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "");
+						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "", {"odrSeq": gridView.target.getList("selected")[0].odrSeq});
 					}
 				},
 				page : {
@@ -178,7 +178,7 @@
 				},
 				columns: [
 		          	{key: "odrSeq",      label: "주문일련번호",  align: "center",  hidden: true},
-		          	{key: "closeYn",     label: "종료",      align: "center",  width: 60},
+		          	{key: "closeYn",     label: "종료",          align: "center",  width: 60},
 		          	{key: "reqDt",       label: "주문일자",      align: "center",  width: 80},
 		        	{key: "salesMngNm",  label: "주문담당자",    align: "center",  width: 80},
 		        	{key: "dlvrDttm",    label: "납기일자",      align: "center",  width: 80},
@@ -186,11 +186,11 @@
 		        	{key: "prjctNm",     label: "프로젝트",      align: "left",    width: 160},
 		        	{key: "makrNm",      label: "제조사",        align: "left",    width: 100},
 		        	{key: "whNm",        label: "창고",          align: "center",  width: 60},
-		        	{key: "totQty",      label: "수량(Kg)",      align: "right",   width: 90,  formatter: "money"},
-		        	{key: "totAmt",      label: "주문금액",      align: "right",   width: 100, formatter: "money"},
+		        	{key: "totQty",      label: "수량(Kg)",      align: "right",   width: 90,   formatter: "money"},
+		        	{key: "totAmt",      label: "주문금액",      align: "right",   width: 100,  formatter: "money"},
 		        	{key: "typNm",       label: "판매유형",      align: "center",  width: 80},
-		        	{key: "impYn",       label: "수입",    	    align: "center",   width: 60},
-		        	{key: "dirtrsYn",    label: "직송",   	    align: "center",   width: 60},
+		        	{key: "dirtrsYn",    label: "직송",   	     align: "center",  width: 60},
+		        	{key: "impYn",       label: "수입",    	     align: "center",  width: 60},
 		        	{key: "addr",        label: "착지주소",      align: "left",    width: 160},
 		        	{key: "mngTel",      label: "담당자연락처",  align: "center",  width: 90},
 		        	{key: "ordrgRmk",    label: "비고",          align: "left",    width: 200}
@@ -280,8 +280,8 @@
 	}
 
 	// 주문 상세
-	function openOrderDetail(actionType) {
-		this.actionType = actionType;
+	function openInsertOrder() {
+		actionType = "C";
 		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
 	}
 	
@@ -294,10 +294,17 @@
 		});
 	}
 	
-	// 거래처 삭제 - 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제할것.
+	// 거래처 삭제
+	// 미종료된 주문만 삭제 가능
+	// 해당 주문으로 생성된 발주 또는 출하내역이 없을 경우에만 삭제 가능
 	function deleteOrder() {
 		if (selectGridValidation(gridView.target)) return;
 		var row = gridView.target.getList("selected")[0];
+		
+		if(row.closeYn == "Y"){
+			alert("종료된 주문은 삭제할 수 없습니다.");
+			return false;
+		}
 		
 		var paramObj = {"odrSeq" : row.odrSeq};
 		postAjaxSync("/user/sd/sd04/selectFixedOrderCount", paramObj, null, function(data) {
@@ -312,13 +319,13 @@
 		deleteAjax("/user/sd/sd04/deleteOrder", paramObj, null, function(data) {
 			alert(data.resultMessage);
 			if (data.resultCode == 200) {
-				gridView.setData(0);
+				gridView.setData(gridView.target.page.currentPage);
 			}
 		});
 	}
 	
 	// 주문종료
-	function closeOrder(){
+	function closeOrderList(){
 		if(gridView.target.getList("selected").length == 0) {
 			alert("선택된 데이터가 없습니다.");
 			return false;
@@ -333,13 +340,14 @@
 			var paramObj = {};
 			paramObj.odrSeq = selectedRow.odrSeq;
 			paramObj.userId = jwt.userId;
+			paramObj.pgmId = "SD0401M01";
 			paramObjList.push(paramObj);
 		}
 		
 		putAjax("/user/sd/sd04/closeOrder", paramObjList, null, function(data) {
 			alert(data.resultMessage);
 			if (data.resultCode == 200) {
-				gridView.setData(0);
+				gridView.setData(gridView.target.page.currentPage);
 			}
 		});
 	}

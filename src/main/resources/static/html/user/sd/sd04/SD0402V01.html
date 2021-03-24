@@ -103,10 +103,13 @@
 							<input type="text" id="addrZip" name="addrZip" readonly> 
 						</div>
 					</td>
-					<td colspan="2"></td>
 					<th>착지연락처</th>
 					<td>
 						<input type="text" id="mngTel" name="mngTel" readonly>
+					</td>
+					<th>종료여부</th>
+					<td>
+						<input type="text" id="closeYn" name="closeYn" readonly>
 					</td>
 				</tr>
 				<tr>
@@ -290,7 +293,8 @@
 	<div class="popup_bottom_btn">
 		<button type="button" name="actionBtn" onclick="openInsertOrdrg();">발주</button>
 		<button type="button" name="actionBtn" onclick="openInsertShip()">출하</button>
-		<button type="button" name="actionBtn" onclick="modal.close(); openOrderDetail('U');">수정</button>
+		<button type="button" name="actionBtn" onclick="openUpdateOrder();">수정</button>
+		<button type="button" name="actionBtn" onclick="closeOrder()">종료</button>
 		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
@@ -534,9 +538,7 @@
 	});
 	
 	function selectOrderInfo() {
-		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"odrSeq" : row.odrSeq};
-		postAjax("/user/sd/sd04/selectOrderInfo", paramObj, null, function(data) {
+		postAjax("/user/sd/sd04/selectOrderInfo", commonModal.paramObj, null, function(data) {
 			setOrderInfo(data.orderInfo);
 		});
 	}
@@ -629,6 +631,13 @@
 		}
 	}
 	
+	// 수정
+	function openUpdateOrder(){
+		actionType = "U";
+		modal.close();
+		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "", {"odrSeq": $('#odrSeq').val()});
+	}
+	
 	// odrSeq, odrDtlSeq set
 	function orderSequenceSet(){
 		var tempArr = [];
@@ -647,5 +656,28 @@
 			alert("주문내역을 선택하세요.");
 			return false;
 		}
+	}
+	
+	// 주문종료
+	function closeOrder(){
+		if (!confirm("주문을 종료하시겠습니까?")) return;
+		
+		var paramObjList = [];
+		var paramObj = {};
+		paramObj.odrSeq = $('#odrSeq').val();
+		paramObj.userId = jwt.userId;
+		paramObj.pgmId = "SD0402V01";
+		paramObjList.push(paramObj);
+		
+		putAjax("/user/sd/sd04/closeOrder", paramObjList, null, function(data) {
+			alert(data.resultMessage);
+			
+			// 그리드 재검색
+			gridView.setData(gridView.target.page.currentPage);
+			
+			// 뷰페이지 재호출
+			modal.close();
+			openModal("/static/html/user/sd/sd04/SD0402V01.html", 1000, 800, "", {"odrSeq": $('#odrSeq').val()});
+		});
 	}
 </script>
