@@ -132,7 +132,7 @@
 	                <th>프로젝트명</th>
 	                <td>
 	                	<div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd">
+			              <input type="hidden" id="prjctCd" name="prjctCd" value="0">
 			              <input type="text" id="prjctNm" name="prjctNm" readonly="readonly">
 			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
 			            </div>
@@ -610,7 +610,7 @@
 		});
 		
 		var formData = new FormData($("#popForm")[0]);
-		if($("#realTotAmt").val() == "0") {
+		if($("#realTotAmt").html() == "0") {
 			formData.append("totQty", deleteCommaStr($("#ordrgTotQty").html()));
 			formData.append("totWt",  deleteCommaStr($("#ordrgTotWt").html()));
 			formData.append("totAmt", deleteCommaStr($("#ordrgTotAmt").html()));
@@ -630,10 +630,14 @@
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('.detailRow'), function(idx, elem){
+		$.each($('.detailRow'), function(midx, elem){
 			if($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='ordrgYn']").val() == "") {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
+					if(elem.name == "realDlvrQty" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=ordrgQty]")[0].value;
+					if(elem.name == "realDlvrWt" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=ordrgWt]")[0].value;
+					if(elem.name == "realDlvrUpr" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=ordrgUpr]")[0].value;
+					if(elem.name == "realDlvrAmt" && elem.value == "0") elem.value = $($('.detailRow')[midx]).find("input[name=ordrgAmt]")[0].value;
 					detailObj[elem.name] = elem.value;
 				});
 				detailArr.push(detailObj);
@@ -643,7 +647,7 @@
 		
 		if(actionType == "U") {
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		} 
+		}
 		
 		return formData;
 	}

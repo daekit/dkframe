@@ -24,5 +24,9 @@ public interface AR02Mapper {
 
 	int updatePchsSellBilg(Map<String, String> sellParam);
 
+	long callCreditLoan(Map<String, Object> map);
+
+	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
+
 	
 }

@@ -16,5 +16,9 @@ public interface AR02Svc {
 	int insertPchsSell(Map<String, String> paramMap);
 
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
+	
+	boolean checkLoan(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
 
 }

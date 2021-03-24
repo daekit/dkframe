@@ -10,19 +10,21 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.ar.ar01.mapper.AR01Mapper;
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
+import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = {RuntimeException.class, Exception.class})
 public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
@@ -36,6 +38,9 @@ public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
     AR01Svc ar01Svc;
+    
+    @Autowired
+    AR02Svc ar02Svc;
 
     @Autowired
     CM08Svc cm08Svc;
@@ -154,7 +159,6 @@ public class AR01SvcImpl implements AR01Svc {
 			//매출정보 insert
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
-			paramMap.put("selpchCd", "SELPCH2");
 			paramMap.put("trstDt", paramMap.get("dlvrDttm").replace("-", ""));
 			paramMap.put("estCoprt", detailMap.get("taxivcCoprt"));
 			paramMap.put("pchsUpr", "0");
@@ -193,6 +197,11 @@ public class AR01SvcImpl implements AR01Svc {
 				paramMap.put("stockQty", String.valueOf(stockQty));
 			}
 			sm01Mapper.updateStockSell(paramMap);
+			// 여신 체크
+		}
+		if(ar02Svc.checkLoan(paramMap)) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			return 0;
 		}
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			ar01Mapper.updateConfirm(paramMap);
