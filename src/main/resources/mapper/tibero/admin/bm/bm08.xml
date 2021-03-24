@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.admin.bm.bm08.mapper.BM08Mapper">
+	
+	<select id="selectClntPledgeCount" resultType="int">
+		SELECT COUNT(*) 
+		FROM TB_BM02M01 A, TB_BM02D02 B
+		WHERE 1=1
+		  AND A.CLNT_CD = B.CLNT_CD 
+		  AND A.USE_YN = 'Y'
+		<if test="coCd !=null and !coCd.equals('')">
+		  AND CO_CD = #{coCd} 
+		</if>
+	</select>
+	
+	<select id="selectClntPledgeList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT 
+					B.CO_CD,
+					FN_CM05M01_CD_TO_NM(CO_CD) CO_NM,
+					A.CLNT_CD,
+					A.CLNT_NM,
+					A.BASIS_CDTLN_AMT,
+					SUM(B.PLDG_AMT) AS PLDG_AMT,
+					SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) AS CDTLN_AMT
+				FROM
+				  	TB_BM02M01 A, TB_BM02D02 B
+				WHERE 1=1
+				  AND A.CLNT_CD = B.CLNT_CD
+				  AND A.USE_YN = 'Y'
+				<if test="coCd !=null and !coCd.equals('')">
+				  AND CO_CD = #{coCd} 
+				</if>
+				<if test="searchValue != null and !searchValue.equals('')">
+				  AND ${searchType} LIKE '%${searchValue}%'
+				</if>
+				<if test="clntDivCd !=null and !clntDivCd.equals('')">
+				  AND CLNT_CD = #{clntDivCd} 
+				</if>
+				GROUP BY B.CO_CD, A.CLNT_CD, A.CLNT_NM, A.BASIS_CDTLN_AMT
+			) A
+			ORDER BY CO_CD, CLNT_CD
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectClntPledgeDetailCount" resultType="int">
+		SELECT COUNT(*) 
+		FROM TB_BM02M01 A, TB_BM02D02 B
+		WHERE 1=1
+		  AND A.CLNT_CD = B.CLNT_CD
+		  AND B.CO_CD = #{coCd}
+		  AND B.CLNT_CD = #{clntCd}
+		<if test="useYn != null and !useYn.equals('')">
+		  AND B.USE_YN = #{useYn}
+		</if>
+	</select>
+	
+	<select id="selectClntPledgeDetailList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT 
+					B.CO_CD,
+					FN_CM05M01_CD_TO_NM(CO_CD) CO_NM,
+					A.CLNT_CD,
+					A.CLNT_NM,
+					A.BASIS_CDTLN_AMT,
+					B.PLDG_AMT,
+					B.PLDG_DIV_CD,
+					FN_CM05M01_CD_TO_NM(PLDG_DIV_CD) PLDG_DIV_NM,
+					B.PLDG_RCOGN_RATE,
+					B.PLDG_RMK,
+					B.PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT
+				FROM
+				  	TB_BM02M01 A, TB_BM02D02 B
+				WHERE 1=1
+				  AND A.CLNT_CD = B.CLNT_CD
+				  AND B.CO_CD = #{coCd}
+				  AND B.CLNT_CD = #{clntCd}
+				<if test="useYn != null and !useYn.equals('')">
+				  AND B.USE_YN = #{useYn}
+				</if>
+			) A
+			ORDER BY CO_CD, CLNT_CD
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+</mapper>
