@@ -39,7 +39,6 @@ public class SD08SvcImpl implements SD08Svc {
 
 	@Override
 	public int updateCplrUntpc(Map<String, String> paramMap) {
-		System.out.println("svcimpl");
 		return sd08Mapper.updateCplrUntpc(paramMap);
 	}
 
