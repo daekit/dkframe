@@ -1,0 +1,227 @@
+
+<div>
+	<span style="font-size: 25px; font-weight: bold;">거래처 담보현황 관리</span>
+</div>
+	<div class="form-group form-inline">
+		<label>회사</label>
+		<select class="form-control division" id="coCd_S" name="coCd_S" onchange="gridView.setData(0);">
+		</select>
+		<select class="form-control" id="useType" onchange="gridView2.setData(0);">
+			<option value="">전체</option>
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
+		<select class="form-control" id="searchType">
+			<option value="CLNT_NM">거래처명</option>
+		</select>
+		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
+		<div style="float: right;">
+			<a id="insertBtn" class="btn btn-default btn-sm" onclick="openClntDetail('U');">등록</a>
+		</div>
+	<input type="hidden" id="coCd">
+	<input type="hidden" id="clntCd">
+	<div class="contents">	
+	  <ul style="width:100%;padding: inherit;">
+	    <li style="width: calc(100% / 2 - 6px); vertical-align: top; display: inline-block;">
+	      <div>
+		    <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:660px; width: 100%" ></div>
+	      </div>
+	    </li>
+	    <li style="width: calc(100% / 2 - 6px); vertical-align: top; display: inline-block;">	
+	      <div>
+		    <div data-ax5grid="detail-grid" data-ax5grid-config="{}" style="height: 660px; width: 100%" ></div>
+	      </div>
+	    </li>
+	  </ul>
+	</div>
+</div>
+<script type="text/javascript">
+	var actionType = null;
+	
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="first-grid"]'),
+				showRowSelector: true,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+						$("#coCd").val( this.item.coCd);
+						$("#clntCd").val( this.item.clntCd);
+		                gridView2.initView().setData(0);
+		            },
+		            onDBLClick: function () {
+		            	//openClntDetail("U");
+		            },
+		        },
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan:2, align:"center"},
+			    		{key:"basisCdtlnAmt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "pldgAmt", collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ],
+	            columns: [
+	            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
+	                {key: "clntCd",		   label: "거래처코드", 	width: 150, hidden: "true"},
+	                {key: "coNm",	       label: "회사",		width: 95,		align: "center"},
+	                {key: "clntNm",		   label: "거래처", 	width: 150},
+	                {key: "basisCdtlnAmt", label: "그룹여신", 	width: 100,		align: "right", formatter: "money"},
+	                {key: "pldgAmt",	   label: "담보금액",  width: 100,		align: "right", formatter: "money"},
+	                {key: "cdtlnAmt",	   label: "여신금액", 	width: 100,		align: "right", formatter: "money"}
+	            ],
+	            page: {
+	                navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+	            }
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			
+			// 사용여부 set
+			paramObj.coCd = $('#coCd_S').val();
+			
+			paramObj.useYn = $('#useType').val();
+			
+			// 검색구분 set
+			paramObj.searchType = $('#searchType').val();
+			
+			// 검색어 set
+			paramObj.searchValue = $('#searchValue').val();
+			
+			postAjax("/admin/bm/bm08/selectClntPledgeList", paramObj, null, function(data){
+				targetObj.setData({
+					list: data.clntList,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	var gridView2 = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					target: $('[data-ax5grid="detail-grid"]'),
+					showRowSelector: true,
+		        	multipleSelect: false,
+					header: {selector: false},
+					body: {
+			        	onClick: function () {
+			                this.self.select(this.dindex);
+			            },
+			            onDBLClick: function () {
+			            	//openClntDetail("U");
+			            },
+			        },
+			        footSum: [
+				    	[
+				    		{label: "총계", colspan:3, align:"center"},
+				    		{key:"pldgAmt", collector: "sum", formatter:"money", align: "right"},
+				    		{key: "cdtlnAmt", collector: "sum", formatter:"money", align: "right"},
+				    	]
+				    ],
+		            columns: [
+		                {key: "coCd",	       label: "회사",		width: 95,		align: "center"},
+		                {key: "clntNm",		   label: "거래처", 		   width: 150},
+		                {key: "pldgDivNm",	   label: "구분", 	width: 90,		align: "center"},
+		                {key: "pldgAmt",	   label: "담보금액",     	   width: 120,		align: "center", formatter: "money"},
+		                {key: "pldgRcognRate", label: "인정비율", 		width: 100,		align: "center"},
+		                {key: "cdtlnAmt", 	   label: "여신금액", 			width: 150, formatter: "money"},
+		                {key: "pldgRmk", 	   label: "비고", 			width: 150}
+		            ],
+		            page: {
+		                navigationItemCount: 10,
+		                height: 30,
+		                display: true,
+		                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		                onChange: function () {
+		                    gridView.setData(this.page.selectPage);
+		                }
+		            }
+				});
+				return this;
+			},
+			setData: function(_pageNo){
+				var targetObj = this.target;
+				var formData = {
+						"coCd"		: $("#coCd").val(),
+						"clntCd"	: $("#clntCd").val(),
+						"useYn" 	: $('#useType').val(),
+						"searchType": $('#searchType').val(),
+						"searchValue":$('#searchValue').val(),
+						"pageNo" : _pageNo + 1, 
+						"recordCnt" : $("#recordCnt").val()
+					}
+				postAjax("/admin/bm/bm08/selectClntPledgeDetailList", formData, null, function(data){
+					targetObj.setData({
+						list: data.clntDetailList,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				});
+			}
+		}
+	
+	$(document).ready(function() {
+		gridView.initView().setData(0);
+		gridView2.initView();
+		selectChildCodeList();
+		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd").val(jwt.coCd);
+		$('#insertBtn').show();
+		if(jwt.authInfo == "AUTH003"){
+			$('#insertBtn').show();			
+		}
+	});
+	
+	function selectChildCodeList() {
+		var paramObj = {"codeKind": "CO"};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '<option value="">전체</option>';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, item){
+				optionHtml += '<option value='+item.codeId+'>';
+				optionHtml += item.codeNm;
+				optionHtml += '</option>';
+			});
+			$("#coCd_S").append(optionHtml);
+		});
+	}
+	
+	function openClntDetail(type) {
+		if(type == "U"){
+			if(selectGridValidation(gridView.target)) return;
+		}
+		
+		actionType = type;
+		openModal("/static/html/admin/bm/bm06/BM0602P01.html", 1400, 800, "거래처 마스터");
+	}
+</script>
