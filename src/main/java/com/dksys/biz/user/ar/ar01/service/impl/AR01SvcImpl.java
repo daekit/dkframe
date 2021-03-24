@@ -180,10 +180,12 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
 			paramMap.put("siteCd",      paramMap.get("siteCd"));
 			
-			if("VAT01".equals(detailMap.get("sellVatCd").toString()))
-		    { int vatRate = 10; 
-		      paramMap.put("bilgVatAmt", String.valueOf(Integer.parseInt(detailMap.get("realShipAmt"))  / vatRate));
-		    } else { paramMap.put("bilgVatAmt", "0");
+			if(detailMap.containsKey("sellVatCd") && "VAT01".equals(detailMap.get("sellVatCd").toString()))
+		    {
+				int vatRate = 10; 
+				paramMap.put("bilgVatAmt", String.valueOf(Integer.parseInt(detailMap.get("realShipAmt"))  / vatRate));
+		    } else { 
+		    	paramMap.put("bilgVatAmt", "0");
 		    }			
 			paramMap.put("prdtSpec",    detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize",    detailMap.get("prdtSize"));		
@@ -195,9 +197,14 @@ public class AR01SvcImpl implements AR01Svc {
  
 			ar02Mapper.insertPchsSell(paramMap);
 			
-			if ( "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			if ( detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
 				// 재고정보 update
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+				}
+				
 				paramMap.put("prdtCd", detailMap.get("prdtCd"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				paramMap.put("stockChgCd", "STOCKCHG02");
