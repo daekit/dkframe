@@ -18,6 +18,7 @@ import com.dksys.biz.user.ar.ar01.mapper.AR01Mapper;
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
+import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,6 +38,9 @@ public class AR01SvcImpl implements AR01Svc {
     SM01Mapper sm01Mapper;
     
     @Autowired
+    SD04Mapper sd04Mapper;
+    
+    @Autowired
     AR01Svc ar01Svc;
     
     @Autowired
@@ -47,11 +51,20 @@ public class AR01SvcImpl implements AR01Svc {
     
 	@Override
 	public int insertShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		boolean isOdr = false;
 		int result = ar01Mapper.insertShip(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		// 발주상세 delete
 		ar01Mapper.deleteShipDetail(paramMap);
+		if("".equals(paramMap.get("odrSeq"))) {
+			isOdr = true;
+			paramMap.put("totQty", paramMap.get("shipTotQty"));
+			paramMap.put("totWt", paramMap.get("shipTotQty"));
+			paramMap.put("totAmt", paramMap.get("shipTotAmt"));
+			paramMap.put("odrRmk", paramMap.get("dlvrRmk"));
+			sd04Mapper.insertOrder(paramMap);
+		}
 		// 발주상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
@@ -72,6 +85,17 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.insertShipDetail(detailMap);
+			if(isOdr) {
+				detailMap.put("odrQty", detailMap.get("shipQty"));
+				detailMap.put("odrWt", detailMap.get("shipWt"));
+				detailMap.put("odrUpr", detailMap.get("shipUpr"));
+				detailMap.put("odrAmt", detailMap.get("shipAmt"));
+				detailMap.put("odrDtlRmk", detailMap.get("shipDtlRmk"));
+				sd04Mapper.insertOrderDetail(detailMap);
+			}
+		}
+		if(isOdr) {
+			cm08Svc.uploadFile("TB_SD04M01", paramMap.get("odrSeq"), mRequest);
 		}
 		cm08Svc.uploadFile("TB_AR01M01", paramMap.get("reqDt")+paramMap.get("shipSeq"), mRequest);
 		return result;
@@ -180,10 +204,12 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
 			paramMap.put("siteCd",      paramMap.get("siteCd"));
 			
-			if("VAT01".equals(detailMap.get("sellVatCd").toString()))
-		    { int vatRate = 10; 
-		      paramMap.put("bilgVatAmt", String.valueOf(Integer.parseInt(detailMap.get("realShipAmt"))  / vatRate));
-		    } else { paramMap.put("bilgVatAmt", "0");
+			if(detailMap.containsKey("sellVatCd") && "VAT01".equals(detailMap.get("sellVatCd").toString()))
+		    {
+				int vatRate = 10; 
+				paramMap.put("bilgVatAmt", String.valueOf(Integer.parseInt(detailMap.get("realShipAmt"))  / vatRate));
+		    } else { 
+		    	paramMap.put("bilgVatAmt", "0");
 		    }			
 			paramMap.put("prdtSpec",    detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize",    detailMap.get("prdtSize"));		
@@ -195,9 +221,14 @@ public class AR01SvcImpl implements AR01Svc {
  
 			ar02Mapper.insertPchsSell(paramMap);
 			
-			if ( "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			if ( detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString()))
 			{
 				// 재고정보 update
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+				}
+				
 				paramMap.put("prdtCd", detailMap.get("prdtCd"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				paramMap.put("stockChgCd", "STOCKCHG02");
