@@ -194,26 +194,32 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("odrNo",          paramMap.get("odrSeq"));	
  
 			ar02Mapper.insertPchsSell(paramMap);
-			// 재고정보 update
-			paramMap.put("prdtCd", detailMap.get("prdtCd"));
-			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-			paramMap.put("stockChgCd", "STOCKCHG02");
-			if(stockInfo == null) {
-				paramMap.put("pchsUpr", detailMap.get("realShipUpr"));
-				paramMap.put("sellUpr", detailMap.get("realShipUpr"));
-				paramMap.put("stockUpr", detailMap.get("realShipUpr"));
-				paramMap.put("stdUpr", detailMap.get("realShipUpr"));
-				paramMap.put("stockQty", "-"+detailMap.get("realShipQty"));
-			} else {
-				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
-				paramMap.put("sellUpr", detailMap.get("realShipUpr"));
-				paramMap.put("stockUpr", stockInfo.get("stockUpr"));
-				paramMap.put("stdUpr", stockInfo.get("stdUpr"));
-				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realShipQty"));
-				paramMap.put("stockQty", String.valueOf(stockQty));
+			
+			if ( "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			{
+				// 재고정보 update
+				paramMap.put("prdtCd", detailMap.get("prdtCd"));
+				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+				paramMap.put("stockChgCd", "STOCKCHG02");
+				if(stockInfo == null) {
+					paramMap.put("pchsUpr", detailMap.get("realShipUpr"));
+					paramMap.put("sellUpr", detailMap.get("realShipUpr"));
+					paramMap.put("stockUpr", detailMap.get("realShipUpr"));
+					paramMap.put("stdUpr", detailMap.get("realShipUpr"));
+					paramMap.put("stockQty", "-"+detailMap.get("realShipQty"));
+				} else {
+					paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+					paramMap.put("sellUpr", detailMap.get("realShipUpr"));
+					paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+					paramMap.put("stdUpr", stockInfo.get("stdUpr"));
+					int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realShipQty"));
+					paramMap.put("stockQty", String.valueOf(stockQty));
+				}
+				sm01Mapper.updateStockSell(paramMap);
 			}
-			sm01Mapper.updateStockSell(paramMap);
+			
 			// 여신 체크
+			
 		}
 		if(ar02Svc.checkLoan(paramMap)) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
