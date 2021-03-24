@@ -91,4 +91,17 @@ public class SD04Ctr {
     	}
     	return "jsonView";
     }
+    
+    @PutMapping(value = "/closeOrder")
+    public String closeOrder(@RequestBody List<Map<String, String>> paramMapList, ModelMap model) {
+    	try {
+    		sd04Svc.closeOrder(paramMapList);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("close"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
 }

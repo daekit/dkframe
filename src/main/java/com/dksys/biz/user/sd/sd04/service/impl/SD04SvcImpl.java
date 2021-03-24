@@ -131,5 +131,13 @@ public class SD04SvcImpl implements SD04Svc {
 		sd04Mapper.deleteOrderDetail(paramMap);
 		// 첨부파일 삭제 보류!
 	}
+
+	@Override
+	public void closeOrder(List<Map<String, String>> paramMapList) {
+		for(Map<String, String> paramMap : paramMapList) {
+			sd04Mapper.closeOrder(paramMap);
+			sd04Mapper.closeOrderDetail(paramMap);
+		}
+	}
 	
 }
