@@ -68,7 +68,11 @@
 			CREAT_DTTM,
 			UDT_ID,
 			UDT_PGM,
-			UDT_DTTM 
+			UDT_DTTM, 
+	        SALES_AREA_CD,
+	        SITE_CD,
+	        BILG_VAT_AMT,
+	        PRDT_SPEC
 		)
 		VALUES 
 		(
@@ -131,7 +135,11 @@
 			SYSDATE,
 			#{userId},
 			#{pgmId},
-			SYSDATE
+			SYSDATE,
+	        #{salesAreaCd},
+	        #{siteVd},
+	        #{bilgVatAmt},
+	        #{prdtSspec}
 		)
 	</insert>
 	
@@ -249,7 +257,10 @@
 		        UDT_ID,
 		        UDT_PGM,
 		        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
-		        SALES_AREA_CD
+		        SALES_AREA_CD,
+		        SITE_CD,
+		        BILG_VAT_AMT,
+		        PRDT_SPEC
 			FROM 
 			(
 			 	SELECT * FROM TB_AR02M01 T
@@ -287,7 +298,7 @@
 				<if test='bilgYn == "N"'>
 					AND BILG_CERT_NO IS NULL 		
 				</if>
-				ORDER BY UDT_DTTM DESC
+				ORDER BY CLNT_NM, TRST_DT, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -397,7 +408,10 @@
 	        UDT_ID,
 	        UDT_PGM,
 	        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
-	        SALES_AREA_CD
+	        SALES_AREA_CD,
+	        SITE_CD,
+	        BILG_VAT_AMT,
+	        PRDT_SPEC
 		FROM TB_AR02M01 T
 		WHERE TRST_CERTI_NO = #{trstCertiNo}
 	</select>
