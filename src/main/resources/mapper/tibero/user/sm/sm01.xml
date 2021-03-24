@@ -68,6 +68,8 @@
 						, A.PRDT_SIZE
 						, A.PRDT_SPEC
 						, A.PRDT_LEN
+						, C.PRDT_STKN
+						, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
 						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 				WHERE  A.PRDT_CD = C.PRDT_CD
@@ -160,7 +162,7 @@
 					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
 						, A.STOCK_UPR
 						, A.STOCK_QTY
-						, (nvl(A.STOCK_UPR,0) * nvl(A.STOCK_QTY,0)) as STOCK_AMT
+						, (NVL(A.STOCK_UPR,0) * NVL(A.STOCK_QTY,0)) AS STOCK_AMT
 						, A.STD_UPR
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
@@ -168,6 +170,8 @@
 						, A.PRDT_SIZE
 						, A.PRDT_SPEC
 						, A.PRDT_LEN
+						, C.PRDT_STKN
+						, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
 						, TO_CHAR(A.PROC_DTTM, 'YYYY-MM-DD') AS PROC_DTTM 
 				FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD = C.PRDT_CD 
@@ -231,6 +235,8 @@
 			, A.PRDT_SIZE
 			, A.PRDT_SPEC
 			, A.PRDT_LEN
+			, C.PRDT_STKN
+			, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
 			, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD   = C.PRDT_CD
@@ -252,15 +258,18 @@
 			USING DUAL
 			ON 
 			(
-					CO_CD    = #{coCd}
-				AND WH_CD    = #{whCd}
-				AND PRDT_CD  = #{prdtCd}
-				AND OWNER_CD = #{ownerCd}
-				AND CLNT_CD  = #{clntCd}
-				AND TYP_CD   = #{typCd}
-				AND MAKR_CD  = #{makrCd}
-				AND PRJCT_CD = #{prjctCd}
-				AND IMP_YN   = #{impYn}
+					CO_CD     = #{coCd}
+				AND WH_CD     = #{whCd}
+				AND PRDT_CD   = #{prdtCd}
+				AND OWNER_CD  = #{ownerCd}
+				AND CLNT_CD   = #{clntCd}
+				AND TYP_CD    = #{typCd}
+				AND MAKR_CD   = #{makrCd}
+				AND PRJCT_CD  = #{prjctCd}
+				AND IMP_YN    = #{impYn}
+				AND PRDT_SIZE = #{prdtSize}
+				AND PRDT_SPEC = #{prdtSpec}
+				AND PRDT_LEN  = #{prdtLen}
 			)
 		WHEN MATCHED THEN
 			UPDATE SET
