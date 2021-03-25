@@ -96,10 +96,10 @@
 	                </td>
 	                <th>영업담당자</th>
 	                <td>                                
-	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
 	                    <div class="search_form">
+	                    	<input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
 		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
-	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
+	                    	<a onclick="openSecondUserSearch(this, 'sales');"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>	                
 	            </tr>
@@ -295,7 +295,7 @@
 	            	<div class="search_form">
 		                <input type="hidden" name="ordrgProcId">
 		                <input type="text" name="ordrgProcNm" readonly="readonly">
-		            	<button type="button" onclick="openUserTree(this, 'ORDRG');"><i class="i_search_w"></i></button>
+		            	<button type="button" onclick="openSecondUserSearch(this, 'ordrg');"><i class="i_search_w"></i></button>
 		            </div>
 	            </td>
 	            <td>
@@ -672,10 +672,32 @@
 		}
 	}
 	
-	function openUserTree(el, type) {
-		treeType = type; 
-		selectedIdx = $(el).closest('tr').prevAll().length;
-		openSecondModal("/static/html/user/od/od01/OD0102P04.html", 300, 500, "사용자 검색");
+	// 사용자 검색
+	function openSecondUserSearch(elem, callFrom) {
+		
+		if(callFrom == "ordrg"){
+			selectedIdx = $(elem).closest('tr').prevAll().length;
+		}
+		
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $(elem).closest('div').find('input:hidden').val(),
+			"useYn": "Y",
+			"callFrom": callFrom
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			
+			if(commonModal.paramObj.callFrom == "sales"){
+				$('#salesMng').val(checkedNode.id);
+				$('#salesMngNm').val(checkedNode.text);
+			}else if(commonModal.paramObj.callFrom == 'ordrg'){
+				$("input[name=ordrgProcId]")[selectedIdx].value = checkedNode.id;
+				$("input[name=ordrgProcNm]")[selectedIdx].value = checkedNode.text;
+			}
+		});
 	}
 	
 	function countAmt(el) {
