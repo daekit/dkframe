@@ -1,9 +1,106 @@
-
-<div>
-	<span style="font-size: 25px; font-weight: bold;">거래처 담보현황 관리</span>
-</div>
-	<div class="form-group form-inline">
-		<label>회사</label>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	
+</head>
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+		    	<a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		        </a>
+		        <a onclick="gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
+	        </li>
+	      </ul>
+    	</div>
+		<div class="contents search">
+		  <div class="">
+            <!-- 테이블 인풋 2분할 -->
+            <table class="table_input type03">
+              <tr>
+            	<th class= "hit">회사</th>
+	            <td>
+	              <select id="coCd_S" data-search="coCd_S" data-kind="CO" required="required" onchange="gridView.setData(0);">
+	                <option value="">전체</option>
+	              </select>
+	            </td>
+	            <th>거래처</th>
+                <td>
+                  <input type="hidden" id="clntCd_S" data-search="clntCd_S">
+                  <div class="search_form" style="width: 50%;">
+	                <input type="text" id="clntNm_S" data-search="clntNm_S" disabled>
+	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+	              </div>
+                </td>
+                <th>사용유무</th>
+                <td>
+                  <select id="useType" data-search="useType" required="required" onchange="gridView.setData(0); gridView2.setData(0);">
+	                <option value="">전체</option>
+	                <option value="Y">사용</option>
+					<option value="N">미사용</option>
+	              </select>
+                </td>
+              </tr>
+            </table>
+		  </div>
+		</div>		
+		
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a id="pldgUpdateBtn" onclick="openClntDetail('U');" style="height: 30px; width:50px; line-height: 28px;">담보등록</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0); gridView2.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div>
+		<!-- <label>회사</label>
 		<select class="form-control division" id="coCd_S" name="coCd_S" onchange="gridView.setData(0);">
 		</select>
 		<select class="form-control" id="useType" onchange="gridView2.setData(0);">
@@ -13,29 +110,33 @@
 		</select>
 		<select class="form-control" id="searchType">
 			<option value="CLNT_NM">거래처명</option>
-		</select>
-		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		</select> -->
+		<!-- <input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button>
 		<div style="float: right;">
 			<a id="insertBtn" class="btn btn-default btn-sm" onclick="openClntDetail('U');">등록</a>
-		</div>
+		</div> -->
 	<input type="hidden" id="coCd">
 	<input type="hidden" id="clntCd">
 	<div class="contents">	
-	  <ul style="width:100%;padding: inherit;">
-	    <li style="width: calc(100% / 2 - 6px); vertical-align: top; display: inline-block;">
+	  <ul class="ul_list type02">
+	    <li>
 	      <div>
 		    <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:660px; width: 100%" ></div>
 	      </div>
 	    </li>
-	    <li style="width: calc(100% / 2 - 6px); vertical-align: top; display: inline-block;">	
+	    <li>	
 	      <div>
 		    <div data-ax5grid="detail-grid" data-ax5grid-config="{}" style="height: 660px; width: 100%" ></div>
 	      </div>
 	    </li>
 	  </ul>
 	</div>
-</div>
+
+
+</body>
+</html>
+
 <script type="text/javascript">
 	var actionType = null;
 	
@@ -46,7 +147,8 @@
 				target: $('[data-ax5grid="first-grid"]'),
 				showRowSelector: true,
 	        	multipleSelect: false,
-				header: {selector: false},
+				header: {align: "center", 
+		        	selector: false},
 				body: {
 		        	onClick: function () {
 		                this.self.select(this.dindex);
@@ -67,9 +169,9 @@
 			    ],
 	            columns: [
 	            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
-	                {key: "clntCd",		   label: "거래처코드", 	width: 150, hidden: "true"},
+	                {key: "clntCd",		   label: "거래처코드", 	width: 180, hidden: "true"},
 	                {key: "coNm",	       label: "회사",		width: 95,		align: "center"},
-	                {key: "clntNm",		   label: "거래처", 	width: 150},
+	                {key: "clntNm",		   label: "거래처", 	width: 180},
 	                {key: "basisCdtlnAmt", label: "그룹여신", 	width: 100,		align: "right", formatter: "money"},
 	                {key: "pldgAmt",	   label: "담보금액",  width: 100,		align: "right", formatter: "money"},
 	                {key: "cdtlnAmt",	   label: "여신금액", 	width: 100,		align: "right", formatter: "money"}
@@ -91,20 +193,16 @@
 		},
 		setData: function(_pageNo){
 			var targetObj = this.target;
-			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			var formData = {
+					"coCd"		: $("#coCd_S").val(),
+					"clntCd"	: $("#clntCd").val(),
+					"useYn" 	: $('#useType').val(),
+					"clntCdS"	: $('#clntCd_S').val(),
+					"pageNo" 	: _pageNo + 1, 
+					"recordCnt" : $("#recordCnt").val()
+				}
 			
-			// 사용여부 set
-			paramObj.coCd = $('#coCd_S').val();
-			
-			paramObj.useYn = $('#useType').val();
-			
-			// 검색구분 set
-			paramObj.searchType = $('#searchType').val();
-			
-			// 검색어 set
-			paramObj.searchValue = $('#searchValue').val();
-			
-			postAjax("/admin/bm/bm08/selectClntPledgeList", paramObj, null, function(data){
+			postAjax("/admin/bm/bm08/selectClntPledgeList", formData, null, function(data){
 				targetObj.setData({
 					list: data.clntList,
 					page : {
@@ -125,7 +223,8 @@
 					target: $('[data-ax5grid="detail-grid"]'),
 					showRowSelector: true,
 		        	multipleSelect: false,
-					header: {selector: false},
+		        	header: {align: "center", 
+			        	selector: false},
 					body: {
 			        	onClick: function () {
 			                this.self.select(this.dindex);
@@ -142,14 +241,14 @@
 				    	]
 				    ],
 		            columns: [
-		            	{key: "useYn",	       label: "사용여부",		width: 95,		align: "center"},
-		                {key: "coCd",	       label: "회사",		width: 95,		align: "center"},
-		                {key: "clntNm",		   label: "거래처", 		   width: 150},
+		            	{key: "useYn",	       label: "사용",		width: 35,		align: "center"},
+		                {key: "coNm",	       label: "회사",		width: 95,		align: "center"},
+		                {key: "clntNm",		   label: "거래처", 	width: 150,		align: "left"},
 		                {key: "pldgDivNm",	   label: "구분", 	width: 90,		align: "center"},
-		                {key: "pldgAmt",	   label: "담보금액",     	   width: 120,		align: "center", formatter: "money"},
-		                {key: "pldgRcognRate", label: "인정비율", 		width: 100,		align: "center"},
-		                {key: "cdtlnAmt", 	   label: "여신금액", 			width: 150, formatter: "money"},
-		                {key: "pldgRmk", 	   label: "비고", 			width: 150}
+		                {key: "pldgAmt",	   label: "담보금액",  width: 90,		align: "right", formatter: "money"},
+		                {key: "cdtlnAmt", 	   label: "여신금액", 	width: 90, 	align: "right", formatter: "money"},
+		                {key: "pldgRcognRate", label: "인정비율", 	width: 60,		align: "right"},
+		                {key: "pldgRmk", 	   label: "비고", 	width: 150,		align: "left"}
 		            ],
 		            page: {
 		                navigationItemCount: 10,
@@ -172,8 +271,7 @@
 						"coCd"		: $("#coCd").val(),
 						"clntCd"	: $("#clntCd").val(),
 						"useYn" 	: $('#useType').val(),
-						"searchType": $('#searchType').val(),
-						"searchValue":$('#searchValue').val(),
+						"clntCdS"	: $('#clntCd_S').val(),
 						"pageNo" : _pageNo + 1, 
 						"recordCnt" : $("#recordCnt").val()
 					}
@@ -192,28 +290,34 @@
 		}
 	
 	$(document).ready(function() {
+		mainDefaultLoad("영업관리", "거래처 담보현황 관리");
+		setCommonSelect($("#main_area select[data-kind]"));
 		gridView.initView().setData(0);
 		gridView2.initView();
-		selectChildCodeList();
-		setCommonSelect($("#main_area select[data-kind]"));
+		//selectChildCodeList();
 		$("#coCd").val(jwt.coCd);
-		$('#insertBtn').show();
+		$('#pldgUpdateBtn').hide();
 		if(jwt.authInfo == "AUTH003"){
-			$('#insertBtn').show();			
+			$('#pldgUpdateBtn').show();			
 		}
 	});
 	
-	function selectChildCodeList() {
-		var paramObj = {"codeKind": "CO"};
-		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
-			var optionHtml = '<option value="">전체</option>';
-			var childCodeList = data.childCodeList;
-			$.each(childCodeList, function(index, item){
-				optionHtml += '<option value='+item.codeId+'>';
-				optionHtml += item.codeNm;
-				optionHtml += '</option>';
-			});
-			$("#coCd_S").append(optionHtml);
+	// 검색조건 초기화
+	function initSearch() {
+
+		// 조건
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		// 재검색
+		gridView.setData(0);
+		gridView2.setData(0);
+	}
+	
+	//거래처
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
 		});
 	}
 	
