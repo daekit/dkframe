@@ -92,8 +92,6 @@ public class SM02Ctr {
 		 * }
 		 */
     	sm02svc.sm01UpdateInsertStockMove(param);
-    	sm02svc.sm01UpdateStockMove(param);
-    	sm02svc.sm02InsertStockMove(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	
@@ -110,8 +108,6 @@ public class SM02Ctr {
 		 * }
 		 */
     	sm02svc.sm01UpdateInsertBarterStockMove(param);
-    	sm02svc.sm01UpdateStockMove(param);
-    	sm02svc.sm02InsertBarterStockMove(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	
