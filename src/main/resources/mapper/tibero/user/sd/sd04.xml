@@ -59,7 +59,6 @@
 					WH_CD,
 					FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
 					MNG_TEL,
-					DLVR_DTTM,
 					TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
 					ADDR_ZIP,
 					ADDR_MAIN || ' ' || ADDR_SUB AS ADDR,
@@ -136,7 +135,6 @@
 			IMP_YN,
 			WH_CD,
 			MNG_TEL,
-			DLVR_DTTM,
 			TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
 			ADDR_ZIP,
 			ADDR_MAIN,
@@ -242,9 +240,7 @@
 			IMP_YN,
 			WH_CD,
 			MNG_TEL,
-			<if test="dlvrDttm != null and !dlvrDttm.equals('')">
-				DLVR_DTTM,
-			</if>
+			DLVR_DTTM,
 			ADDR_ZIP,
 			ADDR_MAIN,
 			ADDR_SUB,
@@ -275,9 +271,7 @@
 			#{impYn},
 			#{whCd},
 			#{mngTel},
-			<if test="dlvrDttm != null and !dlvrDttm.equals('')">
-				TO_DATE(#{dlvrDttm}, 'YYYYMMDD'),
-			</if>
+			#{dlvrDttm},
 			#{addrZip},
 			#{addrMain},
 			#{addrSub},
@@ -363,9 +357,7 @@
 			IMP_YN = #{impYn},
 			WH_CD = #{whCd},
 			MNG_TEL = #{mngTel},
-			<if test="dlvrDttm != null and !dlvrDttm.equals('')">
-				DLVR_DTTM = TO_DATE(#{dlvrDttm}, 'YYYYMMDD'),
-			</if>
+			DLVR_DTTM = #{dlvrDttm},
 			ADDR_ZIP = #{addrZip},
 			ADDR_MAIN = #{addrMain},
 			ADDR_SUB = #{addrSub},
@@ -412,7 +404,10 @@
 		SET
 			CLOSE_YN = 'Y',
 			CLOSE_ID = #{userId},
-			CLOSE_DTTM = SYSDATE
+			CLOSE_DTTM = SYSDATE,
+			UDT_ID = #{userId},
+			UDT_PGM = #{pgmId},
+			UDT_DTTM = SYSDATE
 		WHERE
 			ODR_SEQ = #{odrSeq}
 	</update>
@@ -423,8 +418,16 @@
 		SET
 			CLOSE_YN = 'Y',
 			CLOSE_ID = #{userId},
-			CLOSE_DTTM = SYSDATE
+			CLOSE_DTTM = SYSDATE,
+			UDT_ID = #{userId},
+			UDT_PGM = #{pgmId},
+			UDT_DTTM = SYSDATE
 		WHERE
 			ODR_SEQ = #{odrSeq}
 	</update>
+	
+	<select id="selectOdrSeq" resultType="String">
+		SELECT TB_SD04M01_SQ01.NEXTVAL FROM DUAL
+	</select>
+	
 </mapper>

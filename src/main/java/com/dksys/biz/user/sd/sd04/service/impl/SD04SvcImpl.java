@@ -139,5 +139,10 @@ public class SD04SvcImpl implements SD04Svc {
 			sd04Mapper.closeOrderDetail(paramMap);
 		}
 	}
+
+	@Override
+	public String selectOdrSeq() {
+		return sd04Mapper.selectOdrSeq();
+	}
 	
 }

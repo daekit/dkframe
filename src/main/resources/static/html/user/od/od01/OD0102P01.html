@@ -53,12 +53,12 @@
 	                        <option value="">선택</option> 
 	                    </select>               
 	                </td>
-	                <th>영업담당자</th>
-	                <td>                                
-	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
-	                    <div class="search_form">
-		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
-	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
+	                <th>매출거래처</th>
+	                <td class="drctArea">
+	                	<input type="hidden" id="sellClntCd" name="sellClntCd" style="width: 76%;">                   
+	                	<div class="search_form">
+		                    <input type="text" id="sellClntNm" name="sellClntNm" readonly="readonly">
+	                    	<button type="button" onclick="openSecondClntSearch('SELL');"><i class="i_search_w"></i></button>
 	                    </div>
 	                </td>
 	            </tr>
@@ -94,14 +94,14 @@
 	                <td>   
 	                	<input type="text" id="transAmt" name="transAmt" style="width: 100%;" onkeyup="addComma(this);" comma>
 	                </td>
-	                <th>매출거래처</th>
-	                <td class="drctArea">
-	                	<input type="hidden" id="sellClntCd" name="sellClntCd" style="width: 76%;">                   
-	                	<div class="search_form">
-		                    <input type="text" id="sellClntNm" name="sellClntNm" readonly="readonly">
-	                    	<button type="button" onclick="openSecondClntSearch('SELL');"><i class="i_search_w"></i></button>
+	                <th>영업담당자</th>
+	                <td>                                
+	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
+	                    <div class="search_form">
+		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly">
+	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
 	                    </div>
-	                </td>
+	                </td>	                
 	            </tr>
 	            <tr>
 	                <th>주문번호</th>
@@ -128,7 +128,14 @@
 	                    	<a onclick="openDaumPostcode();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
-	                <td colspan="2"></td>
+	                <th>현장명</th>
+	                <td>
+	                	<div class="search_form">
+			              <input type="hidden" id="siteCd" name="siteCd" value="0">
+			              <input type="text" id="siteNm" name="siteNm" readonly="readonly">
+			              <a onclick="openSecondSiteSearch();"><i class="i_search_w"></i></a>
+			            </div>	                
+	                </td>
 	                <th>프로젝트명</th>
 	                <td>
 	                	<div class="search_form">
@@ -163,6 +170,7 @@
     <br>
     <!-- 테이블 -->
     <div class="popup_table">
+    
       <table>
         <tr>
           <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
@@ -658,7 +666,7 @@
 			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
-				viewOrderModal();
+				viewOrderModal(selectedRowIdx);
 				modal.close();
 			});
 		}
@@ -741,7 +749,7 @@
 				$('#clntNm').val(row.clntNm);	
 			} else {
 				$('#sellClntCd').val(row.clntCd);
-				$('#sellClntNm').val(row.clntNm);				
+				$('#sellClntNm').val(row.clntNm);			
 			}
 		});
 	}

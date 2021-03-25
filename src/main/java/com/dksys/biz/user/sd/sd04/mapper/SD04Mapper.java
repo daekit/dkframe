@@ -30,4 +30,6 @@ public interface SD04Mapper {
 
 	int closeOrderDetail(Map<String, String> paramMap);
 
+	String selectOdrSeq();
+
 }

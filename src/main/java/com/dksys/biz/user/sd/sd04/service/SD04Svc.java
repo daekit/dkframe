@@ -23,4 +23,6 @@ public interface SD04Svc {
 
 	void closeOrder(List<Map<String, String>> paramMapList);
 
+	String selectOdrSeq();
+
 }
