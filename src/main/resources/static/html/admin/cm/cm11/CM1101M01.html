@@ -40,9 +40,11 @@
 	<div id="head_area"></div>
 	<div id="top_area"></div>
 	<div id="main_area">
-
 		<!-- 콘텐츠 -->
 		<div class="contents">
+			<div style="text-align:right">
+				<h3 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h3>
+			</div>
 			<!-- 리스트 -->
 			<table class="form-group popup_table" id="scndTable">
 				<colgroup>
@@ -88,11 +90,9 @@
 		      			<td><div id="chart_div3"></div></td>
 		      			<td><div id="chart_div4"></div></td>
 					</tr>
-					<tr>
-						<td colspan="4"><div id="chart_div5"></div></td>
-					</tr>
 				</tbody>
 			</table>
+						<div id="chart_div5" style="display:inline-block; margin: 0 auto; text-align:left; width:100%"></div>
 		</div>
 	</div>
 </body>
@@ -144,7 +144,6 @@
 				var paramObj = {};
 				postAjax("/user/cm/cm11/selectPrdtSelpch2List", paramObj, null, function(data) {
 					var list = data.resultList;
-					console.log("selectPrdtSelpch2List: " + data);
 					targetObj.setData({
 						list : list,
 						page : {
@@ -211,7 +210,6 @@
 				var paramObj = {};
 				postAjax("/user/cm/cm11/selectClntSelpch2List", paramObj, null, function(data) {
 					var list = data.resultList;
-					console.log("selectClntSelpch1List  : " + data);
 					targetObj.setData({
 						list : list,
 						page : {
@@ -263,9 +261,8 @@
 				    	]
 				    ],
 					columns: [
-			          	{key: "clntNm",     label: "거래처",   	align: "left",  width: 135},
-			          	{key: "prdtDivNm",     label: "제품",   	align: "left",  width: 135},
-			          	{key: "realTrstAmt",     label: "매입금액",   	align: "right",  width: 95, formatter:"money"}
+			          	{key: "clntNm",     label: "거래처",   	align: "left",  width: 225},
+			          	{key: "realTrstAmt",     label: "매입금액",   	align: "right",  width: 135, formatter:"money"}
 			        ]
 				});
 				return this;
@@ -275,7 +272,6 @@
 				var paramObj = {};
 				postAjax("/user/cm/cm11/selectClntSelpch1List", paramObj, null, function(data) {
 					var list = data.resultList;
-					console.log("selectClntSelpch1List  : " + data);
 					targetObj.setData({
 						list : list,
 						page : {
@@ -338,7 +334,7 @@
 			setData : function() {
 				var paramObj = {};
 				postAjax("/user/cm/cm11/selectDashBoardList", paramObj, null, function(data) {
-					console.log("selectFacList : " + data);
+					$("#searchDttm").html("조회 일시 : " + data.searchDttm);
 					gridView.target.setData({
 						list : data.resultList1,
 						page : {
@@ -373,17 +369,16 @@
 						var chartData3 = new google.visualization.DataTable(data.chartData3);  // 매입실적(거래처)    
 						var chartData4 = new google.visualization.DataTable(data.chartData4);  // 생산실적(제품)     
 						var chartData5 = new google.visualization.DataTable(data.chartData5);   // 매출/매입실적(월별) 
-
-						var chart1 = new google.visualization.LineChart(document.getElementById("chart_div1"));    // 매출실적(제품)     
-						var chart2 = new google.visualization.LineChart(document.getElementById("chart_div2"));    // 매출실적(거래처)    
-						var chart3 = new google.visualization.LineChart(document.getElementById("chart_div3"));    // 매입실적(거래처)    
-						var chart4 = new google.visualization.LineChart(document.getElementById("chart_div4"));    // 생산실적(제품)     
+						var chart1 = new google.visualization.ColumnChart(document.getElementById("chart_div1"));    // 매출실적(제품)     
+						var chart2 = new google.visualization.ColumnChart(document.getElementById("chart_div2"));    // 매출실적(거래처)    
+						var chart3 = new google.visualization.PieChart(document.getElementById("chart_div3"));    // 매입실적(거래처)    
+						var chart4 = new google.visualization.ColumnChart(document.getElementById("chart_div4"));    // 생산실적(제품)     
 						var chart5 = new google.visualization.LineChart(document.getElementById("chart_div5"));     // 매출/매입실적(월별) 
 
 						var options = {
 								height : 300,
 							    fontSize: '10',
-							    curveType: 'function',
+							    //curveType: 'function',
 							    animation: { //차트가 뿌려질때 실행될 애니메이션 효과
 					                 startup: true,
 					                 duration: 1000,
@@ -391,8 +386,15 @@
 						}
 						var options2 = {
 								title : "매출/매입실적 (월별)",
+								width : 1750,
 								height : 300,
+								chartArea : { left: 100 },
+								backgroundColor: {
+							        'fill': '(00)#F4F4F4',
+							        'opacity': 100
+							     },
 							    fontSize: '15',
+							    //curveType: 'function',
 							    animation: { //차트가 뿌려질때 실행될 애니메이션 효과
 					                 startup: true,
 					                 duration: 1000,
