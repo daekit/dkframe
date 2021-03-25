@@ -43,6 +43,17 @@ public class AR04Ctr {
     	return "jsonView";
 	}
 	
+    @PostMapping(value = "/selectTaxBilgDetailList")
+	public String selectTaxBilgDetailList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar04Svc.selectTaxBilgDetailCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = ar04Svc.selectTaxBilgDetailList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+	
     @PostMapping(value = "/selectTaxBilg")
 	public String selectTaxBilg(@RequestBody Map<String, String> paramMap, ModelMap model) {
 

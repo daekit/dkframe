@@ -451,6 +451,90 @@
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</select>
 	
+	<select id="selectTaxBilgDetailCount" resultType="int">
+	SELECT COUNT(*)
+	 FROM TB_AR02M01 A
+	WHERE BILG_CERT_NO = #{bilgCertNo}
+	  AND CO_CD = #{coCd}
+	</select>
+	
+	<select id="selectTaxBilgDetailList" resultType="CamelMap">
+	SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+			SELECT CO_CD
+				 , TRST_CERTI_NO
+				 , SELPCH_CD
+				 , FN_CM05M01_CD_TO_NM(SELPCH_CD) SELPCH_NM
+				 , TAXIVC_COPRT
+				 , TRST_DT
+				 , TRST_CLNT_CD
+				 , TRST_PRDT_CD
+				 , (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = TRST_PRDT_CD) AS PRDT_NM
+				 , OWNER_CD
+				 , IMP_YN
+				 , TYP_CD
+				 , TRSP_TYP_CD
+				 , TRST_RPRC_SEQ
+				 , TRST_DTL_SEQ
+				 , PRDT_LEN
+				 , ODR_NO
+				 , SALES_MNG
+				 , PRJCT_CD
+				 , MAKR_CD
+				 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
+				 , WH_CD
+				 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
+				 , MNG_TEL
+				 , TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') DLVR_DTTM
+				 , DIRTRS_YN
+				 , PRDT_DIV
+				 , PRDT_STKN
+				 , PRDT_SIZE
+				 , PRDT_UNIT
+				 , PRDT_UPR
+				 , STOCK_UPR
+				 , PCHS_UPR
+				 , SELL_UPR
+				 , TRST_QTY
+				 , TRST_WT
+				 , TRST_UPR
+				 , TRST_AMT
+				 , REAL_TRST_QTY
+				 , REAL_TRST_WT
+				 , REAL_TRST_UPR
+				 , REAL_TRST_AMT
+				 , BILG_QTY
+				 , BILG_WT
+				 , BILG_UPR
+				 , BILG_AMT
+				 , TRST_DC_AMT
+				 , ETC_AMT
+				 , TRSP_RMK
+				 , TRANS_AMT
+				 , SHIP_VEH_NO
+				 , CLNT_NM
+				 , BILG_CERT_NO
+				 , LOSS_RATE
+				 , ODR_CREAT_DIV
+				 , SALES_AREA_CD
+				 , SITE_CD
+				 , BILG_VAT_AMT
+				 , PRDT_SPEC
+			 FROM TB_AR02M01 A
+			WHERE BILG_CERT_NO = #{bilgCertNo}
+			  AND CO_CD = #{coCd}
+			) A
+		)
+	WHERE
+		RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
 	<update id="updateTaxBilg">
 	UPDATE TB_AR04M01
 	SET SELL_DT = REPLACE(#{sellDt}, '-', '')

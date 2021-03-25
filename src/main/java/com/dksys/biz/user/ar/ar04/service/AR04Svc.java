@@ -9,7 +9,11 @@ public interface AR04Svc {
 	
 	public List<Map<String, String>> selectTaxBilgList(Map<String, String> param);
 	
+	public List<Map<String, String>> selectTaxBilgDetailList(Map<String, String> param);
+	
 	public int selectTaxBilgCount(Map<String, String> param);	
+	
+	public int selectTaxBilgDetailCount(Map<String, String> param);	
 	
 	public Map<String, String> selectTaxBilg(Map<String, String> param);
 
