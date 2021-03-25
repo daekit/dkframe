@@ -5,9 +5,52 @@
 	
 	<select id="selectOrderCount" resultType="int">
 		SELECT 
-	 		COUNT(*) 
+	 		COUNT(*)
 	 	FROM 
-	 		TB_SD04M01
+ 		(
+	 		SELECT
+				CO_CD,
+				TO_CHAR(TO_DATE(REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
+				CLNT_CD,
+				(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+				ODR_SEQ,
+				PRJCT_CD,
+				(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+				MAKR_CD,
+				FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
+				TYP_CD,
+				FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
+				OWNER_CD,
+				IMP_YN,
+				WH_CD,
+				FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
+				MNG_TEL,
+				TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+				ADDR_ZIP,
+				ADDR_MAIN || ' ' || ADDR_SUB AS ADDR,
+				ODR_RMK,
+				DIRTRS_YN,
+				TOT_QTY,
+				TOT_WT,
+				TOT_AMT,
+				SALES_MNG,
+				(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+				ODR_CREAT_DIV,
+				CLOSE_YN,
+				CLOSE_ID,
+				CLOSE_DTTM,
+				ETC_FIELD1,
+				ETC_FIELD2,
+				ETC_FIELD3,
+				CREAT_ID,
+				CREAT_PGM,
+				CREAT_DTTM,
+				UDT_ID,
+				UDT_PGM,
+				UDT_DTTM
+			FROM
+				TB_SD04M01 T
+ 		)
 	 	<where>
 		 	<if test="coCd != null and !coCd.equals('')">
 				AND CO_CD = #{coCd}				
@@ -30,6 +73,9 @@
 			<if test="closeYn != null and !closeYn.equals('')">
 				AND CLOSE_YN = #{closeYn}				
 			</if>
+			<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'
+			</if>
 	 	</where>
 	</select>
 	
@@ -43,47 +89,52 @@
 			FROM
 			(
 				SELECT
-					CO_CD,
-					TO_CHAR(TO_DATE(REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
-					CLNT_CD,
-					(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
-					ODR_SEQ,
-					PRJCT_CD,
-					(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
-					MAKR_CD,
-					FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
-					TYP_CD,
-					FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
-					OWNER_CD,
-					IMP_YN,
-					WH_CD,
-					FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
-					MNG_TEL,
-					TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
-					ADDR_ZIP,
-					ADDR_MAIN || ' ' || ADDR_SUB AS ADDR,
-					ODR_RMK,
-					DIRTRS_YN,
-					TOT_QTY,
-					TOT_WT,
-					TOT_AMT,
-					SALES_MNG,
-					(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
-					ODR_CREAT_DIV,
-					CLOSE_YN,
-					CLOSE_ID,
-					CLOSE_DTTM,
-					ETC_FIELD1,
-					ETC_FIELD2,
-					ETC_FIELD3,
-					CREAT_ID,
-					CREAT_PGM,
-					CREAT_DTTM,
-					UDT_ID,
-					UDT_PGM,
-					UDT_DTTM
+					*
 				FROM
-					TB_SD04M01 T
+				(
+					SELECT
+						CO_CD,
+						TO_CHAR(TO_DATE(REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS REQ_DT,
+						CLNT_CD,
+						(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+						ODR_SEQ,
+						PRJCT_CD,
+						(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+						MAKR_CD,
+						FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
+						TYP_CD,
+						FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
+						OWNER_CD,
+						IMP_YN,
+						WH_CD,
+						FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
+						MNG_TEL,
+						TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+						ADDR_ZIP,
+						ADDR_MAIN || ' ' || ADDR_SUB AS ADDR,
+						ODR_RMK,
+						DIRTRS_YN,
+						TOT_QTY,
+						TOT_WT,
+						TOT_AMT,
+						SALES_MNG,
+						(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+						ODR_CREAT_DIV,
+						CLOSE_YN,
+						CLOSE_ID,
+						CLOSE_DTTM,
+						ETC_FIELD1,
+						ETC_FIELD2,
+						ETC_FIELD3,
+						CREAT_ID,
+						CREAT_PGM,
+						CREAT_DTTM,
+						UDT_ID,
+						UDT_PGM,
+						UDT_DTTM
+					FROM
+						TB_SD04M01 T
+				)
 				<where>
 					<if test="coCd != null and !coCd.equals('')">
 						AND CO_CD = #{coCd}				
@@ -105,6 +156,9 @@
 					</if>
 					<if test="closeYn != null and !closeYn.equals('')">
 						AND CLOSE_YN = #{closeYn}				
+					</if>
+					<if test="searchValue != null and !searchValue.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
 				</where>
 				ORDER BY CREAT_DTTM DESC
