@@ -38,6 +38,13 @@ public class CM06Ctr {
     	return "jsonView";
     }
     
+    // 사용자 리스트 조회
+    @PostMapping("/insertPgmHistory")
+    public String insertPgmHistory(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	cm06Svc.insertPgmHistory(paramMap);
+    	return "jsonView";
+    }
+    
     // 사용자 정보 조회
     @PostMapping("/selectUserInfo")
     public String selectUserInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {

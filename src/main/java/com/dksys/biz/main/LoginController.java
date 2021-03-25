@@ -56,6 +56,7 @@ public class LoginController {
     	} else if(!passwordEncoder.matches(param.get("password"), user.getPassword())) {
     		model.addAttribute("msg", "비밀번호를 확인해주세요.");
     	} else {
+    		loginService.insertUserHistory(user);
     		model.addAttribute("msg", "success");
     	}
         return "jsonView";

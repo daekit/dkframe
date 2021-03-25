@@ -376,8 +376,8 @@ function checkMenuAuth(accessList) {
 		$('.menu').html(html);
 		
 		$.each(accessList, function(idx, item){
-			if(item.menuType == "HTML" && item.useYn == 'Y') {
-				html = '<dl><dd><a href="'+item.menuUrl+'">'+item.menuNm+'</a></dd></dl>';
+			if(item.menuType == "HTML" && item.useYn == 'Y') { 
+				html = '<dl><dd><a href="'+item.menuUrl+'" onclick="insertPgmHistory(\''+item.menuUrl+'\');">'+item.menuNm+'</a></dd></dl>';
 				$("#"+item.upMenuId).append(html);
 			}
 		});
@@ -570,7 +570,15 @@ function dateMask(elem){
         return;
       }
     }
-	
-	
-	
+}
+
+function insertPgmHistory(url) {
+	var formData = {
+		"id" : jwt.userId,
+		"name" : jwt.userNm,
+		"pgmId" : url.substr(url.lastIndexOf("/")+1,9)
+	}
+	postAjax("/admin/cm/cm06/insertPgmHistory", formData, null, function(data){
+		
+	});
 }

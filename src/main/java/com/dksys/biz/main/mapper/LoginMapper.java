@@ -11,4 +11,6 @@ public interface LoginMapper {
 
 	User selectUserInfo(Map<String, String> param);
 
+	int insertUserHistory(User user);
+
 }
