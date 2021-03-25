@@ -55,10 +55,20 @@ public class AR04SvcImpl implements AR04Svc {
 	public int selectTaxBilgCount(Map<String, String> paramMap) {
 		return ar04Mapper.selectTaxBilgCount(paramMap);
 	}
+	
+	@Override
+	public int selectTaxBilgDetailCount(Map<String, String> paramMap) {
+		return ar04Mapper.selectTaxBilgDetailCount(paramMap);
+	}
 
 	@Override
 	public List<Map<String, String>> selectTaxBilgList(Map<String, String> paramMap) {
 		return ar04Mapper.selectTaxBilgList(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectTaxBilgDetailList(Map<String, String> paramMap) {
+		return ar04Mapper.selectTaxBilgDetailList(paramMap);
 	}
 
 	@Override
@@ -110,7 +120,6 @@ public class AR04SvcImpl implements AR04Svc {
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
 			ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
 
-			System.out.println(taxHdParam);
 			result = ar04Mapper.insertTaxItem(taxHdParam);
 		}
 		return result;

@@ -13,8 +13,12 @@ public interface AR04Mapper {
 	int getBilgCertNo();
 	
 	int selectTaxBilgCount(Map<String, String> paramMap);
+	
+	int selectTaxBilgDetailCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectTaxBilgList(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectTaxBilgDetailList(Map<String, String> paramMap);
 
 	Map<String, String> selectTaxBilg(Map<String, String> paramMap);
 
