@@ -19,4 +19,6 @@ public interface BM02Svc {
 	
 	void unuseClnt(Map<String, String> paramMap);
 
+	Map<String, String> selectMngInfo(Map<String, String> paramMap);
+
 }

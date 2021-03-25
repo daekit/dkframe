@@ -32,4 +32,6 @@ public interface BM02Mapper {
 
 	int insertPldg(Map<String, String> paramMap);
 
+	Map<String, String> selectMngInfo(Map<String, String> paramMap);
+
 }
