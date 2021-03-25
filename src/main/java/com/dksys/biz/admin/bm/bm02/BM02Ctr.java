@@ -88,4 +88,12 @@ public class BM02Ctr {
     	}
     	return "jsonView";
     }
+	
+	// 거래처 담당자 정보 조회
+	@PostMapping("/selectMngInfo")
+    public String selectMngInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> mngInfo = bm02Svc.selectMngInfo(paramMap);
+    	model.addAttribute("mngInfo", mngInfo);
+        return "jsonView";
+    }
 }

@@ -125,6 +125,15 @@
 	<select id="selectPldgList" resultType="CamelMap">
 		SELECT * FROM TB_BM02D02 WHERE CLNT_CD = #{clntCd}
 	</select>
+	
+	<select id="selectMngInfo" resultType="CamelMap">
+		SELECT
+			A.SALES_EMP_ID,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = A.SALES_EMP_ID) AS SALES_EMP_NM			
+		FROM 
+			( SELECT FN_BM02_MNG_ID( #{coCd} , #{clntCd} ) AS SALES_EMP_ID FROM DUAL ) AS A
+			
+	</select>
 
 	<insert id="insertClnt">
 		<selectKey keyProperty="clntCd" resultType="String" order="BEFORE">

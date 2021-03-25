@@ -123,4 +123,9 @@ public class BM02SvcImpl implements BM02Svc {
 		bm02Mapper.unusePldg(paramMap);
 		bm02Mapper.unuseBizdept(paramMap);
 	}
+
+	@Override
+	public Map<String, String> selectMngInfo(Map<String, String> paramMap) {
+		return bm02Mapper.selectMngInfo(paramMap);
+	}
 }

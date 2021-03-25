@@ -84,26 +84,6 @@ public class SM02Svcmpl implements SM02Svc {
 	 */
 
 	@Override
-	public void sm01UpdateStockMove(Map<String, String> param) {
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		Type map = new TypeToken<Map<String, String>>() {}.getType();
-		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
-		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
-		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId", param.get("userId").toString());
-			detailMap.put("pgmId", param.get("pgmId").toString());
-			detailMap.put("sWhCd", detail.get("sWhCd"));
-			detailMap.put("sTransDt", detail.get("sTransDt"));
-			detailMap.put("sRmk", detail.get("sRmk"));
-			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
-			
-			sm02Mapper.sm01UpdateStockMove(detailMap);
-		}
-	}
-	
-	@Override
 	public void sm01UpdateInsertStockMove(Map<String, String> param) {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
@@ -120,30 +100,12 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
 			
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap);
+			sm02Mapper.sm01UpdateStockMove(detailMap);
+			sm02Mapper.sm02InsertStockMove(detailMap);
 		}
 		
 	}
 
-	@Override
-	public void sm02InsertStockMove(Map<String, String> param) {
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		Type map = new TypeToken<Map<String, String>>() {}.getType();
-		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
-		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
-		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId", param.get("userId").toString());
-			detailMap.put("pgmId", param.get("pgmId").toString());
-			detailMap.put("sWhCd", detail.get("sWhCd"));
-			detailMap.put("sTransDt", detail.get("sTransDt"));
-			detailMap.put("sRmk", detail.get("sRmk"));
-			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
-			
-			sm02Mapper.sm02InsertStockMove(detailMap);
-		}
-	}
-	
 	@Override
 	public void sm01UpdateInsertBarterStockMove(Map<String, String> param) {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -161,28 +123,10 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
 			
 			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);
-		}
-		
-	}
-
-	@Override
-	public void sm02InsertBarterStockMove(Map<String, String> param) {
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		Type map = new TypeToken<Map<String, String>>() {}.getType();
-		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
-		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
-		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId", param.get("userId").toString());
-			detailMap.put("pgmId", param.get("pgmId").toString());
-			detailMap.put("sWhCd", detail.get("sWhCd"));
-			detailMap.put("sTransDt", detail.get("sTransDt"));
-			detailMap.put("sRmk", detail.get("sRmk"));
-			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
-			
+			sm02Mapper.sm01UpdateStockMove(detailMap);
 			sm02Mapper.sm02InsertBarterStockMove(detailMap);
 		}
+		
 	}
 	
 }
