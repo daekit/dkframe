@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<style>
+
+.add_btn_small{
+    display: inline-block;
+    padding: 0px;
+}
+
+.add_btn_small a {
+    display: inline-block;
+    width: 33px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #444;
+    background: #ffffff;
+    box-shadow: 1px 1px rgba(0,0,0,0.15);
+}
+
+
+</style>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>	
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+		    	<a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		        </a>
+		        <a onclick="gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
+	        </li>
+	      </ul>
+    	</div>
+		  <!-- 검색 콘텐츠 -->
+	    <div class="contents search">
+	        <div class="">
+	            <!-- 테이블 인풋 3분할 -->
+	            <table class="table_input type03">
+	              <tr>
+	              	<th class= "hit">회사</th>
+	                <td>
+	                 	<select id="coCd_S" data-kind="CO" required="required">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
+	                <th class= "hit">기간</th>
+	                <td>
+	                    <div class="date_input">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" onchange="dateValidation();">
+	                      <span>~</span>
+	                      <input type="text" id="reqDtTo" class="input_calendar" onchange="dateValidation();">
+	                    </div>
+	                </td>
+	              <tr>
+	              	<th class= "hit">창고구분</th>
+	                <td>
+	                 	<select id="whCd_S" data-kind="WH">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
+	              	<th>거래처</th>
+	                <td>
+	                  <input type="hidden" id="sellVatCd"> <!-- 부가세 구분 -->
+		              <div class="search_form" style="width: 43%;">
+								<input type="hidden" id="clntCd_S">
+								<input type="text"   id="clntNm_S" > 
+								<button type="button" onclick="openClntSearch();">
+									<i class="i_search_w"></i>
+								</button>
+				  	  </div>
+	                </td>
+	 	           	<th>확정여부</th>
+	                <td>
+	                 	<select id="cfYn_S" data-kind="YN">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>               
+	                
+	              </tr>
+	            </table>
+	        </div>
+	    </div>
+		<!-- // 콘텐츠 -->
+
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="inserMestShipModal('C');" style="height: 30px; line-height: 28px;">+</a>
+	                <a onclick="deleteMesShip();" style="height: 30px; line-height: 28px;">-</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div>
+	  <!-- 콘텐츠 -->
+	    <div class="contents">
+	      <!-- 리스트 -->
+	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
+	    </div>
+	</div>
+		
+</body>
+</html>
+
+<script type="text/javascript">
+
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var openFrom = null;
+	var firstGrid = null;
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+		            	viewShipModal();
+		            },
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		        	{key: "erpTransYn",   label: "이관", align: "center", width: 50},
+		          	{key: "worksCd",      label: "공장",   align: "center", width: 140},
+		            {key: "supCustNm",    label: "발주처",  align: "left",   width: 140},
+		            {key: "baseDd",       label: "요청일자", align: "center", width: 80},
+		            {key: "productNameCd",label: "품명", align: "center", width: 80},
+		            {key: "dimsCd",       label: "치수", align: "center", width: 80},
+		            {key: "dimsNm",       label: "품명", align: "center", width: 80},
+		            {key: "specCd",       label: "spec", align: "center", width: 80},
+		            {key: "mtrlLength",   label: "길이", align: "center", width: 80},
+		        	{key: "siteNm",       label: "현장", align: "LEFT", width: 200},
+		            {key: "vehlNo",       label: "차량", align: "center", width: 80},
+		          	{key: "mtrlWgt",      label: "수량",  align: "right", width: 80, formatter: "money" },
+		            {key: "mtrlChgCause", label: "변경사유", align: "center", width: 80},		          	
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			firstGrid = this.target;
+			var formData = {
+				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+				"coCd" : $("#coCd_S").val(),
+				"whCd" : $("#whCd_S").val(),
+				"cfYn" : $("#cfYn_S").val(),
+				"clntCd" : $("#clntCd_S").val(),
+				"mesFtrCd" : "J",
+// 				"searchType" : $("#searchType").val(),
+// 				"searchValue" : $("#searchValue").val(),
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : $("#recordCnt").val()
+			}
+			postAjax("/user/pp/pp04/selectMesMtrlRstlList", formData, null, function(data){
+				var list = data.resultList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		//순서 맨 처음
+		mainDefaultLoad("MES매출이관", "MES 출하실적");
+		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
+		$("#reqDtFrom").val(lastWeek());
+		$("#reqDtTo").val(dateToStr(new Date()));
+		$('#reqDtFrom, #reqDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+// 			autoclose : true
+		});
+		gridView.initView().setData(0);
+	})
+	
+	function changeRecordCnt() {
+		$("#recordCnt").val($(".prae_select").val());
+		gridView.initView().setData(0);
+	}
+
+// 거래처 검색
+	function openClntSearch() {
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
+			$('#sellVatCd').val(row.sellVatCd);	
+		});
+	}
+	
+	
+	function deleteMesShip() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"mesCertiNo" : row.mesCertiNo,
+			"reqDt"      : row.reqDt.replace(/\-/g,'')
+		}
+		if(confirm("삭제하시겠습니까?")){
+					deleteAjax("/user/pp/pp04/deleteMesShip", formData, null, function(data){
+						if(data.resultCode == 200){
+							alert(data.resultMessage);
+							gridView.setData(0);
+						}
+					});
+		}
+	}
+	function insertMesShip() {
+		var formData = {
+				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+				"coCd" : $("#coCd_S").val(),
+				"whCd" : $("#whCd_S").val(),
+				"clntCd" : $("#clntCd_S").val()
+// 				"searchType" : $("#searchType").val(),
+// 				"searchValue" : $("#searchValue").val(),
+//				"pageNo" : _pageNo + 1, 
+//				"recordCnt" : $("#recordCnt").val()
+			}
+			postAjax("/user/pp/pp04/insertMesShipList", formData, null, function(data){
+				var list = data.resultList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+	}
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input[type='text']").val("");
+	}
+/*	
+	function insertShipModal(type){
+		actionType = type;
+		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1200, 780, " ");
+	}
+	
+	function viewShipModal() {
+		selectedRowIdx = gridView.target.getList("selected")[0].__index;
+		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1200, 780, " ");
+	}
+	
+	function updateShipModal() {
+		modal.close();
+		actionType = "U";
+		selectedRowIdx = gridView.target.getList("selected")[0].__index;
+		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1200, 780, " ");
+	}
+*/	
+</script>
