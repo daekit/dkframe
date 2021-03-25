@@ -17,4 +17,6 @@ public interface CM06Svc {
 	
 	public void updateUser(Map<String, String> paramMap) throws Exception;
 
+	public int insertPgmHistory(Map<String, String> paramMap);
+
 }

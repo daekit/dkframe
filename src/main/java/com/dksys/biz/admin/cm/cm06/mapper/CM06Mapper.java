@@ -22,4 +22,6 @@ public interface CM06Mapper {
 
 	int insertUserOauth(Map<String, String> paramMap);
 
+	int insertPgmHistory(Map<String, String> paramMap);
+
 }

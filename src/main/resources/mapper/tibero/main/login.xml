@@ -19,5 +19,30 @@
 		TB_CM06M01
 		WHERE ID = #{id}
 	</select>
+
+	<insert id="insertUserHistory">
+		MERGE INTO TB_CM06H01 A
+			USING DUAL
+			ON (A.ID = #{id})
+		WHEN MATCHED THEN
+			UPDATE SET
+				NAME = #{name},
+				TOT_CNT = TOT_CNT + 1,
+				LAST_DT = SYSDATE
+		WHEN NOT MATCHED THEN
+		INSERT
+		(
+			ID,
+			NAME,
+			TOT_CNT,
+			LAST_DT
+		)
+		VALUES(
+			#{id},
+			#{name},
+			1,
+			SYSDATE
+		)
+	</insert>
 	
 </mapper>

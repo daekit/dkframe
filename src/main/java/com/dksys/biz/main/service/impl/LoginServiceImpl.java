@@ -21,4 +21,9 @@ public class LoginServiceImpl implements LoginService {
 		return loginMapper.selectUserInfo(param);
 	}
 
+	@Override
+	public int insertUserHistory(User user) {
+		return loginMapper.insertUserHistory(user);
+	}
+
 }

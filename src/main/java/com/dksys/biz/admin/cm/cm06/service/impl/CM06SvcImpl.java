@@ -53,4 +53,9 @@ public class CM06SvcImpl implements CM06Svc {
 		cm06Mapper.updateUser(paramMap);
 	}
 
+	@Override
+	public int insertPgmHistory(Map<String, String> paramMap) {
+		return cm06Mapper.insertPgmHistory(paramMap);
+	}
+
 }

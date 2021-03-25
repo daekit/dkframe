@@ -8,4 +8,6 @@ public interface LoginService {
 
 	User selectUserInfo(Map<String, String> param);
 
+	int insertUserHistory(User user);
+
 }
