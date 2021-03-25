@@ -25,14 +25,11 @@ public interface SM02Svc {
 	
 	/* public int sm01InsertStockMove(Map<String, String> param); */
 	
-	public void sm01UpdateStockMove(Map<String, String> param);
 	
 	public void sm01UpdateInsertStockMove(Map<String, String> param);
 	
-	public void sm02InsertStockMove(Map<String, String> param);
 
 	public void sm01UpdateInsertBarterStockMove(Map<String, String> param);
 	
-	public void sm02InsertBarterStockMove(Map<String, String> param);
 	
 }
