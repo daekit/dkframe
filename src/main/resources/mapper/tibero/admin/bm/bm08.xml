@@ -12,6 +12,9 @@
 		<if test="coCd !=null and !coCd.equals('')">
 		  AND CO_CD = #{coCd} 
 		</if>
+		<if test="useYn != null and !useYn.equals('')">
+		  AND B.USE_YN = #{useYn}
+		</if>
 	</select>
 	
 	<select id="selectClntPledgeList" resultType="CamelMap">
@@ -39,6 +42,9 @@
 				<if test="coCd !=null and !coCd.equals('')">
 				  AND CO_CD = #{coCd} 
 				</if>
+				<if test="useYn != null and !useYn.equals('')">
+				  AND B.USE_YN = #{useYn}
+				</if>
 				<if test="searchValue != null and !searchValue.equals('')">
 				  AND ${searchType} LIKE '%${searchValue}%'
 				</if>
@@ -60,6 +66,7 @@
 		  AND A.CLNT_CD = B.CLNT_CD
 		  AND B.CO_CD = #{coCd}
 		  AND B.CLNT_CD = #{clntCd}
+		  AND A.USE_YN = 'Y'
 		<if test="useYn != null and !useYn.equals('')">
 		  AND B.USE_YN = #{useYn}
 		</if>
@@ -75,6 +82,7 @@
 			FROM
 			(
 				SELECT 
+					B.USE_YN,
 					B.CO_CD,
 					FN_CM05M01_CD_TO_NM(CO_CD) CO_NM,
 					A.CLNT_CD,
@@ -90,6 +98,7 @@
 				  	TB_BM02M01 A, TB_BM02D02 B
 				WHERE 1=1
 				  AND A.CLNT_CD = B.CLNT_CD
+				  AND A.USE_YN = 'Y'
 				  AND B.CO_CD = #{coCd}
 				  AND B.CLNT_CD = #{clntCd}
 				<if test="useYn != null and !useYn.equals('')">

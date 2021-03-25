@@ -48,70 +48,16 @@
 						ROWNUM AS RNUM, D.*
 				FROM(		
 				SELECT
-					 CO_CD
-					,TRST_CERTI_NO
-					,SELPCH_CD
-					,TAXIVC_COPRT
-					,TRST_DT
-					,TRST_CLNT_CD
-					,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD) AS CLNT_NM
-					,TRST_PRDT_CD
-					,OWNER_CD
-					,IMP_YN
-					,TYP_CD
-					,TRSP_TYP_CD
-					,TRST_RPRC_SEQ
-					,TRST_DTL_SEQ
-					,PRDT_LEN
-					,ODR_NO
+					 TRST_CLNT_CD
+					--,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD) AS CLNT_NM
+					,CLNT_NM
 					,SALES_MNG
 					,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
-					,PRJCT_CD
-					,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
-					,MAKR_CD
-					,WH_CD
-					,MNG_TEL
-					,DLVR_DTTM
-					,DIRTRS_YN
-					,PRDT_DIV
-					,PRDT_STKN
-					,PRDT_SIZE
-					,PRDT_UNIT
-					,PRDT_UPR
-					,STOCK_UPR
-					,PCHS_UPR
-					,SELL_UPR
-					,TRST_QTY
-					,TRST_WT
-					,TRST_UPR
-					,TRST_AMT
-					,REAL_TRST_QTY
-					,REAL_TRST_WT
-					,REAL_TRST_UPR
-					,REAL_TRST_AMT
-					,BILG_QTY
-					,BILG_WT
-					,BILG_UPR
-					,BILG_AMT
-					,BILG_VAT_AMT
-					,BILG_AMT + BILG_VAT_AMT AS TOTAL_AMT
-					,TRST_DC_AMT
-					,ETC_AMT
-					,TRSP_RMK
-					,TRANS_AMT
-					,SHIP_VEH_NO
-					,CLNT_NM
+					,SUM(BILG_WT) AS BILG_WT 
+					,SUM(BILG_AMT) AS BILG_AMT
+					,SUM(BILG_VAT_AMT) AS BILG_VAT_AMT 
+					,SUM(BILG_AMT + BILG_VAT_AMT) AS TOTAL_AMT
 					,BILG_CERT_NO
-					,LOSS_RATE
-					,ODR_CREAT_DIV
-					,ETC_FIELD1
-					,ETC_FIELD2
-					,ETC_FIELD3
-					,CREAT_ID
-					,CREAT_PGM
-					,CREAT_DTTM
-					,SALES_AREA_CD
-					,SITE_CD
 				FROM TB_AR02M01 T
 				WHERE 1=1
 				<if test= "coCd != null and !coCd.equals('')">
@@ -150,6 +96,8 @@
 				<if test= 'bill == "N"'>
 		 			AND BILG_CERT_NO IS NULL
 				</if>
+				GROUP BY TRST_CLNT_CD, CLNT_NM, SALES_MNG, BILG_CERT_NO
+				ORDER BY TRST_CLNT_CD
 			) D
 		)
 		WHERE
