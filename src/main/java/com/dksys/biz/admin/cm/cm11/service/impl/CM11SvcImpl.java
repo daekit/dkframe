@@ -18,6 +18,11 @@ public class CM11SvcImpl implements CM11Svc {
     CM11Mapper cm11Mapper;
     
 	@Override
+	public String selectSearchDttm() {
+		return cm11Mapper.selectSearchDttm();
+	}
+    
+	@Override
 	public int selectPrdtSelpch2Count(Map<String, String> paramMap) {
 		return cm11Mapper.selectPrdtSelpch2Count(paramMap);
 	}

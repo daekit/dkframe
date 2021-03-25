@@ -1,5 +1,6 @@
 package com.dksys.biz.admin.cm.cm11;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,9 @@ public class CM11Ctr {
     	int totalCnt1 = cm11Svc.selectPrdtSelpch2Count(paramMap);
 		PaginationInfo paginationInfo1 = new PaginationInfo(paramMap, totalCnt1);
     	model.addAttribute("paginationInfo1", paginationInfo1);
+    	
+    	String searchDttm = cm11Svc.selectSearchDttm();
+    	model.addAttribute("searchDttm", searchDttm);
     	
     	List<Map<String, String>> resultList1 = cm11Svc.selectPrdtSelpch2List(paramMap);
     	model.addAttribute("resultList1", resultList1);
@@ -150,10 +154,10 @@ public class CM11Ctr {
     	arryCols.add(objCols2);
     	for(int i = 0; i < resultList3.size(); i++) {
     		JSONObject legend = new JSONObject();
-    		legend.put("v", resultList3.get(i).get("clntNm") + "/" + resultList3.get(i).get("prdtDivNm"));
+    		legend.put("v", resultList3.get(i).get("clntNm"));
     		legend.put("f", null);
     		JSONObject value1 = new JSONObject();
-    		value1.put("v", resultList3.get(i).get("realTrstAmt"));
+    		value1.put("v", Integer.parseInt(resultList3.get(i).get("realTrstAmt")));
     		value1.put("f", null);
     		
     		JSONArray cValueArry = new JSONArray();
@@ -169,7 +173,6 @@ public class CM11Ctr {
     	data.put("cols", arryCols);
     	data.put("rows", arryRows);
     	model.addAttribute("chartData3", data);
-    	
     	
     	int totalCnt4 = 3; //공장 세곳
 		PaginationInfo paginationInfo4 = new PaginationInfo(paramMap, totalCnt4);

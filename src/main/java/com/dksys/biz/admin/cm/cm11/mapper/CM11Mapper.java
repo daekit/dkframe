@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CM11Mapper {
 	
+	String selectSearchDttm();
+	
 	int selectPrdtSelpch2Count(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectPrdtSelpch2List(Map<String, String> paramMap);

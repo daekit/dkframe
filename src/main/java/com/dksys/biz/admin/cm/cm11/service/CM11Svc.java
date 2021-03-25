@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface CM11Svc {
+	
+	public String selectSearchDttm();
 
 	public List<Map<String, String>> selectPrdtSelpch2List(Map<String, String> param);
 	

@@ -515,7 +515,12 @@
 	}
 	
 	function selectShipInfo() {
-		var row = gridView.target.getList("selected")[0];
+		var row;
+		if(openFrom == "CM1001M01"){
+			row = shipGridView.target.getList("selected")[0];
+		} else {
+			row = gridView.target.getList("selected")[0];
+		}
 		var formData = {
 			"shipSeq" : row.shipSeq,
 			"reqDt" : row.reqDt.replace(/-/g, "")
@@ -734,8 +739,13 @@
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
+				alert(data.resultMessage);   
+				if(openFrom == "CM1001M01"){
+					targetGrid = shipGridView;
+				} else {
+					targetGrid = gridView;
+				}        
+				targetGrid.setData(0);
 				viewShipModal();
 			//	modal.close();
 			});
@@ -892,7 +902,13 @@
 	}
 	
 	function viewShipModal() {
-		selectedRowIdx = gridView.target.getList("selected")[0].__index;
+		var targetGrid;
+		if(openFrom == "CM1001M01"){
+			targetGrid = shipGridView;
+		} else {
+			targetGrid = gridView;
+		}
+		selectedRowIdx = targetGrid.target.getList("selected")[0].__index;
 		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1200, 780, " ");
 	}
 	

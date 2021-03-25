@@ -93,7 +93,10 @@
 					body : {
 						onClick : function() {
 							this.self.select(this.dindex);
-						}
+						},
+			            onDBLClick: function () {
+			            	viewOrderModal();
+			            },
 					},
 					page : {
 						display : true,
@@ -111,6 +114,7 @@
 				    	]
 				    ],
 					columns: [
+			          	{key: "ordrgSeq",   label: "발주일련번호", align: "center", hidden: true},
 			          	{key: "ordrgYn",     label: "확정",   	align: "center",  width: 60},
 			          	{key: "recptYn",     label: "접수",   	align: "center",  width: 60},
 			          	{key: "reqDt",     label: "요청일",   	align: "center",  width: 100},
@@ -128,7 +132,6 @@
 				var paramObj = {};
 				postAjax("/user/cm/cm10/selectOrdrgNList", paramObj, null, function(data) {
 					var list = data.resultList;
-					console.log(data);
 					targetObj.setData({
 						list : list,
 						page : {
@@ -140,7 +143,7 @@
 		}
 	
 
-	var gridView2 = {
+	var shipGridView = {
 			initView : function() {
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
@@ -155,7 +158,10 @@
 					body : {
 						onClick : function() {
 							this.self.select(this.dindex);
-						}
+						},
+			            onDBLClick: function () {
+			            	viewShipInfoModal();
+			            },
 					},
 					page : {
 						display : true,
@@ -173,6 +179,7 @@
 				    	]
 				    ],
 					columns: [
+			          	{key: "shipSeq",   label: "출하일련번호", align: "center", hidden: true},
 			          	{key: "shipYn",     label: "확정",   	align: "center",  width: 60},
 			          	{key: "recptYn",     label: "접수",   	align: "center",  width: 60},
 			          	{key: "reqDt",     label: "요청일",   	align: "center",  width: 100},
@@ -189,7 +196,6 @@
 				var targetObj = this.target;
 				var paramObj = {};
 				postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
-					console.log(data);
 					var list = data.resultList;
 					targetObj.setData({
 						list : list,
@@ -206,9 +212,32 @@
 		mainDefaultLoad("대시보드", "실무자 현황");
 		
 		gridView.initView().setData();
-		gridView2.initView().setData();
+		shipGridView.initView().setData();
 		// grid init
 	});
+	var selectedRowIdx;
+	var openFrom = "CM1001M01";
+	function viewOrderModal() {
+		selectedRowIdx = gridView.target.getList("selected")[0].__index;
+		openModal("/static/html/user/od/od01/OD0102V01.html", 920, 780, " ");
+	}
+	
+	function updateOrderModal() {
+		modal.close();
+		actionType = "U";
+		selectedRowIdx = gridView.target.getList("selected")[0].__index;
+		openModal("/static/html/user/od/od01/OD0102P01.html", 920, 780, " ");
+	}
 
-
+	function viewShipInfoModal() {
+		selectedRowIdx = shipGridView.target.getList("selected")[0].__index;
+		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1200, 780, " ");
+	}
+	
+	function updateShipModal() {
+		modal.close();
+		actionType = "U";
+		selectedRowIdx = shipGridView.target.getList("selected")[0].__index;
+		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1200, 780, " ");
+	}
 </script>
