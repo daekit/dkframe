@@ -28,6 +28,7 @@ var menuIdx = getCookie("menuIdx");
 var mask = new ax5.ui.mask();
 var modal = new ax5.ui.modal();
 var secondModal = new ax5.ui.modal();
+var thirdModal = new ax5.ui.modal();
 var commonModal = {};
 
 var openModal = function(url, width, height, title, paramObj, callBack) {
@@ -90,6 +91,34 @@ var openSecondModal = function(url, width, height, title, paramObj, callBack) {
     	
     	// commonModal 객체 set
     	commonModal.closeTarget = secondModal;
+    	commonModal.callBack = callBack;
+    	commonModal.paramObj = paramObj;
+    });
+};
+
+var openThirdModal = function(url, width, height, title, paramObj, callBack) {
+	thirdModal.open({
+		header: {
+			title: title,
+			btns: {
+	        	close: {
+	                label: '<i class="fa fa-times-circle" aria-hidden="true"></i>',
+	                onClick: function () {
+	                	thirdModal.close();
+	                }
+	            }
+	        }
+	    },
+        width: width,
+        height: height
+    }, function () {
+    	var targetEl = this.$["body-frame"];
+    	$.get(url, function(data) {    	        
+    		targetEl.append(data);
+      	});
+    	
+    	// commonModal 객체 set
+    	commonModal.closeTarget = thirdModal;
     	commonModal.callBack = callBack;
     	commonModal.paramObj = paramObj;
     });
@@ -283,6 +312,7 @@ function inputValidation(inputList) {
 	$.each(inputList, function(idx, elem){
 		if($.trim(elem.value) == ""){
 			isValid = false;
+			debugger;
 			alert("필수값을 입력해 주세요.");
 			$(elem).focus();
 			return false;

@@ -19,6 +19,7 @@ import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
+import com.dksys.biz.user.sd.sd08.mapper.SD08Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,6 +40,9 @@ public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
     SD04Mapper sd04Mapper;
+    
+    @Autowired
+    SD08Mapper sd08Mapper;
     
     @Autowired
     AR01Svc ar01Svc;
@@ -179,6 +183,14 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
+			//커플러일 경우 별도 단가 데이터 저장
+			if(detailMap.get("prdtStkn").contains("PDSKCP")) {
+				detailMap.put("coCd", paramMap.get("coCd"));
+				detailMap.put("clntCd", paramMap.get("clntCd"));
+				detailMap.put("selpchCd", "SELPCH2");
+				detailMap.put("rmk", paramMap.get("shipRmk"));
+				sd08Mapper.insertCplrUntpc(detailMap);
+			}
 			ar01Mapper.updateConfirmDetail(detailMap);
 			//매출정보 insert
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
@@ -221,7 +233,7 @@ public class AR01SvcImpl implements AR01Svc {
  
 			ar02Mapper.insertPchsSell(paramMap);
 			
-			if ( detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			if (detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
 				// 재고정보 update
 				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
@@ -248,10 +260,8 @@ public class AR01SvcImpl implements AR01Svc {
 				}
 				sm01Mapper.updateStockSell(paramMap);
 			}
-			
-			// 여신 체크
-			
 		}
+		// 여신 체크
 		if(ar02Svc.checkLoan(paramMap)) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			return 0;
