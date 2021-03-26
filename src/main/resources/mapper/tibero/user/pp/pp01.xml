@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.pp.pp01.mapper.PP01Mapper">
+	
+	<select id="selectMesOrderCount" resultType="int">
+		SELECT 
+	 		COUNT(*)
+	 	FROM 
+ 			KUMMUN.TB_MES_ORD_MST T
+ 		<where>
+ 			<if test="worksCd != null and !worksCd.equals('')">
+				AND WORKS_CD = (SELECT CODE_ETC FROM GOLDMOON.TB_CM05M01 WHERE CODE_ID = #{worksCd})		
+			</if>
+			<if test="startDt != null and !startDt.equals('')">
+				<![CDATA[ AND TO_DATE(ORD_DD, 'YYYY-MM-DD') >= TO_DATE(#{startDt}, 'YYYY-MM-DD') ]]>
+			</if>
+			<if test="endDt != null and !endDt.equals('')">
+				<![CDATA[ AND TO_DATE(ORD_DD, 'YYYY-MM-DD') < TO_DATE(#{endDt}, 'YYYY-MM-DD') + 1 ]]>
+			</if>
+ 		</where>
+	</select>
+	
+	<select id="selectMesOrderList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT
+					WORKS_CD,
+					(SELECT CODE_NM FROM GOLDMOON.TB_CM05M01 WHERE CODE_KIND = 'MESFTR' AND CODE_ETC = T.WORKS_CD) AS WORKS_NM,
+					FAC_CD,
+					ORD_NO,
+					BARLIST_CD,
+					ORD_STATUS_CD,
+					ORD_COMP_CD,
+					TO_CHAR(TO_DATE(ORD_DD, 'YYYYMMDD'), 'YYYY-MM-DD') AS ORD_DD,
+					CUST_CD,
+					(SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE CUST_TP = '1' AND WORKS_CD = T.WORKS_CD AND CUST_CD = T.CUST_CD) AS CUST_NM,
+					CON_REGION,
+					CON_SEQ,
+					CON_ZONE,
+					TOLRC_LOSS_RATE,
+					CONT_FLAG,
+					CONT_CD,
+					CREATED_OBJECT_ID,
+					CREATED_PROGRAM_ID,
+					CREATION_TIMESTAMP,
+					LAST_UPDATED_OBJECT_ID,
+					LAST_UPDATE_PROGRAM_ID,
+					LAST_UPDATE_TIMESTAMP,
+					PART,
+					(SELECT SUM(ORD_TOT_PCS_CNT) FROM KUMMUN.TB_MES_ORD_DTL WHERE ORD_NO = T.ORD_NO) AS ORD_TOT_PCS_CNT
+				FROM
+					KUMMUN.TB_MES_ORD_MST T
+				<where>
+		 			<if test="worksCd != null and !worksCd.equals('')">
+						AND WORKS_CD = (SELECT CODE_ETC FROM GOLDMOON.TB_CM05M01 WHERE CODE_ID = #{worksCd})		
+					</if>
+					<if test="startDt != null and !startDt.equals('')">
+						<![CDATA[ AND TO_DATE(ORD_DD, 'YYYY-MM-DD') >= TO_DATE(#{startDt}, 'YYYY-MM-DD') ]]>
+					</if>
+					<if test="endDt != null and !endDt.equals('')">
+						<![CDATA[ AND TO_DATE(ORD_DD, 'YYYY-MM-DD') < TO_DATE(#{endDt}, 'YYYY-MM-DD') + 1 ]]>
+					</if>
+		 		</where>
+				ORDER BY ORD_DD DESC
+			) A
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+</mapper>
