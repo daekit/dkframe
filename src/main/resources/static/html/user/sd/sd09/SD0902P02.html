@@ -1,0 +1,169 @@
+<div id="cplrUntpcDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">현장 관리</h4>
+    </div>
+    <div class="popup_table">
+    	<form id="siteSearchForm">
+	        <table>
+	            <colgroup>
+	                <col width="12%">
+	                <col width="">
+	                <col width="12%">
+	                <col width="">
+	                <col width="12%">
+	                <col width="">
+	            </colgroup>
+	            <tr>
+	                <th class="hit">회사</th>
+	                <td>
+	                    <select id="coCd" name="coCd" data-kind="CO" required="required">
+	                    	<option value="">선택</option>
+	                    </select>
+	                </td>
+	                <th>매출처</th>
+	                <td>                                
+                    	<input type="hidden" id="clntCd" name="clntCd">
+			            <input type="text" id="clntNm" name="clntNm" disabled>
+	                </td>
+	                <th>등록일</th>
+	                <td>                                
+	                    <input type="text" id="creatDttm" name="creatDttm" readOnly>
+	                </td>
+	            </tr>
+	            <tr>
+	                <th class="hit">현장명</th>
+	                <td colspan="5">     
+	                	<input type="hidden" id="siteCd" name="siteCd"/>
+			            <input type="text" id="siteNm" name="siteNm" required="required" maxLength="50"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>현장담당자</th>
+	                <td colspan="3">	              
+			            <input type="text" id="siteMngNm" name="siteMngNm" maxLength="25"/>
+	                </td>
+	                <th>전화번호</th>
+	                <td style="border-left: 0px !important;">
+	                    <input id="telNo" name="telNo" type="text" style="width: 100%;" onKeyUp="telNumberFormatter(this);" maxLength="50">
+	                </td>
+	            </tr>
+	            <tr>
+	            	<th rowspan="2">주소</th>
+	            	<td colspan="3">
+	            		<div class="search_form">
+							<input type="text" id="siteAddrZip" name="siteAddrZip" readonly> 
+							<a onclick="openDaumPostcode();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+	            	</td>
+	            	<th>사용여부</th>
+	            	<td>
+	            		<select id="useYn" name="useYn" data-kind="YN">
+	                    	<option value="">선택</option>
+	                    </select>
+	            	</td>
+	            </tr>
+	            <tr>
+	            	<td colspan="3">
+	            		<input type="text" id="siteAddr" name="siteAddr" placeholder="선택 주소지" readonly/>
+	            	</td>
+	            	<td colspan="2">
+	            		<input type="text" id="siteAddrSub" name="siteAddrSub" placeholder="상세 주소 입력" maxLength="50"/>
+	            	</td>
+	            </tr>
+	            <tr>
+	            	<th>비고</th>
+	                <td colspan="5">     
+	                	<textarea class="form-control" id="rmk" name="rmk" style="height: 120px;" maxlength="500"></textarea>
+	                </td>
+	            </tr>     
+	        </table>
+	        <input type="hidden" id="userId" name="userId">
+	        <input type="hidden" id="pgmId" name="pgmId" value="SD0901P01">
+	        <input type="hidden" id="prjctCd" name="prjctCd" value="">
+	    </form>
+    </div>
+
+    <br>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="siteActionBtn"></button>
+      <button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+    </div>
+</div>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	
+	//매입매출구분
+	var clntType = null;
+	var treeType = null;
+	var fileArr = [];
+	var deleteFileArr = [];
+	var selectedIdx = 0;
+	
+	$(document).ready(function() {
+		setCommonSelect($(".popup_area select[data-kind]"));
+
+		setInit();
+	});
+	
+	function setInit() {
+		$('#siteActionBtn').on("click", function(){insertSite();});
+		$('#siteActionBtn').text("등록");
+		console.log(commonModal.paramObj.clntCd);
+		if(!commonModal.paramObj.clntCd){
+			alert("거래처를 확인 해 주세요.");
+			commonModal.closeTarget.close();
+		}
+		var format = new Date();
+	    var year = format.getFullYear();
+	    var month = format.getMonth() + 1;
+	    if(month<10) month = '0' + month;
+	    var date = format.getDate();
+	    if(date<10) date = '0' + date;
+		$("#creatDttm").val(year + "-" + month + "-" + date);
+		$("#siteSearchForm #coCd").val(jwt.coCd);
+		$("#siteSearchForm #clntCd").val(commonModal.paramObj.clntCd);
+		$("#siteSearchForm #clntNm").val(commonModal.paramObj.clntNm);
+		
+	}
+	
+	function makeSiteData(){
+		$("#siteSearchForm #userId").val(jwt.userId);
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+
+		var formData = new FormData($("#siteSearchForm")[0]);
+		return formData;
+	}
+	
+	function insertSite() {
+		if(inputValidation($('#siteSearchForm [required]'))) {
+			var formData = makeSiteData();
+			filePostAjax("/user/sd/sd09/insertSite", formData, function(data){
+				alert(data.resultMessage);           
+				
+				commonModal.closeTarget.close();
+			});
+		}
+	}
+	
+	// 주소 검색
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#siteAddrZip').val(data.zonecode);
+				$('#siteAddr').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+			}
+		}).open();
+	}
+
+	function modalClose(){
+		commonModal.closeTarget.close();
+	}
+</script>
