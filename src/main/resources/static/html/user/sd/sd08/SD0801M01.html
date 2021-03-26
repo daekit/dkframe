@@ -67,9 +67,10 @@
 						<th class="hit">기준일자</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" id="startDt" data-search="startDt"> 
+								<!-- <input type="text" class="input_calendar" id="startDt" data-search="startDt"> 
 								<span>~</span> 
-								<input type="text" class="input_calendar" id="endDt" data-search="endDt">
+								<input type="text" class="input_calendar" id="endDt" data-search="endDt"> -->
+								<input type="text" class="input_calendar" id="prdtDt" data-search="prdtDt">
 							</div>
 						</td>
 						<th>거래처</th>
@@ -77,15 +78,17 @@
 			                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
 			                  <div class="search_form" style="width: 50%;">
 				                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" disabled>
-				              	<a onclick="clntSearch('L');"><i class="i_search_w"></i></a>
+				              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 				              </div>
 			                </td>
 					</tr>
 					<tr>
 						<th>매입/매출구분</th>
 						<td>
-			                <select data-kind="SELPCH" data-search="selpchCd">
+			                <select data-search="selpchCd">
 								<option value="">전체</option>
+								<option value="SELPCH1">매입</option>
+								<option value="SELPCH2">매출</option>
 							</select>
 						</td>
 						<th></th>
@@ -210,7 +213,7 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 
 		// 시작일 (시작일 기준 -7일)
-		$('#startDt').datepicker({
+		/* $('#startDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -235,7 +238,14 @@
 				alert("날짜를 확인해주세요");
 				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
 			}
-		});
+		}); */
+		// 기준일자
+		$('#prdtDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date());
 		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
@@ -249,8 +259,9 @@
 	// 검색조건 초기화
 	function initSearch() {
 		// 기간
-		$('#startDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
-		$('#endDt').datepicker("setDate", new Date());
+		//$('#startDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
+		//$('#endDt').datepicker("setDate", new Date());
+		$('#prdtDt').datepicker("setDate", new Date());
 
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
@@ -287,9 +298,12 @@
 	}
 	
 	// 거래처,운송업체
-	function clntSearch(type) {
-		actionTp = type;
-		openModal("/static/html/user/sd/sd08/SD0801P02.html", 500, 420, "거래처검색");
+	function clntSearch() {
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
 	}
 
 </script>
