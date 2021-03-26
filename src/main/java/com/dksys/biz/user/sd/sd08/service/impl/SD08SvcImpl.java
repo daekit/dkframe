@@ -33,6 +33,11 @@ public class SD08SvcImpl implements SD08Svc {
 	}
 
 	@Override
+	public int selectCplrUntpcKey(Map<String, String> paramMap) {
+		return sd08Mapper.selectCplrUntpcKey(paramMap);
+	}
+
+	@Override
 	public int insertCplrUntpc(Map<String, String> paramMap) {
 		return sd08Mapper.insertCplrUntpc(paramMap);
 	}

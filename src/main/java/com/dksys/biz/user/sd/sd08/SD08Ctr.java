@@ -47,10 +47,17 @@ public class SD08Ctr {
     @PostMapping(value = "/insertCplrUntpc")
     public String insertCplrUntpc(@RequestParam Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd08Svc.insertCplrUntpc(paramMap);
-        	model.addAttribute("resultCode", 200);
-        	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		int cnt = sd08Svc.selectCplrUntpcKey(paramMap);
+    		if(cnt > 0) {
+    			model.addAttribute("resultCode", 999);
+            	model.addAttribute("resultMessage", "데이터가 중복 되었습니다.");
+    		} else {
+    			sd08Svc.insertCplrUntpc(paramMap);
+            	model.addAttribute("resultCode", 200);
+            	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));	
+    		}
     	}catch (Exception e){
+    		System.out.println(e.getMessage());
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
     	}

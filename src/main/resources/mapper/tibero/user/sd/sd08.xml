@@ -24,6 +24,30 @@
 	</select>
 	
 	<select id="selectCplrUntpcList" resultType="CamelMap">
+	WITH MAXDT AS
+	(
+	SELECT CO_CD,
+		   CLNT_CD,
+		   SELPCH_CD,
+		   PRDT_CD,
+		   MAX(PRDT_DT)
+	  FROM GOLDMOON.TB_SD08M01
+	 <where> 
+	 	<if test="coCd != null and !coCd.equals('')">
+	   	AND CO_CD = #{coCd}		
+		</if>
+		<if test="prdtDt != null and !prdtDt.equals('')">
+	   	AND PRDT_DT <![CDATA[<=]]> REPLACE(#{prdtDt}, '-', '')
+		</if>
+		<if test="clntCd != null and !clntCd.equals('')">
+	   	AND CLNT_CD = #{clntCd}	
+		</if>
+		<if test="selpchCd != null and !selpchCd.equals('')">
+	   	AND SELPCH_CD = #{selpchCd}
+		</if>
+	</where>
+	 GROUP BY CO_CD, CLNT_CD, SELPCH_CD, PRDT_CD
+	)
 		SELECT
 			*
 		FROM
@@ -37,7 +61,7 @@
 					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM
 					 , TO_CHAR(TO_DATE(A.PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') PRDT_DT
 					 , A.SELPCH_CD
-					 , FN_CM05M01_CD_TO_NM(SELPCH_CD) SELPCH_NM
+					 , FN_CM05M01_CD_TO_NM(A.SELPCH_CD) SELPCH_NM
 					 , A.PRDT_CD
 					 , B.PRDT_NM
 					 , A.PRDT_UPR
@@ -57,24 +81,18 @@
 					 , A.UDT_DTTM
 				  FROM GOLDMOON.TB_SD08M01 A
 				     , GOLDMOON.TB_BM01M01 B
+				     , MAXDT C
 				  WHERE A.PRDT_CD  = B.PRDT_CD 
-						<if test="coCd != null and !coCd.equals('')">
-					   	AND A.CO_CD = #{coCd}		
-						</if>
-						<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
-			   			AND A.PRDT_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
-						</if>
-						<if test="clntCd != null and !clntCd.equals('')">
-					   	AND A.CLNT_CD = #{clntCd}	
-						</if>
-						<if test="selpchCd != null and !selpchCd.equals('')">
-					   	AND A.SELPCH_CD = #{selpchCd}
-						</if>
-						ORDER BY PRDT_DT DESC
+				    AND A.CO_CD = C.CO_CD
+				    AND A.CLNT_CD = C.CLNT_CD
+				    AND A.SELPCH_CD = C.SELPCH_CD
+				    AND A.PRDT_CD = C.PRDT_CD
+				ORDER BY PRDT_DT DESC
 			) A
 		)
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+		ORDER BY CLNT_CD, PRDT_DT, SELPCH_CD, PRDT_CD
 	</select>
 	
 	<select id="selectCplrUntpc" resultType="CamelMap">
@@ -119,6 +137,16 @@
 			<if test="prdtCd != null and !prdtCd.equals('')">
 		   	AND A.PRDT_CD = #{prdtCd}
 			</if>
+	</select>
+	
+	<select id="selectCplrUntpcKey" resultType="int">
+	SELECT COUNT(*)
+	  FROM TB_SD08M01
+	  WHERE CO_CD = #{coCd}		
+	   	AND PRDT_DT = REPLACE(#{prdtDt}, '-', '')
+	   	AND CLNT_CD = #{clntCd}	
+	   	AND SELPCH_CD = #{selpchCd}
+	   	AND PRDT_CD = #{prdtCd}
 	</select>
 	
 	<insert id="insertCplrUntpc" parameterType="Map">

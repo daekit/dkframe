@@ -11,6 +11,8 @@ public interface SD08Svc {
 	
 	public int selectCplrUntpcCount(Map<String, String> param);
 	
+	public int selectCplrUntpcKey(Map<String, String> param);
+	
 	public int insertCplrUntpc(Map<String, String> param);
 
 	public int updateCplrUntpc(Map<String, String> param);

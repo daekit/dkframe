@@ -29,7 +29,7 @@
                     	<input type="hidden" id="clntCd" name="clntCd">
 		                <div class="search_form" style="width: 100%;">
 				            <input type="text" id="clntNm" name="clntNm" disabled>
-				            <a id="btnClnt" onclick="clntSearch('S');"><i class="i_search_w"></i></a>
+				            <a id="btnClnt" onclick="clntSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	                <th class="hit">기준일자</th>
@@ -48,8 +48,10 @@
 	                </td>
 	                <th class="hit">매입매출구분</th>
 	                <td>	                    
-	                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH" required="required">
+	                    <select id="selpchCd" name="selpchCd" required="required">
 	                    	<option value="">선택</option>
+							<option value="SELPCH1">매입</option>
+							<option value="SELPCH2">매출</option>
 	                    </select>
 	                </td>
 	                <th class="hit">단가</th>
@@ -115,7 +117,7 @@
 	
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
-		$('#prdtDt').datepicker({
+		$('#popForm #prdtDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -231,6 +233,9 @@
 			var formData = makeFormData();
 			filePostAjax("/user/sd/sd08/insertCplrUntpc", formData, function(data){
 				alert(data.resultMessage);           
+				if(data.resultCode == 999){
+					return;
+				}
 				gridView.setData(0);
 				modal.close();
 			});
@@ -279,9 +284,12 @@
 
 	
 	// 거래처
-	function clntSearch(type) {
-		actionTp = type;
-		openSecondModal("/static/html/user/sd/sd08/SD0801P02.html", 500, 420, "거래처검색");
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#popForm #clntCd').val(row.clntCd);
+			$('#popForm #clntNm').val(row.clntNm);
+		});
 	}
 
 	// 현장 검색

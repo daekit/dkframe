@@ -13,6 +13,8 @@ public interface SD08Mapper {
 	List<Map<String, String>> selectCplrUntpcList(Map<String, String> paramMap);
 
 	Map<String, String> selectCplrUntpc(Map<String, String> paramMap);
+	
+	int selectCplrUntpcKey(Map<String, String> paramMap);
 
 	int insertCplrUntpc(Map<String, String> paramMap);
 	
