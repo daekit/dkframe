@@ -32,7 +32,8 @@
 			"plugins": ['types', 'checkbox', 'search', 'sort'],
 			"core": {
 				"multiple": false,
-				"data": setUserTree()
+				"data": setUserTree(),
+				"dblclick_toggle2": false
 			},
 			"types": {
 				"person": {"icon" : "glyphicon glyphicon-user"},
@@ -61,7 +62,17 @@
 		// 루트 노드 로드 완료 시
 			selectNode();
 		}).on("select_node.jstree", function(e, data) {
-		// 노드 선택 시 발생 이벤트
+		// 노드 선택 시
+		}).on('dblclick.jstree', function(e, data) {
+		// 노드 더블클릭 시
+			var $node = $(event.target).closest("li");
+			var userId = $node.attr("id");
+			
+			if(!$('#userTree').jstree(true).is_checked(userId)){
+				$('#userTree').jstree(true).check_node(userId);
+			}
+			
+			executeCallBack();
 		}).on('open_node.jstree', function(e, data) {
 		// 노드 열릴 때
 			data.instance.set_type(data.node, 'unit-open');
