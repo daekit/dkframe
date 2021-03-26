@@ -24,7 +24,7 @@
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd" required>
 							<input type="text" id="clntNm" disabled> 
-							<button type="button" id="btnClntSearch" onclick="clntSearch();"><i class="i_search_w"></i></button>
+							<button type="button" id="btnClntSearch" onclick="openSecondClntSearch();"><i class="i_search_w"></i></button>
 						</div> 
 					</td>
 					<th class="hit">입금일자</th>
@@ -197,6 +197,15 @@
 		}
 	});
 	
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = clntGridView.target.getList("selected")[0];
+			$("#clntCd").val(row.clntCd);
+			$("#clntNm").val(row.clntNm);
+		});
+	}
+	
 	function clntSearch() {
 		openSecondModal("/static/html/user/ar/ar05/AR0502P02.html", 500, 420, "거래처");
 	}
@@ -204,8 +213,12 @@
 	function ctrlBillTable(elem){
 		var pmntMtd = $(elem).find('option:selected').data("etc");
 		if(pmntMtd == "BILL"){
+			$('#etrdpsBkacCd').removeAttr("required");
+			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
 			$('#billTableDiv').show();
 		}else{
+			$('#etrdpsBkacCd').attr("required");
+			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
 			$('#billTableDiv').hide();
 		}
 	}
