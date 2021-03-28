@@ -56,6 +56,19 @@
 		<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
 		 	AND ${searchValue} LIKE '%${searchName}%'
 		</if>
+		<if test= "(prdtDiv != null and !prdtDiv.equals(''))  or (prdtNm != null and !prdtNm.equals(''))">
+		 	AND A.EST_NO IN (SELECT EST_NO FROM TB_SD03D01 SD03D  
+		 	                 INNER JOIN TB_BM01m01 BM01 ON BM01.PRDT_CD = SD03D.PRDT_CD
+		 	                 WHERE  EST_NO = A.EST_NO 
+		 	                 <if test= "prdtDiv != null and !prdtDiv.equals('')">
+		 	                 AND    SD03D.PRDT_DIV = #{prdtDiv}
+		 	                 </if>		 	                 
+		 	                 <if test= "prdtNm != null and !prdtNm.equals('')">
+		 	                 AND BM01.PRDT_NM like '%${prdtNm}%'
+		 	                 </if>                                           
+		 	                  )
+		</if>
+		
 			AND ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
 			GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
 			ORDER BY EST_DT DESC

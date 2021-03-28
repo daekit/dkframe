@@ -64,24 +64,43 @@
       <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 2분할 -->
-            <table class="table_input type02">
-              <tr>
-              	<th class="hit">회사</th>
-              	<td >
-                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);" required="required">
-                  <option value="">전체</option>
-                  </select>
-                </td>
-                <td>
-                  <select id= "searchValue_S">
-	                  <option value="EST_CLNT_NM">수신처</option>
-	                  <option value="NAME">견적담당자</option>
-                  </select>
-                  <input type="text" id="searchName_S" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
-                </td>
-<!--                 <td>
-                </td> -->
-              </tr>
+            <table class="table_input">
+	              <tr>
+		              	<th class="hit">회사</th>
+		              	<td >
+		                  <select id= "coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);" required="required">
+		                  <option value="">전체</option>
+		                  </select>
+		                </td>
+		               <th>기간</th>
+						<td>
+									<div class="date_input">
+										<input type="text" class="input_calendar" id="startDt" data-search="startDt"> 
+										<span>~</span> 
+										<input type="text" class="input_calendar" id="endDt" data-search="endDt">
+									</div>
+						</td>
+	              </tr>
+	              <tr>
+		              <th>제품구분  </th>
+		              <td>
+								<select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" onchange="gridView.setData(0);">
+									<option value="">선택</option>
+								</select>
+					  </td>
+					  <th> 제품명 </th>	
+					  <td>			
+								<input type="text" id="prdtNm" name="prdtNm"> 
+					   </td>			 
+					   <td>
+		                  <select id= "searchValue_S">
+			                  <option value="EST_CLNT_NM">수신처</option>
+			                  <option value="NAME">견적담당자</option>
+		                  </select>
+		                  <input type="text" id="searchName_S" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		               </td>
+		            
+	              </tr>              
             </table>
           </div>
     </div>
@@ -171,6 +190,8 @@
 			if(inputValidation($('input[required]'))){
 				var formData = {
 					"coCd" 		  : $('#coCd_S').val(),	
+					"prdtDiv"     : $("#prdtDiv").val(),
+					"prdtNm"      : $("#prdtNm").val(),
 					"searchValue" : $("#searchValue_S").val(),
 					"searchName"  : $("#searchName_S").val(),
 					"pageNo" : _pageNo + 1,
@@ -199,6 +220,8 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
 	    gridView.initView().setData(0);
+		$("#startDt").val(lastWeek());
+		$("#endDt").val(dateToStr(new Date()));
 	})	
 		
 	/* function setSelectCombo(){
@@ -237,6 +260,8 @@
 		$(".contents.search input[type='text']").val("");
 		$("#searchValue_S option").eq(0).prop("selected", true);
 		$("#coCd_S").val(jwt.coCd);
+		$("#startDt").val(lastWeek());
+		$("#endDt").val(dateToStr(new Date()));
 		gridView.initView().setData(0);
 	}
 	
