@@ -13,9 +13,47 @@ import com.dksys.biz.user.pp.pp04.service.PP04Svc;
 public class PP04Svcmpl implements PP04Svc {
 	
     @Autowired
-    PP04Mapper pp04Mapper;
+    PP04Mapper pp04Mapper;  
 
-    @Override
+
+	@Override
+	public int selectMesMtrlRstlCount(Map<String, String> paramMap) {
+		
+		return pp04Mapper.selectMesMtrlRstlCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectMesMtrlRstlList(Map<String, String> paramMap) {
+	
+		return pp04Mapper.selectMesMtrlRstlList(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectMesAllocVehlDtlList(Map<String, String> paramMap) {
+		
+		return pp04Mapper.selectMesAllocVehlDtlList(paramMap);
+	}   
+	
+	@Override
+	public int insertMesShipList(Map<String, String> paramMap) {
+		
+		//1. 화면에서 선택한 배차번호 목록을 가져와서 loop 실행 
+		//2. 각 배차별로 주문이 연결되엇는지 확인
+		//3. 각 배차별로 출하요청서 생성
+		//4. 각 출하요청서별 매출 생성
+
+		// TODO Auto-generated method stub
+		
+		
+		// 생성완료된 배차는 완료 표기
+		pp04Mapper.updateMesMtrlRslt(paramMap);
+		
+		
+		return 0;
+	}
+	
+	/*
+	    @Override
 	public int selectMesShipCount(Map<String, String> paramMap) {
 		return pp04Mapper.selectMesShipCount(paramMap);
 	}
@@ -25,10 +63,7 @@ public class PP04Svcmpl implements PP04Svc {
 		return pp04Mapper.selectMesShipList(paramMap);
 	}
 		
-	@Override
-	public int insertMesShip(Map<String, String> param) {
-		return pp04Mapper.insertMesShip(param);
-	}
+
 
 	@Override
 	public int updatMesSHip(Map<String, String> param) {
@@ -43,7 +78,16 @@ public class PP04Svcmpl implements PP04Svc {
 	public int updatMesSHipConfirm(Map<String, String> param) {
 		return pp04Mapper.updatMesSHipConfirm(param);
 	}
+	
+	
+	
+	
 
+	 */
+
+
+
+/*
 	@Override
 	public List<Map<String, String>> selectMesAllocVehlList(Map<String, String> param) {
 		
@@ -52,32 +96,30 @@ public class PP04Svcmpl implements PP04Svc {
 			List<Map<String, String>> allocVehlDtlList =pp04Mapper.selectMesAllocVehlDtlList(param);
 			for(Map<String, String> allocVehlDtl : allocVehlDtlList){
 				// 개별 실적을 정리해서 I/F테이블에 입력한다.
-			/*  facCd,
-				allocVehlNo,
-			 	ordPackWgt,
-				baseDd,
-				lossRate,
-				custCd,
-				custNm,
-				ordCompCd,
-				dimsCd,
-				*/
+//			/*  facCd,
+//				allocVehlNo,
+//			 	ordPackWgt,
+//				baseDd,
+//				lossRate,
+//				custCd,
+//				custNm,
+//				ordCompCd,
+//				dimsCd,
+//				*/
 		//		ordNo,		ordLineNo 을 활용해서 TB_SD04M01, TB_SD04M01_MES, TB_SD04M01,TB_SD04M01_MES에서 필요자료를 가져온다.
 				
-				Map<String, String> erpOrder = null;
+//				Map<String, String> erpOrder = null;
 		//		Map<String, String> erpOrder = pp04Mapper.selectMesOrder(param);
-		/*  주문에서 필요한 자료는 전부 여기에서 가져온다.		
-			
-				
+//		/*  주문에서 필요한 자료는 전부 여기에서 가져온다.		
 				
 	//			productNameCd,
 				 
 				// allocVehlDtl.put("mesCertiNo",   );	/**/
-				 allocVehlDtl.put("mesFtrCd",allocVehlDtl.get("worksCd"));	/* MES 공장 구분*/
-				 allocVehlDtl.put("cfYn",  "N"  );	                       /* ERP 반영 여부*/
+//				 allocVehlDtl.put("mesFtrCd",allocVehlDtl.get("worksCd"));	/* MES 공장 구분*/
+//				 allocVehlDtl.put("cfYn",  "N"  );	                       /* ERP 반영 여부*/
 				// allocVehlDtl.put("coCd",   );	/*회사코드*/
-				 allocVehlDtl.put("selpchCd",  "SELPCH02"  );	/*매입/매출구분*/
-				 allocVehlDtl.put("trstDt",allocVehlDtl.get("baseDd") );	/*거래일자*/
+//				 allocVehlDtl.put("selpchCd",  "SELPCH02"  );	/*매입/매출구분*/
+//				 allocVehlDtl.put("trstDt",allocVehlDtl.get("baseDd") );	/*거래일자*/
 //				 allocVehlDtl.put("taxivcCoprt",   );	/*세금계산서발행법인*/
 //				 allocVehlDtl.put("trstClntCd",   );	/*거래내역 거래처 코드*/
 //				 allocVehlDtl.put("trstPrdtCd",   );	/*제품코드*/
@@ -102,16 +144,16 @@ public class PP04Svcmpl implements PP04Svc {
 //				 allocVehlDtl.put("stockUpr",   );	/*재고단가*/
 //				 allocVehlDtl.put("pchsUpr",   );	/*최종매입단가*/
 //				 allocVehlDtl.put("sellUpr",   );	/*최종매츨단가*/
-				 allocVehlDtl.put("trstQty", allocVehlDtl.get("ordPackWgt"));	/*거래지시수량*/
-				 allocVehlDtl.put("trstWt",  allocVehlDtl.get("ordPackWgt"));	/*거래지시중량*/
+//				 allocVehlDtl.put("trstQty", allocVehlDtl.get("ordPackWgt"));	/*거래지시수량*/
+//				 allocVehlDtl.put("trstWt",  allocVehlDtl.get("ordPackWgt"));	/*거래지시중량*/
 //				 allocVehlDtl.put("trstUpr",   );	/*거래지시단가*/
 //				 allocVehlDtl.put("trstAmt",   );	/*거래지시금액*/
-				 allocVehlDtl.put("realTrstQty", allocVehlDtl.get("ordPackWgt")  );	/*실거래수량*/
-				 allocVehlDtl.put("realTrstWt",  allocVehlDtl.get("ordPackWgt"));	/*실거래중량*/
+//				 allocVehlDtl.put("realTrstQty", allocVehlDtl.get("ordPackWgt")  );	/*실거래수량*/
+//				 allocVehlDtl.put("realTrstWt",  allocVehlDtl.get("ordPackWgt"));	/*실거래중량*/
 //				 allocVehlDtl.put("realTrstUpr",   );	/*실거래단가*/
 //				 allocVehlDtl.put("realTrstAmt",   );	/*실거래금액*/
-				 allocVehlDtl.put("bilgQty", allocVehlDtl.get("ordPackWgt") );	/*청구수량*/
-				 allocVehlDtl.put("bilgWt",  allocVehlDtl.get("ordPackWgt") );	/*청구중량*/
+//				 allocVehlDtl.put("bilgQty", allocVehlDtl.get("ordPackWgt") );	/*청구수량*/
+//				 allocVehlDtl.put("bilgWt",  allocVehlDtl.get("ordPackWgt") );	/*청구중량*/
 //				 allocVehlDtl.put("bilgUpr",   );	/*청구단가*/
 //				 allocVehlDtl.put("bilgAmt",   );	/*청구금액*/
 //				 allocVehlDtl.put("trstDcAmt",   );	/*할인금액*/
@@ -134,22 +176,10 @@ public class PP04Svcmpl implements PP04Svc {
 //				 allocVehlDtl.put("bilgVatAmt",   );	/*청구부가세금액*/
 //				 allocVehlDtl.put("prdtSpec",   );	/*제품스펙*/
 
-			}
-			pp04Mapper.updateMesMtrlRslt(param);
-		}
-		return pp04Mapper.selectMesAllocVehlDtlList(param);
-	}
-
-
-	@Override
-	public int selectMesMtrlRstlCount(Map<String, String> paramMap) {
-		
-		return pp04Mapper.selectMesMtrlRstlCount(paramMap);
-	}
-
-	@Override
-	public List<Map<String, String>> selectMesMtrlRstlList(Map<String, String> paramMap) {
+//			}
+//			pp04Mapper.updateMesMtrlRslt(param);
+//		}
+//		return pp04Mapper.selectMesAllocVehlDtlList(param);
+//	}
 	
-		return pp04Mapper.selectMesMtrlRstlList(paramMap);
-	}      
 }

@@ -427,47 +427,68 @@
 		WHERE
 			MES_CERTI_NO = #{mesCertiNo}
 	</update>
-	<select id="selectMesAllocVehlCount" parameterType="Map" resultType="int">
-		       SELECT count(*)
-		        FROM  KUMMUN.TB_MES_MTRL_RSLT WHERE ERP_TRANS_YN='N' 
-				WHERE A.WORKS_CD = #{mesFtrCd}
-		          AND A.BASE_DD BETWEEN  #{reqDtFrom}  and  #{reqDtTo}
-	</select>
+	
 	<select id="selectMesMtrlRstlCount" parameterType="Map" resultType="int">		
 	         SELECT  COUNT(*)
-	         FROM  KUMMUN.TB_MES_MTRL_RSLT A
-	         WHERE WORKS_CD = #{mesFtrCd}
-               AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
-               AND MTRL_CHG_CAUSE_CD = '8'
-               AND ERP_TRANS_YN='N' 
-             ORDER BY WORKS_CD,FAC_CD,BASE_DD, ALLOC_VEHL_NO    
-	</select>	
+	         FROM(		
+		         SELECT WORKS_CD, FAC_CD, ALLOC_VEHL_NO, BASE_DD,
+	                    MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD,
+	                    VEHL_NO, 
+	                    MTRL_CHG_CAUSE,
+	                    ERP_TRANS_YN,
+	                    (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM ,
+	                    SUM(LOSS_MTRL_WGT) LOSS_MTRL_WGT,
+	                    SUM( MTRL_WGT)MTRL_WGT
+		         FROM  KUMMUN.TB_MES_MTRL_RSLT A
+		         WHERE WORKS_CD = #{mesFtrCd}
+	               AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
+	               AND MTRL_CHG_CAUSE_CD = '8'
+	               <if test= "cfYn != null and !cfYn.equals('')">
+	               AND ERP_TRANS_YN = #{cfYn}
+	               </if>
+	               AND ALLOC_VEHL_NO IS NOT NULL
+	             GROUP BY WORKS_CD, FAC_CD, ALLOC_VEHL_NO,BASE_DD,
+	                      MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD, VEHL_NO, 
+	                      MTRL_CHG_CAUSE,ERP_TRANS_YN
+            )  
+	    <if test= "siteNm != null and !siteNm.equals('')">
+         WHERE SITE_NM  LIKE '%${siteNm}%'
+         </if>
+	</select>
+
 	<select id="selectMesMtrlRstlList" parameterType="Map" resultType="CamelMap">
 	SELECT *
 			FROM(
 				SELECT
 						ROWNUM AS RNUM, D.*
 				FROM(		
-	         SELECT A.*  
-	               , (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM
-	               , (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '3' AND CUST_CD = A.SUP_CUST_CD) AS SUP_CUST_NM
-	               , (SELECT CD_V_MEANING FROM KUMMUN.TB_MES_CODE_DTL WHERE WORKS_CD = A.WORKS_CD AND CD_TP = 'DIMS_CD' AND CD_V = A.DIMS_CD) AS DIMS_NM
+	         SELECT WORKS_CD, FAC_CD, ALLOC_VEHL_NO, BASE_DD,
+                    MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD,
+                    VEHL_NO, 
+                    MTRL_CHG_CAUSE,
+                    ERP_TRANS_YN,
+                    (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM ,
+	                (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '3' AND CUST_CD = A.SUP_CUST_CD) AS SUP_CUST_NM,             
+                    SUM(LOSS_MTRL_WGT) LOSS_MTRL_WGT,
+                    SUM( MTRL_WGT)MTRL_WGT
 	         FROM  KUMMUN.TB_MES_MTRL_RSLT A
 	         WHERE WORKS_CD = #{mesFtrCd}
                AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
                AND MTRL_CHG_CAUSE_CD = '8'
-               AND ERP_TRANS_YN='N' 
-             ORDER BY WORKS_CD,FAC_CD,BASE_DD, ALLOC_VEHL_NO
+               <if test= "cfYn != null and !cfYn.equals('')">
+               AND ERP_TRANS_YN = #{cfYn}
+               </if>
+               AND ALLOC_VEHL_NO IS NOT NULL
+             GROUP BY WORKS_CD, FAC_CD, ALLOC_VEHL_NO,BASE_DD,
+                      MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD, VEHL_NO, 
+                      MTRL_CHG_CAUSE,ERP_TRANS_YN
          ) D
+         <if test= "siteNm != null and !siteNm.equals('')">
+         WHERE D.SITE_NM  LIKE '%${siteNm}%'
+         </if>
 		)
 		WHERE
 			RNUM BETWEEN ${firstIndex} AND ${lastIndex}    
-	</select>
-	<select id="selectMesAllocVehlList" parameterType="Map" resultType="CamelMap">
-		       SELECT ALLOC_VEHL_NO 
-		        FROM  KUMMUN.TB_MES_MTRL_RSLT WHERE ERP_TRANS_YN='N' 
-				WHERE A.WORKS_CD = #{mesFtrCd}
-		          AND A.BASE_DD BETWEEN  #{reqDtFrom}  and  #{reqDtTo}
 	</select>
 	<select id="selectMesAllocVehlDtlList" parameterType="Map" resultType="CamelMap">
 		       SELECT  F.WORKS_CD, F.FAC_CD,
@@ -478,24 +499,31 @@
 					   H.CUST_CD, 
 					   H.CUST_NM, 
 					   H.ORD_COMP_CD,
+					   (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = F.WORKS_CD AND FAC_CD = F.FAC_CD AND CUST_TP != '1' AND CUST_CD = H.ORD_COMP_CD) AS ORD_COMP_NM,
 					   G.DIMS_CD,
 					   E.ORD_NO,
 					   G.ORD_LINE_NO,
 					   D.REF_CD_2 AS PRODUCT_NAME_CD,
-					   F.VEHL_NO
+					   F.VEHL_NO,
+					   (SELECT ODR_SEQ     FROM TB_SD04m01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO) AS ODR_SEQ,
+                       (SELECT ODR_DTL_SEQ FROM TB_SD04D01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO AND MES_ORD_LINE_NO = MES_ORD_LINE_NO) AS ODR_DTL_SEQ
 			FROM   KUMMUN.TB_MES_ORD_ITEM A
-						JOIN KUMMUN.TB_MES_LOAD_ORG B ON A.WORKS_CD = B.WORKS_CD AND A.FAC_CD = B.FAC_CD AND A.LOAD_ORG_NO = B.LOAD_ORG_NO
+						JOIN KUMMUN.TB_MES_LOAD_ORG B   ON A.WORKS_CD = B.WORKS_CD AND A.FAC_CD = B.FAC_CD AND A.LOAD_ORG_NO = B.LOAD_ORG_NO
 						JOIN KUMMUN.TB_MES_ALLOC_VEHL F ON B.WORKS_CD = F.WORKS_CD AND B.FAC_CD = F.FAC_CD AND B.ALLOC_VEHL_NO = F.ALLOC_VEHL_NO
-						JOIN  ( SELECT MAX(EQP_CD) AS EQP_CD, TAG_NO, MAX(SCAN_NO) AS SCAN_NO, WORKS_CD, FAC_CD FROM KUMMUN.TB_MES_PROD_RSLT GROUP BY TAG_NO, WORKS_CD, FAC_CD
-											) C ON A.WORKS_CD = C.WORKS_CD AND A.FAC_CD =C.FAC_CD AND A.TAG_NO = C.TAG_NO
-						JOIN KUMMUN.TB_MES_CODE_DTL D ON D.WORKS_CD = C.WORKS_CD AND D.FAC_CD = C.FAC_CD AND D.CD_TP = 'EQP_CD' AND D.CD_V = C.EQP_CD
-						JOIN KUMMUN.TB_MES_ORD_DTL G ON A.WORKS_CD = G.WORKS_CD AND A.FAC_CD = G.FAC_CD AND A.ORD_NO = G.ORD_NO AND A.ORD_LINE_NO = G.ORD_LINE_NO 
-						JOIN KUMMUN.TB_MES_ORD_MST E ON A.WORKS_CD = E.WORKS_CD AND A.FAC_CD = E.FAC_CD AND A.ORD_NO = E.ORD_NO 
+						JOIN  ( SELECT MAX(EQP_CD) AS EQP_CD, TAG_NO, MAX(SCAN_NO) AS SCAN_NO, WORKS_CD, FAC_CD 
+						          FROM KUMMUN.TB_MES_PROD_RSLT 
+						          GROUP BY TAG_NO, WORKS_CD, FAC_CD
+							  ) C ON A.WORKS_CD = C.WORKS_CD AND A.FAC_CD =C.FAC_CD AND A.TAG_NO = C.TAG_NO
+						JOIN KUMMUN.TB_MES_CODE_DTL D  ON D.WORKS_CD = C.WORKS_CD AND D.FAC_CD = C.FAC_CD AND D.CD_TP   = 'EQP_CD'  AND D.CD_V = C.EQP_CD
+						JOIN KUMMUN.TB_MES_ORD_DTL G   ON A.WORKS_CD = G.WORKS_CD AND A.FAC_CD = G.FAC_CD AND A.ORD_NO  = G.ORD_NO  AND A.ORD_LINE_NO = G.ORD_LINE_NO 
+						JOIN KUMMUN.TB_MES_ORD_MST E   ON A.WORKS_CD = E.WORKS_CD AND A.FAC_CD = E.FAC_CD AND A.ORD_NO  = E.ORD_NO 
 						JOIN KUMMUN.TB_MES_CUST_INFO H ON E.WORKS_CD = H.WORKS_CD AND E.FAC_CD = H.FAC_CD AND E.CUST_CD = H.CUST_CD
 						LEFT OUTER JOIN KUMMUN.TB_MES_CUST_INFO_DTL I ON H.WORKS_CD = I.WORKS_CD AND H.FAC_CD = I.FAC_CD AND H.CUST_CD = I.CUST_CD AND G.DIMS_CD = I.DIMS_CD
-			WHERE A.WORKS_CD     = #{mesFtrCd}
-					AND F.ALLOC_VEHL_NO = #{allocVehlNo}
-			GROUP BY F.ALLOC_VEHL_NO, I.LOSS_RATE, H.CUST_CD, H.CUST_NM, H.ORD_COMP_CD, G.DIMS_CD, E.ORD_NO,G.ORD_LINE_NO, D.REF_CD_2, F.WORKS_CD, F.FAC_CD, F.ISS_DD, F.VEHL_NO
+			WHERE A.WORKS_CD      = #{worksCd}
+			  AND F.ALLOC_VEHL_NO = #{allocVehlNo}
+			  AND H.CUST_CD       = #{custCd}
+			GROUP BY F.ALLOC_VEHL_NO, I.LOSS_RATE, H.CUST_CD, H.CUST_NM, H.ORD_COMP_CD, G.DIMS_CD,
+			         E.ORD_NO,G.ORD_LINE_NO, D.REF_CD_2, F.WORKS_CD, F.FAC_CD, F.ISS_DD, F.VEHL_NO
 			ORDER BY ORD_NO
 	</select> 
 	<update id="updateMesMtrlRslt" parameterType="Map">
@@ -505,7 +533,99 @@
 		WHERE
 			ALLOC_VEHL_NO = #{allocVehlNo}
 	</update>
-
+	<select id="selectErpMesShipList" parameterType="Map" resultType="CamelMap">
+        SELECT SHIP.WORKS_CD,
+               SHIP.FAC_CD,
+			   SHIP.ALLOC_VEHL_NO, 
+			   SHIP.ORD_PACK_WGT, 
+			   SHIP.BASE_DD,
+			   SHIP.LOSS_RATE,
+			   SHIP.CUST_CD, 
+			   SHIP.CUST_NM, 
+			   SHIP.ORD_COMP_CD,
+			   SHIP.ORD_COMP_NM,
+			   SHIP.DIMS_CD,
+			   SHIP.PRODUCT_NAME_CD,
+			   SHIP.VEHL_NO,
+			   SHIP.ODR_SEQ,
+               SHIP.ODR_DTL_SEQ
+               SD04M.CO_CD
+               SD04M.REQ_DT
+               SD04M.CLNT_CD
+               SD04M.PRJCT_CD
+               SD04M.MAKR_CD
+               SD04M.TYP_CD
+               SD04M.OWNER_CD
+               SD04M.IMP_YN
+               SD04M.WH_CD
+               SD04M.MNG_TEL
+               SD04M.DLVR_DTTM
+               SD04M.ADDR_ZIP
+               SD04M.ADDR_MAIN
+               SD04M.ADDR_SUB
+               SD04M.ODR_RMK
+               SD04M.DIRTRS_YN
+               SD04M.TOT_QTY
+               SD04M.TOT_WT
+               SD04M.TOT_AMT
+               SD04M.SALES_MNG
+               SD04M.ODR_CREAT_DIV
+               SD04M.SITE_CD
+               SD04D.PRDT_CD
+               SD04D.PRDT_UNIT
+               SD04D.PRDT_LEN
+               SD04D.ODR_QTY
+               SD04D.ODR_WT
+               SD04D.ODR_UPR
+               SD04D.ODR_AMT
+               SD04D.PRDT_UPR
+               SD04D.STOCK_UPR
+               SD04D.PCHS_UPR
+               SD04D.SELL_UPR
+               SD04D.ODR_DTL_RMK
+               SD04D.CLOSE_YN
+               SD04D.CLOSE_ID
+               SD04D.CLOSE_DTTM
+         FROM 
+            (
+		       SELECT  F.WORKS_CD, F.FAC_CD,
+					   F.ALLOC_VEHL_NO, 
+					   SUM(A.ORD_PACK_WGT) AS ORD_PACK_WGT, 
+					   F.ISS_DD AS BASE_DD,
+					   I.LOSS_RATE,
+					   H.CUST_CD, 
+					   H.CUST_NM, 
+					   H.ORD_COMP_CD,
+					   (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = F.WORKS_CD AND FAC_CD = F.FAC_CD AND CUST_TP != '1' AND CUST_CD = H.ORD_COMP_CD) AS ORD_COMP_NM,
+					   G.DIMS_CD,
+					   D.REF_CD_2 AS PRODUCT_NAME_CD,
+					   F.VEHL_NO,
+					   (SELECT ODR_SEQ     FROM TB_SD04m01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO) AS ODR_SEQ,
+                       (SELECT ODR_DTL_SEQ FROM TB_SD04D01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO AND MES_ORD_LINE_NO = MES_ORD_LINE_NO) AS ODR_DTL_SEQ
+			FROM   KUMMUN.TB_MES_ORD_ITEM A
+						JOIN KUMMUN.TB_MES_LOAD_ORG B   ON A.WORKS_CD = B.WORKS_CD AND A.FAC_CD = B.FAC_CD AND A.LOAD_ORG_NO = B.LOAD_ORG_NO
+						JOIN KUMMUN.TB_MES_ALLOC_VEHL F ON B.WORKS_CD = F.WORKS_CD AND B.FAC_CD = F.FAC_CD AND B.ALLOC_VEHL_NO = F.ALLOC_VEHL_NO
+						JOIN  ( SELECT MAX(EQP_CD) AS EQP_CD, TAG_NO, MAX(SCAN_NO) AS SCAN_NO, WORKS_CD, FAC_CD 
+						          FROM KUMMUN.TB_MES_PROD_RSLT 
+						          GROUP BY TAG_NO, WORKS_CD, FAC_CD
+							  ) C ON A.WORKS_CD = C.WORKS_CD AND A.FAC_CD =C.FAC_CD AND A.TAG_NO = C.TAG_NO
+						JOIN KUMMUN.TB_MES_CODE_DTL D  ON D.WORKS_CD = C.WORKS_CD AND D.FAC_CD = C.FAC_CD AND D.CD_TP   = 'EQP_CD'  AND D.CD_V = C.EQP_CD
+						JOIN KUMMUN.TB_MES_ORD_DTL G   ON A.WORKS_CD = G.WORKS_CD AND A.FAC_CD = G.FAC_CD AND A.ORD_NO  = G.ORD_NO  AND A.ORD_LINE_NO = G.ORD_LINE_NO 
+						JOIN KUMMUN.TB_MES_ORD_MST E   ON A.WORKS_CD = E.WORKS_CD AND A.FAC_CD = E.FAC_CD AND A.ORD_NO  = E.ORD_NO 
+						JOIN KUMMUN.TB_MES_CUST_INFO H ON E.WORKS_CD = H.WORKS_CD AND E.FAC_CD = H.FAC_CD AND E.CUST_CD = H.CUST_CD
+						LEFT OUTER JOIN KUMMUN.TB_MES_CUST_INFO_DTL I ON H.WORKS_CD = I.WORKS_CD AND H.FAC_CD = I.FAC_CD AND H.CUST_CD = I.CUST_CD AND G.DIMS_CD = I.DIMS_CD
+			WHERE A.WORKS_CD      = #{worksCd}
+			  AND F.ALLOC_VEHL_NO = #{allocVehlNo}
+			GROUP BY F.ALLOC_VEHL_NO, I.LOSS_RATE, H.CUST_CD, H.CUST_NM, H.ORD_COMP_CD, G.DIMS_CD,
+			         E.ORD_NO,G.ORD_LINE_NO, D.REF_CD_2, F.WORKS_CD, F.FAC_CD, F.ISS_DD, F.VEHL_NO
+			ORDER BY ORD_NO
+	     ) SHIP
+	     INNER JOIN TB_SD04M01 SD04M
+	             ON  SD04M.ODR_SEQ     = SHIP.ODR_SEQ
+         INNER JOIN TB_SD04D01 SD04D
+                 ON SD04D.ODR_SEQ     = SD04M.ODR_SEQ
+                AND SD04D.ODR_DTL_SEQ = SHIP.ODR_DTL_SEQ
+	</select> 		
     
 	
 </mapper>

@@ -28,7 +28,70 @@ public class PP04Ctr {
     @Autowired
     PP04Svc pp04Svc;
 	
-    @PostMapping(value = "/selectMesShipList")
+   
+    @PostMapping(value = "/selectMesMtrlRstlList")
+	public String selectMesMtrlRstlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = pp04Svc.selectMesMtrlRstlCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = pp04Svc.selectMesMtrlRstlList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+      
+    
+    @PostMapping(value = "/selectMesAllocVehlDtlList")
+	public String selectMesAllocVehlDtlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> resultList = pp04Svc.selectMesAllocVehlDtlList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
+ /*
+    확정된 배차정보를 기준으로 출하요청서, 매출내역 생성   
+  */
+    @PostMapping(value = "/insertMesShipLisr")
+    public String insertMesShip(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
+    	try {
+	    	pp04Svc.insertMesShipList(param);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+	    	return "jsonView";
+    }
+    
+    
+    
+    
+    /*  
+     *   
+     *     @PostMapping(value = "/copyInsert")
+    public String copyInsert(@RequestBody Map<String, String> param, ModelMap model) {
+    	try {
+    		pp04Svc.deleteCopy(param);
+	    	pp04Svc.copyInsert(param);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+	    	return "jsonView";
+    }
+    
+    
+    @PostMapping(value = "/selectPrdtAcinsInfo")
+    public String selectPrdtAcinsInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, String> result = pp04Svc.selectPrdtAcinsInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
+     @PostMapping(value = "/selectMesShipList")
 	public String selectMesShipList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int totalCnt = pp04Svc.selectMesShipCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
@@ -39,19 +102,7 @@ public class PP04Ctr {
     	return "jsonView";
 	}
 
-    @PostMapping(value = "/insertMesShip")
-    public String insertMesShip(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
-    	try {
-	    	pp04Svc.insertMesShip(param);
-	    	model.addAttribute("resultCode", 200);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-    	}catch(Exception e) {
-    		model.addAttribute("resultCode", 500);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
-    	}
-	    	return "jsonView";
-    }
-    
+
     @PutMapping(value = "/updatMesSHip")
     public String updatMesSHip(@RequestBody Map<String, String> param, ModelMap model) {
     	try {
@@ -92,41 +143,7 @@ public class PP04Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
-    @PostMapping(value = "/selectMesMtrlRstlList")
-	public String selectMesMtrlRstlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int totalCnt = pp04Svc.selectMesMtrlRstlCount(paramMap);
-		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
-    	model.addAttribute("paginationInfo", paginationInfo);
-    	
-    	List<Map<String, String>> resultList = pp04Svc.selectMesMtrlRstlList(paramMap);
-    	model.addAttribute("resultList", resultList);
-    	return "jsonView";
-	}
-   
-    
-    /*  
-     *   
-     *     @PostMapping(value = "/copyInsert")
-    public String copyInsert(@RequestBody Map<String, String> param, ModelMap model) {
-    	try {
-    		pp04Svc.deleteCopy(param);
-	    	pp04Svc.copyInsert(param);
-	    	model.addAttribute("resultCode", 200);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-    	}catch(Exception e) {
-    		model.addAttribute("resultCode", 500);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
-    	}
-	    	return "jsonView";
-    }
-    
-    
-    @PostMapping(value = "/selectPrdtAcinsInfo")
-    public String selectPrdtAcinsInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, String> result = pp04Svc.selectPrdtAcinsInfo(paramMap);
-    	model.addAttribute("result", result);
-    	return "jsonView";
-    }
+	
    */ 
     
 }
