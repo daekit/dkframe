@@ -85,12 +85,6 @@ public class SM02Ctr {
     //일반 재고 이동 등록
     @PutMapping("/insertUpdateStockMove")
     public String insertUpdateStockMove(@RequestBody Map<String, String> param, ModelMap model) {
-    	//int result = sm02svc.sm01CheckCnt(param);
-		/*
-		 * if(result == 0) { sm02svc.sm01InsertStockMove(param); }else {
-		 * sm02svc.sm01UpdateStockMove(param); sm02svc.sm01UpdateInsertStockMove(param);
-		 * }
-		 */
     	sm02svc.sm01UpdateInsertStockMove(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
@@ -101,12 +95,6 @@ public class SM02Ctr {
     //바터 재고 이동 등록
     @PutMapping("/insertUpdateBarterStockMove")
     public String insertUpdateBarterStockMove(@RequestBody Map<String, String> param, ModelMap model) {
-    	//int result = sm02svc.sm01CheckCnt(param);
-		/*
-		 * if(result == 0) { sm02svc.sm01InsertStockMove(param); }else {
-		 * sm02svc.sm01UpdateStockMove(param); sm02svc.sm01UpdateInsertStockMove(param);
-		 * }
-		 */
     	sm02svc.sm01UpdateInsertBarterStockMove(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
