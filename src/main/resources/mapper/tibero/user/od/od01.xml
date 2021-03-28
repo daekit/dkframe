@@ -42,7 +42,8 @@
 		    CREAT_DTTM,
 		    UDT_ID,
 		    UDT_PGM,
-		    UDT_DTTM
+		    UDT_DTTM,
+		    SITE_CD
 	    ) 
 	    VALUES
 	    (
@@ -79,14 +80,17 @@
 		    SYSDATE,
 		    #{userId},
 		    #{pgmId},
-		    SYSDATE
+		    SYSDATE,
+		    #{siteCd,    jdbcType=VARCHAR}
 	    )
 	</insert>
 	
 	<select id="selectOrderCount" parameterType="Map" resultType="int">
 		SELECT 
 	 		COUNT(*) 
-	 	FROM TB_OD01M01
+	 	FROM TB_OD01M01 OD01
+		INNER JOIN TB_BM02M01  BM02
+		  	    ON BM02.CLNT_CD = OD01.CLNT_CD
 	 	WHERE 1=1
 	 	<if test="odrSeq != null and !odrSeq.equals('')">
 			AND ODR_SEQ = #{odrSeq}				
@@ -106,6 +110,9 @@
 		<if test="clntCd != null and !clntCd.equals('')">
 			AND CLNT_CD = #{clntCd}				
 		</if>
+		<if test="clntNm != null and !clntNm.equals('')">
+			AND BM02.CLNT_NM like '%${clntNm}%'	
+		</if>					
 		<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 			AND DIRTRS_YN = #{dirtrsYn}				
 		</if>
@@ -191,9 +198,13 @@
 	            ,T.UDT_DTTM
 				,ADDR_MAIN || ' ' || ADDR_SUB AS ADDR
 				,DECODE(ORDRG_YN||DIRTRS_YN, 'YY', 'Y', 'N') AS SELL_YN
+				,SITE_CD		        
+	            ,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM
 			FROM 
 			(
-			 	SELECT * FROM TB_OD01M01
+			 	SELECT OD01.* FROM TB_OD01M01 OD01
+			 	INNER JOIN TB_BM02M01  BM02
+			 	   ON BM02.CLNT_CD = OD01.CLNT_CD
 			 	WHERE 1=1
 			 	<if test="odrSeq != null and !odrSeq.equals('')">
 					AND ODR_SEQ = #{odrSeq}				
@@ -213,6 +224,9 @@
 				<if test="clntCd != null and !clntCd.equals('')">
 					AND CLNT_CD = #{clntCd}				
 				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+					AND BM02.CLNT_NM like '%${clntNm}%'	
+				</if>					
 				<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 					AND DIRTRS_YN = #{dirtrsYn}				
 				</if>
@@ -372,7 +386,9 @@
             T.UDT_DTTM,
 			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
-			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM 
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM ,
+			SITE_CD,		        
+	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM
 		FROM TB_OD01M01 T
 		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
 	</select>

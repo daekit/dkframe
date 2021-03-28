@@ -45,7 +45,9 @@
             CREAT_DTTM,
             UDT_ID,
             UDT_PGM,
-            UDT_DTTM
+            UDT_DTTM,
+            SITE_CD,
+            ALLOC_VEHL_NO
 	    ) 
 	    VALUES
 	    (
@@ -85,7 +87,9 @@
 			SYSDATE,
 			#{userId},
 			#{pgmId},
-			SYSDATE
+			SYSDATE,
+			#{siteCd,  jdbcType=VARCHAR},
+			#{allocVehlNo,  jdbcType=VARCHAR}
 	    )
 	</insert>
 	
@@ -160,8 +164,8 @@
 			#{userId},
 			#{pgmId},
 			SYSDATE,
-			#{prdtSpec},
-			#{prdtSize}
+			#{prdtSpec,  jdbcType=VARCHAR},
+			#{prdtSize,  jdbcType=VARCHAR}
 	    )
 	</insert>
 	
@@ -173,7 +177,9 @@
 	<select id="selectShipCount" parameterType="Map" resultType="int">
 		SELECT 
 	 		COUNT(*) 
-	 	FROM TB_AR01M01
+	 	FROM TB_AR01M01 AR01
+	 	INNER JOIN TB_BM02M01  BM02
+	 	 	    ON BM02.CLNT_CD = AR01.CLNT_CD
 	 	WHERE 1=1
 	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 			AND REQ_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
@@ -193,6 +199,9 @@
 		<if test="whCd != null and !whCd.equals('')">
 			AND WH_CD = #{whCd}				
 		</if>
+		<if test="clntNm != null and !clntNm.equals('')">
+			AND BM02.CLNT_NM like '%${clntNm}%'	
+		</if>			
 		<if test="clntCd != null and !clntCd.equals('')">
 			AND CLNT_CD = #{clntCd}				
 		</if>
@@ -212,6 +221,7 @@
 		        (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 		        T.SHIP_SEQ,
 		        T.PRJCT_CD,
+	            (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 		        T.MAKR_CD,
 		        T.WH_CD,
 		        FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
@@ -251,16 +261,21 @@
 		        T.UDT_PGM,
 		        T.UDT_DTTM,
 				ADDR_MAIN || ' ' || ADDR_SUB AS ADDR,
-		       (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
+		        (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
+		        T.SITE_CD,		        
+	            (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
+		        T.ALLOC_VEHL_NO
 			FROM 
 			(
-			 	SELECT * FROM TB_AR01M01
+			 	SELECT AR01.* FROM TB_AR01M01 AR01
+			 	INNER JOIN TB_BM02M01  BM02
+			 	   ON BM02.CLNT_CD = AR01.CLNT_CD
 			 	WHERE 1=1
 			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 					AND REQ_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 				</if>
 				<if test="coCd != null and !coCd.equals('')">
-					AND CO_CD = #{coCd}				
+					AND CO_CD = #{coCd}		
 				</if>
 			 	<if test="typCd != null and !typCd.equals('')">
 					AND TYP_CD = #{typCd}				
@@ -275,8 +290,11 @@
 					AND WH_CD = #{whCd}				
 				</if>
 				<if test="clntCd != null and !clntCd.equals('')">
-					AND CLNT_CD = #{clntCd}				
+					AND AR01.CLNT_CD = #{clntCd}				
 				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+					AND BM02.CLNT_NM like '%${clntNm}%'	
+				</if>					
 				<if test="searchValue != null and !searchValue.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'				
 				</if>
@@ -342,7 +360,10 @@
 	        T.UDT_ID,
 	        T.UDT_PGM,
 	        T.UDT_DTTM,	        
-		    (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
+		    (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
+		    T.SITE_CD,		        
+	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
+		    T.ALLOC_VEHL_NO
 		FROM TB_AR01M01 T
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</select>
@@ -496,7 +517,8 @@
 			UDT_PGM       = #{pgmId}, 
 			UDT_DTTM      = SYSDATE,
 			ODR_SEQ		  = #{odrSeq},
-			ORDRG_SEQ		  = #{ordrgSeq}
+			ORDRG_SEQ     = #{ordrgSeq},
+			SITE_CD       = #{siteCd}, 
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</update>
 	

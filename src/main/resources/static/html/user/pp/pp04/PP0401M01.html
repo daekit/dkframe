@@ -82,7 +82,7 @@
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required">
+	                 	<select id="coCd_S" data-kind="CO" onchange="gridView.setData(0);"> required="required">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -97,7 +97,7 @@
 	              <tr>
 	              	<th class= "hit">창고구분</th>
 	                <td>
-	                 	<select id="whCd_S" data-kind="WH">
+	                 	<select id="mesFtrCd" data-kind="MESFTR" onchange="gridView.setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -169,7 +169,7 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
-		    	multipleSelect: true,
+		    	multipleSelect: false,
 		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
@@ -217,9 +217,9 @@
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
 				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
 				"coCd" : $("#coCd_S").val(),
-				"whCd" : $("#whCd_S").val(),
 				"cfYn" : $("#cfYn_S").val(),
 				"siteNm" : $("#siteNm").val(),
+//				"mesFtrCd" : $("#mesFtrCd").val(),
 				"mesFtrCd" : "J",
 // 				"searchType" : $("#searchType").val(),
 // 				"searchValue" : $("#searchValue").val(),
@@ -237,6 +237,7 @@
 						totalPages : data.paginationInfo.totalPageCount
 					}
 				});
+				gridDetailView.initView()
 				gridDetailView.setData(0);
 			});
 		}
@@ -261,25 +262,29 @@
 			        },
 			        footSum: [
 				    	[
-				    		{label: "총계", colspan:4, align:"center"},
+				    		{label: "총계", colspan:5, align:"center"},
 				    		{key:"ordPackWgt", collector: "sum", formatter:"money", align: "right"}
 				    	]
 				    ],
 		            columns: [
-		                {key: "odrSeq", 	   label: "ERP오더",    width: 150,		align: "left"},
-		                {key: "odrDtlSeq", 	   label: "ERP오더행번", width:  50,		align: "left"},
+		                {label: "영업오더",  columns:[
+		                     {key: "odrSeq", 	   label: "오더",    width: 100,		align: "left"},
+		                     {key: "odrDtlSeq",    label: "행번",    width:  50,		align: "left"},
+		                ]},		                
 		            	{key: "worksCd",       label: "공장",   	   width: 40,		align: "center"},
 		                {key: "allocVehlNo",   label: "배차번호", 	   width: 120,		align: "center"},
 		                {key: "vehlNo", 	   label: "차량", 	   width: 120,		align: "left"},
 		                {key: "ordPackWgt",	   label: "출하량", 	   width:  90,		align: "right", formatter: "money"},
-		                {key: "lossRate",	   label: "Loss율",     width: 60,		align: "right", formatter: "money"},
+//		                {key: "lossRate",	   label: "Loss율",     width: 60,		align: "right", formatter: "money"},
 		                {key: "custNm",        label: "현장", 	   width: 200,		align: "left"},
 		                {key: "ordCompCd", 	   label: "업체코드", 	   width:  60,		align: "center"},
 		                {key: "ordCompNm", 	   label: "업체명", 	   width:  100,		align: "left"},
 		                {key: "dimsCd", 	   label: "자재", 	   width: 150,		align: "left"},
-		                {key: "ordNo", 	       label: "MES오더", 	   width: 80,		align: "left"},
-		                {key: "ordLineNo", 	   label: "MES오더행번",  width: 50,		align: "left"},
-		                {key: "productNameCd", label: "제품명", 	   width: 150,		align: "left"},
+		                {label: "MES오더",  columns:[
+                             {key: "ordNo", 	       label: "오더", 	   width: 80,		align: "left"},		                	
+		                     {key: "ordLineNo", 	   label: "행번",  width: 50,		align: "left"},
+		                ]},
+		                {key: "productNameCd", label: "제품명", 	   width: 60,		align: "left"},
 		                {key: "facCd",	       label: "MES공장거래처코드",		width: 95,		align: "center", hidden : true},
 		                {key: "custCd", 	   label: "현장코드", 	   width: 90, 	    align: "right", hidden : true},
 		            ]
