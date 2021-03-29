@@ -1,5 +1,10 @@
-<div id="popup_area">
-	<div class="container-fluid">
+<body>
+  <div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">거래처관리</h4>
+    </div>
+
+	<div class="popup_table">
 		<div class="form-group">
 			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 			<form id="clntForm">
@@ -9,11 +14,11 @@
 				<table class="popup_table">
 					<colgroup>
 						<col width="15%">
-						<col >
+						<col width="18%">
 						<col width="15%">
-						<col >
+						<col width="18%">
 						<col width="15%">
-						<col >
+						<col width="19%">
 					</colgroup>
 					<thead>
 						<tr>
@@ -57,11 +62,9 @@
 						<tr>
 							<th rowspan="2">주소</th>
 							<td>
-								<div class="input-group">
-									<input type="text" class="form-control" id="bizZip" name="bizZip" placeholder="우편번호" readonly>
-									<span class="input-group-btn">
-										<button type="button" class="btn btn-primary btn-sm" onclick="openDaumPostcode();">검색</button>
-									</span>
+								<div class="search_form">
+									<input type="text" id="bizZip" name="bizZip" placeholder="우편번호" readonly>
+									<button type="button" onclick="openDaumPostcode();"><i class="i_search_w"></i></button>
 								</div>
 							</td>
 							<th>종목</th>
@@ -226,8 +229,8 @@
 				<tbody>
 					<tr>
 						<td colspan="11">
-							<div class="add_btn">
-								<a onclick="addBizdeptRow();">추가</a>
+							<div class="add_btn_small pdl10">
+								<a onclick="addBizdeptRow();" style="height: 30px; line-height: 28px;">+</a>
 							</div>
 						</td>
 					</tr>
@@ -268,8 +271,8 @@
 					<tr>
 						<td colspan="6">
 						<!--
-							<div class="add_btn">
-								<a onclick="addPldgRow();" >추가</a>
+							<div class="add_btn_small pdl10">
+								<a onclick="addPldgRow();"  style="height: 30px; line-height: 28px;">+</a>
 							</div>
 	 					-->
 						</td>
@@ -297,8 +300,8 @@
 				<tbody>
 					<tr>
 						<td colspan="2">
-							<div class="add_btn">
-								<a onclick="clntFile.click();">추가</a>
+							<div class="add_btn_small pdl10">
+								<a onclick="clntFile.click();"  style="height: 30px; line-height: 28px;">+</a>
 							</div>
 						</td>
 					</tr>
@@ -316,8 +319,7 @@
 	<button type="button" class="btn btn-default btn-sm" id="actionBtn"></button>
 	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 </div>
-
-<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
+</body>
 <script type="text/javascript">
 	var $targetRow = null;
 	var clntFileArr = [];
@@ -370,7 +372,8 @@
 		});
 		
 		// 공통코드 set
-		setCommonSelect($('#popup_area [data-kind]'));
+	//	setCommonSelect($('#popup_area [data-kind]'));
+		setCommonSelect($(".popup_area select[data-kind]"));
 		
 		// 그리드 초기화
 		fileGridView.initView();
@@ -454,7 +457,7 @@
 			oncomplete:function(data){
 				// 우편번호
 				$('#bizZip').val(data.zonecode);
-				$('#bizAddr').val(data.roadAddress || data.address);
+				$('#bizAddr').val(data.roadAddress || data.address  + ' ' + data.buildingName);
 			}
 		}).open();
 	}
