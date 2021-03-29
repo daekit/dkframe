@@ -352,7 +352,7 @@ function crnFormatter(elem){
 // 원단위 콤마 추가
 function addComma(elem) {
 	onlyNumber(elem);
-	$(elem).val($(elem).val().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+	$(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
 }
 
 // 콤마 제거
