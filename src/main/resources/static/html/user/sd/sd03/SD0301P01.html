@@ -131,12 +131,12 @@
         </colgroup>
         <tr>
         	<th rowspan="2"></th>
-            <th rowspan="2" style="text-align:center">제품구분</th>
+            <th rowspan="2" style="text-align:center" class="hit">제품구분</th>
             <th rowspan="2" style="text-align:center">제품강종</th>
             <th rowspan="2" style="text-align:center">스펙</th>
             <th rowspan="2" style="text-align:center">사이즈</th>
             <th rowspan="2" style="text-align:center">단위</th>
-            <th rowspan="2" style="text-align:center">수량</th>
+            <th rowspan="2" style="text-align:center" class="hit">수량</th>
             <th rowspan="2" style="text-align:center">단가</th>
             <th rowspan="2" style="text-align:center">금액</th>
             <th rowspan="2" style="text-align:center">예상손익계산</th>
@@ -151,8 +151,8 @@
             <td>
               <div class="search_form">
                 <input type="hidden" id="prdtDiv" name="prdtDiv" readonly="readonly">
-              	<input type="hidden" id="prdtCd" name="prdtCd" readonly="readonly">
-                <input type="text" name="prdtNm" readonly="readonly" style="text-align:left">
+              	<input type="hidden" id="prdtCd" name="prdtCd" readonly="readonly" required="required">
+                <input type="text" name="prdtNm" readonly="readonly" style="text-align:left" required="required">
               	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
               </div>
             </td>
@@ -172,7 +172,7 @@
             	<input type="hidden" name="prdtUnit" readonly="readonly">
             	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align:center">
             </td>
-            <td><input name="estQty" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma></td>
+            <td><input name="estQty" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma required="required"></td>
             <td>
 	            <input name="prdtUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma>
 	            <input name="stockUpr" type="hidden" style="width: 100%; text-align:right" onkeyup="addComma(this);" comma>
@@ -392,7 +392,6 @@
 			"useYn": "Y",
 			"coCd" : $("#coCd").val()
 		};
-				console.log(paramObj);
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
 			debugger;
 			var row = grid.target.getList("selected")[0];
@@ -408,6 +407,7 @@
 			$targetRow.find('input[name="prdtSpec"]').val(row.prdtSpec);
 			$targetRow.find('input[name="stockUpr"]').val(row.stockUpr);
 			/*$targetRow.find('input[name="odrUpr"]').val(row.ordrgUpr); */
+			gridDtlPrdtAmt(elem);
 		});
 	}
 	
@@ -454,11 +454,6 @@
 		var estAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal)));
 		var expAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal))) - (deleteCommaStr(qtyVal) * (deleteCommaStr(stockUprVal)));
 
-		console.log("qtyVal : " + qtyVal);
-		console.log("uprVal : " + uprVal);
-		console.log("stockUprVal : " + stockUprVal);
-		console.log("estAmt : " + estAmt);
-		console.log("expAmt : " + expAmt);
 		$("input[name='estAmt']")[rowIdx].value = addCommaStr(estAmt);
 		$("input[name='expAmt']")[rowIdx].value = addCommaStr(expAmt);
 		countTot();
