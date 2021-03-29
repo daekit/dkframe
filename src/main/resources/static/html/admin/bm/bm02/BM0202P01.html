@@ -71,10 +71,7 @@
 							<td>
 								<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
 							</td>
-							<th>기본여신금액</th>
-							<td colspan="3">
-								<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);" comma readonly>
-							</td>
+
 						</tr>
 						<tr>
 							<td colspan="3">
@@ -120,7 +117,27 @@
 							<td>
 								<input type="text" class="form-control" id="bkacOwner" name="bkacOwner" maxlength="5">
 							</td>
-						</tr>
+						</tr>	
+						<tr>
+							<th>신용연계여부</th>
+							<td>
+								<select class="form-control input-sm" id="linkGrpYn" name="linkGrpYn" data-kind="YN" onchange="hidelinkGrpClntNm();">
+									<option value="">선택</option>
+								</select>
+							</td>
+	                    	<th>거래처</th>
+	                        <td class="drctArea">
+	                            <input type="hidden" id="linkGrpClntCd" name="linkGrpClntCd">
+	                            <div class="search_form" style="width: 90%;">
+		                             <input type="text" id="linkGrpClntNm" name ="linkGrpClntNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}"> 
+	                    	         <button type="button" onclick="openSecondClntSearch('LINK');"><i class="i_search_w"></i></button>
+		                        </div>
+	                        </td>  
+							<th>기본여신금액</th>
+							<td colspan="3">
+								<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);" comma readonly>
+							</td>
+						</tr>											
 						<tr>
 							<th>메모</th>
 							<td colspan="5">
@@ -382,6 +399,9 @@
 		if(actionType == "C"){
 			$('#actionBtn').on("click", function(){insertClnt();});
 			$('#actionBtn').text("등록");
+			$('#linkGrpYn').val("N");
+			$("#linkclntNm").prop("disabled", false);
+			hidelinkGrpClntNm();
 		}else if(actionType == "U"){
 			selectClntInfo();
 			$('#actionBtn').on("click", function(){updateClnt();});
@@ -389,12 +409,28 @@
 		}
 	});
 	
+	function hidelinkGrpClntNm() {
+		var linkGrpYn = $('#linkGrpYn').val();		
+		if(linkGrpYn == "Y"){
+			$(".drctArea input").prop("disabled", false);
+			$(".drctArea button").prop("disabled", false);
+		
+	   } else {		
+			$('#linkGrpYn').val("N");		
+			$(".drctArea input").prop("disabled", true);
+			$(".drctArea input").val("");
+			$(".drctArea button").prop("disabled", true);
+			$(".drctArea #linkGrpClntCd").val("");
+			$(".drctArea #linkGrpClntNm").val("");
+	   }
+	}
 	function selectClntInfo() {
 		var row = gridView.target.getList("selected")[0];
 		var paramObj = {"clntCd": row.clntCd};
 		postAjax("/admin/bm/bm02/selectClntInfo", paramObj, null, function(data){
 			setClntInfo(data.clntInfo);
 		});
+		hidelinkGrpClntNm();
 	}
 	
 	function setClntInfo(clntInfo) {
@@ -705,4 +741,35 @@
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
 	}
+		// 거래처 검색
+	function openSecondClntSearch(type) {
+			var modalTitle = "";
+			clntType = type; 
+			if (clntType == "LINK"){
+				modalTitle = "연계거래처";
+			}
+			openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, modalTitle, {}, function (grid) {
+				var row = grid.target.getList("selected")[0];
+				
+				if(clntType == "LINK") {					
+					$('#linkGrpClntCd').val(row.clntCd);
+					$('#linkGrpClntNm').val(row.clntNm);
+				}else{
+					$('#clntCd').val(row.clntCd);
+					$('#clntNm').val(row.clntNm);
+					$('#sellVatCd').val(row.sellVatCd);
+					
+						var paramObj = {
+							"coCd": $('#coCd').val(),
+							"clntCd": row.clntCd
+						}
+						
+						postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
+							$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+							$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+						});
+				}
+					
+			});
+		}
 </script>

@@ -37,33 +37,45 @@
 			FROM
 			(
 				SELECT 
-					CLNT_CD,
-					CLNT_NM,
-					CRN,
-					COPRT_NO,
-					FN_CM05M01_CD_TO_NM(CLNT_DIV_CD) CLNT_DIV_NM,
-					BIZCON_NM,
-					BSTY_NM,
-					BIZ_TEL_NO,
-					TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') AS CREAT_DTTM,
-					TO_CHAR(UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM,
-					BASIS_CDTLN_AMT
+					A.CLNT_CD,
+					A.CLNT_NM,
+					A.CRN,
+					A.COPRT_NO,
+					FN_CM05M01_CD_TO_NM(A.CLNT_DIV_CD) CLNT_DIV_NM,
+					A.BIZCON_NM,
+					A.BSTY_NM,
+					A.BIZ_TEL_NO,
+					TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD') AS CREAT_DTTM,
+					TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM,
+					A.BASIS_CDTLN_AMT,
+					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
+					 WHERE B.CLNT_CD = A.CLNT_CD  
+					      <if test="coCd != null and !coCd.equals('')">
+					       AND B.CO_CD = #{coCd}
+					       </if>
+					 ) AS CDTLN_AMT
 				FROM
-					TB_BM02M01
+					TB_BM02M01 A
 				<where>
 					<choose>
 						<when test="useYn != null and !useYn.equals('')">
-							USE_YN = #{useYn}
+							A.USE_YN = #{useYn}
 						</when>
 						<otherwise>
-							USE_YN = 'Y'
+							A.USE_YN = 'Y'
 						</otherwise>
 					</choose>
 					<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
 					<if test="clntDivCd !=null and !clntDivCd.equals('')">
-						AND CLNT_DIV_CD = #{clntDivCd} 
+						AND A.CLNT_DIV_CD = #{clntDivCd} 
+					</if>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND A.CLNT_CD =  #{clntCd}
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND A.CLNT_NM LIKE '%${clntNm}%'
 					</if>
 				</where>
 				ORDER BY CLNT_CD

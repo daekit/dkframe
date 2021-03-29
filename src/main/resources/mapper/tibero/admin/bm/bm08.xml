@@ -5,16 +5,26 @@
 	
 	<select id="selectClntPledgeCount" resultType="int">
 		SELECT COUNT(*) 
-		FROM TB_BM02M01 A, TB_BM02D02 B
+		FROM TB_BM02M01 A
+				LEFT OUTER JOIN TB_BM02D02 B
+				             ON  A.CLNT_CD = B.CLNT_CD
+				<if test="coCd !=null and !coCd.equals('')">
+				  AND B.CO_CD = #{coCd} 
+				</if>
 		WHERE 1=1
-		  AND A.CLNT_CD = B.CLNT_CD 
 		  AND A.USE_YN = 'Y'
-		<if test="coCd !=null and !coCd.equals('')">
-		  AND CO_CD = #{coCd} 
-		</if>
-		<if test="useYn != null and !useYn.equals('')">
-		  AND B.USE_YN = #{useYn}
-		</if>
+				<if test="useYn != null and !useYn.equals('')">
+				  AND B.USE_YN = #{useYn}
+				</if>
+				<if test="clntCdS != null and !clntCdS.equals('')">
+				  AND A.CLNT_CD = #{clntCdS}
+				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+				  AND A.CLNT_NM like '%${clntNm}%'
+				</if>
+				<if test="clntDivCd !=null and !clntDivCd.equals('')">
+				  AND A.CLNT_DIV_CD = #{clntDivCd} 
+				</if>
 	</select>
 	
 	<select id="selectClntPledgeList" resultType="CamelMap">
@@ -35,25 +45,29 @@
 					SUM(B.PLDG_AMT) AS PLDG_AMT,
 					SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) AS CDTLN_AMT
 				FROM
-				  	TB_BM02M01 A, TB_BM02D02 B
+				  	TB_BM02M01 A
+				LEFT OUTER JOIN TB_BM02D02 B
+				             ON  A.CLNT_CD = B.CLNT_CD
+				             <if test="coCd !=null and !coCd.equals('')">
+			     	         AND B.CO_CD = #{coCd} 
+				            </if>
 				WHERE 1=1
-				  AND A.CLNT_CD = B.CLNT_CD
 				  AND A.USE_YN = 'Y'
-				<if test="coCd !=null and !coCd.equals('')">
-				  AND CO_CD = #{coCd} 
-				</if>
 				<if test="useYn != null and !useYn.equals('')">
 				  AND B.USE_YN = #{useYn}
 				</if>
 				<if test="clntCdS != null and !clntCdS.equals('')">
 				  AND A.CLNT_CD = #{clntCdS}
 				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+				  AND A.CLNT_NM like '%${clntNm}%'
+				</if>
 				<if test="clntDivCd !=null and !clntDivCd.equals('')">
-				  AND CLNT_CD = #{clntDivCd} 
+				  AND A.CLNT_DIV_CD = #{clntDivCd} 
 				</if>
 				GROUP BY B.CO_CD, A.CLNT_CD, A.CLNT_NM, A.BASIS_CDTLN_AMT
+		    	ORDER BY  DECODE( NVL(A.BASIS_CDTLN_AMT,0),-1,decode(NVL(CDTLN_AMT,0),0,-1,CLNT_CD)) DESC ,CO_CD
 			) A
-			ORDER BY CO_CD, CLNT_CD
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
@@ -61,9 +75,10 @@
 	
 	<select id="selectClntPledgeDetailCount" resultType="int">
 		SELECT COUNT(*) 
-		FROM TB_BM02M01 A, TB_BM02D02 B
+		FROM TB_BM02M01 A
+		LEFT OUTER JOIN TB_BM02D02 B
+	            ON  A.CLNT_CD = B.CLNT_CD
 		WHERE 1=1
-		  AND A.CLNT_CD = B.CLNT_CD
 		  AND B.CO_CD = #{coCd}
 		  AND B.CLNT_CD = #{clntCd}
 		  AND A.USE_YN = 'Y'
@@ -95,9 +110,10 @@
 					B.PLDG_RMK,
 					B.PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT
 				FROM
-				  	TB_BM02M01 A, TB_BM02D02 B
+				  	TB_BM02M01 A
+				LEFT OUTER JOIN TB_BM02D02 B
+				             ON  A.CLNT_CD = B.CLNT_CD
 				WHERE 1=1
-				  AND A.CLNT_CD = B.CLNT_CD
 				  AND A.USE_YN = 'Y'
 				  AND B.CO_CD = #{coCd}
 				  AND B.CLNT_CD = #{clntCd}
@@ -105,7 +121,7 @@
 				  AND B.USE_YN = #{useYn}
 				</if>
 			) A
-			ORDER BY CO_CD, CLNT_CD
+			ORDER BY B.PLDG_DIV_CD , CLNT_CD ,CO_CD 
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}

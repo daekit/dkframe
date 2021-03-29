@@ -64,17 +64,22 @@
 	            <table class="table_input">
 	              <tr>
 	              	<th class= "hit">회사</th>
+	              	 <td>
+	                 	<select id="coCd" data-kind="CO" required="required" onchange="gridView.setData(0);">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
+	                <th>사용여부</th>	                
 	                <td>
-	                 	<select class="form-control" id="useType" onchange="gridView.setData(0);">
-			                <option value="Y">사용</option>
-			                <option value="N">미사용</option>
+	                 	<select id="useType" data-kind="YN" onchange="gridView.setData(0);">
+			                <option value="">전체</option>
 		                </select>
 	                </td>
 	              	<th>거래처</th>
 	                <td>
 	                  <input type="hidden" id="clntCd_S">
-	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S">
+	                  <div class="search_form" style="width: 100%;">
+		                <input type="text" id="clntNm_S" onkeypress="if(event.keyCode == 13){gridView.setData(0);}"> 
 		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>         
@@ -113,7 +118,6 @@
 		
 </body>
 </html>
-
 <script type="text/javascript">
 	var actionType = null;
 	var gridView = {
@@ -133,17 +137,19 @@
 		            },
 		        },
 	            columns: [
-	                {key: "clntCd",	       label: "거래처 코드",		width: 100,		align: "center"},
-	                {key: "clntNm",		   label: "거래처명", 		   width: 160},
+	                {key: "clntCd",	       label: "거래처 코드",		width: 60,		align: "center"},
+	                {key: "clntNm",		   label: "거래처명", 		   width: 160,		align: "left"},
 	                {key: "crn",		   label: "사업자 등록번호", 	width: 120,		align: "center"},
 	                {key: "coprtNo",	   label: "법인번호",     	   width: 120,		align: "center"},
 	                {key: "clntDivNm",	   label: "거래처 구분", 		width: 100,		align: "center"},
-	                {key: "bizconNm", 	   label: "업태", 			width: 150},
-	                {key: "bstyNm", 	   label: "종목", 			width: 150},
-	                {key: "bizTelNo", 	   label: "전화번호", 		    width: 150},
-	                {key: "basisCdtlnAmt", label: "기본여신금액", 		width: 150,     align: "right", formatter: "money"},
-	                {key: "creatDttm",     label: "등록일", 			width: 120,		align: "center"},
-	                {key: "udtDttm",       label: "수정일", 			width: 120,		align: "center"}
+	                {key: "bizconNm", 	   label: "업태", 			width: 100,		align: "center"},
+	                {key: "bstyNm", 	   label: "종목", 			width: 100,		align: "center"},
+	                {key: "basisCdtlnAmt", label: "기본여신금액", 		width: 120,     align: "right", formatter: "money"},
+	                {key: "bizTelNo", 	   label: "전화번호", 		    width: 120,		align: "center"},
+	                {key: "linkGrpYn",     label: "신용연계", 		    width: 60,		align: "center"},
+	                {key: "linkGrpClntNm", label: "신용연계회사", 	    width: 150,     align: "left"},	                
+	                {key: "creatDttm",     label: "등록일", 			width: 80,		align: "center"},
+	                {key: "udtDttm",       label: "수정일", 			width: 80,		align: "center"}
 	            ],
 	            page: {
 	                navigationItemCount: 10,
@@ -169,9 +175,13 @@
 			
 			// 검색구분 set
 			paramObj.searchType = $('#searchType').val();
-			
+
 			// 검색어 set
 			paramObj.searchValue = $('#searchValue').val();
+			// 검색어 set
+			paramObj.clntCd = $('#clntCd_S').val();
+			paramObj.clntNm = $('#clntNm_S').val();
+			paramObj.coCd = $('#coCd').val();
 			
 			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
 				targetObj.setData({
@@ -190,6 +200,7 @@
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "거래처관리");
 		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd").val(jwt.coCd);
 		gridView.initView().setData(0);
 	});
 	

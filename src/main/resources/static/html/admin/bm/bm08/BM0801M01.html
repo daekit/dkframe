@@ -61,7 +61,7 @@
               <tr>
             	<th class= "hit">회사</th>
 	            <td>
-	              <select id="coCd_S" data-search="coCd_S" data-kind="CO" required="required" onchange="gridView.setData(0);">
+	              <select id="coCd_S" data-search="coCd_S" data-kind="CO" required="required" onchange="gridView.setData(0); gridView2.setData(0);">
 	                <option value="">전체</option>
 	              </select>
 	            </td>
@@ -69,7 +69,7 @@
                 <td>
                   <input type="hidden" id="clntCd_S" data-search="clntCd_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="clntNm_S" data-search="clntNm_S" disabled>
+	                <input type="text" id="clntNm_S" data-search="clntNm_S" onkeypress="if(event.keyCode == 13){gridView.setData(0); gridView2.setData(0);}">
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -122,12 +122,12 @@
 	  <ul class="ul_list type02">
 	    <li>
 	      <div>
-		    <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:660px; width: 100%" ></div>
+		    <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:550px; width: 100%" ></div>
 	      </div>
 	    </li>
 	    <li>	
 	      <div>
-		    <div data-ax5grid="detail-grid" data-ax5grid-config="{}" style="height: 660px; width: 100%" ></div>
+		    <div data-ax5grid="detail-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
 	      </div>
 	    </li>
 	  </ul>
@@ -147,6 +147,7 @@
 				target: $('[data-ax5grid="first-grid"]'),
 				showRowSelector: true,
 	        	multipleSelect: false,
+		    	sortable: true,
 				header: {align: "center", 
 		        	selector: false},
 				body: {
@@ -159,6 +160,7 @@
 		            onDBLClick: function () {
 		            	//openClntDetail("U");
 		            },
+		            mergeCells : ["clntCd","clntNm"],
 		        },
 		        footSum: [
 			    	[
@@ -168,10 +170,10 @@
 			    	]
 			    ],
 	            columns: [
-	            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
 	                {key: "clntCd",		   label: "거래처코드", 	width: 180, hidden: "true"},
-	                {key: "coNm",	       label: "회사",		width: 95,		align: "center"},
 	                {key: "clntNm",		   label: "거래처", 	width: 180},
+	            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
+	                {key: "coNm",	       label: "회사",		width: 95,		align: "center"},
 	                {key: "basisCdtlnAmt", label: "그룹여신", 	width: 100,		align: "right", formatter: "money"},
 	                {key: "pldgAmt",	   label: "담보금액",  width: 100,		align: "right", formatter: "money"},
 	                {key: "cdtlnAmt",	   label: "여신금액", 	width: 100,		align: "right", formatter: "money"}
@@ -198,6 +200,7 @@
 					"clntCd"	: $("#clntCd").val(),
 					"useYn" 	: $('#useType').val(),
 					"clntCdS"	: $('#clntCd_S').val(),
+					"clntNm"	: $('#clntNm_S').val(),
 					"pageNo" 	: _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val()
 				}
