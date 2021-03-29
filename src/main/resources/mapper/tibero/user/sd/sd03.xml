@@ -19,33 +19,10 @@
 		SELECT PRDT_CD,PRDT_NM FROM TB_BM01M01
 	</select>
 	<select id="selectUprCount" parameterType="Map" resultType="int">
-				SELECT
-					COUNT(*)
-				FROM TB_SD03M01 
-				ORDER BY EST_NO
-	</select>
-	
-	 <select id="selectMainEstList" parameterType="Map" resultType="CamelMap">
-		SELECT 
-			A.EST_NO,
-			A.CO_CD,
-			A.SALES_EMP_ID,
-			C.NAME,
-			A.EST_COPRT,
-			FN_CM05M01_CD_TO_NM(A.EST_COPRT) AS EST_COPRT_NM,			
-			A.EST_CLNT_CD,
-			A.EST_CLNT_NM,
-			A.EST_RPRC, 
-			A.BIZ_TEL_NO,
-			A.BIZ_FAX_NO,
-			A.MNG_EMAIL,
-			A.PRJCT_NM,
-			TO_CHAR(TO_DATE(EST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS EST_DT,
-			A.RMK,
-			SUM(B.EST_QTY) as EST_QTY,
-			SUM(B.EST_AMT) as EST_AMT,
-			A.SALES_EMP_ID,
-			A.CREAT_PGM
+	SELECT COUNT(*)
+	FROM(
+		SELECT
+			COUNT(*)
 		FROM TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
 		WHERE 1=1
 			AND A.EST_NO = B.EST_NO(+)
@@ -62,9 +39,60 @@
 		<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
 		 	AND ${searchValue} LIKE '%${searchName}%'
 		</if>
-			AND ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
-			GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
-			ORDER BY EST_DT DESC
+		GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
+		)
+	</select>
+	
+	 <select id="selectMainEstList" parameterType="Map" resultType="CamelMap">
+	SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, T.*
+			FROM
+			(
+				SELECT 
+					A.EST_NO,
+					A.CO_CD,
+					A.SALES_EMP_ID,
+					C.NAME,
+					A.EST_COPRT,
+					FN_CM05M01_CD_TO_NM(A.EST_COPRT) AS EST_COPRT_NM,			
+					A.EST_CLNT_CD,
+					A.EST_CLNT_NM,
+					A.EST_RPRC, 
+					A.BIZ_TEL_NO,
+					A.BIZ_FAX_NO,
+					A.MNG_EMAIL,
+					A.PRJCT_NM,
+					TO_CHAR(TO_DATE(EST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS EST_DT,
+					A.RMK,
+					SUM(B.EST_QTY) as EST_QTY,
+					SUM(B.EST_AMT) as EST_AMT,
+					A.SALES_EMP_ID,
+					A.CREAT_PGM
+				FROM TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
+				WHERE 1=1
+					AND A.EST_NO = B.EST_NO(+)
+					AND A.SALES_EMP_ID = C.ID
+				<if test= "coCd != null and !coCd.equals('')">
+				 	AND A.CO_CD = #{coCd}
+				</if>
+				<if test= "prdtDiv != null and !prdtDiv.equals('')">
+				 	AND B.PRDT_DIV = #{prdtDiv}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('')">
+					AND EST_DT BETWEEN #{strtDt} AND #{endDt}		
+				</if>
+				<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
+				 	AND ${searchValue} LIKE '%${searchName}%'
+				</if>
+					GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
+					ORDER BY EST_DT DESC
+					)T
+				)
+			WHERE ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
 	<resultMap id="resultInfoMap" type="CamelMap">
