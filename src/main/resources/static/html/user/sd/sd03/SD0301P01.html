@@ -149,6 +149,9 @@
 				<input type="checkbox" name="detailChkBox">
 			</td>
             <td>
+              <input type="hidden" name="prdtStockCd">
+              <input type="hidden" name="prdtUpr">
+              <input type="hidden" name="prdtCnvrsnWt">
               <div class="search_form">
                 <input type="hidden" id="prdtDiv" name="prdtDiv" readonly="readonly">
               	<input type="hidden" id="prdtCd" name="prdtCd" readonly="readonly" required="required">
@@ -174,11 +177,11 @@
             </td>
             <td><input name="estQty" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma required="required"></td>
             <td>
-	            <input name="prdtUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma>
+	            <input name="estUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma>
 	            <input name="stockUpr" type="hidden" style="width: 100%; text-align:right" onkeyup="addComma(this);" comma>
             </td>
-            <td><input name="estAmt" type="text" style="width: 100%; text-align:right" comma></td>
-            <td><input name="expAmt" type="text" style="width: 100%; text-align:right" comma></td>
+            <td><input name="estAmt" type="text" style="width: 100%; text-align:right" readonly="readonly" comma></td>
+            <td><input name="expAmt" type="text" style="width: 100%; text-align:right" readonly="readonly" comma></td>
             <td><input name="rmk" type="text" style="width: 100%; text-align:left">
             <input name="estPrdtSeq" type="hidden">
             <input name="prodCd" type="hidden"></td>
@@ -203,7 +206,7 @@
 	      	<tr>
 	            <th colspan="6" style="text-align: center;">합계</th>
 	            <td id="totEstQty" style="text-align: right;" comma></td>
-	            <td id="totPrdtUpr" style="text-align: right;" comma></td>
+	            <td>-</td>
 	            <td id="totEstAmt" style="text-align: right;" comma></td>
 	            <td id="totexpAmt" style="text-align: right;" comma></td>
 	            <td id="rrmmkk" style="text-align: center;"></td>
@@ -396,21 +399,30 @@
 			"coCd" : $("#coCd").val()
 		};
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
-			debugger;
 			var row = grid.target.getList("selected")[0];
 			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
 			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+			$targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
 			$targetRow.find('input[name="prdtStkn"]').val(row.prdtStkn);
 			$targetRow.find('input[name="prdtStknNm"]').val(row.prdtStknNm);
 			//$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
 			$targetRow.find('input[name="prdtSizeNm"]').val(row.prdtSizeNm);
 			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnit);
 			$targetRow.find('input[name="prdtUnitNm"]').val(row.prdtUnitNm);
+			$targetRow.find('input[name="estUpr"]').val(row.ordrgUpr);
 			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
 			$targetRow.find('input[name="prdtSpec"]').val(row.prdtSpec);
 			$targetRow.find('input[name="stockUpr"]').val(row.stockUpr);
+			$targetRow.find('input[name="prdtStockCd"]').val(row.prdtStockCd);
 			/*$targetRow.find('input[name="odrUpr"]').val(row.ordrgUpr); */
 			gridDtlPrdtAmt(elem);
+			if(row.prdtStockCd == "N") {
+				$targetRow.find('input[name="estQty"]').prop("readonly", true);
+				$targetRow.find('input[name="estQty"]').val("0");
+				$targetRow.find('input[name="estAmt"]').val(row.ordrgUpr);
+			} else {
+				$targetRow.find('input[name="estQty"]').prop("readonly", false);
+			}
 		});
 	}
 	
@@ -427,7 +439,6 @@
 	
 	//list 행추가
 	function addRow() {
-		debugger;
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
 		$.each($(row).find(':input'), function(){
@@ -450,15 +461,25 @@
 	
 	function gridDtlPrdtAmt(elem){
 		var rowIdx = $(elem).closest('tr').prevAll().length;
-		var qtyVal = $("input[name='estQty']")[rowIdx].value;
-		var uprVal = $("input[name='prdtUpr']")[rowIdx].value;
+		var estQty = $("input[name='estQty']")[rowIdx].value;
+		var estUpr = $("input[name='estUpr']")[rowIdx].value;
+		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']")[rowIdx].value;
 		var stockUprVal = $("input[name='stockUpr']")[rowIdx].value;
-		//$("input[name='estAmt']")[rowIdx].value = qtyVal * uprVal;
-		var estAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal)));
-		var expAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal))) - (deleteCommaStr(qtyVal) * (deleteCommaStr(stockUprVal)));
-
-		$("input[name='estAmt']")[rowIdx].value = addCommaStr(estAmt);
-		$("input[name='expAmt']")[rowIdx].value = addCommaStr(expAmt);
+		var prdtStockCd  = $("input[name='prdtStockCd']")[rowIdx].value;
+		var prdtUpr = $("input[name='prdtUpr']")[rowIdx].value;
+		if(prdtStockCd == "N") {
+			$("input[name='estQty']")[rowIdx].value = $("input[name='estQty']")[rowIdx].value;
+			$("input[name='estAmt']")[rowIdx].value = $("input[name='estUpr']")[rowIdx].value;
+			$("input[name='expAmt']")[rowIdx].value = 0;
+		} else {
+			$("input[name='estQty']")[rowIdx].value = (deleteCommaStr(estQty) * deleteCommaStr(prdtCnvrsnWt));
+			$("input[name='estAmt']")[rowIdx].value = (deleteCommaStr(estQty) * deleteCommaStr(estUpr));
+			$("input[name='expAmt']")[rowIdx].value = $("input[name='estAmt']")[rowIdx].value - prdtUpr * estQty;
+		}
+		
+		addComma($("input[name='estQty']")[rowIdx]);
+		addComma($("input[name='estAmt']")[rowIdx]);
+		addComma($("input[name='expAmt']")[rowIdx]); 
 		countTot();
 	}
 	
@@ -574,7 +595,6 @@
 	
 	function countTot() {
 		var totEstQty = 0; 
-		var totPrdtUpr = 0; 
 		var totEstAmt = 0;
 		var totexpAmt = 0;
 		
@@ -585,12 +605,10 @@
 			var expAmt	= $("input[name='expAmt']")[idx].value;
 			
 			totEstQty  += Number(deleteCommaStr(estQty)); 
-			totPrdtUpr += Number(deleteCommaStr(prdtUpr)); 
 			totEstAmt  += Number(deleteCommaStr(estAmt));
 			totexpAmt  += Number(deleteCommaStr(expAmt));
 		});
 		$("#totEstQty").html(addCommaStr(totEstQty));
-		$("#totPrdtUpr").html(addCommaStr(totPrdtUpr));
 		$("#totEstAmt").html(addCommaStr(totEstAmt));
 		$("#totexpAmt").html(addCommaStr(totexpAmt));
 	} 
