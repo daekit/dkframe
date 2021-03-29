@@ -53,9 +53,14 @@ public class AR02Ctr {
     
     @PutMapping(value = "/updatePchsSell")
     public String updatePchsSell(@RequestBody Map<String, Object> paramMap, ModelMap model) {
-    	ar02Svc.updatePchsSell(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	int result = ar02Svc.updatePchsSell(paramMap);
+    	if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}
     	return "jsonView";
     }
 

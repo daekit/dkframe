@@ -56,11 +56,6 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public int insertShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		boolean isOdr = false;
-		int result = ar01Mapper.insertShip(paramMap);
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		// 발주상세 delete
-		ar01Mapper.deleteShipDetail(paramMap);
 		if("".equals(paramMap.get("odrSeq"))) {
 			isOdr = true;
 			paramMap.put("totQty", paramMap.get("shipTotQty"));
@@ -69,7 +64,12 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("odrRmk", paramMap.get("dlvrRmk"));
 			sd04Mapper.insertOrder(paramMap);
 		}
-		// 발주상세 insert
+		int result = ar01Mapper.insertShip(paramMap);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		// 출하상세 delete
+		ar01Mapper.deleteShipDetail(paramMap);
+		// 출하상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
@@ -88,7 +88,6 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("ordrgDtlSeq", paramMap.get("ordrgDtlSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
-			ar01Mapper.insertShipDetail(detailMap);
 			if(isOdr) {
 				detailMap.put("odrQty", detailMap.get("shipQty"));
 				detailMap.put("odrWt", detailMap.get("shipWt"));
@@ -97,6 +96,7 @@ public class AR01SvcImpl implements AR01Svc {
 				detailMap.put("odrDtlRmk", detailMap.get("shipDtlRmk"));
 				sd04Mapper.insertOrderDetail(detailMap);
 			}
+			ar01Mapper.insertShipDetail(detailMap);
 		}
 		if(isOdr) {
 			cm08Svc.uploadFile("TB_SD04M01", paramMap.get("odrSeq"), mRequest);
@@ -144,9 +144,9 @@ public class AR01SvcImpl implements AR01Svc {
 		int result = ar01Mapper.updateShip(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		// 발주상세 delete
+		// 출하상세 delete
 		ar01Mapper.deleteShipDetail(paramMap);
-		// 발주상세 insert
+		// 출하상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
@@ -213,8 +213,8 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
 			paramMap.put("clntNm",      detailMap.get("clntNm"));
-			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
-			paramMap.put("siteCd",      paramMap.get("siteCd"));
+//			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
+//			paramMap.put("siteCd",      paramMap.get("siteCd"));
 			
 			if(detailMap.containsKey("sellVatCd") && "VAT01".equals(detailMap.get("sellVatCd").toString()))
 		    {
@@ -223,17 +223,17 @@ public class AR01SvcImpl implements AR01Svc {
 		    } else { 
 		    	paramMap.put("bilgVatAmt", "0");
 		    }			
-			paramMap.put("prdtSpec",    detailMap.get("prdtSpec"));	
-			paramMap.put("prdtSize",    detailMap.get("prdtSize"));		
-			paramMap.put("trspTypCd",  "TRSPTYP1");              /* 정상매출 */
+			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));	
+			paramMap.put("prdtSize", detailMap.get("prdtSize"));		
+			paramMap.put("trspTypCd", "TRSPTYP1");              /* 정상매출 */
 
-			paramMap.put("trstRprcSeq",    detailMap.get("shipSeq"));		
-			paramMap.put("trstDtlSeq",     detailMap.get("shipDtlSeq"));				  	
-			paramMap.put("odrNo",          paramMap.get("odrSeq"));	
+			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
+			paramMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));				  	
+			paramMap.put("odrNo", paramMap.get("odrSeq"));
  
 			ar02Mapper.insertPchsSell(paramMap);
 			
-			if (detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
 				// 재고정보 update
 				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
