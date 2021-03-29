@@ -396,7 +396,6 @@ function checkMenuAuth(accessList) {
 		$.each(accessList, function(idx, item){
 			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
 				html += '<li>';
-				debugger;
 				html += '  <img src="/static/img/svg/menu_0'+imgIdx+'.svg">';
 				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
 				html += '	<div class="sub_menu">';
