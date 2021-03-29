@@ -120,18 +120,13 @@
 						</tr>	
 						<tr>
 							<th>신용연계여부</th>
-							<td>
-								<select class="form-control input-sm" id="linkGrpYn" name="linkGrpYn" data-kind="YN" onchange="hidelinkGrpClntNm();">
-									<option value="">선택</option>
-								</select>
+							<td class="drctArea">
+								 <input type="text" id="linkGrpYn" name ="linkGrpYn" readonly> 
 							</td>
 	                    	<th>거래처</th>
-	                        <td class="drctArea">
+	                        <td>
 	                            <input type="hidden" id="linkGrpClntCd" name="linkGrpClntCd">
-	                            <div class="search_form" style="width: 90%;">
-		                             <input type="text" id="linkGrpClntNm" name ="linkGrpClntNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}"> 
-	                    	         <button type="button" onclick="openSecondClntSearch('LINK');"><i class="i_search_w"></i></button>
-		                        </div>
+		                        <input type="text" id="linkGrpClntNm" name ="linkGrpClntNm" readonly> 
 	                        </td>  
 							<th>기본여신금액</th>
 							<td colspan="3">
@@ -331,11 +326,12 @@
 			</table>
 		</div>
 	</div>
+	<div>
+	    <button type="button" class="btn btn-default btn-sm" id="actionBtn"></button>
+	    <button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+    </div>
 </div>
-<div>
-	<button type="button" class="btn btn-default btn-sm" id="actionBtn"></button>
-	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
-</div>
+
 </body>
 <script type="text/javascript">
 	var $targetRow = null;
@@ -401,7 +397,6 @@
 			$('#actionBtn').text("등록");
 			$('#linkGrpYn').val("N");
 			$("#linkclntNm").prop("disabled", false);
-			hidelinkGrpClntNm();
 		}else if(actionType == "U"){
 			selectClntInfo();
 			$('#actionBtn').on("click", function(){updateClnt();});
@@ -409,28 +404,12 @@
 		}
 	});
 	
-	function hidelinkGrpClntNm() {
-		var linkGrpYn = $('#linkGrpYn').val();		
-		if(linkGrpYn == "Y"){
-			$(".drctArea input").prop("disabled", false);
-			$(".drctArea button").prop("disabled", false);
-		
-	   } else {		
-			$('#linkGrpYn').val("N");		
-			$(".drctArea input").prop("disabled", true);
-			$(".drctArea input").val("");
-			$(".drctArea button").prop("disabled", true);
-			$(".drctArea #linkGrpClntCd").val("");
-			$(".drctArea #linkGrpClntNm").val("");
-	   }
-	}
 	function selectClntInfo() {
 		var row = gridView.target.getList("selected")[0];
 		var paramObj = {"clntCd": row.clntCd};
 		postAjax("/admin/bm/bm02/selectClntInfo", paramObj, null, function(data){
 			setClntInfo(data.clntInfo);
 		});
-		hidelinkGrpClntNm();
 	}
 	
 	function setClntInfo(clntInfo) {

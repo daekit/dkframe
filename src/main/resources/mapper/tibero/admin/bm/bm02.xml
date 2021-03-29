@@ -23,6 +23,12 @@
 			<if test="clntDivCd !=null and !clntDivCd.equals('')">
 				AND CLNT_DIV_CD = #{clntDivCd} 
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD =  #{clntCd}
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND CLNT_NM LIKE '%${clntNm}%'
+			</if>
 		</where>
 		ORDER BY CLNT_CD
 	</select>
@@ -53,7 +59,10 @@
 					      <if test="coCd != null and !coCd.equals('')">
 					       AND B.CO_CD = #{coCd}
 					       </if>
-					 ) AS CDTLN_AMT
+					 ) AS CDTLN_AMT,
+					 LINK_GRP_YN,
+                     LINK_GRP_CLNT_CD,
+                     (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.CLNT_CD ) AS LINK_GRP_CLNT_NM					 
 				FROM
 					TB_BM02M01 A
 				<where>
@@ -101,9 +110,12 @@
 			BANK_CD, BKAC_NO, BKAC_OWNER, BASIS_CDTLN_AMT,
 			PCHS_PAY_DIV_CD, PCHS_CLMN_DIV_CD, PCHS_PMNT_MTD_CD, PCHS_VAT_CD,
 			SELL_PAY_DIV_CD, SELL_CLMN_DIV_CD, SELL_PMNT_MTD_CD, SELL_VAT_CD,
-			CLNT_RMK, USE_YN
+			CLNT_RMK, USE_YN,
+			LINK_GRP_YN,
+            LINK_GRP_CLNT_CD,
+            (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.CLNT_CD ) AS LINK_GRP_CLNT_NM
 		FROM
-			TB_BM02M01
+			TB_BM02M01 A
 		WHERE
 			CLNT_CD = ${clntCd}
 	</select>
@@ -114,6 +126,7 @@
 	
 	<select id="selectBizdeptList" resultType="CamelMap">
 		SELECT
+		    CLNT_CD,
 			BIZDEPT_NM,
 			BIZDEPT_DIV_CD,
 			MNG_NM,
@@ -124,7 +137,8 @@
 			MNG_EMAIL,
 			SALES_CO_CD,
 			SALES_EMP_ID,
-			(SELECT NAME FROM TB_CM06M01 WHERE ID = A.SALES_EMP_ID) AS SALES_EMP_NM
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = A.SALES_EMP_ID) AS SALES_EMP_NM,
+			USE_YN
 		FROM 
 			TB_BM02D01 A
 		WHERE 
@@ -162,7 +176,8 @@
 			SELL_PAY_DIV_CD, SELL_CLMN_DIV_CD, SELL_PMNT_MTD_CD, SELL_VAT_CD, 
 			CLNT_RMK, USE_YN, 
 			CREAT_ID, CREAT_PGM, CREAT_DTTM,
-			UDT_ID, UDT_PGM, UDT_DTTM
+			UDT_ID, UDT_PGM, UDT_DTTM,
+			LINK_GRP_YN,LINK_GRP_CLNT_CD
 		) VALUES (
 			#{clntCd}, #{clntNm}, #{crn}, #{coprtNo},
 			#{clntDivCd}, #{repstNm},
@@ -174,7 +189,9 @@
 			#{sellPayDivCd}, #{sellClmnDivCd}, #{sellPmntMtdCd}, #{sellVatCd},
 			#{clntRmk}, #{useYn},
 			#{userId}, #{pgmId}, SYSDATE,
-			#{userId}, #{pgmId}, SYSDATE
+			#{userId}, #{pgmId}, SYSDATE,
+			#{linkGrpYn}, #{linkGrpClntCd}
+			
 		)
 	</insert>
 	
@@ -182,17 +199,38 @@
 		UPDATE
 			TB_BM02M01
 		SET
-			CLNT_NM = #{clntNm}, CRN = #{crn}, 
-			COPRT_NO = #{coprtNo}, 
-			CLNT_DIV_CD = #{clntDivCd}, REPST_NM = #{repstNm}, 
-			BIZCON_NM = #{bizconNm}, BSTY_NM = #{bstyNm},
-			BIZ_ZIP = #{bizZip}, BIZ_ADDR = #{bizAddr}, BIZ_ADDR_DTL = #{bizAddrDtl},
-			BIZ_TEL_NO = #{bizTelNo}, BIZ_FAX_NO = #{bizFaxNo}, SUB_RMK_URL = #{subRmkUrl},
-			BANK_CD = #{bankCd}, BKAC_NO = #{bkacNo}, BKAC_OWNER = #{bkacOwner}, BASIS_CDTLN_AMT = #{basisCdtlnAmt},
-			PCHS_PAY_DIV_CD = #{pchsPayDivCd}, PCHS_CLMN_DIV_CD = #{pchsClmnDivCd}, PCHS_PMNT_MTD_CD = #{pchsPmntMtdCd}, PCHS_VAT_CD = #{pchsVatCd},
-			SELL_PAY_DIV_CD = #{sellPayDivCd}, SELL_CLMN_DIV_CD = #{sellClmnDivCd}, SELL_PMNT_MTD_CD = #{sellPmntMtdCd}, SELL_VAT_CD = #{sellVatCd},
-			CLNT_RMK = #{clntRmk}, USE_YN = #{useYn},
-			UDT_ID = #{userId}, UDT_PGM = #{pgmId}, UDT_DTTM = SYSDATE
+			CLNT_NM      = #{clntNm}, 
+			CRN          = #{crn}, 
+			COPRT_NO     = #{coprtNo}, 
+			CLNT_DIV_CD  = #{clntDivCd},
+			REPST_NM     = #{repstNm}, 
+			BIZCON_NM    = #{bizconNm},
+		    BSTY_NM      = #{bstyNm},
+			BIZ_ZIP      = #{bizZip},
+			BIZ_ADDR     = #{bizAddr},
+			BIZ_ADDR_DTL = #{bizAddrDtl},
+			BIZ_TEL_NO   = #{bizTelNo},
+			BIZ_FAX_NO   = #{bizFaxNo},
+			SUB_RMK_URL  = #{subRmkUrl},
+			BANK_CD      = #{bankCd},
+			BKAC_NO      = #{bkacNo},
+			BKAC_OWNER   = #{bkacOwner},
+			BASIS_CDTLN_AMT  = #{basisCdtlnAmt},
+			PCHS_PAY_DIV_CD  = #{pchsPayDivCd},
+			PCHS_CLMN_DIV_CD = #{pchsClmnDivCd},
+			PCHS_PMNT_MTD_CD = #{pchsPmntMtdCd},
+			PCHS_VAT_CD      = #{pchsVatCd},
+			SELL_PAY_DIV_CD  = #{sellPayDivCd},
+			SELL_CLMN_DIV_CD = #{sellClmnDivCd},
+			SELL_PMNT_MTD_CD = #{sellPmntMtdCd},
+			SELL_VAT_CD      = #{sellVatCd},
+			CLNT_RMK         = #{clntRmk},
+			USE_YN           = #{useYn},
+			UDT_ID           = #{userId},
+			UDT_PGM          = #{pgmId},
+			UDT_DTTM         = SYSDATE,			
+			LINK_GRP_YN      = #{linkGrpYn,     jdbcType=VARCHAR},
+			LINK_GRP_CLNT_CD = #{linkGrpClntCd, jdbcType=VARCHAR}
 		WHERE
 			CLNT_CD = #{clntCd}
 	</update>
