@@ -392,15 +392,18 @@ function setMenuAuth() {
 	
 function checkMenuAuth(accessList) {
 		var html = "";
+		var imgIdx = 1;
 		$.each(accessList, function(idx, item){
 			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
 				html += '<li>';
-				html += '  <img src="/static/img/svg/menu_02.svg">';
+				debugger;
+				html += '  <img src="/static/img/svg/menu_0'+imgIdx+'.svg">';
 				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
 				html += '	<div class="sub_menu">';
 				html += '		<dl id="'+item.menuId+'"></dl>';
 				html += '	</div>';
 				html += '</li>';
+				imgIdx++;
 			}
 		});
 		$('.menu').html(html);
