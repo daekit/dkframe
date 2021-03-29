@@ -91,21 +91,24 @@
 		SELECT T.*,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_DIV) AS PRDT_DIV_NM,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_STKN) AS PRDT_STKN_NM,
-			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_SIZE) AS PRDT_SIZE_NM,
+			NVL((SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_SIZE), T.PRDT_SIZE) AS PRDT_SIZE_NM,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_UNIT) AS PRDT_UNIT_NM,	
 			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
+			T.PRDT_SPEC,
 			T.EST_UPR AS PRDT_UPR,
-			T.PRDT_SIZE AS	DTL_PDSZ
+			T.PRDT_SIZE AS	DTL_PDSZ,
+			T.STOCK_UPR
 		FROM TB_SD03D01 T, TB_SD03M01 M, TB_BM01M01 B
 		WHERE T.EST_NO = M.EST_NO
 		AND T.PRDT_CD = B.PRDT_CD
 		AND T.EST_NO = #{estNo}
 	</select>
 	
+	<select id="selectEstNo" resultType="String">
+	SELECT TO_CHAR(SYSDATE, 'YYYYMM') || LPAD(NVL(TO_NUMBER(MAX(SUBSTR(EST_NO, -4))), 0) + 1, 4, 0) FROM TB_SD03M01 WHERE SUBSTR(EST_NO, 0, 6) = TO_CHAR(SYSDATE, 'YYYYMM')
+	</select>
+	
 	<insert id="insertEst">
-		<selectKey keyProperty="estNo" resultType="String" order="BEFORE">
-			SELECT TB_SD03M01_SQ01.NEXTVAL FROM DUAL
-		</selectKey>
 		INSERT INTO TB_SD03M01 (
 			EST_NO,
 			CO_CD,
@@ -155,10 +158,12 @@
 			PRDT_SIZE,
 			PRDT_CD,
 			PRDT_UNIT,
+			PRDT_SPEC,
 			EST_QTY,
 			EST_UPR,
 			EST_AMT,
 			RMK,
+			STOCK_UPR,
 			CREAT_ID, 
 			CREAT_PGM, 
 			CREAT_DTTM
@@ -167,13 +172,15 @@
 			#{estPrdtSeq},
 			#{prdtDiv},
 			#{prdtStkn},
-			#{prdtSize},
+			#{prdtSizeNm},
 			#{prdtCd},
 			#{prdtUnit},
+			#{prdtSpec},
 			#{estQty},
 			#{prdtUpr},
 			#{estAmt},
 			#{rmk},
+			#{stockUpr}
 			#{userId},
 			#{pgmId},
 			SYSDATE
@@ -212,9 +219,10 @@
 		SET
 			PRDT_DIV = #{prdtDiv},
 			PRDT_STKN = #{prdtStkn},
-			PRDT_SIZE = #{prdtSize},
+			PRDT_SIZE = #{prdtSizeNm},
 			PRDT_CD = #{prdtCd},
 			PRDT_UNIT = #{prdtUnit},
+			PRDT_SPEC = #{prdtSpec},
 			EST_QTY = #{estQty},
 			EST_UPR = #{prdtUpr},
 			EST_AMT = #{estAmt},

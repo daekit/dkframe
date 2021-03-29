@@ -118,14 +118,16 @@
       <table id="detailTb">
         <colgroup>
         	<col width="3%">
-            <col width="20%">
-            <col width="12%">
-            <col width="12%">
-            <col width="06%">
+            <col width="18%">
             <col width="09%">
             <col width="09%">
-            <col width="11%">
-            <col width="16%">
+            <col width="09%">
+            <col width="09%">
+            <col width="09%">
+            <col width="09%">
+            <col width="09%">
+            <col width="09%">
+            <col width="07%">
         </colgroup>
         <tr>
         	<th rowspan="2"></th>
@@ -137,6 +139,7 @@
             <th rowspan="2" style="text-align:center">수량</th>
             <th rowspan="2" style="text-align:center">단가</th>
             <th rowspan="2" style="text-align:center">금액</th>
+            <th rowspan="2" style="text-align:center">예상손익계산</th>
             <th rowspan="2" style="text-align:center">비고</th>
         </tr>
         <!-- // -->
@@ -159,10 +162,10 @@
             </td>
             <td>
             	<!-- <input type="hidden" name="prdtSpec" readonly="readonly"> -->
-            	<input type="text" name="prdtSpec" readonly="readonly" style="text-align:center">
+            	<input type="text" name="prdtSpec" style="text-align:center" maxlength="25">
             </td>
             <td>
-            	<input type="hidden" name="prdtSize" readonly="readonly">
+            	<!-- <input type="hidden" name="prdtSize" readonly="readonly"> 2021-03-29 size code 사용 안함 -->
             	<input type="text" name="prdtSizeNm" style="text-align:center">
             </td>
             <td>
@@ -170,8 +173,12 @@
             	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align:center">
             </td>
             <td><input name="estQty" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma></td>
-            <td><input name="prdtUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma></td>
-            <td><input name="estAmt" type="text" style="width: 100%; text-align:right" comma>
+            <td>
+	            <input name="prdtUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma>
+	            <input name="stockUpr" type="hidden" style="width: 100%; text-align:right" onkeyup="addComma(this);" comma>
+            </td>
+            <td><input name="estAmt" type="text" style="width: 100%; text-align:right" comma></td>
+            <td><input name="expAmt" type="text" style="width: 100%; text-align:right" comma></td>
             <td><input name="rmk" type="text" style="width: 100%; text-align:left">
             <input name="estPrdtSeq" type="hidden">
             <input name="prodCd" type="hidden"></td>
@@ -382,9 +389,10 @@
 			"selpchCd": "SELPCH2",
 			"impYn": "N", 
 			"clntCd" : $("#clntCd").val(),
-			"useYn": "Y"
+			"useYn": "Y",
+			"coCd" : $("#coCd").val()
 		};
-				
+				console.log(paramObj);
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
 			debugger;
 			var row = grid.target.getList("selected")[0];
@@ -392,12 +400,13 @@
 			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
 			$targetRow.find('input[name="prdtStkn"]').val(row.prdtStkn);
 			$targetRow.find('input[name="prdtStknNm"]').val(row.prdtStknNm);
-			$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
+			//$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
 			$targetRow.find('input[name="prdtSizeNm"]').val(row.prdtSizeNm);
 			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnit);
 			$targetRow.find('input[name="prdtUnitNm"]').val(row.prdtUnitNm);
 			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
 			$targetRow.find('input[name="prdtSpec"]').val(row.prdtSpec);
+			$targetRow.find('input[name="stockUpr"]').val(row.stockUpr);
 			/*$targetRow.find('input[name="odrUpr"]').val(row.ordrgUpr); */
 		});
 	}
@@ -440,9 +449,18 @@
 		var rowIdx = $(elem).closest('tr').prevAll().length;
 		var qtyVal = $("input[name='estQty']")[rowIdx].value;
 		var uprVal = $("input[name='prdtUpr']")[rowIdx].value;
+		var stockUprVal = $("input[name='stockUpr']")[rowIdx].value;
 		//$("input[name='estAmt']")[rowIdx].value = qtyVal * uprVal;
 		var estAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal)));
+		var expAmt = (deleteCommaStr(qtyVal) * (deleteCommaStr(uprVal))) - (deleteCommaStr(qtyVal) * (deleteCommaStr(stockUprVal)));
+
+		console.log("qtyVal : " + qtyVal);
+		console.log("uprVal : " + uprVal);
+		console.log("stockUprVal : " + stockUprVal);
+		console.log("estAmt : " + estAmt);
+		console.log("expAmt : " + expAmt);
 		$("input[name='estAmt']")[rowIdx].value = addCommaStr(estAmt);
+		$("input[name='expAmt']")[rowIdx].value = addCommaStr(expAmt);
 		countTot();
 	}
 	

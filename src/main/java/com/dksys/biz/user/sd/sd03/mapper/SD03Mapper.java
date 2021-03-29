@@ -15,6 +15,8 @@ public interface SD03Mapper {
 	
 	int selectUprCount(Map<String, String> param);
 	
+	String selectEstNo();
+	
 	List<Map<String, String>> selectMainEstList(Map<String, String> param);
 	
 	Map<String, String> selectEstInfo(Map<String, String> paramMap);
