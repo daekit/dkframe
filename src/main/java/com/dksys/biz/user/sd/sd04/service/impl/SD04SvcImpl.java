@@ -69,11 +69,11 @@ public class SD04SvcImpl implements SD04Svc {
 			if(stockInfo == null) {
 				detailMap.put("pchsUpr", "0");
 				detailMap.put("sellUpr", "0");
-				detailMap.put("stockUpr", "0");
+//				detailMap.put("stockUpr", "0");
 			} else {
 				detailMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				detailMap.put("sellUpr", stockInfo.get("sellUpr"));
-				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
+//				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 			}
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
