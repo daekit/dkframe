@@ -83,6 +83,9 @@
 					,FN_CM05M01_CD_TO_NM(A.IN_WH_CD) AS IN_WH_NM
 					,A.IMP_YN
 					,FN_CM05M01_CD_TO_NM(A.IMP_YN ) AS IMP_NM
+					,A.PRDT_SIZE
+					,A.PRDT_SPEC
+					,A.PRDT_LEN
 					,TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS TRST_DT
 					,A.UDT_DTTM
 					,TO_CHAR(A.CREAT_DTTM,'YYYY-MM-DD') AS CREAT_DTTM
@@ -148,7 +151,8 @@
 				ROWNUM AS RNUM, D.*
 			FROM(
 				SELECT 	  
-						  A.CO_CD
+						  A.STOK_SEQ
+						, A.CO_CD
 						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
 						, A.WH_CD
 						, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
@@ -183,9 +187,6 @@
 						, A.PROPRT_STOCK_QTY
 						, A.ODR_QTY
 						, A.STOCK_CHG_CD
-						, A.ETC_FIELD1
-						, A.ETC_FIELD2
-						, A.ETC_FIELD3
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 				WHERE  A.PRDT_CD = C.PRDT_CD
 				AND A.CLNT_CD = E.CLNT_CD(+)
@@ -304,10 +305,14 @@
 	<update id="sm01UpdateInsertStockMove" parameterType="Map">
 		MERGE INTO TB_SM01M01 A
 		USING (
-		   SELECT 
+		   SELECT
+		   STOK_SEQ,
 		   CO_CD,
 		   #{sWhCd} AS WH_CD,
 		   PRDT_CD,
+		   PRDT_SIZE,
+		   PRDT_SPEC,
+		   PRDT_LEN,
 		   OWNER_CD,
 		   CLNT_CD,
 		   #{sellType} AS TYP_CD,
@@ -361,9 +366,13 @@
 		WHEN NOT MATCHED THEN 
 		INSERT
 		(
+		   STOK_SEQ,
 		   CO_CD,
 		   WH_CD,
 		   PRDT_CD,
+		   PRDT_SIZE,
+		   PRDT_SPEC,
+		   PRDT_LEN,
 		   OWNER_CD,
 		   CLNT_CD,
 		   TYP_CD,
@@ -382,9 +391,13 @@
 		   CREAT_PGM, 
 		   UDT_DTTM
 		)VALUES(
+		   TB_SM01M01_SQ01.NEXTVAL, 
 		   S.CO_CD,
 		   S.WH_CD,
 		   S.PRDT_CD,
+		   S.PRDT_SIZE,
+		   S.PRDT_SPEC,
+		   S.PRDT_LEN,
 		   S.OWNER_CD,
 		   S.CLNT_CD,
 		   S.TYP_CD,
@@ -461,9 +474,13 @@
 		MERGE INTO TB_SM01M01 A
 		USING (
 		   SELECT 
+		   STOK_SEQ,
 		   CO_CD,
 		   #{sWhCd} AS WH_CD,
 		   #{sPrdtCd} AS PRDT_CD,
+		   PRDT_SIZE,
+		   PRDT_SPEC,
+		   PRDT_LEN,
 		   OWNER_CD,
 		   CLNT_CD,
 		   #{sellType} AS TYP_CD,
@@ -517,9 +534,13 @@
 		WHEN NOT MATCHED THEN 
 		INSERT
 		(
+		   STOK_SEQ,
 		   CO_CD,
 		   WH_CD,
 		   PRDT_CD,
+		   PRDT_SIZE,
+		   PRDT_SPEC,
+		   PRDT_LEN,
 		   OWNER_CD,
 		   CLNT_CD,
 		   TYP_CD,
@@ -538,9 +559,13 @@
 		   CREAT_PGM, 
 		   UDT_DTTM
 		)VALUES(
+		   TB_SM01M01_SQ01.NEXTVAL,
 		   S.CO_CD,
 		   S.WH_CD,
 		   S.PRDT_CD,
+		   S.PRDT_SIZE,
+		   S.PRDT_SPEC,
+		   S.PRDT_LEN,
 		   S.OWNER_CD,
 		   S.CLNT_CD,
 		   S.TYP_CD,

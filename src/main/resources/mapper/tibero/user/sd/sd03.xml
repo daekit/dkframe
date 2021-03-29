@@ -53,22 +53,15 @@
 		<if test= "coCd != null and !coCd.equals('')">
 		 	AND A.CO_CD = #{coCd}
 		</if>
+		<if test= "prdtDiv != null and !prdtDiv.equals('')">
+		 	AND B.PRDT_DIV = #{prdtDiv}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('')">
+			AND EST_DT BETWEEN #{strtDt} AND #{endDt}		
+		</if>
 		<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
 		 	AND ${searchValue} LIKE '%${searchName}%'
 		</if>
-		<if test= "(prdtDiv != null and !prdtDiv.equals(''))  or (prdtNm != null and !prdtNm.equals(''))">
-		 	AND A.EST_NO IN (SELECT EST_NO FROM TB_SD03D01 SD03D  
-		 	                 INNER JOIN TB_BM01m01 BM01 ON BM01.PRDT_CD = SD03D.PRDT_CD
-		 	                 WHERE  EST_NO = A.EST_NO 
-		 	                 <if test= "prdtDiv != null and !prdtDiv.equals('')">
-		 	                 AND    SD03D.PRDT_DIV = #{prdtDiv}
-		 	                 </if>		 	                 
-		 	                 <if test= "prdtNm != null and !prdtNm.equals('')">
-		 	                 AND BM01.PRDT_NM like '%${prdtNm}%'
-		 	                 </if>                                           
-		 	                  )
-		</if>
-		
 			AND ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
 			GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
 			ORDER BY EST_DT DESC
@@ -98,7 +91,7 @@
 		SELECT T.*,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_DIV) AS PRDT_DIV_NM,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_STKN) AS PRDT_STKN_NM,
-			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_SIZE) AS PRDT_SIZE_NM,
+			NVL((SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_SIZE),T.PRDT_SIZE)  AS PRDT_SIZE_NM,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.PRDT_UNIT) AS PRDT_UNIT_NM,	
 			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
 			T.EST_UPR AS PRDT_UPR,

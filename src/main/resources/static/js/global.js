@@ -352,7 +352,7 @@ function crnFormatter(elem){
 // 원단위 콤마 추가
 function addComma(elem) {
 	onlyNumber(elem);
-	$(elem).val($(elem).val().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+	$(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
 }
 
 // 콤마 제거
@@ -392,15 +392,17 @@ function setMenuAuth() {
 	
 function checkMenuAuth(accessList) {
 		var html = "";
+		var imgIdx = 1;
 		$.each(accessList, function(idx, item){
 			if(item.upMenuId != "MENU100" && item.menuType == "FOLDER" && item.useYn == 'Y') {
 				html += '<li>';
-				html += '  <img src="/static/img/svg/menu_02.svg">';
+				html += '  <img src="/static/img/svg/menu_0'+imgIdx+'.svg">';
 				html += '	<a>'+item.menuNm+'</a> <!-- 서브메뉴 -->';
 				html += '	<div class="sub_menu">';
 				html += '		<dl id="'+item.menuId+'"></dl>';
 				html += '	</div>';
 				html += '</li>';
+				imgIdx++;
 			}
 		});
 		$('.menu').html(html);
