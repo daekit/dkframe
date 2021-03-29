@@ -63,6 +63,7 @@
 	<form id="popForm">
 		<input type="hidden" id="userId" name="userId">
 	    <input type="hidden" id="pgmId" name="pgmId" value="AR0201P01">
+	    <input type="hidden" id="preBilgAmt" name="preBilgAmt">
 	</form>
 </body>
 
@@ -146,8 +147,8 @@
 	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {label: "-", 			align:"center"									 },
 	                    {key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
-	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "etcAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 			    	]
 			    ]
 		    });
@@ -181,8 +182,15 @@
 			language : "ko",
 // 			autoclose : true
 		});
-// 		$("#p01Div [required]").prop("disabled", true);
 		popGridView.initView().setData(0);
+		var preBilgAmt = 0; 
+		setTimeout(function(){
+			var row = popGridView.target.getList();
+			$.each(row, function(idx, item){
+				preBilgAmt += Number(item.bilgAmt);
+			});
+			$("#preBilgAmt").val(preBilgAmt);
+		}, 500);
 	});
 
 	function clntSearch(type) {
@@ -239,6 +247,8 @@
 		var formData = $("#popForm").serializeObject();
 		// 상세내역 추가
 		formData["detailArr"] = secondGrid.getList();
+		formData["clntCd"] = $("#clntCd_P").val();
+		formData["coCd"] = $("#coCd_P").val();
 		
 		return formData;
 	}

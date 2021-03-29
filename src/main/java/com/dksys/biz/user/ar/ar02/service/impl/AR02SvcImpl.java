@@ -7,10 +7,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
+import com.dksys.biz.util.DateUtil;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -36,11 +38,24 @@ public class AR02SvcImpl implements AR02Svc {
 	@SuppressWarnings("all")
 	public int updatePchsSell(Map<String, Object> paramMap) {
 		int result = 0;
+		int bilgAmt = 0;
 		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
+		creditDeposit(paramMap);
 		for (Map<String, String> detailMap : detailList) {
 			detailMap.put("userId", paramMap.get("userId").toString());
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
 			result += ar02Mapper.updatePchsSell(detailMap);
+			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("bilgAmt")));
+		}
+		Map<String, String> param = new HashMap<String, String>();
+		param.put("clntCd", paramMap.get("clntCd").toString());
+		param.put("coCd", paramMap.get("coCd").toString());
+		param.put("realTotTrstAmt", String.valueOf(bilgAmt));
+		param.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
+		if(checkLoan(param)) {
+			creditWithdraw(paramMap);
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			return 0;
 		}
 		return result;
 	}
@@ -86,22 +101,46 @@ public class AR02SvcImpl implements AR02Svc {
 		return ar02Mapper.selectSellInfo(paramMap);
 	}
 
+	public void creditDeposit(Map<String, Object> paramMap) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("loanCd", 'M');
+		map.put("clntCd", paramMap.get("clntCd"));
+		map.put("coCd", paramMap.get("coCd"));
+		map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
+		map.put("amt", Integer.parseInt((String) paramMap.get("preBilgAmt")));
+		long result = ar02Mapper.callCreditLoan(map);
+		System.out.println(result);
+	}
+	
+	private void creditWithdraw(Map<String, Object> paramMap) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("loanCd", 'P');
+		map.put("clntCd", paramMap.get("clntCd"));
+		map.put("coCd", paramMap.get("coCd"));
+		map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
+		map.put("amt", Integer.parseInt((String) paramMap.get("preBilgAmt"))*-1);
+		long result = ar02Mapper.callCreditLoan(map);
+		System.out.println(result);
+	}
+	
 	public boolean checkLoan(Map<String, String> paramMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("loanCd", 'C');
 		map.put("clntCd", paramMap.get("clntCd"));
 		map.put("coCd", paramMap.get("coCd"));
-		map.put("amt", paramMap.get("realTrstAmt"));
+		map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
+		map.put("amt", paramMap.get("realTotTrstAmt"));
 		long result = ar02Mapper.callCreditLoan(map);
-		if(result < Integer.parseInt(paramMap.get("realTrstAmt"))) {
+		if(result < Integer.parseInt(paramMap.get("realTotTrstAmt"))) {
 			return true;
 		} else {
 			map.put("loanCd", 'P');
+			map.put("iTrDt", paramMap.get("dlvrDttm").replace("-", ""));
 			ar02Mapper.callCreditLoan(map);
 		}
 		return false;
 	}
-
+	
 	@Override
 	public List<Map<String, String>> selectSellSumList(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellSumList(paramMap);
