@@ -56,7 +56,7 @@ public class SD03Svcmpl implements SD03Svc {
 	public void insertEst(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		
+		paramMap.put("estNo", sd03Mapper.selectEstNo());
 		sd03Mapper.insertEst(paramMap);
 		cm08Svc.uploadFile("TB_SD03M01", paramMap.get("estNo"), mRequest);
 		// 견적서 delete
