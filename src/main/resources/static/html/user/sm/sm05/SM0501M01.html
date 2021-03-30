@@ -62,7 +62,7 @@
 <body>
 	<div id="head_area"></div>
 	<div id="top_area"></div>
-	<div id="main_area">
+	<div class="main_area" id="main_area">
 	
 		<div class="contents no_bg">
 	      <ul class="btn_ul">
@@ -135,13 +135,13 @@
               <tr>
                 <th>제품유형</th>
                 <td>
-                  <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="gridView.setData(0);">
+                  <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="prdtStknChange(this);gridView.setData(0);">
                     <option value="">전체</option>
                   </select>
                 </td>
                 <th>강종</th>
                 <td>
-	                <select id="prdtStkn" data-search="prdtStkn" data-kind="PDSK" onchange="gridView.setData(0);">
+	                <select id="prdtStkn" name="prdtStkn" data-search="prdtStkn" onchange="gridView.setData(0);">
 	                	<option value="">전체</option>
 	                </select>
                 </td>
@@ -361,5 +361,17 @@
 		});
 	}
 	
-	
+	function prdtStknChange(elem) {
+		var paramObj = {"codeKind" : $(elem).val()};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '<option value="">전체</option>';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, obj){
+				optionHtml += '<option value='+obj.codeId+'>';
+				optionHtml += obj.codeNm;
+				optionHtml += '</option>';
+			});
+			$('.main_area [data-search="prdtStkn"]').html(optionHtml);
+		});
+	}
 </script>
