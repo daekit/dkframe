@@ -16,7 +16,7 @@
 	                    <input type="hidden" id="clntCd" name="clntCd">
 		                <div class="search_form">
 			                <input type="text" id="clntNm" name="clntNm">
-			              	<a onclick="clntSearch('PUR');"><i class="i_search_w"></i></a>
+			              	<a onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	                <th>회사</th>
@@ -61,7 +61,7 @@
 	                    <div class="search_form">
 			              <input type="hidden" id="prjctCd" name="prjctCd">
 			              <input type="text" id="prjctNm" name="prjctNm" readonly="readonly">
-			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
+			              <a onclick="openSecondPrjctSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	            </tr>
@@ -93,8 +93,9 @@
 	                    	<input type="hidden" name="prdtCd">
 	                    	<input type="hidden" name="prdtUnit">
 	                    	<input type="hidden" name="prdtCnvrsnWt">
+	                    	<input type="hidden" name="prdtStockCd">
 			                <input type="text" name="prdtNm" readonly="readonly" required="required" >
-			              	<button type="button" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
+			              	<button type="button" onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></button>
 			            </div>
 	                </td>
 	            </tr>
@@ -164,7 +165,7 @@
 	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
 	                    <div class="search_form">
 		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly" style="text-align: center;">
-	                    	<a onclick="openUserTree(this);"><i class="i_search_w"></i></a>
+	                    	<a onclick="openSecondUserSearch();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
 	            </tr>
@@ -273,8 +274,32 @@
 		});
 	}
 	
-	function prdtSearch(el) {
-		openSecondModal("/static/html/user/ar/ar02/AR0202P02.html", 500, 400, "제품검색");
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		$targetRow = $(elem).closest('tr.detailRow');
+		
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(), 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$.each(row, function(key, value){
+				if($("input[name="+key+"]") != undefined)
+					$("input[name="+key+"]").val(value);
+			});
+			if(row.prdtStockCd == "N") {
+				$targetRow.find('input[name="shipQty"]').prop("readonly", true);
+				$targetRow.find('input[name="shipQty"]').val("0");
+				$targetRow.find('input[name="shipAmt"]').val(row.ordrgUpr);
+			} else {
+				$targetRow.find('input[name="shipQty"]').prop("readonly", false);
+			}
+		});
 	}
 	
 	function makeFormData() {
@@ -321,10 +346,20 @@
 		}
 	}
 	
-	function openUserTree(el, type) {
-		treeType = type; 
-		selectedIdx = $(el).closest('tr').prevAll().length;
-		openSecondModal("/static/html/user/od/od01/OD0102P04.html", 300, 500, "사용자 검색");
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng').val(checkedNode.id);
+			$('#salesMngNm').val(checkedNode.text);
+		});
 	}
 	
 	function countAmt(el) {
