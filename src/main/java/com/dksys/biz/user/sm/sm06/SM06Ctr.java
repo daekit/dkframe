@@ -40,7 +40,6 @@ public class SM06Ctr {
     //selectStockList 재고 상세 조회 
     @PostMapping("/selectStockDetailList")
     public String selectStockDetailList(@RequestBody Map<String, String> param, ModelMap model) {
-    	System.out.println(param);
     	int totalCnt = sm06svc.selectStockDetailListCount(param);
     	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
