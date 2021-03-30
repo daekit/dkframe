@@ -312,7 +312,6 @@ function inputValidation(inputList) {
 	$.each(inputList, function(idx, elem){
 		if($.trim(elem.value) == ""){
 			isValid = false;
-			debugger;
 			alert("필수값을 입력해 주세요.");
 			$(elem).focus();
 			return false;
