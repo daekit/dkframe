@@ -215,6 +215,10 @@
 			firstGrid = this.target;
 			
 			debugger;
+			var mesFtrCd = "";
+			if($("#mesFtrCd").val() != ""){
+				mesFtrCd = $('#mesFtrCd option:selected').data("etc");
+			}
 			
 			var formData = {
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
@@ -223,7 +227,8 @@
 				"cfYn" : $("#cfYn_S").val(),
 				"siteNm" : $("#siteNm").val(),
 //				"mesFtrCd" : $("#mesFtrCd").val(),
-				"mesFtrCd" : $('#mesFtrCd option:selected').data("etc"),
+//				"mesFtrCd" : $('#mesFtrCd option:selected').data("etc"),
+				"mesFtrCd" : mesFtrCd,
 // 				"searchType" : $("#searchType").val(),
 // 				"searchValue" : $("#searchValue").val(),
 				"pageNo" : _pageNo + 1, 
@@ -240,8 +245,7 @@
 						totalPages : data.paginationInfo.totalPageCount
 					}
 				});
-				gridDetailView.initView()
-				gridDetailView.setData(0);
+			    gridDetailView.setData(0);
 			});
 		}
 	}
@@ -298,15 +302,17 @@
 			setData : function(_dindex) {
 			    secondGrid = this.target;	
 				row = gridView.target.getList();			
-				var formData = {
-						"worksCd"     : row[_dindex].worksCd,
-						"allocVehlNo" : row[_dindex].allocVehlNo,
-						"custCd"      : row[_dindex].custCd
-					}
-				postAjax("/user/pp/pp04/selectMesAllocVehlDtlList", formData, null, function(data){
-					var list = data.resultList;
-					secondGrid.setData(list);
-				});
+				if(row.length > 0){
+					var formData = {
+							"worksCd"     : row[_dindex].worksCd,
+							"allocVehlNo" : row[_dindex].allocVehlNo,
+							"custCd"      : row[_dindex].custCd
+						}
+					postAjax("/user/pp/pp04/selectMesAllocVehlDtlList", formData, null, function(data){
+						var list = data.resultList;
+						secondGrid.setData(list);
+					});
+				}
 			}
 		}
 	
@@ -376,7 +382,7 @@
 		
 		// grid init
 		gridView.initView().setData(0);
-		gridDetailView.initView()
+		gridDetailView.initView().setData(0);
 		
 	}
 /*	
