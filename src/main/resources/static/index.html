@@ -68,9 +68,37 @@
 			formData,
 			function(data, status, request) {
 				setCookie("jwtToken", "Bearer "+data.access_token, 1);
-				location.href = "/static/html/admin/cm/cm10/CM1001M01.html";
+				openNotiPop();
 			}
 		);
+	}
+	
+	function openNotiPop() {
+		postAjax("/admin/cm/cm09/selectNotiPopList", {}, null, function(data){
+			var list = data.result;
+			var left = 30;
+			var top = 30;
+			for(var i=0; i<list.length; i++) {
+				if(getCookie(list[i]) == null){
+					window.open("/static/html/cmn/notiPop.html?notiKey="+list[i], "popup"+i, "width=600, height=600, left="+left+", top="+top);	
+					left += 600;
+				}
+			}
+			location.href = "/static/html/admin/cm/cm10/CM1001M01.html";
+		});
+	}
+	
+	// 팝업 열때 쿠키 확인 하고 없으면 팝업 열기
+	function Init( $class ){
+	   if(getCookie($class) != 'done') {
+	         OpenPopup($class);
+	   }
+	}
+
+	// 오늘하루 열지않기 버튼 눌렀을 때 쿠키 설정하고 닫기
+	function ClosePopup( $idName ){
+	    setCookie($idName, 'done', 1);
+	    popup.hide();
 	}
 	
 	function loginAction() {
@@ -106,7 +134,6 @@
 		    }
 		});
 	}
-	
 </script>
 <body>
   <div id="login">

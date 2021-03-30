@@ -102,7 +102,7 @@ th {
 	                  <input type="hidden" id="clntCd_S">
 	                  <div class="search_form" style="width: 50%;">
 		                <input type="text" id="clntNm_S">
-		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
+		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
 	              </tr>
@@ -140,7 +140,7 @@ th {
 	                    <div class="search_form" style="width: 50%;">
 			              <input type="hidden" id="prjctCd_S">
 			              <input type="text" id="prjctNm_S">
-			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
+			              <a onclick="openSecondPrjctSearch('S');"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	              	<th>강종</th>
@@ -330,13 +330,6 @@ th {
 		gridView.initView().setData(0);
 	}
 
-	function clntSearch(type) {
-		var modalTitle = "거래처";
-		clntType = type;
-		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420,
-				modalTitle);
-	}
-
 	function deleteSell() {
 		var row = gridView.target.getList("selected")[0];
 		var formData = {
@@ -382,8 +375,7 @@ th {
 		} else {
 			modalTitle = "매출등록";
 		}
-		openModal("/static/html/user/ar/ar02/AR0202P01.html", 700, 650,
-				modalTitle);
+		openModal("/static/html/user/ar/ar02/AR0202P01.html", 700, 650, modalTitle);
 	}
 
 	function viewShipModal() {
@@ -396,27 +388,47 @@ th {
 		openModal("/static/html/user/ar/ar02/AR0202P01.html", 920, 780, " ");
 	}
 
-	function clntSearch(type) {
-		var modalTitle = "";
-		clntType = type;
-		if (clntType == "PUR") {
-			modalTitle = "매입거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500,
-					420, modalTitle);
-		} else if (clntType == "SELL") {
-			modalTitle = "매출거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500,
-					420, modalTitle);
-		} else {
-			modalTitle = "거래처";
-			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420,
-					modalTitle);
-		}
+	// 거래처 검색
+	function openSecondClntSearch(type) {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			if(type == "S") {
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);	
+			} else {
+				$('#clntCd').val(row.clntCd);
+				$('#clntNm').val(row.clntNm);	
+				$('#sellVatCd').val(row.sellVatCd);
+				
+				var paramObj = {
+					"coCd": $('#coCd').val(),
+					"clntCd": row.clntCd
+				}
+				
+				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
+					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+				});
+			}
+		});
 	}
 
-	function prjctSearch() {
-		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420,
-				"프로젝트");
+	// 프로젝트 검색
+	function openSecondPrjctSearch(type){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			if(type == "S") {
+				$("#prjctCd_S").val(row.prjctCd);
+				$("#prjctNm_S").val(row.prjctNm);
+			} else {
+				$("#prjctCd").val(row.prjctCd);
+				$("#prjctNm").val(row.prjctNm);
+				$('#addrZip').val(row.prjctAddrZip);
+				$('#addrMain').val(row.prjctAddr);
+				$('#addrSub').val(row.prjctAddrSub);
+			}
+		});
 	}
 
 	function sellCal() {

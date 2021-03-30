@@ -45,6 +45,13 @@ public class CM09Ctr {
     	return "jsonView";
     }
     
+    @PostMapping("/selectNotiPopList")
+    public String selectNotiPopList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<String> result = cm09Svc.selectNotiPopList();
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
     @PostMapping("/insertNoti")
     public String insertNoti(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
