@@ -79,11 +79,16 @@ public class AR02SvcImpl implements AR02Svc {
 		if(stockInfo == null) {
 			paramMap.put("stockQty", paramMap.get("realTrstQty"));
 		} else {
-			if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+			//매출일 떄 
+			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
+			{
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(paramMap.get("realTrstQty"));
-			} else {
+			} 
+			//매입일 떄
+			else 
+			{
 				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("sellUpr", stockInfo.get("sellUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(paramMap.get("realTrstQty"));
@@ -92,7 +97,10 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("stockQty", String.valueOf(stockQty));
 		}
-		sm01Mapper.updateStockSell(paramMap);
+		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
+		{
+			sm01Mapper.updateStockSell(paramMap);
+		}
 		return result;
 	}
 

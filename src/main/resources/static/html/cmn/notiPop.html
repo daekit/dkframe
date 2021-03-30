@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<style>
+th {
+	width: 90px !important;
+}
+
+.add_btn_small {
+    display: inline-block;
+    padding: 0px;
+}
+
+.add_btn_small a {
+    display: inline-block;
+    width: 33px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #444;
+    background: #ffffff;
+    box-shadow: 1px 1px rgba(0,0,0,0.15);
+}
+.table tr th {
+		text-align: center;
+	}
+	
+	.modal_bottom {
+		position: fixed;
+		bottom: 5px;
+		width: 100%;
+	}
+
+</style>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="popup_area" style="width: 600px; height: 600px;">
+    <!-- 내용 -->
+    <div class="popup_table txt_table">
+    	<form id="popForm">
+      <table>
+        <colgroup>
+          <col width="20%">
+          <col width="">
+        </colgroup>
+        <tbody>
+          <tr class="space50">
+            <th class="">제목</th>
+            <td class="fs-15 tc">
+				<input type="text" id="notiTitle" readonly="readonly">
+			</td>
+          </tr>
+          <tr>
+            <th>내용</th>
+            <td class="popup_txt">         
+				<textarea id="notiCnts" readonly="readonly" style="width: 100%; height: 100%;"></textarea>
+            </td>
+          </tr>
+		  <tr id="fileArea" class="space100">
+		  	<th>첨부파일</th>
+		  	<td>                             
+		  		<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+		  	</td>
+		  </tr>
+        </tbody>
+      </table>
+	    </form>
+    </div>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn fs-13">
+      <button class="bg_g fl" onclick="setCookieValue();"><i class="fas fa-times"></i> 오늘 하루 보지 않기</button>
+      <button class="close_btn fr" onclick="window.close();">닫기</button>
+    </div>
+  </div>
+  
+</body>
+</html>
+<script type="text/javascript">
+	
+	var cookieValue = "";
+	var notiFileArr = [];
+	var deleteFileArr = [];
+	var fileGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showLineNumber: true,
+				showRowSelector: false,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	downloadFile(this.dindex);
+		            },
+		        },
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 250},
+	                {key: "fileType", label: "파일타입", width: 80},
+	                {key: "fileSize", label: "파일크기", width: 80},
+	            ]
+			});
+		},
+		setData: function(){
+			var targetObj = this.target;
+			targetObj.setData({
+				list: notiFileArr,
+				page : {
+					totalElements : notiFileArr.length
+				}
+			});
+		}
+	}
+	
+	function setCookieValue() {
+		setCookie(cookieValue, cookieValue, 1);
+		window.close();
+	}
+	
+	$(document).ready(function() {
+		fileGridView.initView();
+		var url = unescape(location.href);
+		var pm  = url.split('=');
+		cookieValue = pm[1];
+		selectNotiInfo();
+	});
+	
+	// 만료일 데이트피커 set
+	$('#exprtnDatePicker').datepicker({
+		format: "yyyymmdd",
+		language : "ko",
+		autoclose : true
+	});
+	
+	function selectNotiInfo(){
+		var paramObj = {"notiKey": cookieValue};
+		postAjax("/admin/cm/cm09/selectNotiInfo", paramObj, null, function(data){
+			setNotiInfo(data.result.notiInfo);
+			setNotiFileInfo(data.result.fileList);
+		});
+	}
+	
+	function setNotiInfo(notiInfo){
+		$.each(notiInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+		$('input:radio[name=popupYn]:input[value=' + notiInfo.popupYn + ']').prop("checked", true);
+		$('input:radio[name=useYn]:input[value=' + notiInfo.useYn + ']').prop("checked", true);
+		$('input:radio[name=exprtnYn]:input[value=' + notiInfo.exprtnYn + ']').prop("checked", true);
+	}
+	
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": notiFileArr[idx].fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+	
+	function setNotiFileInfo(fileInfo) {
+		if(fileInfo == ""){
+			$("#fileArea").hide();
+		} else {
+			// 첨부파일 set
+			$.each(fileInfo, function(idx, obj){
+				notiFileArr.push({
+					'fileKey' : obj.fileKey,
+			      	'fileName' : obj.fileName,
+			      	'fileType' : obj.fileType,
+			      	'fileSize' : obj.fileSize,
+			      	'file' : obj
+				});
+			});
+			
+			// 첨부파일 그리드 set
+			fileGridView.setData();
+		}
+	}
+	
+	function setNotiFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var testArr = obj.name.split(".");
+			notiFileArr.push({
+				'fileKey' : 0,
+		      	'fileName' : obj.name,
+		      	'fileType' : testArr[testArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		fileGridView.setData();
+		$(elem).val("");
+	}
+	
+</script>

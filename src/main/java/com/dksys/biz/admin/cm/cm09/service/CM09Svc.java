@@ -17,4 +17,6 @@ public interface CM09Svc {
 
 	public int updateNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
+	public List<String> selectNotiPopList();
+
 }

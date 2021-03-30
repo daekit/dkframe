@@ -61,4 +61,19 @@ public class CM09SvcImpl implements CM09Svc {
 		return result;
 	}
 
+	@Override
+	public List<String> selectNotiPopList() {
+//		List<String> keyList = cm09Mapper.selectNotiPopList();
+//		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+//		for (int i = 0; i < keyList.size(); i++) {
+//			Map<String, String> param = new HashMap<String, String>();
+//			Map<String, Object> returnMap = new HashMap<String, Object>();
+//			param.put("notiKey", keyList.get(i));
+//			returnMap.put("fileList", cm08Svc.selectFileList(keyList.get(i)));
+//			returnMap.put("notiInfo", cm09Mapper.selectNotiInfo(param));
+//			resultList.add(returnMap);
+//		}
+		return cm09Mapper.selectNotiPopList();
+	}
+
 }
