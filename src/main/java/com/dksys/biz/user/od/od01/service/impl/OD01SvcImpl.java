@@ -81,6 +81,7 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 			}
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("odrSeq", paramMap.get("odrSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			if(isOdr) {
