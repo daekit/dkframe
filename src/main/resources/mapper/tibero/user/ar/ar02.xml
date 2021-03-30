@@ -138,7 +138,7 @@
 			SYSDATE,
 	        #{salesAreaCd, jdbcType=VARCHAR},
 	        #{siteCd,      jdbcType=VARCHAR},
-	        #{bilgVatAmt, jdbcType=VARCHAR},
+	        #{bilgVatAmt,  jdbcType=VARCHAR},
 	        #{prdtSpec,    jdbcType=VARCHAR}
 		)
 	</insert>
@@ -259,6 +259,7 @@
 		        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
 		        SALES_AREA_CD,
 		        SITE_CD,
+		        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 		        BILG_VAT_AMT,
 		        PRDT_SPEC
 			FROM 
@@ -288,6 +289,9 @@
 				</if>
 				<if test="prjctCd != null and !prjctCd.equals('')">
 					AND PRJCT_CD = #{prjctCd}				
+				</if>
+				<if test="siteCd != null and !siteCd.equals('')">
+					AND SITE_CD = #{siteCd}				
 				</if>
 				<if test="pdsk != null and !pdsk.equals('')">
 					AND PRDT_STKN = #{pdsk}				
@@ -411,6 +415,7 @@
 	        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
 	        SALES_AREA_CD,
 	        SITE_CD,
+		    (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = SITE_CD) AS SITE_NM,
 	        BILG_VAT_AMT,
 	        PRDT_SPEC
 		FROM TB_AR02M01 T
