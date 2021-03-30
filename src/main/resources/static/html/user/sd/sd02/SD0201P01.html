@@ -64,7 +64,8 @@
 			<tr>
                 <th class="">제품구분</th>
                 <td>                                
-                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV">
+                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" onchange="prdtStknChange(this);">
+                    <option value="">전체</option>
                     </select>
 
                 </td>
@@ -78,7 +79,7 @@
             <tr>
                 <th class="">강종</th>
                 <td>                                
-                    <select id="prdtStkn" name="prdtStkn" data-kind="PDSK">
+                    <select id="prdtStkn" name="prdtStkn" data-search="prdtStkn">
                     <option value="">전체</option>
                     </select>
                 </td>
@@ -189,7 +190,6 @@
 		var estInfo = obj;
 		//메인정보 세팅
 		$.each(estInfo, function(key, value){
-			debugger;
 			$('#'+key).val(value);
 			if(key == "planYm" && value.length <= 6){
 		    	var planYm = value;
@@ -242,7 +242,6 @@
 			$.each($('input[comma]'), function(idx, elem){
 				deleteComma(elem);
 			});
-			debugger;
 			var formData = {
 					"coCd" : $('#detailTb select[name="coCd"]').val(),
 					"selpchCd" : $('#detailTb select[name="selpchCd"]').val(),
@@ -288,5 +287,19 @@
 				modal.close();
 			});
 		}
+	}
+	
+	function prdtStknChange(elem) {
+		var paramObj = {"codeKind" : $(elem).val()};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '<option value="">전체</option>';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, obj){
+				optionHtml += '<option value='+obj.codeId+'>';
+				optionHtml += obj.codeNm;
+				optionHtml += '</option>';
+			});
+			$('.popup_area [data-search="prdtStkn"]').html(optionHtml);
+		});
 	}
 </script>
