@@ -33,10 +33,10 @@ public class SD02Ctr {
     
     @PostMapping(value = "/selectSellList")
     public String selectSellList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = sd02svc.selectSellCount(param);
+ /*   	int totalCnt = sd02svc.selectSellCount(param);
     	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
-    
+  */  
     	List<Map<String, String>> sellList = sd02svc.selectSellList(param);
     	model.addAttribute("sellList", sellList);
         return "jsonView";
