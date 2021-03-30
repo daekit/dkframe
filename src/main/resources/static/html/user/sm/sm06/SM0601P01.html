@@ -1,0 +1,131 @@
+<body>
+  <div id="cplrUntpcDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">계산서 관리</h4>
+    </div>
+
+    <div class="popup_table">
+    	<form id="popForm">
+	        <div data-ax5grid="popup-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%" ></div>
+	    </form>
+    </div>
+
+    <br>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button class="close_btn" onclick="modalClose();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+		
+	
+	var gridViewDetail = {
+			initView: function(){
+				
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			    	showRowSelector: false,
+			    	multipleSelect: false,
+			    	sortable: true,
+			        target: $('[data-ax5grid="popup-grid"]'),
+			        header: {
+			        	align: "center",
+			        	selector: false
+			        },       
+			        body: {
+			        	onClick: function () {
+			                this.self.select(this.dindex); 
+			                
+			            },
+			            onDBLClick: function () {
+			            },
+
+			            mergeCells : ["prdtNm","prdtSpec","prdtSize","prdtLen","typNm","impNm","whNm","ownerNm","clntNm","prjctNm"],
+
+			        },
+			        page: {
+			            navigationItemCount: 9,
+			            height: 30,
+			            display: true,
+			            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+			            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+			            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+			            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+			            onChange: function () {
+			            	gridViewDetail.setData(this.page.selectPage);
+			            }
+			        }, 
+			        columns: [
+			          	{key: "prdtNm",       label: "제품",    align: "left",   width: 135},
+			          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 70},
+			          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 70},
+			          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
+			          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
+			          	{key: "impNm",        label: "수입",    align: "center", width: 50},
+			        	{key: "whNm",         label: "창고",    align: "center", width: 90},
+			          	{key: "ownerNm",      label: "구분",    align: "center", width: 60},
+			          	{key: "clntNm",       label: "재고주체", align: "left",   width: 120},
+			          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 130},
+			          	{key: "makrNm",       label: "제조사",   align: "center", width: 80},
+			          	{label: "재고",  columns:[
+			          		{key: "stockQty", label: "수량(KG)", align: "right", width: 80, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockUpr", label: "단가",     align: "right", width: 80, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockAmt", label: "금액",     align: "right", width: 80 , styleClass:"grid-cell-blue", formatter:"money" }
+			          	]},
+			          	{key: "stdUpr",     label: "기준 단가", align: "right", width: 80, formatter:"money" },
+//			          	{key: "stockChgNm", label: "재고<br/>변동사유", align: "center", width: 80},
+			          	{key: "pchsUpr", label: "최종<br/>매입 단가", align: "right", width: 80, formatter:"money" },
+			          	{key: "sellUpr", label: "최종<br/>매출 단가", align: "right", width: 80, formatter:"money" },
+			          	{key: "udtDttm", label: "최종<br/>변경일", align: "center", width: 80},
+			          	
+			          	
+			        ]
+			    });
+				return this;
+			}, 
+			setData: function(_pageNo) {
+				
+				firstGrid = this.target;
+			
+				var row = gridView.target.getList("selected")[0];
+				var formData = {
+						"coCd" : row.coCd,
+						"prdtCd" : row.prdtCd,
+						"typCd" : row.typCd,
+						"impYn" : row.impYn,
+						"whCd" : row.whCd,
+						"ownerCd" : row.ownerCd,
+						"clntCd" : row.clntCd,
+						"makrCd" : row.makrCd
+				}
+				console.log(formData);
+				postAjax("/user/sm/sm06/selectStockDetailList", formData, null, function(data){
+					console.log(data);
+					var list = data.stockList;
+					
+					firstGrid.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				});
+			}
+		}
+
+	$(document).ready(function() {
+		gridViewDetail.initView().setData(0);
+	});
+
+	function modalClose(){
+		modal.close();
+	}
+	
+</script>
