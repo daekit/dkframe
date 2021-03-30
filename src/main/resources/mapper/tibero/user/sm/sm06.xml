@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.sm.sm06.mapper.SM06Mapper">
+
+	<select id="selectStockTotalListCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+		FROM
+		(SELECT CO_CD
+					 , CO_NM
+					 , PRDT_CD
+					 , PRDT_NM
+					 , TYP_CD
+					 , TYP_NM
+					 , IMP_YN
+					 , IMP_NM
+					 , WH_CD
+					 , WH_NM
+					 , OWNER_CD
+					 , OWNER_NM
+					 , CLNT_CD
+					 , CLNT_NM
+					 , PRJCT_NM
+					 , MAKR_CD
+					 , MAKR_NM
+					 , SUM(STOCK_QTY) STOCK_QTY
+	 				 , SUM(STOCK_AMT) STOCK_AMT
+					 FROM
+					 (SELECT A.CO_CD
+							 , FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+							 , A.PRDT_CD
+							 , C.PRDT_NM
+							 , A.TYP_CD
+							 , FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+							 , A.IMP_YN 
+							 , FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+							 , A.WH_CD
+							 , FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+							 , A.OWNER_CD
+							 , FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+							 , A.CLNT_CD
+						     , E.CLNT_NM
+							 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+							 , A.MAKR_CD
+							 , FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+							 , A.STOCK_QTY STOCK_QTY
+							 , A.STOCK_QTY * A.STOCK_UPR STOCK_AMT
+						  FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+						 WHERE  A.PRDT_CD = C.PRDT_CD
+						   AND A.CLNT_CD = E.CLNT_CD(+)
+						   AND A.STOCK_QTY != 0
+							<if test="coCd != null and !coCd.equals('')">
+								AND A.CO_CD = #{coCd}
+							</if>
+							<if test="whCd != null and !whCd.equals('')">
+					 			AND A.WH_CD = #{whCd}
+							</if>
+							<if test="ownerCd != null and !ownerCd.equals('')">
+								AND A.OWNER_CD = #{ownerCd}
+							</if>
+							<if test="typCd != null and !typCd.equals('')">
+								AND A.TYP_CD = #{typCd}
+							</if>
+							<if test="makrCd != null and !makrCd.equals('')">
+								AND A.MAKR_CD = #{makrCd}
+							</if>
+							<if test="prdtNm != null and !prdtNm.equals('')">
+								AND C.PRDT_NM LIKE '%' || UPPER(#{prdtNm}) || '%'
+							</if>
+							<if test="clntNm != null and !clntNm.equals('')">
+								AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
+							</if>
+							ORDER BY CO_CD, PRDT_CD, TYP_CD, IMP_YN, WH_CD, OWNER_CD, CLNT_CD
+				   )   
+				GROUP BY CO_CD
+					 , CO_NM
+					 , PRDT_CD
+					 , PRDT_NM
+					 , TYP_CD
+					 , TYP_NM
+					 , IMP_YN
+					 , IMP_NM
+					 , WH_CD
+					 , WH_NM
+					 , OWNER_CD
+					 , OWNER_NM
+					 , CLNT_CD
+					 , CLNT_NM
+					 , PRJCT_NM
+					 , MAKR_CD
+					 , MAKR_NM)
+	</select>
+
+	 <select id="selectStockTotalList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROWNUM AS RNUM, D.*
+			FROM(
+				SELECT CO_CD
+					 , CO_NM
+					 , PRDT_CD
+					 , PRDT_NM
+					 , TYP_CD
+					 , TYP_NM
+					 , IMP_YN
+					 , IMP_NM
+					 , WH_CD
+					 , WH_NM
+					 , OWNER_CD
+					 , OWNER_NM
+					 , CLNT_CD
+					 , CLNT_NM
+					 , PRJCT_NM
+					 , MAKR_CD
+					 , MAKR_NM
+					 , SUM(STOCK_QTY) STOCK_QTY
+	 				 , SUM(STOCK_AMT) STOCK_AMT
+					 FROM
+					 (SELECT A.CO_CD
+							 , FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+							 , A.PRDT_CD
+							 , C.PRDT_NM
+							 , A.TYP_CD
+							 , FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+							 , A.IMP_YN 
+							 , FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+							 , A.WH_CD
+							 , FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+							 , A.OWNER_CD
+							 , FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+							 , A.CLNT_CD
+						     , E.CLNT_NM
+							 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+							 , A.MAKR_CD
+							 , FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
+							 , A.STOCK_QTY STOCK_QTY
+							 , A.STOCK_QTY * A.STOCK_UPR STOCK_AMT
+						  FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+						 WHERE  A.PRDT_CD = C.PRDT_CD
+						   AND A.CLNT_CD = E.CLNT_CD(+)
+						   AND A.STOCK_QTY != 0
+							<if test="coCd != null and !coCd.equals('')">
+								AND A.CO_CD = #{coCd}
+							</if>
+							<if test="whCd != null and !whCd.equals('')">
+					 			AND A.WH_CD = #{whCd}
+							</if>
+							<if test="ownerCd != null and !ownerCd.equals('')">
+								AND A.OWNER_CD = #{ownerCd}
+							</if>
+							<if test="typCd != null and !typCd.equals('')">
+								AND A.TYP_CD = #{typCd}
+							</if>
+							<if test="makrCd != null and !makrCd.equals('')">
+								AND A.MAKR_CD = #{makrCd}
+							</if>
+							<if test="prdtNm != null and !prdtNm.equals('')">
+								AND C.PRDT_NM LIKE '%' || UPPER(#{prdtNm}) || '%'
+							</if>
+							<if test="clntNm != null and !clntNm.equals('')">
+								AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
+							</if>
+							ORDER BY CO_CD, PRDT_CD, TYP_CD, IMP_YN, WH_CD, OWNER_CD, CLNT_CD
+				   )   
+				GROUP BY CO_CD
+					 , CO_NM
+					 , PRDT_CD
+					 , PRDT_NM
+					 , TYP_CD
+					 , TYP_NM
+					 , IMP_YN
+					 , IMP_NM
+					 , WH_CD
+					 , WH_NM
+					 , OWNER_CD
+					 , OWNER_NM
+					 , CLNT_CD
+					 , CLNT_NM
+					 , PRJCT_NM
+					 , MAKR_CD
+					 , MAKR_NM
+			)D
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 
+	</select>
+	
+	<select id="selectStockDetailListCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+		WHERE  A.PRDT_CD = C.PRDT_CD 
+				AND A.CLNT_CD = E.CLNT_CD(+)
+				AND A.STOCK_QTY != 0
+				<if test="coCd != null and !coCd.equals('')">
+				AND A.CO_CD = #{coCd}
+				</if>
+				<if test="whCd != null and !whCd.equals('')">
+				 		AND A.WH_CD = #{whCd}
+				 </if>
+				 <if test="ownerCd != null and !ownerCd.equals('')">
+						AND A.OWNER_CD = #{ownerCd}
+				</if>
+				<if test="typCd != null and !typCd.equals('')">
+						AND A.TYP_CD = #{typCd}
+				</if>
+				<if test="makrCd != null and !makrCd.equals('')">
+						AND A.MAKR_CD = #{makrCd}
+				</if>
+				<if test="clntCd != null and clntCd != ''">
+					AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test="prdtCd != null and prdtCd != ''">
+					AND A.PRDT_CD = #{prdtCd}
+				</if>
+				<if test="impYn != null and impYn.equals('')">
+					AND A.PRDT_CD = #{impYn}
+				</if>
+				
+	</select>
+	
+	<select id="selectStockDetailList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROWNUM AS RNUM, D.*
+			FROM(
+				SELECT   
+		                  A.STOK_SEQ 
+		             	, A.CO_CD
+						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+						, A.WH_CD
+						, FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+						, A.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+						, A.TYP_CD
+						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+						, A.MAKR_CD 
+						, FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM						
+						, A.PRJCT_CD
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+						, A.PRDT_CD
+				     	, C.PRDT_NM
+					    , A.IMP_YN
+					    , FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+					    , A.STOCK_CHG_CD
+					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
+						, A.STOCK_QTY
+						, A.STOCK_UPR
+						, (A.STOCK_QTY*A.STOCK_UPR) as STOCK_AMT
+						, A.STD_UPR
+						, A.PCHS_UPR 
+						, A.SELL_UPR 
+						, E.CLNT_NM
+						, A.PRDT_SIZE
+						, A.PRDT_SPEC
+						, A.PRDT_LEN
+						, C.PRDT_STKN
+						, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
+						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
+				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+				WHERE  A.PRDT_CD = C.PRDT_CD
+				AND A.CLNT_CD = E.CLNT_CD(+)
+				<!-- AND A.STOCK_QTY != 0 -->
+				<if test="coCd != null and !coCd.equals('')">
+					AND A.CO_CD = #{coCd}
+				</if>
+				<if test="whCd != null and !whCd.equals('')">
+			 		AND A.WH_CD = #{whCd}
+				 </if>
+				 <if test="ownerCd != null and !ownerCd.equals('')">
+					AND A.OWNER_CD = #{ownerCd}
+				</if>
+				<if test="typCd != null and !typCd.equals('')">
+					AND A.TYP_CD = #{typCd}
+				</if>
+				<if test="makrCd != null and !makrCd.equals('')">
+					AND A.MAKR_CD = #{makrCd}
+				</if>
+				<if test='clntCd != null and clntCd != ""'>
+					AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test='prdtCd != null and prdtCd != ""'>
+					AND A.PRDT_CD = #{prdtCd}
+				</if>
+				<if test="impYn != null and impYn.equals('')">
+					AND A.PRDT_CD = #{impYn}
+				</if>
+				ORDER BY A.CO_CD, A.PRDT_CD, A.TYP_CD, A.IMP_YN, A.WH_CD, A.OWNER_CD, A.CLNT_CD
+			)D
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 
+	</select>
+</mapper>
