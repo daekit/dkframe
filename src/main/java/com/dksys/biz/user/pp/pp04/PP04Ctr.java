@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
+import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.pp.pp04.service.PP04Svc;
 import com.dksys.biz.util.MessageUtils;
 
@@ -24,9 +27,12 @@ public class PP04Ctr {
  
 	@Autowired
 	MessageUtils messageUtils;
-    
+
     @Autowired
     PP04Svc pp04Svc;
+    
+    @Autowired
+    AR01Svc ar01Svc;
 	
    
     @PostMapping(value = "/selectMesMtrlRstlList")
@@ -52,19 +58,12 @@ public class PP04Ctr {
     확정된 배차정보를 기준으로 출하요청서, 매출내역 생성   
   */
     @PostMapping(value = "/insertMesShipLisr")
-    public String insertMesShip(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
-    	try {
-	    	pp04Svc.insertMesShipList(param);
-	    	model.addAttribute("resultCode", 200);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-    	}catch(Exception e) {
-    		model.addAttribute("resultCode", 500);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
-    	}
-	    	return "jsonView";
+    public String insertMesShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+		ar01Svc.insertShip(paramMap, mRequest);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	return "jsonView";
     }
-    
-    
     
     
     /*  
