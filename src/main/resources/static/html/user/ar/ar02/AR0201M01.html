@@ -443,11 +443,15 @@ th {
 		var list = gridView.target.getList("selected");
 		var trstCertiNoArr = [];
 		$.each(list, function(idx, obj) {
-			if (obj.bilgYn == "Y")
+			if (obj.bilgYn == "Y"){
 				flag = true;
+				return false;
+			}
 			if (idx > 0) {
-				list[idx].clntCd && list[idx - 1].clntCd;
-				clntFlag = true;
+				if(list[idx].clntCd != list[idx-1].clntCd) {
+					clntFlag = true;
+					return false;
+				}
 			}
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
@@ -455,12 +459,10 @@ th {
 			alert("이미 발행된 건이 있습니다.");
 			return;
 		}
-		;
 		if (clntFlag) {
 			alert("동일한 거래처끼리만 전표발행이 가능합니다.");
 			return;
 		}
-		;
 		var formData = {
 			"trstCertiNo" : trstCertiNoArr,
 			"userId" : jwt.userId,
