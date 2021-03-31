@@ -3,15 +3,15 @@
   	<div class="tit_contents">
         <h4 class="tit">프로젝트 등록</h4>
     </div>
+    <form id="popForm">
     <div class="form-group popup_table">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
-    	<form id="popForm">
         <table>
             <colgroup>
-                <col width="12%">
+                <col width="16%">
                 <col width="26%">
-                <col width="13%">
-                <col width="20%">
+                <col width="11%">
+                <col width="19%">
                 <col width="13%">
                 <col>
             </colgroup>
@@ -22,9 +22,10 @@
                     <option value="">전체</option>
                     </select>
                 </td>
-                <th class="hit">법인</th>
+                <th class="hit">수주형태</th>
                 <td>
-                	<select id="coprtCd" name="coprtCd" data-kind="ESTCOPRT"  required="required">
+                	<select id="ordTyp" name="ordTyp" data-kind="ORDTYP"  required="required">
+                	<option value="">전체</option>
                     </select>
                 </td>              
 
@@ -34,24 +35,45 @@
                 </td>
             </tr>
             <tr>
-                <th class="hit">프로젝트 기간</th>
+            	<th>건축</th>
+                <td>
+                	<select id="bildngTyp" name="bildngTyp" data-kind="BILDNGTYP">
+                	<option value="">전체</option>
+                    </select>
+                </td>
+                <th>토목</th>
+                <td>
+                	<select id="engrkTyp" name="engrkTyp" data-kind="ENGRKTYP">
+                	<option value="">전체</option>
+                    </select>
+                </td>
+                <th>사용여부</th>
+                <td>   
+                	<select id="useYn" name="useYn" class="form-control">
+                		<option value="Y" selected>Y</option>
+						<option value="N">N</option>
+		      		</select>
+                </td>
+            </tr>
+            <tr>
+                <th class="hit">공사기간</th>
                 <td class="drctArea">
                 	<div class="date_input">
                 		<input id="strtDt2" name="strtDtDtl" class="input_calendar"  required="required"><span>~</span>
                 		<input id="endDt2" name="endDtDtl" class="input_calendar"  required="required">
                 	</div>
                 </td>
-                <th class="hit">매출처</th>
+                <th>매출처</th>
                 <td class="drctArea">
                 	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
                 	<div class="search_form">
-	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly"  required="required">
+	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
                     	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
                     </div>
                 </td>               
-                <th class="">제조사</th>
+                <th class="">제강사</th>
                 <td>
-                	<select id="makrCd" name="makrCdDtl" data-kind="MAKR">
+                	<select id="makrCd" name="makrCd" data-kind="MAKR">
                     </select>
                 </td>
 
@@ -59,16 +81,20 @@
             <tr>
                 <th class="hit">프로젝트명</th>
                 <td colspan="3">   
-                	<input id="prjctNm" name="prjctNmDtl" type="text" style="width: 100%;"  required="required">
+                	<input id="prjctNm" name="prjctNm" type="text" style="width: 100%;"  required="required">
                 </td>
-                <th class="hit">프로젝트 담당자</th>
+                <th class="">담당자(제강사)</th>
+                <td>                                
+                    <input id="makrMngNm" name="makrMngNm" type="text">
+                </td>
+                <!-- <th class="hit">프로젝트 담당자</th>
                 <td>                                
                     <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
                     <div class="search_form">
 	                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly" required="required">
                     	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
                     </div>
-                </td> 
+                </td> --> 
             </tr>
             <tr>
                 <th class="">주소</th>
@@ -81,18 +107,20 @@
 				<td colspan="2">					    
                 	    <input type="text" id="prjctAddr" name="prjctAddr" type="text" style="width: 80%;" placeholder="선택 주소지" readonly="readonly">
                 </td>
-             
-                <th class="">로스율(%)</th>
+             	<td colspan="2">   
+					<input id="prjctAddrSub" name="prjctAddrSub" type="text" style="width: 100%;" placeholder="상세 주소 입력" maxlength="100">
+				</td>
+                <!-- <th class="">로스율(%)</th>
                 <td>                                
                     <input id="lossRate" name="lossRate" type="text">
-                </td>            
+                </td> -->            
             </tr>
-            <tr>
+            <!-- <tr>
                 <th class="">주소</th>
                 <td colspan="3">   
 					<input id="prjctAddrSub" name="prjctAddrSub" type="text" style="width: 100%;" placeholder="상세 주소 입력" maxlength="100">
 				</td>
-            </tr>
+            </tr> -->
             <tr>
                 <th class="">현장담당자</th>
                 <td>                                
@@ -100,47 +128,226 @@
                 </td>    
                 <th class="">전화번호</th>
                 <td>                                
-                    <input id="telNo" name="telNo" type="text">
+                    <input id="telNo" name="telNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
                 </td>    
-                <th class="">MES참조번호</th>
-                <td>                                
-                    <input id="prjctMesCd" name="prjctMesCd" type="text">
-                </td>              
-            
             </tr>
             <tr>
-                <th class="">총중량(KG)</th>
+                <th class="">E-Mail</th>
                 <td>                                
-                    <input id="totWt" name="totWtDtl" type="text" onkeyup="addComma(this);" comma>
+                    <input id="clntEmail" name="clntEmail" type="text" onkeyup="exceptKorean(this);" maxlength="100">
                 </td>      
-                <th class="">턴키여부</th>
-                <td>   
-                	<select id="tnkeyYn" name="tnkeyYnDtl" class="form-control">
-                		<option value="Y" selected>Y</option>
-						<option value="N">N</option>
-		      		</select>
-                </td>  
-                <th class="">사용여부</th>
-                <td>   
-                	<select id="useYn" name="useYn" class="form-control">
-                		<option value="Y" selected>Y</option>
-						<option value="N">N</option>
-		      		</select>
-                </td>                                       
+                <th class="">Fax</th>
+                <td>                                
+                    <input id="clntFaxNo" name="clntFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
+                </td> 
             </tr>
-            <tr>
-                <th class="">비고</th>
-                <td colspan="5">     
-                    <textarea id="rmk" name="rmkDtl" style="width: 100%;height: 120px;" ></textarea>
-                </td>
-            </tr>
-                            
+            
         </table>
         <input type="hidden" id="userId" name="userId">
 	    <input type="hidden" id="pgmId" name="pgmId" value="SD0501M01">
 	    <input type="hidden" id="prjctCd" name="prjctCd">
-      </form>
+      
+    <!-- 계약사항 -->
+    <div class="form-group popup_table">
+    <table>
+    	<colgroup>
+    	<col width="6%">
+    	<col width="10%">
+        <col width="26%">
+        <col width="11%">
+        <col width="19%">
+        <col width="13%">
+        <col>
+    	</colgroup>
+    	<tr>
+           <th rowspan="4">계<br>약<br>사<br>항</th>
+           <th class="hit">계약물량</th>
+           <td>
+           	 <input id="totWt" name="totWt" type="text" required="required">
+           </td>
+           <th>가공단가</th>
+           <td>
+           	 <input id="prcsnUpr" name="prcsnUpr" type="text">
+           </td>
+           <th>철근할인구분</th>
+           <td>
+           	<select id="dcDiv" name="dcDiv" data-kind="DCDIV">
+           	<option value="">전체</option>
+               </select>
+           </td>
+        </tr>
+        <tr>
+          <th class="">Loss율(%)</th>
+          <td>                                
+              <input id="lossRate" name="lossRate" type="text">
+          </td>
+          <th>사용여부</th>
+          <td>   
+          	<select id="cplrYn" name="cplrYn" class="form-control">
+          	  <option value="Y" selected>Y</option>
+			  <option value="N">N</option>
+  			</select>
+          </td>
+          <th>철근단가</th>
+           <td>
+           	 <input id="prdtUpr" name="prdtUpr" type="text">
+           </td>
+        </tr>
+        <tr>
+          <th>결재조건</th>
+          <td>
+          	<select id="pmntMtdCd" name="pmntMtdCd" data-kind="CLMNDIV">
+          	  <option value="">전체</option>
+            </select>
+          </td>
+          <th>담당자</th>
+          <td>                                
+              <input type="hidden" id="mngId" name="mngId" style="width: 76%;">
+              <div class="search_form">
+               <input type="text" id="mngNm" name="mngNm" readonly="readonly">
+              	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
+              </div>
+          </td>
+          <th rowspan="2">비고</th>
+          <td rowspan="2">     
+              <textarea id="ctrtRmk" name="ctrtRmk" style="width: 100%; height: 80px"></textarea>
+          </td>
+        </tr>
+        <tr>
+          <th>샵업체명</th>
+          <td class="drctArea">
+          	<input type="hidden" id="shopclntCd" name="shopclntCd" style="width: 76%;">                   
+          	<div class="search_form">
+               <input type="text" id="shopclntNm" name="shopclntNm" readonly="readonly">
+              	<a onclick="clntSearch2();"><i class="i_search_w"></i></a>
+              </div>
+          </td>
+          <th class="">샵단가</th>
+          <td>                                
+              <input id="shopUpr" name="shopUpr" type="text">
+          </td>
+        </tr>
+    </table>
     </div>
+    
+    <!-- 계약상세 -->
+    <div class="popup_table">
+      <table>
+        <tr>
+          <td colspan="2" style=" text-align: LEFT; border-right: 0; ">계약상세</td>
+          <td colspan="9">
+            <div class="add_btn">
+              <a onclick="addRow();">+</a>
+              <a onclick="removeDetailRow();">-</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="ofx_s" style="width:100%;">
+      <table id="detailTb">
+        <colgroup>
+        	<col width="3%">
+            <col width="30%">
+            <col width="30%">
+            <col width="30%">
+        </colgroup>
+        <tr>
+        	<th rowspan="2"></th>
+            <th rowspan="2" style="text-align:center">제품구분</th>
+            <th rowspan="2" style="text-align:center">제품강종</th>
+            <th rowspan="2" style="text-align:center">SIZE</th>
+        </tr>
+        <!-- // -->
+        <tbody>
+          <tr class="detailRow" id="tableCd" name="tableCd">
+          	<td>
+				<input type="checkbox" name="detailChkBox">
+			</td>
+			<td>
+              <div class="search_form">
+                <select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV"onchange="prdtDivCombo(this);">
+                  <option value="">선택</option>
+            	</select>
+              </div>
+            </td>
+            <td>
+              <div class="search_form">
+                <select id="prdtStknCd" name="prdtStknCd"onchange="prdtStknCombo(this);">
+          	      <option value="">선택</option>
+            	</select>
+              </div>
+            </td>
+            <td class="drctArea">
+              <div class="search_form">
+              	<input type="hidden" id="prdtSizeCd" name="prdtSizeCd" readonly="readonly">
+                <input type="text"   id="prdtSizeNm" name="prdtSizeNm" style="text-align:left">
+                <button type="button" onclick="prdtSizeSearch(this);"><i class="i_search_w"></i></button>
+              	<!-- <a id="prdtSearch" onclick="prdtSizeSearch(this);"><i class="i_search_w"></i></a> -->
+              </div>
+            </td>
+          </tr>
+        
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- 턴키비고 -->
+    <div class="form-group popup_table">
+    <table>
+    	<colgroup>
+    	<col width="6%">
+    	<col width="10%">
+        <col width="26%">
+        <col width="11%">
+        <col width="19%">
+        <col width="13%">
+        <col>
+    	</colgroup>
+    	<tr>
+           <th rowspan="2">턴키<br>외주<br>진행</th>
+           <th>외주가공장</th>
+           <td>
+             <select id="whCd" name="whCd" data-kind="WH">
+          	  <option value="">전체</option>
+             </select>
+           </td>
+           <th>단가</th>
+           <td>
+           	 <input id="outordUpr" name="outordUpr" type="text">
+           </td>
+           <th>외주담당자</th>
+           <td>                                
+              <input type="hidden" id="outordMngCd" name="outordMngCd" style="width: 76%;">
+              <div class="search_form">
+               <input type="text" id="outordMngNm" name="outordMngNm" readonly="readonly">
+              	<a onclick="openUserTree2();"><i class="i_search_w"></i></a>
+              </div>
+           </td>
+        </tr>
+        <tr>
+          <th class="">Loss율(%)</th>
+          <td>                                
+              <input id="outordLossRate" name="outordLossRate" type="text">
+          </td>
+          <th>연락처</th>
+          <td>
+           	 <input id="outordTelNo" name="outordTelNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
+           </td>
+          <th>Fax</th>
+           <td>
+           	 <input id="outordFaxNo" name="outordFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
+           </td>
+        </tr>
+        <tr>
+          <th colspan="2">비고</th>
+          <td colspan="5">     
+              <textarea id="rmk" name="rmk" style="width: 100%; height: 80px"></textarea>
+          </td>
+        </tr>
+    </table>
+    </div>
+    </div>
+    
   <!-- 출하요청서 테이블 -->
 	<table class="form-group popup_table" id="shipmentTable" style="display:none">
 		<colgroup>
@@ -221,6 +428,7 @@
   <!-- <div class="row">
 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
   </div> -->
+  </form>
 </body>
 <link rel="stylesheet" href="/static/css/jstree/style.min.css" />
 <script src="/static/js/jstree/jstree.min.js"></script>
@@ -243,7 +451,7 @@
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		            	downloadFile(this.dindex);
+		            	//downloadFile(this.dindex);
 		            },
 		        },
 	            columns: [
@@ -447,6 +655,7 @@
 		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 920, 780, " ");
 	}
 	
+	
 	$(document).ready( function() {
 		// 영역 접기/열기 이벤트 바인딩
 		$('a.tbody_more_btn').click(function() {
@@ -454,6 +663,7 @@
 			$(this).closest('table').find('tbody').toggle();
 		});
 		fileGridView.initView();
+		prdtDivCombo();
 		setCommonSelect($(".popup_area select[data-kind]"));
 		$("#userId").val(jwt.userId);
 		$("#coCd").val(jwt.coCd);
@@ -530,7 +740,7 @@
 		fileGridView.setData();
 	}
 		
-	function addRow() {
+	/* function addRow() {
 		var row = $("#ordrgTable > tbody:last > tr:last").clone();
 		$("#ordrgTable > tbody:last").append(row);
 		//countTot();
@@ -540,7 +750,7 @@
 		var row = $("#shipmentTable > tbody:last > tr:last").clone();
 		$("#shipmentTable > tbody:last").append(row);
 		//countTot();
-	}
+	} */
 	
 	function setDtlcoCd(params){
 		$("#coCd").val(params.coCd);
@@ -548,7 +758,7 @@
 		$("#salesMng").val(params.salesMng);
 	}
 	function setDtlclntCd(params){
-		$("#makrCdDtl").val(params.clntNm);
+		$("#makrCd").val(params.clntNm);
 	}
 	
 	function setDetailInfo(data){
@@ -559,7 +769,7 @@
 		});
 		
 	}
-	//사용자 검색
+	//샵사용자 검색
 	function openUserTree() {
 		var paramObj = {
 			"coCd" : $('#coCd').val(),
@@ -570,8 +780,23 @@
 		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
 			var checkedId = tree.get_checked()[0];
 			var checkedNode = tree.get_node(checkedId);
-			$('#salesMng').val(checkedNode.id);
-			$('#salesMngNm').val(checkedNode.text);
+			$('#mngId').val(checkedNode.id);
+			$('#mngNm').val(checkedNode.text);
+		});
+	}
+	//외주담당자
+	function openUserTree2() {
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#outordMngCd').val(checkedNode.id);
+			$('#outordMngNm').val(checkedNode.text);
 		});
 	}
 	//거래처
@@ -582,6 +807,15 @@
 			$('#clntNm').val(row.clntNm);
 		});
 	}
+	//샵업체명
+	function clntSearch2() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#shopclntCd').val(row.clntCd);
+			$('#shopclntNm').val(row.clntNm);
+		});
+	}
+	
 	
 	/*select box 선택시*/
 	/* function commonCodeList(param){
@@ -618,8 +852,6 @@
 			deleteComma(elem);
 		});
 		var formData = new FormData($("#popForm")[0]);
-		
-		
 		// 첨부파일 추가
 		$.each(fileArr, function(idx, obj){
 			// 신규파일만 추가
@@ -627,11 +859,24 @@
 				formData.append("files", obj.file);
 			}
 		});
-		
 		if(actionType == "U") {
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		} 
 		
+		// 프로젝트Dtl 추가
+		var detailArr = [];
+		$.each($("#detailTb tr[name='tableCd']"), function(idx, elem){
+			var detailObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				detailObj[elem.name] = elem.value;
+			});
+			detailArr.push(detailObj);
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		if(actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		} 
 		return formData;
 	}
 	
@@ -654,7 +899,6 @@
 		      	'file' : obj
 			});
 		});
-		
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 	}
@@ -677,7 +921,6 @@
 	
 	function deleteFile(rowIndex) {
 		fileGridView.target.removeRow(rowIndex);
-		
 		if(fileArr[rowIndex].fileKey){
 		// 기 등록되어 있는 파일 삭제시
 			deleteFileArr.push(fileArr[rowIndex].fileKey);
@@ -686,6 +929,89 @@
 		fileGridView.setData();
 	}
 	
-
+	//list 행추가
+	function addRow() {
+		var row = $("#detailTb > tbody:last > tr:last").clone();
+		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
+			$(this).prop("disabled", false);
+		});
+		return $("tr[name='tableCd']:last")[0];
+		
+	}
+	//list 행삭제	
+	function removeDetailRow(){
+		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			if($(elem).is(":checked")){
+				$(elem).closest('.detailRow').remove();
+			}
+		});
+		countTot();
+	}
+	
+	function prdtDivCombo(elem){
+	 	$targetRow = $(elem).closest('tr[name="tableCd"]');
+		
+		if($('#prdtDivCd').val() != "PRDTDIV11"){
+			$(".drctArea button").prop("disabled", true);
+		}else{
+			$(".drctArea button").prop("disabled", false);
+		}
+		var formData = {"prdtDivCd" : $targetRow.find('select[name="prdtDivCd"]').val()};
+		postAjax("/user/sd/sd05/prdtDivCombo", formData, null, function (data){
+			var codeList = data.codeInfoList; 
+			var optionHtml = '<option value="">선택</option>';
+			for (var i = 0; i < codeList.length; i++) {
+				optionHtml += '<option value=\"' +  codeList[i].prdtStknNm + '\">'
+					+ codeList[i].prdtStknNm + '</option>';
+				}
+			$targetRow.find('select[name="prdtStknCd"]').html(optionHtml);
+		})
+ 	}
+ 	
+ 	function prdtStknCombo(elem){
+ 		//$targetRow = $(elem).closest('tr[name="tableCd"]');
+ 		if($('#prdtDivCd').val() == ""){
+ 			alert("제품구분을 선택하세요.");
+ 			$('#prdtStknCd').val("");
+ 			return;
+ 		} 		
+ 	}
+ 
+ 	function prdtSizeSearch(elem){
+ 		if($('#prdtDivCd').val() == ""){
+ 			alert("제품구분을 선택하세요.");
+ 			$('#prdtStknCd').val("");
+ 			return;
+ 		}else if($('#prdtStknCd').val() == ""){
+ 			alert("제품강종을 선택하세요.");
+ 			return;
+ 		}else{
+			$targetRow = $(elem).closest('tr[name="tableCd"]');
+			// selpchCd - SELPCH2: 매출
+			var paramObj = {
+				"selpchCd": "SELPCH2",
+				"impYn": $("#impYn").val(), 
+				"clntCd" : $("#clntCd").val(),
+				"useYn": "Y"
+			};
+			openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 600, 420, "SIZE 검색", paramObj, function (grid) {
+				var size = ""
+				var row = grid.target.getList("selected");
+				for(var i=0; i<row.length; i++){
+					 size += row[i].prdtSize + ",";
+				}
+				szie1 = size.substr(0, size.length-1)
+				$targetRow.find('input[name="prdtSizeNm"]').val(szie1);
+				/* $targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
+				$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+				$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnitNm);
+				$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
+				$targetRow.find('input[name="odrUpr"]').val(row.ordrgUpr); */
+			});
+ 		}
+ 	}
 </script>
 </html>
