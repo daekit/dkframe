@@ -1,5 +1,6 @@
 package com.dksys.biz.user.ar.ar05.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,8 @@ public class AR05SvcImpl implements AR05Svc {
 	public void insertEtrdps(Map<String, Object> paramMap) {
 		Map<String, String> etrdpsData = (Map<String, String>) paramMap.get("etrdpsData");
 		Map<String, String> billData = (Map<String, String>) paramMap.get("billData");
+		
+		// 수금 등록
 		if(billData != null) {
 			// 결제방법이 어음일때 bilNo put
 			etrdpsData.put("bilNo", billData.get("bilNo"));
@@ -58,6 +61,15 @@ public class AR05SvcImpl implements AR05Svc {
 			ar05Mapper.insertBill(billData);
 		}
 		ar05Mapper.insertEtrdps(etrdpsData);
+		
+		// 여신 증가
+		Map<String, Object> cdtlnData = new HashMap<String, Object>();
+		cdtlnData.putAll(etrdpsData);
+		int clntCd = Integer.parseInt(etrdpsData.get("clntCd"));
+		int etrdpsAmt = Integer.parseInt(etrdpsData.get("etrdpsAmt"));
+		cdtlnData.put("clntCd", clntCd);
+		cdtlnData.put("etrdpsAmt", etrdpsAmt);
+		ar05Mapper.callCreditLoan(cdtlnData);
 	}
 	
 	@Override
@@ -74,6 +86,20 @@ public class AR05SvcImpl implements AR05Svc {
 	@Override
 	public void deleteEtrdps(Map<String, String> paramMap) {
 		Map<String, String> etrdpsInfo = ar05Mapper.selectEtrdpsInfo(paramMap);
+		
+		// 여신 감소
+		Map<String, Object> cdtlnData = new HashMap<String, Object>();
+		cdtlnData.putAll(etrdpsInfo);
+		int clntCd = Integer.parseInt(etrdpsInfo.get("clntCd"));
+		int etrdpsAmt = Integer.parseInt(etrdpsInfo.get("etrdpsAmt"));
+		String etrdpsDt = etrdpsInfo.get("etrdpsDt").replaceAll("-", "");
+		
+		cdtlnData.put("clntCd", clntCd);
+		cdtlnData.put("etrdpsAmt", -1 * etrdpsAmt);
+		cdtlnData.put("etrdpsDt", etrdpsDt);
+		ar05Mapper.callCreditLoan(cdtlnData);
+		
+		// 수금 삭제
 		if(etrdpsInfo.get("bilNo") != null) {
 			// 결제방법이 어음일때 어음 삭제
 			paramMap.put("bilNo", etrdpsInfo.get("bilNo"));

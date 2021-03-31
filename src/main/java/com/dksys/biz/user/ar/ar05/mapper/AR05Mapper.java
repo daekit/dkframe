@@ -20,6 +20,8 @@ public interface AR05Mapper {
 	
 	int insertBill(Map<String, String> paramMap);
 	
+	int callCreditLoan(Map<String, Object> paramMap);
+	
 	int updateEtrdps(Map<String, String> paramMap);
 	
 	int updateBill(Map<String, String> paramMap);
@@ -27,5 +29,5 @@ public interface AR05Mapper {
 	int deleteEtrdps(Map<String, String> paramMap);
 	
 	int deleteBill(Map<String, String> paramMap);
-
+	
 }
