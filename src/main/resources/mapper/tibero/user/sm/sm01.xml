@@ -369,4 +369,23 @@
 			</if>
 	</update>
 	
+	<update id="updateStockUpr" parameterType="Map">
+		UPDATE TB_SM01M01 M
+		SET STOCK_UPR = NVL((SELECT D.STOCK_UPR FROM TB_SM01D01 D 
+		                 WHERE CLOSE_YM = #{closeYm}
+		                   AND D.CO_CD     = M.CO_CD
+			               AND D.WH_CD     = M.WH_CD
+			               AND D.PRDT_CD   = M.PRDT_CD
+			               AND D.OWNER_CD  = M.OWNER_CD
+			               AND D.CLNT_CD   = M.CLNT_CD
+			               AND D.TYP_CD    = M.TYP_CD
+		                   AND D.MAKR_CD   = M.MAKR_CD
+			               AND D.PRJCT_CD  = M.PRJCT_CD
+			               AND D.IMP_YN    = M.IMP_YN
+						   AND NVL(D.PRDT_SIZE,'@') = NVL(M.PRDT_SIZE,'@')
+					       AND NVL(D.PRDT_SPEC,'@') = NVL(M.PRDT_SPEC,'@')
+					       AND NVL(D.PRDT_LEN ,0)   = NVL(M.PRDT_LEN ,0)
+						),M.STOCK_UPR)	
+	</update>
+	
 </mapper>
