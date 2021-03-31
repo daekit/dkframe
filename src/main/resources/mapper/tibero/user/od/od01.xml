@@ -245,7 +245,7 @@
 				<if test="ordrgYn != null and !ordrgYn.equals('')">
 					AND ORDRG_YN = #{ordrgYn}
 				</if>
-				ORDER BY UDT_DTTM DESC
+				ORDER BY REQ_DT DESC
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -557,12 +557,36 @@
 		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
 	</update>
 	
+	<update id="updateCancel" parameterType="Map">
+		UPDATE TB_OD01M01 T
+		SET
+		    ORDRG_PROC_ID   = '',
+		    ORDRG_PROC_DTTM = '',
+		    ORDRG_YN 		= 'N',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
+	</update>
+	
 	<update id="updateConfirmDetail" parameterType="Map">
 		UPDATE TB_OD01D01 T
 		SET
 		    ORDRG_PROC_ID   = #{ordrgProcId},
 		    ORDRG_PROC_DTTM = SYSDATE,
 		    ORDRG_YN 		= 'Y',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE		    
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
+	</update>
+	
+	<update id="updateCancelDetail" parameterType="Map">
+		UPDATE TB_OD01D01 T
+		SET
+		    ORDRG_PROC_ID   = '',
+		    ORDRG_PROC_DTTM = '',
+		    ORDRG_YN 		= 'N',
 		    UDT_ID          = #{userId},
 		    UDT_PGM         = #{pgmId},
 		    UDT_DTTM        = SYSDATE		    

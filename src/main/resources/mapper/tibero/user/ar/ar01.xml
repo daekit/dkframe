@@ -301,7 +301,7 @@
 			 	<if test="shipYn != null and !shipYn.equals('')">
 					AND SHIP_YN = #{shipYn}				
 				</if>
-				ORDER BY UDT_DTTM DESC
+				ORDER BY REQ_DT DESC
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -534,12 +534,37 @@
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</update>
 	
+	<update id="updateCancel" parameterType="Map">
+		UPDATE TB_AR01M01 T
+		SET
+			SHIP_PROC_ID  = '',
+			SHIP_YN       = 'N',
+			SHIP_DTTM     = '',
+		    UDT_ID        = #{userId},
+		    UDT_PGM       = #{pgmId},
+		    UDT_DTTM      = SYSDATE
+		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+	</update>
+	
+	
 	<update id="updateConfirmDetail" parameterType="Map">
 		UPDATE TB_AR01D01 T
 		SET
 			SHIP_YN       = 'Y',
 			SHIP_PROC_ID  = #{shipProcId},
 			SHIP_DTTM     = SYSDATE,
+			UDT_ID        = #{userId},
+			UDT_PGM       = #{pgmId},
+			UDT_DTTM	  = SYSDATE
+		WHERE SHIP_SEQ = #{shipSeq} AND SHIP_DTL_SEQ = #{shipDtlSeq}
+	</update>
+	
+	<update id="updateCancelDetail" parameterType="Map">
+		UPDATE TB_AR01D01 T
+		SET
+			SHIP_YN       = 'N',
+			SHIP_PROC_ID  = '',
+			SHIP_DTTM     = '',
 			UDT_ID        = #{userId},
 			UDT_PGM       = #{pgmId},
 			UDT_DTTM	  = SYSDATE
