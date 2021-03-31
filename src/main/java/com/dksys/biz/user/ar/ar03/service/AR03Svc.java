@@ -21,6 +21,6 @@ public interface AR03Svc {
 	
 	int deleteTrans(Map<String, String> paramMap);
 
-	public int updateProcYn(Map<String, String> param);
+	public int updateProcYn(Map<String, Object> param);
 	
 }

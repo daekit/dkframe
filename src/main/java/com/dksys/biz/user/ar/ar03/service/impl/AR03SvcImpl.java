@@ -1,5 +1,7 @@
 package com.dksys.biz.user.ar.ar03.service.impl;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.dksys.biz.user.ar.ar03.mapper.AR03Mapper;
 import com.dksys.biz.user.ar.ar03.service.AR03Svc;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 public class AR03SvcImpl implements AR03Svc {
@@ -56,13 +61,14 @@ public class AR03SvcImpl implements AR03Svc {
 	}
 
 	@Override
-	public int updateProcYn(Map<String, String> param) {
-		
-		
-		
-		
-		
-		return ar03Mapper.updateProcYn(param);
+	@SuppressWarnings("all")
+	public int updateProcYn(Map<String, Object> param) {
+		int result = 0;
+		List<Map<String, String>> detailList = (List<Map<String, String>>) param.get("detailArr");
+		for(Map<String, String> detailMap : detailList) {
+			result += ar03Mapper.updateProcYn(detailMap);
+		}
+		return result;
 	}
 
 }
