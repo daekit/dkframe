@@ -28,5 +28,9 @@ public interface AR02Mapper {
 
 	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
 
+	int deletePchsSell(Map<String, String> detailMap);
+
+	Map<String, String> checkBilg(Map<String, String> detailMap);
+
 	
 }

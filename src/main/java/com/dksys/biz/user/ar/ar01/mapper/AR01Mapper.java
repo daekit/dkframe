@@ -40,4 +40,8 @@ public interface AR01Mapper {
 
 	int selectDetailCount(Map<String, String> paramMap);
 
+	int updateCancelDetail(Map<String, String> detailMap);
+
+	int updateCancel(Map<String, String> paramMap);
+
 }

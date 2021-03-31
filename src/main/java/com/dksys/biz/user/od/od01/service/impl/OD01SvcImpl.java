@@ -288,4 +288,48 @@ public class OD01SvcImpl implements OD01Svc {
 		return od01Mapper.selectConfirmCount(paramMap);
 	}
 
+	@Override
+	public int updateCancel(Map<String, String> paramMap) {
+		int result = 0;
+		int realTotTrstAmt = 0;
+		boolean bilgFlag = false;
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		result = detailList.size();
+		for(Map<String, String> detailMap : detailList) {
+			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("userId", paramMap.get("userId"));
+			detailMap.put("pgmId", paramMap.get("pgmId"));
+			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
+			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
+			if(ar02Mapper.checkBilg(detailMap) != null) {
+				bilgFlag = true;
+				break;
+			}
+			od01Mapper.updateCancelDetail(detailMap);
+			ar02Mapper.deletePchsSell(detailMap);
+			//재고원복
+			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			{
+				paramMap.put("prdtCd", detailMap.get("prdtCd"));
+				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				sm01Mapper.updateStockCancel(paramMap);
+			}
+		}
+		if(bilgFlag) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			return 0;
+		}
+		// 여신 원복
+		paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
+		Map<String, Object> paramMapObj = new HashMap<>(paramMap);
+		ar02Svc.creditDeposit(paramMapObj);
+		od01Mapper.updateCancel(paramMap);
+		return result;
+	}
+	
 }

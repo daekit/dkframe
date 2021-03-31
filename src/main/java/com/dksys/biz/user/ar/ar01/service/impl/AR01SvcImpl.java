@@ -217,7 +217,6 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("clntNm",      detailMap.get("clntNm"));
 //			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
 //			paramMap.put("siteCd",      paramMap.get("siteCd"));
-			
 			if(detailMap.containsKey("sellVatCd") && "VAT01".equals(detailMap.get("sellVatCd").toString()))
 		    {
 				int vatRate = 10; 
@@ -284,6 +283,50 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public int selectDetailCount(Map<String, String> paramMap) {
 		return ar01Mapper.selectDetailCount(paramMap);
+	}
+
+	@Override
+	public int updateCancel(Map<String, String> paramMap) {
+		int result = 0;
+		int realTotTrstAmt = 0;
+		boolean bilgFlag = false;
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		result = detailList.size();
+		for(Map<String, String> detailMap : detailList) {
+			detailMap.put("shipSeq", paramMap.get("shipSeq"));
+			detailMap.put("userId", paramMap.get("userId"));
+			detailMap.put("pgmId", paramMap.get("pgmId"));
+			detailMap.put("trstRprcSeq", paramMap.get("shipSeq"));
+			detailMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));
+			realTotTrstAmt += Integer.parseInt(detailMap.get("realShipAmt"));
+			if(ar02Mapper.checkBilg(detailMap) != null) {
+				bilgFlag = true;
+				break;
+			}
+			ar01Mapper.updateCancelDetail(detailMap);
+			ar02Mapper.deletePchsSell(detailMap);
+			//재고원복
+			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			{
+				paramMap.put("prdtCd", detailMap.get("prdtCd"));
+				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realShipQty"));
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				sm01Mapper.updateStockCancel(paramMap);
+			}
+		}
+		if(bilgFlag) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			return 0;
+		}
+		// 여신 원복
+		paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
+		Map<String, Object> paramMapObj = new HashMap<>(paramMap);
+		ar02Svc.creditDeposit(paramMapObj);
+		ar01Mapper.updateCancel(paramMap);
+		return result;
 	}
 	
 }

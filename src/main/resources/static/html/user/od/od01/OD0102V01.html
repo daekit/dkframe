@@ -214,6 +214,8 @@
 	              <input type="hidden" name="prdtCnvrsnWt">
 	              <input type="hidden" name="ordrgWt" comma>
 	              <input type="text" name="prdtNm" readonly="readonly">
+	              <input type="hidden" name="bilgVatAmt">    <!-- 부가세 -->
+	          	  <input type="hidden" name="prdtStockCd">    <!-- 재고관리여부 -->
 	            </td>
 	            <td>
 	            	<input type="hidden" name="prdtSize">
@@ -308,6 +310,7 @@
     <div class="popup_bottom_btn">
       <button id="actionBtn"></button>
       <button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
+      <button id="cancelBtn" onclick="updateCancel();" style="background-color: red;">발주취소</button>
       <button class="close_btn" onclick="modalClose();">닫기</button>
     </div>
   </div>
@@ -406,6 +409,7 @@
 			$("#ordrgYnBtn").hide();
 			$("#actionBtn").hide();
 		}
+		
 		//메인정보 세팅
 		$.each(orderInfo, function(key, value){
 			$('#odViewDiv #'+key).val(value);
@@ -433,6 +437,8 @@
 		$.each($('input[comma]'), function(idx, elem){
 			addComma(elem);
 		});
+		
+		if($("#odViewDiv input[name='detailChkBox']:checked").length == 0) $("#cancelBtn").hide();
 		
 		$.each(fileInfo, function(idx, obj){
 			fileArr.push({
@@ -512,7 +518,7 @@
 		$(elem).val("");
 	}
 	
-	function makeFormData() {
+	function makeFormData(type) {
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
 		$("#userId").val(jwt.userId);
@@ -537,14 +543,24 @@
 		// 상세내역 추가
 		var detailArr = [];
 		$.each($('.detailRow'), function(idx, elem){
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
-				var detailObj = {};
-				$.each($(elem).find('[name]'), function(idx, elem){
-					if(elem.name == "ordrgProcId" && elem.value == "") elem.value = jwt.userId;
-					if(elem.name == "ordrgProcNm" && elem.value == "") elem.value = jwt.userNm;
-					detailObj[elem.name] = elem.value;
-				});
-				detailArr.push(detailObj);
+			if(type == "CONFIRM") {
+				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+					var detailObj = {};
+					$.each($(elem).find('[name]'), function(idx, elem){
+						if(elem.name == "ordrgProcId" && elem.value == "") elem.value = jwt.userId;
+						if(elem.name == "ordrgProcNm" && elem.value == "") elem.value = jwt.userNm;
+						detailObj[elem.name] = elem.value;
+					});
+					detailArr.push(detailObj);
+				}
+			} else {
+				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
+					var detailObj = {};
+					$.each($(elem).find('[name]'), function(idx, elem){
+						detailObj[elem.name] = elem.value;
+					});
+					detailArr.push(detailObj);
+				}
 			}
 		});
 		
@@ -615,6 +631,27 @@
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+	
+	function updateCancel() {
+		var checkCount = 0;
+		$.each($('.detailRow'), function(idx, elem){
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
+				checkCount++;
+			}
+		});
+		if(checkCount == 0){
+			alert("확정 건이 존재하지 않습니다.");
+			return;
+		}
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData('CANCEL');
+			filePutAjax("/user/od/od01/updateCancel", formData, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
 				modal.close();

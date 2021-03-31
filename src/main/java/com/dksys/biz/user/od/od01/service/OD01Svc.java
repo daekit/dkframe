@@ -28,5 +28,7 @@ public interface OD01Svc {
 	int updateConfirm(Map<String, String> paramMap);
 
 	int selectConfirmCount(Map<String, String> paramMap);
+	
+	int updateCancel(Map<String, String> paramMap);
 
 }
