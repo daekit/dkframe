@@ -373,16 +373,16 @@
 				 , ADDR_MAIN
 				 , ADDR_SUB
 				 , ODR_RMK
-				 , TOT_QTY
-				 , TOT_WT
+				 , #{mtrlWgt}
+				 , #{mtrlWgt}
 				 , TOT_AMT
-				 , TOT_QTY
-				 , TOT_WT
+				 , #{mtrlWgt}
+				 , #{mtrlWgt}
 				 , TOT_AMT
 				 , ODR_SEQ
 				 , SALES_MNG
 				 , 'N'
-				 , 'N'
+				 , 'Y'
 				 , #{userId}
 				 , SYSDATE
 				 , 'MES'
@@ -441,9 +441,9 @@
 		, ''
 		, ''
 		, ''
-		, 'N'
-		, NULL
-		, NULL 
+		, 'Y'
+		, #{userId}
+		, SYSDATE 
 		, ORD_PACK_WGT
 		, ORD_PACK_WGT
 		, FN_SD06_UPR_FROM_PRDT_CD(BASE_DD, 'SELPCH2', 'N', BM01.PRDT_CD, NULL)
@@ -525,5 +525,12 @@
 , TB_BM01M01 BM01
 WHERE T1.DIMS_CD = BM01.PRDT_SPEC
     </insert>
+    
+    <update id="updateMesListAmt" parameterType="map">
+    UPDATE TB_AR01M01
+       SET SHIP_TOT_AMT = (SELECT SUM(REAL_SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{shipSeq})
+       	 , REAL_TOT_AMT = (SELECT SUM(REAL_SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{shipSeq})
+     WHERE SHIP_SEQ = #{shipSeq}
+    </update>
 	
 </mapper>

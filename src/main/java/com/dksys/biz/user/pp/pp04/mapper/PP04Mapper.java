@@ -24,6 +24,8 @@ public interface PP04Mapper {
 	
 	int updateMesMtrlRslt(Map<String, String> paramMap);
 	
+	int updateMesListAmt(Map<String, String> paramMap);
+	
 	/*
 	 * 
 	 * 	int selectMesShipCount(Map<String, String> paramMap);
