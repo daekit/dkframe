@@ -373,11 +373,11 @@
 				 , ADDR_MAIN
 				 , ADDR_SUB
 				 , ODR_RMK
-				 , TOT_QTY
-				 , TOT_WT
+				 , #{mtrlWgt}
+				 , #{mtrlWgt}
 				 , TOT_AMT
-				 , TOT_QTY
-				 , TOT_WT
+				 , #{mtrlWgt}
+				 , #{mtrlWgt}
 				 , TOT_AMT
 				 , ODR_SEQ
 				 , SALES_MNG
@@ -525,5 +525,12 @@
 , TB_BM01M01 BM01
 WHERE T1.DIMS_CD = BM01.PRDT_SPEC
     </insert>
+    
+    <update id="updateMesListAmt" parameterType="map">
+    UPDATE TB_AR01M01
+       SET SHIP_TOT_AMT = (SELECT SUM(REAL_SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{shipSeq})
+       	 , REAL_TOT_AMT = (SELECT SUM(REAL_SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{shipSeq})
+     WHERE SHIP_SEQ = #{shipSeq}
+    </update>
 	
 </mapper>

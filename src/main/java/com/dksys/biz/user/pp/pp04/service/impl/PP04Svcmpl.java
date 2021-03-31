@@ -40,7 +40,6 @@ public class PP04Svcmpl implements PP04Svc {
 	public int insertMesShipList(Map<String, Object> paramMap) {
 		
 		//1. 화면에서 선택한 배차번호 목록을 가져와서 loop 실행 
-		System.out.println("1111111");
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -52,6 +51,7 @@ public class PP04Svcmpl implements PP04Svc {
 			listMap.get(i).put("pgmId", pgmId);
 			pp04Mapper.insertMesList(listMap.get(i));
 			pp04Mapper.insertMesDetailList(listMap.get(i));
+			pp04Mapper.updateMesListAmt(listMap.get(i));
 			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
 		}
 		return 0;
