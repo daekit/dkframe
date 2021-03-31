@@ -24,5 +24,5 @@ public interface AR03Mapper {
 	
 	int deleteTrans(Map<String, String> paramMap);
 
-	int updateProcYn(Map<String, String> param);
+	int updateProcYn(Map<String, String> detailMap);
 }
