@@ -23,4 +23,6 @@ public interface AR03Mapper {
 	int updateCaryng(Map<String, String> param);
 	
 	int deleteTrans(Map<String, String> paramMap);
+
+	int updateProcYn(Map<String, String> param);
 }

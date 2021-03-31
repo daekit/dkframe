@@ -91,4 +91,17 @@ public class AR03Ctr {
     	return "jsonView";
     }
 	
+	@PutMapping(value = "/updateProcYn")
+    public String updateProcYn(@RequestBody Map<String, String> param, ModelMap model) {
+		try {
+			ar03Svc.updateProcYn(param);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}catch (Exception e) {
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
+	
 }

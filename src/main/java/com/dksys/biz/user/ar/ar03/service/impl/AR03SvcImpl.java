@@ -55,4 +55,14 @@ public class AR03SvcImpl implements AR03Svc {
     	return ar03Mapper.deleteTrans(paramMap);
 	}
 
+	@Override
+	public int updateProcYn(Map<String, String> param) {
+		
+		
+		
+		
+		
+		return ar03Mapper.updateProcYn(param);
+	}
+
 }

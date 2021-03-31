@@ -20,5 +20,7 @@ public interface AR03Svc {
 	public int updateCaryng(Map<String, String> param);
 	
 	int deleteTrans(Map<String, String> paramMap);
+
+	public int updateProcYn(Map<String, String> param);
 	
 }
