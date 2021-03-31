@@ -141,12 +141,12 @@
               </tr>
             </table>
           </div>
-    </div>
-          <div class="contents no_bg">
+    	</div>
+	    <div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-				<!-- <a onclick="gridView.upData(0);" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">지불완료</a> -->
+					<a onclick="updateProcYn();" style="font-size:100%; width:70px; height: 30px; line-height: 28px;">지불완료</a>
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteTrans();" style="height: 30px; line-height: 28px;">-</a>
 	            </div>
@@ -158,7 +158,7 @@
 				</select>
 			</div>
 		</div>
-    	
+	    	
 		<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
 		</div>
@@ -186,12 +186,13 @@
 		        },
 		        body: {
 		        	 onClick: function () {
-		        		 console.log("click");
+		        		console.log("click");
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		        		 console.log("dblclick");
-			                this.self.select(this.dindex);
+		        		console.log("dblclick");
+		        		this.self.clearSelect();
+			            this.self.select(this.dindex);
 		            	insertProjectModal("U");
 		            }, 
 		        },
@@ -341,4 +342,30 @@
 			});
 		}
 	}
+	
+	function updateProcYn() {
+		var rowList = gridView.target.getList("selected");
+		var detailArr = [];
+		
+		$.each(rowList, function(idx, elem){
+			var detailObj = {};
+			detailObj["transSeq"] = elem.transSeq;
+			detailObj["procYn"] = "Y";
+			detailObj["pgmId"] = "AR0301M01";
+			detailObj["userId"] = jwt.userId;
+			detailArr.push(detailObj);
+		});
+		
+		var formData = {
+			"detailArr" : detailArr
+		}
+		
+		putAjax("/user/ar/ar03/updateProcYn", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			}
+		});
+	}
+	
 </script>

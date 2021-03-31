@@ -92,7 +92,7 @@ public class AR03Ctr {
     }
 	
 	@PutMapping(value = "/updateProcYn")
-    public String updateProcYn(@RequestBody Map<String, String> param, ModelMap model) {
+    public String updateProcYn(@RequestBody Map<String, Object> param, ModelMap model) {
 		try {
 			ar03Svc.updateProcYn(param);
 	    	model.addAttribute("resultCode", 200);
