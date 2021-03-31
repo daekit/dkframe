@@ -30,7 +30,9 @@
 			CREAT_DTTM,
 			UDT_ID,
 			UDT_PGM,
-			UDT_DTTM
+			UDT_DTTM,
+			(SELECT COUNT(*) FROM TB_SM01D01 WHERE CO_CD = #{coCd} AND CLOSE_YM = #{closeYm}) AS STOCK_CLOSE_COUNT,
+			(SELECT COUNT(*) FROM TB_AR07M01 WHERE CO_CD = #{coCd} AND CLOSE_YM = #{closeYm}) AS CREDIT_CLOSE_COUNT
 		FROM
 			TB_SD07M01
 		WHERE
@@ -118,6 +120,7 @@
 	
 	<insert id="insertStockClose">
 		INSERT INTO TB_SM01D01(
+			CLOSE_SEQ,
 			CLOSE_YM, 
 			CO_CD, 
 			WH_CD, 
@@ -136,93 +139,99 @@
 			UDT_PGM, 
 			UDT_DTTM
 		)
-		SELECT 
-			CLOSE_YM,
-		    CO_CD,
-		    WH_CD,
-		    PRDT_CD,
-		    OWNER_CD,
-		    CLNT_CD,
-		    TYP_CD,
-		    MAKR_CD,
-		    PRJCT_CD,
-		    IMP_YN,
-		    SUM(STOCK_QTY) + SUM(REAL_TRST_QTY1) - SUM(REAL_TRST_QTY2) AS STOCK_QTY,
-		    #{userId},
-		    #{pgmId},
-		    SYSDATE,
-		    #{userId},
-		    #{pgmId},
-		    SYSDATE
-		FROM 
+		SELECT
+			ROWNUM AS RNUM,
+			T.*
+		FROM
 		(
-			SELECT
-		 		TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
-		  		CO_CD,
-		  		WH_CD,
-		  		PRDT_CD,
-		  		OWNER_CD,
-		  		CLNT_CD,
-		  		TYP_CD,
-		  		MAKR_CD,
-		  		PRJCT_CD,
-		  		IMP_YN,
-		  		STOCK_QTY,
-		  		0 AS REAL_TRST_QTY1,
-		  		0 AS REAL_TRST_QTY2
-		 	FROM
-		  		TB_SM01D01
-		 	WHERE
-		 		CO_CD = #{coCd}
-		 		AND CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
-		 	
-		 	UNION ALL	
-		 	
-			SELECT  
-		   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
-		    	CO_CD,
-		    	WH_CD,
-		    	TRST_PRDT_CD,
-		    	OWNER_CD,
-		    	TRST_CLNT_CD,
-		    	TYP_CD,
-		    	MAKR_CD,
-		    	PRJCT_CD,
-		    	IMP_YN,
-		    	0 AS STOCK_QTY,
-		    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY1,
-		    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY2
+			SELECT 
+				CLOSE_YM,
+			    CO_CD,
+			    WH_CD,
+			    PRDT_CD,
+			    OWNER_CD,
+			    CLNT_CD,
+			    TYP_CD,
+			    MAKR_CD,
+			    PRJCT_CD,
+			    IMP_YN,
+			    SUM(STOCK_QTY) + SUM(REAL_TRST_QTY1) - SUM(REAL_TRST_QTY2) AS STOCK_QTY,
+			    #{userId},
+			    #{pgmId},
+			    SYSDATE,
+			    #{userId},
+			    #{pgmId},
+			    SYSDATE
 			FROM 
-				TB_AR02M01
-			WHERE
-				CO_CD = #{coCd}
-				<![CDATA[
-					AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
-				    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
-				]]>
-		   	GROUP BY 
-		   		SUBSTRING(TRST_DT,1,6),
-		    	CO_CD,
-		    	WH_CD,
-		    	TRST_PRDT_CD,
-		    	OWNER_CD,
-		    	TRST_CLNT_CD,
-		    	TYP_CD,
-		    	MAKR_CD,
-		    	PRJCT_CD,
-		    	IMP_YN
-		)
-		GROUP BY 
-			CLOSE_YM,
-		    CO_CD,
-		    WH_CD,
-		    PRDT_CD,
-		    OWNER_CD,
-		    CLNT_CD,
-		    TYP_CD,
-		    MAKR_CD,
-		    PRJCT_CD,
-		    IMP_YN
+			(
+				SELECT
+			 		TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
+			  		CO_CD,
+			  		WH_CD,
+			  		PRDT_CD,
+			  		OWNER_CD,
+			  		CLNT_CD,
+			  		TYP_CD,
+			  		MAKR_CD,
+			  		PRJCT_CD,
+			  		IMP_YN,
+			  		STOCK_QTY,
+			  		0 AS REAL_TRST_QTY1,
+			  		0 AS REAL_TRST_QTY2
+			 	FROM
+			  		TB_SM01D01
+			 	WHERE
+			 		CO_CD = #{coCd}
+			 		AND CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
+			 	
+			 	UNION ALL	
+			 	
+				SELECT  
+			   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
+			    	CO_CD,
+			    	WH_CD,
+			    	TRST_PRDT_CD,
+			    	OWNER_CD,
+			    	TRST_CLNT_CD,
+			    	TYP_CD,
+			    	MAKR_CD,
+			    	PRJCT_CD,
+			    	IMP_YN,
+			    	0 AS STOCK_QTY,
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY1,
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY2
+				FROM 
+					TB_AR02M01
+				WHERE
+					CO_CD = #{coCd}
+					<![CDATA[
+						AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+					    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+					]]>
+			   	GROUP BY 
+			   		SUBSTRING(TRST_DT,1,6),
+			    	CO_CD,
+			    	WH_CD,
+			    	TRST_PRDT_CD,
+			    	OWNER_CD,
+			    	TRST_CLNT_CD,
+			    	TYP_CD,
+			    	MAKR_CD,
+			    	PRJCT_CD,
+			    	IMP_YN
+			)
+			GROUP BY 
+				CLOSE_YM,
+			    CO_CD,
+			    WH_CD,
+			    PRDT_CD,
+			    OWNER_CD,
+			    CLNT_CD,
+			    TYP_CD,
+			    MAKR_CD,
+			    PRJCT_CD,
+			    IMP_YN
+			) T
 	</insert>
 	
 	<delete id="deleteCreditClose">
