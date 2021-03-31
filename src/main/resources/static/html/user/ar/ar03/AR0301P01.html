@@ -16,9 +16,9 @@
                 <col>
             </colgroup>
             <tr>
-            	<th class="">운송일자</th>
+            	<th class="hit">운송일자</th>
                 <td>
-                	<input type="text" id="transDt" name="transDt" class="input_calendar">
+                	<input type="text" id="transDt" name="transDt" class="input_calendar" required>
                 </td>
                 <th class="">회사</th>
                 <td>                                
@@ -27,19 +27,19 @@
                 </td>
             </tr>
             <tr>
-                <th>운송업체</th>
+                <th class="hit">운송업체</th>
                 <td class="drctArea">
                 	<input type="hidden" id="transCo" name="transCo" style="width: 76%;">                   
                 	<div class="search_form">
-	                    <input type="text" id="transNm" name="transNm" readonly="readonly">
+	                    <input type="text" id="transNm" name="transNm" readonly="readonly" required>
                     	<a onclick="clntSearch('T');"><i class="i_search_w"></i></a>
                     </div>
                 </td>
-                <th>거래처</th>
+                <th class="hit">거래처</th>
                 <td class="drctArea">
                 	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
                 	<div class="search_form">
-	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
+	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly" required>
                     	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
                     </div>
                 </td>
@@ -60,12 +60,14 @@
                 	<input id="desCd" name="desCd" type="hidden" style="width: 100%;" >
                 	<input id="desNm" name="desNm" type="text" style="width: 100%;" >
                 </td>
-                <th class="">현장(프로젝트)</th>
+                <th class="">현 장</th>
 	            <td>
 	          	  <div class="search_form">
 	                <input type="hidden" id="prjctCd" name="prjctCd">
-	                <input type="text" id="prjctNm" name="prjctNm"  readonly="readonly">
-	              <a onclick="openThirdPrjctSearch();"><i class="i_search_w"></i></a>
+	                <input type="hidden" id="prjctNm" name="prjctNm">
+	                <input type="hidden" id="siteCd" name="siteCd">
+	                <input type="text" id="siteNm" name="siteNm"  readonly="readonly">
+	              <a onclick="openThirdSiteSearch();"><i class="i_search_w"></i></a>
 	              </div>
 	            </td>
             </tr>
@@ -92,13 +94,13 @@
                 </td>
             </tr>
             <tr>
-                <th class="">운송단가</th>
+                <th class="hit">운송단가</th>
                 <td>                                
-                    <input id="transUpr" name="transUpr" type="text" onchange="transPrc();" onkeyup="addComma(this);" comma>
+                    <input id="transUpr" name="transUpr" type="text" onchange="transPrc();" onkeyup="addComma(this);" comma required>
                 </td>
-                <th class="">운송비</th>
+                <th class="hit">운송비</th>
                 <td>   
-                	<input id="transAmt" name="transAmt" type="text" comma>
+                	<input id="transAmt" name="transAmt" type="text" comma required>
                 </td>
             </tr>
             <tr>
@@ -214,7 +216,7 @@
 		setData: function(_pageNo) {
 			AR01Grid = this.target;
 			var formData = {
-				"prjctCd" : $("#prjctCd").val(),
+				"siteCd" : $("#siteCd").val(),
 				"shipSeq" : $("#shipSeq").val(),
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
@@ -230,9 +232,9 @@
 						totalPages : data.paginationInfo.totalPageCount
 					}
 				});
-				if(AR01Grid.list.length == 0){
-					$("#shipmentTable").hide();
-				}
+		//		if(AR01Grid.list.length == 0){
+		//			$("#shipmentTable").hide();
+		//		}
 			});
 		}
 	}
@@ -299,11 +301,15 @@
 	function transPrc(){
 		var totVal = $('#totWt').val();
 		var transVal = $('#transUpr').val();
-		if(totVal !="" && transVal != ""){
+		
+		$("#transAmt").val(transVal);		
+		
+/*		if(totVal !="" && transVal != ""){
 			var transAmt1 = (deleteCommaStr(totVal) * deleteCommaStr(transVal));
 			var transAmt = Math.floor(transAmt1/1000) * 1000;
 			$("#transAmt").val(addCommaStr(transAmt));
 		}
+		*/
 	}
 	
 	/*select box 선택시*/
@@ -381,20 +387,42 @@
 		}
 	}
 	
-	// 프로젝트 검색
-	function openThirdPrjctSearch(){
-		var paramObj = {"coCd": $('#coCd').val()}
-		if(openFrom == "AR0101M01") {
-			openThirdModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+	// 현장 검색
+	function openSecondSiteSearch(){
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"clntCd": $('#clntCd').val()
+		}
+		
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#prjctCd').val(row.prjctCd);
+			$('#prjctNm').val(row.siteNm);
+		});
+	}
+	
+	
+	
+	// 현장 검색
+	function openThirdSiteSearch(){
+		var paramObj = {"coCd"   : $('#coCd').val(),
+                        "clntCd" : $('#clntCd').val(),
+                        "clntNm" : $('#clntNm').val()}
+		if(openFrom == "AR0101M01" || openFrom == "AR0301M01") {
+			openThirdModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
 				var row = grid.target.getList("selected")[0];
 				$("#transViewDiv #prjctCd").val(row.prjctCd);
 				$("#transViewDiv #prjctNm").val(row.prjctNm);
+				$("#transViewDiv #siteCd").val(row.sitetCd);
+				$("#transViewDiv #siteNm").val(row.siteNm);
 			});
 		} else {
-			openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			openSecondModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장  검색", paramObj, function (grid) {
 				var row = grid.target.getList("selected")[0];
-				$("#prjctCd").val(row.prjctCd);
-				$("#prjctNm").val(row.prjctNm);
+				$('#prjctCd').val(row.prjctCd);
+				$('#prjctNm').val(row.prjctNm);
+				$('#siteCd').val(row.siteCd);
+				$('#siteNm').val(row.siteNm);
 			});
 		}
 	}

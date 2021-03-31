@@ -66,6 +66,8 @@
 						,A.UDT_ID
 						,A.UDT_PGM
 						,A.UDT_DTTM
+						,A.SITE_CD
+						,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
 				FROM TB_AR03M01 A, TB_BM02M01 B
 				WHERE A.CLNT_CD = B.CLNT_CD
 				<if test= "coCd != null and !coCd.equals('')">
@@ -97,14 +99,14 @@
 	
 	<select id="selectCaryngInfo" parameterType="Map" resultType="camelMap">
 		SELECT T.*,
-			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
-			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRANS_CO) AS TRANS_NM,
-			(SELECT CLNT_NM FROM TB_BM02M01 C WHERE T.CLNT_CD = C.CLNT_CD) AS CLNT_NM,
-			S.PRJCT_NM
-		FROM TB_AR03M01 T, TB_BM02M01 B, TB_SD05M01 S
+			(SELECT CODE_NM  FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
+			(SELECT CLNT_NM  FROM TB_BM02M01 WHERE CLNT_CD   = T.TRANS_CO) AS TRANS_NM,
+			(SELECT CLNT_NM  FROM TB_BM02M01 C WHERE T.CLNT_CD  = C.CLNT_CD) AS CLNT_NM,
+			(SELECT PRJCT_NM FROM TB_SD05M01 P WHERE P.PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,			
+			(SELECT SITE_NM  FROM TB_SD09M01 S WHERE S.SITE_CD  = T.SITE_CD) AS SITE_NM
+		FROM TB_AR03M01 T, TB_BM02M01 B
 		WHERE 1=1
 		  AND T.CLNT_CD = B.CLNT_CD
-		  AND T.PRJCT_CD = S.PRJCT_CD(+)
 		  AND T.TRANS_SEQ = #{transSeq}
 	</select>
 	
@@ -200,7 +202,8 @@
 			TRANS_RMK,
 			CREAT_PGM,
 			CREAT_ID,
-			CREAT_DTTM
+			CREAT_DTTM,
+			SITE_CD
 		)VALUES(
 			#{transSeq},
 			#{coCd},
@@ -219,30 +222,32 @@
 			#{transRmk},
 			#{pgmId},
 			#{userId},
-			SYSDATE
+			SYSDATE,
+			#{siteCd}
 		)
 	</insert>
 	
 	<update id="updateCaryng" parameterType="Map">
 		UPDATE TB_AR03M01
 		SET
-			 CO_CD = #{coCd}
-			,TRANS_DT = TO_CHAR(TO_DATE(#{transDt},'YYYY-MM-DD'),'YYYYMMDD')
-			,TRANS_CO = #{transCo}
-			,WH_CD = #{whCd}
-			,DES_NM = #{desNm}
-			,DRIVR_NM = #{drivrNm}
-			,PRJCT_CD = #{prjctCd}
-			,TOT_WT = #{totWt}
+			 CO_CD     = #{coCd}
+			,TRANS_DT  = TO_CHAR(TO_DATE(#{transDt},'YYYY-MM-DD'),'YYYYMMDD')
+			,TRANS_CO  = #{transCo}
+			,WH_CD     = #{whCd}
+			,DES_NM    = #{desNm}
+			,DRIVR_NM  = #{drivrNm}
+			,PRJCT_CD  = #{prjctCd}
+			,SITE_CD   = #{siteCd}
+			,TOT_WT    = #{totWt}
 			,TRANS_UPR = #{transUpr}
 			,TRANS_AMT = #{transAmt}
-			,PAY_CO = #{payCo}
-			,CLNT_CD = #{clntCd}
-			,PROC_YN = #{procYn}
+			,PAY_CO    = #{payCo}
+			,CLNT_CD   = #{clntCd}
+			,PROC_YN   = #{procYn}
 			,TRANS_RMK = #{transRmk}
-			,UDT_PGM = #{pgmId}
-			,UDT_ID = #{userId}
-			,UDT_DTTM = SYSDATE
+			,UDT_PGM   = #{pgmId}
+			,UDT_ID    = #{userId}
+			,UDT_DTTM  = SYSDATE
 		WHERE
 			TRANS_SEQ = #{transSeq}
 	</update>
