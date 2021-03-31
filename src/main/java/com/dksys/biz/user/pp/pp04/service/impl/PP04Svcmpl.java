@@ -1,5 +1,6 @@
 package com.dksys.biz.user.pp.pp04.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,22 +34,26 @@ public class PP04Svcmpl implements PP04Svc {
 		
 		return pp04Mapper.selectMesAllocVehlDtlList(paramMap);
 	}   
-	
+
+	@SuppressWarnings("all")
 	@Override
-	public int insertMesShipList(Map<String, String> paramMap) {
+	public int insertMesShipList(Map<String, Object> paramMap) {
 		
 		//1. 화면에서 선택한 배차번호 목록을 가져와서 loop 실행 
-		//2. 각 배차별로 주문이 연결되엇는지 확인
-		//3. 각 배차별로 출하요청서 생성
-		//4. 각 출하요청서별 매출 생성
-
-		// TODO Auto-generated method stub
+		System.out.println("1111111");
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
 		
-		
-		// 생성완료된 배차는 완료 표기
-		pp04Mapper.updateMesMtrlRslt(paramMap);
-		
-		
+		List<Map<String,String>> listMap = (List<Map<String,String>>)paramMap.get("list");
+		for(int i = 0; i < listMap.size(); i++) {
+			listMap.get(i).put("userId", userId);
+			listMap.get(i).put("userNm", userNm);
+			listMap.get(i).put("pgmId", pgmId);
+			pp04Mapper.insertMesList(listMap.get(i));
+			pp04Mapper.insertMesDetailList(listMap.get(i));
+			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
+		}
 		return 0;
 	}
 	

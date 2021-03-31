@@ -15,7 +15,7 @@ public interface PP04Svc {
 
 	List<Map<String, String>> selectMesAllocVehlDtlList(Map<String, String> paramMap);	
 
-	int insertMesShipList(Map<String, String> param);
+	int insertMesShipList(Map<String, Object> param);
 
 	
 	

@@ -57,9 +57,9 @@ public class PP04Ctr {
  /*
     확정된 배차정보를 기준으로 출하요청서, 매출내역 생성   
   */
-    @PostMapping(value = "/insertMesShipLisr")
-    public String insertMesShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-		ar01Svc.insertShip(paramMap, mRequest);
+    @PostMapping(value = "/insertMesShipList")
+    public String insertMesShipList(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		pp04Svc.insertMesShipList(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";

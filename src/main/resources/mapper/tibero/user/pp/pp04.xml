@@ -35,45 +35,38 @@
 	</select>
 
 	<select id="selectMesMtrlRstlList" parameterType="Map" resultType="CamelMap">
-	SELECT *
-			FROM(
-				SELECT
-						ROWNUM AS RNUM, D.*
-				FROM(		
-	         SELECT WORKS_CD, FAC_CD, ALLOC_VEHL_NO, BASE_DD,
-                    MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD,
-                    VEHL_NO, 
-                    MTRL_CHG_CAUSE,
-                    ERP_TRANS_YN,
-                    (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM ,
-	                (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '3' AND CUST_CD = A.SUP_CUST_CD) AS SUP_CUST_NM,
-                    (SELECT ODR_SEQ FROM TB_SD05M01_MES SD05M 
-                      INNER JOIN TB_SD04M01 SD04
-                              ON SD04.PRJCT_CD = SD05M.PRJCT_CD 
-                      WHERE SD05M.MES_FTR_CD = WORKS_CD AND  PRJCT_MES_CD = CUST_CD) AS ODR_SEQ ,
-                    SUM(LOSS_MTRL_WGT) LOSS_MTRL_WGT,
-                    SUM( MTRL_WGT)MTRL_WGT
-	         FROM  KUMMUN.TB_MES_MTRL_RSLT A
-	         WHERE  1= 1 
-		         <if test= "mesFtrCd != null and !mesFtrCd.equals('')">
-		         WORKS_CD = #{mesFtrCd}
-		         </if>
-               AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
-               AND MTRL_CHG_CAUSE_CD = '8'
-               <if test= "cfYn != null and !cfYn.equals('')">
-               AND ERP_TRANS_YN = #{cfYn}
-               </if>
-               AND ALLOC_VEHL_NO IS NOT NULL
-             GROUP BY WORKS_CD, FAC_CD, ALLOC_VEHL_NO,BASE_DD,
-                      MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD, VEHL_NO, 
-                      MTRL_CHG_CAUSE,ERP_TRANS_YN
-         ) D
-         <if test= "siteNm != null and !siteNm.equals('')">
-         WHERE D.SITE_NM  LIKE '%${siteNm}%'
-         </if>
-		)
-		WHERE
-			RNUM BETWEEN ${firstIndex} AND ${lastIndex}    
+	SELECT * FROM(
+      SELECT WORKS_CD, FAC_CD, ALLOC_VEHL_NO, BASE_DD,
+                MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD,
+                VEHL_NO, 
+                MTRL_CHG_CAUSE,
+                ERP_TRANS_YN,
+                (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM ,
+             (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '3' AND CUST_CD = A.SUP_CUST_CD) AS SUP_CUST_NM,
+                (SELECT ODR_SEQ FROM TB_SD05M01_MES SD05M 
+                  INNER JOIN TB_SD04M01 SD04
+                          ON SD04.PRJCT_CD = SD05M.PRJCT_CD 
+                  WHERE SD05M.MES_FTR_CD = WORKS_CD AND  PRJCT_MES_CD = CUST_CD) AS ODR_SEQ ,
+                SUM(LOSS_MTRL_WGT) LOSS_MTRL_WGT,
+                SUM( MTRL_WGT)MTRL_WGT
+         FROM  KUMMUN.TB_MES_MTRL_RSLT A
+         WHERE  1= 1 
+	         <if test= "mesFtrCd != null and !mesFtrCd.equals('')">
+	         WORKS_CD = #{mesFtrCd}
+	         </if>
+              AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
+              AND MTRL_CHG_CAUSE_CD = '8'
+              <if test= "cfYn != null and !cfYn.equals('')">
+              AND ERP_TRANS_YN = #{cfYn}
+              </if>
+              AND ALLOC_VEHL_NO IS NOT NULL
+            GROUP BY WORKS_CD, FAC_CD, ALLOC_VEHL_NO,BASE_DD,
+                     MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD, VEHL_NO, 
+                     MTRL_CHG_CAUSE,ERP_TRANS_YN
+        ) D
+        <if test= "siteNm != null and !siteNm.equals('')">
+        WHERE D.SITE_NM  LIKE '%${siteNm}%'
+        </if>
 	</select>
 	<select id="selectMesAllocVehlDtlList" parameterType="Map" resultType="CamelMap">
 	    SELECT WORKS_CD,
@@ -277,6 +270,260 @@
                  ON SD04D.ODR_SEQ     = SD04M.ODR_SEQ
                 AND SD04D.ODR_DTL_SEQ = SHIP.ODR_DTL_SEQ
 	</select> 		
+	
+	<select id="selectOdrList" parameterType="Map" resultType="CamelMap">
+	SELECT CO_CD
+				 , REQ_DT
+				 , CLNT_CD
+				 , TB_AR01M01_SQ01.NEXTVAL
+				 , PRJCT_CD
+				 , MAKR_CD
+				 , WH_CD
+				 , TYP_CD
+				 , OWNER_CD
+				 , IMP_YN
+				 , 'SALESAREA99'
+				 , MNG_TEL
+				 , DLVR_DTTM
+				 , DIRTRS_YN
+				 , ''
+				 , ADDR_ZIP
+				 , ADDR_MAIN
+				 , ADDR_SUB
+				 , ODR_RMK
+				 , TOT_QTY
+				 , TOT_WT
+				 , TOT_AMT
+				 , TOT_QTY
+				 , TOT_WT
+				 , ODR_SEQ
+				 , SALES_MNG
+				 , 'N'
+				 , 'N'
+				 , #{userId}
+				 , SYSDATE
+				 , ODR_CREAT_DIV
+				 , SITE_CD
+			  FROM GOLDMOON.TB_SD04M01 
+			 WHERE ODR_SEQ = #{odrSeq}
+	</select>
     
+    <insert id="insertMesList" parameterType="Map" >
+    <selectKey keyProperty="shipSeq" resultType="String" order="BEFORE">
+		SELECT TB_AR01M01_SQ01.NEXTVAL FROM DUAL
+	</selectKey>
+    INSERT INTO TB_AR01M01
+			(CO_CD
+			, REQ_DT
+			, CLNT_CD
+			, SHIP_SEQ
+			, PRJCT_CD
+			, MAKR_CD
+			, WH_CD
+			, TYP_CD
+			, OWNER_CD
+			, IMP_YN
+			, SALES_AREA_CD
+			, MNG_TEL
+			, DLVR_DTTM
+			, DIRTRS_YN
+			, DLVR_RMK
+			, ADDR_ZIP
+			, ADDR_MAIN
+			, ADDR_SUB
+			, SHIP_RMK
+			, SHIP_TOT_QTY
+			, SHIP_TOT_WT
+			, SHIP_TOT_AMT
+			, REAL_TOT_QTY
+			, REAL_TOT_WT
+			, REAL_TOT_AMT
+			, ODR_SEQ
+			, SALES_MNG
+			, RECPT_YN
+			, SHIP_YN
+			, SHIP_PROC_ID
+			, SHIP_DTTM
+			, ODR_CREAT_DIV
+			, SITE_CD
+			, CREAT_ID
+			, CREAT_PGM
+			, CREAT_DTTM)
+			SELECT CO_CD
+				 , REQ_DT
+				 , CLNT_CD
+				 , #{shipSeq}
+				 , PRJCT_CD
+				 , MAKR_CD
+				 , WH_CD
+				 , TYP_CD
+				 , OWNER_CD
+				 , IMP_YN
+				 , 'SALESAREA99'
+				 , MNG_TEL
+				 , TO_DATE((SELECT BASE_DD 
+				 	FROM KUMMUN.TB_MES_MTRL_RSLT MES
+					INNER JOIN TB_SD05M01_MES SD05M
+					ON MES.WORKS_CD = SD05M.MES_FTR_CD AND MES.CUST_CD = SD05M.PRJCT_MES_CD
+					WHERE SD05M.PRJCT_CD = A.PRJCT_CD
+					GROUP BY BASE_DD)	, 'YYYYMMDD')
+				 , DIRTRS_YN
+				 , ''
+				 , ADDR_ZIP
+				 , ADDR_MAIN
+				 , ADDR_SUB
+				 , ODR_RMK
+				 , TOT_QTY
+				 , TOT_WT
+				 , TOT_AMT
+				 , TOT_QTY
+				 , TOT_WT
+				 , TOT_AMT
+				 , ODR_SEQ
+				 , SALES_MNG
+				 , 'N'
+				 , 'N'
+				 , #{userId}
+				 , SYSDATE
+				 , 'MES'
+				 , SITE_CD
+				 , #{userId}
+				 , #{pgmId}
+				 , SYSDATE
+			  FROM GOLDMOON.TB_SD04M01  A
+			 WHERE ODR_SEQ = #{odrSeq}
+    </insert>
+    
+    <insert id="insertMesDetailList" parameterType="Map">
+    INSERT INTO TB_AR01D01
+		(SHIP_SEQ
+		, SHIP_DTL_SEQ
+		, PRDT_CD
+		, PRDT_UNIT
+		, PRDT_LEN
+		, SHIP_QTY
+		, SHIP_WT
+		, SHIP_UPR
+		, SHIP_AMT
+		, PCHS_UPR
+		, SELL_UPR
+		, STOCK_UPR
+		, PRDT_UPR
+		, CELL_CERTI_NO
+		, SHIP_YN
+		, SHIP_PROC_ID
+		, SHIP_DTTM
+		, REAL_SHIP_QTY
+		, REAL_SHIP_WT
+		, REAL_SHIP_UPR
+		, REAL_SHIP_AMT
+		, SHIP_VEH_NO
+		, SHIP_DTL_RMK
+		, ORDRG_DTL_SEQ
+		, ODR_DTL_SEQ
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+		, PRDT_SIZE
+		, PRDT_SPEC)
+	SELECT
+		#{shipSeq}
+		, TB_AR01D01_SQ01.NEXTVAL
+		, BM01.PRDT_CD
+		, BM01.PRDT_UNIT
+		, BM01.PRDT_LEN
+		, ORD_PACK_WGT
+		, ORD_PACK_WGT
+		, FN_SD06_UPR_FROM_PRDT_CD(BASE_DD, 'SELPCH2', 'N', BM01.PRDT_CD, NULL)
+		, ORD_PACK_WGT * FN_SD06_UPR_FROM_PRDT_CD(BASE_DD, 'SELPCH2', 'N', BM01.PRDT_CD, NULL)
+		, ''
+		, ''
+		, ''
+		, ''
+		, ''
+		, 'N'
+		, NULL
+		, NULL 
+		, ORD_PACK_WGT
+		, ORD_PACK_WGT
+		, FN_SD06_UPR_FROM_PRDT_CD(BASE_DD, 'SELPCH2', 'N', BM01.PRDT_CD, NULL)
+		, ORD_PACK_WGT * FN_SD06_UPR_FROM_PRDT_CD(BASE_DD, 'SELPCH2', 'N', BM01.PRDT_CD, NULL)
+		, ALLOC_VEHL_NO
+		, ''
+		, ''
+		, ODR_DTL_SEQ
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+		, BM01.PRDT_SIZE
+		, BM01.PRDT_SPEC
+		FROM ( SELECT WORKS_CD,
+	           FAC_CD,
+			   ALLOC_VEHL_NO, 
+			   SUM(ORD_PACK_WGT) AS ORD_PACK_WGT, 
+			   BASE_DD,
+			   LOSS_RATE,
+			   CUST_CD, 
+			   CUST_NM, 
+			   ORD_COMP_CD,
+			   ORD_COMP_NM,
+			   DIMS_CD,
+			   PRODUCT_NAME_CD,
+			   VEHL_NO,
+			   ODR_SEQ,
+               ODR_DTL_SEQ
+	    FROM (
+		       SELECT  F.WORKS_CD, F.FAC_CD,
+					   F.ALLOC_VEHL_NO, 
+					   SUM(A.ORD_PACK_WGT) AS ORD_PACK_WGT, 
+					   F.ISS_DD AS BASE_DD,
+					   I.LOSS_RATE,
+					   H.CUST_CD, 
+					   H.CUST_NM, 
+					   H.ORD_COMP_CD,
+					   (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = F.WORKS_CD AND FAC_CD = F.FAC_CD AND CUST_TP != '1' AND CUST_CD = H.ORD_COMP_CD) AS ORD_COMP_NM,
+					   G.DIMS_CD,
+				 	   E.ORD_NO,
+					   G.ORD_LINE_NO,
+					   D.REF_CD_2 AS PRODUCT_NAME_CD,
+					   F.VEHL_NO,
+					   (SELECT ODR_SEQ     FROM TB_SD04M01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO) AS ODR_SEQ,
+                       (SELECT ODR_DTL_SEQ FROM TB_SD04D01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO AND MES_ORD_LINE_NO = G.ORD_LINE_NO) AS ODR_DTL_SEQ
+			FROM   KUMMUN.TB_MES_ORD_ITEM A
+						JOIN KUMMUN.TB_MES_LOAD_ORG B   ON A.WORKS_CD = B.WORKS_CD AND A.FAC_CD = B.FAC_CD AND A.LOAD_ORG_NO = B.LOAD_ORG_NO
+						JOIN KUMMUN.TB_MES_ALLOC_VEHL F ON B.WORKS_CD = F.WORKS_CD AND B.FAC_CD = F.FAC_CD AND B.ALLOC_VEHL_NO = F.ALLOC_VEHL_NO
+						JOIN  ( SELECT MAX(EQP_CD) AS EQP_CD, TAG_NO, MAX(SCAN_NO) AS SCAN_NO, WORKS_CD, FAC_CD 
+						          FROM KUMMUN.TB_MES_PROD_RSLT 
+						          GROUP BY TAG_NO, WORKS_CD, FAC_CD
+							  ) C ON A.WORKS_CD = C.WORKS_CD AND A.FAC_CD =C.FAC_CD AND A.TAG_NO = C.TAG_NO
+						JOIN KUMMUN.TB_MES_CODE_DTL D  ON D.WORKS_CD = C.WORKS_CD AND D.FAC_CD = C.FAC_CD AND D.CD_TP   = 'EQP_CD'  AND D.CD_V = C.EQP_CD
+						JOIN KUMMUN.TB_MES_ORD_DTL G   ON A.WORKS_CD = G.WORKS_CD AND A.FAC_CD = G.FAC_CD AND A.ORD_NO  = G.ORD_NO  AND A.ORD_LINE_NO = G.ORD_LINE_NO 
+						JOIN KUMMUN.TB_MES_ORD_MST E   ON A.WORKS_CD = E.WORKS_CD AND A.FAC_CD = E.FAC_CD AND A.ORD_NO  = E.ORD_NO 
+						JOIN KUMMUN.TB_MES_CUST_INFO H ON E.WORKS_CD = H.WORKS_CD AND E.FAC_CD = H.FAC_CD AND E.CUST_CD = H.CUST_CD
+						LEFT OUTER JOIN KUMMUN.TB_MES_CUST_INFO_DTL I ON H.WORKS_CD = I.WORKS_CD AND H.FAC_CD = I.FAC_CD AND H.CUST_CD = I.CUST_CD AND G.DIMS_CD = I.DIMS_CD
+			WHERE A.WORKS_CD      = #{worksCd}
+			  AND F.ALLOC_VEHL_NO = #{allocVehlNo}
+			  AND H.CUST_CD       = #{custCd}
+			GROUP BY F.ALLOC_VEHL_NO, I.LOSS_RATE, H.CUST_CD, H.CUST_NM, H.ORD_COMP_CD, G.DIMS_CD,
+			         E.ORD_NO,G.ORD_LINE_NO, 
+			         D.REF_CD_2, F.WORKS_CD, F.FAC_CD, F.ISS_DD, F.VEHL_NO ) T
+	   GROUP BY  WORKS_CD,
+	           FAC_CD,
+			   ALLOC_VEHL_NO, 
+			   BASE_DD,
+			   LOSS_RATE,
+			   CUST_CD, 
+			   CUST_NM, 
+			   ORD_COMP_CD,
+			   ORD_COMP_NM,
+			   DIMS_CD,
+			   PRODUCT_NAME_CD,
+			   VEHL_NO,
+			   ODR_SEQ,
+               ODR_DTL_SEQ
+			ORDER BY ODR_SEQ,DIMS_CD) T1
+, TB_BM01M01 BM01
+WHERE T1.DIMS_CD = BM01.PRDT_SPEC
+    </insert>
 	
 </mapper>
