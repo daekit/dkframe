@@ -193,11 +193,11 @@
 								<td>
 									<ul class="dp_ib">
 										<li class="pdr10">
-											<input type="radio" name="testYn" value="Y" disabled>
+											<input type="radio" name="stockCloseYnDp" value="Y" disabled>
 											<label>예</label>
 										</li>
 										<li>
-											<input type="radio" name="testYn" value="N" disabled>
+											<input type="radio" name="stockCloseYnDp" value="N" disabled>
 											<label>아니오</label>
 										</li>
 									</ul>
@@ -212,11 +212,11 @@
 								<td>
 									<ul class="dp_ib">
 										<li class="pdr10">
-											<input type="radio" name="testYn" value="Y" disabled>
+											<input type="radio" name="creditCloseYnDp" value="Y" disabled>
 											<label>예</label>
 										</li>
 										<li>
-											<input type="radio" name="testYn" value="N" disabled>
+											<input type="radio" name="creditCloseYnDp" value="N" disabled>
 											<label>아니오</label>
 										</li>
 									</ul>
@@ -366,9 +366,37 @@
 					}
 				}
 			});
+			
+			// 매입마감여부
+			var pchsCloseYn = closeInfo.pchsCloseYn;
+			// 매출마감여부
+			var sellCloseYn = closeInfo.sellCloseYn;
+			// 재고마감여부
+			var stockCloseYn = closeInfo.stockCloseYn;
+			// 입금마감여부
+			var etrdpsCloseYn = closeInfo.etrdpsCloseYn;
+			// 재고마감 카운트
+			var stockCloseCount = closeInfo.stockCloseCount;
+			// 입금마감 카운트
+			var creditCloseCount = closeInfo.creditCloseCount;
+			
+			// 재고마감여부 표시
+			if(pchsCloseYn == "Y" && sellCloseYn == "Y" && stockCloseYn == "Y" && stockCloseCount > 0){
+				$('[name="stockCloseYnDp"][value="Y"]').prop("checked", true);
+			}else{
+				$('[name="stockCloseYnDp"][value="N"]').prop("checked", true);
+			}
+			
+			// 입금마갑여부 표시
+			if(pchsCloseYn == "Y" && sellCloseYn == "Y" && etrdpsCloseYn == "Y" && creditCloseCount > 0){
+				$('[name="creditCloseYnDp"][value="Y"]').prop("checked", true);
+			}else{
+				$('[name="creditCloseYnDp"][value="N"]').prop("checked", true);
+			} 
+			
 		}else{
 			$('[date]').not('#closeYm').datepicker("setDate", moment($('#closeYm').val(), 'YYYY-MM').endOf("month").toDate());
-			$('input:radio[value="N"]').not('[disabled]').prop("checked", true);
+			$('input:radio[value="N"]').prop("checked", true);
 		}
 	}
 	
