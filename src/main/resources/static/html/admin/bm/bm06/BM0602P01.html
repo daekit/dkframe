@@ -55,11 +55,9 @@
 							<td>
 								<input type="text" class="form-control" id="bizconNm" name="bizconNm" maxlength="25">
 							</td>
-							<th>거래처구분</th>
+							<th>종목</th>
 							<td>
-								<select class="form-control input-sm" id="clntDivCd" name="clntDivCd" data-kind="CLNTDIV">
-									<option value="">선택</option>
-								</select>
+								<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
 							</td>
 						</tr>
 						<tr>
@@ -70,18 +68,11 @@
 									<button type="button" onclick="openDaumPostcode();"><i class="i_search_w"></i></button>
 								</div>
 							</td>
-							<th>종목</th>
+							<th>거래처구분</th>
 							<td>
-								<input type="text" class="form-control" id="bstyNm" name="bstyNm" maxlength="25">
-							</td>
-
-						</tr>
-						<tr>
-							<td colspan="3">
-								<div class="form-inline" style="text-align: left;">
-									<input type="text" class="form-control" id="bizAddr" name="bizAddr" style="width:49.5%;" placeholder="주소" readonly>
-									<input type="text" class="form-control" id="bizAddrDtl" name="bizAddrDtl" style="width:49.5%;" placeholder="상세주소" maxlength="100">
-								</div>
+								<select class="form-control input-sm" id="clntDivCd" name="clntDivCd" data-kind="CLNTDIV">
+									<option value="">선택</option>
+								</select>
 							</td>
 							<th>사용여부</th>
 							<td>
@@ -90,6 +81,15 @@
 									<option value="N">미사용</option>
 								</select>
 							</td>
+						</tr>
+						<tr>
+							<td colspan="3">
+								<div class="form-inline" style="text-align: left;">
+									<input type="text" class="form-control" id="bizAddr" name="bizAddr" style="width:49.5%;" placeholder="주소" readonly>
+									<input type="text" class="form-control" id="bizAddrDtl" name="bizAddrDtl" style="width:49.5%;" placeholder="상세주소" maxlength="100">
+								</div>
+							</td>
+							<td colspan="2"></td>
 						</tr>
 						<tr>
 							<th>전화번호</th>
@@ -229,26 +229,27 @@
 			<table class="popup_table" id="pldgTable">
 				<colgroup>
 					<col width="3%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
 					<col width="12%">
-					<col width="12%">
-					<col width="12%">
-					<col width="10%">
-					<col width="12%">
-					<col width="12%">
-					<col width="12%">
-					<col width="15%">
+					<col width="8%">
 				</colgroup>
 				<thead>
 					<tr>
-						<td colspan="8" style="text-align: left;">담보내역</td>
+						<td colspan="9" style="text-align: left;">담보내역</td>
 						<td style="text-align: right;">
 							<a class="tbody_more_btn"></a>
 						</td>
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td colspan="9">
+					<tr name="pldgHead">
+						<td colspan="10">
 							<div class="add_btn">
 								<a onclick="addPldgRow();">+</a> 
 								<a onclick="removePldgRow();">-</a>
@@ -265,6 +266,7 @@
 						<th>보험만기일</th>
 						<th>부동산설정일</th>
 						<th>비고</th>
+						<th>사용여부</th>
 					</tr>
 				</tbody>
 			</table>
@@ -300,6 +302,12 @@
 				 	</td>
 				 	<td>
 				 		<input type="text" class="form-control" name="pldgRmk" maxlength="127">
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="useYn">
+							<option value="Y">Y</option>
+							<option value="N">N</option>
+						</select>
 				 	</td>
 				 </tr>
 			</table>
@@ -366,6 +374,7 @@
 					}
 	            ]
 			});
+			return this;
 		},
 		setData: function() {
 			var targetObj = this.target;
@@ -389,18 +398,17 @@
 		setCommonSelect($(".popup_area select[data-kind]"));
 		
 		// 그리드 초기화
-		fileGridView.initView();
-		fileGridView.setData();
+		fileGridView.initView().setData();
 		
 		if(actionType == "C"){
-			$('#actionBtn').on("click", function(){insertClnt();});
-			$('#actionBtn').text("등록");
 			$('#linkGrpYn').val("N");
-			$("#linkclntNm").prop("disabled", false);
+			addPldgRow();
+			$('#actionBtn').text("등록");
+			$('#actionBtn').on("click", function(){insertClnt();});
 		}else if(actionType == "U"){
 			selectClntInfo();
-			$('#actionBtn').on("click", function(){updateClnt();});
 			$('#actionBtn').text("저장");
+			$('#actionBtn').on("click", function(){updateClnt();});
 		}
 		
 		// 연계그룹 컨트롤
@@ -427,6 +435,31 @@
 			}
 		});
 		
+		// 담보내역 set
+		var pldgList = clntInfo.pldgList;
+		if(pldgList.length > 0){
+			$.each(pldgList, function(idx, obj){
+				var $pldgRow = addPldgRow();
+				for(var i=0;i<$pldgRow.find('[name]').length;i++){
+					var pldgItem = $pldgRow.find('[name]')[i];
+					var itemValue = obj[pldgItem.name];
+					
+					if(itemValue){
+						if($(pldgItem).is('[date]')){
+							$(pldgItem).datepicker("setDate", moment(itemValue, 'YYYY-MM-DD').toDate());
+						}else{
+							if($(pldgItem).is('[comma]')){
+								itemValue = addCommaStr(itemValue);
+							}
+							$(pldgItem).val(itemValue);
+						}
+					}
+				}
+			});
+		}else{
+			addPldgRow();
+		}
+		
 		// 첨부파일 set
 		var clntFileList = clntInfo.clntFileList;
 		$.each(clntFileList, function(idx, obj){
@@ -441,27 +474,6 @@
 		
 		// 첨부파일 그리드 set
 		fileGridView.setData();
-		
-		// 담보내역 set
-		var pldgList = clntInfo.pldgList;
-		$.each(pldgList, function(idx, obj){
-			var $pldgRow = addPldgRow();
-			for(var i=0;i<$pldgRow.find('[name]').length;i++){
-				var pldgItem = $pldgRow.find('[name]')[i];
-				var itemValue = obj[pldgItem.name];
-				
-				if(itemValue){
-					if($(pldgItem).is('[date]')){
-						$(pldgItem).datepicker("setDate", moment(itemValue, 'YYYY-MM-DD').toDate());
-					}else{
-						if($(pldgItem).is('[comma]')){
-							itemValue = addCommaStr(itemValue);
-						}
-						$(pldgItem).val(itemValue);
-					}
-				}
-			}
-		});
 	}
 	
 	function openDaumPostcode() {
@@ -469,7 +481,7 @@
 			oncomplete:function(data){
 				// 우편번호
 				$('#bizZip').val(data.zonecode);
-				$('#bizAddr').val(data.roadAddress || data.address);
+				$('#bizAddr').val(data.roadAddress || data.address  + ' ' + data.buildingName);
 			}
 		}).open();
 	}
@@ -500,7 +512,7 @@
 		$('#pldgTable tbody').append($pldgRow[0]);
 		
 		// datepicker bind
-		$('.input_calendar').datepicker({
+		$pldgRow.find('.input_calendar').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -575,7 +587,7 @@
 	
 	// 등록
 	function insertClnt() {
-		if(inputValidation($('.popup_area [required]:visible'))){
+		if(inputValidation($('.popup_area [required]').not('#pldgFrameTable [required]'))){
 			var formData = makeFormData();
 			filePostAjax("/admin/bm/bm02/insertClnt", formData, function(data){
 				alert(data.resultMessage);
@@ -589,7 +601,7 @@
 	
 	// 수정
 	function updateClnt() {
-		if(inputValidation($('.popup_area [required]:visible'))){
+		if(inputValidation($('.popup_area [required]').not('#pldgFrameTable [required]'))){
 			var formData = makeFormData();
 			filePutAjax("/admin/bm/bm02/updateClnt", formData, function(data){
 				alert(data.resultMessage);
@@ -619,6 +631,7 @@
 			$.each($(elem).find('[name]'), function(idx, elem){
 				var elemName = elem.name;
 				var elemValue = elem.value;
+				
 				if($(elem).is('[date]')){
 					elemValue = deleteHyphenStr(elemValue);
 				}

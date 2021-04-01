@@ -332,7 +332,7 @@ function exceptKorean(elem){
 }
 
 // 계좌번호 (숫자, 하이픈만 허용)
-function onlBkac(elem){
+function onlyBkac(elem){
 	$(elem).val($(elem).val().replace(/^[-]|[^0-9-]/gi,""));
 }
 
