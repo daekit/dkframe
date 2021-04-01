@@ -34,6 +34,8 @@ public interface PP04Mapper {
 	
 	int deleteMesDetailList(Map<String, String> paramMap);
 	
+	int deleteSellTrst(Map<String, String> paramMap);
+	
 	/*
 	 * 
 	 * 	int selectMesShipCount(Map<String, String> paramMap);
