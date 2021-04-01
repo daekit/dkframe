@@ -8,7 +8,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.bm.bm02.mapper.BM02Mapper;
@@ -51,9 +50,9 @@ public class BM02SvcImpl implements BM02Svc {
 		// 거래처 insert 
 		bm02Mapper.insertClnt(paramMap);
 		
-		// 사업부 insert
 		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
 		if(bizdeptList != null) {
+			// 사업부 insert
 			for(Map<String, String> bizdeptMap : bizdeptList) {
 				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
 				bizdeptMap.put("userId", paramMap.get("userId"));
@@ -62,9 +61,9 @@ public class BM02SvcImpl implements BM02Svc {
 			}
 		}
 		
-		// 담보내역 insert
 		List<Map<String, String>> pldgList = gson.fromJson(paramMap.get("pldgArr"), mapList);
 		if(pldgList != null) {
+			// 담보내역 insert
 			for(Map<String, String> pldgMap : pldgList) {
 				pldgMap.put("clntCd", paramMap.get("clntCd"));
 				pldgMap.put("userId", paramMap.get("userId"));
@@ -86,11 +85,12 @@ public class BM02SvcImpl implements BM02Svc {
 		// 거래처 update
 		bm02Mapper.updateClnt(paramMap);
 		
-		// 사업부 delete
-		bm02Mapper.deleteBizdept(paramMap);
-		// 사업부 insert
+		
 		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
 		if(bizdeptList != null) {
+			// 사업부 delete
+			bm02Mapper.deleteBizdept(paramMap);
+			// 사업부 insert
 			for(Map<String, String> bizdeptMap : bizdeptList) {
 				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
 				bizdeptMap.put("userId", paramMap.get("userId"));
@@ -99,11 +99,11 @@ public class BM02SvcImpl implements BM02Svc {
 			}
 		}
 		
-		// 담보내역 delete
-		bm02Mapper.deletePldg(paramMap);
-		// 담보내역 insert
 		List<Map<String, String>> pldgList = gson.fromJson(paramMap.get("pldgArr"), mapList);
 		if(pldgList != null) {
+			// 담보내역 delete
+			bm02Mapper.deletePldg(paramMap);
+			// 담보내역 insert
 			for(Map<String, String> pldgMap : pldgList) {
 				pldgMap.put("clntCd", paramMap.get("clntCd"));
 				pldgMap.put("userId", paramMap.get("userId"));

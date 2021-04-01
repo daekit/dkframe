@@ -9,14 +9,9 @@
 		FROM
 			TB_BM02M01
 		<where>
-			<choose>
-				<when test="useYn != null and !useYn.equals('')">
-					USE_YN = #{useYn}
-				</when>
-				<otherwise>
-					USE_YN = 'Y'
-				</otherwise>
-			</choose>
+			<if test="useYn != null and !useYn.equals('')">
+				USE_YN = #{useYn}
+			</if>
 			<if test="searchValue != null and !searchValue.equals('')">
 				AND ${searchType} LIKE '%${searchValue}%'
 			</if>
@@ -30,7 +25,6 @@
 				AND CLNT_NM LIKE '%${clntNm}%'
 			</if>
 		</where>
-		ORDER BY CLNT_CD
 	</select>
 	
 	<select id="selectClntList" resultType="CamelMap">
@@ -86,14 +80,9 @@
 				FROM
 					TB_BM02M01 A
 				<where>
-					<choose>
-						<when test="useYn != null and !useYn.equals('')">
-							A.USE_YN = #{useYn}
-						</when>
-						<otherwise>
-							A.USE_YN = 'Y'
-						</otherwise>
-					</choose>
+					<if test="useYn != null and !useYn.equals('')">
+						USE_YN = #{useYn}
+					</if>
 					<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
@@ -177,8 +166,8 @@
 			PLDG_AMT,
 			PLDG_RCOGN_RATE,
 			PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT,
-			EXPRTN_DT,
-			SETUP_DT,
+			TO_CHAR(TO_DATE(EXPRTN_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS EXPRTN_DT,
+			TO_CHAR(TO_DATE(SETUP_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS SETUP_DT,
 			PLDG_RMK,
 			USE_YN,
 			CREAT_ID,
@@ -339,7 +328,7 @@
 			#{mngEmail},
 			#{salesCoCd},
 			#{salesEmpId},
-			'Y',
+			#{useYn},
 			#{userId},
 			#{pgmId},
 			SYSDATE,
@@ -385,7 +374,6 @@
 			UDT_ID,
 			UDT_PGM,
 			UDT_DTTM
-			
 		)
 		VALUES(
 			TB_BM02D02_SQ01.NEXTVAL,
@@ -397,7 +385,7 @@
 			#{exprtnDt},
 			#{setupDt},
 			#{pldgRmk},
-			'Y',
+			#{useYn},
 			#{userId},
 			#{pgmId},
 			SYSDATE,
