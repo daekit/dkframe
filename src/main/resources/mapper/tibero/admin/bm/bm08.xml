@@ -9,13 +9,14 @@
 			SELECT 
 			    count(*)
 	        FROM TB_BM02M01 A
-				INNER JOIN TB_BM02D02 B
+				LEFT OUTER JOIN TB_BM02D02 B
 				             ON  A.CLNT_CD = B.CLNT_CD 
 				             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd')
 							<if test="coCd !=null and !coCd.equals('')">
 							  AND B.CO_CD = #{coCd} 
 							</if>
 		  WHERE 1=1
+				AND	(A.BASIS_CDTLN_AMT != 0 OR B.PLDG_AMT != 0 OR B.PLDG_RCOGN_RATE != 0) 
 				<if test="useYn != null and !useYn.equals('')">
 				  AND A.USE_YN = #{useYn}
 				</if>
@@ -54,6 +55,7 @@
 				sum(BASIS_CDTLN_AMT) AS BASIS_CDTLN_AMT,
 				SUM(PLDG03_AMT) AS PLDG03_AMT,
 				SUM(CDTLN_AMT) AS CDTLN_AMT,
+				MAX(TOT_LOAN_AMT) AS TOT_LOAN_AMT, 
 				MAX(LOAN_AMT) AS LOAN_AMT
 			FROM (
 					SELECT 
@@ -67,15 +69,17 @@
 							A.BASIS_CDTLN_AMT,
 							decode(b.PLDG_DIV_CD,'PLDG03', decode(B.USE_YN,'N',0,(B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100)),0) AS PLDG03_AMT,
 							decode(b.PLDG_DIV_CD,'PLDG03',0,decode(B.USE_YN,'N',0,(B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT,
+						    F_CREDIT_LOAN('T', A.CLNT_CD,B.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS TOT_LOAN_AMT,
 						    F_CREDIT_LOAN('C', A.CLNT_CD,B.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT
 			        FROM TB_BM02M01 A
-					INNER JOIN TB_BM02D02 B
+						LEFT OUTER JOIN TB_BM02D02 B
 					             ON  A.CLNT_CD = B.CLNT_CD 
 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd')
 					             <if test="coCd !=null and !coCd.equals('')">
 				     	         AND B.CO_CD = #{coCd} 
 					            </if>
 					WHERE 1=1
+					  AND	(A.BASIS_CDTLN_AMT != 0 OR B.PLDG_AMT != 0 OR B.PLDG_RCOGN_RATE != 0) 
 					<if test="useYn != null and !useYn.equals('')">
 					  AND A.USE_YN = #{useYn}
 					</if>
@@ -89,6 +93,7 @@
 					  AND A.CLNT_DIV_CD = #{clntDivCd} 
 					</if>
 				) AS a
+				WHERE  a.TOT_LOAN_AMT != 0
 				GROUP BY a.LINK_GRP_CLNT_CD , LINK_GRP_CLNT_NM, CLNT_CD, CLNT_NM, CO_CD, CO_NM, USE_YN
 			) A
 		)
