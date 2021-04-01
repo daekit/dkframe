@@ -20,4 +20,6 @@ public interface CM08Svc {
 
 	public int deleteFile(String fileKey);
 
+	public String excelDownload(List<Map<String, String>> resultList, String string);
+
 }
