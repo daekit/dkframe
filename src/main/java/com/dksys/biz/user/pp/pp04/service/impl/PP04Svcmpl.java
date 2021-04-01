@@ -90,6 +90,7 @@ public class PP04Svcmpl implements PP04Svc {
 			listMap.get(i).put("userNm", userNm);
 			listMap.get(i).put("pgmId", pgmId);
 			listMap.get(i).put("erpTransYn", "N");
+			pp04Mapper.deleteSellTrst(listMap.get(i));
 			pp04Mapper.deleteMesDetailList(listMap.get(i));
 			pp04Mapper.deleteMesList(listMap.get(i));
 			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
