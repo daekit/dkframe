@@ -6,73 +6,6 @@
 	<select id="selectRcvpayCount" resultType="int">
 		SELECT 
 	 		COUNT(*) 
-		FROM TB_SM01D01 SM01
-					   , TB_SM01D01 SM01BFRM
-					   , GOLDMOON.TB_BM01M01 BM01 
-					   , TB_AR02M01 AR02
-					  WHERE SM01.PRDT_CD = BM01.PRDT_CD
-					  	AND SM01.CLOSE_YM = SUBSTRING(AR02.TRST_DT , 0, 6)
-					  	AND SM01.CO_CD = AR02.CO_CD
-					  	AND SM01.WH_CD = AR02.WH_CD 
-					  	AND SM01.PRDT_CD = AR02.TRST_PRDT_CD
-					  	AND SM01.OWNER_CD = AR02.OWNER_CD 
-					  	AND SM01.CLNT_CD = AR02.TRST_CLNT_CD 
-					  	AND SM01.TYP_CD = AR02.TYP_CD 
-					  	AND SM01.MAKR_CD = AR02.MAKR_CD 
-					  	AND SM01.PRJCT_CD = AR02.PRJCT_CD 
-					  	AND SM01.IMP_YN = AR02.IMP_YN 
-					  	AND TO_CHAR(ADD_MONTHS(TO_DATE(SM01.CLOSE_YM, 'YYYYMM'), -1), 'YYYYMM') = SUBSTRING(SM01BFRM.CLOSE_YM , 0, 6)
-					  	AND SM01.CO_CD = SM01BFRM.CO_CD
-					  	AND SM01.WH_CD = SM01BFRM.WH_CD 
-					  	AND SM01.PRDT_CD = SM01BFRM.PRDT_CD
-					  	AND SM01.OWNER_CD = SM01BFRM.OWNER_CD 
-					  	AND SM01.CLNT_CD = SM01BFRM.CLNT_CD 
-					  	AND SM01.TYP_CD = SM01BFRM.TYP_CD 
-					  	AND SM01.MAKR_CD = SM01BFRM.MAKR_CD 
-					  	AND SM01.PRJCT_CD = SM01BFRM.PRJCT_CD 
-					  	AND SM01.IMP_YN = SM01BFRM.IMP_YN 
-						<if test="coCd != null and !coCd.equals('')">
-							AND SM01.CO_CD = #{coCd}				
-						</if>	
-						<if test="closeYm != null and !closeYm.equals('')">
-							AND SM01.CLOSE_YM = REPLACE(#{closeYm}, '-', '')				
-						</if>
-						<if test="prdtDiv != null and !prdtDiv.equals('')">
-							AND BM01.PRDT_DIV = #{prdtDiv}			
-						</if>
-						<if test="prdtCd != null and !prdtCd.equals('')">
-							AND BM01.PRDT_CD = #{prdtCd}				
-						</if>
-						<if test="whCd != null and !whCd.equals('')">
-							AND SM01.WH_CD = #{whCd}				
-						</if>
-						<if test="ownerCd != null and !ownerCd.equals('')">
-							AND SM01.OWNER_CD = #{ownerCd}				
-						</if>
-						<if test="typCd != null and !typCd.equals('')">
-							AND SM01.TYP_CD = #{typCd}				
-						</if>
-						<if test="makrCd != null and !makrCd.equals('')">
-							AND SM01.MAKR_CD = #{makrCd}				
-						</if>
-						<if test="clntCd != null and !clntCd.equals('')">
-							AND SM01.CLNT_CD = #{clntCd}				
-						</if>
-						<if test="impYn != null and !impYn.equals('')">
-							AND SM01.IMP_YN = #{impYn}				
-						</if>
-						<if test="prjctCd != null and !prjctCd.equals('')">
-							AND SM01.PRJCT_CD = #{prjctCd}				
-						</if>
-	</select>
-	
-	<select id="selectRcvpayList" resultType="CamelMap">
-		SELECT
-			*
-		FROM
-		(
-			SELECT
-				ROWNUM AS RNUM, A.*
 			FROM
 			(
 				SELECT CLOSE_YM
@@ -86,9 +19,9 @@
 					 , CLNT_CD
 					 , IMP_YN
 					 , PRJCT_CD
-					 , PRDT_SIZE
-					 , PRDT_SPEC
-					 , PRDT_LEN
+				--	 , PRDT_SIZE
+				--	 , PRDT_SPEC
+				--	 , PRDT_LEN
 					 , PRDT_NM
 					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
 					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
@@ -98,13 +31,13 @@
 					 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
 					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
 					 , IMP_YN
-					 , NVL(BFR_STOCK_QTY, 0) BFR_STOCK_QTY
-					 , NVL(SELPCH1_QTY, 0) SELPCH1_QTY
-					 , NVL(SELPCH2_QTY, 0) SELPCH2_QTY
-					 , CASE WHEN CLOSE_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN NVL(BFR_STOCK_QTY, 0) + NVL(SELPCH1_QTY, 0) - NVL(SELPCH2_QTY, 0)
-					 		ELSE NVL(STOCK_QTY, 0) END STOCK_QTY
+					 , SUM(NVL(BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
+					 , SUM(NVL(SELPCH1_QTY, 0)) SELPCH1_QTY
+					 , SUM(NVL(SELPCH2_QTY, 0)) SELPCH2_QTY
+					 , SUM(CASE WHEN CLOSE_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN NVL(BFR_STOCK_QTY, 0) + NVL(SELPCH1_QTY, 0) - NVL(SELPCH2_QTY, 0)
+					 		ELSE NVL(STOCK_QTY, 0) END) STOCK_QTY
 				FROM(
-					SELECT SM01.CLOSE_YM
+					SELECT REPLACE(#{closeYm}, '-', '')	 AS CLOSE_YM
 						 , SM01.WH_CD
 						 , SM01.CO_CD
 						 , SM01.PRDT_CD
@@ -119,40 +52,18 @@
 						 , SM01.PRDT_SPEC
 						 , SM01.PRDT_LEN
 						 , BM01.PRDT_NM
-						 , 0 AS BFR_STOCK_QTY
+						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),0,SM01.STOCK_QTY) AS BFR_STOCK_QTY
 						 , 0 AS  SELPCH1_QTY
 						 , 0 AS  SELPCH2_QTY
-						 , SM01.STOCK_QTY -- 현재고
+						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),SM01.STOCK_QTY,0) AS STOCK_QTY -- 현재고
 					FROM TB_SM01D01 SM01
 					   , TB_BM01M01 BM01 
 					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
-					  	AND SM01.CO_CD = 'GUM'	
-							AND SM01.CLOSE_YM = REPLACE(#{closeYm}, '-', '')	
-				 UNION 
-				 SELECT REPLACE(#{closeYm}, '-', '')	 AS CLOSE_YM
-						 , SM01.WH_CD
-						 , SM01.CO_CD
-						 , SM01.PRDT_CD
-						 , BM01.PRDT_DIV
-						 , SM01.OWNER_CD
-						 , SM01.TYP_CD
-						 , SM01.MAKR_CD
-						 , SM01.CLNT_CD
-						 , SM01.IMP_YN
-						 , SM01.PRJCT_CD
-						 , SM01.PRDT_SIZE
-						 , SM01.PRDT_SPEC
-						 , SM01.PRDT_LEN
-						 , BM01.PRDT_NM
-						 , SM01.STOCK_QTY AS  BFR_STOCK_QTY
-						 , 0 AS  SELPCH1_QTY
-						 , 0 AS  SELPCH2_QTY
-						 , 0 AS  STOCK_QTY -- 현재고
-					FROM TB_SM01D01 SM01
-					   , TB_BM01M01 BM01 
-					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
-					  	AND SM01.CO_CD = 'GUM'	
-							AND SM01.CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM')
+					  <if test="coCd != null and !coCd.equals('')">
+					  	AND SM01.CO_CD = #{coCd}			
+					  	</if>	
+						AND ( SM01.CLOSE_YM = REPLACE(#{closeYm}, '-', '')
+						OR    SM01.CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM'))
 				UNION 
 				  SELECT   SUBSTRING(AR02.TRST_DT , 0, 6) AS CLOSE_YM
 						 , AR02.WH_CD
@@ -176,9 +87,11 @@
 				 FROM TB_AR02M01 AR02
 					   , TB_BM01M01 BM01 
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
-					  	AND AR02.CO_CD     = 'GUM'	
+					  <if test="coCd != null and !coCd.equals('')">
+							AND AR02.CO_CD   = #{coCd}				
+						</if>
 					  	AND  SUBSTRING(AR02.TRST_DT , 0, 6) = REPLACE(#{closeYm}, '-', '')
-			     GROUP BY  SUBSTRING(AR02.TRST_DT , 0, 6)
+				  GROUP BY SUBSTRING(AR02.TRST_DT , 0, 6)
 						 , AR02.WH_CD
 						 , AR02.CO_CD
 						 , AR02.TRST_PRDT_CD
@@ -189,10 +102,10 @@
 						 , AR02.TRST_CLNT_CD
 						 , AR02.IMP_YN
 						 , AR02.PRJCT_CD
-						 , BM01.PRDT_NM
 						 , AR02.PRDT_SIZE
 						 , AR02.PRDT_SPEC
-						 , AR02.PRDT_LEN	
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
 				) T
 				WHERE 1 = 1						 
 						<if test="coCd != null and !coCd.equals('')">
@@ -228,6 +141,183 @@
 						<if test="prjctCd != null and !prjctCd.equals('')">
 							AND T.PRJCT_CD = #{prjctCd}				
 						</if>
+				  GROUP BY CLOSE_YM
+						 , WH_CD
+						 , CO_CD
+						 , PRDT_CD
+						 , PRDT_DIV
+						 , OWNER_CD
+						 , TYP_CD
+						 , MAKR_CD
+						 , CLNT_CD
+						 , IMP_YN
+						 , PRJCT_CD
+					--	 , PRDT_SIZE
+					--	 , PRDT_SPEC
+					--	 , PRDT_LEN
+						 , PRDT_NM
+						 , IMP_YN	
+			) A
+	</select>
+	
+	<select id="selectRcvpayList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT CLOSE_YM
+					 , WH_CD
+					 , CO_CD
+					 , PRDT_CD
+					 , PRDT_DIV
+					 , OWNER_CD
+					 , TYP_CD
+					 , MAKR_CD
+					 , CLNT_CD
+					 , IMP_YN
+					 , PRJCT_CD
+				--	 , PRDT_SIZE
+				--	 , PRDT_SPEC
+				--	 , PRDT_LEN
+					 , PRDT_NM
+					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
+					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
+					 , FN_CM05M01_CD_TO_NM(OWNER_CD) OWNER_NM
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+					 , FN_CM05M01_CD_TO_NM(TYP_CD) TYP_NM
+					 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
+					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+					 , IMP_YN
+					 , SUM(NVL(BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
+					 , SUM(NVL(SELPCH1_QTY, 0)) SELPCH1_QTY
+					 , SUM(NVL(SELPCH2_QTY, 0)) SELPCH2_QTY
+					 , SUM(CASE WHEN CLOSE_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN NVL(BFR_STOCK_QTY, 0) + NVL(SELPCH1_QTY, 0) - NVL(SELPCH2_QTY, 0)
+					 		ELSE NVL(STOCK_QTY, 0) END) STOCK_QTY
+				FROM(
+					SELECT REPLACE(#{closeYm}, '-', '')	 AS CLOSE_YM
+						 , SM01.WH_CD
+						 , SM01.CO_CD
+						 , SM01.PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM01.OWNER_CD
+						 , SM01.TYP_CD
+						 , SM01.MAKR_CD
+						 , SM01.CLNT_CD
+						 , SM01.IMP_YN
+						 , SM01.PRJCT_CD
+						 , SM01.PRDT_SIZE
+						 , SM01.PRDT_SPEC
+						 , SM01.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),0,SM01.STOCK_QTY) AS BFR_STOCK_QTY
+						 , 0 AS  SELPCH1_QTY
+						 , 0 AS  SELPCH2_QTY
+						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),SM01.STOCK_QTY,0) AS STOCK_QTY -- 현재고
+					FROM TB_SM01D01 SM01
+					   , TB_BM01M01 BM01 
+					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
+					  <if test="coCd != null and !coCd.equals('')">
+					  	AND SM01.CO_CD = #{coCd}			
+					  	</if>	
+						AND ( SM01.CLOSE_YM = REPLACE(#{closeYm}, '-', '')
+						OR    SM01.CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM'))
+				UNION 
+				  SELECT   SUBSTRING(AR02.TRST_DT , 0, 6) AS CLOSE_YM
+						 , AR02.WH_CD
+						 , AR02.CO_CD
+						 , AR02.TRST_PRDT_CD AS PRDT_CD
+						 , BM01.PRDT_DIV
+						 , AR02.OWNER_CD
+						 , AR02.TYP_CD
+						 , AR02.MAKR_CD
+						 , AR02.TRST_CLNT_CD AS CLNT_CD
+						 , AR02.IMP_YN
+						 , AR02.PRJCT_CD
+						 , AR02.PRDT_SIZE
+						 , AR02.PRDT_SPEC
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_QTY)) AS  SELPCH1_QTY
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_QTY)) AS  SELPCH2_QTY
+						 , 0 AS STOCK_QTY -- 현재고
+				 FROM TB_AR02M01 AR02
+					   , TB_BM01M01 BM01 
+					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
+					  <if test="coCd != null and !coCd.equals('')">
+							AND AR02.CO_CD   = #{coCd}				
+						</if>
+					  	AND  SUBSTRING(AR02.TRST_DT , 0, 6) = REPLACE(#{closeYm}, '-', '')
+				  GROUP BY SUBSTRING(AR02.TRST_DT , 0, 6)
+						 , AR02.WH_CD
+						 , AR02.CO_CD
+						 , AR02.TRST_PRDT_CD
+						 , BM01.PRDT_DIV
+						 , AR02.OWNER_CD
+						 , AR02.TYP_CD
+						 , AR02.MAKR_CD
+						 , AR02.TRST_CLNT_CD
+						 , AR02.IMP_YN
+						 , AR02.PRJCT_CD
+						 , AR02.PRDT_SIZE
+						 , AR02.PRDT_SPEC
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
+				) T
+				WHERE 1 = 1						 
+						<if test="coCd != null and !coCd.equals('')">
+							AND T.CO_CD = #{coCd}				
+						</if>	
+						<if test="closeYm != null and !closeYm.equals('')">
+							AND T.CLOSE_YM = REPLACE(#{closeYm}, '-', '')				
+						</if>
+						<if test="prdtDiv != null and !prdtDiv.equals('')">
+							AND T.PRDT_DIV = #{prdtDiv}			
+						</if>
+						<if test="prdtCd != null and !prdtCd.equals('')">
+							AND T.PRDT_CD = #{prdtCd}				
+						</if>
+						<if test="whCd != null and !whCd.equals('')">
+							AND T.WH_CD = #{whCd}				
+						</if>
+						<if test="ownerCd != null and !ownerCd.equals('')">
+							AND T.OWNER_CD = #{ownerCd}				
+						</if>
+						<if test="typCd != null and !typCd.equals('')">
+							AND T.TYP_CD = #{typCd}				
+						</if>
+						<if test="makrCd != null and !makrCd.equals('')">
+							AND T.MAKR_CD = #{makrCd}				
+						</if>
+						<if test="clntCd != null and !clntCd.equals('')">
+							AND T.CLNT_CD = #{clntCd}				
+						</if>
+						<if test="impYn != null and !impYn.equals('')">
+							AND T.IMP_YN = #{impYn}				
+						</if>
+						<if test="prjctCd != null and !prjctCd.equals('')">
+							AND T.PRJCT_CD = #{prjctCd}				
+						</if>
+				  GROUP BY CLOSE_YM
+						 , WH_CD
+						 , CO_CD
+						 , PRDT_CD
+						 , PRDT_DIV
+						 , OWNER_CD
+						 , TYP_CD
+						 , MAKR_CD
+						 , CLNT_CD
+						 , IMP_YN
+						 , PRJCT_CD
+					--	 , PRDT_SIZE
+					--	 , PRDT_SPEC
+					--	 , PRDT_LEN
+						 , PRDT_NM
+						 , IMP_YN	
 			) A
 		)
 		WHERE
@@ -253,6 +343,9 @@
 	<select id="selectRcvpayDtlList" resultType="CamelMap">
 	SELECT TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TRST_DT
 		 , TRSP_TYP_CD
+		 , FN_CM05M01_CD_TO_NM(TRSP_TYP_CD) TRSP_TYP_NM
+		 , PRDT_SPEC
+		 , PRDT_SIZE
 		 , PRDT_LEN
 		 , REAL_TRST_QTY
 		 , REAL_TRST_WT
