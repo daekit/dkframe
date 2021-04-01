@@ -51,26 +51,26 @@ public class BM02SvcImpl implements BM02Svc {
 		// 거래처 insert 
 		bm02Mapper.insertClnt(paramMap);
 		
-		// 사업부 delete
-		bm02Mapper.deleteBizdept(paramMap);
 		// 사업부 insert
 		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
-		for(Map<String, String> bizdeptMap : bizdeptList) {
-			bizdeptMap.put("clntCd", paramMap.get("clntCd"));
-			bizdeptMap.put("userId", paramMap.get("userId"));
-			bizdeptMap.put("pgmId", paramMap.get("pgmId"));
-			bm02Mapper.insertBizdept(bizdeptMap);
+		if(bizdeptList != null) {
+			for(Map<String, String> bizdeptMap : bizdeptList) {
+				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
+				bizdeptMap.put("userId", paramMap.get("userId"));
+				bizdeptMap.put("pgmId", paramMap.get("pgmId"));
+				bm02Mapper.insertBizdept(bizdeptMap);
+			}
 		}
 		
-		// 담보내역 delete
-		bm02Mapper.deletePldg(paramMap);
 		// 담보내역 insert
 		List<Map<String, String>> pldgList = gson.fromJson(paramMap.get("pldgArr"), mapList);
-		for(Map<String, String> pldgMap : pldgList) {
-			pldgMap.put("clntCd", paramMap.get("clntCd"));
-			pldgMap.put("userId", paramMap.get("userId"));
-			pldgMap.put("pgmId", paramMap.get("pgmId"));
-			bm02Mapper.insertPldg(pldgMap);
+		if(pldgList != null) {
+			for(Map<String, String> pldgMap : pldgList) {
+				pldgMap.put("clntCd", paramMap.get("clntCd"));
+				pldgMap.put("userId", paramMap.get("userId"));
+				pldgMap.put("pgmId", paramMap.get("pgmId"));
+				bm02Mapper.insertPldg(pldgMap);
+			}
 		}
 		
 		// 파일 업로드
@@ -90,22 +90,26 @@ public class BM02SvcImpl implements BM02Svc {
 		bm02Mapper.deleteBizdept(paramMap);
 		// 사업부 insert
 		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
-		for(Map<String, String> bizdeptMap : bizdeptList) {
-			bizdeptMap.put("clntCd", paramMap.get("clntCd"));
-			bizdeptMap.put("userId", paramMap.get("userId"));
-			bizdeptMap.put("pgmId", paramMap.get("pgmId"));
-			bm02Mapper.insertBizdept(bizdeptMap);
+		if(bizdeptList != null) {
+			for(Map<String, String> bizdeptMap : bizdeptList) {
+				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
+				bizdeptMap.put("userId", paramMap.get("userId"));
+				bizdeptMap.put("pgmId", paramMap.get("pgmId"));
+				bm02Mapper.insertBizdept(bizdeptMap);
+			}
 		}
 		
 		// 담보내역 delete
 		bm02Mapper.deletePldg(paramMap);
 		// 담보내역 insert
 		List<Map<String, String>> pldgList = gson.fromJson(paramMap.get("pldgArr"), mapList);
-		for(Map<String, String> pldgMap : pldgList) {
-			pldgMap.put("clntCd", paramMap.get("clntCd"));
-			pldgMap.put("userId", paramMap.get("userId"));
-			pldgMap.put("pgmId", paramMap.get("pgmId"));
-			bm02Mapper.insertPldg(pldgMap);
+		if(pldgList != null) {
+			for(Map<String, String> pldgMap : pldgList) {
+				pldgMap.put("clntCd", paramMap.get("clntCd"));
+				pldgMap.put("userId", paramMap.get("userId"));
+				pldgMap.put("pgmId", paramMap.get("pgmId"));
+				bm02Mapper.insertPldg(pldgMap);
+			}
 		}
 		
 		// 파일 업로드

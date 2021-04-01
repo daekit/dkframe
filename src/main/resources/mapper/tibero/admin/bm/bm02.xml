@@ -169,7 +169,28 @@
 	</select>
 	
 	<select id="selectPldgList" resultType="CamelMap">
-		SELECT * FROM TB_BM02D02 WHERE CLNT_CD = #{clntCd}
+		SELECT 
+			PLDG_SN,
+			CLNT_CD,
+			CO_CD,
+			PLDG_DIV_CD,
+			PLDG_AMT,
+			PLDG_RCOGN_RATE,
+			PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT,
+			EXPRTN_DT,
+			SETUP_DT,
+			PLDG_RMK,
+			USE_YN,
+			CREAT_ID,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			UDT_DTTM
+		FROM 
+			TB_BM02D02 
+		WHERE 
+			CLNT_CD = #{clntCd}
 	</select>
 	
 	<select id="selectMngInfo" resultType="CamelMap">
@@ -347,13 +368,15 @@
 	
 	<insert id="insertPldg">
 		INSERT INTO TB_BM02D02
-		(
+		(		
 			PLDG_SN,
 			CLNT_CD,
 			CO_CD,
 			PLDG_DIV_CD,
 			PLDG_AMT,
 			PLDG_RCOGN_RATE,
+			EXPRTN_DT,
+			SETUP_DT,
 			PLDG_RMK,
 			USE_YN,
 			CREAT_ID,
@@ -362,6 +385,7 @@
 			UDT_ID,
 			UDT_PGM,
 			UDT_DTTM
+			
 		)
 		VALUES(
 			TB_BM02D02_SQ01.NEXTVAL,
@@ -370,6 +394,8 @@
 			#{pldgDivCd},
 			#{pldgAmt},
 			#{pldgRcognRate},
+			#{exprtnDt},
+			#{setupDt},
 			#{pldgRmk},
 			'Y',
 			#{userId},
