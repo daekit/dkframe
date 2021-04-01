@@ -93,6 +93,19 @@ public class OD01Ctr {
     	return "jsonView";
     }
     
+    @PutMapping(value = "/updateCancel")
+	public String updateCancel(@RequestParam Map<String, String> paramMap, ModelMap model) {
+		int result = od01Svc.updateCancel(paramMap);
+		if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("bilgComplete"));
+		} else {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("cancel"));
+		}
+		return "jsonView";
+	}
+    
     @DeleteMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	od01Svc.deleteOrder(paramMap);

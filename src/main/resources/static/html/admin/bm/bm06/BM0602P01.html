@@ -1,5 +1,7 @@
-<body>
-  <div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
         <h4 class="tit">거래처관리(여신)</h4>
     </div>
@@ -8,7 +10,7 @@
 		<div class="form-group">
 			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 			<form id="clntForm">
-				<input type="hidden" id="pgmId" name="pgmId" value="BM0202P01">
+				<input type="hidden" id="pgmId" name="pgmId" value="BM0602P01">
 				<input type="hidden" id="clntCd" name="clntCd">
 				<!-- 기본정보 테이블 -->
 				<table class="popup_table">
@@ -121,21 +123,21 @@
 						</tr>
 						<tr>
 							<th>신용연계여부</th>
-							<td class="drctArea">
-								<select class="form-control input-sm" id="linkGrpYn" name="linkGrpYn" data-kind="YN" onchange="hidelinkGrpClntNm();">
+							<td>
+								<select class="form-control input-sm" id="linkGrpYn" name="linkGrpYn" data-kind="YN" onchange="ctrlLinkGrp();">
 									<option value="">선택</option>
 								</select>
 							</td>
-	                    	<th>거래처</th>
-	                        <td class="drctArea">
-	                            <input type="hidden" id="linkGrpClntCd" name="linkGrpClntCd">
-	                            <div class="search_form" style="width: 90%;">
-		                             <input type="text" id="linkGrpClntNm" name ="linkGrpClntNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}"> 
-	                    	         <button type="button" onclick="openSecondClntSearch('LINK');"><i class="i_search_w"></i></button>
+	                    	<th>연계거래처</th>
+	                        <td>
+	                            <div class="search_form" id="drctArea">
+									<input type="hidden" id="linkGrpClntCd" name="linkGrpClntCd">
+									<input type="text" id="linkGrpClntNm" name ="linkGrpClntNm" readonly> 
+									<button type="button" onclick="openSecondClntSearch();"><i class="i_search_w"></i></button>
 		                        </div>
 	                        </td>  
 							<th>기본여신금액</th>
-							<td colspan="3">
+							<td>
 								<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" onkeyup="addComma(this);" comma>
 							</td>
 						</tr>							
@@ -147,6 +149,7 @@
 						</tr>
 					</tbody>
 				</table>
+				<br>
 				<!-- 매입/매출정보 테이블 -->
 				<table class="popup_table">
 					<colgroup>
@@ -221,65 +224,23 @@
 					</tbody>
 				</table>
 			</form>
-			<!-- 사업부 테이블 -->
-<!-- 			<table class="popup_table" id="bizdeptTable"> -->
-<!-- 				<colgroup> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="11%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="9%"> -->
-<!-- 					<col width="12%"> -->
-<!-- 					<col width="5%"> -->
-<!-- 				</colgroup> -->
-<!-- 				<thead> -->
-<!-- 					<tr> -->
-<!-- 						<td colspan="10" style="text-align: left;">사업부</td> -->
-<!-- 						<td style="text-align: right;"> -->
-<!-- 							<a class="tbody_more_btn"></a> -->
-<!-- 						</td> -->
-<!-- 					</tr> -->
-<!-- 				</thead> -->
-<!-- 				<tbody> -->
-<!-- 					<tr> -->
-<!-- 						<td colspan="11"> -->
-<!-- 							<div class="add_btn_small pdl10"> -->
-<!-- 								<a onclick="addBizdeptRow();" style="height: 30px; line-height: 28px;">+</a> -->
-<!-- 							</div> -->
-<!-- 						</td> -->
-<!-- 					</tr> -->
-<!-- 					<tr> -->
-<!-- 						<th>사업부명</th> -->
-<!-- 						<th>사업구분</th> -->
-<!-- 						<th>담당자명</th> -->
-<!-- 						<th>담당자전화번호</th> -->
-<!-- 						<th>담당자휴대전화</th> -->
-<!-- 						<th>담당자이메일</th> -->
-<!-- 						<th>담당자부서명</th> -->
-<!-- 						<th>담당자직위</th> -->
-<!-- 						<th>영업회사</th> -->
-<!-- 						<th>영업사원</th> -->
-<!-- 						<th class="tc">삭제</th> -->
-<!-- 					</tr> -->
-<!-- 				</tbody> -->
-<!-- 			</table> -->
+			<br>
 			<!-- 담보내역 테이블 -->
 			<table class="popup_table" id="pldgTable">
 				<colgroup>
-					<col width="19%">
-					<col width="19%">
-					<col width="19%">
-					<col width="19%">
-					<col width="19%">
-					<col width="5%">
+					<col width="3%">
+					<col width="12%">
+					<col width="12%">
+					<col width="12%">
+					<col width="10%">
+					<col width="12%">
+					<col width="12%">
+					<col width="12%">
+					<col width="15%">
 				</colgroup>
 				<thead>
 					<tr>
-						<td colspan="5" style="text-align: left;">담보내역</td>
+						<td colspan="8" style="text-align: left;">담보내역</td>
 						<td style="text-align: right;">
 							<a class="tbody_more_btn"></a>
 						</td>
@@ -287,24 +248,68 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td colspan="6">
-							<div class="add_btn_small pdl10">
-								<a onclick="addPldgRow();"  style="height: 30px; line-height: 28px;">+</a>
+						<td colspan="9">
+							<div class="add_btn">
+								<a onclick="addPldgRow();">+</a> 
+								<a onclick="removePldgRow();">-</a>
 							</div>
 						</td>
 					</tr>
 					<tr>
+						<th></th>
 						<th>회사</th>
 						<th>구분</th>
 						<th>금액</th>
 						<th>인정비율(%)</th>
+						<th>여신금액</th>
+						<th>보험만기일</th>
+						<th>부동산설정일</th>
 						<th>비고</th>
-						<th class="tc">삭제</th>
 					</tr>
 				</tbody>
 			</table>
+			<table id="pldgFrameTable" style="display: none;">
+				<tr name="pldgRow">
+					<td>
+						<input type="checkbox" name="pldgChkBox">
+					</td>
+					<td>
+				 		<select class="form-control input-sm" name="coCd" data-kind="CO" required>
+				 			<option value="">선택</option>
+				 		</select>
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="pldgDivCd" data-kind="PLDG" required>
+				 			<option value="">선택</option>
+				 		</select>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="pldgAmt" onkeyup="addComma(this); calCdtlnAmt(this);" comma>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control tr" name="pldgRcognRate" onkeyup="onlyNumber(this); calCdtlnAmt(this);" maxlength="3">
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="cdtlnAmt" comma readOnly>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="input_calendar" name="exprtnDt" date>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="input_calendar" name="setupDt" date>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="pldgRmk" maxlength="127">
+				 	</td>
+				 </tr>
+			</table>
+			<br>
 			<!-- 첨부파일 테이블 -->
 			<table class="popup_table">
+				<colgroup>
+					<col width="12%">
+					<col width="">
+				</colgroup>
 				<thead>
 					<tr>
 						<td style="text-align: left;">첨부파일</td>
@@ -315,14 +320,10 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td colspan="2">
-							<div class="add_btn_small pdl10">
-								<a onclick="clntFile.click();"  style="height: 30px; line-height: 28px;">+</a>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2">
+						<th>
+							<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
+						</th>
+						<td>
 							<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
 						</td>
 					</tr>
@@ -334,12 +335,8 @@
 	    <button type="button" class="btn btn-default btn-sm" id="actionBtn"></button>
 	    <button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
     </div>
- 	
 </div>
-
-</body>
 <script type="text/javascript">
-
 	var clntFileArr = [];
 	var deleteFileArr = [];
 	var fileGridView = {
@@ -347,9 +344,8 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				target: $('[data-ax5grid="file-grid"]'),
-				showLineNumber: true,
-				showRowSelector: false,
-	        	multipleSelect: false,
+				showRowSelector: true,
+	        	multipleSelect: true,
 				header: {selector: false},
 				body: {
 		            onDBLClick: function () {
@@ -363,9 +359,9 @@
 	                {key: "fileType", label: "파일타입", width: 100},
 	                {key: "fileSize", label: "파일크기", width: 100},
 	                {
-						key:"fileDelete", label: "삭제", width:50,
+						key:"fileDelete", label: "삭제", width:60,
 						formatter:function() {
-							return '<button type="button" onclick="deleteFile('+this.dindex+');">삭제</button>';
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>'
 						}
 					}
 	            ]
@@ -390,8 +386,8 @@
 		});
 		
 		// 공통코드 set
-//		setCommonSelect($('#popup_area [data-kind]'));
 		setCommonSelect($(".popup_area select[data-kind]"));
+		
 		// 그리드 초기화
 		fileGridView.initView();
 		fileGridView.setData();
@@ -401,30 +397,15 @@
 			$('#actionBtn').text("등록");
 			$('#linkGrpYn').val("N");
 			$("#linkclntNm").prop("disabled", false);
-			hidelinkGrpClntNm();
 		}else if(actionType == "U"){
 			selectClntInfo();
 			$('#actionBtn').on("click", function(){updateClnt();});
 			$('#actionBtn').text("저장");
 		}
+		
+		// 연계그룹 컨트롤
+		ctrlLinkGrp();
 	});
-	
-	function hidelinkGrpClntNm() {
-		var linkGrpYn = $('#linkGrpYn').val();	
-		
-		if(linkGrpYn == "Y"){
-			$(".drctArea input").prop("disabled", false);
-			$(".drctArea button").prop("disabled", false);
-		
-	   } else {		
-			$('#linkGrpYn').val("N");		
-			$(".drctArea input").prop("disabled", true);
-			$(".drctArea input").val("");
-			$(".drctArea button").prop("disabled", true);
-			$(".drctArea #linkGrpClntCd").val("");
-			$(".drctArea #linkGrpClntNm").val("");
-	   }
-	}
 	
 	function selectClntInfo() {
 		var row = gridView.target.getList("selected")[0];
@@ -461,29 +442,23 @@
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 		
-		// 사업부 set
-		var bizdeptList = clntInfo.bizdeptList;
-		$.each(bizdeptList, function(idx, obj){
-			var bizdeptRow = addBizdeptRow();
-			for(var i=0;i<$(bizdeptRow).find('[name]').length;i++){
-				var bizdeptItem = $(bizdeptRow).find('[name]')[i];
-				if(obj[bizdeptItem.name]){
-					bizdeptItem.value = obj[bizdeptItem.name];
-				}
-			}
-		});
-		
 		// 담보내역 set
 		var pldgList = clntInfo.pldgList;
 		$.each(pldgList, function(idx, obj){
-			var pldgRow = addPldgRow();
-			for(var i=0;i<$(pldgRow).find('[name]').length;i++){
-				var pldgItem = $(pldgRow).find('[name]')[i];
-				if(obj[pldgItem.name]){
-					pldgItem.value = obj[pldgItem.name];
-				}
-				if($(pldgItem).is('[comma]')){
-					addComma(pldgItem);
+			var $pldgRow = addPldgRow();
+			for(var i=0;i<$pldgRow.find('[name]').length;i++){
+				var pldgItem = $pldgRow.find('[name]')[i];
+				var itemValue = obj[pldgItem.name];
+				
+				if(itemValue){
+					if($(pldgItem).is('[date]')){
+						$(pldgItem).datepicker("setDate", moment(itemValue, 'YYYY-MM-DD').toDate());
+					}else{
+						if($(pldgItem).is('[comma]')){
+							itemValue = addCommaStr(itemValue);
+						}
+						$(pldgItem).val(itemValue);
+					}
 				}
 			}
 		});
@@ -499,6 +474,63 @@
 		}).open();
 	}
 	
+	// 연계그룹 컨트롤
+	function ctrlLinkGrp() {
+		var linkGrpYn = $('#linkGrpYn').val();	
+		if(linkGrpYn == "Y"){
+			$("#drctArea button").prop("disabled", false);
+	   } else {
+			$("#drctArea input").val("");
+	   		$("#drctArea button").prop("disabled", true);
+	   }
+	}
+	
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "연계거래처", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#linkGrpClntCd').val(row.clntCd);
+			$('#linkGrpClntNm').val(row.clntNm);
+		});
+	}
+	
+	// 담보내역 추가
+	function addPldgRow(){
+		var $pldgRow = $('#pldgFrameTable tr[name="pldgRow"]').clone();
+		$('#pldgTable tbody').append($pldgRow[0]);
+		
+		// datepicker bind
+		$('.input_calendar').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		return $pldgRow;
+	}
+	
+	// 담보내역 삭제
+	function removePldgRow(){
+		var $checkedPldgs = $('#pldgTable input[name="pldgChkBox"]:checked');
+		if($checkedPldgs.length > 0){
+			$.each($checkedPldgs, function(idx, elem){
+				$(elem).closest('tr[name="pldgRow"]').remove();
+			});
+		}else{
+			alert("삭제할 담보내역을 선택해주세요.");
+		}
+	}
+	
+	// 여신금액 계산
+	function calCdtlnAmt(elem){
+		var $pldgRow = $(elem).closest('tr[name="pldgRow"]');
+		var pldgAmt = Number(deleteCommaStr($pldgRow.find('[name="pldgAmt"]').val()));
+		var pldgRcognRate = Number($pldgRow.find('[name="pldgRcognRate"]').val());
+		var cdtlnAmt = pldgAmt * pldgRcognRate / 100;
+		$pldgRow.find('[name="cdtlnAmt"]').val(addCommaStr(cdtlnAmt));
+	}
+	
+	// 파일 추가
 	function setClntFile(elem) {
 		var tempFiles = elem.files;
 		// 전역변수 배열에 선택된 파일 추가 
@@ -520,6 +552,7 @@
 		$(elem).val("");
 	}
 	
+	// 파일 삭제
 	function deleteFile(rowIndex) {
 		if(clntFileArr[rowIndex].fileKey){
 		// 기 등록되어 있는 파일 삭제시
@@ -531,8 +564,18 @@
 		fileGridView.setData();
 	}
 	
+	// 파일 다운로드
+	function downloadFile(fileKey) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+	
+	// 등록
 	function insertClnt() {
-		if(inputValidation($('[required]'))){
+		if(inputValidation($('.popup_area [required]:visible'))){
 			var formData = makeFormData();
 			filePostAjax("/admin/bm/bm02/insertClnt", formData, function(data){
 				alert(data.resultMessage);
@@ -544,8 +587,9 @@
 		}
 	}
 	
+	// 수정
 	function updateClnt() {
-		if(inputValidation($('[required]'))){
+		if(inputValidation($('.popup_area [required]:visible'))){
 			var formData = makeFormData();
 			filePutAjax("/admin/bm/bm02/updateClnt", formData, function(data){
 				alert(data.resultMessage);
@@ -557,15 +601,37 @@
 		}
 	}
 	
+	// 폼데이터 생성
 	function makeFormData() {
 		// 콤마 제거
-		$.each($('input[comma]'), function(idx, elem){
-			deleteComma(elem);
-		});
-		
+		$.each($('input[comma]'), function(idx, elem){deleteComma(elem);});
+		// 폼데이터 생성
 		var formData = new FormData($('#clntForm')[0]);
+		// 콤마 추가
+		$.each($('input[comma]'), function(idx, elem){addComma(elem);});
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);
+		
+		// 담보내역 추가
+		var pldgArr = [];
+		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
+			var pldgObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				var elemName = elem.name;
+				var elemValue = elem.value;
+				if($(elem).is('[date]')){
+					elemValue = deleteHyphenStr(elemValue);
+				}
+				
+				if($(elem).is('[comma]')){
+					elemValue = deleteCommaStr(elemValue);
+				}
+				
+				pldgObj[elemName] = elemValue;
+			});
+			pldgArr.push(pldgObj);
+		});
+		formData.append("pldgArr", JSON.stringify(pldgArr));
 		
 		// 첨부파일 추가
 		$.each(clntFileArr, function(idx, obj){
@@ -574,203 +640,12 @@
 				formData.append("files", obj.file);
 			}
 		});
+		
 		// 수정시 삭제된 파일 추가
 		if(actionType == "U"){
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		}
 		
-		// 사업부 추가
-		var bizdeptArr = [];
-		$.each($('#bizdeptTable tr[name="bizdeptRow"]'), function(idx, elem){
-			var bizdeptObj = {};
-			$.each($(elem).find('[name]'), function(idx, elem){
-				bizdeptObj[elem.name] = elem.value;
-			});
-			bizdeptArr.push(bizdeptObj);
-		});
-		formData.append("bizdeptArr", JSON.stringify(bizdeptArr));
-		
-		// 담보내역 추가
-		var pldgArr = [];
-		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
-			var pldgObj = {};
-			$.each($(elem).find('[name]'), function(idx, elem){
-				pldgObj[elem.name] = elem.value;
-			});
-			pldgArr.push(pldgObj);
-		});
-		formData.append("pldgArr", JSON.stringify(pldgArr));
-		
 		return formData;
 	}
-	
-	function addBizdeptRow(){
-		var bizdeptRow = '';
-		bizdeptRow += '<tr name="bizdeptRow">';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="bizdeptNm" maxlength="15" required>';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<select class="form-control input-sm" name="bizdeptDivCd" required>';
-		bizdeptRow += '<option value="">선택</option>';
-		bizdeptRow += makeCommonSelect("BIZDIV");
-		bizdeptRow += '</select>';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="mngNm" maxlength="5">';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="mngTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="mngMoblphonNo" onkeyup="telNumberFormatter(this);" maxlength="13">';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="mngEmail" onkeyup="exceptKorean(this)" maxlength="50">';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<input type="text" class="form-control" name="mngDeptNm" maxlength="15">';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<select class="form-control input-sm" name="mngPstCd">';
-		bizdeptRow += '<option value="">선택</option>';
-		bizdeptRow += makeCommonSelect("PST");
-		bizdeptRow += '</select>';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<select class="form-control input-sm" name="salesCoCd" onchange="initSalesEmp(this);">';
-		bizdeptRow += '<option value="">선택</option>';
-		bizdeptRow += makeCommonSelect("CO");
-		bizdeptRow += '</select>';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<div class="input-group">';
-		bizdeptRow += '<input type="hidden" class="form-control" name="salesEmpId">';
-		bizdeptRow += '<input type="text" class="form-control" name="salesEmpNm" readonly>';
-		bizdeptRow += '<span class="input-group-btn">';
-		bizdeptRow += '<button type="button" class="btn btn-primary btn-sm" onclick="openSecondUserSearch(this);">검색</button>';
-		bizdeptRow += '</span>';
-		bizdeptRow += '</div>';
-		bizdeptRow += '</td>';
-		bizdeptRow += '<td>';
-		bizdeptRow += '<button type="button" class="btn btn-danger btn-sm delete_btn" onclick="deleteRow(this);">삭제</button>';
-		bizdeptRow += '</td>';
-		bizdeptRow += '</tr>';
-		$('#bizdeptTable').append(bizdeptRow);
-		return $('#bizdeptTable tr[name="bizdeptRow"]:last')[0];
-	}
-	
-	function initSalesEmp(elem){
-		var changedRow = $(elem).closest('tr[name="bizdeptRow"]');
-		changedRow.find('[name="salesEmpId"]').val("");
-		changedRow.find('[name="salesEmpNm"]').val("");
-	}
-		
-	function openSecondUserSearch(elem){
-		$targetRow = $(elem).closest('tr[name="bizdeptRow"]');
-		
-		if(!$targetRow.find('[name="salesCoCd"]').val()){
-			alert("영업회사를 선택해주세요.");
-			$targetRow.find('[name="salesCoCd"]').focus();
-			return false;
-		}
-		
-		var paramObj = {
-			"coCd" : $targetRow.find('[name="salesCoCd"]').val(),
-			"userId": $targetRow.find('[name="salesEmpId"]').val(),
-			"useYn": "Y"
-		};
-		
-		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
-			var checkedId = tree.get_checked()[0];
-			var checkedNode = tree.get_node(checkedId);
-			$targetRow.find('[name=salesEmpId]').val(checkedNode.id);
-			$targetRow.find('[name=salesEmpNm]').val(checkedNode.text);
-		});
-	}
-	
-	function addPldgRow(){
-		var pldgRow = '';
-		pldgRow += '<tr name="pldgRow">';
-		pldgRow += '<td>';
-		pldgRow += '<select class="form-control input-sm" name="coCd" required>';
-		pldgRow += '<option value="">선택</option>';
-		pldgRow += makeCommonSelect("CO");
-		pldgRow += '</select>';
-		pldgRow += '</td>';
-		pldgRow += '<td>';
-		pldgRow += '<select class="form-control input-sm" name="pldgDivCd" required>';
-		pldgRow += '<option value="">선택</option>';
-		pldgRow += makeCommonSelect("PLDG");
-		pldgRow += '</select>';
-		pldgRow += '</td>';
-		pldgRow += '<td>';
-		pldgRow += '<input type="text" class="form-control" name="pldgAmt" onkeyup="addComma(this);" comma>'
-		pldgRow += '</td>';
-		pldgRow += '<td>';
-		pldgRow += '<input type="text" class="form-control" name="pldgRcognRate" onkeyup="onlyNumber(this);">';
-		pldgRow += '</td>';
-		pldgRow += '<td>';
-		pldgRow += '<input type="text" class="form-control" name="pldgRmk" maxlength="127">';
-		pldgRow += '</td>';
-		pldgRow += '<td>';
-		pldgRow += '<button type="button" class="btn btn-danger btn-sm delete_btn" onclick="deleteRow(this);">삭제</button>';
-		pldgRow += '</td>';
-		pldgRow += '</tr>';
-		$('#pldgTable').append(pldgRow);
-		return $('#pldgTable tr[name="pldgRow"]:last')[0];
-	}
-	
-	function makeCommonSelect(codeKind){
-		var optionHtml = '';
-		postAjaxSync("/admin/cm/cm05/selectChildCodeList", {"codeKind" : codeKind}, null, function(data){
-			$.each(data.childCodeList, function(idx, obj){
-				optionHtml += '<option value="'+obj.codeId+'">'+obj.codeNm+'</option>';
-			});
-		});
-		return optionHtml;
-	}
-	
-	function deleteRow(elem){
-		$(elem).closest('tr').remove();	
-	}
-	
-	function downloadFile(fileKey) {
-		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileKey}, null, function(data){
-			var fileInfo = data.fileInfo;
-			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
-			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
-		});
-	}
-	// 거래처 검색
-	function openSecondClntSearch(type) {
-			var modalTitle = "";
-			clntType = type; 
-			if (clntType == "LINK"){
-				modalTitle = "연계거래처";
-			}
-			openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, modalTitle, {}, function (grid) {
-				var row = grid.target.getList("selected")[0];
-				
-				if(clntType == "LINK") {					
-					$('#linkGrpClntCd').val(row.clntCd);
-					$('#linkGrpClntNm').val(row.clntNm);
-				}else{
-					$('#clntCd').val(row.clntCd);
-					$('#clntNm').val(row.clntNm);
-					$('#sellVatCd').val(row.sellVatCd);
-					
-						var paramObj = {
-							"coCd": $('#coCd').val(),
-							"clntCd": row.clntCd
-						}
-						
-						postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
-							$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-							$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
-						});
-				}
-					
-			});
-		}	
 </script>

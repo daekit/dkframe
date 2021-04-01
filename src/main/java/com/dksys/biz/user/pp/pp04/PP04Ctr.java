@@ -57,11 +57,29 @@ public class PP04Ctr {
  /*
     확정된 배차정보를 기준으로 출하요청서, 매출내역 생성   
   */
-    @PostMapping(value = "/insertMesShipLisr")
-    public String insertMesShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-		ar01Svc.insertShip(paramMap, mRequest);
+    @PostMapping(value = "/insertMesShipList")
+    public String insertMesShipList(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		pp04Svc.insertMesShipList(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	return "jsonView";
+    }
+    
+ /*
+    생성된 출하 요청서를 삭제
+  */
+    @PostMapping(value = "/deleteMesShipList")
+    public String deleteMesShipList(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	int cnt = pp04Svc.selectBilgNoCnt(paramMap);
+    	if(cnt > 0) {
+        	model.addAttribute("resultCode", 999);
+        	model.addAttribute("resultMessage", "청구 된 데이터가 있습니다.");
+    	} else {
+    		pp04Svc.deleteMesShipList(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	}
+		
     	return "jsonView";
     }
     

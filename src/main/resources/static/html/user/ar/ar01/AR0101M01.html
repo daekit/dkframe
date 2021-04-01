@@ -112,8 +112,8 @@
 	                <td>
 	                  <input type="hidden" id="clntCd_S">
 	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S">
-		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
+		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
 	 	           	<th>출하여부</th>
@@ -270,21 +270,6 @@
 		gridView.initView().setData(0);
 	}
 
-	function clntSearch(type) {
-		var modalTitle = "";
-		clntType = type; 
-		if(clntType == "PUR") {
-			modalTitle = "매입거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} else if(clntType == "SELL") {
-			modalTitle = "매출거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} else {
-			modalTitle = "거래처";
-			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} 	
-	}
-	
 	function deleteShip() {
 		var row = gridView.target.getList("selected")[0];
 		var formData = {
@@ -311,6 +296,15 @@
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input[type='text']").val("");
+		$("#coCd_S").val(jwt.coCd);
+		$("#reqDtFrom").val(lastWeek());
+		$("#reqDtTo").val(dateToStr(new Date()));
+		$('#reqDtFrom, #reqDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+// 			autoclose : true
+		});
+		gridView.initView().setData(0);
 	}
 	
 	function insertShipModal(type){
@@ -334,6 +328,31 @@
 		actionType = "U";
 		selectedRowIdx = gridView.target.getList("selected")[0].__index;
 		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1200, 780, " ");
+	}
+
+	// 거래처 검색
+	function openSecondClntSearch(type) {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			if(type == 'S') {
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);
+			} else {
+				$('#clntCd').val(row.clntCd);
+				$('#clntNm').val(row.clntNm);
+				$('#sellVatCd').val(row.sellVatCd);
+				
+				var paramObj = {
+					"coCd": $('#coCd').val(),
+					"clntCd": row.clntCd
+				}
+				
+				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
+					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+				});
+			}
+		});
 	}
 	
 </script>

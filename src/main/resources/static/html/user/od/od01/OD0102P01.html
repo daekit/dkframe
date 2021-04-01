@@ -66,7 +66,6 @@
 	                <th class="hit">Maker</th>
 	                <td>                                
 	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required">
-	                        <option value="">선택</option> 
 	                    </select>
 	                </td>
 	                <th class="hit">입고창고</th>
@@ -418,6 +417,7 @@
 			$('#actionBtn').on("click", function(){insertOrder();});
 			$('#actionBtn').text("등록");
 			$("#reqDt").val(dateToStr(new Date()).replace(/\-/g,''));
+			$("#makrCd").val("MAKR09");
 		}else if(actionType == "U"){
 			selectOrderInfo();
 			$('#actionBtn').on("click", function(){updateOrder();});
@@ -752,30 +752,6 @@
 				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
 			}
 		}).open();
-	}
-	
-	// 거래처 검색
-	function openSecondClntSearch(type) {
-		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
-			var row = grid.target.getList("selected")[0];			
-			if(type == "PUR") {
-				$('#clntCd').val(row.clntCd);
-				$('#clntNm').val(row.clntNm);
-			} else {
-				$('#sellClntCd').val(row.clntCd);
-				$('#sellClntNm').val(row.clntNm);
-				
-				//거래처 영업담당자 조회
-				var paramObj = {
-					"coCd": $('#coCd').val(),
-					"clntCd": row.clntCd
-				}					
-				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
-					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
-				});	
-			}
-		});
 	}
 	
 	// 프로젝트 검색

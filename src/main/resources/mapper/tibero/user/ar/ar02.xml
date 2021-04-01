@@ -153,7 +153,7 @@
 			AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 		</if>
 	 	<if test="clntNm != null and !clntNm.equals('')">
-			AND CLNT_NM = #{clntNm}				
+			AND CLNT_NM LIKE '%${clntNm}%'				
 		</if>
 	 	<if test="prdtDiv != null and !prdtDiv.equals('')">
 			AND PRDT_DIV = #{prdtDiv}				
@@ -273,7 +273,7 @@
 					AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 				</if>
 			 	<if test="clntNm != null and !clntNm.equals('')">
-					AND CLNT_NM = #{clntNm}				
+					AND CLNT_NM LIKE '%${clntNm}%'
 				</if>
 			 	<if test="prdtDiv != null and !prdtDiv.equals('')">
 					AND PRDT_DIV = #{prdtDiv}				
@@ -333,6 +333,20 @@
 		DELETE FROM TB_AR02M01
 		WHERE TRST_CERTI_NO = #{trstCertiNo}
 	</delete>
+	
+	<delete id="deletePchsSell" parameterType="Map">
+		DELETE FROM TB_AR02M01
+		WHERE TRST_RPRC_SEQ = #{trstRprcSeq}
+		  AND TRST_DTL_SEQ = #{trstDtlSeq}
+		  AND CREAT_PGM = #{pgmId}
+	</delete>
+	
+	<select id="checkBilg" parameterType="Map" resultType="Map">
+		SELECT NVL(BILG_CERT_NO, 0) FROM TB_AR02M01
+		WHERE TRST_RPRC_SEQ = #{trstRprcSeq}
+		  AND TRST_DTL_SEQ = #{trstDtlSeq}
+		  AND CREAT_PGM = #{pgmId}
+	</select>
 	
 	<select id="selectSellInfo" parameterType="Map" resultType="CamelMap">
 		SELECT 
@@ -415,7 +429,7 @@
 	        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
 	        SALES_AREA_CD,
 	        SITE_CD,
-		    (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = SITE_CD) AS SITE_NM,
+		    (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 	        BILG_VAT_AMT,
 	        PRDT_SPEC
 		FROM TB_AR02M01 T
@@ -467,7 +481,7 @@
 		        'RFFGN101' AS RFF_GN1,
 		        'RFFGN201' AS RFF_GN2,
 		        'RFFAEA00' AS RFF_AEA,
-		        'BGM122599' AS BGM_1225,
+		        'BGM12259' AS BGM_1225,
 		        '1' AS BGM_4343,
 		        'S' AS XML_FLOW,
 		        #{userId} AS TAX_CREAT_ID,

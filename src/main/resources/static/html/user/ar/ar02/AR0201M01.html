@@ -101,7 +101,7 @@ th {
 	                <td>
 	                  <input type="hidden" id="clntCd_S">
 	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S">
+		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
@@ -135,12 +135,12 @@ th {
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	                <th>프로젝트</th>
+	                <th>현장명</th>
 	                <td>
 	                    <div class="search_form" style="width: 50%;">
-			              <input type="hidden" id="prjctCd_S">
-			              <input type="text" id="prjctNm_S">
-			              <a onclick="openSecondPrjctSearch('S');"><i class="i_search_w"></i></a>
+			              <input type="hidden" id="siteCd_S" name="siteCd">
+			              <input type="text" id="siteNm_S" name="siteNm">
+			              <button type="button" onclick="openSecondSiteSearch('S');"><i class="i_search_w"></i></button>
 			            </div>
 	                </td>
 	              	<th>강종</th>
@@ -182,6 +182,9 @@ th {
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
+				<div class="add_btn_small pdr10">
+					<a onclick="excelDownload();" style="height: 30px; line-height: 28px; width: 80px;">ExcelDown</a>
+				</div>
 			</div>
 		</div>
 	  	<!-- 콘텐츠 -->
@@ -284,7 +287,7 @@ th {
 				"estCoprt" : $("#estCoprt_S").val(),
 				"dirtrsYn" : $("#dirtrsYn_S").val(),
 				"typCd" : $("#typCd_S").val(),
-				"prjctCd" : $("#prjctCd_S").val(),
+				"siteCd" : $("#siteCd_S").val(),
 				"pdsk" : $("#pdsk_S").val(),
 				"bilgYn" : $("#bilgYn_S").val(),
 				"pageNo" : _pageNo + 1, 
@@ -443,11 +446,15 @@ th {
 		var list = gridView.target.getList("selected");
 		var trstCertiNoArr = [];
 		$.each(list, function(idx, obj) {
-			if (obj.bilgYn == "Y")
+			if (obj.bilgYn == "Y"){
 				flag = true;
+				return false;
+			}
 			if (idx > 0) {
-				list[idx].clntCd && list[idx - 1].clntCd;
-				clntFlag = true;
+				if(list[idx].clntCd != list[idx-1].clntCd) {
+					clntFlag = true;
+					return false;
+				}
 			}
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
@@ -455,12 +462,10 @@ th {
 			alert("이미 발행된 건이 있습니다.");
 			return;
 		}
-		;
 		if (clntFlag) {
 			alert("동일한 거래처끼리만 전표발행이 가능합니다.");
 			return;
 		}
-		;
 		var formData = {
 			"trstCertiNo" : trstCertiNoArr,
 			"userId" : jwt.userId,
@@ -482,6 +487,48 @@ th {
 				gridView.target.select(clickedIdx);
 				return false;
 			}
+		});
+	}
+	
+	// 현장 검색
+	function openSecondSiteSearch(type) {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#siteCd_S").val(row.siteCd);
+				$("#siteNm_S").val(row.siteNm);
+			} else {
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+			}
+		});
+	}
+	
+	function excelDownload() {
+		var formData = {
+			"selpchCd" : "SELPCH2",
+			"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+			"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+			"coCd" : $("#coCd_S").val(),
+			"clntNm" : $("#clntNm_S").val(),
+			"prdtDiv" : $("#prdtDiv_S").val(),
+			"estCoprt" : $("#estCoprt_S").val(),
+			"dirtrsYn" : $("#dirtrsYn_S").val(),
+			"typCd" : $("#typCd_S").val(),
+			"siteCd" : $("#siteCd_S").val(),
+			"pdsk" : $("#pdsk_S").val(),
+			"bilgYn" : $("#bilgYn_S").val(),
+			"pageNo" : 1, 
+			"recordCnt" : 100000
+		}
+		postAjax("/user/ar/ar02/excelDownload", formData, null, function(data){
+			debugger;
 		});
 	}
 </script>

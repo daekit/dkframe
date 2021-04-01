@@ -20,6 +20,10 @@ public interface SM01Mapper {
 
 	int updateStockSell(Map<String, String> paramMap);
 
+	int updateStockCancel(Map<String, String> paramMap);
+
+	int updateStockUpr(Map<String, String> paramMap);
+
 	
 
 }

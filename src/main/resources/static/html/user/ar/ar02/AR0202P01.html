@@ -1,5 +1,5 @@
 <body>
-  <div class="popup_area of_a" style="width: 100%; height: 100%;">
+  <div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="popup_table">
     	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
     	<form id="popForm">
@@ -11,7 +11,7 @@
 	                <col width="">
 	            </colgroup>
 	            <tr>
-	                <th>거래처</th>
+	                <th class="hit">거래처</th>
 	                <td>                             
 	                    <input type="hidden" id="clntCd" name="clntCd">
 		                <div class="search_form">
@@ -19,14 +19,14 @@
 			              	<a onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
-	                <th>회사</th>
+	                <th class="hit">회사</th>
 	                <td>                                
 	                    <select id="coCd" name="coCd" data-kind="CO">
 	                 	</select>
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>판매법인</th>
+	                <th class="hit">판매법인</th>
 	                <td>                             
 	                    <select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required="required">
 	                    	<option value="">선택</option> 
@@ -34,13 +34,13 @@
 	                </td>
 	                <th>메이커</th>
 	                <td>                                
-	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required">
-	                        <option value="">선택</option> 
+	                    <select id="makrCd" name="makrCd" data-kind="MAKR">
+	                         
 	                    </select>
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>매출일자</th>
+	                <th class="hit">매출일자</th>
 	                <td>                             
 	                    <input type="text" id="trstDt" name="trstDt" class="input_calendar">
 	                </td>
@@ -50,18 +50,19 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>판매유형</th>
+	                <th class="hit">판매유형</th>
 	                <td>                             
 	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" required="required">
 	                        <option value="">선택</option> 
 	                    </select>
 	                </td>
-	                <th>프로젝트</th>
+	                <th>현장명</th>
 	                <td>                             
 	                    <div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd">
-			              <input type="text" id="prjctNm" name="prjctNm" readonly="readonly">
-			              <a onclick="openSecondPrjctSearch();"><i class="i_search_w"></i></a>
+			              <input type="hidden" id="prjctCd" name="prjctCd" value="0">
+			              <input type="hidden" id="siteCd" name="siteCd" value="0">
+			              <input type="text" id="siteNm" name="siteNm" readonly="readonly">
+			              <a onclick="openSecondSiteSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	            </tr>
@@ -69,10 +70,9 @@
 	                <th>재고주체</th>
 	                <td>   
 	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER" required="required">
-	                        <option value="">선택</option> 
 	                    </select>               
 	                </td>
-	                <th>창고</th>
+	                <th class="hit">창고</th>
 	                <td>                                
 	                    <select id="whCd" name="whCd" data-kind="WH" required="required">
 		                  	<option value="">선택</option> 
@@ -123,7 +123,7 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>청구수량</th>
+	                <th class="hit">청구수량</th>
 	                <td>                     
 	                	<input type="hidden" name="realTrstQty" readonly="readonly">        
 	                    <input type="text" name="bilgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
@@ -135,7 +135,7 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th>청구단가</th>
+	                <th class="hit">청구단가</th>
 	                <td>                             
 	                	<input type="hidden" name="realTrstUpr" readonly="readonly">
 	                    <input type="text" name="bilgUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
@@ -148,19 +148,22 @@
 	            <tr>
 	            	<th>할인금액</th>
 	                <td>                             
-	                    <input type="text" name="trstDcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
+	                    <input type="text" name="trstDcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma minus>
 	                </td>
 	                <th>운송비</th>
 	                <td>                             
-	                    <input type="text" name="transAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                	<div class="search_form"> 
+	                    	<input id="transAmt" name="transAmt" type="text" style="text-align: right;width: 80% !important;" onkeyup="addComma(this);countAmt(this);" comma >
+	                    	<a onclick="transAmtModal();"><i class="i_search_w"></i></a>
+	                    </div>
 	                </td>
 	            </tr>
 	            <tr>
 	            	<th>기타금액</th>
 	                <td>                             
-	                    <input type="text" name="etcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
+	                    <input type="text" name="etcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma minus>
 	                </td>
-	                <th>영업담당</th>
+	                <th class="hit">영업담당</th>
 	                <td>                                
 	                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
 	                    <div class="search_form">
@@ -173,11 +176,11 @@
 	                <th>청구금액</th>
 	                <td>                             
 	                	<input type="hidden" name="realTrstAmt" readonly="readonly" minus>
-	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
+	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus readonly="readonly">
 	                </td>
 	                <th>전표발행여부</th>
 	                <td>                                
-	                    <input type="text" name="bilgYn" style="text-align: center;" readonly="readonly">
+	                    <input type="text" name="bilgYn" style="text-align: center;" readonly="readonly" value="N">
 	                </td>
 	            </tr>
 	            <tr>  
@@ -200,7 +203,7 @@
     <br>
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
-      <button id="actionBtn">등록</button>
+      <button id="actionArBtn">등록</button>
       <button class="close_btn" onclick="modal.close();">닫기</button>
     </div>
   </div>
@@ -226,17 +229,19 @@
 	
 	function setInit() {
 		if(actionType == "C"){
-			$('#actionBtn').on("click", function(){insertPchsSell();});
-			$('#actionBtn').text("등록");
+			$('#actionArBtn').on("click", function(){insertPchsSell();});
+			$('#actionArBtn').text("등록");
 			$("input[name='rjctTransAmt']").prop("disabled", true);
+			$("#ownerCd").val("OWNER1");
+			$("#makrCd").val("MAKR09");
 		}else if(actionType == "U"){
 			selectSellInfo();
-			$('#actionBtn').on("click", function(){insertPchsSell();});
-			$('#actionBtn').text("저장");
+			$('#actionArBtn').on("click", function(){insertPchsSell();});
+			$('#actionArBtn').text("저장");
 		}else if(actionType == "O"){
 			getOrderInfo();
-			$('#actionBtn').on("click", function(){insertShip();});
-			$('#actionBtn').text("등록");
+			$('#actionArBtn').on("click", function(){insertShip();});
+			$('#actionArBtn').text("등록");
 		}
 	}
 	
@@ -276,8 +281,6 @@
 	
 	// 제품 검색
 	function openSecondPrdtSearch(elem) {
-		$targetRow = $(elem).closest('tr.detailRow');
-		
 		// selpchCd - SELPCH2: 매출
 		var paramObj = {
 			"selpchCd": "SELPCH2",
@@ -293,11 +296,11 @@
 					$("input[name="+key+"]").val(value);
 			});
 			if(row.prdtStockCd == "N") {
-				$targetRow.find('input[name="shipQty"]').prop("readonly", true);
-				$targetRow.find('input[name="shipQty"]').val("0");
-				$targetRow.find('input[name="shipAmt"]').val(row.ordrgUpr);
+				$('input[name="bilgQty"]').prop("readonly", true);
+				$('input[name="bilgQty"]').val("0");
+				$('input[name="bilgAmt"]').val(row.ordrgUpr);
 			} else {
-				$targetRow.find('input[name="shipQty"]').prop("readonly", false);
+				$('input[name="bilgQty"]').prop("readonly", false);
 			}
 		});
 	}
@@ -367,11 +370,25 @@
 		var bilgUpr = $("input[name='bilgUpr']").val();
 		var trstDcAmt = $("input[name='trstDcAmt']").val();
 		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']").val();
-		$("input[name='bilgWt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(prdtCnvrsnWt)));
-		$("input[name='bilgAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr) - deleteCommaStr(trstDcAmt)));
-		$("input[name='realTrstAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr)));
+		var prdtStockCd  = $("input[name='prdtStockCd']").val();
+		
+		if(prdtStockCd == "N") {
+			$("input[name='bilgWt']")[0].value = deleteCommaStr(bilgQty);
+			$("input[name='bilgAmt']")[0].value = deleteCommaStr(bilgUpr) - deleteCommaStr(trstDcAmt);
+			$("input[name='realTrstAmt']")[0].value = deleteCommaStr(bilgUpr);
+		} else {
+			$("input[name='bilgWt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(prdtCnvrsnWt)));
+			$("input[name='bilgAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr) - deleteCommaStr(trstDcAmt)));
+			$("input[name='realTrstAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr)));
+		}
+		
 		addComma($("input[name='bilgWt']"));
 		addComma($("input[name='bilgAmt']"));
+	}
+
+	function transAmtModal() {
+		openFrom = "AR0202P01";
+		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
 	}
 	
 </script>

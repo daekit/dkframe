@@ -8,13 +8,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sd.sd07.service.SD07Svc;
+import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 
 @Service
 @Transactional("erpTransactionManager")
 public class SD07SvcImpl implements SD07Svc {
-	
+
     @Autowired
     SD07Mapper sd7Mapper;
+    
+    @Autowired
+    SM01Mapper sm01Mapper;
     
     @Override
 	public Map<String, String> selectClose(Map<String, String> paramMap) {
@@ -30,6 +34,7 @@ public class SD07SvcImpl implements SD07Svc {
 	public void excuteStockClose(Map<String, String> paramMap) {
 		sd7Mapper.deleteStockClose(paramMap);
 		sd7Mapper.insertStockClose(paramMap);
+		sm01Mapper.updateStockUpr(paramMap);
 	}
 
 	@Override

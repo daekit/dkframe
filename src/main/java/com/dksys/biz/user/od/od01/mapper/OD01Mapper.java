@@ -42,4 +42,8 @@ public interface OD01Mapper {
 
 	int selectConfirmCount(Map<String, String> paramMap);
 
+	int updateCancel(Map<String, String> paramMap);
+
+	int updateCancelDetail(Map<String, String> detailMap);
+
 }

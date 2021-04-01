@@ -354,7 +354,8 @@
 		var formData = {
 			"coCd" : row.coCd,
 			"acinsDt" : row.acinsDt,
-			"whCd" : row.whCd,
+			"stokSeq" : row.stokSeq
+/*			"whCd" : row.whCd,
 			"prdtCd" : row.prdtCd,
 			"ownerCd" : row.ownerCd,
 			"clntCd" : row.clntCd,
@@ -362,7 +363,9 @@
 			"makrCd" : row.makrCd,
 			"prjctCd" : row.prjctCd,
 			"impYn" : row.impYn
-		}
+*/		}
+		debugger;
+		
 		if(confirm("삭제하시겠습니까?")){
 			deleteAjax("/user/sm/sm04/deletePrdtAcins", formData, null, function(data){
 				if(data.resultCode == 200){
@@ -374,14 +377,23 @@
 	}
 	
 	function copyPrdtAcins(){
-		if(firstGrid.list != ""){
+		var coCd =  $("#coCd_S").val();
+		var whCd =  $("#whCd_S").val();
+		alert(" 현재 기준재고를 기초자료로 생성합니다.\n 매입/매출 발생시 현재고가 변동됩니다.\n 실사전까지 매입/매출 중지 바랍니다.");
+		
+		if(coCd =="" || whCd ==""){
+			alert("실사 기초자료 생성시 회사와 창고는 필수입력입니다.")
+			return;
+		}else if(firstGrid.list != ""){
 			var con = confirm("삭제후 기초자료생성을 하시겠습니까?");
 			if(con == false){
 				return;
 			}
 		}
-		var formData = {
-			"acinsDt" : $('#acinsDt_S').val(),
+		var formData = {			
+			"coCd" : $("#coCd_S").val(),
+			"acinsDt"  : $("#acinsDt_S").val().replace(/\-/g,''),
+			"whCd"  : $("#whCd_S").val(),
 			"userId" : jwt.userId,
 			"pgmId" : $('#pgmId').val()
 		}

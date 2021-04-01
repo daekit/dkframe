@@ -90,6 +90,19 @@ public class AR01Ctr {
     	return "jsonView";
     }
 	
+	@PutMapping(value = "/updateCancel")
+	public String updateCancel(@RequestParam Map<String, String> paramMap, ModelMap model) {
+		int result = ar01Svc.updateCancel(paramMap);
+		if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("bilgComplete"));
+		} else {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("cancel"));
+		}
+		return "jsonView";
+	}
+	
 	@PostMapping(value = "/selectConfirmCount")
 	public String selectConfirmCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
 		int result = ar01Svc.selectConfirmCount(paramMap);

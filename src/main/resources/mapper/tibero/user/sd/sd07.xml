@@ -129,19 +129,25 @@
 			CLNT_CD, 
 			TYP_CD, 
 			MAKR_CD, 
-			PRJCT_CD, 
+			PRJCT_CD,
+			PRDT_SIZE,
+            PRDT_SPEC,
+            PRDT_LEN ,
 			IMP_YN, 
 			STOCK_QTY,
+			STOCK_AMT,
 			CREAT_ID, 
 			CREAT_PGM, 
 			CREAT_DTTM, 
 			UDT_ID, 
 			UDT_PGM, 
-			UDT_DTTM
+			UDT_DTTM,
+			STOCK_UPR
 		)
 		SELECT
 			ROWNUM AS RNUM,
-			T.*
+			T.*,
+            DECODE(STOCK_QTY,0,0,STOCK_AMT/STOCK_QTY) STOCK_UPR
 		FROM
 		(
 			SELECT 
@@ -154,8 +160,12 @@
 			    TYP_CD,
 			    MAKR_CD,
 			    PRJCT_CD,
+			    PRDT_SIZE,
+                PRDT_SPEC,
+                PRDT_LEN ,
 			    IMP_YN,
 			    SUM(STOCK_QTY) + SUM(REAL_TRST_QTY1) - SUM(REAL_TRST_QTY2) AS STOCK_QTY,
+		        SUM(STOCK_AMT) + SUM(REAL_TRST_AMT1) - SUM(REAL_TRST_AMT2) AS STOCK_AMT,
 			    #{userId},
 			    #{pgmId},
 			    SYSDATE,
@@ -174,10 +184,16 @@
 			  		TYP_CD,
 			  		MAKR_CD,
 			  		PRJCT_CD,
+			        PRDT_SIZE,
+                    PRDT_SPEC,
+                    PRDT_LEN ,
 			  		IMP_YN,
 			  		STOCK_QTY,
 			  		0 AS REAL_TRST_QTY1,
-			  		0 AS REAL_TRST_QTY2
+			  		0 AS REAL_TRST_QTY2,
+		            STOCK_AMT,
+		            0 AS REAL_TRST_AMT1,
+		            0 AS REAL_TRST_AMT2
 			 	FROM
 			  		TB_SM01D01
 			 	WHERE
@@ -196,10 +212,16 @@
 			    	TYP_CD,
 			    	MAKR_CD,
 			    	PRJCT_CD,
+			        PRDT_SIZE,
+                    PRDT_SPEC,
+                    PRDT_LEN ,
 			    	IMP_YN,
 			    	0 AS STOCK_QTY,
 			    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY1,
-			    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY2
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY2,		
+		    	    0 AS STOCK_AMT,
+		    	    SUM(DECODE(SELPCH_CD, 'SELPCH1', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 0)) AS REAL_TRST_AMT1,
+		    	    SUM(DECODE(SELPCH_CD, 'SELPCH2', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 0)) AS REAL_TRST_AMT2
 				FROM 
 					TB_AR02M01
 				WHERE
@@ -218,6 +240,9 @@
 			    	TYP_CD,
 			    	MAKR_CD,
 			    	PRJCT_CD,
+			        PRDT_SIZE,
+                    PRDT_SPEC,
+                    PRDT_LEN ,
 			    	IMP_YN
 			)
 			GROUP BY 
@@ -230,6 +255,9 @@
 			    TYP_CD,
 			    MAKR_CD,
 			    PRJCT_CD,
+			    PRDT_SIZE,
+                PRDT_SPEC,
+                PRDT_LEN ,
 			    IMP_YN
 			) T
 	</insert>

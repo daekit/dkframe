@@ -346,4 +346,46 @@
 			)
 	</update>
 	
+	<update id="updateStockCancel" parameterType="Map">
+		UPDATE TB_SM01M01
+		SET STOCK_QTY = #{stockQty}
+		WHERE   CO_CD     = #{coCd}
+			AND WH_CD     = #{whCd}
+			AND PRDT_CD   = #{prdtCd}
+			AND OWNER_CD  = #{ownerCd}
+			AND CLNT_CD   = #{clntCd}
+			AND TYP_CD    = #{typCd}
+			AND MAKR_CD   = #{makrCd}
+			AND PRJCT_CD  = #{prjctCd}
+			AND IMP_YN    = #{impYn}
+			<if test="prdtSize != null and !prdtSize.equals('')">
+				AND PRDT_SIZE = #{prdtSize}
+			</if>
+			<if test="prdtSpec != null and !prdtSpec.equals('')">
+				AND PRDT_SPEC = #{prdtSpec}	
+			</if>			
+			<if test="prdtLen != null and !prdtLen.equals('')">
+				AND PRDT_LEN  = #{prdtLen}
+			</if>
+	</update>
+	
+	<update id="updateStockUpr" parameterType="Map">
+		UPDATE TB_SM01M01 M
+		SET STOCK_UPR = NVL((SELECT D.STOCK_UPR FROM TB_SM01D01 D 
+		                 WHERE CLOSE_YM = #{closeYm}
+		                   AND D.CO_CD     = M.CO_CD
+			               AND D.WH_CD     = M.WH_CD
+			               AND D.PRDT_CD   = M.PRDT_CD
+			               AND D.OWNER_CD  = M.OWNER_CD
+			               AND D.CLNT_CD   = M.CLNT_CD
+			               AND D.TYP_CD    = M.TYP_CD
+		                   AND D.MAKR_CD   = M.MAKR_CD
+			               AND D.PRJCT_CD  = M.PRJCT_CD
+			               AND D.IMP_YN    = M.IMP_YN
+						   AND NVL(D.PRDT_SIZE,'@') = NVL(M.PRDT_SIZE,'@')
+					       AND NVL(D.PRDT_SPEC,'@') = NVL(M.PRDT_SPEC,'@')
+					       AND NVL(D.PRDT_LEN ,0)   = NVL(M.PRDT_LEN ,0)
+						),M.STOCK_UPR)	
+	</update>
+	
 </mapper>
