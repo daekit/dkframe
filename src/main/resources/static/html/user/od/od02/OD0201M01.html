@@ -135,12 +135,12 @@ th {
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	                <th>프로젝트</th>
+	                <th>현장명</th>
 	                <td>
 	                    <div class="search_form" style="width: 50%;">
-			              <input type="hidden" id="prjctCd_S">
-			              <input type="text" id="prjctNm_S">
-			              <a onclick="openSecondPrjctSearch('S');"><i class="i_search_w"></i></a>
+			              <input type="hidden" id="siteCd_S" name="siteCd" value="0">
+			              <input type="text" id="siteNm_S" name="siteNm">
+			              <a onclick="openSecondSiteSearch('S');"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	              	<th>강종</th>
@@ -281,7 +281,7 @@ th {
 				"estCoprt" : $("#estCoprt_S").val(),
 				"dirtrsYn" : $("#dirtrsYn_S").val(),
 				"typCd" : $("#typCd_S").val(),
-				"prjctCd" : $("#prjctCd_S").val(),
+				"siteCd" : $("#siteCd_S").val(),
 				"pdsk" : $("#pdsk_S").val(),
 				"bilgYn" : $("#bilgYn_S").val(),
 				"pageNo" : _pageNo + 1, 
@@ -420,16 +420,30 @@ th {
 	
 	function insertBilg() {
 		var flag = false;
+		var clntFlag = false;
 		var list = gridView.target.getList("selected");
 		var trstCertiNoArr = [];
-		$.each(list, function(idx, obj){
-			if(obj.bilgYn == "Y") flag = true;
+		$.each(list, function(idx, obj) {
+			if (obj.bilgYn == "Y"){
+				flag = true;
+				return false;
+			}
+			if (idx > 0) {
+				if(list[idx].clntCd != list[idx-1].clntCd) {
+					clntFlag = true;
+					return false;
+				}
+			}
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
-		if(flag) {
+		if (flag) {
 			alert("이미 발행된 건이 있습니다.");
 			return;
-		};
+		}
+		if (clntFlag) {
+			alert("동일한 거래처끼리만 전표발행이 가능합니다.");
+			return;
+		}
 		var formData = {
 			"trstCertiNo" : trstCertiNoArr,
 			"userId" : jwt.userId,
@@ -455,6 +469,26 @@ th {
 // 				gridView.target.selectAll();
 			}
 		}
+	}
+
+	// 현장 검색
+	function openSecondSiteSearch(type) {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#siteCd_S").val(row.siteCd);
+				$("#siteNm_S").val(row.siteNm);
+			} else {
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+			}
+		});
 	}
 	
 </script>
