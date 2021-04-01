@@ -65,6 +65,24 @@ public class PP04Ctr {
     	return "jsonView";
     }
     
+ /*
+    생성된 출하 요청서를 삭제
+  */
+    @PostMapping(value = "/deleteMesShipList")
+    public String deleteMesShipList(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	int cnt = pp04Svc.selectBilgNoCnt(paramMap);
+    	if(cnt > 0) {
+        	model.addAttribute("resultCode", 999);
+        	model.addAttribute("resultMessage", "청구 된 데이터가 있습니다.");
+    	} else {
+    		pp04Svc.deleteMesShipList(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	}
+		
+    	return "jsonView";
+    }
+    
     
     /*  
      *   
