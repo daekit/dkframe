@@ -17,6 +17,10 @@ public interface PP04Svc {
 
 	int insertMesShipList(Map<String, Object> param);
 
+	int selectBilgNoCnt(Map<String, Object> paramMap);
+	
+	int deleteMesShipList(Map<String, Object> param);
+
 	
 	
 	/*

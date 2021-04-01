@@ -35,7 +35,6 @@ public class PP04Svcmpl implements PP04Svc {
 		return pp04Mapper.selectMesAllocVehlDtlList(paramMap);
 	}   
 
-	@SuppressWarnings("all")
 	@Override
 	public int insertMesShipList(Map<String, Object> paramMap) {
 		
@@ -49,9 +48,50 @@ public class PP04Svcmpl implements PP04Svc {
 			listMap.get(i).put("userId", userId);
 			listMap.get(i).put("userNm", userNm);
 			listMap.get(i).put("pgmId", pgmId);
+			listMap.get(i).put("erpTransYn", "Y");
 			pp04Mapper.insertMesList(listMap.get(i));
 			pp04Mapper.insertMesDetailList(listMap.get(i));
+			pp04Mapper.insertSellTrst(listMap.get(i));
 			pp04Mapper.updateMesListAmt(listMap.get(i));
+			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
+		}
+		return 0;
+	}
+
+	@Override
+	public int selectBilgNoCnt(Map<String, Object> paramMap) {
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		int cnt = 0;
+		List<Map<String,String>> listMap = (List<Map<String,String>>)paramMap.get("list");
+		for(int i = 0; i < listMap.size(); i++) {
+			listMap.get(i).put("userId", userId);
+			listMap.get(i).put("userNm", userNm);
+			listMap.get(i).put("pgmId", pgmId);
+			cnt = pp04Mapper.selectBilgNoCnt(listMap.get(i));
+			if (cnt > 0)
+				break;
+		}
+		return cnt;
+	}
+	
+	@Override
+	public int deleteMesShipList(Map<String, Object> paramMap) {
+		
+		//1. 화면에서 선택한 배차번호 목록을 가져와서 loop 실행 
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		
+		List<Map<String,String>> listMap = (List<Map<String,String>>)paramMap.get("list");
+		for(int i = 0; i < listMap.size(); i++) {
+			listMap.get(i).put("userId", userId);
+			listMap.get(i).put("userNm", userNm);
+			listMap.get(i).put("pgmId", pgmId);
+			listMap.get(i).put("erpTransYn", "N");
+			pp04Mapper.deleteMesDetailList(listMap.get(i));
+			pp04Mapper.deleteMesList(listMap.get(i));
 			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
 		}
 		return 0;

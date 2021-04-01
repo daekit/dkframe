@@ -22,9 +22,17 @@ public interface PP04Mapper {
 	
 	int insertMesDetailList(Map<String, String> paramMap);
 	
+	int insertSellTrst(Map<String, String> paramMap);
+	
 	int updateMesMtrlRslt(Map<String, String> paramMap);
 	
 	int updateMesListAmt(Map<String, String> paramMap);
+
+	int selectBilgNoCnt(Map<String, String> paramMap);
+	
+	int deleteMesList(Map<String, String> paramMap);
+	
+	int deleteMesDetailList(Map<String, String> paramMap);
 	
 	/*
 	 * 

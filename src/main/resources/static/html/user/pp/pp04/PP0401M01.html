@@ -136,6 +136,9 @@
 						<a onclick="insertMesShip();" style="float:right; margin-left:5px">
 							<button type="button" class="bg_gray">매출반영</button>
 						</a> 
+						<a onclick="deleteMesShip();" style="float:right; margin-left:5px">
+							<button type="button" class="bg_gray">매출반영취소</button>
+						</a> 
 					</li>
 				</ul>
          
@@ -344,7 +347,7 @@
 		});
 	}
 	
-	
+
 	function insertMesShip() {
 		var list = gridView.target.getList("selected");
 		var odrSeqArr = [];
@@ -383,6 +386,43 @@
 			gridView.setData(0);
 		});
 	}
+	
+	function deleteMesShip() {
+		var list = gridView.target.getList("selected");
+		var rowLength = gridView.target.getList("selected").length;
+		var flag = 0;
+		if(rowLength == 0) {
+			alert("반영 취소 할 데이터를 선택해 주세요.");
+			return;
+		}
+		$.each(list, function(idx, obj){
+			if(obj.erpTransYn == 'N'){
+				flag = 1;
+			}
+			if(!obj.odrSeq){
+				flag = 2;
+			}
+		});
+		if(flag == 1){
+			alert("반영되지 않은 건이 있습니다.");
+			return;
+		}
+		if(flag == 2){
+			alert("주문 번호를 확인 해 주세요.");
+			return;
+		}
+		var formData = {
+				"list" : list,
+				"userId" : jwt.userId,
+				"userNm" : jwt.userNm,
+				"pgmId" : "PP0401M01"
+		}
+		postAjax("/user/pp/pp04/deleteMesShipList", formData, null, function(data){
+			alert(data.resultMessage);
+			gridView.setData(0);
+		});
+	}
+	
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input[type='text']").val("");

@@ -139,7 +139,7 @@
 	<update id="updateMesMtrlRslt" parameterType="Map">
 		UPDATE KUMMUN.TB_MES_MTRL_RSLT
 		   SET 
-			 ERP_TRANS_YN   = 'Y'
+			 ERP_TRANS_YN   = #{erpTransYn}
 		WHERE
 			ALLOC_VEHL_NO = #{allocVehlNo}
 	</update>
@@ -346,6 +346,7 @@
 			, SHIP_DTTM
 			, ODR_CREAT_DIV
 			, SITE_CD
+			, ALLOC_VEHL_NO
 			, CREAT_ID
 			, CREAT_PGM
 			, CREAT_DTTM)
@@ -387,6 +388,7 @@
 				 , SYSDATE
 				 , 'MES'
 				 , SITE_CD
+				 , #{allocVehlNo}
 				 , #{userId}
 				 , #{pgmId}
 				 , SYSDATE
@@ -526,11 +528,162 @@
 WHERE T1.DIMS_CD = BM01.PRDT_SPEC
     </insert>
     
+    <insert id="insertSellTrst" parameterType="map">
+    INSERT INTO TB_AR02M01
+	(CO_CD
+	,TRST_CERTI_NO
+	,SELPCH_CD
+	,TAXIVC_COPRT
+	,TRST_DT
+	,TRST_CLNT_CD
+	,TRST_PRDT_CD
+	,OWNER_CD
+	,IMP_YN
+	,TYP_CD
+	,TRSP_TYP_CD
+	,TRST_RPRC_SEQ
+	,TRST_DTL_SEQ
+	,PRDT_LEN
+	,ODR_NO
+	,SALES_MNG
+	,PRJCT_CD
+	,MAKR_CD
+	,WH_CD
+	,MNG_TEL
+	,DLVR_DTTM
+	,DIRTRS_YN
+	,PRDT_DIV
+	,PRDT_STKN
+	,PRDT_SIZE
+	,PRDT_UNIT
+	,PRDT_UPR
+	,STOCK_UPR
+	,PCHS_UPR
+	,SELL_UPR
+	,TRST_QTY
+	,TRST_WT
+	,TRST_UPR
+	,TRST_AMT
+	,REAL_TRST_QTY
+	,REAL_TRST_WT
+	,REAL_TRST_UPR
+	,REAL_TRST_AMT
+	,BILG_QTY
+	,BILG_WT
+	,BILG_UPR
+	,BILG_AMT
+	,TRST_DC_AMT
+	,ETC_AMT
+	,TRSP_RMK
+	,TRANS_AMT
+	,SHIP_VEH_NO
+	,CLNT_NM
+	,BILG_CERT_NO
+	,LOSS_RATE
+	,ODR_CREAT_DIV
+	,CREAT_ID
+	,CREAT_PGM
+	,CREAT_DTTM
+	,SALES_AREA_CD
+	,SITE_CD
+	,BILG_VAT_AMT
+	,PRDT_SPEC)
+	SELECT A.CO_CD 
+		 , TB_AR02M01_SQ01.NEXTVAL
+		 , 'SELPCH2'
+		 , (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_KIND = 'WH' AND CODE_ID = A.WH_CD )
+		 , A.REQ_DT
+		 , A.CLNT_CD 
+		 , B.PRDT_CD 
+		 , A.OWNER_CD 
+		 , A.IMP_YN 
+		 , A.TYP_CD 
+		 , 'TRSPTYP1'
+		 , A.SHIP_SEQ
+		 , B.SHIP_DTL_SEQ
+		 , B.PRDT_LEN 
+		 , NULL
+		 , A.SALES_MNG 
+		 , A.PRJCT_CD 
+		 , A.MAKR_CD 
+		 , A.WH_CD 
+		 , A.MNG_TEL 
+		 , A.DLVR_DTTM 
+		 , A.DIRTRS_YN 
+		 , (SELECT PRDT_DIV FROM TB_BM01M01 WHERE PRDT_CD = B.PRDT_CD)
+		 , (SELECT PRDT_STKN FROM TB_BM01M01 WHERE PRDT_CD = B.PRDT_CD)
+		 , B.PRDT_SIZE
+		 , B.PRDT_UNIT
+		 , B.PRDT_UPR
+		 , B.STOCK_UPR 
+		 , B.PCHS_UPR 
+		 , B.SELL_UPR 
+		 , B.SHIP_QTY 
+		 , B.SHIP_WT 
+		 , B.SHIP_UPR 
+		 , B.SHIP_AMT 
+		 , B.REAL_SHIP_QTY 
+		 , B.REAL_SHIP_WT 
+		 , B.REAL_SHIP_UPR 
+		 , B.REAL_SHIP_AMT 
+		 , B.SHIP_QTY 
+		 , B.SHIP_WT 
+		 , B.SHIP_UPR 
+		 , B.SHIP_AMT 
+		 , 0 
+		 , 0 
+		 , NULL
+		 , TRANS_AMT
+		 , B.SHIP_VEH_NO 
+		 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD)
+		 , NULL
+		 , NULL
+		 , 'MES'
+		 , #{userId}
+		 , #{pgmId}
+		 , SYSDATE
+		 , A.SALES_AREA_CD 
+		 , A.SITE_CD 
+		 , NULL 
+		 , B.PRDT_SPEC
+	  FROM TB_AR01M01 A
+	     , TB_AR01D01 B
+	 WHERE A.SHIP_SEQ = B.SHIP_SEQ
+	   AND A.SHIP_SEQ = #{shipSeq}
+    </insert>
+    
     <update id="updateMesListAmt" parameterType="map">
     UPDATE TB_AR01M01
        SET SHIP_TOT_AMT = (SELECT SUM(REAL_SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{shipSeq})
        	 , REAL_TOT_AMT = (SELECT SUM(REAL_SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{shipSeq})
      WHERE SHIP_SEQ = #{shipSeq}
     </update>
+    
+    <select id="selectBilgNoCnt" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+      FROM TB_AR02M01
+     WHERE TRST_RPRC_SEQ = (SELECT SHIP_SEQ FROM TB_AR01M01 WHERE ALLOC_VEHL_NO = #{allocVehlNo}
+													       AND ODR_SEQ = #{odrSeq}
+													       AND CREAT_PGM = #{pgmId}
+													       AND ODR_CREAT_DIV = 'MES')
+       AND CREAT_PGM = #{pgmId}
+       AND BILG_CERT_NO IS NOT NULL
+    </select>
+    
+    <delete id="deleteMesDetailList" parameterType="map">
+    DELETE FROM TB_AR01D01
+     WHERE SHIP_SEQ = (SELECT SHIP_SEQ FROM TB_AR01M01 WHERE ALLOC_VEHL_NO = #{allocVehlNo}
+													       AND ODR_SEQ = #{odrSeq}
+													       AND CREAT_PGM = #{pgmId}
+													       AND ODR_CREAT_DIV = 'MES')			
+    </delete>
+    
+    <delete id="deleteMesList" parameterType="map">
+    DELETE FROM TB_AR01M01
+     WHERE ALLOC_VEHL_NO = #{allocVehlNo}
+       AND ODR_SEQ = #{odrSeq}
+       AND CREAT_PGM = #{pgmId}
+       AND ODR_CREAT_DIV = 'MES'
+    </delete>
 	
 </mapper>
