@@ -138,7 +138,7 @@ th {
 	                <th>현장명</th>
 	                <td>
 	                    <div class="search_form" style="width: 50%;">
-			              <input type="hidden" id="siteCd_S" name="siteCd" value="0">
+			              <input type="hidden" id="siteCd_S" name="siteCd">
 			              <input type="text" id="siteNm_S" name="siteNm">
 			              <button type="button" onclick="openSecondSiteSearch('S');"><i class="i_search_w"></i></button>
 			            </div>
@@ -182,6 +182,9 @@ th {
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
+				<div class="add_btn_small pdr10">
+					<a onclick="excelDownload();" style="height: 30px; line-height: 28px; width: 80px;">ExcelDown</a>
+				</div>
 			</div>
 		</div>
 	  	<!-- 콘텐츠 -->
@@ -504,6 +507,28 @@ th {
 				$("#siteNm").val(row.siteNm);
 				$("#prjctCd").val(row.prjctCd);
 			}
+		});
+	}
+	
+	function excelDownload() {
+		var formData = {
+			"selpchCd" : "SELPCH2",
+			"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+			"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+			"coCd" : $("#coCd_S").val(),
+			"clntNm" : $("#clntNm_S").val(),
+			"prdtDiv" : $("#prdtDiv_S").val(),
+			"estCoprt" : $("#estCoprt_S").val(),
+			"dirtrsYn" : $("#dirtrsYn_S").val(),
+			"typCd" : $("#typCd_S").val(),
+			"siteCd" : $("#siteCd_S").val(),
+			"pdsk" : $("#pdsk_S").val(),
+			"bilgYn" : $("#bilgYn_S").val(),
+			"pageNo" : 1, 
+			"recordCnt" : 100000
+		}
+		postAjax("/user/ar/ar02/excelDownload", formData, null, function(data){
+			debugger;
 		});
 	}
 </script>
