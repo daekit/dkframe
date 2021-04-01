@@ -150,29 +150,47 @@
 	</select>
 	
 	<insert id="insertCplrUntpc" parameterType="Map">
-	INSERT INTO TB_SD08M01
+	MERGE INTO TB_SD08M01
+	USING DUAL
+		ON 
+		(
+		CO_CD     = #{coCd} 
+		AND CLNT_CD   = #{clntCd}
+		AND PRDT_DT   = REPLACE(#{prdtDt}, '-', '')
+		AND SELPCH_CD = #{selpchCd}
+		AND PRDT_CD   = #{prdtCd}
+		)
+	WHEN MATCHED THEN
+	UPDATE SET 
+		PRDT_UPR = #{prdtUpr}
+	  , RMK = #{rmk}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHEN NOT MATCHED THEN
+	INSERT
 	(CO_CD,
-	 CLNT_CD,
-	 PRDT_DT,
-	 SELPCH_CD,
-	 PRDT_CD,
-	 PRDT_UPR,
-	 RMK,
-	 CREAT_ID,
-	 CREAT_PGM,
-	 CREAT_DTTM
-	 ) VALUES (
-	 #{coCd},
-	 #{clntCd},
-	 REPLACE(#{prdtDt}, '-', ''),
-	 #{selpchCd},
-	 #{prdtCd},
-	 #{prdtUpr},
-	 #{rmk},
-	 #{userId}, 
-	 #{pgmId}, 
-	 SYSDATE
-	 )
+	CLNT_CD,
+	PRDT_DT,
+	SELPCH_CD,
+	PRDT_CD,
+	PRDT_UPR,
+	RMK,
+	CREAT_ID,
+	CREAT_PGM,
+	CREAT_DTTM
+	) VALUES (
+	#{coCd},
+	#{clntCd},
+	REPLACE(#{prdtDt}, '-', ''),
+	#{selpchCd},
+	#{prdtCd},
+	#{prdtUpr},
+	#{rmk},
+	#{userId},
+	#{pgmId},
+	SYSDATE
+	)
 	</insert>
 	
 	<update id="updateCplrUntpc" parameterType="Map">
