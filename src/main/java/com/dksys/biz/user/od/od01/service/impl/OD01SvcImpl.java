@@ -180,6 +180,7 @@ public class OD01SvcImpl implements OD01Svc {
 	public int updateConfirm(Map<String, String> paramMap) {
 		int result = 0;
 		int realTotTrstAmt = 0;
+		boolean creditFlag = false;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
@@ -193,6 +194,7 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("coCd", paramMap.get("coCd"));
 				detailMap.put("clntCd", paramMap.get("clntCd"));
 				detailMap.put("selpchCd", "SELPCH1");
+				detailMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
 				detailMap.put("rmk", paramMap.get("ordrgDtlRmk"));
 				sd08Mapper.insertCplrUntpc(detailMap);
 				if("Y".equals(paramMap.get("dirtrsYn"))) {
@@ -222,7 +224,6 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("bilgUpr", detailMap.get("realDlvrUpr"));
 			paramMap.put("bilgAmt", detailMap.get("realDlvrAmt"));
 			paramMap.put("clntNm", detailMap.get("clntNm"));
-			realTotTrstAmt += Integer.parseInt(paramMap.get("realTrstAmt"));
 			ar02Mapper.insertPchsSell(paramMap);
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
@@ -250,6 +251,7 @@ public class OD01SvcImpl implements OD01Svc {
 				sm01Mapper.updateStockSell(paramMap);
 			}
 			if("Y".equals(paramMap.get("dirtrsYn"))) {
+				creditFlag = true;
 				paramMap.put("selpchCd", "SELPCH2");
 				paramMap.put("stockChgCd", "STOCKCHG02");
 				paramMap.put("cnltCd", paramMap.get("sellClntCd"));
@@ -258,6 +260,7 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
 				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
+				realTotTrstAmt += Integer.parseInt(paramMap.get("realTrstAmt"));
 				ar02Mapper.insertPchsSell(paramMap);
 				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 				{
@@ -270,7 +273,7 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 		}
 		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
-		if(ar02Svc.checkLoan(paramMap)) {
+		if(creditFlag && ar02Svc.checkLoan(paramMap)) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			return 0;
 		}
