@@ -1,6 +1,7 @@
 package com.dksys.biz.admin.cm.cm08.service.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -11,6 +12,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -140,6 +147,49 @@ public class CM08SvcImpl implements CM08Svc {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	@Override
+	public String excelDownload(List<Map<String, String>> list, String fileName) {
+		if(list.size() == 0) return "noData";
+		try (XSSFWorkbook xWorkbook = new XSSFWorkbook()) {
+			XSSFCellStyle numberCellStyle = xWorkbook.createCellStyle();
+			XSSFDataFormat numberDataFormat = xWorkbook.createDataFormat();
+			numberCellStyle.setDataFormat(numberDataFormat.getFormat("#,##0"));
+			XSSFSheet sheet = xWorkbook.createSheet("sheet1");
+			Row row = null;
+			int j = 0;
+			//컬럼 생성
+			row = sheet.createRow(0);
+			Map<String, String> map = list.get(0);
+			//컬럼 생성
+			for(String key : map.keySet()) {
+				Cell cell = row.createCell(j);
+				cell.setCellValue(key);
+				j++;
+			}
+			//행 데이터 생성
+			for (int i = 0; i < list.size(); i++) {
+				j = 0;
+				map = list.get(i);
+				row = sheet.createRow(i+1);
+				for(String key : map.keySet()) {
+					Cell cell = row.createCell(j);
+					cell.setCellValue(map.get(key));
+					j++;
+				}
+			}
+			FileOutputStream fileOut = null;
+	        String path = "C:\\upload\\" + fileName;
+			File f = new File(path);
+//        	if(!f.isDirectory()) f.mkdirs();
+        	fileOut = new FileOutputStream(f);
+        	xWorkbook.write(fileOut);
+      		f.deleteOnExit();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileName;
 	}
 	
 }

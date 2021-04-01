@@ -175,22 +175,22 @@ th {
 					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSell();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
+					<option value="100000" hidden>100000</option>
 				</select>
-				<div class="add_btn_small pdr10">
-					<a onclick="excelDownload();" style="height: 30px; line-height: 28px; width: 80px;">ExcelDown</a>
-				</div>
 			</div>
 		</div>
 	  	<!-- 콘텐츠 -->
 	    <div class="contents">
 	      	<!-- 리스트 -->
 	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
+	        <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 	    </div>
 	</div>
 </body>
@@ -227,9 +227,7 @@ th {
 		            onDBLClick: function () {
 // 		            	viewShipModal();
 		            },
-
 		            mergeCells : ["clntNm","trstDt","typNm","prdtNm","prdtStknNm","prdtSizeNm","prdtLen","prjctNm"],
-
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -245,7 +243,7 @@ th {
 		        },
 		        columns: [
 		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
-		          	{key: "bilgYn",         label: "전표",		align: "center",	width: 50,	formatter: "bilgYn"},
+		          	{key: "bilgYnImg",      label: "전표",		align: "center",	width: 50,	formatter: "bilgYn"},
 		        	{key: "clntCd",    	 	label: "거래처",		align: "left", 		width: 100, hidden: true},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
@@ -313,6 +311,45 @@ th {
 		}
 	}
 	
+	var excelView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		        target: $('[data-ax5grid="excel-grid"]'),
+		        columns: [
+		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
+		          	{key: "bilgYn",         label: "전표",		align: "center",	width: 50,},
+		        	{key: "clntCd",    	 	label: "거래처",		align: "left", 		width: 100, hidden: true},
+		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
+		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
+		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
+		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 140},
+		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80},
+		        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 80},
+		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50},
+		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 140},
+		        	{key: "realTrstAmt",    label: "공급금액",		align: "right",  	width: 80, 	formatter: "money"},
+		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", hidden: true},
+		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "bilgQty",        label: "청구수량", 	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "bilgWt",         label: "청구중량", 	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "bilgUpr",        label: "청구단가", 	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
+		            {key: "taxivcCoprtNm",	label: "매출법인", 	align: "left", 		width: 120},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgCertNo",     label: "청구번호", 	align: "center", 	width: 80},
+		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
+		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
+		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
+		        ]
+		    });
+			return this;
+		}
+	}
+	
 	$(document).ready(function() {
 		//순서 맨 처음
 		mainDefaultLoad("매출관리", "매출실적관리");
@@ -326,6 +363,7 @@ th {
 		// 			autoclose : true
 		});
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 
 	function changeRecordCnt() {
@@ -509,8 +547,8 @@ th {
 			}
 		});
 	}
-	
-	function excelDownload() {
+
+	function excelDown() {
 		var formData = {
 			"selpchCd" : "SELPCH2",
 			"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
@@ -527,8 +565,16 @@ th {
 			"pageNo" : 1, 
 			"recordCnt" : 100000
 		}
-		postAjax("/user/ar/ar02/excelDownload", formData, null, function(data){
-			debugger;
+		postAjax("/user/ar/ar02/selectSellList", formData, null, function(data){
+			var list = data.resultList;
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+			excelView.target.exportExcel("grid-to-excel.xls");
 		});
 	}
+	
 </script>

@@ -80,4 +80,39 @@ public class CM08Ctr {
 		}
 	}
     
+	@GetMapping(value="/excelDownload")
+	public void excelDownload(@RequestParam String fileName, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		BufferedInputStream bis = null;
+		ServletOutputStream sos = null;
+		String filePath = "C:\\upload\\";
+		try{
+			File file = new File(filePath+fileName);
+			response.setContentType("application/octet-stream; charset=UTF-8");
+			response.setContentLength((int)file.length());
+			cm08Svc.setDisposition(request, response, fileName);
+
+			OutputStream out = response.getOutputStream();
+	        FileInputStream fis = null;
+	         
+	        try {
+	            fis = new FileInputStream(file);
+	            FileCopyUtils.copy(fis, out);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        } finally {
+	            if (fis != null) { try { fis.close(); } catch (Exception e2) {}}
+	            if (out != null) { try { out.close(); } catch (Exception e2) {}}
+	        }
+	        out.flush();
+	        
+		} catch(IOException e){
+			e.printStackTrace();
+		} finally{
+			if(bis != null)
+				bis.close();
+			if(sos != null)
+				sos.close();
+		}
+	}
 }

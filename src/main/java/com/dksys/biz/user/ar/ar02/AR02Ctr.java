@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.util.MessageUtils;
@@ -22,10 +23,13 @@ public class AR02Ctr {
  
 	@Autowired
 	MessageUtils messageUtils;
-    
+	
     @Autowired
     AR02Svc ar02Svc;
-	
+
+    @Autowired
+    CM08Svc cm08Svc;
+    
     @PostMapping(value = "/selectSellList")
 	public String selectSellList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int totalCnt = ar02Svc.selectSellCount(paramMap);
@@ -79,4 +83,17 @@ public class AR02Ctr {
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
     }
+	
+	@PostMapping(value = "/excelDownload")
+	public String excelDownload(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		int totalCnt = ar02Svc.selectSellCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+		List<Map<String, String>> resultList = ar02Svc.selectSellList(paramMap);
+		String fileName = cm08Svc.excelDownload(resultList, "AR0201M01.xlsx");
+		model.addAttribute("fileName", fileName);
+		return "jsonView";
+	}
+	
 }
