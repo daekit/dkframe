@@ -86,7 +86,21 @@
 	       		<div class="search_option open">
 					<table class="table_input type03">
 						<tr>
-							<th>프로젝트</th>
+						
+							<th>현장</th>
+							<td>
+								<div class="search_form" style="width: 50%;">
+									<input type="hidden" data-search="prjctCd">
+									<input type="hidden" data-search="siteCd">
+									<input type="text" data-search="siteNm" disabled> 
+									<button type="button" onclick="openSiteSearch();">
+										<i class="i_search_w"></i>
+									</button>
+								</div>
+							</td>
+							
+													
+<!-- 							<th>프로젝트</th>
 							<td>
 								<div class="search_form" style="width: 50%;">
 									<input type="hidden" data-search="prjctCd">
@@ -96,6 +110,7 @@
 									</button>
 								</div>
 							</td>
+ -->
 							<th>제조사</th>
 							<td>
 								<select data-kind="MAKR" data-search="makrCd">
@@ -204,6 +219,7 @@
 		          	{key: "ordrgYn", 	label: "입고완료", 	align: "center", width: 70},
 		            {key: "reqDt", 		label: "발주일자", 	align: "center", width: 80},
 		            {key: "clntNm", 	label: "거래처", 		align: "left", width: 120},
+		        	{key: "siteNm", 	label: "현장", 	align: "left", width: 160},
 		        	{key: "prjctNm", 	label: "프로젝트", 	align: "left", width: 160},
 		        	{key: "whNm", 		label: "창고", 		align: "center", width: 100},
 		        	{key: "typNm", 		label: "판매유형", 	align: "center", width: 70},
@@ -419,7 +435,21 @@
 			modal.close();
 		});
 	}
-	
+	// 현장 검색
+	function openSiteSearch(){
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"clntCd": ""
+		}
+		
+		openModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+		//	$('[data-search="prjctCd"]').val(row.prjctCd);
+			$('[data-search="siteCd"]').val(row.siteCd);
+			$('[data-search="siteNm"]').val(row.siteNm);
+		});
+	}
+		
 	// 거래처 검색
 	function openClntSearch() {
 		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", function (grid) {
