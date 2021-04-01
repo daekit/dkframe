@@ -36,23 +36,35 @@
 				ROWNUM AS RNUM, A.*
 			FROM
 			(
-				SELECT 
-					B.CO_CD,
-					FN_CM05M01_CD_TO_NM(CO_CD) CO_NM,
-					A.CLNT_CD,
-					A.CLNT_NM,
-					A.BASIS_CDTLN_AMT,
-					SUM(B.PLDG_AMT) AS PLDG_AMT,
-					SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) AS CDTLN_AMT
-				FROM
-				  	TB_BM02M01 A
-				LEFT OUTER JOIN TB_BM02D02 B
-				             ON  A.CLNT_CD = B.CLNT_CD
+	
+			SELECT a.LINK_GRP_CLNT_CD,
+				LINK_GRP_CLNT_NM,
+				CO_CD, CO_NM,
+				CLNT_CD,
+				CLNT_NM,
+				sum(BASIS_CDTLN_AMT) AS BASIS_CDTLN_AMT,
+				SUM(PLDG03_AMT) AS PLDG03_AMT,
+				SUM(CDTLN_AMT) AS CDTLN_AMT,
+				MAX(LOAN_AMT) AS LOAN_AMT
+			FROM (SELECT 
+					    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
+	                    nvl2(A.LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 C WHERE C.CLNT_CD = A.LINK_GRP_CLNT_CD), A.CLNT_NM ) AS LINK_GRP_CLNT_NM,	
+						B.CO_CD,
+						FN_CM05M01_CD_TO_NM(b.CO_CD) CO_NM,
+						A.CLNT_CD,
+						A.CLNT_NM,
+						A.BASIS_CDTLN_AMT,
+						decode(b.PLDG_DIV_CD,'PLDG03',(B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0) AS PLDG03_AMT,
+						decode(b.PLDG_DIV_CD,'PLDG03',0,(B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100)) AS CDTLN_AMT,
+					    F_CREDIT_LOAN('C', A.CLNT_CD,B.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT
+		        FROM TB_BM02M01 A
+				INNER JOIN TB_BM02D02 B
+				             ON  A.CLNT_CD = B.CLNT_CD AND B.USE_YN = 'Y'
 				             <if test="coCd !=null and !coCd.equals('')">
 			     	         AND B.CO_CD = #{coCd} 
 				            </if>
 				WHERE 1=1
-				  AND A.USE_YN = 'Y'
+				  AND A.USE_YN = 'Y'   
 				<if test="useYn != null and !useYn.equals('')">
 				  AND B.USE_YN = #{useYn}
 				</if>
@@ -65,8 +77,8 @@
 				<if test="clntDivCd !=null and !clntDivCd.equals('')">
 				  AND A.CLNT_DIV_CD = #{clntDivCd} 
 				</if>
-				GROUP BY B.CO_CD, A.CLNT_CD, A.CLNT_NM, A.BASIS_CDTLN_AMT
-		    	ORDER BY  DECODE( NVL(A.BASIS_CDTLN_AMT,0),-1,decode(NVL(CDTLN_AMT,0),0,-1,CLNT_CD)) DESC ,CO_CD
+			) AS a
+			GROUP BY a.LINK_GRP_CLNT_CD , LINK_GRP_CLNT_NM, CLNT_CD, CLNT_NM, CO_CD, CO_NM
 			) A
 		)
 		WHERE
@@ -108,7 +120,9 @@
 					FN_CM05M01_CD_TO_NM(PLDG_DIV_CD) PLDG_DIV_NM,
 					B.PLDG_RCOGN_RATE,
 					B.PLDG_RMK,
-					B.PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT
+					B.PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT,
+					B.EXPRTN_DT,
+					B.SETUP_DT
 				FROM
 				  	TB_BM02M01 A
 				LEFT OUTER JOIN TB_BM02D02 B

@@ -54,6 +54,16 @@
 					TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD') AS CREAT_DTTM,
 					TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM,
 					A.BASIS_CDTLN_AMT,
+					f_CREDIT_LOAN('C', A.CLNT_CD,
+							<choose>
+								<when test="coCd != null and !coCd.equals('')">
+									#{coCd}
+								</when>
+								<otherwise>
+									'GGM'
+								</otherwise>
+							</choose>
+							 ,to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT,
 					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
 					 WHERE B.CLNT_CD = A.CLNT_CD  
 					      <if test="coCd != null and !coCd.equals('')">
@@ -61,8 +71,8 @@
 					       </if>
 					 ) AS CDTLN_AMT,
 					 LINK_GRP_YN,
-                     LINK_GRP_CLNT_CD,
-                     (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD ) AS LINK_GRP_CLNT_NM					 
+                     nvl(LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
+                     nvl2(LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD),A.CLNT_NM )AS LINK_GRP_CLNT_NM					 
 				FROM
 					TB_BM02M01 A
 				<where>
@@ -87,7 +97,7 @@
 						AND A.CLNT_NM LIKE '%${clntNm}%'
 					</if>
 				</where>
-				ORDER BY CLNT_CD
+				ORDER BY LINK_GRP_CLNT_CD, CLNT_CD
 			) A
 		)
 		WHERE
