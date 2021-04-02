@@ -37,7 +37,7 @@ public class SD04SvcImpl implements SD04Svc {
 	}
 
 	@Override
-	public List<Map<String, String>> selectOrderList(Map<String, String> paramMap) {
+	public List<Map<String, Object>> selectOrderList(Map<String, String> paramMap) {
 		return sd04Mapper.selectOrderList(paramMap);
 	}
 
