@@ -31,6 +31,11 @@ var secondModal = new ax5.ui.modal();
 var thirdModal = new ax5.ui.modal();
 var commonModal = {};
 
+var ubiprefix = "";
+if(jwt.serverType == "local") {
+	ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
+}
+
 var openModal = function(url, width, height, title, paramObj, callBack) {
 	modal.open({
 		header: {
@@ -614,4 +619,32 @@ function insertPgmHistory(url) {
 	postAjax("/admin/cm/cm06/insertPgmHistory", formData, null, function(data){
 		
 	});
+}
+
+function callReport(fileName, arg) {
+	debugger;
+	var url = ubiprefix;
+	url += "?file="+fileName;
+	url += "&arg="+encodeURIComponent(arg);
+	popCenter(url, "report", "900", "900", "yes");	
+}
+
+function popCenter(url, name, width, height, scroll) {
+	var str = "height=" + height + ",innerHeight=" + height;
+	str += ",width=" + width + ",innerWidth=" + width;
+	str += ",status=no,scrollbars=" + scroll;
+
+	if (window.screen)
+	{
+		var ah = screen.availHeight - 30;
+		var aw = screen.availWidth - 10;
+
+		var xc = (aw - width) / 2;
+		var yc = (ah - height) / 2;
+
+		str += ",left=" + xc + ",screenX=" + xc;
+		str += ",top=" + yc + ",screenY=" + yc;
+	}
+
+	return window.open(url, name, str);
 }
