@@ -34,8 +34,8 @@ public class SD04Ctr {
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, String>> resultList = sd04Svc.selectOrderList(paramMap);
-    	model.addAttribute("resultList", resultList);
+    	List<Map<String, Object>> orderList = sd04Svc.selectOrderList(paramMap);
+    	model.addAttribute("orderList", orderList);
     	return "jsonView";
 	}
     

@@ -10,7 +10,7 @@ public interface SD04Mapper {
 
 	int selectOrderCount(Map<String, String> paramMap);
 
-	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
+	List<Map<String, Object>> selectOrderList(Map<String, String> paramMap);
 	
 	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
 	

@@ -9,7 +9,7 @@ public interface SD04Svc {
 
 	int selectOrderCount(Map<String, String> paramMap);
 
-	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
+	List<Map<String, Object>> selectOrderList(Map<String, String> paramMap);
 
 	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
 	
