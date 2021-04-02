@@ -12,7 +12,6 @@
 			<form id="clntForm">
 				<input type="hidden" id="pgmId" name="pgmId" value="BM0602P02">
 				<input type="hidden" id="clntCd" name="clntCd">
-				<input type="hidden" id="coCd" name="coCd">
 				<!-- 기본정보 테이블 -->
 				<table class="popup_table">
 					<colgroup>
@@ -57,18 +56,46 @@
 	var deleteFileArr = [];
 	var fileGridView = {
 		initView: function() {
-			return this;
+
 		},
 		setData: function() {
+			var targetObj = this.target;
+			targetObj.setData({
+				list: clntFileArr,
+				page : {
+					totalElements : clntFileArr.length
+				}
+			});
 		}
 	}
 	
-
 	$(document).ready(function() {
-		
+
 		selectClntInfo();
 		
-	});	
+			
+	});
+	
+	function selectClntInfo() {
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"clntCd": row.clntCd};
+		postAjax("/admin/bm/bm02/selectClntInfo", paramObj, null, function(data){
+			setClntInfo(data.clntInfo);
+		});
+	}
+	
+	function setClntInfo(clntInfo) {
+		// 기본정보 set
+		$.each(clntInfo, function(key, value){
+			if($('#'+key)[0]){
+				$('#'+key).val(value);
+				// 금액 콤마 set
+				if($('#'+key).is('[comma]')){
+					addComma($('#'+key)[0]);
+				}
+			}s
+		});
+	}	
 	function setReport1() {
 		var formData = $('#clntForm').serializeObject();
 		formData.iChk = formData.iChk + ''; 
