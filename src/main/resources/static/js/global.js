@@ -31,6 +31,17 @@ var secondModal = new ax5.ui.modal();
 var thirdModal = new ax5.ui.modal();
 var commonModal = {};
 
+var ubiprefix = "";
+switch (jwt.serverType){
+    case "real" :
+        ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
+        break;
+    case "dev" :
+        ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
+        break;
+    default :
+        ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
+}
 var openModal = function(url, width, height, title, paramObj, callBack) {
 	modal.open({
 		header: {
@@ -177,7 +188,7 @@ function postAjax(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(tokenErrorMsg.includes(data.responseJSON.error)) {
+        	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1) {
 //        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -205,7 +216,7 @@ function postAjaxSync(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(tokenErrorMsg.includes(data.responseJSON.error)) {
+        	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1) {
 //        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -229,7 +240,7 @@ function deleteAjax(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(tokenErrorMsg.includes(data.responseJSON.error)){
+        	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -253,7 +264,7 @@ function putAjax(url, data, contentType, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(tokenErrorMsg.includes(data.responseJSON.error)){
+        	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -276,7 +287,7 @@ function filePostAjax(url, data, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(tokenErrorMsg.includes(data.responseJSON.error)){
+        	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -299,7 +310,7 @@ function filePutAjax(url, data, callback) {
 	    	callback(data);
 	    },
         error: function (data) {
-        	if(tokenErrorMsg.includes(data.responseJSON.error)){
+        	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
         		location.href = "/static/index.html";
         	}
@@ -614,4 +625,32 @@ function insertPgmHistory(url) {
 	postAjax("/admin/cm/cm06/insertPgmHistory", formData, null, function(data){
 		
 	});
+}
+
+function callReport(fileName, arg) {
+	debugger;
+	var url = ubiprefix;
+	url += "?file="+fileName;
+	url += "&arg="+encodeURIComponent(arg);
+	popCenter(url, "report", "900", "900", "yes");	
+}
+
+function popCenter(url, name, width, height, scroll) {
+	var str = "height=" + height + ",innerHeight=" + height;
+	str += ",width=" + width + ",innerWidth=" + width;
+	str += ",status=no,scrollbars=" + scroll;
+
+	if (window.screen)
+	{
+		var ah = screen.availHeight - 30;
+		var aw = screen.availWidth - 10;
+
+		var xc = (aw - width) / 2;
+		var yc = (ah - height) / 2;
+
+		str += ",left=" + xc + ",screenX=" + xc;
+		str += ",top=" + yc + ",screenY=" + yc;
+	}
+
+	return window.open(url, name, str);
 }
