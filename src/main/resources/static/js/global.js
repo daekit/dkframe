@@ -32,10 +32,16 @@ var thirdModal = new ax5.ui.modal();
 var commonModal = {};
 
 var ubiprefix = "";
-if(jwt.serverType == "local") {
-	ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
+switch (jwt.serverType){
+    case "real" :
+        ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
+        break;
+    case "dev" :
+        ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
+        break;
+    default :
+        ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
 }
-
 var openModal = function(url, width, height, title, paramObj, callBack) {
 	modal.open({
 		header: {
