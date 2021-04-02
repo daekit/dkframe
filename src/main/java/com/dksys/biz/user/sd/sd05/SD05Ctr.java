@@ -75,13 +75,14 @@ public class SD05Ctr {
 	
 	@PostMapping(value = "/insertProject")
 	public String insertProject(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+		System.out.println(paramMap);
 		sd05Svc.insertProject(paramMap, mRequest);
 		model.addAttribute("resultCode", 200);
 		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
 		return "jsonView";
 	}
 	
-	@PutMapping(value = "/updateProject")
+	@PostMapping(value = "/updateProject")
 	public String updateProject(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
 		sd05Svc.updateProject(paramMap, mRequest);
     	model.addAttribute("resultCode", 200);
@@ -103,4 +104,26 @@ public class SD05Ctr {
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
     }
+	
+	@PostMapping(value = "/selectPrdtDivCd")
+	public String selectPrdtDivCd(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		System.out.println("-----------------------------------------");
+		List<Map<String, String>> codeInfoList = sd05Svc.selectPrdtDivCd(paramMap);
+		model.addAttribute("codeInfoList", codeInfoList);
+		return "jsonView";
+	}
+	
+	@PostMapping(value = "/prdtDivCombo")
+	public String prdtDivCombo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		List<Map<String, String>> codeInfoList = sd05Svc.prdtDivCombo(paramMap);
+		model.addAttribute("codeInfoList", codeInfoList);
+		return "jsonView";
+	}
+	
+	@PostMapping(value = "/prdtSizeCombo")
+	public String prdtSizeCombo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		List<Map<String, String>> codeInfoList = sd05Svc.prdtSizeCombo(paramMap);
+		model.addAttribute("codeInfoList", codeInfoList);
+		return "jsonView";
+	}
 }

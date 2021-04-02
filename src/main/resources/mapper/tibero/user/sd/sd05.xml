@@ -45,15 +45,14 @@
 					,A.UDT_PGM
 					,TO_CHAR(A.UDT_DTTM,'YYYY-MM-DD') AS UDT_DTTM
 				FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
-				WHERE A.CLNT_CD = B.CLNT_CD
-				 AND  A.MNG_ID = C.ID
+				WHERE A.CLNT_CD = B.CLNT_CD(+)
+				 AND  A.MNG_ID = C.ID(+)
 				 AND  A.USE_YN = 'Y'
 				<if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
 				</if>
 				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				 	AND ( #{strtDt} BETWEEN  A.STRT_DT   AND  A.END_DT 
-				 	 OR #{endDt}  BETWEEN  A.STRT_DT   AND  A.END_DT)
+				 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
 				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
@@ -82,7 +81,7 @@
 	<select id="selectOrdDetail" parameterType="Map" resultType="camelMap">
 		SELECT TO_CHAR(TO_DATE(REQ_DT,'YYYYMMDD'),'YYYY-MM-DD') AS ORD_REQ_DT
 			  ,B.CLNT_CD AS ORD_CLNT_CD
-			  ,WH_CD AS ORD_WH_CD
+			  ,A.WH_CD AS ORD_WH_CD
 			  ,ADDR_MAIN AS ORD_ADDR_MAIN
 			  ,ADDR_SUB AS ORD_ADDR_SUB
 			  ,CONCAT(CONCAT(B.ADDR_MAIN,' '),B.ADDR_SUB) AS ORD_ADDR
@@ -98,7 +97,7 @@
 	
 	<select id="selectShipmentDetail" parameterType="Map" resultType="camelMap">
 		SELECT TO_CHAR(TO_DATE(REQ_DT,'YYYYMMDD'),'YYYY-MM-DD') AS SMT_REQ_DT
-			  ,WH_CD AS SMT_WH_CD
+			  ,A.WH_CD AS SMT_WH_CD
 			  ,ADDR_MAIN AS SMT_ADDR_MAIN
 			  ,ADDR_SUB AS SMT_ADDR_SUB
 			  ,CONCAT(CONCAT(B.ADDR_MAIN,' '),B.ADDR_SUB) AS SMT_ADDR
@@ -110,6 +109,17 @@
 		AND A.PRJCT_CD = B.PRJCT_CD
 		AND B.SHIP_SEQ = C.SHIP_SEQ
 		  AND B.PRJCT_CD = #{prjctCd}
+	</select>
+	
+	<select id="selectProjectDtl" parameterType="Map" resultType="camelMap">
+	SELECT CO_CD
+		 , PRJCT_CD
+		 , PRJCT_SEQ
+		 , PRDT_DIV PRDT_DIV_CD
+		 , PRDT_STKN PRDT_STKN_CD 
+		 , SIZE_LIST PRDT_SIZE_NM
+	  FROM TB_SD05D01
+	 WHERE PRJCT_CD = #{prjctCd}
 	</select>
 	
 	<select id="selectProjectClntList" parameterType="Map" resultType="CamelMap">
@@ -129,15 +139,14 @@
 	 		COUNT(*) 
 	 	FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 	 	WHERE 1=1
-	 	AND A.CLNT_CD = B.CLNT_CD
+	 	AND A.CLNT_CD = B.CLNT_CD(+)
 	 	AND A.USE_YN = 'Y'
-		AND  A.MNG_ID = C.ID
+		AND  A.MNG_ID = C.ID(+)
 		<if test= "coCd != null and !coCd.equals('')">
-			AND A.CO_CD = #{coCd}
+ 			AND A.CO_CD = #{coCd}
 		</if>
 		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-		 	AND ( #{strtDt} BETWEEN  A.STRT_DT   AND  A.END_DT 
-			 OR   #{endDt}  BETWEEN  A.STRT_DT   AND  A.END_DT)
+		 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
 		</if>
 		<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 			AND ${searchType} LIKE '%${searchValue}%'
@@ -147,87 +156,189 @@
 	<update id="updateProject" parameterType="Map">
 		UPDATE TB_SD05M01 
 			SET 
-			 CO_CD          = #{coCd}
-			,MNG_ID         = #{salesMng}
-			,MAKR_CD        = #{makrCdDtl}
-			,STRT_DT        = TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD') 
-			,END_DT         = TO_CHAR(TO_DATE(#{endDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD')
-			,TOT_WT         = #{totWtDtl}
-			,PRJCT_NM       = #{prjctNmDtl}
-			,CLNT_CD        = #{clntCd}
-			,TNKEY_YN       = #{tnkeyYnDtl}
-			,RMK            = #{rmkDtl}
-			,COPRT_CD       = #{coprtCd}
-			,PRJCT_ADDR_ZIP = #{prjctAddrZip}
-			,PRJCT_ADDR     = #{prjctAddr}
-			,PRJCT_ADDR_SUB = #{prjctAddrSub}
-			,PRJCT_MNG_NM   = #{prjctMngNm}
-			,TEL_NO         = #{telNo}
-			,LOSS_RATE      = #{lossRate}
-			,USE_YN         = #{useYn}
-			,PRJCT_MES_CD   = #{prjctMesCd}
-			,UDT_ID         = #{userId}
-			,UDT_PGM        = #{pgmId}										
-			,UDT_DTTM       = SYSDATE
+			 COPRT_CD         = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_KIND = 'WH' AND CODE_ID = #{whCd} )
+			, TNKEY_YN         = 'N'
+			, CLNT_CD          = #{clntCd}
+			, MAKR_CD          = #{makrCd}
+			, PRJCT_NM         = #{prjctNm}
+			, PRJCT_ADDR_ZIP   = #{prjctAddrZip}
+			, PRJCT_ADDR       = #{prjctAddr}
+			, PRJCT_ADDR_SUB   = #{prjctAddrSub}
+			, PRJCT_MNG_NM     = #{prjctMngNm}
+			, TEL_NO           = #{telNo}
+			, LOSS_RATE        = #{lossRate}
+			, STRT_DT          = REPLACE(#{strtDt}, '-', '')
+			, END_DT           = REPLACE(#{endDt}, '-', '')
+			, TOT_WT           = #{totWt}
+			, MNG_ID           = #{mngId}
+			, USE_YN           = #{useYn}
+			, RMK              = #{rmk}
+			, ORD_TYP          = #{ordTyp}                
+			, BILDNG_TYP       = #{bildngTyp}             
+			, ENGRK_TYP        = #{engrkTyp}              
+			, MAKR_MNG_NM      = #{makrMngNm}             
+			, CLNT_EMAIL       = #{clntEmail}             
+			, CLNT_FAX_NO      = #{clntFaxNo}             
+			, PRCSN_UPR        = #{prcsnUpr}              
+			, DC_DIV           = #{dcDiv}                 
+			, PRDT_UPR         = #{prdtUpr}               
+			, CPLR_YN          = #{cplrYn}                
+			, PMNT_MTD_CD      = #{pmntMtdCd}             
+			, SHOP_CLNT_CD     = #{shopClntCd}            
+			, SHOP_UPR         = #{shopUpr}               
+			, CTRT_RMK         = #{ctrtRmk}               
+			, OUTORD_UPR       = #{outordUpr}             
+			, OUTORD_LOSS_RATE = #{outordLossRate}        
+			, OUTORD_MNG_NM    = #{outordMngNm}           
+			, OUTORD_TEL_NO    = #{outordTelNo} 
+			, OUTORD_FAX_NO    = #{outordFaxNo}		
+			, WH_CD            = #{whCd}             
+			,UDT_ID         = #{userId}		 
+			,UDT_PGM        = #{pgmId}							
+			,UDT_DTTM       = SYSDATE		 
 		WHERE 
 			PRJCT_CD = #{prjctCd}
-			
+			AND CO_CD            = #{coCd}
 	</update>
+	
+	<update id="updatePrjctDtl" parameterType="Map">
+	UPDATE TB_SD05D01
+	   SET PRDT_DIV = #{prdtDivCd}
+		 , PRDT_STKN = #{prdtStknCd}
+		 , SIZE_LIST = #{prdtSizeNm}
+	 WHERE CO_CD = #{coCd}
+	   AND PRJCT_CD = #{prjctCd}
+	   AND PRJCT_SEQ = #{prjctSeq}
+	</update>
+	
+	<delete id="deleteProjectDtl" parameterType="Map">
+	DELETE FROM TB_SD05D01
+	 WHERE CO_CD = #{coCd}
+	   AND PRJCT_CD = #{prjctCd}
+	</delete>
 	
 	<insert id="insertProject" parameterType="Map">
 		<selectKey keyProperty="prjctCd" resultType="String" order="BEFORE">
 			SELECT TO_CHAR(SYSDATE, 'YYYYMMDD')||LPAD(TB_SD05M01_SQ01.NEXTVAL,3,0) FROM DUAL
 		</selectKey>
 		INSERT INTO TB_SD05M01
-			(
-				PRJCT_CD,
-				CO_CD,
-				MNG_ID,
-				MAKR_CD,
-				STRT_DT,
-				END_DT,
-				TOT_WT,
-				PRJCT_NM,
-				CLNT_CD,
-				TNKEY_YN,
-				RMK,
-	            COPRT_CD,
-                PRJCT_ADDR_ZIP,
-                PRJCT_ADDR,
-                PRJCT_ADDR_SUB,
-	            PRJCT_MNG_NM,
-	            TEL_NO,
-	            LOSS_RATE,
-	            USE_YN,
-	            PRJCT_MES_CD,
-				CREAT_ID,
-				CREAT_PGM,										
-				CREAT_DTTM
-			)VALUES(
-				#{prjctCd}, 
-				#{coCd}, 
-				#{salesMng}, 
-				#{makrCdDtl},
-				TO_CHAR(TO_DATE(#{strtDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD'), 
-				TO_CHAR(TO_DATE(#{endDtDtl}, 'YYYY-MM-DD'),'YYYYMMDD'),
-				#{totWtDtl}, 
-				#{prjctNmDtl}, 
-				#{clntCd}, 
-				#{tnkeyYnDtl}, 
-				#{rmkDtl},
-	            #{coprtCd},
-                #{prjctAddrZip},
-                #{prjctAddr},
-                #{prjctAddrSub},
-	            #{prjctMngNm},
-	            #{telNo},
-	            #{lossRate},
-	            #{useYn},
-	            #{prjctMesCd}, 
-				#{userId}, 
-				#{pgmId}, 
-				SYSDATE
-		 	)
+		(CO_CD
+		, PRJCT_CD
+		, COPRT_CD
+		, TNKEY_YN
+		, CLNT_CD
+		, MAKR_CD
+		, PRJCT_NM
+		, PRJCT_ADDR_ZIP
+		, PRJCT_ADDR
+		, PRJCT_ADDR_SUB
+		, PRJCT_MNG_NM
+		, TEL_NO
+		, LOSS_RATE
+		, STRT_DT
+		, END_DT
+		, TOT_WT
+		, MNG_ID
+		, USE_YN
+		, RMK
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+		, ORD_TYP
+		, BILDNG_TYP
+		, ENGRK_TYP
+		, MAKR_MNG_NM
+		, CLNT_EMAIL
+		, CLNT_FAX_NO
+		, PRCSN_UPR
+		, DC_DIV
+		, PRDT_UPR
+		, CPLR_YN
+		, PMNT_MTD_CD
+		, SHOP_CLNT_CD
+		, SHOP_UPR
+		, CTRT_RMK
+		, OUTORD_UPR
+		, OUTORD_LOSS_RATE
+		, OUTORD_MNG_NM
+		, OUTORD_TEL_NO
+		, OUTORD_FAX_NO
+		, WH_CD)
+		VALUES 
+		(
+		#{coCd}
+		, #{prjctCd}
+		, (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_KIND = 'WH' AND CODE_ID = #{whCd} )
+		, 'N'
+		, #{clntCd}
+		, #{makrCd}
+		, #{prjctNm}
+		, #{prjctAddrZip}
+		, #{prjctAddr}
+		, #{prjctAddrSub}
+		, #{prjctMngNm}
+		, #{telNo}
+		, #{lossRate}
+		, REPLACE(#{strtDt}, '-', '')
+		, REPLACE(#{endDt}, '-', '')
+		, #{totWt}
+		, #{mngId}
+		, #{useYn}
+		, #{rmk}
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+		, #{ordTyp}
+		, #{bildngTyp}
+		, #{engrkTyp}
+		, #{makrMngNm}
+		, #{clntEmail}
+		, #{clntFaxNo}
+		, #{prcsnUpr}
+		, #{dcDiv}
+		, #{prdtUpr}
+		, #{cplrYn}
+		, #{pmntMtdCd}
+		, #{shopClntCd}
+		, #{shopUpr}
+		, #{ctrtRmk}
+		, #{outordUpr}
+		, #{outordLossRate}
+		, #{outordMngNm}
+		, #{outordTelNo}
+		, #{outordFaxNo}
+		, #{whCd}
+		)
+	</insert>
+	
+	<insert id="insertProjectDtl" parameterType="Map">
+		<selectKey keyProperty="prjctSeq" resultType="String" order="BEFORE">
+			SELECT TB_SD05M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_SD05D01
+		(
+			CO_CD
+			, PRJCT_CD
+			, PRJCT_SEQ
+			, PRDT_DIV
+			, PRDT_STKN
+			, SIZE_LIST
+			, CREAT_ID
+			, CREAT_PGM
+			, CREAT_DTTM
+		)
+		VALUES
+		(
+			#{coCd}
+			, #{prjctCd}
+			, #{prjctSeq}
+			, #{prdtDivCd}
+			, #{prdtStknCd}
+			, #{prdtSizeNm}
+			, #{userId}
+			, #{pgmId}
+			, SYSDATE
+		)
 	</insert>
 	
 	<select id="selectConfirmCount" parameterType="Map" resultType="int">
@@ -250,4 +361,34 @@
 		WHERE PRJCT_CD = #{prjctCd}
 	</update>
 	
+	<select id="selectPrdtDivCd" parameterType="Map" resultType="camelMap">
+	SELECT CODE_ID PRDT_DIV_CD, CODE_NM PRDT_DIV_NM
+	  FROM TB_CM05M01
+	 WHERE CODE_KIND = 'PRDTDIV'
+	   AND USE_YN = 'Y'
+	ORDER BY CODE_ID
+	</select>
+	
+	<select id="prdtDivCombo" parameterType="Map" resultType="camelMap">
+	SELECT FN_CM05M01_CD_TO_NM(PRDT_STKN) PRDT_STKN_NM , PRDT_STKN
+	  FROM TB_BM01M01
+	 WHERE PRDT_DIV = #{prdtDivCd}
+	   AND PRDT_STKN IS NOT NULL
+	GROUP BY PRDT_STKN
+	</select>
+	
+	<select id="prdtSizeCombo" parameterType="Map" resultType="camelMap">
+	SELECT PRDT_SIZE
+	  FROM TB_BM01M01
+	 WHERE PRDT_DIV = 'PRDTDIV11'
+	 <if test= "prdtDivCd != null and !prdtDivCd.equals('')">
+	 AND PRDT_DIV = #{prdtDivCd}
+	 </if>
+	 <if test= "prdtStkn != null and !prdtStkn.equals('')">
+     PRDT_STKN = #{prdtStkn} 
+	 </if>
+	 AND PRDT_SIZE IS NOT NULL
+	GROUP BY PRDT_SIZE
+	ORDER BY PRDT_SIZE
+	</select>
 </mapper>

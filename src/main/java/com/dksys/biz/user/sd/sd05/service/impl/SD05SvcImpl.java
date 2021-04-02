@@ -66,12 +66,24 @@ public class SD05SvcImpl implements SD05Svc {
 		returnMap.put("prjInfo", sd05Mapper.selectPrjInfo(paramMap));
 		returnMap.put("ordDetail", sd05Mapper.selectOrdDetail(paramMap));
 		returnMap.put("shipmentDetail", sd05Mapper.selectShipmentDetail(paramMap));
+		returnMap.put("prjctDtl", sd05Mapper.selectProjectDtl(paramMap));
 		return returnMap;
 	}
 	
 	@Override
 	public int insertProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		int result = sd05Mapper.insertProject(paramMap);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> dtlParam = gson.fromJson(paramMap.get("detailArr"), dtlMap);
+		
+		for(Map<String, String> dtl : dtlParam) {
+			dtl.put("coCd", paramMap.get("coCd"));
+			dtl.put("prjctCd", paramMap.get("prjctCd"));
+			dtl.put("userId", paramMap.get("userId"));
+			dtl.put("pgmId", paramMap.get("pgmId"));
+			sd05Mapper.insertProjectDtl(dtl);
+		}
 		//sd05Mapper.deleteProject(paramMap);
 		cm08Svc.uploadFile("TB_SD05M01", paramMap.get("prjctCd"), mRequest);
 		return result;
@@ -80,23 +92,50 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public int updateProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		int result = sd05Mapper.updateProject(paramMap);
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		cm08Svc.uploadFile("TB_SD05M01", paramMap.get("prjctCd"), mRequest);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		String[] deleteFileArr = gson.fromJson(paramMap.get("deleteFileArr"), String[].class);
 		List<String> deleteFileList = Arrays.asList(deleteFileArr);
 		for(String fileKey : deleteFileList) {
 			cm08Svc.deleteFile(fileKey);
+		}
+		Gson gsonDtl = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> dtlParam = gsonDtl.fromJson(paramMap.get("detailArr"), dtlMap);
+		sd05Mapper.deleteProjectDtl(paramMap);
+		for(Map<String, String> dtl : dtlParam) {
+			dtl.put("coCd", paramMap.get("coCd"));
+			dtl.put("prjctCd", paramMap.get("prjctCd"));
+			dtl.put("userId", paramMap.get("userId"));
+			dtl.put("pgmId", paramMap.get("pgmId"));
+			sd05Mapper.insertProjectDtl(dtl);
 		}
 		return result;
 	}
 	
 	@Override
 	public int deleteProject(Map<String, String> param) {
+		//sd05Mapper.deleteProjectDtl(param); 마스터테이블 사용여부만 n으로
 		return sd05Mapper.deleteProject(param);
 	}
 	
 	@Override
 	public int selectConfirmCount(Map<String, String> paramMap) {
 		return sd05Mapper.selectConfirmCount(paramMap);
+	}
+    
+	@Override
+	public List<Map<String, String>> selectPrdtDivCd(Map<String, String> param) {
+		return sd05Mapper.selectPrdtDivCd(param);
+	}
+    
+	@Override
+	public List<Map<String, String>> prdtDivCombo(Map<String, String> param) {
+		return sd05Mapper.prdtDivCombo(param);
+	}
+    
+	@Override
+	public List<Map<String, String>> prdtSizeCombo(Map<String, String> param) {
+		return sd05Mapper.prdtSizeCombo(param);
 	}
 }
