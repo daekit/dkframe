@@ -266,14 +266,14 @@
 			</td>
 			<td>
               <div class="search_form">
-                <select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV" onchange="prdtDivCombo(this);">
+                <select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV" onchange="prdtDivCombo(this);" required="required">
                   <option value="">선택</option>
             	</select>
               </div>
             </td>
             <td>
               <div class="search_form">
-                <select id="prdtStknCd" name="prdtStknCd"onchange="prdtStknCombo(this);">
+                <select id="prdtStknCd" name="prdtStknCd"onchange="prdtStknCombo(this);" required="required">
           	      <option value="">선택</option>
             	</select>
               </div>
@@ -707,7 +707,6 @@
 			"prjctCd" : row.prjctCd,
 			"salesMng" : row.mngId
 		}
-		console.log($(".detailRow").find("[name="+'prdtStknCd'+"]")[0]);
 		postAjax("/user/sd/sd05/selectPrjInfo", formData, null, function(data){
 			setPrjInfo(data.result);
 		});
@@ -741,7 +740,6 @@
 			$.each(prjctDtl, function(idx, item){
 				if(idx != 0) addRow();
 				$.each(item, function(key, value){
-					console.log("key : " + key);
 					if(key == "prdtDivCd"){
 						var formData = {"prdtDivCd" : value};
 						postAjax("/user/sd/sd05/prdtDivCombo", formData, null, function(stknData){
@@ -774,14 +772,11 @@
 		$.each(item, function(key, value){
 			if($(".detailRow").find("[name="+key+"]")[idx] != undefined) {
 				$(".detailRow").find("[name="+key+"]")[idx].value = value;
-				console.log(key + " : " + value);
 				if(key == "prdtDivCd"){
 					if(value == "PRDTDIV11"){
-						console.log(true);
 						$('.detailRow button').eq(idx).prop("disabled",false);
 			 	 		$('.detailRow [name=prdtSizeNm]').eq(idx).prop("disabled",false);
 					} else {
-						console.log(false);
 						$('.detailRow button').eq(idx).prop("disabled",true);
 			 	 		$('.detailRow [name=prdtSizeNm]').eq(idx).prop("disabled",true);
 					}
@@ -877,7 +872,6 @@
 			var formData = makeFormData();
 			
 			filePostAjax("/user/sd/sd05/updateProject", formData, function(data){
-				console.log(data);
 				alert(data.resultMessage);            
 				gridView.setData(0);
 				modal.close();
