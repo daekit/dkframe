@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.sd.sd05.mapper.SD05Mapper;
 import com.dksys.biz.user.sd.sd05.service.SD05Svc;
+import com.dksys.biz.user.sd.sd09.mapper.SD09Mapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -25,6 +26,9 @@ public class SD05SvcImpl implements SD05Svc {
 	
     @Autowired
     SD05Mapper sd05Mapper;
+	
+    @Autowired
+    SD09Mapper sd09Mapper;
 
     @Autowired
     CM08Svc cm08Svc;
@@ -73,6 +77,13 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public int insertProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		int result = sd05Mapper.insertProject(paramMap);
+		paramMap.put("siteNm", paramMap.get("prjctNm"));
+		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
+		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
+		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
+		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));
+		result = sd09Mapper.insertSite(paramMap);
+		
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> dtlParam = gson.fromJson(paramMap.get("detailArr"), dtlMap);
