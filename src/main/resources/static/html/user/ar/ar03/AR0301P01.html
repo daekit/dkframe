@@ -49,17 +49,6 @@
                 <td>   
                 	<input id="totWt" name="totWt" type="text" style="width: 100%;" onchange="transPrc();" onkeyup="addComma(this);" comma>
                 </td>
-                <th class="">중량(KG)</th>
-                <td>   
-                	<input id="totWt2" name="totWt2" type="text" style="width: 100%;" readonly="readonly" onkeyup="addComma(this);" comma>
-                </td>
-            </tr>
-            <tr>
-                <th class="">도착지</th>
-                <td>
-                	<input id="desCd" name="desCd" type="hidden" style="width: 100%;" >
-                	<input id="desNm" name="desNm" type="text" style="width: 100%;" >
-                </td>
                 <th class="">현 장</th>
 	            <td>
 	          	  <div class="search_form">
@@ -69,7 +58,22 @@
 	                <input type="text" id="siteNm" name="siteNm"  readonly="readonly">
 	              <a onclick="openThirdSiteSearch();"><i class="i_search_w"></i></a>
 	              </div>
-	            </td>
+	            </td>                
+            </tr>
+            <tr>
+                <th class="">도착지</th>
+                <td>
+                	<input id="desCd" name="desCd" type="hidden" style="width: 100%;" >
+                	<input id="desNm" name="desNm" type="text" style="width: 100%;" >
+                </td>
+                
+                <th class="">착불여부</th>
+                <td>   
+                	<input type="hidden" id="totWt2" name="totWt2"  >   
+                	 <select id="arvpayYn" name="arvpayYn" data-kind="YN" onchange="changePayCo();">   
+                	 </select>
+                </td>
+
             </tr>
             <tr>
                 <th class="">상차지(창고)</th>
@@ -103,6 +107,7 @@
                 	<input id="transAmt" name="transAmt" type="text" onkeyup="addComma(this);" comma required>
                 </td>
             </tr>
+
             <tr>
                 <th class="">비고</th>
            		<td colspan="5">                                     
@@ -262,6 +267,8 @@
 		if(actionType == "C") {
 			$('#actionBtn').on("click", function(){insertCaryng();});
 			$("#actionBtn").text("등록");
+			$("#arvpayYn").val("N");
+			changePayCo();
 		}else if(actionType == "U"){
 			$("#ordrgTable").show();
 			$("#shipmentTable").show();
@@ -269,6 +276,17 @@
 			selectCaryngInfo();
 			$('#actionBtn').on("click", function(){updateCaryng();});
 			$('#actionBtn').text("수정");
+		}
+	}
+	
+	function changePayCo(){
+		var prvpayYn =  $("#arvpayYn").val();
+		if(prvpayYn == "N"){
+			$("#payCo").val($('#coCd option:selected').text());
+	//		$("#payCo").prop("readonly", true);
+		}else{
+			$("#payCo").val("착불");
+	//		$("#payCo").prop("readonly", false);
 		}
 	}
 	
