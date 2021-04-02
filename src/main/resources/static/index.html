@@ -67,10 +67,18 @@
 			"/oauth/token",
 			formData,
 			function(data, status, request) {
+				data.userId = $("#id").val();
 				setCookie("jwtToken", "Bearer "+data.access_token, 1);
+				insertTokenInfo(data);
 				openNotiPop();
 			}
 		);
+	}
+	
+	function insertTokenInfo(data) {
+		postAjax("/oauth/insertRefreshToken", data, null, function(data) {
+			alert("완료")
+		});
 	}
 	
 	function openNotiPop() {

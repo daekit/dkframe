@@ -22,8 +22,10 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
     @Qualifier("erpDataSource")
 	private DataSource dataSource;
+	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	

@@ -455,6 +455,9 @@ function setCommonSelect(el){
 function mainDefaultLoad(menuNm, subMenuNm) {
 	// left
 	$("#head_area").load("/static/html/header.html", function(){
+		if(jwt.authInfo.indexOf("AUTH100") > -1){
+			$(".logo a")[0].href = "/static/html/admin/cm/cm11/CM1101M01.html"
+		}
 		$("#head_area #title").html(subMenuNm);
 	});
 	$("#head_area").after('<div class="menu_off"><a class="off_btn"></a></div>');
@@ -628,7 +631,6 @@ function insertPgmHistory(url) {
 }
 
 function callReport(fileName, arg) {
-	debugger;
 	var url = ubiprefix;
 	url += "?file="+fileName;
 	url += "&arg="+encodeURIComponent(arg);
