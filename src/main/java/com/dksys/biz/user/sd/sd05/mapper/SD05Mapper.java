@@ -26,12 +26,26 @@ public interface SD05Mapper {
 	List<Map<String, String>> selectOrdDetail(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectShipmentDetail(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectProjectDtl(Map<String, String> paramMap);
 	
 	int insertProject(Map<String, String> paramMap);
+	
+	int insertProjectDtl(Map<String, String> paramMap);
 
 	int updateProject(Map<String, String> param);
+
+	int updatePrjctDtl(Map<String, String> param);
 	
 	int selectConfirmCount(Map<String, String> paramMap);
 	
 	int deleteProject(Map<String, String> param);
+	
+	int deleteProjectDtl(Map<String, String> param);
+	
+	List<Map<String, String>> selectPrdtDivCd(Map<String, String> param);
+	
+	List<Map<String, String>> prdtDivCombo(Map<String, String> param);
+	
+	List<Map<String, String>> prdtSizeCombo(Map<String, String> param);
 }
