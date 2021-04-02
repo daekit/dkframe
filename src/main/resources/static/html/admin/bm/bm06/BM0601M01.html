@@ -102,6 +102,9 @@
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
+				<div class="add_btn_small pdr10">
+	                <a onclick="openReportDetail();" style="height: 30px; line-height: 28px;">출력</a>
+	            </div>
 			</div>
 		</div>
 	  <!-- 콘텐츠 -->
@@ -216,6 +219,10 @@
 		openModal("/static/html/admin/bm/bm06/BM0602P01.html", 1500, 800, "");
 	}
 
+	function openReportDetail() {
+		openModal("/static/html/admin/bm/bm06/BM0602P02.html", 600, 200, "");
+	}
+
 	function unuseClnt() {
 		if (selectGridValidation(gridView.target)) return;
 		if (!confirm("삭제하시겠습니까?")) return;
@@ -237,4 +244,16 @@
 			$('#clntNm_S').val(row.clntNm);
 		});
 	}
+
+	function setReport() {
+		var row = gridView.target.getList("selected")[0];
+		if(row == undefined) {
+			return;
+		}
+		
+		var fileName = "BM0201R01.jrf";
+		var arg = "i_chk#"+"감액"+"#i_co_cd#"+$('#coCd').val()+"#i_clnt_cd#"+row.clntCd+"#";
+		callReport(fileName, arg);
+	}	
+	
 </script>

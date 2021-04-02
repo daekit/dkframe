@@ -1,0 +1,82 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">거래처 한도 품의서 출력</h4>
+    </div>
+
+	<div class="popup_table">
+		<div class="form-group">
+			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
+			<form id="clntForm">
+				<input type="hidden" id="pgmId" name="pgmId" value="BM0602P02">
+				<input type="hidden" id="clntCd" name="clntCd">
+				<input type="hidden" id="coCd" name="coCd">
+				<!-- 기본정보 테이블 -->
+				<table class="popup_table">
+					<colgroup>
+						<col width="20%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+					</colgroup>
+					<tbody>
+						<tr>
+							<th class="hit">품의서 종류는 ?</th>
+							<td>
+								<INPUT type=radio id="iChk" name="iChk" value="신규">신규  
+							</td>
+							<td>
+								<INPUT type=radio id="iChk" name="iChk" value="감액" checked>감액  
+							</td>
+							<td>
+								<INPUT type=radio id="iChk" name="iChk" value="증액"> 증액  
+							</td>
+							<td>
+								<INPUT type=radio id="iChk" name="iChk" value="재품의"> 재품의  
+							</td>
+
+						</tr>
+					</tbody>
+				</table>
+				<br>
+			</form>
+			<br>
+			<br>
+		</div>
+	</div>
+	<div>
+	    <button type="button" class="btn btn-default btn-sm" onclick="setReport1();">출력</button>
+	    <button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+    </div>
+</div>
+<script type="text/javascript">
+	var clntFileArr = [];
+	var deleteFileArr = [];
+	var fileGridView = {
+		initView: function() {
+			return this;
+		},
+		setData: function() {
+		}
+	}
+	
+
+	$(document).ready(function() {
+		
+		selectClntInfo();
+		
+	});	
+	function setReport1() {
+		var formData = $('#clntForm').serializeObject();
+		formData.iChk = formData.iChk + ''; 
+//		alert(formData.iChk);
+
+		var fileName = "BM0201R01.jrf";
+		var arg = "i_chk#"+formData.iChk+"#i_co_cd#"+$('#coCd').val()+"#i_clnt_cd#"+$('#clntCd').val()+"#";
+		callReport(fileName, arg);
+		modal.close();
+	}	
+</script>
