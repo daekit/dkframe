@@ -141,6 +141,9 @@
 		<if test="prdtNm != null and !prdtNm.equals('')">
 				AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
 		</if>
+		<if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
+				AND C.PRDT_COIL_YN LIKE  #{prdtCoilYn}
+		</if>
 		ORDER BY CO_CD
 	</select>
 	
@@ -187,6 +190,7 @@
 						, A.PROPRT_STOCK_QTY
 						, A.ODR_QTY
 						, A.STOCK_CHG_CD
+						, C.PRDT_COIL_YN
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 				WHERE  A.PRDT_CD = C.PRDT_CD
 				AND A.CLNT_CD = E.CLNT_CD(+)
@@ -213,6 +217,9 @@
 				</if>
 				<if test="prdtNm != null and !prdtNm.equals('')">
 						AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+				</if>
+				<if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
+						AND C.PRDT_COIL_YN LIKE  #{prdtCoilYn}
 				</if>
 			)D
 		)
@@ -330,38 +337,35 @@
 		   #{userId},
 		   #{pgmId}, 
 		   SYSDATE FROM TB_SM01M01
-		   WHERE CO_CD = #{coCd}
-			  AND WH_CD = #{whCd}
-			  AND PRDT_CD = #{prdtCd}
-			  AND OWNER_CD = #{ownerCd}
-			  AND CLNT_CD = #{clntCd}
-			  AND TYP_CD = #{typCd} 
-			  AND MAKR_CD = #{makrCd} 
-			  AND PRJCT_CD = #{prjctCd}
-			  AND IMP_YN = #{impYn})S 
+		   WHERE  STOK_SEQ = #{stokSeq}) S 
 		ON (
-			  A.CO_CD = S.CO_CD
-		  AND A.WH_CD = S.WH_CD
-		  AND A.CLNT_CD = S.CLNT_CD
-		  AND A.TYP_CD = S.TYP_CD
-		  AND A.MAKR_CD = S.MAKR_CD
-		  AND A.OWNER_CD = S.OWNER_CD
-		  AND A.PRDT_CD = S.PRDT_CD
-		  AND A.IMP_YN = S.IMP_YN
-		  AND A.PRJCT_CD = S.PRJCT_CD
+			  A.CO_CD     = S.CO_CD
+		  AND A.WH_CD     = S.WH_CD
+		  AND A.CLNT_CD   = S.CLNT_CD
+		  AND A.TYP_CD    = S.TYP_CD
+		  AND A.MAKR_CD   = S.MAKR_CD
+		  AND A.OWNER_CD  = S.OWNER_CD
+		  AND A.PRDT_CD   = S.PRDT_CD
+		  AND A.IMP_YN    = S.IMP_YN
+		  AND A.PRJCT_CD  = S.PRJCT_CD
+		  AND NVL(A.PRDT_SIZE,0) = NVL(S.PRDT_SIZE,0)
+		  AND NVL(A.PRDT_SPEC,0) = NVL(S.PRDT_SPEC,0)
+		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0)
 		)
 		WHEN MATCHED THEN 
-			UPDATE SET (
-				  STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
-				WHERE CO_CD = #{coCd}
-				  AND WH_CD = #{sWhCd}
-				  AND PRDT_CD = #{prdtCd}
+			UPDATE SET  STOCK_QTY = STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+				WHERE CO_CD    = #{coCd}
+				  AND WH_CD    = #{sWhCd}
+				  AND PRDT_CD  = #{prdtCd}
 				  AND OWNER_CD = #{ownerCd}
-				  AND CLNT_CD = #{clntCd} 
-				  AND TYP_CD = #{sellType}
-				  AND MAKR_CD = #{makrCd} 
+				  AND CLNT_CD  = #{clntCd} 
+				  AND TYP_CD   = #{sellType}
+				  AND MAKR_CD  = #{makrCd} 
 				  AND PRJCT_CD = #{prjctCd}
-				  AND IMP_YN = #{impYn} 
+				  AND IMP_YN   = #{impYn} 
+		          AND NVL(PRDT_SIZE,0) = NVL(prdtCd,0)
+		          AND NVL(PRDT_SPEC,0) = NVL(prdtCd,0)
+		          AND NVL(PRDT_LEN,0)  = NVL(prdtCd,0)
 				)
 		WHEN NOT MATCHED THEN 
 		INSERT
@@ -482,11 +486,11 @@
 		   SELECT 
 		   STOK_SEQ,
 		   CO_CD,
-		   #{sWhCd} AS WH_CD,
-		   #{sPrdtCd} AS PRDT_CD,
-		   PRDT_SIZE,
-		   PRDT_SPEC,
-		   PRDT_LEN,
+		   #{sWhCd}     AS WH_CD,
+		   #{sPrdtCd}   AS PRDT_CD,
+		   #{sPrdtSize} AS PRDT_SIZE,
+		   #{sPrdtSpec} AS PRDT_SPEC,
+		   #{sPrdtLen}  AS PRDT_LEN,
 		   OWNER_CD,
 		   CLNT_CD,
 		   #{sellType} AS TYP_CD,
@@ -504,39 +508,24 @@
 		   #{userId},
 		   #{pgmId}, 
 		   SYSDATE FROM TB_SM01M01
-		   WHERE CO_CD = #{coCd}
-			  AND WH_CD = #{whCd}
-			  AND PRDT_CD = #{prdtCd}
-			  AND OWNER_CD = #{ownerCd}
-			  AND CLNT_CD = #{clntCd}
-			  AND TYP_CD = #{typCd} 
-			  AND MAKR_CD = #{makrCd} 
-			  AND PRJCT_CD = #{prjctCd}
-			  AND IMP_YN = #{impYn})S 
+		   WHERE STOK_SEQ = #{stokSeq})S 
 		ON (
-			  A.CO_CD = S.CO_CD
-		  AND A.WH_CD = S.WH_CD
-		  AND A.CLNT_CD = S.CLNT_CD
-		  AND A.TYP_CD = S.TYP_CD
-		  AND A.MAKR_CD = S.MAKR_CD
-		  AND A.OWNER_CD = S.OWNER_CD
-		  AND A.PRDT_CD = S.PRDT_CD
-		  AND A.IMP_YN = S.IMP_YN
-		  AND A.PRJCT_CD = S.PRJCT_CD
+			  A.CO_CD     = S.CO_CD
+		  AND A.WH_CD     = S.WH_CD
+		  AND A.CLNT_CD   = S.CLNT_CD
+		  AND A.TYP_CD    = S.TYP_CD
+		  AND A.MAKR_CD   = S.MAKR_CD
+		  AND A.OWNER_CD  = S.OWNER_CD
+		  AND A.PRDT_CD   = S.PRDT_CD
+		  AND A.IMP_YN    = S.IMP_YN
+		  AND A.PRJCT_CD  = S.PRJCT_CD
+		  AND NVL(A.PRDT_SIZE,0) = NVL(S.PRDT_SIZE,0)
+		  AND NVL(A.PRDT_SPEC,0) = NVL(S.PRDT_SPEC,0)
+		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0)
 		)
 		WHEN MATCHED THEN 
-			UPDATE SET (
-				  STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
-				WHERE CO_CD = #{coCd}
-				  AND WH_CD = #{sWhCd}
-				  AND PRDT_CD = #{sPrdtCd}
-				  AND OWNER_CD = #{ownerCd}
-				  AND CLNT_CD = #{clntCd} 
-				  AND TYP_CD = #{sellType}
-				  AND MAKR_CD = #{makrCd} 
-				  AND PRJCT_CD = #{prjctCd}
-				  AND IMP_YN = #{impYn} 
-				)
+			UPDATE SET   ( STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
 		WHEN NOT MATCHED THEN 
 		INSERT
 		(

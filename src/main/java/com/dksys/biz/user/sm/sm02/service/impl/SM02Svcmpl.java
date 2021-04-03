@@ -91,13 +91,13 @@ public class SM02Svcmpl implements SM02Svc {
 		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId", param.get("userId").toString());
-			detailMap.put("pgmId", param.get("pgmId").toString());
-			detailMap.put("sWhCd", detail.get("sWhCd"));
+			detailMap.put("userId",   param.get("userId").toString());
+			detailMap.put("pgmId",    param.get("pgmId").toString());
+			detailMap.put("sWhCd",    detail.get("sWhCd"));
 			detailMap.put("sTransDt", detail.get("sTransDt"));
-			detailMap.put("sRmk", detail.get("sRmk"));
+			detailMap.put("sRmk",     detail.get("sRmk"));
 			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
+			detailMap.put("sPrdtCd",  detail.get("sPrdtCd"));
 			
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap);
 			sm02Mapper.sm01UpdateStockMove(detailMap);
@@ -114,16 +114,16 @@ public class SM02Svcmpl implements SM02Svc {
 		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId", param.get("userId").toString());
-			detailMap.put("pgmId", param.get("pgmId").toString());
-			detailMap.put("sWhCd", detail.get("sWhCd"));
-			detailMap.put("sTransDt", detail.get("sTransDt"));
-			detailMap.put("sRmk", detail.get("sRmk"));
-			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrdtCd", detail.get("sPrdtCd"));
+			detailMap.put("userId",    param.get("userId").toString());
+			detailMap.put("pgmId",     param.get("pgmId").toString());
+			detailMap.put("sWhCd",     detail.get("sWhCd"));
+			detailMap.put("sTransDt",  detail.get("sTransDt"));
+			detailMap.put("sRmk",      detail.get("sRmk"));
+			detailMap.put("sellType",  detail.get("sellType"));
+			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
 			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
 			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
-			detailMap.put("sPrdtLen", detail.get("sPrdtLen"));
+			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
 			
 			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);
 			sm02Mapper.sm01UpdateStockMove(detailMap);
