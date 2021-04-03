@@ -116,6 +116,7 @@
 				<div class="add_btn_small pdl10">
 					<a onclick="openInsertOrder();">+</a> 
 					<a onclick="deleteOrder();">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
 				<div class="add_btn_small pdl10">
 					<a style="width:80px;" onclick="closeOrderList();">주문종료</a>
@@ -132,6 +133,7 @@
 		<div class="contents">
 			<!-- 리스트 -->
 			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 650px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -202,7 +204,8 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo" : _pageNo + 1};
+			var paramObj = {"pageNo" : _pageNo + 1,
+				        	"recordCnt" : $("#recordCnt").val()};
 			for(var i=0;i<$('[data-search]').length;i++){
 				var tempElem = $('[data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -222,7 +225,36 @@
 			});
 		}
 	}
-
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "odrSeq",       label: "주문일련번호",  align: "center",  hidden: true},
+			          	{key: "closeYn",      label: "종료",          align: "center",  width: 60},
+			          	{key: "reqDt",        label: "주문일자",      align: "center",  width: 80},
+			        	{key: "salesMngNm",   label: "주문담당자",    align: "center",  width: 80},
+			        	{key: "dlvrDttm",     label: "납기일자",      align: "center",  width: 80},
+			            {key: "clntNm",       label: "거래처",        align: "left",    width: 120},
+			        	{key: "prjctNm",      label: "프로젝트",      align: "left",    width: 160},
+			        	{key: "makrNm",       label: "제조사",        align: "left",    width: 100},
+			        	{key: "whNm",         label: "창고",          align: "center",  width: 100},
+			        	{key: "totQty",       label: "수량(Kg)",      align: "right",   width: 90,   formatter: "money"},
+			        	{key: "totOrdrgQty",  label: "입고량",        align: "right",   width: 90,   formatter: "money"},
+			        	{key: "totShipQty",   label: "출하량",        align: "right",   width: 90,   formatter: "money"},
+			        	{key: "totAmt",       label: "주문금액",      align: "right",   width: 100,  formatter: "money"},
+			        	{key: "typNm",        label: "판매유형",      align: "center",  width: 80},
+			        	{key: "dirtrsYn",     label: "직송",   	      align: "center",  width: 60},
+			        	{key: "impYn",        label: "수입",    	  align: "center",  width: 60},
+			        	{key: "addr",         label: "착지주소",      align: "left",    width: 160},
+			        	{key: "mngTel",       label: "담당자연락처",  align: "center",  width: 90},
+			        	{key: "ordrgRmk",     label: "비고",          align: "left",    width: 200}
+			        ]  
+			    });
+				return this;
+			}
+		}	
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("영업관리", "주문관리");
@@ -266,6 +298,7 @@
 
 		// grid init
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 	
 	// 검색조건 초기화
@@ -356,4 +389,26 @@
 			}
 		});
 	}
+
+	function excelDown() {
+		var targetObj = this.target;
+		var paramObj = {"pageNo" :  1,
+				        "recordCnt" : 9999999};
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		
+		postAjax("/user/sd/sd04/selectOrderList", paramObj, null, function(data) {
+			var list = data.orderList;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				excelView.target.exportExcel("grid-to-excel.xls");
+			});	
+	}	
 </script>
