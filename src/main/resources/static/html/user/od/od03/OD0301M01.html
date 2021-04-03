@@ -141,11 +141,16 @@ th {
 	        </div>
 	    </div>
 		<!-- // 콘텐츠 -->
-
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+			</div>
 		<!-- 콘텐츠 -->
 	    <div class="contents">
 	      	<!-- 리스트 -->
 	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%" ></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 	    </div>
 	</div>
 </body>
@@ -207,16 +212,16 @@ th {
 		            }
 		        },
 		        columns: [ 
-		          	{key: "prdtDivNm",  label: "제품구분",		align: "center",	width: 140},
-		          	{key: "prdtStknNm",	label: "강종",		align: "center",	width: 140},
-		          	{key: "makrNm",     label: "메이커",		align: "center",	width: 140},
-		            {key: "prdtSpec",   label: "규격",  		align: "center",   	width: 140},
-		            {key: "prdtLen",	label: "길이", 		align: "right", 	width: 120,	formatter: "money"},
-		        	{key: "bilgQty",    label: "수량",		align: "right", 	width: 140,	formatter: "money"},
-		        	{key: "bilgWt",    	label: "중량", 		align: "right", 	width: 160,	formatter: "money"},
-		        	{key: "bilgUpr", 	label: "평균단가", 	align: "right", 	width: 140,	formatter: "money"},
-		        	{key: "bilgAmt",    label: "공급가", 		align: "right", 	width: 140, formatter: "money"},
-		        	{key: "taxAmt",     label: "세액", 		align: "right", 	width: 140, formatter: "money"},
+		          	{key: "prdtDivNm",  label: "제품구분",		align: "center",	width: 100},
+		          	{key: "prdtStknNm",	label: "강종",		align: "center",	width: 100},
+		          	{key: "makrNm",     label: "메이커",		align: "center",	width: 100},
+		            {key: "prdtSpec",   label: "규격",  		align: "center",   	width: 100},
+		            {key: "prdtLen",	label: "길이", 		align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgQty",    label: "수량",		align: "right", 	width: 100,	formatter: "money"},
+		        	{key: "bilgWt",    	label: "중량", 		align: "right", 	width: 100,	formatter: "money"},
+		        	{key: "bilgUpr", 	label: "평균단가", 	align: "right", 	width: 100,	formatter: "money"},
+		        	{key: "bilgAmt",    label: "공급가", 		align: "right", 	width: 100, formatter: "money"},
+		        	{key: "taxAmt",     label: "세액", 		align: "right", 	width: 100, formatter: "money"},
 		        ],
 		        footSum: [
 			    	[
@@ -253,6 +258,37 @@ th {
 			});
 		}
 	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "prdtDivNm",  label: "제품구분",		align: "center",	width: 140},
+			          	{key: "prdtStknNm",	label: "강종",		align: "center",	width: 140},
+			          	{key: "makrNm",     label: "메이커",		align: "center",	width: 140},
+			            {key: "prdtSpec",   label: "규격",  		align: "center",   	width: 140},
+			            {key: "prdtLen",	label: "길이", 		align: "right", 	width: 120,	formatter: "money"},
+			        	{key: "bilgQty",    label: "수량",		align: "right", 	width: 140,	formatter: "money"},
+			        	{key: "bilgWt",    	label: "중량", 		align: "right", 	width: 160,	formatter: "money"},
+			        	{key: "bilgUpr", 	label: "평균단가", 	align: "right", 	width: 140,	formatter: "money"},
+			        	{key: "bilgAmt",    label: "공급가", 		align: "right", 	width: 140, formatter: "money"},
+			        	{key: "taxAmt",     label: "세액", 		align: "right", 	width: 140, formatter: "money"},
+			        ],
+		        footSum: [
+			    	[
+			    		{label: "총 계", 		align:"left", 		colspan: 6 },
+	                    {key: "bilgWt", 	collector: "sum", 	formatter: "money", align: "right"},
+	                    {label: "-", 		align:"center"},
+	                    {key: "bilgAmt",	collector: "sum", 	formatter: "money", align: "right"},
+	                    {key: "taxAmt", 	collector: "sum", 	formatter: "money", align: "right"}
+			    	]
+			    ],
+			    });
+				return this;
+			}
+		}
 	
 	$(document).ready(function() {
 		//순서 맨 처음
@@ -267,6 +303,7 @@ th {
 // 			autoclose : true
 		});
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 	
 	function changeRecordCnt() {
@@ -377,4 +414,29 @@ th {
 			} 
 		});
 	}
+	
+	function excelDown() {
+		var targetObj = this.target;
+		var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+				"selpchCd" : $("#selpch_S").val(),
+				"clntCd" : $("#clntCd_S").val(),
+				"prdtDiv" : $("#prdtDiv_S").val(),
+				"prjctCd" : $("#prjctCd_S").val(),
+				"typCd" : $("#typCd_S").val()
+			}
+			postAjax("/user/ar/ar02/selectSellSumList", formData, null, function(data){
+				var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+            	var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("품목별 매입매출집계"+todayDate+".xls");
+			});	
+	}	
 </script>

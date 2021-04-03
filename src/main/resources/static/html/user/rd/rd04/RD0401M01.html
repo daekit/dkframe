@@ -151,6 +151,9 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>			
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -163,6 +166,7 @@
 		<div class="contents">
 			<!-- 리스트 -->
 			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -274,7 +278,60 @@
 			});
 		}
 	}
-
+	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+					footSum: [
+				    	[
+				    		{label: "총계", colspan:3, align:"center"},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {},
+		                    {key: "bfrStockQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "selpch1Qty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "selpch2Qty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "stockQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+						{key: "coCd", hidden: true},
+						{key: "prdtCd", hidden: true},
+						{key: "whCd", hidden: true},
+						{key: "ownerCd", hidden: true},
+						{key: "typCd", hidden: true},
+						{key: "makrCd", hidden: true},
+						{key: "clntCd", hidden: true},
+						{key: "closeYm", hidden: true},
+						{key: "prjctCd", hidden: true},
+						{key: "prjctNm", hidden: true},
+						{key: "prdtDiv", hidden: true},
+						{key: "prdtSpec", hidden: true},
+						{key: "prdtSize", hidden: true},
+						{key: "prdtLen", hidden: true},
+			          	{key: "prdtDivNm", 	    label: "제품구분",   align: "left",  width: 60},
+			            {key: "whNm",      		label: "창고",   align: "left",  width: 100},
+			            {key: "prdtNm",    		label: "제품",    align: "left",    width: 140},
+			        	{key: "ownerNm",   		label: "재고주체",   align: "left",    width: 60},
+			        	{key: "clntNm",   	 	label: "거래처",    align: "left",    width: 140},
+			        	{key: "typNm",   	  	label: "판매유형",      align: "center", width: 60},
+			        	{key: "makrNm", 	   	label: "제조사",  	align: "left",   width: 80},
+			        	{key: "prjctNm",   		label: "프로젝트",    align: "left",  width: 200},
+			        	{key: "impYn",     		label: "수입여부",    align: "center", width: 40},
+			        	{key: "bfrStockQty",    label: "전월재고",    align: "right", width: 100, formatter: "money"},
+			        	{key: "selpch1Qty",     label: "입고",  	  align: "right",   width:100, formatter: "money"},
+			        	{key: "selpch2Qty",	    label: "출고", 		align: "right", width:100, formatter: "money"},
+			        	{key: "stockQty",  		label: "현재고",    align: "right", width: 100, formatter: "money"},
+			        ]
+			    });
+				return this;
+			}
+		}
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("수불관리", "제품수불관리");
@@ -293,6 +350,7 @@
 
 		// grid init
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 	
 	// 검색조건 초기화
@@ -354,5 +412,26 @@
 			$('#addrSub').val(row.prjctAddrSub);
 		});
 	}
-
+	
+	function excelDown() {
+		var targetObj = this.target;
+		var paramObj = {"pageNo" : 1,
+		                "recordCnt" : 9999999};
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		
+		postAjax("/user/rd/rd04/selectRcvpayList", paramObj, null, function(data) {
+			var list = data.resultList;				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+            	var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("제품수불관리"+todayDate+".xls");
+			});	
+	}	
 </script>

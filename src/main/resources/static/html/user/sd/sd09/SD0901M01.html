@@ -96,6 +96,7 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="viewSiteModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSite();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
@@ -109,6 +110,7 @@
 		<div class="contents">
 			<!-- 리스트 -->
 			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -169,7 +171,8 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo" : _pageNo + 1};
+			var paramObj = {"pageNo" : _pageNo + 1,
+		                    "recordCnt" : $("#recordCnt").val()};
 			for(var i=0;i<$('[data-search]').length;i++){
 				var tempElem = $('[data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -190,6 +193,29 @@
 		}
 	}
 
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+						{key: "coCd", hidden: true},
+						{key: "clntCd", hidden: true},
+						{key: "siteCd", hidden: true},
+						{key: "prjctCd", hidden: true},
+			          	{key: "coNm",     label: "회사",   align: "left",  width: 150},
+			        	{key: "clntNm",    label: "거래처",    align: "left",    width: 150},
+			            {key: "siteNm",    label: "현장명",    align: "left",    width: 150},
+			        	{key: "addrFull",   label: "주소",   align: "left",    width: 450},
+			        	{key: "siteMngNm",      label: "현장담당자",      align: "left", width: 120},
+			        	{key: "telNo",    label: "전화번호",  align: "center",   width: 120},
+			        	{key: "rmk",    label: "비고",  align: "left",   width: 400},
+			        	{key: "useYn",    label: "사용여부",  align: "center",   width: 80},
+			        ] 
+			    });
+				return this;
+			}
+		}
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("영업관리", "현장관리");
@@ -205,6 +231,7 @@
 
 		// grid init
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 	
 	// 검색조건 초기화
@@ -248,4 +275,27 @@
 			gridView.setData(0);
 		});
 	}
+	
+	function excelDown() {
+		var targetObj = this.target;
+		var paramObj = {"pageNo" : 1,
+		                "recordCnt" : 9999999};
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		
+		postAjax("/user/sd/sd09/selectSiteList", paramObj, null, function(data) {
+			var list = data.resultList;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+            	var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("현장목록"+todayDate+".xls");
+			});	
+	}	
 </script>

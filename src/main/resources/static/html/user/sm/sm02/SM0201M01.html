@@ -98,7 +98,7 @@
     <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 2분할 -->
-            <table class="table_input type04">
+            <table class="table_input type03">
               <tr>
               	<th class="hit">회사</th>
                 <td style="width:200px">
@@ -114,6 +114,19 @@
                       <input type="text" id="endDt" class="input_calendar" onchange="dateValidation();">
                     </div>
                 </td>
+				<th>제품</th>
+				<td>
+	                <input type="hidden" data-search="prdtCd" id="prdtCd">
+					<div class="search_form" style="width: 50%;">
+						<input type="text" data-search="prdtNm" id="prdtNm"> 
+						<button type="button" onclick="openPrdtSearch(this);">
+							<i class="i_search_w"></i>
+						</button>
+					</div>
+				</td>
+              </tr>
+              <tr>
+              	
                 <th>출고지</th>
                 <td>
                   <select id= "searchOutCoCd" data-kind="WH" onchange="gridView.setData(0);">
@@ -126,13 +139,28 @@
                   <option value="">전체</option>
                   </select>
                 </td>
-              </tr>
+              </tr>              
             </table>
           </div>
           
     </div>
-    	<div class="contents">
+          <div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+                   <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div> 
+  	<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 		
@@ -208,8 +236,11 @@
 				"strtDt" : $("#strtDt").val().replace(/\-/g,''),
 				"endDt"  : $("#endDt").val().replace(/\-/g,''),
 				"outWhCd": $("#searchOutCoCd").val(),
+				"prdtCd" : $("#prdtCd").val(),
+			    "prdtNm" : $("#prdtNm").val(),
 				"inWhCd" : $("#searchInCoCd").val(),
-				"pageNo" : _pageNo + 1
+				"pageNo" : _pageNo + 1,
+				"recordCnt" : $("#recordCnt").val()
 			}
 			
 			postAjax("/user/sm/sm02/selectStockMoveStatMngmList", formData, null, function(data){
@@ -226,6 +257,34 @@
 			});
 		} 
 	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			            {key: "prdtNm", 	  label: "제품", align: "left", width: "13%"},
+			          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 100},
+			          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 100},
+			          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
+			          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
+			          	{key: "impNm",        label: "수입",    align: "center", width: 50},
+			            {key: "makrNm", 	  label: "제조사", align: "center", width: "7%"},
+			            {key: "trstDt", 	  label: "이동일자", align: "center", width: "7%"},
+			        	{key: "outWhNm",      label: "출고창고",    align: "center", width: 90},
+			            {key: "outCoNm", 	  label: "출고회사", align: "center", width: "7%"}, 
+			            {key: "ownerNm", 	  label: "재고주체", align: "center", width: "7%"},
+			            {key: "moWh", 	   	  label: "이동 수량(KG)", align: "right", width: "7%", formatter: "money"},
+			            {key: "stdUpr", 	  label: "기준 단가", align: "right", width: "7%", formatter: "money"},
+			            {key: "inCoNm", 	  label: "입고회사", align: "center", width: "7%", hidden : true},
+			            {key: "inWhNm", 	  label: "입고창고", align: "center", width: "9%"},
+			            {key: "creatDttm", 	  label: "최종 변경일", align: "center", width: "7%", hidden : true}
+			        ]
+			    });
+				return this;
+			}
+		}
 	
 	//화면로드시
 	$(document).ready(function() {
@@ -244,6 +303,7 @@
 		});
 // 	    setSelectCombo();
 	    gridView.initView().setData(0);
+		excelView.initView();
 	})	
 		
 	/* function setSelectCombo(){
@@ -287,4 +347,48 @@
 		$("#coCd_S").val(jwt.coCd);
 		gridView.initView().setData(0);
 	}
+	
+	function excelDown() {
+		var formData = {
+				"coCd"   : $("#coCd_S").val(),
+				"strtDt" : $("#strtDt").val().replace(/\-/g,''),
+				"endDt"  : $("#endDt").val().replace(/\-/g,''),
+				"outWhCd": $("#searchOutCoCd").val(),
+				"prdtCd" : $("#prdtCd").val(),
+			    "prdtNm" : $("#prdtNm").val(),
+				"inWhCd" : $("#searchInCoCd").val(),
+				"pageNo" :  1,
+				"recordCnt" : 9999999
+			}
+			
+			postAjax("/user/sm/sm02/selectStockMoveStatMngmList", formData, null, function(data){
+				var list = data.smsmList;				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("재고이동 현황목록"+todayDate+".xls");
+			});	
+	}	
+	
+	// 제품 검색
+	function openPrdtSearch(elem) {
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"selpchCd": "SELPCH2",
+			"impYn":"", 
+			"clntCd" : "",
+			"useYn": "Y"
+		};
+				
+		openModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prdtCd").val(row.prdtCd);
+			$("#prdtNm").val(row.prdtNm);
+		});
+	}
+		
 </script>
