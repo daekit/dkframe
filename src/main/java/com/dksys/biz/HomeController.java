@@ -17,7 +17,7 @@ import com.dksys.biz.util.WebClientUtil;
 public class HomeController {
 
     @Autowired
-    CM01Svc authService;
+    CM01Svc cm01Svc;
 	
     @Autowired
     WebClientUtil webClientUtil;
@@ -46,11 +46,10 @@ public class HomeController {
     public String selectMenuAuth(@RequestBody Map<String, Object> param, Model model) {
     	String[] authArray = {"AUTH000"};
     	authArray = param.get("authInfo") != null ? param.get("authInfo").toString().split(",") : authArray;
-    	List<Map<String, Object>> accessList = authService.selectMenuAuth(authArray);
+    	List<Map<String, Object>> accessList = cm01Svc.selectMenuAuth(authArray);
     	model.addAttribute("accessList", accessList);
     	return "jsonView";
     }
-    
     
     // 접근 가능한 메뉴정보
     @PostMapping("/selectSubMenuAuth")
@@ -59,7 +58,7 @@ public class HomeController {
     	String upMenuId = "";
     	authArray = param.get("authInfo") != null ? param.get("authInfo").toString().split(",") : authArray;
     	upMenuId = param.get("upMenuId") != null ? param.get("upMenuId").toString() : "";
-    	List<Map<String, Object>> accessSubList = authService.selectSubMenuAuth(authArray, upMenuId);
+    	List<Map<String, Object>> accessSubList = cm01Svc.selectSubMenuAuth(authArray, upMenuId);
     	model.addAttribute("accessSubList", accessSubList);
     	return "jsonView";
     }
