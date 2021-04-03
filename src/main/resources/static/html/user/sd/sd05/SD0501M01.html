@@ -120,6 +120,7 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteProject();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
 					<option value="10">10</option>
@@ -132,6 +133,7 @@
     	
 		<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -218,7 +220,29 @@
 			}
 		}
 	}
-	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			            {key: "coNm",      label: "회사",        align: "center", width: 100},
+			            {key: "strtDt",    label: "시작일", 		align: "center", width: 80},
+			            {key: "endDt",     label: "종료일", 		align: "center", width: 80},
+			            {key: "prjctNm",   label: "프로젝트명",    align: "left",    width: 240},
+			            {key: "clntNm",    label: "거래처",       align: "left",    width: 160},
+			            {key: "makrNm",    label: "제조사",       align: "center",  width: 80},
+			            {key: "mngNm",     label: "담당자",       align: "center",  width: 90},
+			            {key: "totWt",     label: "총중량(KG)",   align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+			            {key: "totCell",   label: "출하량",   	align: "right",   width: 100, formatter: "money"},
+			            {key: "totRem",    label: "잔량",   		align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+			            {key: "tnkeyYn",   label: "턴키",     	align: "center",  width: 50},
+			            {key: "creatDttm", label: "등록일",      	align: "center",  width: 80}
+			        ]
+			    });
+				return this;
+			}
+		}		
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "프로젝트 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
@@ -240,6 +264,7 @@
 			gridView.setData(0);
 		});
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 	
 	
@@ -297,4 +322,26 @@
 		$("#coCd_S").val(jwt.coCd);
 		gridView.initView().setData(0);
 	}
+	function excelDown() {
+		var formData = {
+				"coCd"      : $("#coCd_S").val(),
+				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+				"searchType" : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"pageNo"    : 1,
+				"recordCnt" : 9999999
+			}
+			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
+				var list = data.sd0501m01;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				excelView.target.exportExcel("grid-to-excel.xls");
+			});	
+	}	
 </script>
