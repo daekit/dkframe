@@ -97,7 +97,7 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sTransDt", detail.get("sTransDt"));
 			detailMap.put("sRmk",     detail.get("sRmk"));
 			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrdtCd",  detail.get("sPrdtCd"));
+	//		detailMap.put("sPrdtCd",  detail.get("sPrdtCd"));
 			
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap);
 			sm02Mapper.sm01UpdateStockMove(detailMap);

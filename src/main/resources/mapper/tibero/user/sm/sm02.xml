@@ -299,14 +299,7 @@
 	<update id="sm01UpdateStockMove" parameterType="Map">
 		UPDATE TB_SM01M01 SET
 			STOCK_QTY = #{stockQty}-#{moveQty}
-		WHERE CO_CD = #{coCd} 
-		  AND WH_CD = #{whCd}
-		  AND TYP_CD = #{typCd} 
-		  AND MAKR_CD = #{makrCd} 
-		  AND OWNER_CD = #{ownerCd}
-		  AND PRDT_CD = #{prdtCd} 
-		  AND IMP_YN = #{impYn} 
-		  AND PRJCT_CD = #{prjctCd}
+		WHERE STOK_SEQ = #{stokSeq}
 	</update>
 	
 	<update id="sm01UpdateInsertStockMove" parameterType="Map">
@@ -353,20 +346,8 @@
 		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0)
 		)
 		WHEN MATCHED THEN 
-			UPDATE SET  STOCK_QTY = STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
-				WHERE CO_CD    = #{coCd}
-				  AND WH_CD    = #{sWhCd}
-				  AND PRDT_CD  = #{prdtCd}
-				  AND OWNER_CD = #{ownerCd}
-				  AND CLNT_CD  = #{clntCd} 
-				  AND TYP_CD   = #{sellType}
-				  AND MAKR_CD  = #{makrCd} 
-				  AND PRJCT_CD = #{prjctCd}
-				  AND IMP_YN   = #{impYn} 
-		          AND NVL(PRDT_SIZE,0) = NVL(prdtCd,0)
-		          AND NVL(PRDT_SPEC,0) = NVL(prdtCd,0)
-		          AND NVL(PRDT_LEN,0)  = NVL(prdtCd,0)
-				)
+			UPDATE SET   ( STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
 		WHEN NOT MATCHED THEN 
 		INSERT
 		(
@@ -438,6 +419,7 @@
 		    PRDT_LEN,
 			IMP_YN, 
 			IN_CO_CD, 
+			IN_TYP_CD, 
 			IN_WH_CD, 
 			STOCK_UPR, 
 			STD_UPR,
@@ -466,6 +448,7 @@
 			#{prdtLen},
 			#{impYn},
 			#{coCd}, 
+			#{sellType}, 
 			#{sWhCd},	
 			#{stockUpr},
 			#{stdUpr}, 
@@ -597,6 +580,7 @@
 		    PRDT_LEN, 
 			IMP_YN, 
 			IN_CO_CD, 
+			IN_TYP_CD,
 			IN_WH_CD, 
 			STOCK_UPR, 
 			STD_UPR,
@@ -625,6 +609,7 @@
 			#{sPrdtLen},
 			#{impYn},
 			#{coCd}, 
+			#{sellType}, 
 			#{sWhCd},	
 			#{stockUpr},
 			#{stdUpr}, 
@@ -634,7 +619,7 @@
 			#{sRmk},
 			#{userId}, 
 			#{pgmId}, 
-			sysdate, 
+			SYSDATE, 
 			TO_CHAR(TO_DATE(#{sTransDt}, 'YYYY-MM-DD'),'YYYYMMDD')
 	 	)
 	</insert>
