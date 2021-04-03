@@ -123,12 +123,16 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+				</div>			
 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
+				
 			</div>
 		</div>
 	  <!-- 콘텐츠 -->
@@ -136,6 +140,7 @@
 	      <!-- 리스트 -->
 	        <div>
                 <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 610px; width: 100%" ></div>
+                  <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
             </div>
 	    </div>
 	</div>
@@ -236,7 +241,29 @@
 			});
 		}
 	}
-	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "prdtNm",       label: "제품",    align: "left",   width: 170},
+			          	{key: "typNm",        label: "판매유형", align: "center", width: 100},
+			          	{key: "impNm",        label: "수입",    align: "center", width: 60},
+			        	{key: "whNm",         label: "창고",    align: "center", width: 170},
+			          	{key: "ownerNm",      label: "구분",    align: "center", width: 80},
+			          	{key: "clntNm",       label: "재고주체", align: "left",   width: 150},
+			          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 280},
+			          	{key: "makrNm",       label: "제조사",   align: "center", width: 120},
+			          	{label: "재고",  columns:[
+			          		{key: "stockQty", label: "수량(KG)", align: "right", width: 130, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockAmt", label: "금액",     align: "right", width: 130 , styleClass:"grid-cell-blue", formatter:"money" }
+			          	]}
+			        ]
+			    });
+				return this;
+			}
+		}	
 
 	$(document).ready(function() {
 		//페이지 타이틀 set
@@ -247,6 +274,7 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		
 		gridView.initView().setData(0);
+		excelView.initView();
 		
 	
 	})
@@ -266,5 +294,30 @@
 	function openStockDetailList(){
 		openModal("/static/html/user/sm/sm06/SM0601P01.html", 1500, 450, "");
 	}
-
+	
+	function excelDown() {
+		var formData = {
+				"coCd" : $("#CO").val(),
+				"whCd" : $("#WH").val(),
+				"ownerCd" : $("#OWNER").val(),
+				"typCd" : $("#SELLTYPE").val(),
+				"clntNm" : $("#clntNm").val(),
+				"makrCd" : $("#MAKR").val(),
+				"prdtNm" : $("#prdtNm").val(),
+				"pageNo" :  1, 
+				"recordCnt" : 100000
+			}
+			
+			postAjax("/user/sm/sm06/selectStockTotalList", formData, null, function(data){
+				var list = data.stockList;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				excelView.target.exportExcel("grid-to-excel.xls");
+			});	
+	}
 </script>
