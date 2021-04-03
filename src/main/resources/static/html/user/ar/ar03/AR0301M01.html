@@ -149,6 +149,7 @@
 					<a onclick="updateProcYn();" style="font-size:100%; width:70px; height: 30px; line-height: 28px;">지불완료</a>
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteTrans();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
 					<option value="10">10</option>
@@ -160,7 +161,8 @@
 		</div>
 	    	
 		<div class="contents">
-			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+		   <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+           <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -254,7 +256,30 @@
 			});
 		}
 	}
-	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			        	{key: "transSeq", label: "운반비시퀀스", align: "center", width: 50, hidden:true},
+			            {key: "procYn", 	label: "지불", 		align: "center", width: 50},
+			            {key: "transDt", 	label: "운송일자", 	align: "center", width: 80},
+			            {key: "transNm", 	label: "운송업체", 	align: "left", width: 140},
+			            {key: "whNm", 		label: "상차지", 		align: "left", width: 100},
+			            {key: "desNm", 		label: "도착지", 		align: "center", width: 100},
+			            {key: "drivrNm", 	label: "운전기사", 	align: "center", width: 90},
+			            {key: "totWt", 		label: "중량", 		align: "right", width: 90, formatter: "money"},
+			            {key: "transUpr", 	label: "단가", 		align: "right", width: 100, formatter: "money"},
+			            {key: "transAmt", 	label: "운송비", 		align: "right", width: 100, formatter: "money"},
+			            {key: "payCo", 		label: "지불회사", 	align: "left", width: 100},
+			            {key: "clntNm", 	label: "거래처", 		align: "left", width: 150},
+			            {key: "transRmk", 	label: "비고", 		align: "left", width: 160}
+			        ]  
+			    });
+				return this;
+			}
+		}	
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "운반비 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
@@ -269,6 +294,7 @@
 		});
 		
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 	
 	
@@ -367,5 +393,31 @@
 			}
 		});
 	}
-	
+
+	function excelDown() {
+		var targetObj = this.target;
+		var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"strtDt"  : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"  : $("#endDt_S").val().replace(/\-/g,''),
+				"transCo"  : $("#transCo_S").val(),
+				"whCd"  : $("#whCd_S").val(),
+				"desNm"  : $("#desNm_S").val(),
+				"clntCd"  : $("#clntCd_S").val(),
+				"procYn" : $("#procYn_S").val(),
+				"pageNo" : 1,
+				"recordCnt" : 9999999
+			}
+			postAjax("/user/ar/ar03/selectCaryngList", formData, null, function(data){
+				var list = data.resultList;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				excelView.target.exportExcel("grid-to-excel.xls");
+			});	
+	}	
 </script>
