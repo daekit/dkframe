@@ -103,6 +103,7 @@
 				<div class="add_btn_small pdl10">
 					<a onclick="openEtrdpsDetail('C');">+</a>
 					<a onclick="deleteEtrdps();">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
@@ -116,6 +117,7 @@
 		<div class="contents">
 			<!-- 리스트 -->
 			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 650px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -194,6 +196,29 @@
 		}
 	}
 
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+						{key : "etrdpsDt",label : "입금일자", align : "center", width : "7%"},
+						{key : "clntNm", label : "거래처", align : "center", width : "9%"}, 
+						{key : "setleTypNm", label : "결제방법", align : "center", width : "9%"}, 
+						{key : "etrdpsAmt", label : "금액", align : "right", width : "9%", formatter: "money"}, 
+						{key : "etrdpsBkacNm", label : "입금계좌", align : "center", width : "9%"}, 
+						{key : "sumry", label : "적요", align : "center", width : "15%"}, 
+						{key : "bilTypNm", label : "어음종류", align : "center", width : "9%"}, 
+						{key : "bilNo", label : "어음번호", align : "center", width : "9%"}, 
+						{key : "exprtnDt", label : "만기일", align : "center", width : "7%"}, 
+						{key : "pymntBankNm", label : "지급은행", align : "center", width : "9%"}, 
+						{key : "endrsPsn", label : "배서인", align : "center", width : "9%"}
+					]
+			    });
+				return this;
+			}
+		}		
+	
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("영업관리", "수금관리");
@@ -237,6 +262,7 @@
 		
 		// grid init
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 
 	// 검색조건 초기화
@@ -271,4 +297,25 @@
 			}
 		});
 	}
+	
+	function excelDown() {
+		var paramObj = {"pageNo" :1,
+				        "recordCnt"   : 9999999};
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		
+		postAjax("/user/ar/ar05/selectEtrdpsList", paramObj, null, function(data) {
+			var list = data.etrDpsList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("수금(입금)목록"+todayDate+".xls");
+			});	
+	}	
 </script>
