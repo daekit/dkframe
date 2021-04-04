@@ -107,6 +107,7 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="viewCplrUntpcModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteCplrUntpcOrder();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
@@ -120,6 +121,7 @@
 		<div class="contents">
 			<!-- 리스트 -->
 			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -204,6 +206,32 @@
 		}
 	}
 
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+					columns: [
+						{key: "coCd", label:"회사코드", hidden: true},
+						{key: "clntCd", label:"거래처코드", hidden: true},
+						{key: "prdtCd", label:"제품코드", hidden: true},
+						{key: "selpchCd", label:"매입/매출코드", hidden: true},
+			          	{key: "clntNm",     label: "업체",   align: "left",  width: "10%"},
+			            {key: "prdtDt",  label: "기준일자",   align: "center",  width: "7%"},
+			            {key: "selpchNm",  label: "매입/매출 구분",   align: "center",  width: "7%"},
+			            {key: "prdtNm",    label: "제품",    align: "left",    width: "10%"},
+			        	{key: "prdtStknNm",   label: "강종",   align: "center",    width: "7%"},
+			        	{key: "prdtSizeNm",    label: "SIZE",    align: "right",    width: "7%"},
+			        	{key: "prdtSpecNm",      label: "규격",      align: "left", width: "7%"},
+			        	{key: "prdtUnitNm",    label: "단위",  align: "center",   width: "7%"},
+			        	{key: "prdtUpr",    label: "단가",    align: "right",  width: "10%", formatter: "money"},
+			        	{key: "rmk",     label: "비고",    align: "left", width: "28%"}
+			        ]
+			    });
+				return this;
+			}
+		}
+	
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("영업관리", "커플러 단가관리");
@@ -254,6 +282,7 @@
 
 		// grid init
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 	
 	// 검색조건 초기화
@@ -306,4 +335,25 @@
 		});
 	}
 
+	function excelDown() {
+		var paramObj = {"pageNo" :  1 ,"recordCnt" : 99999999};
+		if(inputValidation($('[required]'))){
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+			postAjax("/user/sd/sd08/selectCplrUntpcList", paramObj, null, function(data) {
+				var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				var prdtDt    = $('#prdtDt').val();
+				excelView.target.exportExcel("커플러단가목록("+prdtDt+")_"+todayDate+".xls");
+			});	
+		}
+	}	
 </script>

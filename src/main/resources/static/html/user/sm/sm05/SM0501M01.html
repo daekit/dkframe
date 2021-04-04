@@ -160,11 +160,11 @@
           <div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
-				<!-- <div class="add_btn_small pdl10">
-					<a onclick="copyPrdtAcins();" style="height: 30px; line-height: 28px; width: 120px;">실사기초자료 생성</a>
-	                <a onclick="insertUpdatePrdtAcins('C');" style="height: 30px; line-height: 28px;">+</a>
-	                <a onclick="deletePrdtAcins();" style="height: 30px; line-height: 28px;">-</a>
-	            </div> -->
+				<div class="add_btn_small pdl10">
+	         <!--       <a onclick="insertUpdatePrdtAcins('C');" style="height: 30px; line-height: 28px;">+</a> -->
+	          <!--      <a onclick="deletePrdtAcins();" style="height: 30px; line-height: 28px;">-</a>   -->
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
 				<select id="recordCnt" class="prae_select" data-search="recordCnt" onchange="gridView.setData(0);">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
@@ -177,6 +177,7 @@
     	
 		<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+           <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -220,13 +221,13 @@
 		            }
 		        },
 		        columns: [
-		            {key: "clntNm", label: "거래처", align: "left", width: "130px"},
-		            {key: "salesMngNm", label: "담당자명", align: "center", width: "110px"},
-		            {key: "bilgWt", label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
-		            {key: "bilgAmt", label: "공급가액", align: "right", width: "100px", formatter: "money"},
-		            {key: "bilgVatAmt", label: "부가세액", align: "right", width: "100px", formatter: "money"},
-		            {key: "totalAmt", label: "합계금액", align: "right", width: "100px", formatter: "money"},
-		            {key: "bilgCertNo", label: "전표번호", align: "right", width: "150px"}
+		            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
+		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
+		            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
+		            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
+		            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
+		            {key: "totalAmt",   label: "합계금액",  align: "right", width: "100px", formatter: "money"},
+		            {key: "bilgCertNo", label: "전표번호",  align: "right", width: "150px"}
 		        ]
 			});
 			return this;
@@ -254,6 +255,25 @@
 			}
 		}
 	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
+			            {key: "salesMngNm", label: "담당자명",  align: "center", width: "110px"},
+			            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
+			            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
+			            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
+			            {key: "totalAmt",   label: "합계금액",  align: "right", width: "100px", formatter: "money"},
+			            {key: "bilgCertNo", label: "전표번호",  align: "right", width: "150px"}
+			        ]
+			    });
+				return this;
+			}
+		}	
 	
 	$(document).ready(function() {
 		mainDefaultLoad("매출관리", "매입/매출집계 관리");
@@ -269,6 +289,7 @@
 		});
 		$('#bilgCertNo_S').hide();
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 	
 	function billSearch(){
@@ -374,4 +395,27 @@
 			$('.main_area [data-search="prdtStkn"]').html(optionHtml);
 		});
 	}
+	
+	function excelDown() {
+		var paramObj = {"pageNo" : 1,"recordCnt"   : 9999999};
+		if(inputValidation($('[required]'))){
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+			postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
+				var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("매입_매출집계목록_"+todayDate+".xls");
+			});	
+		}
+	}	
+	
+	
 </script>

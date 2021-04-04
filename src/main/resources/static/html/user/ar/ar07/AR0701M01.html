@@ -85,6 +85,9 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -97,6 +100,7 @@
 		<div class="contents">
 			<!-- 리스트 -->
 			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 </body>
@@ -184,7 +188,39 @@
 			});
 		}
 	}
-
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+					footSum: [
+				    	[
+				    		{label: "합계", colspan:3, align:"center"},
+		                    {key: "basisAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "clmnAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "totAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "trmendAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "crdtLmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "crdtLoan", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+						{key: "coCd",      hidden: true},
+						{key: "clntCd",    hidden: true},
+			          	{key: "coNm",      label: "회사",    align: "left",     width: 120},
+			        	{key: "closeYm",   label: "년월",     align: "center",  width: 80},
+			        	{key: "clntNm",    label: "거래처",    align: "left",   width: 120},
+			        	{key: "basisAmt",  label: "기초",     align: "right",   width: 120, formatter: "money"},
+			        	{key: "clmnAmt",   label: "수금",     align: "right",   width: 120, formatter: "money"},
+			        	{key: "totAmt",    label: "매출",     align: "right",   width: 120, formatter: "money"},
+			        	{key: "trmendAmt", label: "기말잔액",  align: "right",   width: 120, formatter: "money"},
+			        	{key: "crdtLmt",   label: "여신한도",  align: "right",   width: 120, formatter: "money"},
+			        	{key: "crdtLoan",  label: "여신잔액",  align: "right",   width: 120, formatter: "money"}
+			        ]
+			    });
+				return this;
+			}
+		}
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("매출관리", "월마감채권조회");
@@ -203,6 +239,7 @@
 
 		// grid init
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 	
 	// 검색조건 초기화
@@ -230,4 +267,24 @@
 	//	openModal("/static/html/user/ar/ar07/AR0701P01.html", 500, 420, "거래처 검색");
 	}
 
+	function excelDown() {
+		var paramObj = {"pageNo" : 1, "recordCnt"   : 9999999 };
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		
+		postAjax("/user/ar/ar07/selectMtClosCditList", paramObj, null, function(data) {
+			var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("월마감채권목록_"+todayDate+".xls");
+			});	
+	}	
+	
 </script>
