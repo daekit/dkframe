@@ -85,7 +85,7 @@ th {
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required">
+	                 	<select id="coCd_S" data-kind="CO" required="required"  onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -109,19 +109,19 @@ th {
 	              <tr>
 	              	<th>제품유형</th>
 	                <td>
-	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required">
+	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required"  onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
 	                <th>판매법인</th>
 	                <td>
-	                    <select id="estCoprt_S" data-kind="ESTCOPRT" required="required">
+	                    <select id="estCoprt_S" data-kind="ESTCOPRT" required="required"  onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
 	              	<th>직송구분</th>
 	                <td>
-		                <select id="dirtrsYn_S">
+		                <select id="dirtrsYn_S"  onchange="gridView.initView().setData(0);">
 		                	<option value="">전체</option>
 		                  	<option value="N">N</option>
 		                  	<option value="Y" >Y</option>
@@ -131,7 +131,7 @@ th {
 	              <tr>
 	              	<th>판매유형</th>
 	                <td>
-	                 	<select id="typCd_S" data-kind="SELLTYPE">
+	                 	<select id="typCd_S" data-kind="SELLTYPE"  onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -145,7 +145,7 @@ th {
 	                </td>
 	              	<th>강종</th>
 	                <td>
-		                <select id="pdsk_S" data-kind="PDSK">
+		                <select id="pdsk_S" data-kind="PDSK"  onchange="gridView.initView().setData(0);">
 		                	<option value="">전체</option>
 		                </select>
 	                </td>
@@ -153,7 +153,7 @@ th {
 	              <tr>
 	              	<th>전표발행여부</th>
 	                <td>
-	                 	<select id="bilgYn_S">
+	                 	<select id="bilgYn_S"  onchange="gridView.initView().setData(0);">
 		                	<option value="">전체</option>
 		                  	<option value="N">N</option>
 		                  	<option value="Y">Y</option>
@@ -175,6 +175,7 @@ th {
 					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSell();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
 					<option value="10">10</option>
@@ -188,6 +189,7 @@ th {
 	    <div class="contents">
 	      	<!-- 리스트 -->
 	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 	    </div>
 	</div>
 </body>
@@ -224,7 +226,7 @@ th {
 		            onDBLClick: function () {
 // 		            	viewShipModal();
 		            },
-		            mergeCells : ["clntNm","trstDt","typNm","prdtNm","prdtStknNm","prdtSizeNm","prdtLen","prjctNm"],
+		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","prdtNm","prdtStknNm","prdtSizeNm","prdtLen","prjctNm"],
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -244,6 +246,7 @@ th {
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		            {key: "trstDt",         label: "매입일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
+		        	{key: "trspTypNm",	    label: "입고",    	align: "center", 	width: 60},
 		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 140},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80},
 		        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 80},
@@ -306,6 +309,45 @@ th {
 			}, 100)
 		}
 	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
+			          	{key: "bilgYn",         label: "전표",		align: "center",	width: 50},
+			        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
+			            {key: "trstDt",         label: "매입일자",  	align: "center",   	width: 80},
+			        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
+			        	{key: "trspTypNm",	    label: "입고",    	align: "center", 	width: 60},
+			        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 140},
+			        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80},
+			        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 80},
+			          	{key: "prdtLen",        label: "길이",		align: "right",		width: 50},
+			          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 140},
+			        	{key: "bilgAmt", 	    label: "매입금액",  	align: "right", 	width: 80,	formatter: "money"},
+			        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", hidden: true},
+			        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", hidden: true},
+			        	{key: "bilgQty",        label: "매입수량", 	align: "right", 	width: 80, 	formatter: "money"},
+			        	{key: "bilgWt",         label: "매입중량", 	align: "right", 	width: 80, 	formatter: "money"},
+			        	{key: "bilgUpr",        label: "매입단가", 	align: "right", 	width: 80, 	formatter: "money"},
+			        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money"},
+			        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
+			        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", hidden: true},
+			        	{key: "transAmt",    	label: "매입운송비",  	align: "right", 	width: 80, 	formatter: "money"},
+			        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
+			        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
+			            {key: "taxivcCoprtNm",	label: "매입법인", 	align: "left", 		width: 120},
+			        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
+			        	{key: "bilgCertNo",     label: "매입번호", 	align: "center", 	width: 80},
+			        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
+			        ]
+			    });
+				return this;
+			}
+		}	
 	
 	$(document).ready(function() {
 		//순서 맨 처음
@@ -320,6 +362,7 @@ th {
 // 			autoclose : true
 		});
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 	
 	function changeRecordCnt() {
@@ -474,7 +517,7 @@ th {
 	// 현장 검색
 	function openSecondSiteSearch(type) {
 		var paramObj = {
-			"coCd": $('#popForm #coCd').val(), 
+			"coCd"  : $('#popForm #coCd').val(), 
 			"clntCd": $("#popForm #clntCd").val(),
 			"clntNm": $("#popForm #clntNm").val()
 		}
@@ -490,5 +533,35 @@ th {
 			}
 		});
 	}
+
+	function excelDown() {
+		var formData = {
+				"selpchCd"  : "SELPCH1",
+				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+				"reqDtTo"   : $("#reqDtTo").val().replace(/\-/g,''),
+				"coCd"      : $("#coCd_S").val(),
+				"clntNm"    : $("#clntNm_S").val(),
+				"prdtDiv"   : $("#prdtDiv_S").val(),
+				"estCoprt"  : $("#estCoprt_S").val(),
+				"dirtrsYn"  : $("#dirtrsYn_S").val(),
+				"typCd"     : $("#typCd_S").val(),
+				"siteCd"    : $("#siteCd_S").val(),
+				"pdsk"      : $("#pdsk_S").val(),
+				"bilgYn"    : $("#bilgYn_S").val(),
+				"pageNo"    : 1, 
+				"recordCnt" : 9999999
+			}
+			postAjax("/user/ar/ar02/selectSellList", formData, null, function(data){
+				var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("매입내역"+todayDate+".xls");
+			});	
+	}	
 	
 </script>
