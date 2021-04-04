@@ -250,24 +250,31 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 				sm01Mapper.updateStockSell(paramMap);
 			}
+			// 직송일 경우 매출 생성 및 재고 차감.
 			if("Y".equals(paramMap.get("dirtrsYn"))) {
 				creditFlag = true;
 				paramMap.put("selpchCd", "SELPCH2");
 				paramMap.put("stockChgCd", "STOCKCHG02");
 				paramMap.put("cnltCd", paramMap.get("sellClntCd"));
 				paramMap.put("cnltNm", paramMap.get("sellClntNm"));
-				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
-				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
-				paramMap.put("stockQty", String.valueOf(stockQty));
 				realTotTrstAmt += Integer.parseInt(paramMap.get("realTrstAmt"));
 				ar02Mapper.insertPchsSell(paramMap);
+				
 				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 				{
 					// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
 					if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
 						paramMap.put("clntCd",  paramMap.get("whClntCd"));		
 					}
+					Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+					if(stockInfo == null) {
+						paramMap.put("stockQty", detailMap.get("realDlvrQty"));
+					
+					} else {
+						int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
+						paramMap.put("stockQty", String.valueOf(stockQty));
+					}			
 					sm01Mapper.updateStockSell(paramMap);
 				}
 			}
