@@ -86,12 +86,13 @@
 		                  	<option value="">선택</option> 
 		                </select>
 	                </td>	                
-	                <th>프로젝트</th>
+	                <th>현장</th>
 	                <td>                             
 	                    <div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd">
-			              <input type="text" id="prjctNm" name="prjctNm" readonly="readonly">
-			              <a onclick="openSecondPrjctSearch();"><i class="i_search_w"></i></a>
+			              <input type="hidden" id="prjctCd" name="prjctCd">		              
+			              <input type="hidden" id="siteCd" name="siteCd" value="0">
+			              <input type="text" id="siteNm" name="siteNm" readonly="readonly">			              
+			              <a onclick="openSecondSiteSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>	
 	            </tr>
@@ -103,9 +104,11 @@
 	                    	<input type="hidden" name="prdtUnit">
 	                    	<input type="hidden" name="prdtCnvrsnWt">
 	                    	<input type="hidden" name="prdtStockCd">
+	                        <input type="hidden" name="prdtDiv">
+	                        <input type="hidden" name="prdtDivNm">
+	                        <input type="hidden" name="prdtStkn">
+	                        <input type="hidden" name="prdtStknNm">
 	                    	<input type="hidden" name="dirtrsYn" value="N">
-	                    	<input type="hidden" name="prdtStkn">
-	                    	<input type="hidden" name="prdtStknNm">
 			                <input type="text" name="prdtNm" readonly="readonly" required="required" >
 			              	<button type="button" onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></button>
 			            </div>
@@ -117,15 +120,14 @@
 	                </td>
 -->	                <th>사이즈</th>
 	                <td>                                
-	                    <input type="hidden" name="prdtSizeNm">
+	                    <input type="hidden" name="prdtSizeNm" readonly="readonly">
 	                    <input type="text" name="prdtSize">
 	                </td>
 	            </tr>
 	            <tr>
 	                <th>SPEC</th>
-	                <td> 
-	                	<input type="hidden" name="prdtSpec">
-	                    <input type="text" name="prdtSpecNm">
+	                <td>                                
+	                    <input type="text" name="prdtSpec">
 	                </td>
 	                <th>길이</th>
 	                <td>                             
@@ -152,13 +154,13 @@
 	                </td>
 	                <th>제품기준단가</th>
 	                <td>                                
-	                    <input type="text" name="prdtUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="ordrgUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	                </td>
 	            </tr>
 	            <tr>
 	            	<th>할인금액</th>
 	                <td>                             
-	                    <input type="text" name="trstDcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
+	                    <input type="text" name="trstDcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);"  comma minus>
 	                </td>
 	                <th>운송비</th>
 	                <td>                             
@@ -171,7 +173,7 @@
 	            <tr>
 	            	<th>기타금액</th>
 	                <td>                             
-	                    <input type="text" name="etcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
+	                    <input type="text" name="etcAmt" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma minus>
 	                </td>
 	                <th class="hit">영업담당</th>
 	                <td>                                
@@ -248,7 +250,6 @@
 			$("#trstDcAmt").val("0");
 			$("#etcAmt").val("0");
 			
-			
 		}else if(actionType == "U"){
 			selectSellInfo();
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
@@ -318,6 +319,7 @@
 				$('input[name="bilgAmt"]').val(row.ordrgUpr);
 			} else {
 				$('input[name="bilgQty"]').prop("readonly", false);
+				$('input[name="bilgUpr"]').val(row.ordrgUpr);
 			}
 		});
 	}
@@ -327,7 +329,9 @@
 		$("#popForm select").prop("disabled", false);
 		$("#userId").val(jwt.userId);
 		$("#trstDt").val($("#trstDt").val().replace(/-/g, ""));
+		
 		debugger;
+		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
 			deleteComma(elem);
@@ -347,10 +351,22 @@
 	function insertPchsSell() {
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
+			debugger;
 			postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
 				alert(data.resultMessage);
 				gridView.setData(0);
-// 				modal.close();
+				modal.close();
+			});
+		}
+	}
+	
+	function updateShip() {
+		if(inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
+				alert(data.resultMessage);           
+				gridView.setData(0);
+				modal.close();
 			});
 		}
 	}
