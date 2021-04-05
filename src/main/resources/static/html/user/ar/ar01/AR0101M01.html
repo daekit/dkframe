@@ -113,7 +113,7 @@
 	                  <input type="hidden" id="clntCd_S">
 	                  <div class="search_form" style="width: 50%;">
 		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
-		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
+		              	<a onclick="openClntSearch();"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
 	 	           	<th>출하여부</th>
@@ -365,27 +365,11 @@
 	}
 
 	// 거래처 검색
-	function openSecondClntSearch(type) {
+	function openClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			if(type == 'S') {
-				$('#clntCd_S').val(row.clntCd);
-				$('#clntNm_S').val(row.clntNm);
-			} else {
-				$('#clntCd').val(row.clntCd);
-				$('#clntNm').val(row.clntNm);
-				$('#sellVatCd').val(row.sellVatCd);
-				
-				var paramObj = {
-					"coCd": $('#coCd').val(),
-					"clntCd": row.clntCd
-				}
-				
-				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
-					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
-				});
-			}
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
 		});
 	}
 	

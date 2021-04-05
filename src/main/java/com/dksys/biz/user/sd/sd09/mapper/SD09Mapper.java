@@ -16,7 +16,7 @@ public interface SD09Mapper {
 	
 	String selectSiteCd(Map<String, String> paramMap);
 
-	String insertSite(Map<String, String> paramMap);
+	void insertSite(Map<String, String> paramMap);
 	
 	int updateSite(Map<String, String> paramMap);
 	
