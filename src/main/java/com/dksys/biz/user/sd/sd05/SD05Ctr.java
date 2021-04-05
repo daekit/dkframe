@@ -75,7 +75,6 @@ public class SD05Ctr {
 	
 	@PostMapping(value = "/insertProject")
 	public String insertProject(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-		System.out.println(paramMap);
 		sd05Svc.insertProject(paramMap, mRequest);
 		model.addAttribute("resultCode", 200);
 		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
