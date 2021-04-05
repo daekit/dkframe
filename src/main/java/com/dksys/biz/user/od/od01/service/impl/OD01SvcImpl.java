@@ -204,6 +204,7 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("coCd", paramMap.get("coCd"));
 				detailMap.put("clntCd", paramMap.get("clntCd"));
 				detailMap.put("selpchCd", "SELPCH1");
+				detailMap.put("prdtDt", paramMap.get("reqDt"));
 				detailMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
 				detailMap.put("rmk", paramMap.get("ordrgDtlRmk"));
 				sd08Mapper.insertCplrUntpc(detailMap);
