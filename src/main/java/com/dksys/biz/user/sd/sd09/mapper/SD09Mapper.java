@@ -13,8 +13,10 @@ public interface SD09Mapper {
 	List<Map<String, String>> selectSiteList(Map<String, String> paramMap);
 
 	Map<String, String> selectSiteDetail(Map<String, String> paramMap);
+	
+	String selectSiteCd(Map<String, String> paramMap);
 
-	int insertSite(Map<String, String> paramMap);
+	String insertSite(Map<String, String> paramMap);
 	
 	int updateSite(Map<String, String> paramMap);
 	

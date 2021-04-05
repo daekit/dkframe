@@ -46,7 +46,8 @@ public class SD09Ctr {
     @PostMapping(value = "/insertSite")
     public String insertSite(@RequestParam Map<String, String> paramMap, ModelMap model) {
     	try {
-    		sd09Svc.insertSite(paramMap);
+    		String siteCd = sd09Svc.insertSite(paramMap);
+    		model.addAttribute("siteCd", siteCd);
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch (Exception e){
