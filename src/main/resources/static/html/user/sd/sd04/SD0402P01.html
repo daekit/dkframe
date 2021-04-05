@@ -39,12 +39,13 @@
 					</td>
 				</tr>
 				<tr>
-					<th class="hit">거래처</th>
+					<th>현장</th>
 					<td>
 						<div class="search_form">
-							<input type="hidden" id="clntCd" name="clntCd" required>
-							<input type="text" id="clntNm" readonly> 
-							<a onclick="openSecondClntSearch();">
+							<input type="hidden" id="prjctCd" name="prjctCd">
+							<input type="hidden" id="siteCd" name="siteCd">
+							<input type="text" id="siteNm" readonly> 
+							<a onclick="openSecondSiteSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -67,11 +68,15 @@
 					</td>
 				</tr>
 				<tr>
-					<th class="hit">Maker</th>
+					<th class="hit">거래처</th>
 					<td>
-						<select id="makrCd" name="makrCd" data-kind="MAKR" required>
-							<option value="">선택</option>
-						</select>
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd" required>
+							<input type="text" id="clntNm" readonly> 
+							<a onclick="openSecondClntSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
 					</td>
 					<th class="hit">입고창고</th>
 					<td>
@@ -88,16 +93,11 @@
 					</td>
 				</tr>
 				<tr>
-					<th>현장</th>
+					<th class="hit">Maker</th>
 					<td>
-						<div class="search_form">
-							<input type="hidden" id="prjctCd" name="prjctCd">
-							<input type="hidden" id="siteCd" name="siteCd">
-							<input type="text" id="siteNm" readonly> 
-							<a onclick="openSecondSiteSearch();">
-								<i class="i_search_w"></i>
-							</a>
-						</div>
+						<select id="makrCd" name="makrCd" data-kind="MAKR" required>
+							<option value="">선택</option>
+						</select>
 					</td>
 					<th class="hit">주문일자</th>
 					<td>
@@ -564,6 +564,33 @@
 		fileGridView.setData();
 	}
 	
+	// 현장 검색
+	function openSecondSiteSearch(){
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"clntCd": $('#clntCd').val()
+		}
+		
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#prjctCd').val(row.prjctCd);
+			$('#siteCd').val(row.siteCd);
+			$('#siteNm').val(row.siteNm);
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+			$('#addrZip').val(row.siteAddrZip);
+			$('#addrMain').val(row.siteAddr);
+			$('#addrSub').val(row.siteAddrSub);
+			
+			var paramObj = {
+				"coCd": $('#coCd').val(),
+				"clntCd": row.clntCd
+			}
+			
+			setMngInfo(paramObj);
+		});
+	}
+	
 	// 거래처 검색
 	function openSecondClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -576,12 +603,16 @@
 				"clntCd": row.clntCd
 			}
 			
-			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
-				if(data.mngInfo){
-					$('#salesMng').val(data.mngInfo.salesEmpId);
-					$('#salesMngNm').val(data.mngInfo.salesEmpNm);
-				}
-			});
+			setMngInfo(paramObj);
+		});
+	}
+	
+	function setMngInfo(paramObj){
+		postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
+			if(data.mngInfo){
+				$('#salesMng').val(data.mngInfo.salesEmpId);
+				$('#salesMngNm').val(data.mngInfo.salesEmpNm);
+			}
 		});
 	}
 	
@@ -598,24 +629,6 @@
 			var checkedNode = tree.get_node(checkedId);
 			$('#salesMng').val(checkedNode.id);
 			$('#salesMngNm').val(checkedNode.text);
-		});
-	}
-	
-	// 현장 검색
-	function openSecondSiteSearch(){
-		var paramObj = {
-			"coCd": $('#coCd').val(),
-			"clntCd": $('#clntCd').val()
-		}
-		
-		openSecondModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
-			var row = grid.target.getList("selected")[0];
-			$('#prjctCd').val(row.prjctCd);
-			$('#siteCd').val(row.siteCd);
-			$('#siteNm').val(row.siteNm);
-			$('#addrZip').val(row.siteAddrZip);
-			$('#addrMain').val(row.siteAddr);
-			$('#addrSub').val(row.siteAddrSub);
 		});
 	}
 	
