@@ -109,7 +109,7 @@ th {
 	              <tr>
 	              	<th>제품유형</th>
 	                <td>
-	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required"  onchange="gridView.initView().setData(0);">
+	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required"  onchange="gridView.initView().setData(0);prdtDivCombo();">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -271,7 +271,21 @@ th {
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
-		        ]
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 			align:"center",	  colspan:10},
+			    		{key: "realTrstAmt",	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgUpr", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
+			    		{key: "transAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "etcAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {label: "-", 			align:"center"									 },
+	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ]
 		    });
 			return this;
 		}, 
@@ -305,11 +319,6 @@ th {
 					}
 				});
 			});
-			setTimeout(function(){
-				$(".checkBox").on("click", function(el){
-					checkValidation(el);
-				});
-			}, 500)
 		}
 	}
 	
@@ -400,6 +409,9 @@ th {
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
+		$("#coCd_S").val(jwt.coCd);
+		$("#reqDtFrom").val(getMonth("S"));
+		$("#reqDtTo").val(getMonth("E"));
 	}
 
 	function insertSellModal(type) {
@@ -517,23 +529,6 @@ th {
 			gridView.setData(0);
 		});
 	}
-
-	function checkValidation(el) {
-		var list = gridView.target.getList("selected");
-		var clickedIdx = $(el.target).closest('tr').prevAll().length;
-		$.each(list, function(idx, obj) {
-			if (obj.clntCd != gridView.target.getList()[clickedIdx].clntCd) {
-				alert("같은 거래처끼리 선택해야 합니다.");
-				gridView.target.select(clickedIdx);
-				return false;
-			}
-			if (obj.trspTypNm != gridView.target.getList()[clickedIdx].trspTypNm) {
-				alert("같은 거래유형끼리 선택해야 합니다.");
-				gridView.target.select(clickedIdx);
-				return false;
-			}
-		});
-	}
 	
 	// 현장 검색
 	function openSecondSiteSearch(type) {
@@ -612,4 +607,17 @@ th {
 		callReport(fileName, arg);
 	}
 	
+	function prdtDivCombo(){
+		var formData = {"prdtDivCd" : $("#prdtDiv_S").val()};
+		postAjax("/user/sd/sd05/prdtDivCombo", formData, null, function (data){
+			var codeList = data.codeInfoList; 
+			var optionHtml = '<option value="">선택</option>';
+			for (var i = 0; i < codeList.length; i++) {
+				optionHtml += '<option value=\"' +  codeList[i].prdtStkn + '\">'
+					+ codeList[i].prdtStknNm + '</option>';
+				}
+			$("#pdsk_S").html(optionHtml);
+		})
+ 	}
+
 </script>

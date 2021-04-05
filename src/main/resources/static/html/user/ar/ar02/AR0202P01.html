@@ -126,21 +126,21 @@
 	                <th>사이즈</th>
 	                <td>                                
 	                    <input type="hidden" name="prdtSize" readonly="readonly">
-	                    <input type="text" name="prdtSizeNm" readonly="readonly">
+	                    <input type="text" name="prdtSizeNm" readonly="readonly" style="text-align: right;">
 	                </td>
 	            </tr>
 	            <tr>
 	                <th>SPEC</th>
 	                <td>                                
-	                    <input type="text" name="prdtSpec">
+	                    <input type="text" name="prdtSpec" style="text-align: right;">
 	                </td>
 	                <th>길이</th>
 	                <td>                             
-	                    <input type="text" name="prdtLen" onkeyup="addComma(this);" comma>
+	                    <input type="text" name="prdtLen" onkeyup="addComma(this);" comma style="text-align: right;">
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">청구수량</th>
+	                <th id="bilgHit" class="hit">청구수량</th>
 	                <td>                     
 	                	<input type="hidden" name="realTrstQty" readonly="readonly">        
 	                    <input type="text" name="bilgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
@@ -170,7 +170,7 @@
 	                <th>운송비</th>
 	                <td>                             
 	                	<div class="search_form"> 
-	                    	<input id="transAmt" name="transAmt" type="text" style="text-align: right;width: 80% !important;" onkeyup="addComma(this);countAmt(this);" comma >
+	                    	<input id="transAmt" name="transAmt" type="text" style="text-align: right; width: 88% !important; margin-left: -23px;" onkeyup="addComma(this);countAmt(this);" comma >
 	                    	<a onclick="transAmtModal();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
@@ -314,12 +314,23 @@
 				if($("input[name="+key+"]") != undefined)
 					$("input[name="+key+"]").val(value);
 			});
+			$('input[name="prdtUpr"]').val(row.ordrgUpr);
+			$('input[name="bilgUpr"]').val(row.ordrgUpr);
 			if(row.prdtStockCd == "N") {
+				$('input[name="prdtSizeNm"]').prop("readonly", true);
+				$('input[name="prdtSpec"]').prop("readonly", true);
+				$('input[name="prdtLen"]').prop("readonly", true);
 				$('input[name="bilgQty"]').prop("readonly", true);
 				$('input[name="bilgQty"]').val("0");
 				$('input[name="bilgAmt"]').val(row.ordrgUpr);
+				$("#bilgHit").removeClass();
 			} else {
+				$('input[name="prdtSizeNm"]').prop("readonly", false);
+				$('input[name="prdtSpec"]').prop("readonly", false);
+				$('input[name="prdtLen"]').prop("readonly", false);
 				$('input[name="bilgQty"]').prop("readonly", false);
+				$('input[name="bilgUpr"]').val(row.ordrgUpr);
+				$("#bilgHit").addClass("hit");
 			}
 		});
 	}
