@@ -195,6 +195,7 @@ public class AR01SvcImpl implements AR01Svc {
 				detailMap.put("coCd", paramMap.get("coCd"));
 				detailMap.put("clntCd", paramMap.get("clntCd"));
 				detailMap.put("selpchCd", "SELPCH2");
+				detailMap.put("prdtDt", paramMap.get("reqDt"));
 				detailMap.put("prdtUpr", detailMap.get("realShipUpr"));
 				detailMap.put("rmk", paramMap.get("shipRmk"));
 				sd08Mapper.insertCplrUntpc(detailMap);
