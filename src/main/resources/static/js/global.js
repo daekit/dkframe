@@ -466,15 +466,13 @@ function mainDefaultLoad(menuNm, subMenuNm) {
 	    $('#top_area').toggleClass('on');
 	    $('#main_area').toggleClass('on');
     });
-	setMenuAuth();
-	
 	// top
 	$("#top_area").load("/static/html/top.html", function(){
 		$('#topMenu').text(menuNm);
 		$('#topSubMenu').text(subMenuNm);
 		$("#topUserNm").text(jwt.userNm);
+		setMenuAuth();
 	});
-	
 }
 
 function dateToStr(str) {
