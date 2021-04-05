@@ -252,14 +252,16 @@
 		//접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 
-		$("#CO").val($.urlParam('coCd'));
-		$("#WH").val($.urlParam('whCd'));
-		$("#OWNER").val($.urlParam('ownerCd'));
-		$("#SELLTYPE").val($.urlParam('typCd'));
-		$("#clntNm").val(decodeURI($.urlParam('clntNm')));
-		$("#MAKR").val($.urlParam('makrCd'));
-		$("#prdtNm").val(decodeURI($.urlParam('prdtNm')));
-		history.replaceState({}, null, location.pathname);
+		if($.urlParam('coCd')){
+			$("#CO").val($.urlParam('coCd'));
+			$("#WH").val($.urlParam('whCd'));
+			$("#OWNER").val($.urlParam('ownerCd'));
+			$("#SELLTYPE").val($.urlParam('typCd'));
+			$("#clntNm").val(decodeURI($.urlParam('clntNm')));
+			$("#MAKR").val($.urlParam('makrCd'));
+			$("#prdtNm").val(decodeURI($.urlParam('prdtNm')));
+			history.replaceState({}, null, location.pathname);
+		}
 		gridView.initView().setData(0);
 
 		
@@ -278,10 +280,12 @@
 
 	$.urlParam = function(name){
 		
-		console.log(name);
 	    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-	    console.log(results);
-	    return results[1] || 0;
+	    if(results){
+	    	return results[1] || 0;
+	    } else {
+	    	return null;
+	    }
 	}
 
 
