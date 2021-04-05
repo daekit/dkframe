@@ -94,6 +94,10 @@
 	   AND SITE_CD = #{siteCd}
 	</select>
 	
+	<select id="selectSiteCd" parameterType="Map" resultType="String">
+	SELECT NVL(MAX(SITE_CD), 0) + 1 FROM TB_SD09M01 WHERE CO_CD = #{coCd}
+	</select>
+	
 	<insert id="insertSite" parameterType="Map">
 	INSERT INTO TB_SD09M01
 	(CO_CD
@@ -113,7 +117,7 @@
 	 , CREAT_DTTM
 	 ) VALUES (
 	 #{coCd}
-	 , (SELECT NVL(MAX(SITE_CD), 0) + 1 FROM TB_SD09M01 WHERE CO_CD = #{coCd})
+	 , #{siteCd}
 	 , #{clntCd}
 	 , #{prjctCd}
 	 , #{siteNm}
