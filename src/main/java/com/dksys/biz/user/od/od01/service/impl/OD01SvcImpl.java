@@ -70,6 +70,9 @@ public class OD01SvcImpl implements OD01Svc {
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
+			paramMap.put("prdtSize", detailMap.get("prdtSize"));
+			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
+			paramMap.put("prdtLen", detailMap.get("prdtLen"));
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfo == null) {
 				detailMap.put("pchsUpr", "0");
@@ -156,6 +159,9 @@ public class OD01SvcImpl implements OD01Svc {
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
+			paramMap.put("prdtSize", detailMap.get("prdtSize"));
+			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
+			paramMap.put("prdtLen", detailMap.get("prdtLen"));
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfo == null) {
 				detailMap.put("stockUpr", "0");
@@ -232,6 +238,9 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
 				}
 				paramMap.put("prdtCd", detailMap.get("prdtCd"));
+				paramMap.put("prdtSize", detailMap.get("prdtSize"));
+				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
+				paramMap.put("prdtLen", detailMap.get("prdtLen"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				paramMap.put("stockChgCd", "STOCKCHG01");
 				if(stockInfo == null) {
@@ -314,7 +323,8 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
 			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
-			if(ar02Mapper.checkBilg(detailMap) != null) {
+			Map<String, String> bilgMap = ar02Mapper.checkBilg(detailMap);
+			if(bilgMap != null && Integer.parseInt(bilgMap.get("bilgCertNo")) != 0) {
 				bilgFlag = true;
 				break;
 			}
@@ -324,6 +334,9 @@ public class OD01SvcImpl implements OD01Svc {
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
 				paramMap.put("prdtCd", detailMap.get("prdtCd"));
+				paramMap.put("prdtSize", detailMap.get("prdtSize"));
+				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
+				paramMap.put("prdtLen", detailMap.get("prdtLen"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
