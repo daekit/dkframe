@@ -191,6 +191,10 @@ public class OD01SvcImpl implements OD01Svc {
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
+		String clntCd = paramMap.get("clntCd");
+		String clntNm = paramMap.get("clntNm");
+		String sellClntCd = paramMap.get("sellClntCd");
+		String sellClntNm = paramMap.get("sellClntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -230,6 +234,11 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("bilgUpr", detailMap.get("realDlvrUpr"));
 			paramMap.put("bilgAmt", detailMap.get("realDlvrAmt"));
 			paramMap.put("clntNm", detailMap.get("clntNm"));
+			paramMap.put("trstRprcSeq", detailMap.get("ordrgSeq"));		
+			paramMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));				  	
+			paramMap.put("odrNo", paramMap.get("odrSeq"));
+			paramMap.put("clntCd", clntCd);
+			paramMap.put("clntNm", clntNm);
 			ar02Mapper.insertPchsSell(paramMap);
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
@@ -264,8 +273,8 @@ public class OD01SvcImpl implements OD01Svc {
 				creditFlag = true;
 				paramMap.put("selpchCd", "SELPCH2");
 				paramMap.put("stockChgCd", "STOCKCHG02");
-				paramMap.put("cnltCd", paramMap.get("sellClntCd"));
-				paramMap.put("cnltNm", paramMap.get("sellClntNm"));
+				paramMap.put("clntCd", sellClntCd);
+				paramMap.put("cnltNm", sellClntNm);
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
 				realTotTrstAmt += Integer.parseInt(paramMap.get("realTrstAmt"));
 				ar02Mapper.insertPchsSell(paramMap);
@@ -323,16 +332,22 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
 			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
-			Map<String, String> bilgMap = ar02Mapper.checkBilg(detailMap);
-			if(bilgMap != null && Integer.parseInt(bilgMap.get("bilgCertNo")) != 0) {
-				bilgFlag = true;
-				break;
+			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+			for (Map<String, String> map : bilgList) {
+				if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+					bilgFlag = true;
+					break;
+				}
 			}
 			od01Mapper.updateCancelDetail(detailMap);
 			ar02Mapper.deletePchsSell(detailMap);
 			//재고원복
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+				}
 				paramMap.put("prdtCd", detailMap.get("prdtCd"));
 				paramMap.put("prdtSize", detailMap.get("prdtSize"));
 				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));

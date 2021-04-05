@@ -30,7 +30,7 @@ public interface AR02Mapper {
 
 	int deletePchsSell(Map<String, String> detailMap);
 
-	Map<String, String> checkBilg(Map<String, String> detailMap);
+	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
 
 	
 }
