@@ -395,7 +395,7 @@ function setMenuAuth() {
 	var formData = {
 		"authInfo" : jwt.authInfo
 	}
-	postAjax("/selectMenuAuth", formData, null, function(data) {
+	postAjaxSync("/selectMenuAuth", formData, null, function(data) {
 		checkMenuAuth(data.accessList);
 	});
 }
