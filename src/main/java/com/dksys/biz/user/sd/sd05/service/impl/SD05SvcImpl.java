@@ -82,7 +82,7 @@ public class SD05SvcImpl implements SD05Svc {
 		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
 		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));
-		result = sd09Mapper.insertSite(paramMap);
+		sd09Mapper.insertSite(paramMap);
 		
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
