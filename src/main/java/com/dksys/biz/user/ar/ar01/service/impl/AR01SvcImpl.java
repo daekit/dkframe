@@ -186,6 +186,8 @@ public class AR01SvcImpl implements AR01Svc {
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
+		String clntCd = paramMap.get("clntCd");
+		String clntNm = paramMap.get("clntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -222,7 +224,8 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
-			paramMap.put("clntNm",      detailMap.get("clntNm"));
+			paramMap.put("clntCd",      clntCd);
+			paramMap.put("clntNm",      clntNm);
 //			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
 //			paramMap.put("siteCd",      paramMap.get("siteCd"));
 			if(detailMap.containsKey("sellVatCd") && "VAT01".equals(detailMap.get("sellVatCd").toString()))
