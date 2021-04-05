@@ -33,9 +33,11 @@ public class SD09SvcImpl implements SD09Svc {
 	}
 
 	@Override
-	public int insertSite(Map<String, String> paramMap) {
-		System.out.println(paramMap);
-		return sd09Mapper.insertSite(paramMap);
+	public String insertSite(Map<String, String> paramMap) {
+		String siteCd = sd09Mapper.selectSiteCd(paramMap); 
+		paramMap.put("siteCd", siteCd);
+		sd09Mapper.insertSite(paramMap);
+		return siteCd;
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public interface SD09Svc {
 	
 	public Map<String, String> selectSiteDetail(Map<String, String> param);
 	
-	public int insertSite(Map<String, String> param);
+	public String insertSite(Map<String, String> param);
 
 	public int updateSite(Map<String, String> param);
 	
