@@ -311,16 +311,22 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("trstRprcSeq", paramMap.get("shipSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));
 			realTotTrstAmt += Integer.parseInt(detailMap.get("realShipAmt"));
-			Map<String, String> bilgMap = ar02Mapper.checkBilg(detailMap);
-			if(bilgMap != null && Integer.parseInt(bilgMap.get("bilgCertNo")) != 0) {
-				bilgFlag = true;
-				break;
+			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+			for (Map<String, String> map : bilgList) {
+				if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+					bilgFlag = true;
+					break;
+				}
 			}
 			ar01Mapper.updateCancelDetail(detailMap);
 			ar02Mapper.deletePchsSell(detailMap);
 			//재고원복
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+				}
 				paramMap.put("prdtCd", detailMap.get("prdtCd"));
 				paramMap.put("prdtSize", detailMap.get("prdtSize"));
 				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
