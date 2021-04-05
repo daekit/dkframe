@@ -275,7 +275,7 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("selpchCd", "SELPCH2");
 				paramMap.put("stockChgCd", "STOCKCHG02");
 				paramMap.put("clntCd", sellClntCd);
-				paramMap.put("cnltNm", sellClntNm);
+				paramMap.put("clntNm", sellClntNm);
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
 				realTotTrstAmt += Integer.parseInt(paramMap.get("realTrstAmt"));
 				ar02Mapper.insertPchsSell(paramMap);
@@ -283,7 +283,7 @@ public class OD01SvcImpl implements OD01Svc {
 				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 				{
 					// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
-					if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+					if("OWNER1".equals(paramMap.get("ownerCd").toString())) {
 						paramMap.put("clntCd",  paramMap.get("whClntCd"));		
 					}
 					Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
