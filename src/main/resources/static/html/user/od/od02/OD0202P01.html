@@ -135,7 +135,7 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">매입수량</th>
+	                <th id="bilgHit" class="hit">매입수량</th>
 	                <td>                     
 	                	<input type="hidden" name="realTrstQty" readonly="readonly">        
 	                    <input type="text" name="bilgQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma minus>
@@ -154,7 +154,7 @@
 	                </td>
 	                <th>제품기준단가</th>
 	                <td>                                
-	                    <input type="text" name="ordrgUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
+	                    <input type="text" name="prdtUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma>
 	                </td>
 	            </tr>
 	            <tr>
@@ -165,7 +165,7 @@
 	                <th>운송비</th>
 	                <td>                             
 	                    <div class="search_form"> 
-	                    	<input id="transAmt" name="transAmt" type="text" style="text-align: right;width: 80% !important;" onkeyup="addComma(this);countAmt(this);" comma >
+	                    	<input id="transAmt" name="transAmt" type="text" style="text-align: right; width: 88% !important; margin-left: -23px;" onkeyup="addComma(this);countAmt(this);" comma >
 	                    	<a onclick="transAmtModal();"><i class="i_search_w"></i></a>
 	                    </div>
 	                </td>
@@ -313,13 +313,23 @@
 				if($("input[name="+key+"]") != undefined)
 					$("input[name="+key+"]").val(value);
 			});
+			$('input[name="prdtUpr"]').val(row.ordrgUpr);
+			$('input[name="bilgUpr"]').val(row.ordrgUpr);
 			if(row.prdtStockCd == "N") {
+				$('input[name="prdtSizeNm"]').prop("readonly", true);
+				$('input[name="prdtSpec"]').prop("readonly", true);
+				$('input[name="prdtLen"]').prop("readonly", true);
 				$('input[name="bilgQty"]').prop("readonly", true);
 				$('input[name="bilgQty"]').val("0");
 				$('input[name="bilgAmt"]').val(row.ordrgUpr);
+				$("#bilgHit").removeClass();
 			} else {
+				$('input[name="prdtSizeNm"]').prop("readonly", false);
+				$('input[name="prdtSpec"]').prop("readonly", false);
+				$('input[name="prdtLen"]').prop("readonly", false);
 				$('input[name="bilgQty"]').prop("readonly", false);
 				$('input[name="bilgUpr"]').val(row.ordrgUpr);
+				$("#bilgHit").addClass("hit");
 			}
 		});
 	}
@@ -329,8 +339,6 @@
 		$("#popForm select").prop("disabled", false);
 		$("#userId").val(jwt.userId);
 		$("#trstDt").val($("#trstDt").val().replace(/-/g, ""));
-		
-		debugger;
 		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
@@ -351,7 +359,6 @@
 	function insertPchsSell() {
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
-			debugger;
 			postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
 				alert(data.resultMessage);
 				gridView.setData(0);
