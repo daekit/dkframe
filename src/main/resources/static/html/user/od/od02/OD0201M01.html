@@ -109,7 +109,7 @@ th {
 	              <tr>
 	              	<th>제품유형</th>
 	                <td>
-	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required"  onchange="gridView.initView().setData(0);">
+	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required"  onchange="gridView.initView().setData(0);prdtDivCombo();">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -253,23 +253,37 @@ th {
 		        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 80},
 		          	{key: "prdtLen",        label: "길이",		align: "right",		width: 50},
 		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 140},
-		        	{key: "bilgAmt", 	    label: "매입금액",  	align: "right", 	width: 80,	formatter: "money"},
+		          	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money"},
 		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", hidden: true},
 		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "bilgQty",        label: "매입수량", 	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgWt",         label: "매입중량", 	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgUpr",        label: "매입단가", 	align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "transAmt",    	label: "매입운송비",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		            {key: "taxivcCoprtNm",	label: "매입법인", 	align: "left", 		width: 120},
-		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
+		        	{key: "bilgAmt", 	    label: "매입금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "bilgCertNo",     label: "매입번호", 	align: "center", 	width: 80},
+		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
+		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
-		        ]
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 			align:"center",	  colspan:10},
+			    		{key: "realTrstAmt",	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgUpr", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
+			    		{key: "transAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "etcAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {label: "-", 			align:"center"									 },
+	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ]
 		    });
 			return this;
 		}, 
@@ -573,5 +587,18 @@ th {
 		var fileName = "AR0201R01.jrf";
 		var arg = "selPchCd#SELPCH1#coCd#"+$('#coCd_S').val()+"#fromDt#"+$("#reqDtFrom").val().replace(/\-/g,'')+"#toDt#"+$("#reqDtTo").val().replace(/\-/g,'')+"#";
 		callReport(fileName, arg);
-	}	
+	}
+	
+	function prdtDivCombo(){
+		var formData = {"prdtDivCd" : $("#prdtDiv_S").val()};
+		postAjax("/user/sd/sd05/prdtDivCombo", formData, null, function (data){
+			var codeList = data.codeInfoList; 
+			var optionHtml = '<option value="">선택</option>';
+			for (var i = 0; i < codeList.length; i++) {
+				optionHtml += '<option value=\"' +  codeList[i].prdtStkn + '\">'
+					+ codeList[i].prdtStknNm + '</option>';
+				}
+			$("#pdsk_S").html(optionHtml);
+		})
+ 	}
 </script>
