@@ -148,4 +148,19 @@ public class AR04SvcImpl implements AR04Svc {
 		}
 		return result;
 	}
+
+	@Override
+	@SuppressWarnings("all")
+	public int updateBilgCancel(Map<String, Object> paramMap) {
+		int result = 0;
+		List<String> list = (List<String>) paramMap.get("bilgCertNo");
+		Map<String, String> param = new HashMap<String, String>();
+		param.put("bilgCertiNo", list.get(0));
+		Map<String, String> bilgInfo = ar04Mapper.selectTaxBilg(param);
+		if(bilgInfo.get("taxBilgNo") == null) {
+			result = ar04Mapper.deleteBilgInfo(param);
+			ar02Mapper.updateBilgCancel(param);
+		}
+		return result;
+	}
 }

@@ -25,4 +25,6 @@ public interface AR04Svc {
 
 	int insertTaxHd(Map<String, Object> paramMap);
 
+	int updateBilgCancel(Map<String, Object> paramMap);
+
 }

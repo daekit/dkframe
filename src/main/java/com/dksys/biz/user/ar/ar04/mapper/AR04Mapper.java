@@ -44,9 +44,12 @@ public interface AR04Mapper {
 	
 	int insertTaxItem(Map<String, String> paramMap);
 
+	int deleteBilgInfo(Map<String, String> param);
+
 	int insertInvHd(Map<String, String> bilgInfo);
 
 	int insertInvDtl(Map<String, String> bilgInfo);
 
 	int insertItem(Map<String, String> bilgInfo);
+
 }

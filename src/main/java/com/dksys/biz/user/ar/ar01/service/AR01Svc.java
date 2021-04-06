@@ -29,4 +29,6 @@ public interface AR01Svc {
 
 	int updateCancel(Map<String, String> paramMap);
 
+	int updateRecptYn(Map<String, Object> param);
+
 }

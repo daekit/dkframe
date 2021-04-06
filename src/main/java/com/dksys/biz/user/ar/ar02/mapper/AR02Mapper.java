@@ -32,5 +32,7 @@ public interface AR02Mapper {
 
 	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
 
+	int updateBilgCancel(Map<String, String> param);
+
 	
 }
