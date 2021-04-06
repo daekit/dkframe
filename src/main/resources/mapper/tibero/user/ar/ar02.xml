@@ -139,7 +139,10 @@
 	        #{salesAreaCd, jdbcType=VARCHAR},
 	        #{siteCd,      jdbcType=VARCHAR},
 	        <if test='selpchCd == "SELPCH1" or selpchCd == "SELPCH3"'>
-	        (SELECT TRUNC(CODE_ETC * ${realTrstAmt} / 100) FROM TB_CM05M01 A INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = #{clntCd}),
+	        (SELECT TRUNC(A.CODE_ETC * ${realTrstAmt} / 100) FROM TB_CM05M01 A 
+	                        INNER JOIN TB_CM05M01 A1 ON A1.CODE_ID = #{whCd, jdbcType=VARCHAR}
+	                        INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = A1.CODE_ETC
+	                        INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC),	                        
 	        </if>
 	        <if test='selpchCd == "SELPCH2" or selpchCd == "SELPCH4"'>
 	        (SELECT TRUNC(CODE_ETC * ${realTrstAmt} / 100) FROM TB_CM05M01 A INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}),
