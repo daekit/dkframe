@@ -61,10 +61,12 @@
 	                </td>
 	            </tr>
 	            <tr>
-	            	<th class="hit">Maker</th>
-	                <td>                                
-	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required">
-	                    </select>
+	            	<th class="hit">수입여부</th>
+	                <td>
+		                <select id="impYn" name="impYn" onchange="setMaker(this.value);">
+		                  	<option value="N" selected="selected">N</option>
+		                  	<option value="Y" >Y</option>
+		                </select>
 	                </td>
 	                <th class="hit">출하창고</th>
 	                <td>                                
@@ -80,12 +82,9 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">수입여부</th>
-	                <td>
-		                <select id="impYn" name="impYn">
-		                  	<option value="N" selected="selected">N</option>
-		                  	<option value="Y" >Y</option>
-		                </select>
+	            	<th class="hit">Maker</th>
+	                <td>                                
+	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required"></select>
 	                </td>
 	                <th>현장명</th>
 	                <td>
@@ -434,6 +433,7 @@
 			$('#actionArBtn').on("click", function(){insertShip();});
 			$('#actionArBtn').text("등록");
 			$("#reqDt").val(dateToStr(new Date()));
+			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 		} else if(actionType == "U"){
 			selectShipInfo();
@@ -483,6 +483,11 @@
 		//메인정보 세팅
 		$.each(shipInfo, function(key, value){
 			$('#'+key).val(value);
+			
+			// 제조사 set
+			if(key == "impYn"){
+				setMaker(value);
+			}
 		});
 		
 		//상세정보 세팅
@@ -522,6 +527,13 @@
 			// 첨부파일 그리드 set
 			fileGridView.setData();
 		}
+	}
+	
+	// 제조사 set
+	function setMaker(value){
+		$('#makrCd').data("rprc", value);
+		$('#makrCd').empty();
+		setCommonSelect($('#makrCd'));
 	}
 	
 	function addRow() {
