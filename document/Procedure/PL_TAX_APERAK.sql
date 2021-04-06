@@ -62,21 +62,21 @@ BEGIN
 
 			--RFFZZZ1154  = 1:시스템 응답, 2:담당자응답,  3:국세청응답
      		IF (CUR1.ERC___9321 = 'OK')  THEN --정상 (OK:정상, ER:오류)		
-				IF (CUR1.RFFZZZ1154 = '1') THEN		--시스템응답
+				IF (CUR1.RFFZZZ1154 = '1' AND CUR1.ERC___1131 = 'O') THEN		--시스템응답
 					UPDATE TB_AR04M01
-					SET  CSEQ_RCV_YN	= CUR1.RFFZZZ1154	-- 계산서 처리결과
+					SET  CSEQ_RCV_YN	= 'Y'	-- 계산서 처리결과
 						,CSEQ_RCV_DTTM	= CUR1.TIMESTAMP	-- 처리결과회신일자
 					WHERE TAX_BILG_NO = CUR1.RFFACE1154;		--계산서발행번호
 						
-				ELSIF (CUR1.RFFZZZ1154 = '2') THEN	--담당자응답
+				ELSIF (CUR1.RFFZZZ1154 = '2' AND CUR1.ERC___1131 = 'C') THEN	--담당자응답
 					UPDATE TB_AR04M01
-					SET  TAX_ADMS_YN	= CUR1.RFFZZZ1154	--승인여부 RFFZZZ1154  = 1:시스템 응답, 2:담당자응답,  3:국세청응답
+					SET  TAX_ADMS_YN	= 'Y'	--승인여부 RFFZZZ1154  = 1:시스템 응답, 2:담당자응답,  3:국세청응답
 						,TAX_ADMS_DTTM	= CUR1.TIMESTAMP	-- 처리결과회신일자
 					WHERE TAX_BILG_NO = CUR1.RFFACE1154;	--계산서발행번호
 
-				ELSIF (CUR1.RFFZZZ1154 = '3') THEN	--국세청응답
+				ELSIF (CUR1.RFFZZZ1154 = '3' AND CUR1.ERC___1131 = 'NPO') THEN	--국세청응답
 					UPDATE TB_AR04M01
-					SET  RCV_YN			= CUR1.RFFZZZ1154	-- 국세청수신여부
+					SET  RCV_YN			= 'Y'	-- 국세청수신여부
 						,RCV_DTTM		= CUR1.TIMESTAMP	-- 처리결과회신일자
 						,RCV_PROC_ID	= CUR1.RFFSZ_1154	-- 국세청승인번호
 					WHERE TAX_BILG_NO   = CUR1.RFFACE1154;	--계산서발행번호
@@ -84,10 +84,26 @@ BEGIN
 				END IF;
 
 			ELSE -- (CUR1.ERC___9321 = 'ER')  THEN --정상 (OK:정상, ER:오류)
+					IF (CUR1.RFFZZZ1154 = '1') THEN		--시스템응답
 					UPDATE TB_AR04M01
-					SET  CSEQ_RCV_YN	= 'E'				--계 산서 처리결과
+					SET  CSEQ_RCV_YN	= 'E'	-- 계산서 처리결과
 						,CSEQ_RCV_DTTM	= CUR1.TIMESTAMP	-- 처리결과회신일자
+					WHERE TAX_BILG_NO = CUR1.RFFACE1154;		--계산서발행번호
+						
+				ELSIF (CUR1.RFFZZZ1154 = '2') THEN	--담당자응답
+					UPDATE TB_AR04M01
+					SET  TAX_ADMS_YN	= 'E'	--승인여부 RFFZZZ1154  = 1:시스템 응답, 2:담당자응답,  3:국세청응답
+						,TAX_ADMS_DTTM	= CUR1.TIMESTAMP	-- 처리결과회신일자
 					WHERE TAX_BILG_NO = CUR1.RFFACE1154;	--계산서발행번호
+
+				ELSIF (CUR1.RFFZZZ1154 = '3') THEN	--국세청응답
+					UPDATE TB_AR04M01
+					SET  RCV_YN			= 'E'	-- 국세청수신여부
+						,RCV_DTTM		= CUR1.TIMESTAMP	-- 처리결과회신일자
+						,RCV_PROC_ID	= ''	-- 국세청승인번호
+					WHERE TAX_BILG_NO   = CUR1.RFFACE1154;	--계산서발행번호
+
+				END IF;
 			
 			END IF  ;   	
      	     		

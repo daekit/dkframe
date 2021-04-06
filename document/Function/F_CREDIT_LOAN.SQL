@@ -60,8 +60,8 @@ BEGIN
 	        Detail 금액 : TB_BM02D02.PLDG_AMT * TB_BM02D02.PLDG_RCOGN_RATE / 100
 	       거래처 여신금액 관리 테이블 사별여신금액 (담보금액 * 답보인정비율 ) */
 		SELECT max(a.CLNT_CD )AS CLNT_CD, 
-			   sum(A.BASIS_CDTLN_AMT) AS BASIS_AMT, 
-			   nvl(sum(b.PLDG_AMT*b.PLDG_RCOGN_RATE/100),0) AS PLDG_AMT, 
+			   sum(nvl(A.BASIS_CDTLN_AMT,0)) AS BASIS_AMT, 
+			   sum(nvl(b.PLDG_AMT*b.PLDG_RCOGN_RATE/100,0)) AS PLDG_AMT, 
   			   max(a.LINK_GRP_YN )AS LINK_GRP_YN, 
   			   max(a.LINK_GRP_CLNT_CD )AS LINK_GRP_CLNT_CD 
               into C_CLNT_CD, 
@@ -87,8 +87,9 @@ BEGIN
 			       	마스터 그룹여신 금액 : TB_BM02M01.BASIS_CDTLN_AMT
 			        Detail 금액 : TB_BM02D02.PLDG_AMT * TB_BM02D02.PLDG_RCOGN_RATE / 100
 					*/
-			SELECT max(a.LINK_GRP_CLNT_CD )AS LINK_GRP_CLNT_CD, sum(A.BASIS_CDTLN_AMT) AS BASIS_AMT, 
-			nvl(sum(b.PLDG_AMT*b.PLDG_RCOGN_RATE/100),0) AS PLDG_AMT 
+			SELECT max(a.LINK_GRP_CLNT_CD )AS LINK_GRP_CLNT_CD, 
+			       sum(nvl(A.BASIS_CDTLN_AMT,0)) AS BASIS_AMT, 
+			       sum(nvl(b.PLDG_AMT*b.PLDG_RCOGN_RATE/100,0)) AS PLDG_AMT 
 	               into C_LINK_GRP_CLNT_CD, C_GRP_AMT, C_CO_AMT
 				from TB_BM02M01 a LEFT OUTER JOIN TB_BM02D02 b 
 					ON a.CLNT_CD = b.CLNT_CD
@@ -102,7 +103,7 @@ BEGIN
 		END IF;  --C_LINK_GRP_YN
 		
 	--거래처 여신금액 관리 테이블 사별여신금액 (담보금액 * 답보인정비율 )
- 		SELECT nvl(sum(PLDG_AMT*PLDG_RCOGN_RATE/100),0) 
+ 		SELECT sum(nvl((PLDG_AMT*PLDG_RCOGN_RATE/100),0)) 
              into O_CO_AMT
 			FROM TB_BM02D02
 			WHERE CLNT_CD = I_CLNT_CD
@@ -116,13 +117,13 @@ BEGIN
 		C_ETRDPS_AMT := 0;	--입금금액 임시 집계
 		IF  I_CD = 'C' THEN  -- 여신 총 한도 금액 산정
 			--거래처 매출금액 누계액 계산
-				SELECT nvl(sum(
-					CASE WHEN BILG_AMT <> 0 			--청구금액
-							THEN BILG_AMT				--청금금액
-					     	WHEN REAL_TRST_AMT <> 0 	--실출하금액
-					     	THEN REAL_TRST_AMT 
-					     	ELSE TRST_AMT 				--출하지시금액
-					     END ),0) 
+				SELECT sum(
+					CASE WHEN nvl(BILG_AMT,0) <> 0 			--청구금액
+							THEN nvl(BILG_AMT,0)				--청금금액
+					     	WHEN nvl(REAL_TRST_AMT,0) <> 0 	--실출하금액
+					     	THEN nvl(REAL_TRST_AMT,0) 
+					     	ELSE nvl(TRST_AMT,0) 				--출하지시금액
+					     END ) 
 					into C_TRSP_AMT
 				FROM GOLDMOON.TB_AR02M01 
 				WHERE co_cd = I_CO_CD 
@@ -131,7 +132,7 @@ BEGIN
 				AND TRST_DT <= TO_NUMBER(I_TR_DT);
 		
 			--거래처별 입급금액 누계액 계산
-				SELECT nvl(sum(ETRDPS_AMT),0) into C_ETRDPS_AMT
+				SELECT sum(nvl(ETRDPS_AMT,0)) into C_ETRDPS_AMT
 				FROM TB_AR05M01
 				WHERE co_cd = I_CO_CD
 				AND CLNT_CD = I_CLNT_CD
@@ -141,7 +142,7 @@ BEGIN
 		O_BLCE_AMT := 0;
 
 		--사별담보여신 잔액이 남아 있는지 확인 (거래처헤더 여신금액 +거래처신용담보금액+사별기타담보금액담 - 매출금액 + 입금금액)
-		O_BLCE_AMT := C_GRP_AMT + C_CO_AMT + O_CO_AMT - C_TRSP_AMT + C_ETRDPS_AMT;
+		O_BLCE_AMT := nvl(C_GRP_AMT,0) + nvl(C_CO_AMT,0) + nvl(O_CO_AMT,0) - nvl(C_TRSP_AMT,0) + nvl(C_ETRDPS_AMT,0);
 
 /*		IF O_BLCE_AMT < 0 THEN
 	       O_BLCE_AMT := 0;
