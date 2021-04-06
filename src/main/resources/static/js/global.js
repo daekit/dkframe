@@ -661,10 +661,10 @@ function callReport(fileName, arg, width, height) {
 	url += "?file="+fileName;
 	url += "&arg="+encodeURIComponent(arg);
 	if (width ==""){
-		width = "900";	
+		width = 900;	
 	}
 	if (height ==""){
-		height = "900";	
+		height = 900;	
 	}
 	popCenter(url, "report", width, height, "yes");	
 }
