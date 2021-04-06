@@ -656,11 +656,17 @@ function insertPgmHistory(url) {
 	});
 }
 
-function callReport(fileName, arg) {
+function callReport(fileName, arg, width, height) {
 	var url = ubiprefix;
 	url += "?file="+fileName;
 	url += "&arg="+encodeURIComponent(arg);
-	popCenter(url, "report", "900", "900", "yes");	
+	if (width ==""){
+		width = 900;	
+	}
+	if (height ==""){
+		height = 900;	
+	}
+	popCenter(url, "report", width, height, "yes");	
 }
 
 function popCenter(url, name, width, height, scroll) {

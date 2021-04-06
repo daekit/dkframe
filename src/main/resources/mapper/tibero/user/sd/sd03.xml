@@ -43,8 +43,8 @@
 		)
 	</select>
 	
-	 <select id="selectMainEstList" parameterType="Map" resultType="CamelMap">
-	SELECT
+	<select id="selectMainEstList" parameterType="Map" resultType="CamelMap">
+		SELECT
 			*
 		FROM
 		(
@@ -72,8 +72,10 @@
 					SUM(B.EST_AMT) as EST_AMT,
 					A.SALES_EMP_ID,
 					A.CREAT_PGM
-				FROM TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
-				WHERE 1=1
+				FROM 
+					TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
+				WHERE 
+					1=1
 					AND A.EST_NO = B.EST_NO(+)
 					AND A.SALES_EMP_ID = C.ID
 				<if test= "coCd != null and !coCd.equals('')">
@@ -88,11 +90,11 @@
 				<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
 				 	AND ${searchValue} LIKE '%${searchName}%'
 				</if>
-					GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
-					ORDER BY EST_DT DESC
-					)T
-				)
-			WHERE ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
+				GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
+				ORDER BY EST_DT DESC, EST_NO DESC
+			)T
+		)
+		WHERE ROWNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
 	<resultMap id="resultInfoMap" type="CamelMap">
@@ -164,7 +166,7 @@
 			#{coCd},
 			#{salesMng},
 			#{estCoprt},
-			#{clntCd},
+			#{estClntCd},
 			#{clntNm},
 			#{estRprc},
 			#{bizTelNo},
@@ -205,7 +207,7 @@
 			#{estPrdtSeq},
 			#{prdtDiv},
 			#{prdtStkn},
-			#{prdtSizeNm},
+			#{prdtSize},
 			#{prdtCd},
 			#{prdtUnit},
 			#{prdtSpec},
@@ -227,7 +229,7 @@
 			CO_CD = #{coCd},
 			SALES_EMP_ID = #{salesMng},
 			EST_COPRT = #{estCoprt},
-			EST_CLNT_CD = #{clntCd},
+			EST_CLNT_CD = #{estClntCd},
 			EST_CLNT_NM = #{clntNm},
 			EST_RPRC = #{estRprc},
 			BIZ_TEL_NO = #{bizTelNo},
@@ -252,7 +254,7 @@
 		SET
 			PRDT_DIV = #{prdtDiv},
 			PRDT_STKN = #{prdtStkn},
-			PRDT_SIZE = #{prdtSizeNm},
+			PRDT_SIZE = #{prdtSize},
 			PRDT_CD = #{prdtCd},
 			PRDT_UNIT = #{prdtUnit},
 			PRDT_SPEC = #{prdtSpec},

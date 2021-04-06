@@ -32,13 +32,24 @@ public interface AR04Mapper {
 	
 	String selectBgmSeq();
 
+	int insertMapoutKey(Map<String, String> bilgInfo);
+
 	int insertTaxHd(Map<String, String> bilgInfo);
 	
 	int updateTaxBilgNo(Map<String, String> bilgCertNo);
 	
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
 	
+	int insertTaxDtl(Map<String, String> paramMap);
+	
 	int insertTaxItem(Map<String, String> paramMap);
 
 	int deleteBilgInfo(Map<String, String> param);
+
+	int insertInvHd(Map<String, String> bilgInfo);
+
+	int insertInvDtl(Map<String, String> bilgInfo);
+
+	int insertItem(Map<String, String> bilgInfo);
+
 }
