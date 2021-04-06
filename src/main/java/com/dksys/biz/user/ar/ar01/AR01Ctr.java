@@ -109,5 +109,18 @@ public class AR01Ctr {
 		model.addAttribute("result", result);
 		return "jsonView";
 	}
+
+	@PutMapping(value = "/updateRecptYn")
+    public String updateRecptYn(@RequestBody Map<String, Object> param, ModelMap model) {
+		try {
+			ar01Svc.updateRecptYn(param);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("receipt"));
+		}catch (Exception e) {
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 	
 }

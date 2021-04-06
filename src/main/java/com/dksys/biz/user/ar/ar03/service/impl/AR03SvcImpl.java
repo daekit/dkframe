@@ -1,7 +1,5 @@
 package com.dksys.biz.user.ar.ar03.service.impl;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.dksys.biz.user.ar.ar03.mapper.AR03Mapper;
 import com.dksys.biz.user.ar.ar03.service.AR03Svc;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 @Service
 public class AR03SvcImpl implements AR03Svc {

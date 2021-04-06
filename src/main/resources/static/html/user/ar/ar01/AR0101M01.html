@@ -134,6 +134,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
+	                <a onclick="updateRecptYn();" style="height: 30px; line-height: 28px; width: 40px;"> 접수</a>
 	                <a onclick="insertShipModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;">-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -170,7 +171,7 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
-		    	multipleSelect: false,
+		    	multipleSelect: true,
 		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
@@ -182,6 +183,8 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
+		            	this.self.clearSelect();
+		            	this.self.select(this.dindex);
 		            	viewShipModal(this.dindex);
 		            },
 		        },
@@ -199,11 +202,12 @@
 		        },
 		        columns: [
 		        	{key: "shipYn",   label: "출하", align: "center", width: 50},
+		        	{key: "recptYn",  label: "접수여부", align: "center", width: 80},
 		          	{key: "coNm",     label: "회사",   align: "center", width: 120},
 		          	{key: "whNm",     label: "창고",   align: "center", width: 140},
 		            {key: "clntNm",   label: "거래처",  align: "left",   width: 140},
+		            {key: "siteNm",   label: "현장명",  align: "left",   width: 160},
 		            {key: "reqDt",    label: "요청일자", align: "center", width: 80},
-		        	{key: "dirtrsYn", label: "직송", align: "center", width: 50},
 		        	{key: "dlvrDttm", label: "납기일시", align: "center", width: 80},
 		        	{label: "출하요청",  columns:[
 		          		{key: "shipTotQty", label: "수량",  align: "right", width: 80, formatter: "money" },
@@ -403,5 +407,37 @@
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("출하요청목록_"+todayDate+".xls");
 			});	
-	}			
+	}
+	
+	function updateRecptYn() {
+		var rowList = gridView.target.getList("selected");
+		if(rowList.length == 0) {
+			alert("접수 건을 선택해주세요");
+			return;
+		}		
+		var detailArr = [];
+		
+		$.each(rowList, function(idx, elem){
+			var detailObj = {};
+			detailObj["shipSeq"] = elem.shipSeq;
+			detailObj["recptYn"] = "Y";
+			detailObj["pgmId"] = "AR0101M01";
+			detailObj["userId"] = jwt.userId;
+			detailArr.push(detailObj);
+		});
+		
+		var formData = {
+			"detailArr" : detailArr
+		}
+		
+		putAjax("/user/ar/ar01/updateRecptYn", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			}
+		});
+		
+		$("#recptYnBtn").hide();
+	}
+	
 </script>

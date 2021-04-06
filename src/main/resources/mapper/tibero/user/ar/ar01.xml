@@ -264,7 +264,8 @@
 		        (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
 		        T.SITE_CD,		        
 	            (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
-		        T.ALLOC_VEHL_NO
+		        T.ALLOC_VEHL_NO,
+		        T.RECPT_YN
 			FROM 
 			(
 			 	SELECT AR01.* FROM TB_AR01M01 AR01
@@ -363,7 +364,8 @@
 		    (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
 		    T.SITE_CD,		        
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
-		    T.ALLOC_VEHL_NO
+		    T.ALLOC_VEHL_NO,
+		    T.RECPT_YN
 		FROM TB_AR01M01 T
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</select>
@@ -574,6 +576,16 @@
 			UDT_PGM       = #{pgmId},
 			UDT_DTTM	  = SYSDATE
 		WHERE SHIP_SEQ = #{shipSeq} AND SHIP_DTL_SEQ = #{shipDtlSeq}
+	</update>
+	
+	<update id="updateRecptYn" parameterType="Map">
+		UPDATE TB_AR01M01 T
+		SET
+			RECPT_YN     = #{recptYn},
+			UDT_ID       = #{userId},
+			UDT_PGM      = #{pgmId},
+			UDT_DTTM	 = SYSDATE
+		WHERE SHIP_SEQ = #{shipSeq}
 	</update>
 	
 	<select id="selectShipDetailInfo" parameterType="Map" resultType="CamelMap">

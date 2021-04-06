@@ -173,6 +173,7 @@ th {
 					<a onclick="sellCal();" style="height: 30px; line-height: 28px; width: 90px;">매출실적 정산</a>
 					<a onclick="insertSellModal('U');" style="height: 30px; line-height: 28px; width: 40px;">반품</a>
 					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 60px;">전표발행</a>
+					<a onclick="updateBilgCancel();" style="height: 30px; line-height: 28px; width: 60px;">전표취소</a>
 					<a onclick="setReport();" style="height: 30px; line-height: 28px; width: 60px;" title="계산서 발행건만 출력합니다.">일보출력</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSell();" style="height: 30px; line-height: 28px;">-</a>
@@ -216,6 +217,7 @@ th {
 		    	showRowSelector: true,
 		    	multipleSelect: true,
 		    	sortable: true,
+		    	frozenColumnIndex: 6,
 		        target: $('[data-ax5grid="first-grid"]'),		        
 		        header: {
 		        	align: "center",
@@ -228,7 +230,7 @@ th {
 		            onDBLClick: function () {
 // 		            	viewShipModal();
 		            },
-		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","prdtNm","prdtStknNm","prdtSizeNm","prdtLen","prjctNm"],
+		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"],
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -250,23 +252,25 @@ th {
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		        	{key: "trspTypNm",	    label: "출고",    	align: "center", 	width: 60},
+		        	{key: "taxivcCoprtNm",	label: "매출법인", 	align: "left", 		width: 120},
 		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 140},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80},
 		        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 80},
 		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50},
 		          	{key: "siteNm",         label: "현장명",		align: "left",		width: 140},
-		        	{key: "realTrstAmt",    label: "공급금액",		align: "right",  	width: 80, 	formatter: "money"},
 		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", hidden: true},
 		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgVatAmt", 	label: "부가세",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "bilgQty",        label: "청구수량", 	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgWt",         label: "청구중량", 	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgUpr",        label: "청구단가", 	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "realTrstAmt",    label: "금액",		align: "right",  	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
-		            {key: "taxivcCoprtNm",	label: "매출법인", 	align: "left", 		width: 120},
-		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "bilgCertNo",     label: "청구번호", 	align: "center", 	width: 80},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
@@ -274,16 +278,16 @@ th {
 		        ],
 		        footSum: [
 			    	[
-			    		{label: "총계", 			align:"center",	  colspan:10},
-			    		{key: "realTrstAmt",	collector: "sum", formatter:"money", align: "right"},
+			    		{label: "총계", 			align:"center",	  colspan:11},
+	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgVatAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
-	                    {key: "bilgUpr", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "bilgUpr", 		collector: "avg", formatter:"money", align: "right"},
 	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
-			    		{key: "transAmt", 	collector: "sum", formatter:"money", align: "right"},
+			    		{key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "etcAmt", 		collector: "sum", formatter:"money", align: "right"},
-	                    {label: "-", 			align:"center"									 },
-	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 			    	]
 			    ]
 		    });
@@ -385,7 +389,9 @@ th {
 	function deleteSell() {
 		var row = gridView.target.getList("selected")[0];
 		var formData = {
-			"trstCertiNo" : row.trstCertiNo
+			"trstCertiNo" : row.trstCertiNo,
+			"userId" : jwt.userId,
+			"pgmId" : "AR0201M01"
 		}
 		if (gridView.target.getList("selected").length > 1) {
 			alert("삭제는 한건씩 진행해주세요");
@@ -393,13 +399,12 @@ th {
 		}
 		if (row.bilgCertNo == undefined) {
 			if (confirm("삭제하시겠습니까?")) {
-				deleteAjax("/user/ar/ar02/deleteSell", formData, null,
-						function(data) {
-							if (data.resultCode == 200) {
-								alert(data.resultMessage);
-								gridView.setData(0);
-							}
-						});
+				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {
+					if (data.resultCode == 200) {
+						alert(data.resultMessage);
+						gridView.setData(0);
+					}
+				});
 			}
 		} else {
 			alert("삭제할 수 없는 데이터 입니다.");
@@ -528,6 +533,45 @@ th {
 			alert(data.resultMessage);
 			gridView.setData(0);
 		});
+	}
+	
+	function updateBilgCancel() {
+		var flag = false;
+		var bilgFlag = false;
+		var list = gridView.target.getList("selected");
+		var bilgCertNoArr = [];
+		$.each(list, function(idx, obj) {
+			if (obj.bilgYn == "N"){
+				flag = true;
+				return false;
+			}
+			if (idx > 0) {
+				if(list[idx].bilgCertNo != list[idx-1].bilgCertNo) {
+					bilgFlag = true;
+					return false;
+				}
+			}
+			bilgCertNoArr.push(obj.bilgCertNo);
+		});
+		if (flag) {
+			alert("발행되지 않은 매출 건이 포함되어 있습니다.");
+			return;
+		}
+		if (bilgFlag) {
+			alert("같은 청구서 번호끼리만 취소 가능합니다.");
+			return;
+		}
+		if(confirm("해당 전표로 발행된 매출 건수가 함께 취소됩니다.\n진행하시겠습니까?")){
+			var formData = {
+				"bilgCertNo" : bilgCertNoArr,
+				"userId" : jwt.userId,
+				"pgmId" : "AR0201M01"
+			}
+			putAjax("/user/ar/ar04/updateBilgCancel", formData, null, function(data) {
+				alert(data.resultMessage);
+				gridView.setData(0);
+			});
+		}
 	}
 	
 	// 현장 검색

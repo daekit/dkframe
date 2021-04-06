@@ -39,4 +39,6 @@ public interface AR04Mapper {
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
 	
 	int insertTaxItem(Map<String, String> paramMap);
+
+	int deleteBilgInfo(Map<String, String> param);
 }
