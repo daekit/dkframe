@@ -100,7 +100,7 @@ public class AR04Ctr {
     	int result = ar04Svc.updateBilgCancel(paramMap);
     	if(result == 0) {
 			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+			model.addAttribute("resultMessage", messageUtils.getMessage("taxComplete"));
 		} else {
 			model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));

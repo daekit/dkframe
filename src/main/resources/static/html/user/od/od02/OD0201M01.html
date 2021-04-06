@@ -173,6 +173,7 @@ th {
 					<a onclick="sellCal();" style="height: 30px; line-height: 28px; width: 70px;"><i class="fas fa-calculator"></i> 매입정산</a>
 					<a onclick="insertSellModal('U');" style="height: 30px; line-height: 28px; width: 50px;"><i class="fas fa-window-close"></i> 반입</a>
 					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 70px;"><i class="fas fa-file-signature"></i> 전표발행</a>
+					<a onclick="updateBilgCancel();" style="height: 30px; line-height: 28px; width: 60px;">전표취소</a>
 					<a onclick="setReport();" style="height: 30px; line-height: 28px; width: 70px;" title="계산서 발행건만 출력합니다."><i class="fas fa-print"></i> 일보출력</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSell();" style="height: 30px; line-height: 28px;">-</a>
@@ -320,11 +321,6 @@ th {
 					}
 				});
 			});
-			setTimeout(function(){
-				$(".checkBox").on("click", function(el){
-					checkValidation(el);
-				});
-			}, 100)
 		}
 	}
 
@@ -519,21 +515,43 @@ th {
 		});
 	}
 	
-	function checkValidation(el) {
+	function updateBilgCancel() {
+		var flag = false;
+		var bilgFlag = false;
 		var list = gridView.target.getList("selected");
-		var clickedIdx = $(el.target).closest('tr').prevAll().length;
+		var bilgCertNoArr = [];
 		$.each(list, function(idx, obj) {
-			if (obj.clntCd != gridView.target.getList()[clickedIdx].clntCd) {
-				alert("같은 거래처끼리 선택해야 합니다.");
-				gridView.target.select(clickedIdx);
+			if (obj.bilgYn == "N"){
+				flag = true;
 				return false;
 			}
-			if (obj.trspTypNm != gridView.target.getList()[clickedIdx].trspTypNm) {
-				alert("같은 거래유형끼리 선택해야 합니다.");
-				gridView.target.select(clickedIdx);
-				return false;
+			if (idx > 0) {
+				if(list[idx].bilgCertNo != list[idx-1].bilgCertNo) {
+					bilgFlag = true;
+					return false;
+				}
 			}
+			bilgCertNoArr.push(obj.bilgCertNo);
 		});
+		if (flag) {
+			alert("발행되지 않은 매입 건이 포함되어 있습니다.");
+			return;
+		}
+		if (bilgFlag) {
+			alert("같은 청구서 번호끼리만 취소 가능합니다.");
+			return;
+		}
+		if(confirm("해당 전표로 발행된 매출 건수가 함께 취소됩니다.\n진행하시겠습니까?")){
+			var formData = {
+				"bilgCertNo" : bilgCertNoArr,
+				"userId" : jwt.userId,
+				"pgmId" : "OD0201M01"
+			}
+			putAjax("/user/ar/ar04/updateBilgCancel", formData, null, function(data) {
+				alert(data.resultMessage);
+				gridView.setData(0);
+			});
+		}
 	}
 
 	// 현장 검색

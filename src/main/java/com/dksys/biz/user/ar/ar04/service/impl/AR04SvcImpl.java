@@ -155,7 +155,7 @@ public class AR04SvcImpl implements AR04Svc {
 		int result = 0;
 		List<String> list = (List<String>) paramMap.get("bilgCertNo");
 		Map<String, String> param = new HashMap<String, String>();
-		param.put("bilgCertiNo", list.get(0));
+		param.put("bilgCertNo", list.get(0));
 		Map<String, String> bilgInfo = ar04Mapper.selectTaxBilg(param);
 		if(bilgInfo.get("taxBilgNo") == null) {
 			result = ar04Mapper.deleteBilgInfo(param);
