@@ -1,244 +1,240 @@
-<body>
-  <div class="popup_area of_a" style="width: 100%; height: 100%;">
-    <div class="tit_contents">
-        <h4 class="tit">견적서 등록</h4>
-    </div>
-
-<!--     <h6 class="fs-30 tc">견  적  서</h6> -->
-
-    <div class="popup_table">
-    	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
-    	<form id="popForm">
-        <table>
-            <colgroup>
-                <col width="12%">
-                <col width="">
-                <col width="12%">
-                <col width="">
-                <col width="12%">
-                <col width="">
-            </colgroup>
-            <tr>
-                <th class="hit">회사</th>
-                <td>                                
-                    <select id="coCd" name="coCd" data-kind="CO" required="required">
-                    </select>
-                </td>
-                <th class="hit">영업담당자</th>
-                <td>                                
-                    <input type="hidden" id="salesMng" name="salesMng" style="width: 76%;">
-                    <div class="search_form">
-	                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly" required="required">
-                    	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
-                    </div>
-                </td>
-                <th class="hit">견적일자</th>
-                <td>
-                	<input type="text" id="estDt2" name="estDt2" class="input_calendar" required="required">
-                	<!-- <input id="estDt2" name="estDt2" type="date"> -->
-                </td>
-            </tr>
-            <tr>
-                <th class="hit">발행법인</th>
-                <td>   
-                	<select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required="required">
-                    </select>               
-                </td>
-                <th class="hit">수신 거래처</th>
-                <td class="drctArea">
-                	<input type="hidden" id="estClntCd" name="clntCd" style="width: 76%;">                   
-                	<div class="search_form">
-	                    <input type="text" id="estClntNm" name="clntNm" readonly="readonly" required="required">
-                    	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
-                    </div>
-                </td>
-                <th class="">참조내용</th>
-                <td>                                
-                    <input id="estRprc" name="estRprc" type="text" style="width: 100%;">
-                </td>
-            </tr>
-            <tr>
-                <th class="">사업자 Tel.</th>
-                <td>   
-                	<input id="bizTelNo" name="bizTelNo" type="text" style="width: 100%;" onkeyup="telNumberFormatter(this);" maxlength="13">
-                </td>
-                <th class="">사업자 Fax</th>
-                <td>   
-                	<input id="bizFaxNo" name="bizFaxNo" type="text" style="width: 100%;" onkeyup="telNumberFormatter(this);" maxlength="13">
-                </td>
-                <th class="">담당자 Email</th>
-                <td>   
-                	<input id="mngEmail" name="mngEmail" type="text" style="width: 100%;" onkeyup="exceptKorean(this);" maxlength="100">
-                </td>
-            </tr>
-           <!--  <tr>
-                <th class="">프로젝트<br>현장명</th>
-                <td colspan="5">     
-                    <input id="prjctNm" name="prjctNm" type="text" style="width: 100%;">
-                </td>
-            </tr> -->
-            <tr>
-            <th class="hit">현장명</th>
-	          <td colspan="5">
-	          	<div class="search_form">
-	              <input type="hidden" id="prjctCd" name="prjctCd">
-	              <input type="text" id="prjctNm" name="prjctNm"  required="required">
-	            <a onclick="openSecondSiteSearch();"><i class="i_search_w"></i></a>
-	            </div>
-	          </td>
-	        </tr>
-            <tr>
-                <th class="">비고</th>
-                <td colspan="5">     
-                    <textarea id="rmk" name="rmk" style="width: 100%;height: 120px;" ></textarea>
-                </td>
-            </tr>
-        </table>
-	        <input type="hidden" id="userId" name="userId">
-		    <input type="hidden" id="pgmId" name="pgmId" value="SD0301M01">
-		    <input type="hidden" id="estNo" name="estNo">
-        </form>
-    </div>
-
-    <br>
-    <!-- 테이블 -->
-    <div class="popup_table">
-      <table>
-        <tr>
-          <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
-          <td colspan="9">
-            <div class="add_btn">
-              <a onclick="addRow();">+</a>
-              <a onclick="removeDetailRow();">-</a>
-            </div>
-          </td>
-        </tr>
-      </table>
-      <div class="ofx_s" style="width:100%;">
-      <table id="detailTb">
-        <colgroup>
-        	<col width="3%">
-            <col width="18%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="07%">
-        </colgroup>
-        <tr>
-        	<th rowspan="2"></th>
-            <th rowspan="2" style="text-align:center" class="hit">제품구분</th>
-            <th rowspan="2" style="text-align:center">제품강종</th>
-            <th rowspan="2" style="text-align:center">스펙</th>
-            <th rowspan="2" style="text-align:center">사이즈</th>
-            <th rowspan="2" style="text-align:center">단위</th>
-            <th rowspan="2" style="text-align:center" class="hit">수량</th>
-            <th rowspan="2" style="text-align:center">단가</th>
-            <th rowspan="2" style="text-align:center">금액</th>
-            <th rowspan="2" style="text-align:center">예상손익계산</th>
-            <th rowspan="2" style="text-align:center">비고</th>
-        </tr>
-        <!-- // -->
-        <tbody>
-          <tr class="detailRow" id="tableCd" name="tableCd">
-          	<td>
-				<input type="checkbox" name="detailChkBox">
-			</td>
-            <td>
-              <input type="hidden" name="prdtStockCd">
-              <input type="hidden" name="prdtUpr">
-              <input type="hidden" name="prdtCnvrsnWt">
-              <div class="search_form">
-                <input type="hidden" id="prdtDiv" name="prdtDiv" readonly="readonly">
-              	<input type="hidden" id="prdtCd" name="prdtCd" readonly="readonly" required="required">
-                <input type="text" name="prdtNm" readonly="readonly" style="text-align:left" required="required">
-              	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
-              </div>
-            </td>
-            <td>
-            	<input type="hidden" name="prdtStkn" readonly="readonly">
-            	<input type="text" name="prdtStknNm" readonly="readonly" style="text-align:center">
-            </td>
-            <td>
-            	<!-- <input type="hidden" name="prdtSpec" readonly="readonly"> -->
-            	<input type="text" name="prdtSpec" style="text-align:center" maxlength="25">
-            </td>
-            <td>
-            	<!-- <input type="hidden" name="prdtSize" readonly="readonly"> 2021-03-29 size code 사용 안함 -->
-            	<input type="text" name="prdtSizeNm" style="text-align:center">
-            </td>
-            <td>
-            	<input type="hidden" name="prdtUnit" readonly="readonly">
-            	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align:center">
-            </td>
-            <td><input name="estQty" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma required="required"></td>
-            <td>
-	            <input name="estUpr" type="text" style="width: 100%; text-align:right" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma>
-	            <input name="stockUpr" type="hidden" style="width: 100%; text-align:right" onkeyup="addComma(this);" comma>
-            </td>
-            <td><input name="estAmt" type="text" style="width: 100%; text-align:right" readonly="readonly" comma></td>
-            <td><input name="expAmt" type="text" style="width: 100%; text-align:right" readonly="readonly" comma></td>
-            <td><input name="rmk" type="text" style="width: 100%; text-align:left">
-            <input name="estPrdtSeq" type="hidden">
-            <input name="prodCd" type="hidden"></td>
-          </tr>
-        
-        </tbody>
-      </table>
-      <table>
-	      	<colgroup>
-        	<col width="3%">
-            <col width="18%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="09%">
-            <col width="07%">
-	        </colgroup>
-	      	<tr>
-	            <th colspan="6" style="text-align: center;">합계</th>
-	            <td id="totEstQty" style="text-align: right;" comma></td>
-	            <td>-</td>
-	            <td id="totEstAmt" style="text-align: right;" comma></td>
-	            <td id="totexpAmt" style="text-align: right;" comma></td>
-	            <td id="rrmmkk" style="text-align: center;"></td>
-	        </tr>
-	      </table>
-	   </div>
-    </div>
-   <table>
-	  <colgroup>
-	    <col width="12%">
-	    <col width="88%">
-	  </colgroup>
-	    <tr>
-	  		<th>
-	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
-	  		</th>
-	  		<td>
-	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 1040px"></div>
-	  		</td>
-	  	</tr>
-	</table>
-    <!-- 하단 버튼 -->
-    <div class="popup_bottom_btn">
-      <button id="actionBtn">등록</button>
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div class="tit_contents">
+		<h4 class="tit">견적서 등록</h4>
+	</div>
+	<div class="popup_table">
+		<input type="file" id="file" style="display: none" multiple="multiple" onchange="setFile(this);" />
+		<form id="popForm">
+			<input type="hidden" id="userId" name="userId"> 
+			<input type="hidden" id="pgmId" name="pgmId" value="SD0301M01"> 
+			<input type="hidden" id="estNo" name="estNo">
+			<table>
+				<colgroup>
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th class="hit">회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO" required="required"></select>
+					</td>
+					<th class="hit">수신 거래처</th>
+					<td>
+						<input type="hidden" id="estClntCd" name="estClntCd">
+						<div class="search_form">
+							<input type="text" id="estClntNm" name="estClntNm" readonly required>
+							<a onclick="openSecondClntSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th class="hit">견적일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="estDt2" name="estDt2" required>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">발행법인</th>
+					<td>
+						<select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required></select>
+					</td>
+					<th class="hit">영업담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="salesMng" name="salesMng"> 
+							<input type="text" id="salesMngNm" name="salesMngNm" readonly required>
+							<a onclick="openSecondUserSearch();"> 
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th class="">참조내용</th>
+					<td>
+						<input type="text" id="estRprc" name="estRprc">
+					</td>
+				</tr>
+				<tr>
+					<th class="">사업자 Tel.</th>
+					<td>
+						<input type="text" id="bizTelNo" name="bizTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+					</td>
+					<th class="">사업자 Fax</th>
+					<td>
+						<input type="text" id="bizFaxNo" name="bizFaxNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+					</td>
+					<th class="">담당자 Email</th>
+					<td>
+						<input type="text" id="mngEmail" name="mngEmail" onkeyup="exceptKorean(this);" maxlength="100">
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">현장명</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd"> 
+							<input type="text" id="prjctNm" name="prjctNm" required> 
+							<a onclick="openSecondSiteSearch();"> 
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td colspan="2"></td>
+					<td colspan="2"></td>
+				</tr>
+				<tr>
+					<th class="">비고</th>
+					<td colspan="5">
+						<textarea class="form-control" id="rmk" name="rmk" style="height: 120px;"></textarea>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 테이블 -->
+	<div class="popup_table">
+		<table id="detailTb">
+			<colgroup>
+				<col width="3%">
+				<col width="18%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="7%">
+			</colgroup>
+			<tr>
+				<td colspan="2" style="text-align: LEFT; border-right: 0;">※상세내역</td>
+				<td colspan="9">
+					<div class="add_btn">
+						<a onclick="addRow();">+</a> 
+						<a onclick="removeDetailRow();">-</a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<th class="hit tc">제품구분</th>
+				<th class="tc">제품강종</th>
+				<th class="tc">스펙</th>
+				<th class="tc">사이즈</th>
+				<th class="tc">단위</th>
+				<th class="hit tc">수량</th>
+				<th class="tc">단가</th>
+				<th class="tc">금액</th>
+				<th class="tc">예상손익계산</th>
+				<th class="tc">비고</th>
+			</tr>
+			<tr class="detailRow" id="tableCd" name="tableCd">
+				<td>
+					<input type="checkbox" name="detailChkBox">
+				</td>
+				<td>
+					<input type="hidden" name="prdtStockCd"> 
+					<input type="hidden" name="prdtUpr"> 
+					<input type="hidden" name="prdtCnvrsnWt">
+					<div class="search_form">
+						<input type="hidden" id="prdtDiv" name="prdtDiv" readonly> 
+						<input type="hidden" id="prdtCd" name="prdtCd" readonly required">
+						<input type="text" name="prdtNm" readonly required> 
+						<a onclick="openSecondPrdtSearch(this);">
+							<i class="i_search_w"></i>
+						</a>
+					</div>
+				</td>
+				<td>
+					<input type="hidden" name="prdtStkn" readonly>
+					<input type="text" class="tc" name="prdtStknNm" readonly>
+				</td>
+				<td>
+					<input type="text" class="tc" name="prdtSpec" maxlength="25">
+				</td>
+				<td>
+					<input type="text" class="tc" name="prdtSize">
+				</td>
+				<td>
+					<input type="hidden" name="prdtUnit" readonly>
+					<input type="text" class="tc" name="prdtUnitNm" readonly>
+				</td>
+				<td>
+					<input type="text" name="estQty" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma required>
+				</td>
+				<td>
+					<input type="hidden" name="stockUpr" onkeyup="addComma(this);" comma>
+					<input type="text" name="estUpr" onkeyup="addComma(this); gridDtlPrdtAmt(this);" comma> 
+				</td>
+				<td>
+					<input type="text" name="estAmt" readonly comma>
+				</td>
+				<td>
+					<input type="text" name="expAmt" readonly comma>
+				</td>
+				<td>
+					<input type="hidden" name="prodCd">
+					<input type="hidden" name="estPrdtSeq">
+					<input type="text" name="rmk"> 
+				</td>
+			</tr>
+		</table>
+		<table>
+			<colgroup>
+				<col width="3%">
+				<col width="18%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="7%">
+			</colgroup>
+			<tr>
+				<th colspan="6" class="tc">합계</th>
+				<td id="totEstQty" comma></td>
+				<td>-</td>
+				<td id="totEstAmt" comma></td>
+				<td id="totExpAmt" comma></td>
+				<td>-</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="12%">
+				<col width="88%">
+			</colgroup>
+			<tr>
+				<th>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+				</th>
+				<td>
+					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="width: 100%; height: 120px;"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="actionBtn">등록</button>
 		<button onclick="setReport();">출력</button>
 		<button class="close_btn" onclick="modal.close();">닫기</button>
-    </div>
-  </div>
- 
-</body>
-<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
-<script src="/static/js/jstree/jstree.min.js"></script>
+	</div>
+</div>
 <script type="text/javascript">
 	var prdtCdVal = "";
 	var fileArr = [];
@@ -308,7 +304,6 @@
 			$('#actionBtn').on("click", function(){updateEst();});
 			$('#actionBtn').text("수정");
 		}
-			//prdtNmSet();
 	}
 	
 	function initDtlTb(){
@@ -336,6 +331,7 @@
 		$.each(estInfo, function(key, value){
 			$('#'+key).val(value);
 		});
+		
 		//상세내역 세팅
 		$.each(estDtl, function(idx, item){
 			if(idx != 0) addRow();
@@ -346,6 +342,7 @@
 			});
 		});
 		countTot();
+		
 		//콤마 세팅
 		$.each($('input[comma]'), function(idx, elem){
 			addComma(elem);
@@ -360,21 +357,42 @@
 		      	'file' : obj
 			});
 		});
+		
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 	}
 	
-	//거래처
-	function clntSearch() {
+	// 거래처
+	function openSecondClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$('#estClntCd').val(row.clntCd);
 			$('#estClntNm').val(row.clntNm);
+			
+			var paramObj = {
+				"coCd": $('#coCd').val(),
+				"clntCd": row.clntCd
+			}
+			
+			setMngInfo(paramObj);
 		});
 	}
 	
-	//사용자 검색
-	function openUserTree() {
+	// 담당자 set
+	function setMngInfo(paramObj){
+		postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
+			if(data.mngInfo){
+				$('#salesMng').val(data.mngInfo.salesEmpId);
+				$('#salesMngNm').val(data.mngInfo.salesEmpNm);
+			}else{
+				$('#salesMng').val("");
+				$('#salesMngNm').val("");
+			}
+		});
+	}
+	
+	// 사용자 검색
+	function openSecondUserSearch() {
 		var paramObj = {
 			"coCd" : $('#coCd').val(),
 			"userId": $('#salesMng').val(),
@@ -388,17 +406,19 @@
 			$("#salesMngNm").val(checkedNode.text);
 		});
 	}
+	
 	// 제품 검색
-	function prdtSearch(elem) {
+	function openSecondPrdtSearch(elem) {
 		$targetRow = $(elem).closest('tr[name="tableCd"]');
 		// selpchCd - SELPCH2: 매출
 		var paramObj = {
+			"coCd" : $("#coCd").val(),
 			"selpchCd": "SELPCH2",
 			"impYn": "N", 
-			"clntCd" : $("#clntCd").val(),
-			"useYn": "Y",
-			"coCd" : $("#coCd").val()
+			"clntCd" : $("#estClntCd").val(),
+			"useYn": "Y"
 		};
+		
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
@@ -407,8 +427,7 @@
 			$targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
 			$targetRow.find('input[name="prdtStkn"]').val(row.prdtStkn);
 			$targetRow.find('input[name="prdtStknNm"]').val(row.prdtStknNm);
-			//$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
-			$targetRow.find('input[name="prdtSizeNm"]').val(row.prdtSizeNm);
+			$targetRow.find('input[name="prdtSize"]').val(row.prdtSizeNm);
 			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnit);
 			$targetRow.find('input[name="prdtUnitNm"]').val(row.prdtUnitNm);
 			$targetRow.find('input[name="estUpr"]').val(row.ordrgUpr);
@@ -428,7 +447,6 @@
 		});
 	}
 	
-	
 	// 프로젝트 검색
 	function prjctSearch(){
 		var paramObj = {"coCd": $('#coCd').val()}
@@ -438,11 +456,12 @@
 			$("#prjctNm").val(row.prjctNm);
 		});
 	}
+	
 	// 현장 검색
 	function openSecondSiteSearch(){
 		var paramObj = {
 			"coCd": $('#coCd').val(),
-			"clntCd": $('#clntCd').val()
+			"clntCd": $('#estClntCd').val()
 		}
 		
 		openSecondModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
@@ -452,7 +471,7 @@
 		});
 	}
 	
-	//list 행추가
+	// list 행추가
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
@@ -464,7 +483,8 @@
 		return $("tr[name='tableCd']:last")[0];
 		
 	}
-	//list 행삭제	
+	
+	// list 행삭제	
 	function removeDetailRow(){
 		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
 			if($(elem).is(":checked")){
@@ -611,7 +631,7 @@
 	function countTot() {
 		var totEstQty = 0; 
 		var totEstAmt = 0;
-		var totexpAmt = 0;
+		var totExpAmt = 0;
 		
 		$.each($(".detailRow"), function(idx, item){
 			var estQty	= $("input[name='estQty']")[idx].value; 
@@ -621,11 +641,10 @@
 			
 			totEstQty  += Number(deleteCommaStr(estQty)); 
 			totEstAmt  += Number(deleteCommaStr(estAmt));
-			totexpAmt  += Number(deleteCommaStr(expAmt));
+			totExpAmt  += Number(deleteCommaStr(expAmt));
 		});
 		$("#totEstQty").html(addCommaStr(totEstQty));
 		$("#totEstAmt").html(addCommaStr(totEstAmt));
-		$("#totexpAmt").html(addCommaStr(totexpAmt));
+		$("#totExpAmt").html(addCommaStr(totExpAmt));
 	} 
-	
 </script>
