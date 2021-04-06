@@ -86,7 +86,7 @@
 					</td>
 					<th>수입여부</th>
 					<td>
-						<select id="impYn" name="impYn">
+						<select id="impYn" name="impYn" onchange="setMaker(this.value);">
 							<option value="N" selected>N</option>
 							<option value="Y">Y</option>
 						</select>
@@ -95,9 +95,7 @@
 				<tr>
 					<th class="hit">Maker</th>
 					<td>
-						<select id="makrCd" name="makrCd" data-kind="MAKR" required>
-							<option value="">선택</option>
-						</select>
+						<select id="makrCd" name="makrCd" data-kind="MAKR" required></select>
 					</td>
 					<th class="hit">주문일자</th>
 					<td>
@@ -490,6 +488,8 @@
 			countTot();
 			$('#coCd').val(jwt.coCd);
 			$('#reqDt').datepicker("setDate", new Date());
+			setMaker($('#impYn').val());
+			$("#makrCd").val("MAKR09");
 			$('#odrActionBtn').on("click", function() {insertOrder();});
 			$('.tit_contents .tit').text("주문 등록");
 			$('#odrActionBtn').text("등록");
@@ -521,6 +521,11 @@
 				}
 				
 				$('#'+key).val(value);
+				
+				// 제조사 set
+				if(key == "impYn"){
+					setMaker(value);
+				}
 			}
 		});
 		
@@ -562,6 +567,13 @@
 	
 		// 첨부파일 그리드 set
 		fileGridView.setData();
+	}
+	
+	// 제조사 set
+	function setMaker(value){
+		$('#makrCd').data("rprc", value);
+		$('#makrCd').empty();
+		setCommonSelect($('#makrCd'));
 	}
 	
 	// 현장 검색
