@@ -16,6 +16,7 @@ import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.sd.sd05.mapper.SD05Mapper;
 import com.dksys.biz.user.sd.sd05.service.SD05Svc;
 import com.dksys.biz.user.sd.sd09.mapper.SD09Mapper;
+import com.dksys.biz.user.sd.sd09.service.SD09Svc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -24,15 +25,15 @@ import com.google.gson.reflect.TypeToken;
 @Transactional("erpTransactionManager")
 public class SD05SvcImpl implements SD05Svc {
 	
+	@Autowired
+	CM08Svc cm08Svc;
+	
+	@Autowired
+    SD09Svc sd09Svc;
+	 
     @Autowired
     SD05Mapper sd05Mapper;
 	
-    @Autowired
-    SD09Mapper sd09Mapper;
-
-    @Autowired
-    CM08Svc cm08Svc;
-    
 	@Override
 	public List<Map<String, String>> selectProjectList(Map<String, String> param) {
 		return sd05Mapper.selectProjectList(param);
@@ -82,7 +83,7 @@ public class SD05SvcImpl implements SD05Svc {
 		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
 		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));
-		sd09Mapper.insertSite(paramMap);
+		sd09Svc.insertSite(paramMap);
 		
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
