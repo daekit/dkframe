@@ -632,6 +632,33 @@
 	 WHERE SUBSTRING(BGM_1004, 3, 8) = TO_CHAR(SYSDATE, 'YYYYMMDD')
 	</select>
 	
+	<insert id="insertMapoutKey">
+	INSERT INTO MAPOUT_KEY
+	(
+		XML_MSG_ID,
+		LOGIN_ID,
+		ORIGINATOR,
+		RECIPIENT,
+		DOC_NAME,
+		DOC_CODE,
+		DOC_VER,
+		DOC_SYNTAX,
+		TIMESTAMP
+	)
+	VALUES
+	(
+		#{xmlMsgId},
+		'DKSYL001',
+		'KL' || #{userId},
+		'KLLOGISBIL',
+		'VATDEC',
+		#{docCode},
+		'D00A',
+		'KECA',
+		SYSDATE	
+	)
+	</insert>
+	
 	<insert id="insertTaxHd">
 	INSERT INTO TAX_HD
 	(XML_MSG_ID
@@ -740,7 +767,7 @@
 		 , NULL 
 		 , 'S' 
 		 , TO_CHAR(SYSDATE, 'YYYYMMDD')
-		 , 'STD'
+		 , 'ST3'
 		 , NULL
 		 , A.FTXAC1_1 
 		 , A.FTXAC2_1 
@@ -751,17 +778,17 @@
 		 , A.TAX_COPRT_BIZCON 
 		 , A.TAXVIC_COPRT_BSTY 
 		 , A.TAXIVC_COPRT_CEO 
-		 , A.TAXIVC_COPRT_NO  
+		 , REPLACE(A.TAXIVC_COPRT_NO, '-', '')  
 		 , NULL
-		 , A.CTAII_MD_2 
+		 , (SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = #{deptId})
 		 , #{userNm}
 		 , NULL 
 		 , NULL 
 		 , NULL
-		 , A.COMII_EM
-		 , A.COMII_TE 
-		 , A.COMII_AL
-		 , A.COMII_FX 
+		 , (SELECT EMAIL FROM TB_CM06M01 WHERE ID = #{userId})
+		 , (SELECT TEL_NO FROM TB_CM06M01 WHERE ID = #{userId})
+		 , NULL
+		 , NULL
 		 , NULL 
 		 , A.TAXIVC_RCV_ADDR 
 		 , A.CLNT_NM 
@@ -769,7 +796,7 @@
 		 , A.TAXIVC_RCV_BSTY 
 		 , A.TAXIVC_RCV_CEO 
 		 , NULL 
-		 , A.TAXIVC_RCV_CRN       <!--  RFF_II_XA   -->
+		 , REPLACE(A.TAXIVC_RCV_CRN, '-', '')       <!--  RFF_II_XA   -->
 		 , NULL
 		 , NULL
 		 , A.TAX_RCV_NM
@@ -812,10 +839,30 @@
 	  WHERE BILG_CERT_NO = #{bilgCertNo}
 	</insert>
 	
+	<insert id="insertTaxDtl">
+	INSERT INTO TAX_DTL
+	(
+		XML_MSG_ID,
+		XMLDOC_SEQ,
+		LIN_7140,
+		TIMESTAMP
+	)
+	VALUES
+	(
+		#{xmlMsgId},
+		'1',
+		'.',
+		SYSDATE
+	)
+	</insert>
+	
 	<update id="updateTaxBilgNo">
 	UPDATE TB_AR04M01
 	   SET TAX_BILG_NO = #{bgm1004}
 	     , TAX_DT = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	     , SND_YN = 'Y'
+	     , SND_DTTM = SYSDATE
+	     , SND_PROC_ID = #{userId}
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
 	
@@ -862,5 +909,235 @@
 		 FROM TB_AR02M01 A
 		WHERE BILG_CERT_NO = #{bilgCertNo}
 		  AND CO_CD = #{coCd}
+	</insert>
+	
+	<insert id="insertInvHd">
+	INSERT INTO INV_HD
+	(
+		XML_MSG_ID,
+		XMLDOC_SEQ,
+		XML_FLOW,
+		BGM_1004,
+		BGM_1060,
+		BGM_1225,
+		BGM_4343,
+		NADII3124,
+		NADII3036A,
+		NADII3036B,
+		NADII3036C,
+		NADII3036D,
+		CTAII_MS_1,
+		CTAII_MS_2,
+		CTAII_AK_1,
+		CTAII_AK_2,
+		CTAII_MD_2,
+		COMII_EM,
+		COMII_TE,
+		COMII_AL,
+		COMII_FX,
+		RFF_II_XA,
+		RFF_VA,
+		RFF_ACD,
+		RFF_AMT_1,
+		RFF_AMT_2,
+		RFF_CNO,
+		RFF_ACE_1,
+		RFF_ACE_2,
+		RFF_APG,
+		FTXAAI_1,
+		FTXAAI_2,
+		FTXAAI_3,
+		FTXAAI_4,
+		FTXAAI_5,
+		FTXAC1_1,
+		FTXAC1_2,
+		FTXAC1_3,
+		FTXAC1_4,
+		FTXAC1_5,
+		FTXAC2_1,
+		FTXAC2_2,
+		FTXAC2_3,
+		FTXAC2_4,
+		FTXAC2_5,
+		FTXABE_1,
+		FTXABE_2,
+		DTM_2380,
+		DMS5_1056,
+		DMS5_1060,
+		DMS5_7240,
+		MOA5_23,
+		MOA5_124,
+		MOA5_22,
+		MOA5_212,
+		MOA5_308,
+		MOA5_9,
+		NADIV3039,
+		NADIV3124,
+		NADIV3036A,
+		NADIV3036B,
+		NADIV3036C,
+		NADIV3036D,
+		NADIV3164,
+		CTAIV_AK_1,
+		CTAIV_AK_2,
+		CTAIV_MD_2,
+		COMIV_EM,
+		COMIV_TE,
+		COMIV_AL,
+		COMIV_FX,
+		RFF_IV_XA,
+		NADCA3124,
+		RFF_P1_XA,
+		RFF_P2_XA,
+		TIMESTAMP
+	)
+	SELECT 
+		#{xmlMsgId},
+		'1',
+		'S',
+		#{bgm1004},
+		NULL,
+		(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = A.BGM_1225),
+		BGM_4343,
+		(SELECT BIZ_ADDR FROM TB_BM02M01 WHERE CLNT_CD = A.TAXIVC_COPRT),
+		A.TAXIVC_COPRT_NM, 
+		A.TAX_COPRT_BIZCON ,
+		A.TAXVIC_COPRT_BSTY, 
+		A.TAXIVC_COPRT_CEO, 
+		NULL,
+		NULL,
+		(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = #{deptId}),
+		#{userNm},
+		(SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = #{deptId}),
+		(SELECT EMAIL FROM TB_CM06M01 WHERE ID = #{userId}),
+		(SELECT TEL_NO FROM TB_CM06M01 WHERE ID = #{userId}),
+		NULL, --COMII_AL
+		NULL, --COMII_FX
+		REPLACE(TAXIVC_COPRT_NO, '-', ''),
+		(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = A.RFF_VA),
+		NULL,
+		NULL,
+		NULL,
+		(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = A.RFF_CNO),
+		NULL,
+		NULL,
+		NULL,
+		'STD', -- FTXAAI_1
+		FTXAC1_1,
+		FTXAC2_1,
+		FTXAC3_1,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		TO_CHAR(SYSDATE, 'YYYYMMDD'),
+		NULL,
+		NULL,
+		TAX_DMS5_7240,
+		TAX_MOA5_23,
+		TAX_MOA5_124,
+		TAX_MOA5_22,
+		TAX_MOA5_212,
+		TAX_MOA5_308,
+		TAX_MOA5_9,
+		NULL,
+		NULL,
+		A.CLNT_NM, 
+		A.TAXIVC_RCV_BIZCON, 
+		A.TAXIVC_RCV_BSTY, 
+		A.TAXIVC_RCV_CEO, 
+		NULL,
+		NULL,
+		TAX_RCV_NM,
+		NULL,
+		TAX_RCV_EMAIL,
+		TAX_RCV_TEL,
+		TAX_MOBLPHON,
+		TAX_RCV_FAX,
+		REPLACE(TAXIVC_RCV_CRN, '-', ''),
+		TAXIVC_RCV_ADDR,
+		NULL,
+		NULL,
+		SYSDATE
+		FROM TB_AR04M01 A
+		WHERE BILG_CERT_NO = #{bilgCertNo}
+	
+	</insert>
+	
+	<insert id="insertInvDtl">
+	INSERT INTO INV_DTL
+	(
+		XML_MSG_ID,
+		XMLDOC_SEQ,
+		LIN_1082,
+		LIN_7140,
+		TIMESTAMP
+	)
+	SELECT #{xmlMsgId},
+			'1',
+			ROWNUM,
+			'.',
+			SYSDATE
+	  FROM TB_AR02M01 A
+		WHERE BILG_CERT_NO = #{bilgCertNo}
+		  AND CO_CD = #{coCd}
+	ORDER BY CO_CD, TRST_CERTI_NO
+	</insert>
+	
+	<insert id="insertItem">
+	INSERT INTO INV_ITEM
+	(
+		XML_MSG_ID,
+		XMLDOC_SEQ,
+		LIN_1082,
+		ITEM_SEQ,
+		ARD_5007,
+		ARD_5006,
+		ARD_5105,
+		ARD_5104,
+		DMS_1056,
+		DMS_1000,
+		MOA10_23,
+		MOA10_124,
+		MOA10_146,
+		MEA10_6311,
+		MEA10_6411,
+		MEA10_6314,
+		MOA10_5004,
+		MOA10_6345,
+		TIMESTAMP
+	)
+	SELECT #{xmlMsgId},
+			'1',
+			ROWNUM,
+		 	(SELECT NVL(MAX(ITEM_SEQ), 0) + 1 FROM TAX_ITEM WHERE XML_MSG_ID = #{xmlMsgId} AND XMLDOC_SEQ = '1'),
+			NULL,
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD),
+			NULL,
+			NULL,
+			(SELECT PRDT_SPEC FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD),
+			TRSP_RMK,
+			NVL(REAL_TRST_AMT, 0),
+			0,
+			NVL(REAL_TRST_UPR, 0),
+			NULL,
+			NULL,
+			NVL(REAL_TRST_QTY, 0),
+			NULL,
+			NULL,
+			SYSDATE
+	  FROM TB_AR02M01 A
+	WHERE BILG_CERT_NO = #{bilgCertNo}
+		  AND CO_CD = #{coCd}
+	ORDER BY CO_CD, TRST_CERTI_NO
 	</insert>
 </mapper>
