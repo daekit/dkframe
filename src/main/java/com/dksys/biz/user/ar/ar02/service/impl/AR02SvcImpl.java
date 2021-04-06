@@ -62,6 +62,28 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Override
 	public int deleteSell(Map<String, String> paramMap) {
+		Map<String, String> resultMap = ar02Mapper.selectSellInfo(paramMap);
+		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(resultMap);
+		if(stockInfo != null) {
+			int stockQty = 0;
+			String stockChgCd = "STOCKCHG09";
+			if("SELPCH2".equals(resultMap.get("selpchCd"))) 
+			{
+				stockChgCd = "STOCKCHG09";
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(resultMap.get("realTrstQty"));
+			} else 
+			{
+				stockChgCd = "STOCKCHG08";
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(resultMap.get("realTrstQty"));
+			}
+			resultMap.put("STOCK_QTY", String.valueOf(stockQty));
+			resultMap.put("STOCK_UPR", stockInfo.get("stockUpr"));
+			resultMap.put("STD_UPR", stockInfo.get("stdUpr"));
+			resultMap.put("STOCK_CHG_CD", stockChgCd);
+			resultMap.put("USER_ID", paramMap.get("userId"));
+			resultMap.put("PGM_ID", paramMap.get("pgmId"));
+			sm01Mapper.updateStockSell(resultMap);
+		}
 		return ar02Mapper.deleteSell(paramMap);
 	}
 
@@ -69,14 +91,13 @@ public class AR02SvcImpl implements AR02Svc {
 	public int insertPchsSell(Map<String, String> paramMap) {
 		int result = 0;
 		int stockQty = 0;
-		result = ar02Mapper.insertPchsSell(paramMap);
 		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-		paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
-		paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
-		paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
-		paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
 		if(stockInfo == null) {
+			paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
+			paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
+			paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
+			paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
 			paramMap.put("stockQty", paramMap.get("realTrstQty"));
 		} else {
 			//매출일 떄 
@@ -97,6 +118,7 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("stockQty", String.valueOf(stockQty));
 		}
+		result = ar02Mapper.insertPchsSell(paramMap);
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
 		{
 			sm01Mapper.updateStockSell(paramMap);

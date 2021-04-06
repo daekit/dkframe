@@ -6,8 +6,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -94,5 +94,18 @@ public class AR04Ctr {
 		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
 		return "jsonView";
 	}
+	
+	@PutMapping(value = "/updateBilgCancel")
+    public String updateBilgCancel(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	int result = ar04Svc.updateBilgCancel(paramMap);
+    	if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}
+    	return "jsonView";
+    }
 
 }

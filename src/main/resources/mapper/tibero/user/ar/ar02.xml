@@ -138,7 +138,12 @@
 			SYSDATE,
 	        #{salesAreaCd, jdbcType=VARCHAR},
 	        #{siteCd,      jdbcType=VARCHAR},
+	        <if test='selpchCd == "SELPCH1" or selpchCd == "SELPCH3"'>
+	        (SELECT TRUNC(CODE_ETC * ${realTrstAmt} / 100) FROM TB_CM05M01 A INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = #{clntCd}),
+	        </if>
+	        <if test='selpchCd == "SELPCH2" or selpchCd == "SELPCH4"'>
 	        (SELECT TRUNC(CODE_ETC * ${realTrstAmt} / 100) FROM TB_CM05M01 A INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}),
+	        </if>
 	        #{prdtSpec,    jdbcType=VARCHAR}
 		)
 	</insert>
@@ -262,6 +267,7 @@
 		        SITE_CD,
 		        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 		        BILG_VAT_AMT,
+		        BILG_VAT_AMT + BILG_AMT AS TOT_AMT, 
 		        PRDT_SPEC
 			FROM 
 			(
@@ -510,6 +516,12 @@
 		WHERE TRST_CERTI_NO = #{trstCertiNo}
 	</update>
 	
+	<update id="updateBilgCancel" parameterType="Map">
+		UPDATE TB_AR02M01
+		SET BILG_CERT_NO = ''
+		WHERE BILG_CERT_NO = #{bilgCertNo}
+	</update>
+	
     <select id="callCreditLoan" parameterType="Map" resultType="long">
     	SELECT F_CREDIT_LOAN(#{loanCd}, #{clntCd}, #{coCd}, #{iTrDt}, #{amt}) FROM DUAL
     </select>
@@ -526,7 +538,7 @@
 			SUM(BILG_WT) BILG_WT,
 		    AVG(BILG_UPR) BILG_UPR,
 		    SUM(BILG_AMT) BILG_AMT,
-		    SUM(BILG_AMT)*0.1 TAX_AMT
+		    SUM(BILG_VAT_AMT) TAX_AMT
 		FROM TB_AR02M01 A INNER JOIN TB_BM01M01 B ON A.TRST_PRDT_CD = B.PRDT_CD
 		WHERE SELPCH_CD = #{selpchCd}
 		<if test="coCd != null and !coCd.equals('')">
@@ -543,6 +555,12 @@
 		</if>
 		<if test="prjctCd != null and !prjctCd.equals('')">
 			AND PRJCT_CD = #{prjctCd}
+		</if>
+		<if test='bilgYn == "Y"'>
+			AND BILG_CERT_NO IS NOT NULL 		
+		</if>
+		<if test='bilgYn == "N"'>
+			AND BILG_CERT_NO IS NULL 		
 		</if>
 		<if test="typCd != null and !typCd.equals('')">
 			AND TYP_CD = #{typCd}

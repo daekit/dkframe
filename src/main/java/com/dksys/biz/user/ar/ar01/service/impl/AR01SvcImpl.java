@@ -26,7 +26,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-@Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+@Transactional
 public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
@@ -350,6 +350,17 @@ public class AR01SvcImpl implements AR01Svc {
 		Map<String, Object> paramMapObj = new HashMap<>(paramMap);
 		ar02Svc.creditDeposit(paramMapObj);
 		ar01Mapper.updateCancel(paramMap);
+		return result;
+	}
+
+	@Override
+	@SuppressWarnings("all")
+	public int updateRecptYn(Map<String, Object> param) {
+		int result = 0;
+		List<Map<String, String>> detailList = (List<Map<String, String>>) param.get("detailArr");
+		for(Map<String, String> detailMap : detailList) {
+			result += ar01Mapper.updateRecptYn(detailMap);
+		}
 		return result;
 	}
 	

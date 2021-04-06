@@ -110,8 +110,8 @@ th {
 	                <td>
 	                  <input type="hidden" id="clntCd_S">
 	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S">
-		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
+		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
 	              	<th>제품유형</th>
@@ -120,12 +120,12 @@ th {
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	                <th>프로젝트</th>
+	                <th>현장명</th>
 	                <td>
 	                    <div class="search_form" style="width: 50%;">
-			              <input type="hidden" id="prjctCd_S">
-			              <input type="text" id="prjctNm_S">
-			              <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
+			              <input type="hidden" id="siteCd_S">
+			              <input type="text" id="siteNm_S">
+			              <button type="button" onclick="openSecondSiteSearch();"><i class="i_search_w"></i></button>
 			            </div>
 	                </td>
 	              </tr>
@@ -135,6 +135,14 @@ th {
 	                 	<select id="typCd_S" data-kind="SELLTYPE">
 	                 		<option value="">전체</option>
 	                 	</select>
+	                </td>
+	                <th>전표발행여부</th>
+	                <td>
+	                 	<select id="bilgYn_S"  onchange="gridView.initView().setData(0);">
+		                	<option value="">전체</option>
+		                  	<option value="N">N</option>
+		                  	<option value="Y">Y</option>
+		                </select>
 	                </td>
 	              </tr>
 	            </table>
@@ -246,6 +254,7 @@ th {
 				"clntCd" : $("#clntCd_S").val(),
 				"prdtDiv" : $("#prdtDiv_S").val(),
 				"prjctCd" : $("#prjctCd_S").val(),
+				"bilgYn" : $("#bilgYn_S").val(),
 				"typCd" : $("#typCd_S").val()
 			}
 			postAjax("/user/ar/ar02/selectSellSumList", formData, null, function(data){
@@ -311,12 +320,6 @@ th {
 		$("#recordCnt").val($(".prae_select").val());
 		gridView.initView().setData(0);
 	}
-
-	function clntSearch(type) {
-		var modalTitle = "거래처";
-		clntType = type;
-		openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-	}
 	
 	function deleteSell() {
 		var row = gridView.target.getList("selected")[0];
@@ -364,23 +367,18 @@ th {
 		openModal("/static/html/user/od/od02/OD0202P01.html", 700, 650, modalTitle);
 	}
 
-	function clntSearch(type) {
-		var modalTitle = "";
-		clntType = type; 
-		if(clntType == "PUR") {
-			modalTitle = "매입거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} else if(clntType == "SELL") {
-			modalTitle = "매출거래처";
-			openSecondModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
-		} else {
-			modalTitle = "거래처";
-			openModal("/static/html/user/od/od01/OD0102P02.html", 500, 420, modalTitle);
+	// 현장 검색
+	function openSecondSiteSearch() {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
 		}
-	}
-
-	function prjctSearch() {
-		openSecondModal("/static/html/user/od/od01/OD0102P05.html", 700, 420, "프로젝트");
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			$("#siteCd_S").val(row.siteCd);
+			$("#siteNm_S").val(row.siteNm);
+		});
 	}
 	
 	function insertBilg() {
@@ -404,18 +402,6 @@ th {
 		postAjax("/user/ar/ar04/insertBilg", formData, null, function(data){
 			alert(data.resultMessage);
 			gridView.setData(0);
-		});
-	}
-	
-	function checkValidation(el) {
-		var list = gridView.target.getList("selected");
-		var clickedIdx = $(el.target).closest('tr').prevAll().length;
-		$.each(list, function(idx, obj){
-			if(obj.clntCd != gridView.target.getList()[clickedIdx].clntCd) {
-				alert("같은 거래처끼리 선택해야 합니다.");
-				gridView.target.select(clickedIdx);
-				return false;
-			} 
 		});
 	}
 	
@@ -466,4 +452,13 @@ th {
 		callReport(fileName, arg, "1100", "730");
 	}
 
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);	
+		});
+	}
+	
 </script>
