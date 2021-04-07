@@ -67,9 +67,9 @@
 						<th class="hit">기준일자</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" id="startDt" data-search="startDt" required="required"> 
+								<input type="text" class="input_calendar" autocomplete="off" id="startDt" data-search="startDt" required="required"> 
 								<span>~</span> 
-								<input type="text" class="input_calendar" id="endDt" data-search="endDt" required="required">
+								<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt" required="required">
 							</div>
 						</td>
 						<th>거래처</th>
@@ -126,25 +126,16 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+						<a onclick="insertTaxHd();" style="height: 30px; line-height: 28px; width: 120px;">전자세금계산서 발행</a>
+						<a onclick="" style="height: 30px; line-height: 28px; width: 60px;">회계 전송</a>
+				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select> 
-				<ul class="btn_ul">
-					<li class="btn_r">
-						<!-- <a onclick="viewCplrUntpcModal('U');" style="float:right; margin-left:5px">
-							<button type="button" class="bg_gray">세금계산서 관리</button>
-						</a>  -->
-						<a onclick="" style="float:right; margin-left:5px">
-							<button type="button" class="bg_gray">회계 전송</button>
-						</a> 
-						<a onclick="insertTaxHd();" style="float:right; margin-left:5px">
-							<button type="button" class="bg_gray">전자세금계산서 발행</button>
-						</a> 
-					</li>
-				</ul>
 			</div>
 		</div>
 		<!-- 콘텐츠 -->
@@ -216,7 +207,7 @@
 			          	{key: "taxMoa5388",     label: "총금액",   	     align: "right",   width: 95, formatter: "money"},
 			          	{key: "rffCno",         label: "영수/청구구분",   	 align: "center",  width: 95},
 			          	{key: "rffVa",          label: "부가세/영세율",      align: "center",  width: 160},
-			          	{key: "taxDivCd",       label: "계산서발행종류",   	 align: "center",  width: 130},
+			          	{key: "taxDivNm",       label: "계산서발행종류",   	 align: "center",  width: 130},
 			          	{key: "rffGn1",         label: "세금계산서종류",      align: "center",  width: 130},
 			          	{key: "rffGn2",         label: "세금계산서분류",      align: "center",  width: 100},
 			          	{key: "rffAea",         label: "전자세금계산서수정사유", align: "left",   width: 180},
@@ -442,6 +433,7 @@
 
 	// 세금계산서 수정 화면
 	function viewCplrUntpcModal(actionType) {
+		console.log("viewCplrUntpcModal");
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");
@@ -469,17 +461,37 @@
 		var flag = false;
 		var clntFlag = false;
 		var list = gridView.target.getList("selected");
+		//console.log(list);
 		var bilgCertNoArr = [];
 		var coCdArr = [];
+		var emailChk = true;
+		var emailIdx;
 		$.each(list, function(idx, obj){
+			//console.log("idx : " + idx);
 			if(obj.taxBilgNo) flag = true;
+			//gridView.target.select(obj.__index);
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+			if(!obj.taxRcvEmail){
+				emailChk = false;
+				alert("수신자 Email 입력 후 발행해 주세요.");
+				emailIdx = obj.__index;
+				//console.log(emailIdx);
+				return false;
+			}
 			//coCdArr.push(obj.coCd);
 		});
-		if(flag) {
+		if(!emailChk){
+			$.each(list, function(idx, obj){
+				gridView.target.select(obj.__index);
+			});
+			gridView.target.select(emailIdx);
+			viewCplrUntpcModal("U");
+			return false;
+		}
+		/* if(flag) {
 			alert("이미 발행된 건이 있습니다.");
 			return;
-		};
+		}; */
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");

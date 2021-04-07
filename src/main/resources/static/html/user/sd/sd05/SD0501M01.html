@@ -95,9 +95,9 @@
                 <th class="hit">기간</th>
                 <td>
                     <div class="date_input">
-                      <input type="text" id="strtDt_S" class="input_calendar"  required="required" onchange="dateValidation();" autocomplete="off">
+                      <input type="text" id="strtDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();" >
                       <span>~</span>
-                      <input type="text" id="endDt_S" class="input_calendar"  required="required" onchange="dateValidation();" autocomplete="off">
+                      <input type="text" id="endDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();" >
                     </div>
                 </td>
                 <td style="width: 30px"></td>
@@ -118,7 +118,8 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
+					<a onclick="setReport();" style="height: 30px; line-height: 28px; width: 80px;" title="수주내역서를 출력합니다."><i class="fas fa-print"></i>출력</a>
+					<a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteProject();" style="height: 30px; line-height: 28px;">-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
@@ -250,8 +251,9 @@
 		
 		//$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
 		//$('#endDt_S').datepicker("setDate", new Date());
-		$("#strtDt_S").val(lastWeek());
-		$("#endDt_S").val(dateToStr(new Date()));
+		
+		$("#strtDt_S").val(before30day());
+		$("#endDt_S").val(after30day());
 		
 		// 종료일
 		$('#strtDt_S, #endDt_S').datepicker({
@@ -347,4 +349,21 @@
 				excelView.target.exportExcel("프로젝트목록"+todayDate+".xls");
 			});	
 	}	
+	
+ 	
+	function setReport() {
+		
+		var row = gridView.target.getList("selected")[0];
+		if ( row == ""){
+			return;
+		}
+		var fileName = "SD0501R01.jrf";
+		var arg = "coCd#"			+ row.coCd
+		         + "#prjctCd#"		+ row.prjctCd
+		         + "#";
+
+//	alert(arg);
+
+		callReport(fileName, arg, "1050", "700");
+	}
 </script>

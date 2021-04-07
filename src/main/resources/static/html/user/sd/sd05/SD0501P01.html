@@ -59,8 +59,8 @@
                 <th class="hit">공사기간</th>
                 <td class="drctArea">
                 	<div class="date_input">
-                		<input id="strtDt2" name="strtDt" class="input_calendar"  required="required" autocomplete="off"><span>~</span>
-                		<input id="endDt2" name="endDt" class="input_calendar"  required="required" autocomplete="off">
+                		<input id="strtDt2" name="strtDt" class="input_calendar" autocomplete="off"  required="required" ><span>~</span>
+                		<input id="endDt2" name="endDt" class="input_calendar" autocomplete="off"  required="required" >
                 	</div>
                 </td>
                 <th>매출처</th>
@@ -97,17 +97,19 @@
                 </td> --> 
             </tr>
             <tr>
-                <th rowspan="2">주소</th>
+                <th rowspan="1">주소</th>
                 <td >   
 					<div class="search_form" >
 					    <input id="prjctAddrZip" name="prjctAddrZip" type="text" readonly="readonly">
 					     <a onclick="openDaumPostcode();"><i class="i_search_w"></i></a>
 					</div>
 				</td>	     
-				<td colspan="4">					    
+				<td colspan="2">					    
                 	    <input type="text" id="prjctAddr" name="prjctAddr" type="text" style="width: 100%;" placeholder="선택 주소지" readonly="readonly">
                 </td>
-             	
+                <td colspan="2">   
+					<input id="prjctAddrSub" name="prjctAddrSub" type="text" placeholder="상세 주소 입력" maxlength="50">
+				</td>         	
                 <!-- <th class="">로스율(%)</th>
                 <td>                                
                     <input id="lossRate" name="lossRate" type="text">
@@ -120,19 +122,18 @@
 				</td>
             </tr> -->
             <tr>
-            	<td colspan="3">   
-					<input id="prjctAddrSub" name="prjctAddrSub" type="text" placeholder="상세 주소 입력" maxlength="50">
-				</td>
-                <th class="">현장담당자</th>
+             <!--   <th rowspan="2">담장자<br>(거래처)<br></th>  -->
+                 <th class="">성명(직책)</th>
                 <td>                                
                     <input id="prjctMngNm" name="prjctMngNm" type="text" maxlength="25">
-                </td>       
-            </tr>
-            <tr>
-                <th class="">전화번호</th>
+                </td>  
+                <th class="">연락처</th>
                 <td>                                
                     <input id="telNo" name="telNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
-                </td> 
+                </td>      
+            </tr>
+            <tr>
+
                 <th class="">E-Mail</th>
                 <td>                                
                     <input id="clntEmail" name="clntEmail" type="text" onkeyup="exceptKorean(this);" maxlength="50">
@@ -189,7 +190,7 @@
 			  <option value="N">N</option>
   			</select>
           </td>
-          <th>철근단가</th>
+          <th>할인단가(원/톤)</th>
            <td>
            	 <input id="prdtUpr" name="prdtUpr" type="text" onkeyup="onlyNumber(this); addComma(this);" maxlength="13" comma>
            </td>
@@ -423,6 +424,7 @@
 	  	</tr>
 	</table>
   	<div>
+		<button type="button" id="printBtn" class="btn btn-default btn-sm" onclick="setReport();"><i class="fas fa-print"></i>출력</button>
 		<button id="prjctActionBtn">등록</button>
 		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div> 
@@ -677,6 +679,7 @@
 			$("#lossRate").val("3");
 			$('#prjctActionBtn').on("click", function(){insertOrder();});
 			$("#prjctActionBtn").text("등록");
+			$("#printBtn").hide();
 		}else if(actionType == "U"){
 			$("#ordrgTable").show();
 			$("#shipmentTable").show();
@@ -1082,5 +1085,16 @@
  		}
 
  	}
+	function setReport() {
+		
+		var fileName = "SD0501R01.jrf";
+		var arg =  "coCd#"			+ $('#coCd').val()
+		         + "#prjctCd#"		+ $("#prjctCd").val()
+		         + "#";
+
+//	alert(arg);
+
+		callReport(fileName, arg, "1050", "700");
+	}	
 </script>
 </html>

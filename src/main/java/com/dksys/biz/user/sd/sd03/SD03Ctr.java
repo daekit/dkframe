@@ -22,54 +22,36 @@ import com.dksys.biz.util.MessageUtils;
 @RequestMapping("/user/sd/sd03")
 public class SD03Ctr {
  
-	//단가 관리 컨트롤러 UNIT PRICE -> UPR 표기
-	
 	@Autowired
 	MessageUtils messageUtils;
 	
     @Autowired
     SD03Svc sd03svc;
     
-    
-    //검색 조건 공통 코드 조회
-    @PostMapping("/selectPrdtCodeList")
-    public String selectPrdtCodeList(@RequestBody Map<String, String> param, ModelMap model) {
-    	List<Map<String, String>> prdtCodeInfo = sd03svc.selectPrdtCodeList(param);
-    	model.addAttribute("prdtCodeInfo", prdtCodeInfo);
-    	return "jsonView";
-    }
-    @PostMapping("/selectPrdtCd")
-    public String selectPrdtCd(@RequestBody Map<String, String> param, ModelMap model) {
-    	List<Map<String, String>> prdtCd = sd03svc.selectPrdtCd(param);
-    	model.addAttribute("prdtCd", prdtCd);
-    	return "jsonView";
-    }
-    
-    //재고 이동 현황 조회
-    @PostMapping("/selectMainEstList")
-    public String selectMainEstList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = sd03svc.selectUprCount(param);
+    @PostMapping("/selectEstList")
+    public String selectEstList(@RequestBody Map<String, String> param, ModelMap model) {
+    	int totalCnt = sd03svc.selectEstCount(param);
     	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     
-    	List<Map<String, String>> smelList = sd03svc.selectMainEstList(param);
-    	model.addAttribute("smelList", smelList);
+    	List<Map<String, Object>> estList = sd03svc.selectEstList(param);
+    	model.addAttribute("estList", estList);
         return "jsonView";
     }
     
     @PostMapping(value = "/selectEstInfo")
     public String selectEstInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, String> result = sd03svc.selectEstInfo(paramMap);
-    	model.addAttribute("result", result);
+    	Map<String, Object> estInfo = sd03svc.selectEstInfo(paramMap);
+    	model.addAttribute("estInfo", estInfo);
     	return "jsonView";
     }
     
     @PostMapping(value = "/insertEst")
 	public String insertEst(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
-    	sd03svc.insertEst(paramMap, mRequest);
-		model.addAttribute("resultCode", 200);
-		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+	    	sd03svc.insertEst(paramMap, mRequest);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

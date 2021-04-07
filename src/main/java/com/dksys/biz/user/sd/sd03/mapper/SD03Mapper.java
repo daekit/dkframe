@@ -9,17 +9,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @Mapper
 public interface SD03Mapper {
 	
-	List<Map<String, String>> selectPrdtCodeList(Map<String, String> param);
-	
-	List<Map<String, String>> selectPrdtCd(Map<String, String> param);
-	
-	int selectUprCount(Map<String, String> param);
-	
 	String selectEstNo();
 	
-	List<Map<String, String>> selectMainEstList(Map<String, String> param);
+	int selectEstCount(Map<String, String> param);
 	
-	Map<String, String> selectEstInfo(Map<String, String> paramMap);
+	List<Map<String, Object>> selectEstList(Map<String, String> param);
+	
+	Map<String, Object> selectEstInfo(Map<String, String> paramMap);
 	
 	int insertEst(Map<String, String> paramMap);
 	
@@ -27,8 +23,6 @@ public interface SD03Mapper {
 	
 	int updateEst(Map<String, String> paramMap);
 
-	int updateEstDetail(Map<String, String> estMap);
-	
 	int deleteEstDetail(Map<String, String> paramMap);
 	
 	int deleteEst(Map<String, String> paramMap);

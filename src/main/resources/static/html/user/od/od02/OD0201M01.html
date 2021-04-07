@@ -92,9 +92,9 @@ th {
 	                <th class= "hit">매입일자</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar" onchange="dateValidation();">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation();">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar" onchange="dateValidation();">
+	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off" onchange="dateValidation();">
 	                    </div>
 	                </td>
 	              	<th class= "hit">거래처</th>
@@ -246,6 +246,7 @@ th {
 		        columns: [ 
 		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
 		          	{key: "bilgYn",         label: "전표",		align: "center",	width: 50,	formatter: "bilgYn"},
+		          	{key: "bilgCertNo",     label: "매입번호", 	align: "center", 	width: 70},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		            {key: "trstDt",         label: "매입일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
@@ -269,14 +270,13 @@ th {
 		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "transAmt",    	label: "매입운송비",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "bilgCertNo",     label: "매입번호", 	align: "center", 	width: 80},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
 		        ],
 		        footSum: [
 			    	[
-			    		{label: "총계", 			align:"center",	  colspan:11},
+			    		{label: "총계", 			align:"center",	  colspan:12},
 			    		{key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 			    		{key: "bilgVatAmt", 	collector: "sum", formatter:"money", align: "right"},
 			    		{key: "totAmt", 		collector: "sum", formatter:"money", align: "right"},
@@ -367,9 +367,7 @@ th {
 		//순서 맨 처음
 		mainDefaultLoad("발주서관리", "매입내역관리");
 		setCommonSelect($("#main_area select[data-kind]"));
-		$("#coCd_S").val(jwt.coCd);
-		$("#reqDtFrom").val(getMonth("S"));
-		$("#reqDtTo").val(getMonth("E"));
+		initSearch();
 		$('#reqDtFrom, #reqDtTo').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
@@ -395,7 +393,7 @@ th {
 			alert("삭제는 한건씩 진행해주세요");
 			return;
 		}
-		if (row.bilgCertNo == undefined) {
+		if (row.bilgCertNo == undefined && row.trstDtlSeq == undefined) {
 			if (confirm("삭제하시겠습니까?")) {
 				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {
 					if (data.resultCode == 200) {
@@ -412,6 +410,9 @@ th {
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
+		$("#coCd_S").val(jwt.coCd);
+		$("#reqDtFrom").val(getMonth("S"));
+		$("#reqDtTo").val(getMonth("E"));
 	}
 	
 	function insertSellModal(type){

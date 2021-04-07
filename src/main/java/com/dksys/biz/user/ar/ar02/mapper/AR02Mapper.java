@@ -34,5 +34,7 @@ public interface AR02Mapper {
 
 	int updateBilgCancel(Map<String, String> param);
 
+	String selectOwner1ClntCd(Map<String, String> paramMap);
+
 	
 }

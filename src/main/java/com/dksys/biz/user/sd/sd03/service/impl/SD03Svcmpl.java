@@ -26,29 +26,19 @@ public class SD03Svcmpl implements SD03Svc {
     
     @Autowired
     CM08Svc cm08Svc; 
-
-    @Override
-	public List<Map<String, String>> selectPrdtCodeList(Map<String, String> param) {
-		return sd03Mapper.selectPrdtCodeList(param);
-	}
-
-    @Override
-	public List<Map<String, String>> selectPrdtCd(Map<String, String> param) {
-    	return sd03Mapper.selectPrdtCd(param);
-	}
     
 	@Override
-	public int selectUprCount(Map<String, String> param) {
-		return sd03Mapper.selectUprCount(param);
+	public int selectEstCount(Map<String, String> param) {
+		return sd03Mapper.selectEstCount(param);
 	}
 
 	@Override
-	public List<Map<String, String>> selectMainEstList(Map<String, String> param) {
-		return sd03Mapper.selectMainEstList(param);
+	public List<Map<String, Object>> selectEstList(Map<String, String> param) {
+		return sd03Mapper.selectEstList(param);
 	}
 	
 	@Override
-	public Map<String, String> selectEstInfo(Map<String, String> paramMap) {
+	public Map<String, Object> selectEstInfo(Map<String, String> paramMap) {
 		return sd03Mapper.selectEstInfo(paramMap);
 	}
 	
@@ -57,11 +47,11 @@ public class SD03Svcmpl implements SD03Svc {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		paramMap.put("estNo", sd03Mapper.selectEstNo());
-		sd03Mapper.insertEst(paramMap);
-		cm08Svc.uploadFile("TB_SD03M01", paramMap.get("estNo"), mRequest);
-		// 견적서 delete
-		//sd03Mapper.deleteEstDetail(paramMap);
+		
 		// 견적서 insert
+		sd03Mapper.insertEst(paramMap);
+		
+		// 견적상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("estNo", paramMap.get("estNo"));
@@ -69,25 +59,23 @@ public class SD03Svcmpl implements SD03Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			sd03Mapper.insertEstDetail(detailMap);
 		}
+		
+		// 파일 업로드
+		cm08Svc.uploadFile("TB_SD03M01", paramMap.get("estNo"), mRequest);
 	}
 
 	@Override
 	public int updateEst(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
-		int result = sd03Mapper.updateEst(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type stringList = new TypeToken<ArrayList<String>>() {}.getType();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		Type stringList = new TypeToken<ArrayList<String>>() {}.getType();
+		
+		// 견적 update
+		int result = sd03Mapper.updateEst(paramMap);
+		
 		// 견적상세 delete
 		sd03Mapper.deleteEstDetail(paramMap);
-		
-		//파일업로드
-		cm08Svc.uploadFile("TB_SD03M01", paramMap.get("estNo"), mRequest);
-		//파일삭제
-		List<String> deleteFileList = gson.fromJson(paramMap.get("deleteFileArr"),stringList);
-		for(String fileKey : deleteFileList) {
-			cm08Svc.deleteFile(fileKey);
-		}
-		
+		// 견적상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> estMap : detailList) {
 			estMap.put("estNo", paramMap.get("estNo"));
@@ -95,6 +83,15 @@ public class SD03Svcmpl implements SD03Svc {
 			estMap.put("pgmId", paramMap.get("pgmId"));
 			sd03Mapper.insertEstDetail(estMap);
 		}
+		
+		// 파일 업로드
+		cm08Svc.uploadFile("TB_SD03M01", paramMap.get("estNo"), mRequest);
+		// 파일 삭제
+		List<String> deleteFileList = gson.fromJson(paramMap.get("deleteFileArr"),stringList);
+		for(String fileKey : deleteFileList) {
+			cm08Svc.deleteFile(fileKey);
+		}
+		
 		return result;
 	}
 	

@@ -59,8 +59,6 @@ public class SD04SvcImpl implements SD04Svc {
 		// 주문 insert
 		sd04Mapper.insertOrder(paramMap);
 
-		// 주문상세 delete
-		sd04Mapper.deleteOrderDetail(paramMap);
 		// 주문상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {

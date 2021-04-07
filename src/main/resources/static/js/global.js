@@ -504,6 +504,12 @@ function before30day() {
 	  d.setDate(dayOfMonth - 30)
 	  return dateToStr(d)
 }
+function after30day() {
+	  var d = new Date()
+	  var dayOfMonth = d.getDate()
+	  d.setDate(dayOfMonth + 30)
+	  return dateToStr(d)
+}
 
 function formatDate(date) {
 	var myMonth = date.getMonth() + 1;
