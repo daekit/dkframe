@@ -186,7 +186,7 @@
 			</tr>
 			<tr>
 				<th></th>
-				<th class="tc">제품명</th>
+				<th class="tc hit">제품명</th>
 				<th class="tc">사이즈</th>
 				<th class="tc">SPEC</th>
 				<th class="tc">길이</th>
@@ -204,8 +204,8 @@
 				<input type="hidden" name="odrDtlSeq">
 				<input type="hidden" name="odrWt">
 				<input type="hidden" name="prdtCnvrsnWt">
-				<input type="hidden" name="stockUpr">
 				<input type="hidden" name="prdtStockCd">
+				<input type="hidden" name="stockUpr">
 				<input type="hidden" name="ordrgDtlCnt">
 				<input type="hidden" name="shipDtlCnt">
 				<td>
@@ -214,7 +214,7 @@
 				<td>
 					<div class="search_form">
 						<input type="hidden" name="prdtCd">
-						<input type="text" name="prdtNm" readonly> 
+						<input type="text" name="prdtNm" readonly required> 
 						<a onclick="openSecondPrdtSearch(this);">
 							<i class="i_search_w"></i>
 						</a>
@@ -258,8 +258,8 @@
 				<input type="hidden" name="odrDtlSeq">
 				<input type="hidden" name="odrWt">
 				<input type="hidden" name="prdtCnvrsnWt">
-				<input type="hidden" name="stockUpr">
 				<input type="hidden" name="prdtStockCd">
+				<input type="hidden" name="stockUpr">
 				<input type="hidden" name="ordrgDtlCnt">
 				<input type="hidden" name="shipDtlCnt">
 				<td>
@@ -309,8 +309,8 @@
 				<input type="hidden" name="odrDtlSeq">
 				<input type="hidden" name="odrWt">
 				<input type="hidden" name="prdtCnvrsnWt">
-				<input type="hidden" name="stockUpr">
 				<input type="hidden" name="prdtStockCd">
+				<input type="hidden" name="stockUpr">
 				<input type="hidden" name="ordrgDtlCnt">
 				<input type="hidden" name="shipDtlCnt">
 				<td>
@@ -319,7 +319,7 @@
 				<td>
 					<div class="search_form">
 						<input type="hidden" name="prdtCd">
-						<input type="text" name="prdtNm" readonly> 
+						<input type="text" name="prdtNm" readonly required> 
 						<a onclick="openSecondPrdtSearch(this);">
 							<i class="i_search_w"></i>
 						</a>
@@ -427,7 +427,7 @@
 				body : {
 					onDBLClick: function () {
 		            	if(this.item.fileKey){
-		            		location.href="/admin/cm/cm08/fileDownload?fileKey="+this.item.fileKey;
+		            		downloadFile(this.item.fileKey);
 		            	}
 		            }
 				},
@@ -457,7 +457,7 @@
 	
 	$(document).ready(function() {
 		
-		// 공통코드 SelectBox set
+		// 공통코드 selectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
 		
 		// 영역 접기/열기 이벤트 바인딩
@@ -512,16 +512,14 @@
 		//메인정보 세팅
 		$.each(orderInfo, function(key, value) {
 			if($('#'+key)[0]){
-				if($('#'+key).is('[comma]')){
-					value = addCommaStr(value);
-				}
-				
 				if($('#'+key).is('[date]')){
 					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}else{
+					if($('#'+key).is('[comma]')){
+						value = addCommaStr(value);
+					}
+					$('#'+key).val(value);
 				}
-				
-				$('#'+key).val(value);
-				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
@@ -749,7 +747,7 @@
 		var odrUpr = Number(deleteCommaStr($targetRow.find('input[name="odrUpr"]').val()));
 		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val());
 		
-		if(prdtStockCd == "Y" || prdtStockCd == ""){
+		if(prdtStockCd == "Y"){
 			$targetRow.find('input[name="odrAmt"]').val(addCommaStr(odrQty * odrUpr));
 			$targetRow.find('input[name="epctPal"]').val(addCommaStr((odrQty * odrUpr) - (odrQty * stockUpr)));
 		}else{
@@ -801,7 +799,7 @@
 		fileGridView.setData();
 		$(elem).val("");
 	}
-
+	
 	function deleteFile(rowIndex) {
 		fileGridView.target.removeRow(rowIndex);
 
@@ -811,12 +809,19 @@
 		}
 
 		fileArr.splice(rowIndex, 1);
-		
 		fileGridView.setData();
+	}
+	
+	function downloadFile(fileKey) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
 	}
 
 	function insertOrder() {
-		if (inputValidation($('[required]').not('#frameTable [required]'))) {
+		if (inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/sd/sd04/insertOrder", formData, function(data) {
 				alert(data.resultMessage);
@@ -829,7 +834,7 @@
 	}
 
 	function updateOrder() {
-		if (inputValidation($('[required]').not('#frameTable [required]'))) {
+		if (inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/sd/sd04/updateOrder", formData, function(data) {
 				alert(data.resultMessage);
@@ -843,7 +848,7 @@
 	}
 	
 	function makeFormData() {
-		//금액 콤마 제거
+		// 금액 콤마 제거
 		$.each($('.popup_area input[comma]'), function(idx, elem) {
 			deleteComma(elem);
 		});
