@@ -92,9 +92,9 @@ th {
 	                <th class= "hit">매입일자</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar" onchange="dateValidation();">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation();">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar" onchange="dateValidation();">
+	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off" onchange="dateValidation();">
 	                    </div>
 	                </td>
 	              	<th class= "hit">거래처</th>
@@ -367,9 +367,7 @@ th {
 		//순서 맨 처음
 		mainDefaultLoad("발주서관리", "매입내역관리");
 		setCommonSelect($("#main_area select[data-kind]"));
-		$("#coCd_S").val(jwt.coCd);
-		$("#reqDtFrom").val(getMonth("S"));
-		$("#reqDtTo").val(getMonth("E"));
+		initSearch();
 		$('#reqDtFrom, #reqDtTo').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
@@ -395,7 +393,7 @@ th {
 			alert("삭제는 한건씩 진행해주세요");
 			return;
 		}
-		if (row.bilgCertNo == undefined) {
+		if (row.bilgCertNo == undefined && row.trstDtlSeq == undefined) {
 			if (confirm("삭제하시겠습니까?")) {
 				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {
 					if (data.resultCode == 200) {
@@ -412,6 +410,9 @@ th {
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
+		$("#coCd_S").val(jwt.coCd);
+		$("#reqDtFrom").val(getMonth("S"));
+		$("#reqDtTo").val(getMonth("E"));
 	}
 	
 	function insertSellModal(type){
