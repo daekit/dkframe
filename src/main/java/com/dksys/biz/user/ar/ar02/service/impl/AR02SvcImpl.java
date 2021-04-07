@@ -63,11 +63,10 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	public int deleteSell(Map<String, String> paramMap) {
 		Map<String, String> resultMap = ar02Mapper.selectSellInfo(paramMap);
-			// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
-		    String clntCd = resultMap.get("clntCd").toString();
-			if("OWNER1".equals(resultMap.get("ownerCd").toString())) {		
-				resultMap.put("CLNT_CD",  ar02Mapper.selectOwner1ClntCd(paramMap));		
-			}		
+		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+		if("OWNER1".equals(resultMap.get("ownerCd").toString())) {		
+			resultMap.put("CLNT_CD",  ar02Mapper.selectOwner1ClntCd(paramMap));		
+		}		
 		
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(resultMap);
 		if(stockInfo != null) {
