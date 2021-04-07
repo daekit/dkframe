@@ -433,6 +433,7 @@
 
 	// 세금계산서 수정 화면
 	function viewCplrUntpcModal(actionType) {
+		console.log("viewCplrUntpcModal");
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");
@@ -462,11 +463,28 @@
 		var list = gridView.target.getList("selected");
 		var bilgCertNoArr = [];
 		var coCdArr = [];
+		var emailChk = true;
+		var emailIdx;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) flag = true;
+			//gridView.target.select(obj.__index);
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+			if(!obj.taxRcvEmail){
+				emailChk = false;
+				alert("수신자 Email 입력 후 발행해 주세요.");
+				emailIdx = idx;
+				return false;
+			}
 			//coCdArr.push(obj.coCd);
 		});
+		if(!emailChk){
+			$.each(list, function(idx, obj){
+				gridView.target.select(obj.__index);
+			});
+			gridView.target.select(emailIdx);
+			viewCplrUntpcModal("U");
+			return false;
+		}
 		/* if(flag) {
 			alert("이미 발행된 건이 있습니다.");
 			return;
