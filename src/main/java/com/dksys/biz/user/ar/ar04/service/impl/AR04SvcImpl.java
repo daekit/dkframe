@@ -118,7 +118,8 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
 			taxHdParam.put("coCd", list.get(i).split(",")[1]);
 			Map<String, String> bilgInfo = ar04Mapper.selectBilgInfo(taxHdParam);
-			if(bilgInfo.get("rffGn1") != "RFFGN101" && bilgInfo.get("rffAea") != "RFFAEA00" && bilgInfo.get("taxBilgNo") != null) {
+			if (!bilgInfo.get("rffGn1").equals("RFFGN101")
+					&& !bilgInfo.get("rffAea").equals("RFFAEA00") /* && bilgInfo.get("taxBilgNo") != null */) {
 				//수정세금계산서 취소 로직 시작
 				msgId++;
 				
