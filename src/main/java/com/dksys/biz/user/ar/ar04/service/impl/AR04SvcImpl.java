@@ -122,10 +122,8 @@ public class AR04SvcImpl implements AR04Svc {
 				//수정세금계산서 취소 로직 시작
 				msgId++;
 				
-				System.out.println("msgId : " + msgId);
 				bgm1004 = ar04Mapper.selectBgmSeq();
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);
-				System.out.println("xmlMsgId : " + xmlMsgId);
 				taxHdParam.put("docCode", "938"); //세금계산서 938
 				taxHdParam.put("bgm1004", bgm1004);
 				taxHdParam.put("xmlMsgId", xmlMsgId);
@@ -144,9 +142,7 @@ public class AR04SvcImpl implements AR04Svc {
 				//수정거래명세서 취소 로직 시작
 
 				msgId++; //XML_MSG_ID 생성
-				System.out.println("msgId : " + msgId);
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
-				System.out.println("xmlMsgId : " + xmlMsgId);
 				taxHdParam.put("xmlMsgId", xmlMsgId);
 				taxHdParam.put("docCode", "780"); // 거래명세서 780
 				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
