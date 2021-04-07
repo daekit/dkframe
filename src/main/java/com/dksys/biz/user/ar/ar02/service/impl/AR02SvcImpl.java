@@ -90,7 +90,7 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	public int insertPchsSell(Map<String, String> paramMap) {
 		int result = 0;
-		int stockQty = 0;
+		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
 		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 		if(stockInfo == null) {
@@ -98,21 +98,22 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 			paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
 			paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
-			paramMap.put("stockQty", paramMap.get("realTrstQty"));
+			stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty*-1;
+			paramMap.put("stockQty", String.valueOf(stockQty));
 		} else {
 			//매출일 떄 
 			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
 			{
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
-				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(paramMap.get("realTrstQty"));
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
 			} 
 			//매입일 떄
 			else 
 			{
 				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("sellUpr", stockInfo.get("sellUpr"));
-				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(paramMap.get("realTrstQty"));
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + stockQty;
 			}
 			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));

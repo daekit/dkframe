@@ -299,6 +299,7 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 		}
 		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
+		paramMap.put("clntCd",  clntCd);
 		if(creditFlag && ar02Svc.checkLoan(paramMap)) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			return 0;
@@ -326,6 +327,7 @@ public class OD01SvcImpl implements OD01Svc {
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
+		String clntCd = paramMap.get("clntCd");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -370,6 +372,7 @@ public class OD01SvcImpl implements OD01Svc {
 			return 0;
 		}
 		// 여신 원복
+		paramMap.put("clntCd",  clntCd);
 		paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
 		Map<String, Object> paramMapObj = new HashMap<>(paramMap);
 		ar02Svc.creditDeposit(paramMapObj);
