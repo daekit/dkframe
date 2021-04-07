@@ -122,6 +122,10 @@ public class AR02SvcImpl implements AR02Svc {
 		result = ar02Mapper.insertPchsSell(paramMap);
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
 		{
+			// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+			if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+				paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+			}
 			sm01Mapper.updateStockSell(paramMap);
 		}
 		return result;
