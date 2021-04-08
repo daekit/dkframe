@@ -118,7 +118,8 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
 			taxHdParam.put("coCd", list.get(i).split(",")[1]);
 			Map<String, String> bilgInfo = ar04Mapper.selectBilgInfo(taxHdParam);
-			if(bilgInfo.get("rffGn1") != "RFFGN101" && bilgInfo.get("rffAea") != "RFFAEA00" && bilgInfo.get("taxBilgNo") != null) {
+			if (!bilgInfo.get("rffGn1").equals("RFFGN101")
+					&& !bilgInfo.get("rffAea").equals("RFFAEA00") /* && bilgInfo.get("taxBilgNo") != null */) {
 				//수정세금계산서 취소 로직 시작
 				msgId++;
 				
@@ -153,10 +154,15 @@ public class AR04SvcImpl implements AR04Svc {
 			
 
 			msgId++;
-			System.out.println("msgId : " + msgId);
-			bgm1004 = ar04Mapper.selectBgmSeq();
+			// 계산서 번호가 있고 수정 세금계산서가 아닌경우 기존 BGM1004 사용
+			if(bilgInfo.get("rffGn1").equals("RFFGN101")) {
+				bgm1004 = bilgInfo.get("taxBilgNo");
+			} else if(!bilgInfo.get("rffGn1").equals("RFFGN101")) {
+				bgm1004 = ar04Mapper.selectBgmSeq();
+			}
+			// 계산서 번호가 없거나 수정 세금계산서인 경우 새로운 BGM1004 따야함
+			
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);
-			System.out.println("xmlMsgId : " + xmlMsgId);
 			taxHdParam.put("bgm1004", bgm1004);
 			taxHdParam.put("xmlMsgId", xmlMsgId);
 			taxHdParam.put("docCode", "938"); //세금계산서 938
@@ -168,7 +174,6 @@ public class AR04SvcImpl implements AR04Svc {
 			
 			// 거래명세서 발행
 			msgId++; //XML_MSG_ID 생성
-			System.out.println("msgId : " + msgId);
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 			taxHdParam.put("xmlMsgId", xmlMsgId);
 			taxHdParam.put("docCode", "780"); // 거래명세서 780
