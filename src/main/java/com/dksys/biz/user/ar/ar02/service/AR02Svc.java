@@ -21,6 +21,6 @@ public interface AR02Svc {
 
 	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
 
-	void creditDeposit(Map<String, Object> paramMap);
+	boolean creditDeposit(Map<String, Object> paramMap);
 	
 }
