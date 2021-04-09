@@ -334,7 +334,9 @@ function inputValidation(inputList) {
 // 숫자만 입력 (음수, 정수 가능.  소수 불가능)
 function onlyNumber(elem){
 	//	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
-	$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
+	if(event.keyCode != 189 && event.keyCode != 37 && event.keyCode != 39) {
+		$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
+	}
 }
 
 // 한글 제거
