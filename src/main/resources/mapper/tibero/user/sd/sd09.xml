@@ -46,6 +46,8 @@
 					 , USE_YN
 					 , RMK
 					 , SITE_MES_CD
+					 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
+					 , SALES_AREA_CD
 					 , ETC_FIELD1
 					 , ETC_FIELD2
 					 , ETC_FIELD3
@@ -63,8 +65,11 @@
 				 	<if test="useYn != null and useYn != ''">
 				    AND USE_YN = #{useYn}
 				 	</if>
+				 	<if test="salesAreaCd != null and salesAreaCd != ''">
+				    AND SALES_AREA_CD = #{salesAreaCd}
+				 	</if>
 				 	</where>
-				 ORDER BY CO_CD, CLNT_CD, SITE_NM
+				 ORDER BY SITE_CD DESC, CO_CD, CLNT_CD, SITE_NM
 			) A
 		)
 		WHERE
@@ -88,6 +93,8 @@
 		 , USE_YN
 		 , RMK
 		 , SITE_MES_CD
+		 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
+		 , SALES_AREA_CD
 		 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
 	  FROM TB_SD09M01 T
 	 WHERE CO_CD = #{coCd}
@@ -112,6 +119,7 @@
 	 , TEL_NO
 	 , USE_YN
 	 , RMK
+	 , SALES_AREA_CD
 	 , CREAT_ID
 	 , CREAT_PGM
 	 , CREAT_DTTM
@@ -128,6 +136,7 @@
 	 , #{telNo}
 	 , NVL(#{useYn}, 'Y')
 	 , #{rmk}
+	 , #{salesAreaCd}
 	 , #{userId}
 	 , #{pgmId} 
 	 , SYSDATE
@@ -146,6 +155,7 @@
 	  , TEL_NO = #{telNo}
 	  , USE_YN = #{useYn}
 	  , RMK = #{rmk}
+	  , SALES_AREA_CD = #{salesAreaCd}
 	  , UDT_ID = #{userId}
 	  , UDT_PGM = #{pgmId}
 	  , UDT_DTTM = SYSDATE
