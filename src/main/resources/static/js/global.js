@@ -364,7 +364,9 @@ function crnFormatter(elem){
 // 원단위 콤마 추가
 function addComma(elem) {
 	onlyNumber(elem);
-	$(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
+	if(event.keyCode != 189 && event.keyCode != 37 && event.keyCode != 39) {
+		if($(elem).val() != "") $(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
+	}
 }
 
 // 콤마 제거
