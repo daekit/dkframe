@@ -1,7 +1,7 @@
 <body>
   <div class="popup_area" style="width: 100%;">
     <div class="tit_contents">
-        <h4 class="tit">판매계획 등록</h4>
+        <h4 class="tit">재고실사 등록</h4>
     </div>
 
     <div class="popup_table">
@@ -31,16 +31,6 @@
                   <select id="whCd" name="whCd" style="width:100%;" data-kind="WH" required>
                     <option value="">선택</option>
                   </select>
-                </td>
-            </tr>
-            <tr name="tableCd2">
-            <th class="hit">제품</th>
-                <td class="drctArea">
-                  <input type="hidden" id="prdtCd" name="prdtCd">
-                  <div class="search_form">
-	                <input type="text" id="prdtNm" name="prdtNm" disabled required="required">
-	              	<button type="button" id="btnPrdtSearch" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
-	              </div>
                 </td>
             </tr>
             <tr>
@@ -97,6 +87,33 @@
                 </select>
               </td>
             </tr>
+            <tr name="tableCd2">
+            <th class="hit">제품</th>
+                <td class="drctArea">
+                  <input type="hidden" id="prdtCd" name="prdtCd">
+                  <div class="search_form">
+	                <input type="text" id="prdtNm" name="prdtNm" disabled required="required">
+	              	<button type="button" id="btnPrdtSearch" onclick="prdtSearch(this);"><i class="i_search_w"></i></button>
+	              </div>
+                </td>
+            </tr>
+            <tr>
+            <th class="hit">SPEC</th>
+                <td class="drctArea">
+                   <input type="text" id="prdtSpec" name="prdtSpec" disabled>
+                </td>
+            </tr>
+            <th class="hit">사이즈</th>
+                <td class="drctArea">
+                   <input type="text" id="prdtSize" name="prdtSize" disabled>
+                </td>
+            </tr>
+             <th class="hit">길이</th>
+                <td class="drctArea">
+                   <input type="text" id="prdtLen" name="prdtLen" disabled>
+                </td>
+            </tr>
+                                                   
             <tr>
                 <th class="">재고수량</th>
                 <td>                                
@@ -119,6 +136,9 @@
 	        <input type="hidden" id="stokSeq" name="stokSeq">
 	        <input type="hidden" id="userId" name="userId">
 		    <input type="hidden" id="pgmId" name="pgmId" value="SM0401P01">
+		    <input type="hidden" id="stokSeq" name="stokSeq">
+		    
+		    	
         </form>
     </div>
     <!-- 하단 버튼 -->
@@ -213,21 +233,26 @@
 				deleteComma(elem);
 			});
 			var formData = {
-					"coCd" : $('#coCd').val(),
-					"acinsDt" : $('#acinsDt').val(),
-					"whCd" : $('#whCd').val(),
-					"prdtCd" : $('#prdtCd').val(),
-					"ownerCd" : $('#ownerCd').val(),
-					"clntCd" : $('#clntCd').val(),
-					"typCd" : $('#typCd').val(),
-					"makrCd" : $('#makrCd').val(),
-					"prjctCd" : $('#prjctCd').val(),
-					"impYn" : $('#impYn').val(),
+					"coCd"     : $('#coCd').val(),
+					"acinsDt"  : $('#acinsDt').val(),
+			//		"stokSeq"  : $('#stokSeq').val(),
+					"whCd"     : $('#whCd').val(),
+					"ownerCd"  : $('#ownerCd').val(),
+					"clntCd"   : $('#clntCd').val(),
+					"typCd"    : $('#typCd').val(),
+					"makrCd"   : $('#makrCd').val(),
+					"prjctCd"  : $('#prjctCd').val(),
+					"prdtCd"   : $('#prdtCd').val(),
+					"prdtSpec" : $('#prdtSpec').val(),
+					"prdtSize" : $('#prdtSize').val(),
+					"prdtLen"  : $('#prdtLen').val(),
+					"impYn"    : $('#impYn').val(),
 					"stockQty" : $('#stockQty').val(),
 					"acinsQty" : $('#acinsQty').val(),
-					"rmk" : $('#rmk').val(),
- 					"userId" : jwt.userId,
-					"pgmId" : $("#pgmId").val()
+ 					"acinsId"  : jwt.userId,
+					"rmk"      : $('#rmk').val(),
+ 					"userId"   : jwt.userId,
+					"pgmId"    : $("#pgmId").val()
 			}
 			postAjax("/user/sm/sm04/insertPrdtAcins", formData, null, function(data){	
 				alert(data.resultMessage);           
@@ -245,16 +270,18 @@
 			var formData = {
 					"coCd" : $('#coCd').val(),
 					"acinsDt" : $('#acinsDt').val(),
-					"whCd" : $('#whCd').val(),
-					"prdtCd" : $('#prdtCd').val(),
-					"ownerCd" : $('#ownerCd').val(),
-					"clntCd" : $('#clntCd').val(),
-					"typCd" : $('#typCd').val(),
-					"makrCd" : $('#makrCd').val(),
-					"prjctCd" : $('#prjctCd').val(),
-					"impYn" : $('#impYn').val(),
-					"stockQty" : $('#stockQty').val(),
+					"stokSeq" : $('#stokSeq').val(),
+			//		"whCd" : $('#whCd').val(),
+			//		"prdtCd" : $('#prdtCd').val(),
+			//		"ownerCd" : $('#ownerCd').val(),
+			//		"clntCd" : $('#clntCd').val(),
+			//		"typCd" : $('#typCd').val(),
+			//		"makrCd" : $('#makrCd').val(),
+			//		"prjctCd" : $('#prjctCd').val(),
+			//		"impYn" : $('#impYn').val(),
+		    //		"stockQty" : $('#stockQty').val(),
 					"acinsQty" : $('#acinsQty').val(),
+ 					"acinsId"  : jwt.userId,
 					"rmk" : $('#rmk').val(),
  					"userId" : jwt.userId,
 					"pgmId" : $("#pgmId").val()
@@ -289,6 +316,9 @@
 			var row = grid.target.getList("selected")[0];
 			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
 			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
+			$targetRow.find('input[name="prdtSpec"]').val(row.prdtSpec);
+			$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
+			$targetRow.find('input[name="prdtLen"]').val(row.prdtLen);
 		});
 	}
 	//프로젝트 검색
@@ -298,6 +328,8 @@
 			var row = grid.target.getList("selected")[0];
 			$("#prjctCd").val(row.prjctCd);
 			$("#prjctNm").val(row.prjctNm);
+			$("#clntCd").val(row.clntCd);
+			$("#clntNm").val(row.clntNm);
 		});
 	}
 </script>
