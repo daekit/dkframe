@@ -240,7 +240,7 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("odrNo", paramMap.get("odrSeq"));
 			paramMap.put("clntCd", clntCd);
 			paramMap.put("clntNm", clntNm);
-			int bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
+			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
 			realTotTrstAmt += bilgVatAmt;
 			ar02Mapper.insertPchsSell(paramMap);
