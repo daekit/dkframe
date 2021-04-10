@@ -138,7 +138,7 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("stockQty", String.valueOf(stockQty));
 		}
-		int bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
+		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
 		realTotTrstAmt += bilgVatAmt;
 		result = ar02Mapper.insertPchsSell(paramMap);
