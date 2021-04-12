@@ -234,7 +234,11 @@
 		mainDefaultLoad("매출관리", "세금계산서 담당자 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		
+		if($.urlParam('clntCd')){
+			$("#clntCd_S").val($.urlParam('clntCd'));
+			$("#clntNm_S").val(decodeURI($.urlParam('clntNm')));
+			//history.replaceState({}, null, location.pathname);
+		}
 		gridView.initView().setData(0);
 		excelView.initView();
 	})
@@ -287,4 +291,15 @@
 				excelView.target.exportExcel("세금계산서담당자목록_"+todayDate+".xls");
 			});	
 	}	
+	
+	// 세금계산서에서 호출시 주소에서 PARAMETER 가공
+	$.urlParam = function(name){
+		
+	    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+	    if(results){
+	    	return results[1] || 0;
+	    } else {
+	    	return null;
+	    }
+	}
 </script>

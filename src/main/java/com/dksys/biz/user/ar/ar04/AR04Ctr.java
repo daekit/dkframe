@@ -95,9 +95,30 @@ public class AR04Ctr {
 		return "jsonView";
 	}
 	
+	@PostMapping(value = "/insertTaxHdCancel")
+	public String insertTaxHdCancel(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		ar04Svc.insertTaxHdCancel(paramMap);
+		model.addAttribute("resultCode", 200);
+		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		return "jsonView";
+	}
+	
 	@PutMapping(value = "/updateBilgCancel")
     public String updateBilgCancel(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	int result = ar04Svc.updateBilgCancel(paramMap);
+    	if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("taxComplete"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}
+    	return "jsonView";
+    }
+	
+	@PostMapping(value = "/updateBilgRvrs")
+    public String updateBilgRvrs(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	int result = ar04Svc.updateBilgRvrs(paramMap);
     	if(result == 0) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("taxComplete"));

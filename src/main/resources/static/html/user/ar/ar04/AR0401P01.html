@@ -180,6 +180,7 @@
     		<input type="hidden" id="coCd" name="coCd">
     		<input type="hidden" id="clntCd" name="clntCd">
     		<input type="hidden" id="bilgCertNo" name="bilgCertNo">
+    		<input type="hidden" id="cseqRcvYn" name="cseqRcvYn">
 	        <input type="hidden" id="userId" name="userId">
 	        <input type="hidden" id="pgmId" name="pgmId" value="AR0401">
 	    </form>
@@ -248,6 +249,7 @@
 			$("#popForm #rffAeaTh").removeClass("hit");
 		}
 		postAjax("/user/ar/ar04/selectTaxBilg", formData, null, function(data){
+			console.log(data.result);
 			setTaxBilgInfo(data.result);
 		});
 	}
@@ -262,15 +264,23 @@
 		$.each($('input[comma]'), function(idx, elem){
 			addComma(elem);
 		});
+		if(obj.cseqRcvYn != "E" || !obj.cseqRcvYn){
+			$("#popForm #rffAea").attr("disabled", "disabled");
+		} else {
+			console.log("EEE");
+			$("#popForm #rffAea").removeAttr("disabled");
+		}
 	}
 	
 	function updateTaxBilg() {
 		if(inputValidation($('[required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/ar/ar04/updateTaxBilg", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				alert(data.resultMessage);    
+				if(data.resultMessage == "200"){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}
