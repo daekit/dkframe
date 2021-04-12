@@ -14,42 +14,46 @@ import com.dksys.biz.admin.bm.bm01.service.BM01Svc;
 public class BM01SvcImpl implements BM01Svc {
 	
     @Autowired
-    BM01Mapper materialMapper;
-
-	@Override
-	public List<Map<String, String>> selectMaterialList(Map<String, String> param) {
-		return materialMapper.selectMaterialList(param);
+    BM01Mapper bm01Mapper;
+    
+    @Override
+	public int selectMaterialCount(Map<String, String> param) {
+		return bm01Mapper.selectMaterialCount(param);
 	}
 
 	@Override
-	public int deleteMaterial(Map<String, String> param) {
-		return materialMapper.deleteMaterial(param);
+	public List<Map<String, String>> selectMaterialList(Map<String, String> param) {
+		return bm01Mapper.selectMaterialList(param);
+	}
+	
+	@Override
+	public Map<String, String> selectMaterialInfo(Map<String, String> param) {
+		return bm01Mapper.selectMaterialInfo(param);
+	}
+	
+	@Override
+	public int selectPrdtCntInPrjct(Map<String, String> param) {
+		return bm01Mapper.selectPrdtCntInPrjct(param);
+	}
+	
+	@Override
+	public int checkOverLap(Map<String, String> param) {
+		return bm01Mapper.checkOverLap(param);
 	}
 
 	@Override
 	public int insertMaterial(Map<String, String> param) {
-		return materialMapper.insertMaterial(param);
+		return bm01Mapper.insertMaterial(param);
 	}
 
 	@Override
 	public int updateMaterial(Map<String, String> param) {
-		return materialMapper.updateMaterial(param);
+		return bm01Mapper.updateMaterial(param);
 	}
-
+	
 	@Override
-	public int checkOverLap(Map<String, String> param) {
-		return materialMapper.checkOverLap(param);
+	public int deleteMaterial(Map<String, String> param) {
+		return bm01Mapper.deleteMaterial(param);
 	}
-
-	@Override
-	public Map<String, String> selectMaterialInfo(Map<String, String> param) {
-		return materialMapper.selectMaterialInfo(param);
-	}
-
-	@Override
-	public int selectMaterialCount(Map<String, String> param) {
-		return materialMapper.selectMaterialCount(param);
-	}
-
 
 }
