@@ -259,6 +259,9 @@
 						FN_CM05M01_CD_TO_NM(A.RFF_GN2) RFF_GN2,
 						FN_CM05M01_CD_TO_NM(A.RFF_AEA) RFF_AEA,
 						FN_CM05M01_CD_TO_NM(A.BGM_1225) BGM_1225,
+						(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = A.RFF_GN1) RFF_GN1_CD,
+						(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = A.RFF_GN2) RFF_GN2_CD,
+						(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = A.RFF_AEA) RFF_AEA_CD,
 						A.BGM_1225 BGM_1225_CD,
 						A.BGM_4343,
 						FN_CM05M01_CD_TO_NM(A.XML_FLOW) XML_FLOW,
@@ -474,7 +477,7 @@
 				 , SELPCH_CD
 				 , FN_CM05M01_CD_TO_NM(SELPCH_CD) SELPCH_NM
 				 , TAXIVC_COPRT
-				 , TRST_DT
+				 , SUBSTRING(TRST_DT,0,4) || '-' || SUBSTRING(TRST_DT,5,2) || '-' || SUBSTRING(TRST_DT,7,2) TRST_DT
 				 , TRST_CLNT_CD
 		 		 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = TRST_CLNT_CD) CLNT_NM
 				 , TRST_PRDT_CD
@@ -551,6 +554,8 @@
 	  , TAX_BILG_NO = #{taxBilgNo}
 	  , RFF_CNO = #{rffCno}
 	  , RFF_AEA = #{rffAea}
+	  , RFF_GN1 = CASE WHEN #{rffAea} IS NULL THEN 'RFFGN101'
+	  				   ELSE 'RFFGN102' END
 	  , TAX_MOA5_23 = #{taxMoa523}
 	  , TAX_MOA5_124 = #{taxMoa5124}
 	  , TAX_MOA5_388 = #{taxMoa5388}
@@ -863,6 +868,7 @@
 	     , TAX_DT = TO_CHAR(SYSDATE, 'YYYYMMDD')
 	     , SND_YN = 'Y'
 	     , SND_DTTM = SYSDATE
+	     , ORGN_TAX_BILG_NO = #{orgnTaxBilgNo}
 	     , SND_PROC_ID = #{userId}
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
@@ -1057,7 +1063,7 @@
 		TAX_MOA5_308,
 		TAX_MOA5_9,
 		NULL,
-		NULL,
+		TAXIVC_RCV_ADDR,
 		A.CLNT_NM, 
 		A.TAXIVC_RCV_BIZCON, 
 		A.TAXIVC_RCV_BSTY, 
@@ -1071,7 +1077,7 @@
 		TAX_MOBLPHON,
 		TAX_RCV_FAX,
 		REPLACE(TAXIVC_RCV_CRN, '-', ''),
-		TAXIVC_RCV_ADDR,
+		NULL,
 		NULL,
 		NULL,
 		SYSDATE
@@ -1127,7 +1133,7 @@
 			'1',
 			ROWNUM,
 		 	(SELECT NVL(MAX(ITEM_SEQ), 0) + 1 FROM KLUSER01.TAX_ITEM WHERE XML_MSG_ID = #{xmlMsgId} AND XMLDOC_SEQ = '1'),
-			NULL,
+			A.TRST_PRDT_CD,
 			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD),
 			NULL,
 			NULL,
@@ -1136,8 +1142,8 @@
 			NVL(REAL_TRST_AMT, 0),
 			NVL(BILG_VAT_AMT, 0),
 			NVL(REAL_TRST_UPR, 0),
-			NULL,
-			NULL,
+			'CT',
+			'CT',
 			NVL(REAL_TRST_QTY, 0),
 			NULL,
 			NULL,
@@ -1152,7 +1158,7 @@
 	SELECT RFF_GN1
 		 , RFF_GN2
 		 , NVL(RFF_AEA, 'RFFAEA00') RFF_AEA
-		 , TAX_BILG_NO
+		 , NVL(TAX_BILG_NO, '') TAX_BILG_NO
 	  FROM TB_AR04M01
 	 WHERE BILG_CERT_NO = #{bilgCertNo} 
 	</select>
@@ -1344,6 +1350,8 @@
 		SYSDATE
 	FROM KLUSER01.TAX_HD
 	WHERE BGM_1004 = #{taxBilgNo}
+	  AND ROWNUM = 1
+	ORDER BY XML_MSG_ID DESC
 	</insert>
 	
 	<insert id="insertInvHdCancel">
@@ -1504,6 +1512,8 @@
 		TIMESTAMP
 	FROM KLUSER01.INV_HD
 	WHERE BGM_1004 = #{taxBilgNo}
+	  AND ROWNUM = 1
+	ORDER BY XML_MSG_ID DESC
 	</insert>
 	
 	<insert id="insertTaxItemCancel">
@@ -1599,4 +1609,26 @@
 		  AND CO_CD = #{coCd}
 	ORDER BY CO_CD, TRST_CERTI_NO
 	</insert>
+	
+	<update id="updateTaxBilgNoCancel">
+	UPDATE TB_AR04M01
+	   SET RFF_GN1 = 'RFFGN102'
+	     , RFF_AEA = 'RFFAEA03'
+	     , TAX_BILG_NO = ''
+	     , TAX_DT = ''
+	 WHERE BILG_CERT_NO = #{bilgCertNo}
+	   AND CO_CD = #{coCd}
+	</update>
+	
+	<update id="updateBilgRvrs">
+	UPDATE TB_AR04M01
+	SET TAX_DT = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	  , TAX_BILG_NO = '역발행'
+	  , RFF_APG = 'B'
+	  , RFF_APG_CHK_ID = #{userId}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHERE BILG_CERT_NO = #{bilgCertNo}
+	</update>
 </mapper>

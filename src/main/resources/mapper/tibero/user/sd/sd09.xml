@@ -27,6 +27,7 @@
 		(
 			SELECT
 				ROWNUM AS RNUM, A.*
+				, NAME AS SALES_EMP_NM
 			FROM
 			(
 				SELECT CO_CD
@@ -46,9 +47,12 @@
 					 , USE_YN
 					 , RMK
 					 , SITE_MES_CD
+					 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
+					 , SALES_AREA_CD
 					 , ETC_FIELD1
 					 , ETC_FIELD2
 					 , ETC_FIELD3
+					 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID
 				  FROM TB_SD09M01 T
 				 	<where>
 				 	<if test="coCd != null and coCd != ''">
@@ -63,35 +67,45 @@
 				 	<if test="useYn != null and useYn != ''">
 				    AND USE_YN = #{useYn}
 				 	</if>
+				 	<if test="salesAreaCd != null and salesAreaCd != ''">
+				    AND SALES_AREA_CD = #{salesAreaCd}
+				 	</if>
 				 	</where>
-				 ORDER BY CO_CD, CLNT_CD, SITE_NM
-			) A
+				 ORDER BY SITE_CD DESC, CO_CD, CLNT_CD, SITE_NM
+			) A			
+				  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID
 		)
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
 	<select id="selectSiteDetail" resultType="CamelMap">
-	SELECT CO_CD
-		 , FN_CM05M01_CD_TO_NM(CO_CD) CO_NM
-		 , SITE_CD
-		 , CLNT_CD
-		 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
-		 , PRJCT_CD
-		 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
-		 , SITE_NM
-		 , SITE_ADDR_ZIP
-		 , SITE_ADDR
-		 , SITE_ADDR_SUB
-		 , SITE_MNG_NM
-		 , TEL_NO
-		 , USE_YN
-		 , RMK
-		 , SITE_MES_CD
-		 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
-	  FROM TB_SD09M01 T
-	 WHERE CO_CD = #{coCd}
-	   AND SITE_CD = #{siteCd}
+	SELECT *T., NAME AS SALES_EMP_NM
+	FROM (
+		SELECT CO_CD
+			 , FN_CM05M01_CD_TO_NM(CO_CD) CO_NM
+			 , SITE_CD
+			 , CLNT_CD
+			 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+			 , PRJCT_CD
+			 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+			 , SITE_NM
+			 , SITE_ADDR_ZIP
+			 , SITE_ADDR
+			 , SITE_ADDR_SUB
+			 , SITE_MNG_NM
+			 , TEL_NO
+			 , USE_YN
+			 , RMK
+			 , SITE_MES_CD
+			 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
+			 , SALES_AREA_CD
+			 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
+			 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID		
+		  FROM TB_SD09M01 T
+		 WHERE CO_CD = #{coCd}
+		   AND SITE_CD = #{siteCd}) T
+	  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID	   
 	</select>
 	
 	<select id="selectSiteCd" parameterType="Map" resultType="String">
@@ -112,6 +126,7 @@
 	 , TEL_NO
 	 , USE_YN
 	 , RMK
+	 , SALES_AREA_CD
 	 , CREAT_ID
 	 , CREAT_PGM
 	 , CREAT_DTTM
@@ -128,6 +143,7 @@
 	 , #{telNo}
 	 , NVL(#{useYn}, 'Y')
 	 , #{rmk}
+	 , #{salesAreaCd}
 	 , #{userId}
 	 , #{pgmId} 
 	 , SYSDATE
@@ -146,6 +162,7 @@
 	  , TEL_NO = #{telNo}
 	  , USE_YN = #{useYn}
 	  , RMK = #{rmk}
+	  , SALES_AREA_CD = #{salesAreaCd}
 	  , UDT_ID = #{userId}
 	  , UDT_PGM = #{pgmId}
 	  , UDT_DTTM = SYSDATE

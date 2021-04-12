@@ -44,6 +44,13 @@ public class BM01Ctr {
 		model.addAttribute("materialInfo", materialInfo);
 		return "jsonView";
 	}
+	
+	@PostMapping(value = "/selectPrdtCntInPrjct")
+    public String selectPrdtCntInPrjct(@RequestBody Map<String, String> param, ModelMap model) {
+		int prdtCntInPrjct = bm01Svc.selectPrdtCntInPrjct(param);
+    	model.addAttribute("prdtCntInPrjct", prdtCntInPrjct);
+    	return "jsonView";
+    }
 
 	@PostMapping(value = "/checkOverLap")
     public String checkOverLap(@RequestBody Map<String, String> param, ModelMap model) {

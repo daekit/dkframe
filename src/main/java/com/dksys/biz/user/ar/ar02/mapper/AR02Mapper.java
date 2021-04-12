@@ -36,5 +36,7 @@ public interface AR02Mapper {
 
 	String selectOwner1ClntCd(Map<String, String> paramMap);
 
+	long selectBilgVatAmt(Map<String, String> paramMap);
+
 	
 }

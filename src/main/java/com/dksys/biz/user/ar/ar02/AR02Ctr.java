@@ -78,9 +78,14 @@ public class AR02Ctr {
 
 	@PostMapping(value = "/insertPchsSell")
     public String insertPchsSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		ar02Svc.insertPchsSell(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		int result = ar02Svc.insertPchsSell(paramMap);
+    	if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}
     	return "jsonView";
     }
 	

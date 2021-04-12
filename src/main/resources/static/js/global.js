@@ -323,7 +323,8 @@ function inputValidation(inputList) {
 	$.each(inputList, function(idx, elem){
 		if($.trim(elem.value) == ""){
 			isValid = false;
-			alert("필수값을 입력해 주세요.");
+			var alertMsg = $(elem).attr("msg") || "필수값";
+			alert(alertMsg + "(을/를) 입력해주세요.");
 			$(elem).focus();
 			return false;
 		}
@@ -334,7 +335,9 @@ function inputValidation(inputList) {
 // 숫자만 입력 (음수, 정수 가능.  소수 불가능)
 function onlyNumber(elem){
 	//	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
-	$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
+	if(event.keyCode != 189 && event.keyCode != 37 && event.keyCode != 39) {
+		$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
+	}
 }
 
 // 한글 제거
@@ -362,7 +365,9 @@ function crnFormatter(elem){
 // 원단위 콤마 추가
 function addComma(elem) {
 	onlyNumber(elem);
-	$(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
+	if(event.keyCode != 189 && event.keyCode != 37 && event.keyCode != 39) {
+		if($(elem).val() != "") $(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
+	}
 }
 
 // 콤마 제거

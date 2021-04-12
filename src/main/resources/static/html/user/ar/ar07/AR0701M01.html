@@ -67,7 +67,7 @@
 						</td>
 						<th class="hit">기준년월</th>
 						<td>
-							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;">
+							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;">
 						</td>
 						<th>거래처</th>
 						<td>
@@ -111,7 +111,10 @@
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
 	var gridView = {
-		initView : function() {
+		initView : function(closeYm) {
+			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				showRowSelector : false,
@@ -154,12 +157,15 @@
 					{key: "coCd",      hidden: true},
 					{key: "clntCd",    hidden: true},
 		          	{key: "coNm",      label: "회사",    align: "left",     width: 120},
-		        	{key: "closeYm",   label: "년월",     align: "center",  width: 80},
+		       // 	{key: "closeYm",   label: "년월",     align: "center",  width: 80},
 		        	{key: "clntNm",    label: "거래처",    align: "left",   width: 120},
+		        	{key: "basisAmt2", label: "전월잔액",     align: "right",   width: 120, formatter: "money"},
+		        	{key: "clmnAmt2",  label: closeYm2 +" 잔액",     align: "right",   width: 120, formatter: "money"},
+		        	{key: "clmnAmt1",  label: closeYm1 +" 잔액",     align: "right",   width: 120, formatter: "money"},
+		        	{key: "trmendAmt", label: closeYm  +" 잔액",  align: "right",   width: 120, formatter: "money"},
 		        	{key: "basisAmt",  label: "기초",     align: "right",   width: 120, formatter: "money"},
 		        	{key: "clmnAmt",   label: "수금",     align: "right",   width: 120, formatter: "money"},
 		        	{key: "totAmt",    label: "매출",     align: "right",   width: 120, formatter: "money"},
-		        	{key: "trmendAmt", label: "기말잔액",  align: "right",   width: 120, formatter: "money"},
 		        	{key: "crdtLmt",   label: "여신한도",  align: "right",   width: 120, formatter: "money"},
 		        	{key: "crdtLoan",  label: "여신잔액",  align: "right",   width: 120, formatter: "money"}
 		        ]
@@ -195,25 +201,28 @@
 			        target: $('[data-ax5grid="excel-grid"]'),
 					footSum: [
 				    	[
-				    		{label: "합계", colspan:3, align:"center"},
-		                    {key: "basisAmt", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "clmnAmt", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "totAmt", collector: "sum", formatter:"money", align: "right"},
+				    		{label: "합계",     colspan:3, align:"center"},
+		                    {key: "basisAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "clmnAmt",   collector: "sum", formatter:"money", align: "right"},
+		                    {key: "totAmt",    collector: "sum", formatter:"money", align: "right"},
 		                    {key: "trmendAmt", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "crdtLmt", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "crdtLoan", collector: "sum", formatter:"money", align: "right"}
+		                    {key: "crdtLmt",   collector: "sum", formatter:"money", align: "right"},
+		                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"}
 				    	]
 				    ],
 					columns: [
 						{key: "coCd",      hidden: true},
 						{key: "clntCd",    hidden: true},
 			          	{key: "coNm",      label: "회사",    align: "left",     width: 120},
-			        	{key: "closeYm",   label: "년월",     align: "center",  width: 80},
+			        //	{key: "closeYm",   label: "년월",     align: "center",  width: 80},
 			        	{key: "clntNm",    label: "거래처",    align: "left",   width: 120},
+			        	{key: "basisAmt2", label: "전월잔액",     align: "right",   width: 120, formatter: "money"},
+			        	{key: "clmnAmt2",  label: closeYm2 +" 잔액",     align: "right",   width: 120, formatter: "money"},
+			        	{key: "clmnAmt1",  label: closeYm1 +" 잔액",     align: "right",   width: 120, formatter: "money"},
+			        	{key: "trmendAmt", label: closeYm  +" 잔액",  align: "right",   width: 120, formatter: "money"},
 			        	{key: "basisAmt",  label: "기초",     align: "right",   width: 120, formatter: "money"},
 			        	{key: "clmnAmt",   label: "수금",     align: "right",   width: 120, formatter: "money"},
 			        	{key: "totAmt",    label: "매출",     align: "right",   width: 120, formatter: "money"},
-			        	{key: "trmendAmt", label: "기말잔액",  align: "right",   width: 120, formatter: "money"},
 			        	{key: "crdtLmt",   label: "여신한도",  align: "right",   width: 120, formatter: "money"},
 			        	{key: "crdtLoan",  label: "여신잔액",  align: "right",   width: 120, formatter: "money"}
 			        ]
@@ -222,6 +231,7 @@
 			}
 		}
 	$(document).ready(function() {
+	
 		// 페이지 타이틀 set
 		mainDefaultLoad("매출관리", "월마감채권조회");
 		// 공통코드 set
@@ -236,9 +246,9 @@
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
-
+		
 		// grid init
-		gridView.initView().setData(0);
+		gridView.initView(closeYm.value).setData(0);
 		excelView.initView();
 	});
 	

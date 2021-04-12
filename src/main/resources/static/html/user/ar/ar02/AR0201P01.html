@@ -104,10 +104,17 @@
 		        		}
 		        		if(bilgAmt != this.item.bilgAmt) {
 		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
+		        			if(this.item.bilgVatAmt != 0) {
+		        				this.self.setValue(this.dindex, "bilgVatAmt", this.item.bilgAmt*0.1);
+		        				this.self.setValue(this.dindex, "totAmt", this.item.bilgVatAmt + this.item.bilgAmt);
+		        			}
 		        		}
+		        		
 		            }
 		        },
 		        columns: [
+		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	hidden: true},
+		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80, 	hidden: true},
 		        	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100},
 		          	{key: "bilgYn",         label: "전표발행여부",	align: "center",	width: 100},
 		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 140},
@@ -123,13 +130,13 @@
 		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
-		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 100, editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgVatAmt",	    label: "부가세",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "totAmt",	    	label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100, editor: {type:"text"}},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "bilgCertNo",     label: "청구서번호", 	align: "center", 	width: 100},
-		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 100},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 100},
 		        	{key: "typNm", 		    label: "판매유형",  	align: "center", 	width: 100},
 		        	{key: "prdtSizeNm",     label: "사이즈",  	align: "center", 	width: 100},
@@ -146,9 +153,10 @@
 	                    {key: "realTrstAmt", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {label: "-", 			align:"center"									 },
-	                    {key: "transAmt", 		collector: "sum", formatter:"money", align: "right"},
-	                    {key: "etcAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {label: "-", 			align:"center"									 },
+	                    {key: "bilgVatAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totAmt", 		collector: "sum", formatter:"money", align: "right"},
 			    	]
 			    ]
 		    });
@@ -187,7 +195,7 @@
 		setTimeout(function(){
 			var row = popGridView.target.getList();
 			$.each(row, function(idx, item){
-				creditAmt += Number(item.bilgAmt);
+				creditAmt += Number(item.totAmt);
 			});
 			$("#creditAmt").val(creditAmt);
 		}, 500);
@@ -235,8 +243,10 @@
 			var formData = makeFormData();
 			putAjax("/user/ar/ar02/updatePchsSell", formData, null, function(data){
 				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}

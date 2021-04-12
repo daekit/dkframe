@@ -174,8 +174,6 @@
 	      		<col width="5%">	<!-- 발주지시 단가-->
 	      		<col width="5%">	<!-- 발주지시 금액-->
 	      		<col width="4%">    <!-- 상태 -->
-	      		<col width="5%">    <!-- 담당자 -->
-	      		<col width="5%">    <!-- 완료일자 -->
 	      		<col width="12%">   <!-- 비고 -->
 	        </colgroup>
 	        <tr>
@@ -187,8 +185,6 @@
 	            <th rowspan="2" style="text-align: center;">단위</th>
 	            <th colspan="3" style="text-align: center;">발주지시</th>
 	            <th rowspan="2" style="text-align: center;">상태</th>
-	            <th rowspan="2" style="text-align: center;">담당자</th>
-	            <th rowspan="2" style="text-align: center;">완료일자</th>
 	            <th rowspan="2" style="text-align: center;">비고</th>
 	        </tr>
 	        <tr>
@@ -221,6 +217,9 @@
 	              <input type="text"   name="prdtNm" readonly="readonly">
 	              <input type="hidden" name="bilgVatAmt">    <!-- 부가세 -->
 	          	  <input type="hidden" name="prdtStockCd">    <!-- 재고관리여부 -->
+	          	  <input type="hidden" name="ordrgYn">
+	              <input type="hidden" name="ordrgProcId">
+	              <input type="hidden" name="ordrgProcNm">
 	            </td>
 	            <td>
 	            	<input type="hidden" name="prdtSize">
@@ -247,14 +246,6 @@
 	            	<input type="hidden" name="ordrgQty" readonly="readonly" comma>
 	            	<input type="hidden" name="ordrgUpr" readonly="readonly" comma>
 	            	<input type="hidden" name="ordrgAmt" readonly="readonly" comma>   
-	            	
-	            </td>
-	            <td>
-	            	<input type="text" name="ordrgYn" readonly="readonly" style="text-align: center;">
-	            </td>
-	            <td>
-	                <input type="hidden" name="ordrgProcId">
-	                <input type="text" name="ordrgProcNm" readonly="readonly" style="text-align: center;">
 	            </td>
 	            <td>
 	            	<input type="text" name="ordrgProcDttm" readonly="readonly" style="text-align: center;">
@@ -279,8 +270,6 @@
 	      		<col width="5%">	<!-- 발주지시 단가-->
 	      		<col width="5%">	<!-- 발주지시 금액-->
 	      		<col width="4%">    <!-- 상태 -->
-	      		<col width="5%">    <!-- 담당자 -->
-	      		<col width="5%">    <!-- 완료일자 -->
 	      		<col width="12%">   <!-- 비고 -->
 	        </colgroup>
 	      	<tr>
@@ -288,8 +277,6 @@
 	            <td id="realTotQty" style="text-align: right;" comma></td>
 	            <td>-</td>
 	            <td id="realTotAmt" style="text-align: right;" comma></td>
-	            <td></td>
-	            <td></td>
 	            <td></td>
 	            <td></td>
 	        </tr>
@@ -640,8 +627,10 @@
 			var formData = makeFormData('CONFIRM');
 			filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
 				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}

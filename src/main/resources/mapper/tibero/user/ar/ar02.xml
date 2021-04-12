@@ -138,15 +138,7 @@
 			SYSDATE,
 	        #{salesAreaCd, jdbcType=VARCHAR},
 	        #{siteCd,      jdbcType=VARCHAR},
-	        <if test='selpchCd == "SELPCH1" or selpchCd == "SELPCH3"'>
-	        TRUNC(${realTrstAmt} / 100 * NVL((SELECT TRUNC(A.CODE_ETC * ${realTrstAmt} / 100) FROM TB_CM05M01 A 
-	                        INNER JOIN TB_CM05M01 A1 ON A1.CODE_ID = #{whCd, jdbcType=VARCHAR}
-	                        INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = A1.CODE_ETC
-	                        INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC),10)),	                        
-	        </if>
-	        <if test='selpchCd == "SELPCH2" or selpchCd == "SELPCH4"'>
-	        TRUNC(${realTrstAmt} / 100 * NVL((SELECT CODE_ETC FROM TB_CM05M01 A INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}),10)),
-	        </if>
+	        #{bilgVatAmt,  jdbcType=VARCHAR},
 	        #{prdtSpec,    jdbcType=VARCHAR}
 		)
 	</insert>
@@ -255,6 +247,7 @@
 		        CLNT_NM,
 		        BILG_CERT_NO,
 		        CASE WHEN BILG_CERT_NO IS NOT NULL THEN 'Y' ELSE 'N' END BILG_YN,
+		        CASE WHEN BILG_AMT &lt; 0 THEN 'Y' ELSE 'N' END RETURN_YN,
 		        NVL(LOSS_RATE, '0') AS LOSS_RATE,
 		        ODR_CREAT_DIV,
 		        ETC_FIELD1,
@@ -533,6 +526,8 @@
 	    SELECT 		
 			FN_CM05M01_CD_TO_NM(B.PRDT_DIV) AS PRDT_DIV_NM,
 			FN_CM05M01_CD_TO_NM(B.PRDT_STKN) AS PRDT_STKN_NM,
+			A.TRST_PRDT_CD,
+			B.PRDT_NM,
 			CASE WHEN IMP_YN = 'Y' THEN '수입' ELSE '국산' END IMP_YN,
 			FN_CM05M01_CD_TO_NM(MAKR_CD) AS MAKR_NM,
 			B.PRDT_SPEC,
@@ -568,8 +563,8 @@
 		<if test="typCd != null and !typCd.equals('')">
 			AND TYP_CD = #{typCd}
 		</if>
-		GROUP BY B.PRDT_DIV, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
-		ORDER BY B.PRDT_DIV, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
+		GROUP BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
+		ORDER BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
     </select>
 	
 	<select id="selectOwner1ClntCd" parameterType="Map" resultType="String">
@@ -577,6 +572,24 @@
 		(
 			SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = #{whCd})
 		) AS WH_CLNT_CD FROM DUAL	
+	</select>
+	
+	<select id="selectBilgVatAmt" parameterType="Map" resultType="long">
+		<if test='selpchCd == "SELPCH1" or selpchCd == "SELPCH3"'>
+	        SELECT 
+	        	TRUNC(${realTrstAmt} / 100 * NVL((SELECT A.CODE_ETC 
+	        FROM TB_CM05M01 A 
+	            INNER JOIN TB_CM05M01 A1 ON A1.CODE_ID = #{whCd, jdbcType=VARCHAR}
+	            INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = A1.CODE_ETC
+	            INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC),10)) AS BILG_VAT_AMT
+	        FROM DUAL
+        </if>
+        <if test='selpchCd == "SELPCH2" or selpchCd == "SELPCH4"'>
+	        SELECT 
+	        	TRUNC(${realTrstAmt} / 100 * NVL((SELECT CODE_ETC FROM TB_CM05M01 A 
+	        	INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}),10)) AS BILG_VAT_AMT
+	        FROM DUAL
+        </if>
 	</select>
 	
 </mapper>

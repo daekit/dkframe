@@ -106,7 +106,7 @@
                 <td>
                   <input type="hidden" id="prdtCd_S" name="prdtCd_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="prdtNm_S" name="prdtNm_S" disabled>
+	                <input type="text" id="prdtNm_S" name="prdtNm_S" onkeyup="event.keyCode == 8 ? prdtCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 	              	<a onclick="prdtSearch(this);"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -114,7 +114,7 @@
                 <td>
 		          <input type="hidden" id="prjctCd_S" name="prjctCd_S">
                   <div class="search_form" style="width: 50%;">
-		            <input type="text" id="prjctNm_S" name="prjctNm_S" disabled>
+		            <input type="text" id="prjctNm_S" name="prjctNm_S"  onkeyup="event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 		            <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
 		          </div>
                 </td>
@@ -142,7 +142,7 @@
                 <td>
                   <input type="hidden" id="clntCd_S" name="clntCd_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="clntNm_S" name="clntNm_S" disabled>
+	                <input type="text" id="clntNm_S" name="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -213,8 +213,8 @@
 		        footSum: [
 			    	[
 			    		{label: "총계", colspan:8, align:"center"},
-			    		{key:"stockQty", collector: "sum", formatter:"money", align: "right"},
-			    		{key: "acinsQty", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "stockQty",      collector: "sum", formatter:"money", align: "right"},
+			    		{key: "acinsQty",      collector: "sum", formatter:"money", align: "right"},
 	                    {key: "stockAcinsQty", collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
@@ -231,18 +231,21 @@
 		            }
 		        },
 		        columns: [
-		            {key: "whNm", label: "창고", align: "center", width: "7%"},
-		            {key: "prdtNm", label: "제품", align: "left", width: "11%"},
-		            {key: "ownerNm", label: "재고주체", align: "center", width: "8%"},
-		            {key: "clntNm", label: "거래처", align: "left", width: "13%"},
-		            {key: "typNm", label: "판매유형", align: "center", width: "6%"},
-		            {key: "makrNm", label: "제조사", align: "center", width: "7%"},
-		            {key: "prjctNm", label: "프로젝트", align: "left", width: "11%"},
-		            {key: "impYn", label: "수입여부", align: "center", width: "5%"},
-		            {key: "stockQty", label: "현재고", align: "right", width: "6%", formatter: "money"},
-		            {key: "acinsQty", label: "실사수량", align: "right", width: "6%", formatter: "money"},
-		            {key: "stockAcinsQty", label: "차이", align: "right", width: "6%", formatter: "money"},
-		            {key: "rmk", label: "비고", align: "left", width: "15%"},
+		            {key: "whNm",     label: "창고", align: "center", width: 80},
+		            {key: "prdtNm",   label: "제품", align: "left", width: 140},
+		            {key: "prdtSpec", label: "SPEC", align: "center", width: 100},
+		            {key: "prdtSize", label: "SIZE", align: "center", width: 100},
+		            {key: "prdtLen",  label: "길이", align: "center", width: 50},
+		            {key: "ownerNm",  label: "재고", align: "center", width:60},
+		            {key: "clntNm",   label: "거래처", align: "left", width: 140},
+		            {key: "typNm",    label: "판매", align: "center", width: 60},
+		            {key: "makrNm",   label: "제조사", align: "center", width: 100},
+		            {key: "prjctNm",  label: "프로젝트", align: "left", width: 300},
+		            {key: "impYn",    label: "수입", align: "center", width: 50},
+		            {key: "stockQty", label: "현재고", align: "right", width: 120, formatter: "money"},
+		            {key: "acinsQty", label: "실사수량", align: "right", width: 120, formatter: "money"},
+		            {key: "stockAcinsQty", label: "차이", align: "right", width: 100, formatter: "money"},
+		            {key: "rmk", label: "비고", align: "left", width: 300},
 		        ]
 			});
 			return this;
@@ -250,17 +253,21 @@
 		setData: function(_pageNo){
 			firstGrid = this.target;
 			var formData = {
-				"coCd" : $("#coCd_S").val(),
-				"acinsDt"  : $("#acinsDt_S").val().replace(/\-/g,''),
-				"whCd"  : $("#whCd_S").val(),
-				"prdtCd" : $("#prdtDiv_S").val(),
-				"prjctCd" : $("#prjctCd_S").val(),
-				"ownerCd" : $("#ownerCd_S").val(),
-				"typCd" : $("#typCd_S").val(),
-				"makrCd" : $("#makrCd_S").val(),
-				"clntCd" : $("#clntCd_S").val(),
-				"impYn" : $("#impYn_S").val(),
-				"pageNo" : _pageNo + 1,
+				"coCd"      : $("#coCd_S").val(),
+				"acinsDt"   : $("#acinsDt_S").val().replace(/\-/g,''),
+				"whCd"      : $("#whCd_S").val(),
+				"prdtCd"    : $("#prdtDiv_S").val(),
+				"prjctCd"   : $("#prjctCd_S").val(),
+				"prjctNm"   : $("#prjctNm_S").val(),
+				"prdtCd"    : $("#prdtCd_S").val(),
+				"prdtNm"    : $("#prdtNm_S").val(),
+				"ownerCd"   : $("#ownerCd_S").val(),
+				"typCd"     : $("#typCd_S").val(),
+				"makrCd"    : $("#makrCd_S").val(),
+				"clntCd"    : $("#clntCd_S").val(),
+				"clntNm"    : $("#clntNm_S").val(),
+				"impYn"     : $("#impYn_S").val(),
+				"pageNo"    : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/sm/sm04/selectPrdtAcinsList", formData, null, function(data){
@@ -300,7 +307,7 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid)){
 			return;
 		}
-		openModal("/static/html/user/sm/sm04/SM0401P01.html", 400, 650, "");
+		openModal("/static/html/user/sm/sm04/SM0401P01.html", 400, 720, "");
 	}
 	
 	//거래처 검색

@@ -55,15 +55,18 @@
 				    A.OWNER_CD,
 					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.OWNER_CD) AS OWNER_NM,
 					A.CLNT_CD,
-					(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM,
+					BM02.CLNT_NM,
+				---	(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM,
 					A.TYP_CD,
 					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.TYP_CD) AS TYP_NM,
 					A.MAKR_CD,
 					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.MAKR_CD) AS MAKR_NM,
 					A.PRJCT_CD,
-					(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM,
+					SD05.PRJCT_NM,
+				--	(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM,
 					A.PRDT_CD,
-					(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) AS PRDT_NM,
+					BM01.PRDT_NM,
+			---		(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) AS PRDT_NM,
 					A.PRDT_SIZE,
 					A.PRDT_SPEC,
 					A.PRDT_LEN,
@@ -76,6 +79,9 @@
 					(SELECT NAME FROM TB_CM06M01 C WHERE C.ID = A.ACINS_ID) AS ACINS_NM,
 					A.RMK
 				FROM TB_SM03M01 A
+				     INNER JOIN TB_BM01M01 BM01   ON  BM01.PRDT_CD  = A.PRDT_CD
+				LEFT OUTER JOIN TB_BM02M01 BM02   ON  BM02.CLNT_CD  = A.CLNT_CD
+				LEFT OUTER JOIN TB_SD05M01 SD05   ON  SD05.PRJCT_CD = A.PRJCT_CD
 				WHERE 1=1
 				<if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
@@ -106,6 +112,15 @@
 				</if>
 				<if test= "impYn != null and !impYn.equals('')">
 		 			AND A.IMP_YN = #{impYn}
+				</if>
+				<if test= "prdtNm != null and !prdtNm.equals('')">
+		 			AND BM01.PRDT_NM like '%' || UPPER(#{prdtNm}) ||'%'
+				</if>
+				<if test= "clntNm != null and !clntNm.equals('')">
+		 			AND BM02.CLNT_NM like '%' || #{clntNm} ||'%'
+				</if>
+				<if test= "prjctNm != null and !prjctNm.equals('')">
+		 			AND SD05.PRJCT_NM like '%' || #{prjctNm} ||'%'
 				</if>
 			) D
 		)

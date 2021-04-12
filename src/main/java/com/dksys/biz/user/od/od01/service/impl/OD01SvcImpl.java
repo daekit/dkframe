@@ -240,6 +240,10 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("odrNo", paramMap.get("odrSeq"));
 			paramMap.put("clntCd", clntCd);
 			paramMap.put("clntNm", clntNm);
+			paramMap.put("trspRmk", paramMap.get("ordrgRmk"));
+			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
+			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
+			realTotTrstAmt += bilgVatAmt;
 			ar02Mapper.insertPchsSell(paramMap);
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
@@ -277,7 +281,6 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("clntCd", sellClntCd);
 				paramMap.put("clntNm", sellClntNm);
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
-				realTotTrstAmt += Integer.parseInt(paramMap.get("realTrstAmt"));
 				ar02Mapper.insertPchsSell(paramMap);
 				
 				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 

@@ -643,8 +643,10 @@
 			var formData = makeFormData();
 			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
 				alert(data.resultMessage);
-				gridView.setData(0);
-				modal.close();
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}
@@ -653,15 +655,17 @@
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
-				alert(data.resultMessage);   
-				if(openFrom == "CM1001M01"){
-					targetGrid = shipGridView;
-				} else {
-					targetGrid = gridView;
-				}        
-				targetGrid.setData(0);
-				viewShipModal(selectedRowIdx);
-				modal.close();
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					if(openFrom == "CM1001M01"){
+						targetGrid = shipGridView;
+					} else {
+						targetGrid = gridView;
+					}        
+					targetGrid.setData(0);
+					viewShipModal(selectedRowIdx);
+					modal.close();
+				}
 			});
 		}
 	}
@@ -844,6 +848,8 @@
 			$('#addrZip').val(row.siteAddrZip);
 			$('#addrMain').val(row.siteAddr);
 			$('#addrSub').val(row.siteAddrSub);
+			$('#mngTel').val(row.telNo);
+			$('#salesAreaCd').val(row.salesAreaCd);
 		});
 	}
 

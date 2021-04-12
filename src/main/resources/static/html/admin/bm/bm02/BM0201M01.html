@@ -60,31 +60,30 @@
 	        <div class="">
 	            <!-- 테이블 인풋 3분할 -->
 	            <table class="table_input">
-	              <tr>
-	              	<th class= "hit">회사</th>
-	              	 <td>
-	                 	<select id="coCd" data-kind="CO" required="required" onchange="gridView.setData(0);">
-	<!--                  		<option value="">전체</option>   -->
-	                 	</select>
-	                </td>
-	                <th>사용여부</th>	                
-	                <td>
-	                 	<select id="useType" data-kind="YN" onchange="gridView.setData(0);">
-			                <option value="">전체</option>
-		                </select>
-	                </td>
-	              	<th>거래처</th>
-	                <td>
-	                  <input type="hidden" id="clntCd_S">
-	                  <div class="search_form" style="width: 100%;">
-		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
-		              	<a onclick="clntSearch('SEARCH');"><i class="i_search_w"></i></a>
-		              </div>
-	                </td>         
-	                
-	              </tr>
-	            </table>
-	        </div>
+              		<tr>
+		              	<th class= "hit">회사</th>
+		              	 <td>
+		                 	<select data-kind="CO" data-search="coCd" required onchange="gridView.setData(0);"></select>
+		                </td>
+		                <th>사용여부</th>	                
+		                <td>
+		                 	<select data-kind="YN" data-search="useYn" onchange="gridView.setData(0);">
+				                <option value="">전체</option>
+			                </select>
+		                </td>
+		              	<th>거래처</th>
+		                <td>
+		                	<input type="hidden" id="clntCd_S" data-search="clntCd">
+		                  	<div class="search_form" style="width: 100%;">
+			                	<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+			              		<a onclick="clntSearch('SEARCH');">
+			              			<i class="i_search_w"></i>
+			              		</a>
+			              	</div>
+	                	</td>         
+              		</tr>
+            	</table>
+        	</div>
 	    </div>
 		<!-- // 콘텐츠 -->
 
@@ -97,7 +96,7 @@
 	                <a onclick="unuseClnt();" style="height: 30px; line-height: 28px;">-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
-				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
+				<select class="prae_select" data-search="recordCnt" onchange="gridView.setData(0);">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
 					<option value="50">50</option>
@@ -131,7 +130,7 @@
 		            },
 		            onDBLClick: function () {
 		            	openClntDetail("U");
-		            },
+		            }
 		        },
 	            columns: [
 	                {key: "clntCd",	        label: "거래처 코드",		width: 80,		align: "center"},
@@ -168,20 +167,11 @@
 		},
 		setData: function(_pageNo){
 			var targetObj = this.target;
-			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			var paramObj = {"pageNo": _pageNo + 1};
 			
-			// 사용여부 set
-			paramObj.useYn = $('#useType').val();
-			
-			// 검색구분 set
-			paramObj.searchType = $('#searchType').val();
-
-			// 검색어 set
-			paramObj.searchValue = $('#searchValue').val();
-			// 검색어 set
-			paramObj.clntCd = $('#clntCd_S').val();
-			paramObj.clntNm = $('#clntNm_S').val();
-			paramObj.coCd = $('#coCd').val();
+			$.each($('#main_area [data-search]'), function(idx, elem){
+				paramObj[$(elem).data('search')] = elem.value;
+			});
 			
 			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
 				targetObj.setData({
@@ -253,18 +243,19 @@
 			    });
 				return this;
 			}
-		}		
+	}
+	
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "거래처관리");
 		setCommonSelect($("#main_area select[data-kind]"));
-		$("#coCd").val(jwt.coCd);
+		$('[data-search="coCd"]').val(jwt.coCd);
 		gridView.initView().setData(0);
 		excelView.initView();
 	});
 	
 	function initSearch() {
-		$(".contents.search select, .contents.search input").val("");
-		$("#coCd").val(jwt.coCd);
+		$('.contents.search select, .contents.search input').val("");
+		$('[data-search="coCd"]').val(jwt.coCd);
 		gridView.setData(0);
 	}
 		
@@ -300,25 +291,22 @@
 	}
 	
 	function excelDown() {
-		var paramObj = {"pageNo": 1, "recordCnt": 99999999};
-		// 사용여부 set
-		paramObj.useYn = $('#useType').val();
-		paramObj.searchType = $('#searchType').val(); // 검색구분 set
-		paramObj.searchValue = $('#searchValue').val(); // 검색어 set
-		paramObj.clntCd = $('#clntCd_S').val();
-		paramObj.clntNm = $('#clntNm_S').val();
-		paramObj.coCd = $('#coCd').val();
+		var paramObj = {"pageNo": 1};
+		$.each($('#main_area [data-search]'), function(idx, elem){
+			paramObj[$(elem).data('search')] = elem.value;
+		});
+		paramObj.recordCnt = 99999999;
 		
 		postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
-				var list = data.clntList; 
-				excelView.target.setData({
-					list : list,
-					page : {
-						totalElements : list.length,
-					}
-				});
-				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("거래처목록_"+todayDate+".xls");
-			});	
+			var list = data.clntList; 
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("거래처목록_"+todayDate+".xls");
+		});	
 	}
 </script>

@@ -226,23 +226,16 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
 			paramMap.put("clntCd",      clntCd);
 			paramMap.put("clntNm",      clntNm);
-//			paramMap.put("salesAreaCd", paramMap.get("salesAreaCd"));
-//			paramMap.put("siteCd",      paramMap.get("siteCd"));
-			if(detailMap.containsKey("sellVatCd") && "VAT01".equals(detailMap.get("sellVatCd").toString()))
-		    {
-				int vatRate = 10; 
-				paramMap.put("bilgVatAmt", String.valueOf(Integer.parseInt(detailMap.get("realShipAmt"))  / vatRate));
-		    } else { 
-		    	paramMap.put("bilgVatAmt", "0");
-		    }			
 			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize", detailMap.get("prdtSize"));		
 			paramMap.put("trspTypCd", "TRSPTYP1");              /* 정상매출 */
-
 			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
 			paramMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));				  	
 			paramMap.put("odrNo", paramMap.get("odrSeq"));
- 
+			paramMap.put("trspRmk", paramMap.get("shipRmk"));
+			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
+			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
+			realTotTrstAmt += bilgVatAmt;
 			ar02Mapper.insertPchsSell(paramMap);
 			
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 

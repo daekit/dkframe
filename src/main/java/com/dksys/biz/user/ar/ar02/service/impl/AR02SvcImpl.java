@@ -24,6 +24,9 @@ public class AR02SvcImpl implements AR02Svc {
 	@Autowired
     SM01Mapper sm01Mapper;
 	
+	@Autowired
+    AR02Svc ar02Svc;
+	
 	@Override
 	public int selectSellCount(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellCount(paramMap);
@@ -39,23 +42,35 @@ public class AR02SvcImpl implements AR02Svc {
 	public int updatePchsSell(Map<String, Object> paramMap) {
 		int result = 0;
 		int bilgAmt = 0;
+		String selpchCd = "";
 		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
-		creditDeposit(paramMap);
 		for (Map<String, String> detailMap : detailList) {
+			selpchCd = detailMap.get("selpchCd");
 			detailMap.put("userId", paramMap.get("userId").toString());
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
 			result += ar02Mapper.updatePchsSell(detailMap);
-			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("bilgAmt")));
+			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("totAmt")));
 		}
-		Map<String, String> param = new HashMap<String, String>();
-		param.put("clntCd", paramMap.get("clntCd").toString());
-		param.put("coCd", paramMap.get("coCd").toString());
-		param.put("realTotTrstAmt", String.valueOf(bilgAmt));
-		param.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
-		if(checkLoan(param)) {
-			creditWithdraw(paramMap);
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
+		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)) {
+			int creditAmt = Integer.parseInt(paramMap.get("creditAmt").toString());
+			int exceedAmt = bilgAmt - creditAmt;
+			if(exceedAmt > 0) {
+				Map<String, String> param = new HashMap<String, String>();
+				param.put("clntCd", paramMap.get("clntCd").toString());
+				param.put("coCd", paramMap.get("coCd").toString());
+				param.put("realTotTrstAmt", String.valueOf(exceedAmt));
+				param.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
+				if(checkLoan(param)) {
+					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+					return 0;
+				}
+			} else {
+				paramMap.put("creditAmt", String.valueOf(exceedAmt));
+				if(creditDeposit(paramMap)) {
+					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+					return 0;
+				}
+			}
 		}
 		return result;
 	}
@@ -96,7 +111,9 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	public int insertPchsSell(Map<String, String> paramMap) {
 		int result = 0;
+		int realTotTrstAmt = 0;
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
+		String clntCd = paramMap.get("clntCd");
 		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 		if(stockInfo == null) {
@@ -113,7 +130,7 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
-			} 
+			}
 			//매입일 떄
 			else 
 			{
@@ -125,6 +142,9 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("stockQty", String.valueOf(stockQty));
 		}
+		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
+		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
+		realTotTrstAmt += bilgVatAmt;
 		result = ar02Mapper.insertPchsSell(paramMap);
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
 		{
@@ -134,6 +154,14 @@ public class AR02SvcImpl implements AR02Svc {
 			}
 			sm01Mapper.updateStockSell(paramMap);
 		}
+		// 여신 체크
+		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
+		paramMap.put("clntCd", clntCd);
+		paramMap.put("dlvrDttm", paramMap.get("trstDt"));
+		if(ar02Svc.checkLoan(paramMap)) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			return 0;
+		}
 		return result;
 	}
 
@@ -142,14 +170,20 @@ public class AR02SvcImpl implements AR02Svc {
 		return ar02Mapper.selectSellInfo(paramMap);
 	}
 
-	public void creditDeposit(Map<String, Object> paramMap) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("loanCd", 'M');
-		map.put("clntCd", paramMap.get("clntCd"));
-		map.put("coCd", paramMap.get("coCd"));
-		map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
-		map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
-		ar02Mapper.callCreditLoan(map);
+	public boolean creditDeposit(Map<String, Object> paramMap) {
+		try {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("loanCd", 'M');
+			map.put("clntCd", paramMap.get("clntCd"));
+			map.put("coCd", paramMap.get("coCd"));
+			map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
+			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
+			ar02Mapper.callCreditLoan(map);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			return true;
+		}
+		return false;
 	}
 	
 	public void creditWithdraw(Map<String, Object> paramMap) {
