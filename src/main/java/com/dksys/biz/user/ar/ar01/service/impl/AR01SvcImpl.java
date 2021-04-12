@@ -232,6 +232,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
 			paramMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));				  	
 			paramMap.put("odrNo", paramMap.get("odrSeq"));
+			paramMap.put("trspRmk", paramMap.get("shipRmk"));
 			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
 			realTotTrstAmt += bilgVatAmt;
