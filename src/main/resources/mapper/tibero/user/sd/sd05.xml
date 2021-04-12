@@ -2,7 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.user.sd.sd05.mapper.SD05Mapper">
-
+	
+	<select id="selectProjectCount" parameterType="Map" resultType="int">
+	 	SELECT 
+	 		COUNT(*) 
+	 	FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
+				WHERE A.CLNT_CD = B.CLNT_CD(+)
+				 AND  A.MNG_ID = C.ID(+)
+				 AND  A.USE_YN = 'Y'
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+				 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
+				</if>
+				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
+					AND ${searchType} LIKE '%${searchValue}%'
+				</if>
+	</select>
+	
 	<select id="selectProjectList" parameterType="Map" resultType="CamelMap">
 		SELECT *
 			FROM(
@@ -158,25 +176,6 @@
 		SELECT * FROM TB_SD05M01 WHERE 1=1 AND PRJCT_CD = #{prjctCd}
 	</select>
 	
-	<select id="selectProjectCount" parameterType="Map" resultType="int">
-	 	SELECT 
-	 		COUNT(*) 
-	 	FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
-	 	WHERE 1=1
-	 	AND A.CLNT_CD = B.CLNT_CD(+)
-	 	AND A.USE_YN = 'Y'
-		AND  A.MNG_ID = C.ID(+)
-		<if test= "coCd != null and !coCd.equals('')">
- 			AND A.CO_CD = #{coCd}
-		</if>
-		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-		 	AND A.END_DT >= #{strtDt} AND A.STRT_DT <![CDATA[ <= ]]> #{endDt}
-		</if>
-		<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
-			AND ${searchType} LIKE '%${searchValue}%'
-		</if>
-	</select>
-	
 	<update id="updateProject" parameterType="Map">
 		UPDATE TB_SD05M01 
 			SET 
@@ -216,7 +215,8 @@
 			, OUTORD_MNG_NM    = #{outordMngNm}           
 			, OUTORD_TEL_NO    = #{outordTelNo} 
 			, OUTORD_FAX_NO    = #{outordFaxNo}		
-			, WH_CD            = #{whCd}             
+			, WH_CD            = #{whCd}            
+			, SALES_AREA_CD    = #{salesAreaCd} 
 			,UDT_ID         = #{userId}		 
 			,UDT_PGM        = #{pgmId}							
 			,UDT_DTTM       = SYSDATE		 
@@ -287,7 +287,8 @@
 		, OUTORD_MNG_NM
 		, OUTORD_TEL_NO
 		, OUTORD_FAX_NO
-		, WH_CD)
+		, WH_CD
+		, SALES_AREA_CD)
 		VALUES 
 		(
 		#{coCd}
@@ -332,6 +333,7 @@
 		, #{outordTelNo}
 		, #{outordFaxNo}
 		, #{whCd}
+		, #{salesAreaCd}
 		)
 	</insert>
 	
