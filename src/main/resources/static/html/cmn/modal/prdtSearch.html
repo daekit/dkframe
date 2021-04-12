@@ -75,21 +75,22 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "prdtCd ", label: "제품코드", hidden: true},
-		          	{key: "prdtStockCd", label: "재고관리여부", hidden: true},
-		          	{key: "prdtCnvrsnWt", label: "환산중량", hidden: true},
-		          	{key: "prdtNm", label: "제품명", align: "left", width: "30%"},
-		            {key: "prdtStknNm", label: "강종", align: "center", width: "20%"},
-		            {key: "prdtCoilYn", label: "코일", align: "center", width: "8%"},
-		            {key: "prdtUnit", label: "단위코드", hidden: true},
-		            {key: "prdtUnitNm", label: "단위", align: "center", width: 50},
-		            {key: "prdtSizeNm", label: "사이즈", align: "center", width: "15%"},
-		        	{key: "ordrgUpr", label: "기준단가", align: "right", width: 80, formatter: "money"},
-		        	{key: "shipUpr", label: "기준단가", hidden: true},
-		        	{key: "stockUpr", label: "재고단가", hidden: true},
-		        	{key: "prdtDiv",  label: "제품구분", hidden: true},
-		        	{key: "prdtSize", label: "Size", hidden: true},
-		            {key: "prdtSpec", label: "스펙", align: "center", width: "15%"}
+		          	{key: "prdtCd ",      label: "제품코드",     hidden: true},
+		          	{key: "prdtStockCd",  label: "재고관리여부", hidden: true},
+		          	{key: "prdtCnvrsnWt", label: "환산중량",     hidden: true},
+		            {key: "prdtUnit",     label: "단위코드",     hidden: true},
+		        	{key: "shipUpr",      label: "기준단가",     hidden: true},
+		        	{key: "stockUpr",     label: "재고단가",     hidden: true},
+		        	{key: "prdtDiv",      label: "제품구분",     hidden: true},
+		        	{key: "prdtSize",     label: "Size",         hidden: true},
+		          	{key: "prdtNm",       label: "제품명", 	     align: "left",   width: 160},
+		            {key: "prdtStknNm",   label: "강종",         align: "center", width: 80},
+		            {key: "prdtCoilYn",   label: "코일",         align: "center", width: 60},
+		            {key: "prdtUnitNm",   label: "단위",         align: "center", width: 60},
+		            {key: "prdtSizeNm",   label: "사이즈",       align: "center", width: 60},
+		        	{key: "ordrgUpr",     label: "기준단가",     align: "right",  width: 80, formatter: "money"},
+		            {key: "prdtSpec",     label: "스펙",         align: "center", width: 80},
+		            {key: "totStockQty",  label: "재고중량",     align: "right",  width: 80, formatter: "money"}
 		        ]
 		    });
 			return this;
@@ -142,6 +143,21 @@
 	
 	function executeCallBack(){
 		if(selectGridValidation(prdtGridView.target)) return;
+		var prjctCd = commonModal.paramObj.prjctCd;
+		if(prjctCd){
+			var row = prdtGridView.target.getList("selected")[0];
+			var paramObj = {
+				"prjctCd": prjctCd,
+				"prdtDiv": row.prdtDiv,
+				"prdtStkn": row.prdtStkn,
+				"prdtSize": row.prdtSize
+			};
+			postAjax("/admin/bm/bm01/selectPrdtCntInPrjct", paramObj, null, function(data) {
+				if(data.prdtCntInPrjct == 0){
+					alert("이 제품은 계약상에 존재하지 않는 제품입니다.");
+				}
+			});
+		}
 		commonModal.callBack(prdtGridView);
 		commonModal.closeTarget.close();
 	}
