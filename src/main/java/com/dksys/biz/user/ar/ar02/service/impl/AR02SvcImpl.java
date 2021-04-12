@@ -42,30 +42,34 @@ public class AR02SvcImpl implements AR02Svc {
 	public int updatePchsSell(Map<String, Object> paramMap) {
 		int result = 0;
 		int bilgAmt = 0;
+		String selpchCd = "";
 		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
 		for (Map<String, String> detailMap : detailList) {
+			selpchCd = detailMap.get("selpchCd");
 			detailMap.put("userId", paramMap.get("userId").toString());
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
 			result += ar02Mapper.updatePchsSell(detailMap);
-			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("bilgAmt")));
+			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("totAmt")));
 		}
-		int creditAmt = Integer.parseInt(paramMap.get("creditAmt").toString());
-		int exceedAmt = bilgAmt - creditAmt;
-		if(exceedAmt > 0) {
-			Map<String, String> param = new HashMap<String, String>();
-			param.put("clntCd", paramMap.get("clntCd").toString());
-			param.put("coCd", paramMap.get("coCd").toString());
-			param.put("realTotTrstAmt", String.valueOf(exceedAmt));
-			param.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
-			if(checkLoan(param)) {
-				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-				return 0;
-			}
-		} else {
-			paramMap.put("creditAmt", String.valueOf(exceedAmt));
-			if(creditDeposit(paramMap)) {
-				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-				return 0;
+		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)) {
+			int creditAmt = Integer.parseInt(paramMap.get("creditAmt").toString());
+			int exceedAmt = bilgAmt - creditAmt;
+			if(exceedAmt > 0) {
+				Map<String, String> param = new HashMap<String, String>();
+				param.put("clntCd", paramMap.get("clntCd").toString());
+				param.put("coCd", paramMap.get("coCd").toString());
+				param.put("realTotTrstAmt", String.valueOf(exceedAmt));
+				param.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
+				if(checkLoan(param)) {
+					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+					return 0;
+				}
+			} else {
+				paramMap.put("creditAmt", String.valueOf(exceedAmt));
+				if(creditDeposit(paramMap)) {
+					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+					return 0;
+				}
 			}
 		}
 		return result;
@@ -126,7 +130,7 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
-			} 
+			}
 			//매입일 떄
 			else 
 			{

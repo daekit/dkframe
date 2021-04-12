@@ -221,7 +221,7 @@ th {
 		        target: $('[data-ax5grid="first-grid"]'),		        
 		        header: {
 		        	align: "center",
-		        	selector: false
+		        	selector: true
 		        },
 		        body: {
 		        	onClick: function () {
@@ -247,12 +247,12 @@ th {
 		        columns: [
 		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
 		        	{key: "clntCd",    	 	label: "거래처",		align: "left", 		width: 100, hidden: true},
+		        	{key: "returnYn",    	label: "거래처",		align: "left", 		width: 100, hidden: true},
 		          	{key: "bilgYn",      	label: "전표",		align: "center",	width: 50,	formatter: "bilgYn"},
 		          	{key: "bilgCertNo",     label: "청구번호", 	align: "center", 	width: 70},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
-		        	{key: "trspTypNm",	    label: "출고",    	align: "center", 	width: 60},
 		        	{key: "taxivcCoprtNm",	label: "매출법인", 	align: "left", 		width: 120},
 		        	{key: "prdtNm",    	 	label: "제품", 		align: "left", 		width: 140},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80},
@@ -261,6 +261,7 @@ th {
 		          	{key: "siteNm",         label: "현장명",		align: "left",		width: 140},
 		        	{key: "realTrstQty", 	label: "수량", 		align: "right", 	width: 80,	formatter: "money", hidden: true},
 		        	{key: "prdtUpr",        label: "기준단가", 	align: "right", 	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "bilgVatAmt", 	label: "부가세",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
@@ -274,7 +275,7 @@ th {
 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
-		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
+		        	{key: "trspTypNm",	    label: "출고",    	align: "center", 	width: 60},
 		        ],
 		        footSum: [
 			    	[
@@ -500,6 +501,7 @@ th {
 	function insertBilg() {
 		var flag = false;
 		var clntFlag = false;
+		var returnFlag = false;
 		var list = gridView.target.getList("selected");
 		var trstCertiNoArr = [];
 		$.each(list, function(idx, obj) {
@@ -513,6 +515,12 @@ th {
 					return false;
 				}
 			}
+			if (idx > 0) {
+				if(list[idx].returnYn != list[idx-1].returnYn) {
+					returnFlag = true;
+					return false;
+				}
+			}
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
 		if (flag) {
@@ -521,6 +529,10 @@ th {
 		}
 		if (clntFlag) {
 			alert("동일한 거래처끼리만 전표발행이 가능합니다.");
+			return;
+		}
+		if (returnFlag) {
+			alert("반품은 반품끼리만 발행가능합니다.");
 			return;
 		}
 		var formData = {
