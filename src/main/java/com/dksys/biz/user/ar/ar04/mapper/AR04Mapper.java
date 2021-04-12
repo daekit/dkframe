@@ -62,4 +62,8 @@ public interface AR04Mapper {
 
 	int insertInvItemCancel(Map<String, String> bilgInfo);
 
+	int updateTaxBilgNoCancel(Map<String, String> bilgInfo);
+
+	int updateBilgRvrs(Map<String, String> bilgInfo);
+
 }
