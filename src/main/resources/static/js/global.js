@@ -323,7 +323,7 @@ function inputValidation(inputList) {
 	$.each(inputList, function(idx, elem){
 		if($.trim(elem.value) == ""){
 			isValid = false;
-			alert("필수값을 입력해 주세요.");
+			alert($(elem).attr("msg") + "(을/를) 입력해주세요.");
 			$(elem).focus();
 			return false;
 		}
