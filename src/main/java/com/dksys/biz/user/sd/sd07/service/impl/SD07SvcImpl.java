@@ -43,4 +43,11 @@ public class SD07SvcImpl implements SD07Svc {
 		sd7Mapper.insertCreditClose(paramMap);
 	}
 
+	@Override
+	public void excuteCreditClosePur(Map<String, String> paramMap) {
+		sd7Mapper.deleteCreditClose(paramMap);
+		sd7Mapper.insertCreditClosePur(paramMap);
+		
+	}
+
 }

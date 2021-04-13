@@ -269,6 +269,7 @@
 		WHERE
 			CO_CD = #{coCd}
 			AND CLOSE_YM = #{closeYm}
+			AND SELPCH_CD = #{selpchCd}		 
 	</delete>
 	
 	<insert id="insertCreditClose">
@@ -285,7 +286,8 @@
 			CREAT_DTTM, 
 			UDT_ID, 
 			UDT_PGM, 
-			UDT_DTTM
+			UDT_DTTM,
+			SELPCH_CD
 		)
 		SELECT
 			CO_CD,
@@ -300,11 +302,13 @@
 		    SYSDATE,
 		    #{userId},
 		    #{pgmId},
-		    SYSDATE
+		    SYSDATE,
+		    #{selpchCd}		    
 		FROM
 		(
 			SELECT
 				CO_CD,
+				'SELPCH2' AS SELPCH_CD,
 				TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
 				CLNT_CD,
 				TRMEND_CREDIT_AMT AS BASIS_CREDIT_AMT,
@@ -314,13 +318,15 @@
 			FROM
 				TB_AR07M01
 			WHERE
-				CO_CD = #{coCd}
+				SELPCH_CD IN ('SELPCH2','SELPCH4') 
+				AND CO_CD = #{coCd}
 				AND CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
 			
 			UNION ALL
 			
 			SELECT
 				CO_CD,
+				'SELPCH2' AS SELPCH_CD,
 				SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
 				TRST_CLNT_CD,
 				0 AS BASIS_CREDIT_AMT,
@@ -330,7 +336,7 @@
 			FROM 
 				TB_AR02M01
 			WHERE
-				SELPCH_CD = 'SELPCH2'
+				SELPCH_CD IN ('SELPCH2','SELPCH4') 
 				AND CO_CD = #{coCd}
 				<![CDATA[
 					AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
@@ -338,6 +344,7 @@
 			    ]]>
 			GROUP BY
 				CO_CD,
+				SELPCH_CD,
 				SUBSTRING(TRST_DT,1,6),
 				TRST_CLNT_CD
 				
@@ -345,6 +352,7 @@
 			
 			SELECT 
 				CO_CD,
+				'SELPCH2' AS SELPCH_CD,
 				SUBSTRING(ETRDPS_DT,1,6) AS CLOSE_YM,
 				CLNT_CD,
 				0 AS BASIS_CREDIT_AMT,
@@ -355,19 +363,130 @@
 				TB_AR05M01
 			WHERE
 				CO_CD = #{coCd}
+				AND ETRDPS_TYP IN ('ETRDPS01','ETRDPS03') <!-- 수금, 상계 -->
 				<![CDATA[
 					AND TO_DATE(ETRDPS_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
 				    AND TO_DATE(ETRDPS_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
 				]]>
 			GROUP BY
 				CO_CD,
+				<!-- SELPCH_CD,  -->
 				SUBSTRING(ETRDPS_DT,1,6),
 				CLNT_CD
 		)
 		GROUP BY
 			CO_CD,
+			SELPCH_CD,
 			CLOSE_YM,
 			CLNT_CD
 	</insert>
 	
+	<insert id="insertCreditClosePur">
+		INSERT INTO TB_AR07M01(
+			CO_CD, 
+			CLOSE_YM, 
+			CLNT_CD, 
+			BASIS_CREDIT_AMT, 
+			CELL_CLMN_AMT, 
+			CELL_TOT_AMT, 
+			TRMEND_CREDIT_AMT, 
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM, 
+			UDT_ID, 
+			UDT_PGM, 
+			UDT_DTTM,
+			SELPCH_CD
+		)
+		SELECT
+			CO_CD,
+			CLOSE_YM,
+			CLNT_CD,
+			SUM(BASIS_CREDIT_AMT) AS BASIS_CREDIT_AMT,
+			SUM(CELL_CLMN_AMT) AS CELL_CLMN_AMT,
+			SUM(CELL_TOT_AMT) AS CELL_TOT_AMT,
+			SUM(BASIS_CREDIT_AMT) + SUM(CELL_TOT_AMT) - SUM(CELL_CLMN_AMT) AS TRMEND_CREDIT_AMT,
+			#{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{selpchCd}		    
+		FROM
+		(
+			SELECT
+				CO_CD,
+				'SELPCH1' AS SELPCH_CD,
+				TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
+				CLNT_CD,
+				TRMEND_CREDIT_AMT AS BASIS_CREDIT_AMT,
+				0 AS CELL_CLMN_AMT,
+				0 AS CELL_TOT_AMT,
+				0 AS TRMEND_CREDIT_AMT
+			FROM
+				TB_AR07M01
+			WHERE
+				SELPCH_CD IN ('SELPCH1','SELPCH3') 
+				AND CO_CD = #{coCd}
+				AND CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), -1), 'YYYYMM')
+			
+			UNION ALL
+			
+			SELECT
+				CO_CD,
+				'SELPCH1' AS SELPCH_CD,
+				SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
+				TRST_CLNT_CD,
+				0 AS BASIS_CREDIT_AMT,
+				0 AS CELL_CLMN_AMT,
+				SUM(BILG_AMT) + SUM(BILG_VAT_AMT) AS CELL_TOT_AMT,
+				0 AS TRMEND_CREDIT_AMT
+			FROM 
+				TB_AR02M01
+			WHERE
+				SELPCH_CD IN ('SELPCH1','SELPCH3') 
+				AND CO_CD = #{coCd}
+				<![CDATA[
+					AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+			    ]]>
+			GROUP BY
+				CO_CD,
+				SELPCH_CD,
+				SUBSTRING(TRST_DT,1,6),
+				TRST_CLNT_CD
+				
+			UNION ALL 
+			
+			SELECT 
+				CO_CD,
+				'SELPCH1' AS SELPCH_CD,
+				SUBSTRING(ETRDPS_DT,1,6) AS CLOSE_YM,
+				CLNT_CD,
+				0 AS BASIS_CREDIT_AMT,
+				SUM(ETRDPS_AMT) AS CELL_CLMN_AMT,
+				0 AS CELL_TOT_AMT,
+				0 AS TRMEND_CREDIT_AMT
+			FROM 
+				TB_AR05M01
+			WHERE
+				CO_CD = #{coCd}
+				AND ETRDPS_TYP IN ('ETRDPS02','ETRDPS03') <!-- 지급, 상계 -->
+				<![CDATA[
+					AND TO_DATE(ETRDPS_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND TO_DATE(ETRDPS_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+				]]>
+			GROUP BY
+				CO_CD,
+				<!-- SELPCH_CD,  -->
+				SUBSTRING(ETRDPS_DT,1,6),
+				CLNT_CD
+		)
+		GROUP BY
+			CO_CD,
+			SELPCH_CD,
+			CLOSE_YM,
+			CLNT_CD
+	</insert>
 </mapper>

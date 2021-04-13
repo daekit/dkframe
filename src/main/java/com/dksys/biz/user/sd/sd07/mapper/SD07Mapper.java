@@ -19,4 +19,6 @@ public interface SD07Mapper {
 
 	int insertCreditClose(Map<String, String> paramMap);
 
+	int insertCreditClosePur(Map<String, String> paramMap);
+
 }

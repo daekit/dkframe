@@ -63,7 +63,7 @@
 			<!-- 검색 콘텐츠 -->
 			<div class="contents search">
 				<!-- 테이블 인풋 3분할 -->
-				<table class="table_input type02">
+				<table class="table_input type03">
 					<tr>
 						<th>회사</th>
 						<td>
@@ -77,6 +77,15 @@
 								<input type="text" class="input_calendar" autocomplete="off" id="closeYm" name="closeYm" data-search="closeYm" date> 
 							</div>
 						</td>
+						<input type="hidden"  id="selpchCd" name="selpchCd" > 
+						
+<!-- 						<th>매입/매출</th>
+						<td>
+							<select  id="selpchCd" name="selpchCd"  data-kind="SELPCH" data-search="selpchCd">
+								<option value="">전체</option>
+							</select>
+						</td>
+ -->						
 					</tr>
 				</table>
 			</div>
@@ -87,7 +96,9 @@
 					<a style="width:80px;" onclick="saveClose();">저장</a>
 				</div>
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="excuteClose();">마감실행</a>
+					<a style="width:80px;" onclick="excuteCloseStock();">재고마감실행</a>
+					<a style="width:80px;" onclick="excuteCloseCreate();">매출마감실행</a>
+					<a style="width:80px;" onclick="excuteClosePurch();">매입마감실행</a>
 				</div>
 			</div>
 			<!-- 콘텐츠 -->
@@ -343,6 +354,9 @@
 			}
 			paramObj[$tempElem.data("search")] = tempValue;
 		}
+
+		$("#selpchCd option[value='SELPCH3']").remove();
+		$("#selpchCd option[value='SELPCH4']").remove();
 		
 		postAjax("/user/sd/sd07/selectClose", paramObj, null, function(data){
 			setCloseInfo(data.closeInfo);
@@ -413,7 +427,7 @@
 	}
 	
 	// 마감실행
-	function excuteClose(){
+	function excuteCloseStock(){
 		var paramObj = {
 			"coCd": $('#coCd').val(),
 			"closeYm": deleteHyphenStr($('#closeYm').val()),
@@ -429,8 +443,18 @@
 				$('span[name="stockStatus"]').text("실패");
 				$('span[name="stockStatus"]').addClass("fail");
 			}
-		});
-		
+		});		
+	}
+	// 매출 마감실행
+	function excuteCloseCreate(){
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"closeYm": deleteHyphenStr($('#closeYm').val()),
+			"userId": jwt.userId,
+			"pgmId": "SD0701M01",
+			'selpchCd' : 'SELPCH2'
+		}
+
 		postAjaxSync("/user/sd/sd07/excuteCreditClose", paramObj, null, function(data){
 			if(data.resultCode == 200){
 				$('span[name="creditStatus"]').text("완료");
@@ -442,4 +466,26 @@
 		});
 		
 	}
+	// 마감실행
+	function excuteClosePurch(){
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"closeYm": deleteHyphenStr($('#closeYm').val()),
+			"userId": jwt.userId,
+			"pgmId": "SD0701M01",
+			'selpchCd' : 'SELPCH1'
+		}
+
+		postAjaxSync("/user/sd/sd07/excuteCreditClosePur", paramObj, null, function(data){
+			if(data.resultCode == 200){
+				$('span[name="creditStatus"]').text("완료");
+				$('span[name="creditStatus"]').addClass("complete");
+			}else{
+				$('span[name="creditStatus"]').text("실패");
+				$('span[name="creditStatus"]').addClass("fail");
+			}
+		});
+		
+	}
+	
 </script>

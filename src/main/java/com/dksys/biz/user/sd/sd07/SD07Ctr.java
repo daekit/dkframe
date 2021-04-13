@@ -70,4 +70,17 @@ public class SD07Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/excuteCreditClosePur")
+	public String excuteCreditClosePur(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		sd07Svc.excuteCreditClosePur(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+	}
+       
 }
