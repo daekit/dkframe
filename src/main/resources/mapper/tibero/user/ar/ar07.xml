@@ -10,7 +10,7 @@
 		 , CLNT_CD
 		 , SUM(ETRDPS_AMT) ETRDPS_AMT
 	  FROM TB_AR05M01
-	  <where>
+	  WHERE ETRDPS_TYP IN ('ETRDPS01','ETRDPS01')  <!-- 수금, 상계 -->
 	  <if test="coCd != null and !coCd.equals('')">
 	  AND CO_CD = #{coCd}				
 	  </if>	
@@ -20,7 +20,9 @@
 	  <if test="clntCd != null and !clntCd.equals('')">
 	  AND CLNT_CD = #{clntCd}				
 	  </if>
-	  </where>
+	  <if test="selpchCd != null and !selpchCd.equals('')">
+	  AND SELPCH_CD = #{selpchCd}
+	  </if>
 	  GROUP BY CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), CLNT_CD
 	),
 	AR02 AS (
@@ -39,6 +41,9 @@
 	  <if test="clntCd != null and !clntCd.equals('')">
 	  AND TRST_CLNT_CD = #{clntCd}				
 	  </if>
+	  <if test="selpchCd != null and !selpchCd.equals('')">
+	  AND SELPCH_CD = #{selpchCd}
+	  </if>
 	  GROUP BY CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD 
 	),
 	BM02D02 AS (
@@ -46,11 +51,15 @@
 		 , SUM(PLDG_AMT * PLDG_RCOGN_RATE /100) AS DEPOSIT 
 		 FROM TB_BM02D02
 		 WHERE USE_YN  = 'Y'
+		 AND   SELPCH_CD = 'SELPCH2'
 		   <if test="coCd != null and !coCd.equals('')">
 		    AND CO_CD = #{coCd}				
 		</if>
 	    <if test="clntCd != null and !clntCd.equals('')">
 	        AND CLNT_CD = #{clntCd}				
+	    </if>	    
+	    <if test="selpchCd != null and !selpchCd.equals('')">
+	        AND SELPCH_CD = #{selpchCd}
 	    </if>
 	GROUP BY CLNT_CD
 	)
@@ -117,9 +126,8 @@
 				       		 OR C.CLOSE_YM IS NULL)
 					   </if>
 					 </where>
-				) T, BM02D02 T2,	TB_BM02M01 T3
-					WHERE T.CLNT_CD = T2.CLNT_CD(+)
-					  AND T2.CLNT_CD = T3.CLNT_CD(+)
+				) T, TB_BM02M01 T3
+					WHERE T.CLNT_CD = T3.CLNT_CD(+)
 				GROUP BY CO_CD, T.ETRDPS_YM, T.CLNT_CD
 			)TT
 		) A
@@ -132,7 +140,7 @@
 		 , CLNT_CD
 		 , SUM(ETRDPS_AMT) ETRDPS_AMT
 	  FROM TB_AR05M01
-	  <where>
+	  WHERE ETRDPS_TYP IN ('ETRDPS01','ETRDPS01')  <!-- 수금, 상계 -->
 	  <if test="coCd != null and !coCd.equals('')">
 	  AND CO_CD = #{coCd}				
 	  </if>	
@@ -142,7 +150,6 @@
 	  <if test="clntCd != null and !clntCd.equals('')">
 	  AND CLNT_CD = #{clntCd}				
 	  </if>
-	  </where>
 	  GROUP BY CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), CLNT_CD
 	),
 	AR02 AS (
