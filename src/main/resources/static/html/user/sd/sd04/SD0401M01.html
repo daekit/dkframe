@@ -204,8 +204,8 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo" : _pageNo + 1,
-				        	"recordCnt" : $("#recordCnt").val()};
+			var paramObj = {"pageNo": _pageNo + 1};
+			
 			for(var i=0;i<$('[data-search]').length;i++){
 				var tempElem = $('[data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -392,27 +392,28 @@
 
 	function excelDown() {
 		var targetObj = this.target;
-		var paramObj = {"pageNo" :  1,
-				        "recordCnt" : 9999999};
+		var paramObj = {"pageNo": 1};
+		
 		for(var i=0;i<$('[data-search]').length;i++){
 			var tempElem = $('[data-search]')[i];
 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
 		}
+		paramObj.recordCnt = 9999999
 		
 		postAjax("/user/sd/sd04/selectOrderList", paramObj, null, function(data) {
 			var list = data.orderList;
-				
-				excelView.target.setData({
-					list : list,
-					page : {
-						totalElements : list.length,
-					}
-				});
-            	var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("주문목록_"+todayDate+".xls");
-			});	
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+           	var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("주문목록_"+todayDate+".xls");
+		});	
 	}
 	
+	// 그리드 숫자 정렬 테스트중입니다.
 	function testFunction(list){
 		for(var i=0;i<list.length;i++){
 			var obj = list[i];
