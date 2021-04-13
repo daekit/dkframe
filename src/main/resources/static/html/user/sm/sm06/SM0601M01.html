@@ -105,10 +105,33 @@
    						<option value="">전체</option>
                     </select>
                </td>
-                 <th >제품</th>
+              <th>프로젝트</th>
+						<td>
+							<div class="search_form" style="width: 50%;">
+							<input type="hidden" data-search="prjctCd" id="prjctCd" >
+								<input type="text" data-search="prjctNm" id="prjctNm" > 
+								<button type="button" onclick="openSecondPrjctSearch();">
+									<i class="i_search_w"></i>
+								</button>
+							</div>
+						</td>
+              </tr>
+              <tr>
+              <th>제품구분</th>
+						<td>
+							<select id="prdtDiv" data-kind="PRDTDIV" data-search="prdtDiv" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+              <th >제품</th>
                 <td>
                   <input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}" data-search="prdtNm">
                 </td>
+                <th>강종</th>
+	                <td>
+		                <input type="text" id="pdskNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}" data-search="pdskNm" >
+	                </td>
+ 
               </tr>
             </table>
           </div>
@@ -195,17 +218,31 @@
 		        }, 
 		        columns: [
 		          	{key: "prdtNm",       label: "제품",    align: "left",   width: 170},
+		          	{key: "pdskNm",		  label: "강종", 	   align: "center", 	width: 100},
 		          	{key: "typNm",        label: "판매유형", align: "center", width: 100},
 		          	{key: "impNm",        label: "수입",    align: "center", width: 60},
-		        	{key: "whNm",         label: "창고",    align: "center", width: 170},
+		        	{key: "whNm",         label: "창고",    align: "center", width: 130},
 		          	{key: "ownerNm",      label: "구분",    align: "center", width: 80},
-		          	{key: "clntNm",       label: "재고주체", align: "left",   width: 150},
-		          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 280},
+		          	{key: "clntNm",       label: "재고주체", align: "left",   width: 130},
+		          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 250},
 		          	{key: "makrNm",       label: "제조사",   align: "center", width: 120},
 		          	{label: "재고",  columns:[
 		          		{key: "stockQty", label: "수량(KG)", align: "right", width: 130, styleClass:"grid-cell-blue", formatter:"money" },
 			          	{key: "stockAmt", label: "금액",     align: "right", width: 130 , styleClass:"grid-cell-blue", formatter:"money" }
 		          	]}
+		        ], 
+		        footSum: [
+		        	
+		        	[
+		        		
+		        		{label:"총계", align: "center", colspan : 9},
+		        		{key: "stockQty",	 collector: "sum",   align: "right", formatter: "money"},
+				        {key: "stockAmt", 	 collector: "sum",   align: "right", formatter: "money"},
+				       
+		        	]
+		        	
+		        	
+		        	
 		        ]
 		    });
 			return this;
@@ -222,6 +259,9 @@
 				"clntNm" : $("#clntNm").val(),
 				"makrCd" : $("#MAKR").val(),
 				"prdtNm" : $("#prdtNm").val(),
+				"pdskNm" : $("#pdskNm").val(),
+				"prjctCd" : $("#prjctCd").val(),
+				"prdtDiv" : $("#prdtDiv").val(),
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
@@ -248,7 +288,8 @@
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [
 			          	{key: "prdtNm",       label: "제품",    align: "left",   width: 170},
-			          	{key: "typNm",        label: "판매유형", align: "center", width: 100},
+			         	{key: "pdskNm",		  label: "강종", 	   align: "left", 	width: 100},
+				        {key: "typNm",        label: "판매유형", align: "center", width: 100},
 			          	{key: "impNm",        label: "수입",    align: "center", width: 60},
 			        	{key: "whNm",         label: "창고",    align: "center", width: 170},
 			          	{key: "ownerNm",      label: "구분",    align: "center", width: 80},
@@ -259,6 +300,16 @@
 			          		{key: "stockQty", label: "수량(KG)", align: "right", width: 130, styleClass:"grid-cell-blue", formatter:"money" },
 				          	{key: "stockAmt", label: "금액",     align: "right", width: 130 , styleClass:"grid-cell-blue", formatter:"money" }
 			          	]}
+			        ],
+			        footSum: [
+			        	
+			        	[
+			        		{label:"총계", align: "center", colspan : 9},
+			        		{key: "stockQty",	 collector: "sum",   align: "right", formatter: "money"},
+					        {key: "stockAmt", 	 collector: "sum",   align: "right", formatter: "money"},
+					       
+			        	]
+			        	
 			        ]
 			    });
 				return this;
@@ -304,6 +355,8 @@
 				"clntNm" : $("#clntNm").val(),
 				"makrCd" : $("#MAKR").val(),
 				"prdtNm" : $("#prdtNm").val(),
+				"prjctCd" : $("#prjctCd").val(),
+				"prdtDiv" : $("#prdtDiv").val(),
 				"pageNo" :  1, 
 				"recordCnt" : 100000
 			}
@@ -320,5 +373,19 @@
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("재고집계목록_"+todayDate+".xls")
 			});	
+	}
+	
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+			$('#addrZip').val(row.prjctAddrZip);
+			$('#addrMain').val(row.prjctAddr);
+			$('#addrSub').val(row.prjctAddrSub);
+		});
 	}
 </script>

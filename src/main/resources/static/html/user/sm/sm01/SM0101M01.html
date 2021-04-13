@@ -123,6 +123,9 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+			<div class="add_btn_small pdl10">
+			    <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+			</div>
 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -136,7 +139,9 @@
 	      <!-- 리스트 -->
 	        <div>
 	                <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%" ></div>
-	                </div>
+	                <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+   
+	        </div>
 	    </div>
 	</div>
 		
@@ -175,7 +180,7 @@
 		            	//		+ "&clntNm=" + row.clntNm + "&typCd=" + row.typCd + "&makrCd=" + row.makrCd + "&prdtNm=" + row.prdtNm;
 		            	
 		            	var url = "SM0102M01.html?coCd=" + row.coCd + "&whCd=" + row.whCd + "&ownerCd=" + row.ownerCd
-		            			+ "&clntNm=" + row.clntNm + "&typCd=" + row.typCd + "&makrCd=" + row.makrCd + "&prdtNm=" + row.prdtNm;
+		            			+ "&clntNm=" + row.clntNm + "&typCd=" + row.typCd + "&makrCd=" + row.makrCd + "&procDttm=" + row.procDttm;
 		            	var win = window.open(url, '_blank');
 		                win.focus();
 		            },
@@ -265,7 +270,7 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		
 		gridView.initView().setData(0);
-		
+		excelView.initView();
 	
 	})
 
@@ -279,7 +284,66 @@
 		// 재검색
 		gridView.initView().setData(0);
 	}
-
 	
+	function excelDown() {
+		var formData = {
+				"coCd" : $("#CO").val(),
+				"whCd" : $("#WH").val(),
+				"ownerCd" : $("#OWNER").val(),
+				"typCd" : $("#SELLTYPE").val(),
+				"clntNm" : $("#clntNm").val(),
+				"makrCd" : $("#MAKR").val(),
+				"prdtNm" : $("#prdtNm").val(),
+				"pageNo" :  1, 
+				"recordCnt" : 100000
+			}
+			
+		postAjax("/user/sm/sm01/selectStockList", formData, null, function(data){
+				var list = data.stockList;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("재고현황관리_"+todayDate+".xls")
+			});	
+	}
+	
+	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "prdtNm",       label: "제품",    align: "left",   width: 150},
+			          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 100},
+			          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 100},
+			          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
+			          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
+			          	{key: "impNm",        label: "수입",    align: "center", width: 50},
+			        	{key: "whNm",         label: "창고",    align: "center", width: 90},
+			          	{key: "ownerNm",      label: "구분",    align: "center", width: 60},
+			          	{key: "clntNm",       label: "재고주체", align: "left",   width: 120},
+			          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 130},
+			          	{key: "makrNm",       label: "제조사",   align: "center", width: 80},
+			          	{label: "재고",  columns:[
+			          		{key: "stockQty", label: "수량(KG)", align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockUpr", label: "단가",     align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockAmt", label: "금액",     align: "right", width: 90 , styleClass:"grid-cell-blue", formatter:"money" }
+			          	]},
+			          	{key: "stdUpr",     label: "기준 단가", align: "right", width: 90, formatter:"money" },
+//			          	{key: "stockChgNm", label: "재고<br/>변동사유", align: "center", width: 80},
+			          	{key: "pchsUpr", label: "최종<br/>매입 단가", align: "right", width: 90, formatter:"money" },
+			          	{key: "sellUpr", label: "최종<br/>매출 단가", align: "right", width: 90, formatter:"money" },
+			          	{key: "udtDttm", label: "최종<br/>변경일", align: "center", width: 90},
+				  	]
+			    });
+				return this;
+			}
+		}	
 
 </script>
