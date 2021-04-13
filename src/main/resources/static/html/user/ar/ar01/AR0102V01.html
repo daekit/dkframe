@@ -67,11 +67,11 @@
 		                  	<option value="">선택</option> 
 		                </select>
 	                </td>
-	                <th>판매지역</th>
-	                <td class="drctArea">                                
-	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
-	                        <option value="">선택</option> 
-	                    </select>
+	                <th class="hit">계산서발행법인</th>
+	                <td>
+	                	<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" required="required">
+	                		<option value="">선택</option> 
+	                	</select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -87,10 +87,11 @@
 		                <input type="hidden" id="siteCd" name="siteCd">
 		                <input type="text" id="siteNm" name="siteNm">
 	                </td>
-	                <th>프로젝트명</th>
-	                <td >
-		                <input type="hidden" id="prjctCd" name="prjctCd">
-		                <input type="text" id="prjctNm" name="prjctNm">
+	                <th>판매지역</th>
+	                <td class="drctArea">                                
+	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
+	                        <option value="">선택</option> 
+	                    </select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -159,7 +160,9 @@
 	        <input type="hidden" id="ordrgDtlSeq" name="ordrgDtlSeq">	<!-- 발주상세번호 -->
 	        <input type="hidden" id="odrDtlSeq"   name="odrDtlSeq">		<!-- 주문상세번호 -->
 	        <input type="hidden" id="whClntCd"    name="whClntCd">     <!--재고주체가 자사인경우 거래처 창고의 거래처-->
-	        <input type="hidden" id="trspTypCd"  name="trspTypCd" value="TRSPTYP1">     <!--정상거래로 인식-->
+	        <input type="hidden" id="trspTypCd"	  name="trspTypCd" value="TRSPTYP1">     <!--정상거래로 인식-->
+	        <input type="hidden" id="prjctCd" 	  name="prjctCd">
+            <input type="hidden" id="prjctNm" 	  name="prjctNm">
 	    </form>
     </div>
 
@@ -623,14 +626,16 @@
 			var formData = makeFormData('CONFIRM');
 			filePutAjax("/user/ar/ar01/updateConfirm", formData, function(data){
 				alert(data.resultMessage);  
-				var targetGrid;
-				if(openFrom == "CM1001M01"){
-					targetGrid = shipGridView;
-				} else {
-					targetGrid = gridView;
-				}        
-				targetGrid.setData(0);
-				modal.close();
+				if(data.resultCode == 200) {
+					var targetGrid;
+					if(openFrom == "CM1001M01"){
+						targetGrid = shipGridView;
+					} else {
+						targetGrid = gridView;
+					}        
+					targetGrid.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}
@@ -649,9 +654,11 @@
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData('CANCEL');
 			filePutAjax("/user/ar/ar01/updateCancel", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				alert(data.resultMessage);         
+				if(data.resultCode == 200) {
+					gridView.setData(0);
+					modal.close();	
+				}
 			});
 		}
 	}

@@ -69,11 +69,11 @@
 		                  	<option value="">선택</option> 
 		                </select>
 	                </td>
-	                <th>판매지역</th>
-	                <td class="drctArea">                                
-	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
-	                        <option value="">선택</option> 
-	                    </select>
+	                <th class="hit">계산서발행법인</th>
+	                <td>
+	                	<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" required="required">
+	                		<option value="">선택</option> 
+	                	</select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -89,10 +89,11 @@
 			          <input type="hidden" id="siteCd" name="siteCd">
 			          <input type="text" id="siteNm" name="siteNm">
 	                </td>
-	                <th>프로젝트명</th>
-	                <td>
-		              <input type="hidden" id="prjctCd" name="prjctCd">
-		              <input type="text" id="prjctNm" name="prjctNm">
+	                <th>판매지역</th>
+	                <td class="drctArea">                                
+	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
+	                        <option value="">선택</option> 
+	                    </select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -144,8 +145,9 @@
 	        <input type="hidden" id="ordrgSeq"  name="ordrgSeq">
 	        <input type="hidden" id="reqDt"     name="reqDt">
 	        <input type="hidden" id="whClntCd"  name="whClntCd">     <!--재고주체가 자사인경우 거래처 창고의 거래처-->
-	        <input type="hidden" id="trspTypCd"  name="trspTypCd" value="TRSPTYP1">     <!--정상거래로 인식-->
-
+	        <input type="hidden" id="trspTypCd" name="trspTypCd" value="TRSPTYP1">     <!--정상거래로 인식-->
+			<input type="hidden" id="prjctCd" 	name="prjctCd">
+		    <input type="hidden" id="prjctNm" 	name="prjctNm">
 	    </form>
     </div>
 
@@ -173,7 +175,7 @@
 	      		<col width="5%">    <!-- 발주지시 수량-->
 	      		<col width="5%">	<!-- 발주지시 단가-->
 	      		<col width="5%">	<!-- 발주지시 금액-->
-	      		<col width="4%">    <!-- 상태 -->
+	      		<col width="4%">    <!-- 완료일자 -->
 	      		<col width="12%">   <!-- 비고 -->
 	        </colgroup>
 	        <tr>
@@ -184,7 +186,7 @@
 	            <th rowspan="2" style="text-align: center;">길이</th>
 	            <th rowspan="2" style="text-align: center;">단위</th>
 	            <th colspan="3" style="text-align: center;">발주지시</th>
-	            <th rowspan="2" style="text-align: center;">상태</th>
+	            <th rowspan="2" style="text-align: center;">완료일자</th>
 	            <th rowspan="2" style="text-align: center;">비고</th>
 	        </tr>
 	        <tr>
@@ -649,9 +651,11 @@
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData('CANCEL');
 			filePutAjax("/user/od/od01/updateCancel", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				alert(data.resultMessage);
+				if(data.resultCode == 200) {
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}

@@ -3,6 +3,7 @@ package com.dksys.biz.user.sd.sd05.service.impl;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
+import com.dksys.biz.admin.cm.cm09.service.CM09Svc;
 import com.dksys.biz.user.sd.sd05.mapper.SD05Mapper;
 import com.dksys.biz.user.sd.sd05.service.SD05Svc;
-import com.dksys.biz.user.sd.sd09.mapper.SD09Mapper;
 import com.dksys.biz.user.sd.sd09.service.SD09Svc;
+import com.dksys.biz.util.DateUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -27,6 +29,9 @@ public class SD05SvcImpl implements SD05Svc {
 	
 	@Autowired
 	CM08Svc cm08Svc;
+	
+	@Autowired
+	CM09Svc cm09Svc;
 	
 	@Autowired
     SD09Svc sd09Svc;
@@ -96,8 +101,10 @@ public class SD05SvcImpl implements SD05Svc {
 			dtl.put("pgmId", paramMap.get("pgmId"));
 			sd05Mapper.insertProjectDtl(dtl);
 		}
-		//sd05Mapper.deleteProject(paramMap);
+		
 		cm08Svc.uploadFile("TB_SD05M01", paramMap.get("prjctCd"), mRequest);
+		// 신규 등록 공지를 위한 게시판 삽입
+		insertNoti(paramMap, mRequest);
 		return result;
 	}
 
@@ -149,5 +156,20 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public List<Map<String, String>> prdtSizeCombo(Map<String, String> param) {
 		return sd05Mapper.prdtSizeCombo(param);
+	}
+	
+	public Map<String, String> insertNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		paramMap.put("notiTitle", "[신규 프로젝트 등록 안내] " + paramMap.get("prjctNm"));
+		String notiCnts = "등록일: "+ paramMap.get("creatDtDtl");;
+		notiCnts += "<br>공사기간: "+ paramMap.get("strtDt") + " ~ " + paramMap.get("endDt");
+		notiCnts += "<br>계약물량: "+ paramMap.get("totWt");
+		notiCnts += "<br><br><a href=\'/static/html/user/sd/sd05/SD0501M01.html\' target='_blank'>프로젝트 관리 바로가기</a>";
+		paramMap.put("notiCnts", notiCnts);
+		paramMap.put("exprtnYn", "Y");
+		paramMap.put("exprtnDt", DateUtil.dateToString(DateUtil.getNextDate(new Date()), "yyyyMMdd"));
+		paramMap.put("popupYn", "Y");
+		paramMap.put("useYn", "Y");
+		cm09Svc.insertNoti(paramMap, mRequest);
+		return paramMap;
 	}
 }

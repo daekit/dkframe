@@ -70,15 +70,15 @@
 	                </td>
 	                <th class="hit">출하창고</th>
 	                <td>                                
-	                    <select id="whCd" name="whCd" data-kind="WH" required="required">
+	                    <select id="whCd" name="whCd" data-kind="WH" required="required" onchange="setTaxivcCoprt()">
 		                  	<option value="">선택</option> 
 		                </select>
 	                </td>
-	                <th>판매지역</th>
-	                <td class="drctArea">                                
-	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
-	                        <option value="">선택</option> 
-	                    </select>
+	                <th class="hit">계산서발행법인</th>
+	                <td>
+	                	<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" required="required">
+							<option value="">선택</option> 
+	                	</select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -94,13 +94,11 @@
 			              <button type="button" onclick="openArSiteSearch();"><i class="i_search_w"></i></button>
 			            </div>
 	                </td>
-	                <th>프로젝트명</th>
-	                <td>
-	                	<div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd" value="0">
-			              <input type="text" id="prjctNm" name="prjctNm">
-			              <button type="button" onclick="openSecondPrjctSearch();"><i class="i_search_w"></i></button>
-			            </div>
+	                <th>판매지역</th>
+	                <td class="drctArea">                                
+	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
+	                        <option value="">선택</option> 
+	                    </select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -181,8 +179,8 @@
 	        <input type="hidden" id="shipTotWt"   name="shipTotWt">		<!-- 총 중량 -->
 	        <input type="hidden" id="sellVatCd"   name="sellVatCd">	    <!-- 부가세 코드-->
 	        <input type="hidden" id="allocVehlNo" name="allocVehlNo">	<!-- 배차번호 -->
-	        
-	        
+	        <input type="hidden" id="prjctCd" 	  name="prjctCd" value="0">
+            <input type="hidden" id="prjctNm" 	  name="prjctNm">
 	    </form>
     </div>
 
@@ -536,6 +534,11 @@
 		setCommonSelect($('#makrCd'));
 	}
 	
+	// 계산서발행법인 set
+	function setTaxivcCoprt(){
+		$('#taxivcCoprt').val($("#whCd option:selected").data("etc"));
+	}
+	
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
@@ -742,20 +745,6 @@
 		$("input[name='realTotAmt']").val(deleteCommaStr(realTotAmt));
 	}
 
-	// 프로젝트 검색
-	function openSecondPrjctSearch(){
-		var paramObj = {"coCd": $('#coCd').val()}
-		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
-			var row = grid.target.getList("selected")[0];
-			
-			$("#prjctCd").val(row.prjctCd);
-			$("#prjctNm").val(row.prjctNm);
-			$('#addrZip').val(row.prjctAddrZip);
-			$('#addrMain').val(row.prjctAddr);
-			$('#addrSub').val(row.prjctAddrSub);
-		});
-	}
-
 	function openSecondOrderSearch(){
 		openSecondModal("/static/html/cmn/modal/orderSearch.html", 700, 420, "주문서 검색", {}, function(grid){
 			var row = grid.target.getList("selected")[0];
@@ -824,6 +813,9 @@
 			} else {
 				$targetRow.find('input[name="shipQty"]').prop("readonly", false);
 			}
+			if(row.prdtCoilYn == "N" && (row.prdtLen == 0 || row.prdtLen == undefined)) {
+				$targetRow.find('input[name="prdtLen"]').val("1");
+			}
 		});
 	}
 	
@@ -866,9 +858,11 @@
 				"clntCd": row.clntCd
 			}
 			
-			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
-				$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-				$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
+				if(data.mngInfo != null) {
+					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	
+				}
 			});
 		});
 	}

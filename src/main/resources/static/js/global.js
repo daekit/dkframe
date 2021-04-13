@@ -460,9 +460,6 @@ function setCommonSelect(el){
 function mainDefaultLoad(menuNm, subMenuNm) {
 	// left
 	$("#head_area").load("/static/html/header.html", function(){
-		if(jwt.authInfo.indexOf("AUTH100") > -1){
-			$(".logo a")[0].href = "/static/html/admin/cm/cm11/CM1101M01.html"
-		}
 		$("#head_area #title").html(subMenuNm);
 	});
 	$("#head_area").after('<div class="menu_off"><a class="off_btn"></a></div>');
@@ -698,4 +695,14 @@ function popCenter(url, name, width, height, scroll) {
 	}
 
 	return window.open(url, name, str);
+}
+
+// 주소창 파라미터 받기
+$.urlParam = function(name){  
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if(results){
+     return results[1] || 0;
+    } else {
+     return null;
+    }
 }

@@ -47,7 +47,8 @@
             UDT_PGM,
             UDT_DTTM,
             SITE_CD,
-            ALLOC_VEHL_NO
+            ALLOC_VEHL_NO,
+            TAXIVC_COPRT
 	    ) 
 	    VALUES
 	    (
@@ -89,7 +90,8 @@
 			#{pgmId},
 			SYSDATE,
 			#{siteCd,  jdbcType=VARCHAR},
-			#{allocVehlNo,  jdbcType=VARCHAR}
+			#{allocVehlNo,  jdbcType=VARCHAR},
+			#{taxivcCoprt,  jdbcType=VARCHAR}
 	    )
 	</insert>
 	
@@ -266,6 +268,7 @@
 		        T.SITE_CD,		        
 	            (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 		        T.ALLOC_VEHL_NO,
+		        T.TAXIVC_COPRT,
 		        T.RECPT_YN
 			FROM 
 			(
@@ -366,6 +369,7 @@
 		    T.SITE_CD,		        
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 		    T.ALLOC_VEHL_NO,
+		    T.TAXIVC_COPRT,
 		    T.RECPT_YN
 		FROM TB_AR01M01 T
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
@@ -521,13 +525,14 @@
 			REAL_TOT_WT   = #{realTotWt},
 			REAL_TOT_AMT  = #{realTotAmt},
 			TRANS_AMT     = #{transAmt}, 
-			SALES_MNG     = #{salesMng}, 
+			SALES_MNG     = #{salesMng},
 			UDT_ID        = #{userId}, 
 			UDT_PGM       = #{pgmId}, 
 			UDT_DTTM      = SYSDATE,
 			ODR_SEQ		  = #{odrSeq},
 			ORDRG_SEQ     = #{ordrgSeq},
-			SITE_CD       = #{siteCd}
+			SITE_CD       = #{siteCd},
+			TAXIVC_COPRT  = #{taxivcCoprt}
 		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
 	</update>
 	
@@ -595,7 +600,6 @@
 			T.*,
 			(SELECT PRDT_DIV      FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_DIV,
 			(SELECT PRDT_STKN     FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_STKN,
-			(SELECT CODE_ETC      FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD)   AS TAXIVC_COPRT,
 			(SELECT CLNT_NM       FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS CLNT_NM,
 			(SELECT SELL_VAT_CD   FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS SELL_VAT_CD,
 			(SELECT PRDT_STOCK_CD FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_STOCK_CD
