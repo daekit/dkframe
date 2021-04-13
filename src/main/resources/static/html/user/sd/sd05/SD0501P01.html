@@ -851,7 +851,22 @@
 			var row = grid.target.getList("selected")[0];
 			$('#clntCd').val(row.clntCd);
 			$('#clntNm').val(row.clntNm);
+			
+			var paramObj = {
+					"coCd": $('#coCd').val(),
+					"clntCd": row.clntCd
+				}
+				
+			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {	
+				console.log(data);
+				if(data.mngInfo){
+					$('#mngId').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+					$('#mngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"
+				}
+			});
 		});
+		
+		
 	}
 	//샵업체명
 	function clntSearch2() {
@@ -1058,7 +1073,7 @@
 				"clntCd" : $("#clntCd").val(),
 				"useYn": "Y"
 			};
-			openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 600, 420, "SIZE 검색", paramObj, function (grid) {
+			openSecondModal("/static/html/user/sd/sd05/SD0501P02.html", 600, 380, "SIZE 검색", paramObj, function (grid) {
 				var size = ""
 				var row = grid.target.getList("selected");
 				for(var i=0; i<row.length; i++){
