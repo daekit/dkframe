@@ -29,6 +29,9 @@
 			<if test="etrdpsBkacCd != null and !etrdpsBkacCd.equals('')">
 				AND D.ETRDPS_BKAC_CD = #{etrdpsBkacCd}
 			</if>
+			<if test="etrdpsTyp != null and !etrdpsTyp.equals('')">
+				AND D.ETRDPS_TYP = #{etrdpsTyp}
+			</if>
 		</where>
 	</select>
 	
@@ -53,7 +56,9 @@
 					B.BIL_NO,
 					TO_CHAR(TO_DATE(B.EXPRTN_DT, 'YYYYMMDD'), 'YYYY-MM-DD') EXPRTN_DT,
 					FN_CM05M01_CD_TO_NM(B.PYMNT_BANK_CD) AS PYMNT_BANK_NM,
-					B.ENDRS_PSN
+					B.ENDRS_PSN,
+					ETRDPS_TYP,
+					FN_CM05M01_CD_TO_NM(D.ETRDPS_TYP) AS ETRDPS_TYP_NM
 				FROM
 					TB_AR05M01 D
 					LEFT JOIN TB_AR05D01 B ON D.BIL_NO = B.BIL_NO
@@ -77,6 +82,9 @@
 					<if test="etrdpsBkacCd != null and !etrdpsBkacCd.equals('')">
 						AND D.ETRDPS_BKAC_CD = #{etrdpsBkacCd}
 					</if>
+		        	<if test="etrdpsTyp != null and !etrdpsTyp.equals('')">
+				        AND D.ETRDPS_TYP = #{etrdpsTyp}
+			        </if>
 				</where>
 				ORDER BY D.CREAT_DTTM DESC
 			) A
@@ -96,7 +104,8 @@
 			D.ETRDPS_AMT,
 			D.ETRDPS_BKAC_CD,
 			D.BIL_NO,
-			D.SUMRY
+			D.SUMRY,
+			D.ETRDPS_TYP
 		FROM
 			TB_AR05M01 D
 			INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
@@ -136,7 +145,8 @@
 			</if>
 			SUMRY,
 			CREAT_ID, CREAT_PGM, CREAT_DTTM,
-			UDT_ID, UDT_PGM, UDT_DTTM
+			UDT_ID, UDT_PGM, UDT_DTTM,
+			ETRDPS_TYP
 	 	) VALUES (
 	 		#{coCd},
 			#{etrdpsDt},
@@ -150,7 +160,8 @@
 			</if>
 			#{sumry},
 			#{userId}, #{pgmId}, SYSDATE,
-			#{userId}, #{pgmId}, SYSDATE
+			#{userId}, #{pgmId}, SYSDATE,
+			#{etrdpsTyp}
 	 	)
 	</insert>
 	
@@ -208,7 +219,8 @@
 			SUMRY = #{sumry},
 			UDT_ID = #{userId},
 			UDT_PGM = #{pgmId}, 
-			UDT_DTTM = SYSDATE
+			UDT_DTTM = SYSDATE,
+			ETRDPS_TYP =#{etrdpsTyp}
 		WHERE
 			ETRDPS_SEQ = #{etrdpsSeq}
 	</update>

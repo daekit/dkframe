@@ -27,22 +27,26 @@
 							<button type="button" id="btnClntSearch" onclick="openSecondClntSearch();"><i class="i_search_w"></i></button>
 						</div> 
 					</td>
-					<th class="hit">입금일자</th>
+					<th class="hit">일자</th>
 					<td>
 						<input type="text" class="input_calendar" autocomplete="off" id="etrdpsDt" name="etrdpsDt" date required>
 					</td>
 				</tr>
 				<tr>
+					<th class="hit">구분</th>
+					<td>
+						<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable()" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+				
 					<th class="hit">결제방법</th>
 					<td>
 						<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);" required>
 							<option value="">선택</option>
 						</select>
 					</td>
-					<th class="hit">금액</th>
-					<td>
-						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="addComma(this);" comma required>
-					</td>
+
 				</tr>
 				<tr>
 					<th class="hit">입금계좌</th>
@@ -51,8 +55,10 @@
 							<option value="">선택</option>
 						</select>
 					</td>
-					<th></th>
-					<td></td>
+					<th class="hit">금액</th>
+					<td>
+						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="addComma(this);" comma required>
+					</td>
 				</tr>
 				<tr>
 					<th>적요</th>
@@ -213,17 +219,45 @@
 	}
 	
 	function ctrlBillTable(elem){
-		var pmntMtd = $(elem).find('option:selected').data("etc");
+		var pmntMtd   = $(elem).find('option:selected').data("etc");
+		var etrdpsTyp = $("#etrdpsTyp").val();
+		
 		if(!pmntMtd || pmntMtd == "CASH"){
+		//	$('#etrdpsBkacCd').attr("required");
+		//	$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
+			$('#billTableDiv').hide();
+		}else{
+		//	$('#etrdpsBkacCd').removeAttr("required");
+		//	$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
+			$('#billTableDiv').show();
+		}
+		
+		if((!pmntMtd || pmntMtd == "CASH") && etrdpsTyp =="ETRDPS01" ){
 			$('#etrdpsBkacCd').attr("required");
 			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
-			$('#billTableDiv').hide();
 		}else{
 			$('#etrdpsBkacCd').removeAttr("required");
 			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
-			$('#billTableDiv').show();
-		}
+		}	
+		
 	}
+
+	function etrdpsTypTable() {
+		var pmntMtd   = $("#setleTypCd").find('option:selected').data("etc");
+		var etrdpsTyp = $("#etrdpsTyp").val();
+		
+		//  지급/상계일 경우 혹은 현금이 아닐결우 입금계좌 필수 제거
+		
+		if((!pmntMtd || pmntMtd == "CASH") && ( !etrdpsTyp || etrdpsTyp =="ETRDPS01" )){
+			$('#etrdpsBkacCd').attr("required");
+			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
+		}else{
+			$('#etrdpsBkacCd').removeAttr("required");
+			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
+		}		
+	}
+	
+	
 	
 	function selectEtrdpsInfo(){
 		var row = gridView.target.getList("selected")[0];
