@@ -29,7 +29,8 @@
 				  AND A.CLNT_DIV_CD = #{clntDivCd} 
 				</if>
 			GROUP BY a.LINK_GRP_CLNT_CD, b.CO_CD, a.CLNT_CD
-			) AS a  
+			) AS a 
+	<!--  		WHERE  TOT_LOAN_AMT != 0 --> 
 		
 		
 	</select>
@@ -136,7 +137,9 @@
 					B.PLDG_RMK,
 					B.PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT,
 					B.EXPRTN_DT,
-					B.SETUP_DT
+					B.SETUP_DT,
+					B.SELPCH_CD,
+					FN_CM05M01_CD_TO_NM(B.SELPCH_CD) SELPCH_NM
 				FROM
 				  	TB_BM02M01 A
 				LEFT OUTER JOIN TB_BM02D02 B

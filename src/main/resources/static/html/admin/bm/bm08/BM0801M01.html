@@ -57,7 +57,7 @@
 		<div class="contents search">
 		  <div class="">
             <!-- 테이블 인풋 2분할 -->
-            <table class="table_input type03">
+            <table class="table_input type04">
               <tr>
             	<th class= "hit">회사</th>
 	            <td>
@@ -73,6 +73,12 @@
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
+	            <th>유형</th>
+				<td>
+					<select id="selpchCd_S" name="selpchCd_S" data-kind="SELPCH" data-search="selpchCd">
+						<option value="">전체</option>
+					</select>
+				</td>						               
                 <th>사용유무</th>
                 <td>
                   <select id="useType" data-search="useType" required="required" onchange="gridView.setData(0); gridView2.setData(0);">
@@ -200,6 +206,7 @@
 					"useYn" 	: $('#useType').val(),
 					"clntCdS"	: $('#clntCd_S').val(),
 					"clntNm"	: $('#clntNm_S').val(),
+					"selpchCd"	: $('#selpchCd_S').val(),
 					"pageNo" 	: _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val()
 				}
@@ -235,18 +242,27 @@
 			            	//openClntDetail("U");
 			            },
 			        },
+ 		            grouping: {
+		            	by: [ "selpchNm"],
+		            	columns: [
+		                    {label: "소 계", 		align:"center", 		colspan: 5 },
+		                    {key: "pldgAmt", 	collector: "sum", 	formatter: "money", align: "right"},
+				    		{key: "cdtlnAmt",   collector: "sum",   formatter:"money",  align: "right"},
+		                ]
+		            },
 			        footSum: [
 				    	[
-				    		{label: "총계", colspan:4, align:"center"},
+				    		{label: "총계", colspan:5, align:"center"},
 				    		{key:"pldgAmt", collector: "sum", formatter:"money", align: "right"},
-				    		{key: "cdtlnAmt", collector: "sum", formatter:"money", align: "right"},
+				    		{key:"cdtlnAmt", collector: "sum", formatter:"money", align: "right"},
 				    	]
 				    ],
 		            columns: [
 		            	{key: "useYn",	       label: "사용",		width: 35,		align: "center"},
 		                {key: "coNm",	       label: "회사",		width: 95,		align: "center"},
 		                {key: "clntNm",		   label: "거래처", 	width: 150,		align: "left"},
-		                {key: "pldgDivNm",	   label: "구분", 	width: 90,		align: "center"},
+		                {key: "selpchNm",	   label: "구분", 	width: 50,		align: "center"},
+		                {key: "pldgDivNm",	   label: "유형", 	width: 80,		align: "center"},
 		                {key: "pldgAmt",	   label: "담보금액",  width: 90,		align: "right", formatter: "money"},
 		                {key: "cdtlnAmt", 	   label: "여신금액", 	width: 90, 		align: "right", formatter: "money"},
 		                {key: "pldgRcognRate", label: "인정비율", 	width: 60,		align: "right"},
@@ -276,6 +292,7 @@
 						"clntCd"	: $("#clntCd").val(),
 						"useYn" 	: $('#useType').val(),
 						"clntCdS"	: $('#clntCd_S').val(),
+						"selpchCd"	: $('#selpchCd_S').val(),
 						"pageNo" : _pageNo + 1, 
 						"recordCnt" : $("#recordCnt").val()
 					}
@@ -304,6 +321,10 @@
 		if(jwt.authInfo == "AUTH003"){
 			$('#pldgUpdateBtn').show();			
 		}
+
+		$("#selpchCd_S option[value='SELPCH3']").remove();
+		$("#selpchCd_S option[value='SELPCH4']").remove();
+
 	});
 	
 	// 검색조건 초기화
