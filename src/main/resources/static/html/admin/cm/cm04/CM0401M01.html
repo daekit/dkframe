@@ -6,6 +6,12 @@
 
 <div class="row">
 	<span style="font-size: 22px; font-weight: bold;">조직관리</span>
+	<div style="display: inline-block;">
+		<select class="form-control input-sm" id="useYn_S" name="useYn_S" onchange="initDeptTree();">
+			<option value="">전체</option>
+			<option value="Y">사용</option>
+		</select>
+	</div>
 	<div style="float: right;">
 		<a href="#" class="btn btn-default btn-sm" onclick="createDept();">등록</a>
 		<a href="#" class="btn btn-default btn-sm" onclick="updateDept();">저장</a>
@@ -74,6 +80,7 @@
 	
 	// 트리 초기화
 	function initDeptTree() {
+		$("#deptTree").jstree("destroy");
 		$("#deptTree").jstree(
 		{
 			plugins : ['types', 'dnd'],
@@ -180,7 +187,8 @@
 	function selectDeptTree() {
 		var deptTree = null;
 		var paramObj = {
-			"coCd": "GMG"
+			"coCd": "GMG",
+			"useYn": $("#useYn_S").val()
 		};
 		postAjaxSync("/admin/cm/cm04/selectDeptTree", paramObj, null, function(data){
 			deptTree = data.deptTree;

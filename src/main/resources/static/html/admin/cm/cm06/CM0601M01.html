@@ -1,7 +1,13 @@
 <div class="row">
 	<div class="col-xs-12">
 		<span style="font-size: 22px; font-weight: bold;">사용자관리</span>
-		<div style="float: right;">
+		<div class="form-inline" style="float: right;">
+			<span id="deptNm" style="font-size: 14px; padding-right: 5px;"></span>
+			<select class="form-control input-sm" id="useYn_S" name="useYn_S" onchange="selectUserList();">
+				<option value="">전체</option>
+				<option value="Y">사용</option>
+				<option value="N">미사용</option>
+			</select>
 			<a href="#" class="btn btn-default btn-sm" onclick="createUserModal();">등록</a>
 			<a href="#" class="btn btn-default btn-sm" onclick="updateUserModal();">수정</a>
 		</div>
@@ -18,6 +24,8 @@
 
 <script type="text/javascript">
 	var userGrid = new ax5.ui.grid();
+	var deptId = null;
+	var deptNm = null;
 	
 	$(document).ready(function() {
 		initDeptTree();
@@ -46,7 +54,9 @@
 			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
 		}).on("select_node.jstree", function(e, data) {
 		// 노드 선택 시 발생 이벤트
-			selectUserList(data.node.id);
+			deptId = data.node.id;
+			deptNm = data.node.text;
+			selectUserList();
 		}).on('open_node.jstree', function(e, data) {
 		// 노드 열릴 때
 			data.instance.set_type(data.node, 'unit-open');
@@ -75,6 +85,14 @@
 			showRowSelector: true,
 	    	multipleSelect: false,
 	        target: $('[data-ax5grid="user-grid"]'),
+	        body: {
+	        	onClick: function () {
+	                this.self.select(this.dindex);
+	            },
+	            onDBLClick: function () {
+	            	updateUserModal();
+	            },
+	        },
 	        columns: [
 		        {key: "id", 		label: "아이디", 	align: "left", width: 100},
 	            {key: "empNo", 		label: "사번", 	align: "center", width: 80},
@@ -90,8 +108,13 @@
 	}
 	
 	// 사용자리스트 조회
-	function selectUserList(deptId){
-		postAjax("/admin/cm/cm06/selectUserList", {"deptId" : deptId}, null, function(data){
+	function selectUserList(){
+		$("#deptNm").html(deptNm);
+		var paramObj = {
+			"deptId" : deptId,
+			"useYn": $("#useYn_S").val()
+		};
+		postAjax("/admin/cm/cm06/selectUserList", paramObj, null, function(data){
 			userGrid.setData(data.userList);
 		});
 	}

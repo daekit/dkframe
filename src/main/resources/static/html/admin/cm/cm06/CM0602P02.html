@@ -73,6 +73,17 @@
 						</span>
 					</div>
 				</td>
+				<th>퇴사일</th>
+				<td>
+					<div class="form-group">
+		                <div class="input-group date" id="leaveDatePicker">
+		                    <input type="text" class="form-control input-sm" id="leaveDt" name="leaveDt" required/>
+		                    <span class="input-group-addon">
+		                        <span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
+		                    </span>
+		                </div>
+		            </div>
+				</td>
 			</tr>
 			<tr>
 				<th>입사일</th>
@@ -116,7 +127,7 @@
 		setUserInfo();
 		
 		// 입사일 데이트피커 set
-		$('#enterDatePicker').datepicker({
+		$('#enterDatePicker, #leaveDatePicker').datepicker({
 			format: "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -131,13 +142,15 @@
 			$('#empNo').val(userInfo.empNo);
 			$('#userNm').val(userInfo.name);
 			$('#deptId').val(userInfo.deptId);
-			$('#deptNm').val(userInfo.deptNm);
+			$('#userForm #deptNm').val(userInfo.deptNm);
 			$('#levelCd').val(userInfo.levelCd);
 			$('#email').val(userInfo.email);
 			$('#authInfo').val(userInfo.authInfo);
 			$('#enterDt').val(userInfo.enterDt);
+			$('#leaveDt').val(userInfo.leaveDt);
 			$('#enterDatePicker').datepicker("setDate", userInfo.enterDt);
 			$('#useYn').val(userInfo.useYn);
+			$('#telNo').val(userInfo.telNo);
 		});
 	}
 	
@@ -157,7 +170,7 @@
 		if(isValid){
 			putAjax("/admin/cm/cm06/updateUser", $('#userForm').serializeObject(), null, function(data){
 				alert(data.resultMessage);
-				selectUserList($('#deptTree').jstree(true).get_selected()[0]);
+				selectUserList();
 				modal.close();
 			});
 		}
