@@ -18,6 +18,10 @@
 
 	$(document).ready(function() {
 		var loginId = getCookie("loginId");
+		var validYn = getCookie("jwtToken");
+		if(validYn != null) {
+			checkToken();
+		}
 		if(loginId != null) {
 			$("#id").val(loginId);
 			$("#idSaveCheck").prop("checked", true);
@@ -44,6 +48,23 @@
 	    });
 	    setImg();
 	});
+	
+	function checkToken() {
+		$.ajax({
+		    type: "POST",
+		    url: "/admin/cm/cm02/selectRoleInfo",
+		    beforeSend: function (request) {
+	            request.setRequestHeader("Authorization", authorizationToken);
+	        },
+		    success: function(data){
+		    	menuIdx = getCookie("menuIdx");
+				openNotiPop();
+		    },
+	        error: function (data) {
+	        	return;
+	        }
+		});
+	}
 	
 	function setupAuthorization(headerValue) {
 		$.ajaxSetup({

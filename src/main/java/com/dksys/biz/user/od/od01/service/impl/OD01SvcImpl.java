@@ -184,6 +184,10 @@ public class OD01SvcImpl implements OD01Svc {
 
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
+		//마감 체크
+		if(ar02Svc.checkPchsClose(paramMap)) {
+			return 500;
+		}
 		int result = 0;
 		int realTotTrstAmt = 0;
 		boolean creditFlag = false;
@@ -301,11 +305,13 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}
 		}
-		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
-		paramMap.put("clntCd",  clntCd);
-		if(creditFlag && ar02Svc.checkLoan(paramMap)) {
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
+		if("Y".equals(paramMap.get("dirtrsYn"))) {
+			paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
+			paramMap.put("clntCd",  sellClntCd);
+			if(creditFlag && ar02Svc.checkLoan(paramMap)) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				return 0;
+			}
 		}
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirm(paramMap);

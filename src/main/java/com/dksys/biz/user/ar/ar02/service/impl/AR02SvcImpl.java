@@ -11,6 +11,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
+import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.dksys.biz.util.DateUtil;
 
@@ -20,6 +21,9 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Autowired
     AR02Mapper ar02Mapper;
+	
+	@Autowired
+	SD07Mapper sd07Mapper;
 	
 	@Autowired
     SM01Mapper sm01Mapper;
@@ -218,4 +222,31 @@ public class AR02SvcImpl implements AR02Svc {
 	public List<Map<String, String>> selectSellSumList(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellSumList(paramMap);
 	}
+	
+	@Override
+	public boolean checkSellClose(Map<String, String> paramMap) {
+		String trstDt = paramMap.get("dlvrDttm").replace("-", "");
+		paramMap.put("closeYm", trstDt.substring(0,6));
+		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
+		int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
+		int closeDay = Integer.parseInt(sd07result.get("sellCloseDttm").replace("-", ""));
+		if("Y".equals(sd07result.get("sellCloseYn")) && today > closeDay) {
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean checkPchsClose(Map<String, String> paramMap) {
+		String trstDt = paramMap.get("dlvrDttm").replace("-", "");
+		paramMap.put("closeYm", trstDt.substring(0,6));
+		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
+		int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
+		int closeDay = Integer.parseInt(sd07result.get("sellCloseDttm").replace("-", ""));
+		if("Y".equals(sd07result.get("sellCloseYn")) && today > closeDay) {
+			return true;
+		}
+		return false;
+	}
+	
 }

@@ -23,4 +23,8 @@ public interface AR02Svc {
 
 	boolean creditDeposit(Map<String, Object> paramMap);
 	
+	boolean checkSellClose(Map<String, String> paramMap);
+	
+	boolean checkPchsClose(Map<String, String> paramMap);
+	
 }

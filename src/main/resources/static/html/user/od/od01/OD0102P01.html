@@ -72,15 +72,15 @@
 	                </td>
 	                <th class="hit">입고창고</th>
 	                <td>                                
-	                    <select id="whCd" name="whCd" data-kind="WH" required="required">
+	                    <select id="whCd" name="whCd" data-kind="WH" required="required" onchange="setTaxivcCoprt();">
 		                  	<option value="">선택</option> 
 		                </select>
 	                </td>
-	                <th>판매지역</th>
-	                <td class="drctArea">                                
-	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
-	                        <option value="">선택</option> 
-	                    </select>
+	                <th class="hit">계산서발행법인</th>
+	                <td>
+	                	<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" required="required">
+	                		<option value="">선택</option> 
+	                	</select>
 	                </td>
 	            </tr>
 	            <tr>
@@ -96,13 +96,11 @@
 			              <a onclick="openOdSiteSearch();"><i class="i_search_w"></i></a>
 			            </div>	                
 	                </td>
-	                <th>프로젝트명</th>
-	                <td>
-	                	<div class="search_form">
-			              <input type="hidden" id="prjctCd" name="prjctCd" value="0">
-			              <input type="text" id="prjctNm" name="prjctNm" readonly="readonly">
-			              <a onclick="openSecondPrjctSearch();"><i class="i_search_w"></i></a>
-			            </div>
+	                <th>판매지역</th>
+	                <td class="drctArea">                                
+	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
+	                        <option value="">선택</option> 
+	                    </select>
 	                </td>	                
 	            </tr>
 	            <tr>
@@ -161,11 +159,13 @@
 	                </td>
 	            </tr>
 	        </table>
-	        <input type="hidden" id="userId" name="userId">
-	        <input type="hidden" id="pgmId" name="pgmId" value="OD0102P01">
-	        <input type="hidden" id="ordrgSeq" name="ordrgSeq">
-	        <input type="hidden" id="reqDt" name="reqDt">
+	        <input type="hidden" id="userId" 	name="userId">
+	        <input type="hidden" id="pgmId" 	name="pgmId" value="OD0102P01">
+	        <input type="hidden" id="ordrgSeq" 	name="ordrgSeq">
+	        <input type="hidden" id="reqDt" 	name="reqDt">
 	        <input type="hidden" id="whClntCd"  name="whClntCd">     <!--재고주체가 자사인경우 거래처 창고의 거래처-->
+	        <input type="hidden" id="prjctCd" 	name="prjctCd" value="0">
+            <input type="hidden" id="prjctNm" 	name="prjctNm">
 	    </form>
     </div>
 
@@ -505,6 +505,11 @@
 		setCommonSelect($('#makrCd'));
 	}
 	
+	// 계산서발행법인 set
+	function setTaxivcCoprt(){
+		$('#taxivcCoprt').val($("#whCd option:selected").data("etc"));
+	}
+	
 	function addRow() {
 		var row = $("#detailTb > tbody:last > tr:last").clone();
 		$("#detailTb > tbody:last").append(row);
@@ -633,9 +638,11 @@
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();	
+				}
 			});
 		}
 	}
@@ -644,10 +651,12 @@
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				viewOrderModal(selectedRowIdx);
-				modal.close();
+				alert(data.resultMessage);    
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					viewOrderModal(selectedRowIdx);
+					modal.close();
+				}
 			});
 		}
 	}
@@ -754,16 +763,6 @@
 		}).open();
 	}
 	
-	// 프로젝트 검색
-	function openSecondPrjctSearch(){
-		var paramObj = {"coCd": $('#coCd').val()}
-		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
-			var row = grid.target.getList("selected")[0];
-			$("#prjctCd").val(row.prjctCd);
-			$("#prjctNm").val(row.prjctNm);
-		});
-	}
-
 	// 제품 검색
 	function openSecondPrdtSearch(elem) {
 		selectedIdx = $(elem).closest('tr').prevAll().length;
@@ -782,6 +781,9 @@
 				if($("input[name="+key+"]")[selectedIdx] != undefined)
 					$("input[name="+key+"]")[selectedIdx].value = value;
 			});
+			if(row.prdtCoilYn == "N" && (row.prdtLen == 0 || row.prdtLen == undefined)) {
+				$('input[name="prdtLen"]')[selectedIdx].value = "1";
+			}
 			$("input[name=prdtUpr]")[selectedIdx].value = row.ordrgUpr;
 			countAmt($("input[name=prdtUpr]")[selectedIdx]);
 		});
@@ -829,9 +831,11 @@
 					"coCd": $('#coCd').val(),
 					"clntCd": row.clntCd
 				}					
-				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
-					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {			
+					if(data.mngInfo != null) {
+						$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+						$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+					}
 				});	
 			}
 		});

@@ -34,7 +34,6 @@
 		    TRANS_AMT,
 		    ODR_SEQ,
 		    ODR_CREAT_DIV,
-<!-- 		    PCHS_NO, -->
 		    SALES_MNG,
 		    ORDRG_YN,
 		    CREAT_ID,
@@ -43,7 +42,8 @@
 		    UDT_ID,
 		    UDT_PGM,
 		    UDT_DTTM,
-		    SITE_CD
+		    SITE_CD,
+		    TAXIVC_COPRT
 	    ) 
 	    VALUES
 	    (
@@ -72,7 +72,6 @@
 		    #{transAmt},
 		    #{odrSeq},
 		    'ERP',
-<!-- 		    PCHS_NO, -->
 		    #{salesMng},
 		    'N',
 		    #{userId},
@@ -81,7 +80,8 @@
 		    #{userId},
 		    #{pgmId},
 		    SYSDATE,
-		    #{siteCd,    jdbcType=VARCHAR}
+		    #{siteCd,    	jdbcType=VARCHAR},
+		    #{taxivcCoprt,  jdbcType=VARCHAR}
 	    )
 	</insert>
 	
@@ -199,6 +199,7 @@
 				,ADDR_MAIN || ' ' || ADDR_SUB AS ADDR
 				,DECODE(ORDRG_YN||DIRTRS_YN, 'YY', 'Y', 'N') AS SELL_YN
 				,SITE_CD		        
+				,TAXIVC_COPRT		        
 	            ,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM
 			    ,(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
 			FROM 
@@ -295,7 +296,6 @@
 	        PCHS_UPR,
 	        STOCK_UPR,
 	        PRDT_UPR,
-<!-- 	        PCHS_CERTI_NO, -->
 	        ORDRG_YN,
 	        ORDRG_PROC_ID,
 	        ORDRG_DTL_RMK,
@@ -332,7 +332,6 @@
 	        #{pchsUpr},
 	        #{stockUpr},
 	        #{prdtUpr},
-<!-- 	        PCHS_CERTI_NO, -->
 	        'N',
 	        #{ordrgProcId},
 	        #{ordrgDtlRmk},
@@ -392,6 +391,7 @@
 			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM ,
 			SITE_CD,		        
+			TAXIVC_COPRT,		        
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
 		FROM TB_OD01M01 T
@@ -554,11 +554,11 @@
 		    TOT_AMT                = #{totAmt},                      
 		    TRANS_AMT              = #{transAmt},                    
 		    ODR_SEQ                = #{odrSeq},                      
-<!-- 		    PCHS_NO         =     PCHS_NO, -->                
 		    SALES_MNG              = #{salesMng},                    
 		    UDT_ID                 = #{userId},                      
 		    UDT_PGM                = #{pgmId},                       
-		    UDT_DTTM                = SYSDATE                         
+		    UDT_DTTM               = SYSDATE,
+		    TAXIVC_COPRT           = #{taxivcCoprt}                         
 		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
 	</update>
 	
@@ -615,7 +615,6 @@
 			T.*,
 			B.PRDT_CNVRSN_WT,
 			B.PRDT_STOCK_CD,
-			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD) TAXIVC_COPRT,
 			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS CLNT_NM,
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD)) AS WH_CLNT_CD
 		FROM TB_OD01D01 T

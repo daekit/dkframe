@@ -19,6 +19,7 @@ import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
+import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sd.sd08.mapper.SD08Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.google.gson.Gson;
@@ -40,6 +41,9 @@ public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
     SD04Mapper sd04Mapper;
+    
+    @Autowired
+    SD07Mapper sd07Mapper;
     
     @Autowired
     SD08Mapper sd08Mapper;
@@ -180,6 +184,10 @@ public class AR01SvcImpl implements AR01Svc {
 
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
+		//마감 체크
+		if(ar02Svc.checkSellClose(paramMap)) {
+			return 500;
+		}
 		int result = 0;
 		int realTotTrstAmt = 0;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -206,9 +214,9 @@ public class AR01SvcImpl implements AR01Svc {
 			//매출정보 insert
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
-			paramMap.put("trstDt", paramMap.get("dlvrDttm").replace("-", ""));
-			paramMap.put("estCoprt", detailMap.get("taxivcCoprt"));
-			paramMap.put("pchsUpr", "0");
+			paramMap.put("trstDt", 		paramMap.get("dlvrDttm").replace("-", ""));
+			paramMap.put("estCoprt", 	detailMap.get("taxivcCoprt"));
+			paramMap.put("pchsUpr", 	"0");
 			paramMap.put("sellUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("stockUpr",    detailMap.get("stockUpr"));
 			paramMap.put("trstQty",     detailMap.get("shipQty"));
@@ -226,15 +234,15 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
 			paramMap.put("clntCd",      clntCd);
 			paramMap.put("clntNm",      clntNm);
-			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));	
-			paramMap.put("prdtSize", detailMap.get("prdtSize"));		
-			paramMap.put("trspTypCd", "TRSPTYP1");              /* 정상매출 */
+			paramMap.put("prdtSpec", 	detailMap.get("prdtSpec"));	
+			paramMap.put("prdtSize", 	detailMap.get("prdtSize"));		
+			paramMap.put("trspTypCd", 	"TRSPTYP1");              /* 정상매출 */
 			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
-			paramMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));				  	
-			paramMap.put("odrNo", paramMap.get("odrSeq"));
-			paramMap.put("trspRmk", paramMap.get("shipRmk"));
+			paramMap.put("trstDtlSeq", 	detailMap.get("shipDtlSeq"));				  	
+			paramMap.put("odrNo", 		paramMap.get("odrSeq"));
+			paramMap.put("trspRmk", 	paramMap.get("shipRmk"));
 			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
-			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
+			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
 			realTotTrstAmt += bilgVatAmt;
 			ar02Mapper.insertPchsSell(paramMap);
 			
