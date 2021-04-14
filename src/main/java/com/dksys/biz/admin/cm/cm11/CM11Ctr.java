@@ -148,7 +148,7 @@ public class CM11Ctr {
     	objCols1.put("type", "string");
     	objCols1.put("label", "거래처");
     	objCols2.put("type", "number");
-    	objCols2.put("label", "매입금액");
+    	objCols2.put("label", "실적");
 
     	arryCols.add(objCols1);
     	arryCols.add(objCols2);
@@ -157,7 +157,7 @@ public class CM11Ctr {
     		legend.put("v", resultList3.get(i).get("clntNm"));
     		legend.put("f", null);
     		JSONObject value1 = new JSONObject();
-    		value1.put("v", Integer.parseInt(resultList3.get(i).get("realTrstAmt")));
+    		value1.put("v", Integer.parseInt(resultList3.get(i).get("realTrstQty")));
     		value1.put("f", null);
     		
     		JSONArray cValueArry = new JSONArray();
