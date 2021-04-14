@@ -184,7 +184,9 @@
 				</td>
 			</tr>
 			<tr>
-				<th></th>
+				<th style="padding: 3px 5px;"> 
+					<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+				</th>
 				<th class="tc hit">제품명</th>
 				<th class="tc">사이즈</th>
 				<th class="tc">SPEC</th>
@@ -208,7 +210,7 @@
 				<input type="hidden" name="ordrgDtlCnt">
 				<input type="hidden" name="shipDtlCnt">
 				<td>
-					<input type="checkbox" name="detailChkBox">
+					<input type="checkbox" name="detailChkBox" onchange="ctrlAllChkBox();">
 				</td>
 				<td>
 					<div class="search_form">
@@ -313,7 +315,7 @@
 				<input type="hidden" name="ordrgDtlCnt">
 				<input type="hidden" name="shipDtlCnt">
 				<td>
-					<input type="checkbox" name="detailChkBox">
+					<input type="checkbox" name="detailChkBox" onchange="ctrlAllChkBox();">
 				</td>
 				<td>
 					<div class="search_form">
@@ -665,6 +667,7 @@
 	function addDetailRow(){
 		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
 		$('#detailTable tbody').append($detailRow[0]);
+		ctrlAllChkBox();
 		return $detailRow;
 	}
 	
@@ -679,14 +682,42 @@
 		$('#detailTable tbody').append($nonStockRow[0]);
 		return $nonStockRow;
 	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]').prop("checked", true);
+		}else{
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]').prop("checked", false);
+		}
+	}
+	
+	function ctrlAllChkBox(){
+		var isAllChk = true;
+		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]');
+		if($detailChkBoxes.length > 0){
+			$.each($detailChkBoxes, function(idx, elem){
+				if(!$(elem).is(':checked')){
+					isAllChk = false;
+				}
+			});
+			if(isAllChk){
+				$('#allChkBox').prop("checked", true);
+			}else{
+				$('#allChkBox').prop("checked", false);
+			}
+		}else{
+			$('#allChkBox').prop("checked", false);
+		}
+	}
 
 	function removeDetailRow(){
-		var $checkedDetails = $('#detailTable input[name="detailChkBox"]:checked');
+		var $checkedDetails = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		if($checkedDetails.length > 0){
 			$.each($checkedDetails, function(idx, elem){
 				$(elem).closest('tr[name="detailRow"]').remove();
 			});
 			countTot();
+			ctrlAllChkBox();
 		}else{
 			alert("삭제할 상세내역을 선택해주세요.");
 		}
