@@ -24,4 +24,8 @@ public interface CM06Mapper {
 
 	int insertPgmHistory(Map<String, String> paramMap);
 
+	int updatePw(Map<String, String> paramMap);
+
+	int updateTokenPw(Map<String, String> paramMap);
+
 }
