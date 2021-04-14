@@ -60,7 +60,7 @@
 				<!-- 테이블 인풋 4분할 -->
 				<table class="table_input type04">
 					<tr>
-						<th>법인</th>
+						<th>회사</th>
 		                <td>
 		                    <select data-kind="CO"  data-search="coCd">
 		                  	  <option value="">선택</option>
@@ -72,7 +72,7 @@
 		  						<option value="">선택</option>
 		                    </select>
 		                </td>
-						<th>재고주체구분</th>
+						<th>재고주체</th>
 						<td>
 							<select data-kind="OWNER" data-search="ownerCd">
 								<option value="">선택</option>
@@ -107,6 +107,9 @@
 		<!-- 콘텐츠 타이틀 -->
 		<div class="contents no_bg">
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+				    <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -120,6 +123,7 @@
 			<!-- 리스트 -->
 			<div>
 				<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 550px; width: 100%"></div>
+				<div class="ax5_grid" data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 			</div>
 		</div>
 	</div>
@@ -202,6 +206,35 @@
 			});
 		}
 	}
+	
+	var excelView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="excel-grid"]'),
+				columns: [
+		        	{key: "whNm", label: "창고", align: "center", width: "6.5%"},
+		          	{key: "ownerNm", label: "재고 주체", align: "center", width: "6.5%"},
+		          	{key: "clntNm", label: "거래처", align: "center", width: "6.5%"},
+		          	{key: "typNm", label: "판매 유형", align: "center", width: "6.5%"},
+		          	{key: "makrNm", label: "제조사", align: "center", width: "6.5%"},
+		          	{key: "prdtNm", label: "제품", align: "center", width: "7.5%"},
+		          	{key: "impNm", label: "수입 구분", align: "center", width: "6%"},
+		          	{label: "재고",  columns:[
+		          		{key: "stockQty", label: "수량(KG)", align: "right", width: "8%", styleClass:"grid-cell-blue", formatter:"money" },
+			          	{key: "stockUpr", label: "단가", align: "right", width: "8%", styleClass:"grid-cell-blue", formatter:"money" },
+			          	{key: "stockAmt", label: "금액", align: "right", width: "8%" , styleClass:"grid-cell-blue", formatter:"money" }
+		          	]},
+		          	{key: "stdUpr", label: "기준 단가", align: "right", width: "6%", formatter:"money" },
+		          	{key: "stockChgNm", label: "재고 변동\n 사유", align: "center", width: "6%"},
+		          	{key: "pchsUpr", label: "최종\n매입 단가", align: "right", width: "6%", formatter:"money" },
+		          	{key: "sellUpr", label: "최종\n매출 단가", align: "right", width: "6%", formatter:"money" },
+		          	{key: "udtDttm", label: "최종\n변경일", align: "center", width: "7.5%"}
+		        ]
+			});
+			return this;
+		}
+	}
 
 	$(document).ready(function() {
 		mainDefaultLoad("재고관리", "외주재고현황관리");
@@ -214,5 +247,26 @@
 		});
 		
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
+	
+	function excelDown() {
+		var paramObj = {"pageNo": 1};
+		$.each($('[data-search]'), function(idx, elem){
+			paramObj[$(elem).data("search")] = $(elem).val();
+		});
+		paramObj.recordCnt = 9999999;
+			
+		postAjax("/user/sm/sm03/selectStockList", paramObj, null, function(data){
+			var list = data.stockList;
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("재고현황관리_"+todayDate+".xls")
+		});	
+	}
 </script>
