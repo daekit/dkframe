@@ -222,8 +222,10 @@
 		            {key: "totWt", 		label: "중량", 		    align: "right",   width: 90,  formatter: "money"},
 		            {key: "transUpr", 	label: "단가", 		    align: "right",   width: 100, formatter: "money"},
 		            {key: "transAmt", 	label: "매입운송비", 		align: "right",   width: 100, formatter: "money"},
-		            {key: "", label:"매출운송비", align: "right", width: 100, formatter: "money"},
-		            {key: "", label:"이익", align: "right", width: 100, formatter: "money"},
+		            {key: "salesTransAmt", label:"매출운송비", align: "right", width: 100, formatter: "money"},
+		            {key: "amt", label:"이익", align: "right", width: 100, formatter: function (){
+		            		return ax5.util.number(this.item.salesTransAmt - this.item.transAmt, {"money": true});
+		            }},
 		            {key: "payCo", 		label: "지불회사", 	    align: "center",    width: 100},
 		            {key: "clntNm", 	label: "거래처", 		align: "left",    width: 150},
 		            {key: "transRmk", 	label: "비고", 		    align: "left",    width: 160}
@@ -231,14 +233,13 @@
 		        ], 
 		        footSum: [
 		        	[
-		        		//8
-		        		{label:"총계", align: "center", colspan : 7},
-		        		{key: "totWt", 		collector: "sum",   align: "right",   formatter: "money"},
-			            {key: "transUpr", 	collector: "sum",   align: "right",   formatter: "money"},
-			            {key: "transAmt",  	collector: "sum",   align: "right",   formatter: "money"},
-			            {key: "",			collector: "sum", align: "right", formatter: "money"},
-			            {key: "", 			collector: "sum",   align: "right", formatter: "money"},
-			            
+		        		{label:"총계", align: "center", colspan : 7, width: 710},
+		        		{key: "totWt", 		collector: "sum",   align: "right",   formatter: "money", width: 90},
+			            {key: "transUpr", 	collector: "sum",   align: "right",   formatter: "money", width: 100},
+			            {key: "transAmt",  	collector: "sum",   align: "right",   formatter: "money", width: 100},
+			            {key: "salesTransAmt",			collector: "sum", align: "right", formatter: "money", width: 100},
+			            {key: "amt", collector:function() { var value = 0; this.list.forEach(function(n) { if(!n.__isGrouping) value += (n.salesTransAmt - n.transAmt)}); return ax5.util.number(value, {"money": 1}); } , align:"right", width:100}
+			                    
 		        	]
 		        	
 		        ]
