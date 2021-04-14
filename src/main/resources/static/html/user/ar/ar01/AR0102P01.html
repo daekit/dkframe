@@ -249,6 +249,7 @@
               <input type="hidden" name="odrDtlSeq">
               <input type="hidden" name="prdtCd">
               <input type="hidden" name="prdtDiv">
+              <input type="hidden" name="prdtCoilYn">
               <input type="hidden" name="pchsUpr" comma>
               <input type="hidden" name="sellUpr" comma>
               <input type="hidden" name="stockUpr" comma>
@@ -642,7 +643,22 @@
 		return formData;
 	}
 	
+	function validation() {
+		var returnFlag = false;
+		$.each($(".detailRow"), function(idx, item){
+			if($("input[name='prdtCoilYn']")[idx].value == "N" && $("input[name='prdtLen']")[idx].value == "0") {
+				returnFlag = true;
+				return false;
+			}
+		});
+		return returnFlag;
+	}
+	
 	function insertShip() {
+		if(validation()) {
+			alert("길이가 0인 제품이 존재합니다.")
+			return;
+		}
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
@@ -656,6 +672,10 @@
 	}
 	
 	function updateShip() {
+		if(validation()) {
+			alert("길이가 0인 제품이 존재합니다.")
+			return;
+		}
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
@@ -808,15 +828,13 @@
 			$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
 			$targetRow.find('input[name="prdtLen"]').val(row.prdtLen);
 			$targetRow.find('input[name="prdtStockCd"]').val(row.prdtStockCd);
+			$targetRow.find('input[name="prdtCoilYn"]').val(row.prdtCoilYn);
 			if(row.prdtStockCd == "N") {
 				$targetRow.find('input[name="shipQty"]').prop("readonly", true);
 				$targetRow.find('input[name="shipQty"]').val("0");
 				$targetRow.find('input[name="shipAmt"]').val(row.ordrgUpr);
 			} else {
 				$targetRow.find('input[name="shipQty"]').prop("readonly", false);
-			}
-			if(row.prdtCoilYn == "N" && (row.prdtLen == 0 || row.prdtLen == undefined)) {
-				$targetRow.find('input[name="prdtLen"]').val("1");
 			}
 		});
 	}
@@ -846,6 +864,8 @@
 			$('#salesAreaCd').val(row.salesAreaCd);
 			$('#clntCd').val(row.clntCd);
 			$('#clntNm').val(row.clntNm);
+			$('#salesMng').val(row.salesEmpId);
+			$('#salesMngNm').val(row.salesEmpNm);
 		});
 	}
 
