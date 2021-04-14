@@ -4,27 +4,29 @@
 	
 	$(document).ready(function() {
 		
-		 setCombo();
+		// setCombo();
 		 
+		var row = firstGrid.getList("selected")[0];
+		$("#prdtDivCd").val(row.prdtDiv);
+		
+		setPrdtStkn();
+		
 		if(actionType == 'U'){
 			$('#actionBtn').text("수정");
 			setData();	
 			insertOK = true;
+			
 		}else if(actionType == 'C'){
 			
 				if( secondGrid.getList("selected")[0]){
-					var row = secondGrid.getList("selected")[0];
-				}else{
-					var row = firstGrid.getList("selected")[0];
+					row = secondGrid.getList("selected")[0];
 				}
-				
 				$("#basisPriceSeqCd").val(row.basisPriceSeq);
+			
 				$('#actionBtn').text("등록");
 		
-			
 		}
 		
-		 
 		$("#prdtErqkCd").on("change", function(){
 			insertOK = false;
 		});
@@ -34,20 +36,28 @@
 		
 	})
 	
-	function setCombo(){
+	function setPrdtStkn(){
 		
-		var searchPrdtStkn = document.getElementById("PDSK");
-		document.getElementById("prdtStkn").innerHTML = searchPrdtStkn.innerHTML;
-		
-		var searchPrdtErqk = document.getElementById("PRDTERQK");
-		document.getElementById("prdtErqkCd").innerHTML = searchPrdtErqk.innerHTML;
-		
+		var paramObj = {"codeKind" : $("#prdtDivCd").val()};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '<option value="">선택</option>';
+			var childCodeList = data.childCodeList;
+			
+			$.each(childCodeList, function(index, obj){
+				optionHtml += '<option value='+obj.codeId+'>';
+				optionHtml += obj.codeNm;
+				optionHtml += '</option>';
+			});
+				$('#prdtStkn').html(optionHtml);
+			
+		});
 	}
+	
 	
 	function setData() {
 	
 		var row = secondGrid.getList("selected")[0];
-		
+	
 		var paramObj = {
 				"basisPriceSeq": row.basisPriceSeq,
 				"prdtStkn" : row.prdtStkn,
@@ -166,11 +176,15 @@
 	          			<th colspan= "2">기준번호
 	          			</th>
 	          			<td colspan="6"> 
-	          				<input type="text" id="basisPriceSeqCd" readonly>
+	          				<input type="text" id="basisPriceSeqCd" readonly>		
 	          			<th class="hit" colspan= "2">내진 구분
 	          			</th>
 	          			<td colspan="6"> 
-	          				<select id="prdtErqkCd" required></select>
+	          				<select id="prdtErqkCd" required>
+	          				<option value="" selected="selected">선택</option>
+                  			<option value="N" >N</option>
+		                  	<option value="Y" >Y</option>
+		                  	</select>
 	          			</td>
 	          		</tr>
 	          		<tr>
@@ -191,6 +205,7 @@
 	          </table>
 	      		    <input id="userId" name="userId" type="hidden" >
 		          	<input type="hidden" id="pgmId" name="pgmId" value="SD0602P02">
+		          	<input type="hidden" id="prdtDivCd" >
 	        </form>
 	        <div class ="popup_bottom_btn">
 				<!-- <button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button> -->
