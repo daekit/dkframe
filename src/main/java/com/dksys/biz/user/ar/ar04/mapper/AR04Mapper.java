@@ -65,5 +65,17 @@ public interface AR04Mapper {
 	int updateTaxBilgNoCancel(Map<String, String> bilgInfo);
 
 	int updateBilgRvrs(Map<String, String> bilgInfo);
+	
+	String selectBgm4343(String taxBilgNo);
+
+	int insertTaxHdDelete(Map<String, String> bilgInfo);
+
+	int insertTaxItemDelete(Map<String, String> bilgInfo);
+
+	int insertInvHdDelete(Map<String, String> bilgInfo);
+
+	int insertInvItemDelete(Map<String, String> bilgInfo);
+
+	int updateTaxBilgNoDelete(Map<String, String> bilgInfo);
 
 }

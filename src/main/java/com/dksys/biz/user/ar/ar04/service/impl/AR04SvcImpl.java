@@ -221,38 +221,65 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
 			taxHdParam.put("coCd", list.get(i).split(",")[1]);
 			Map<String, String> bilgInfo = ar04Mapper.selectBilgInfo(taxHdParam);
-			//수정세금계산서 취소 로직 시작
-			msgId++;
 			
-			bgm1004 = ar04Mapper.selectBgmSeq();
-			xmlMsgId = ar04Mapper.selectMsgId(msgId);
-			taxHdParam.put("docCode", "938"); //세금계산서 938
-			taxHdParam.put("bgm1004", bgm1004);
-			taxHdParam.put("xmlMsgId", xmlMsgId);
-			taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
-			taxHdParam.put("rffGn1", "RFFGN102");
-			taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
-			taxHdParam.put("rffAea", "RFFAEA03");
-			System.out.println("insertMapoutKey");
-			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
-			System.out.println("insertTaxHdCancel");
-			ar04Mapper.insertTaxHdCancel(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
-			System.out.println("insertTaxDtl");
-			ar04Mapper.insertTaxDtl(taxHdParam);
-			System.out.println("insertTaxItemCancel");
-			result = ar04Mapper.insertTaxItemCancel(taxHdParam);
-			System.out.println("updateTaxBilgNoCancel");
-			ar04Mapper.updateTaxBilgNoCancel(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 : 환입
-			
-			//수정거래명세서 취소 로직 시작
-			msgId++; //XML_MSG_ID 생성
-			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
-			taxHdParam.put("xmlMsgId", xmlMsgId);
-			taxHdParam.put("docCode", "780"); // 거래명세서 780
-			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
-			result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
-			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
-			result = ar04Mapper.insertInvItemCancel(taxHdParam); // 거래명세서용 inv item insert
+			if(bilgInfo.get("taxAdmsYn").equals("Y")) { //계산서 승인 여부 Y -> 계산서 환입 처리 및 tax, inv 테이블 insert
+				//수정세금계산서 취소 로직 시작
+				msgId++;
+				
+				bgm1004 = ar04Mapper.selectBgmSeq();
+				xmlMsgId = ar04Mapper.selectMsgId(msgId);
+				taxHdParam.put("docCode", "938"); //세금계산서 938
+				taxHdParam.put("bgm1004", bgm1004);
+				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
+				taxHdParam.put("rffGn1", "RFFGN102");
+				taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
+				taxHdParam.put("rffAea", "RFFAEA03");
+				result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
+				ar04Mapper.insertTaxHdCancel(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
+				ar04Mapper.insertTaxDtl(taxHdParam);
+				result = ar04Mapper.insertTaxItemCancel(taxHdParam);
+				ar04Mapper.updateTaxBilgNoCancel(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 : 환입
+				
+				//수정거래명세서 취소 로직 시작
+				msgId++; //XML_MSG_ID 생성
+				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("docCode", "780"); // 거래명세서 780
+				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+				result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
+				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+				result = ar04Mapper.insertInvItemCancel(taxHdParam); // 거래명세서용 inv item insert
+			} else { // 계산서 승인 전 -> bgm1225 를 3으로 계산서 발행
+				//수정세금계산서 "삭제" 로직 시작
+				msgId++;
+				
+				//bgm1004 = ar04Mapper.selectBgmSeq();
+				xmlMsgId = ar04Mapper.selectMsgId(msgId);
+				taxHdParam.put("docCode", "938"); //세금계산서 938
+				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
+				bgm1004 = bilgInfo.get("taxBilgNo");
+				taxHdParam.put("bgm1004", bgm1004);
+				taxHdParam.put("bgm1225", "3");
+				String bgm4343 = ar04Mapper.selectBgm4343(bilgInfo.get("taxBilgNo"));// 삭제의 경우 전송회차 증가 
+				taxHdParam.put("bgm4343", bgm4343);
+				result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
+				ar04Mapper.insertTaxHdDelete(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
+				ar04Mapper.insertTaxDtl(taxHdParam);
+				result = ar04Mapper.insertTaxItemDelete(taxHdParam);
+				ar04Mapper.updateTaxBilgNoDelete(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 : 환입
+				
+				//수정거래명세서 취소 로직 시작
+				msgId++; //XML_MSG_ID 생성
+				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("docCode", "780"); // 거래명세서 780
+				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+				result = ar04Mapper.insertInvHdDelete(taxHdParam); // 거래명세서용 inv Hd insert
+				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+				result = ar04Mapper.insertInvItemDelete(taxHdParam); // 거래명세서용 inv item insert
+			}
 		}
 		return result;
 	}
