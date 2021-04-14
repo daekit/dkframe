@@ -52,12 +52,14 @@
 		          				<option value="">전체</option>
 		          				</select>
 		          			</td>
-		          			<th colspan= "2">제조사</th>
+		          			<th colspan= "2">프로젝트</th>
 		          			<td colspan="3"> 
-		          				<select id="searchDtlMakr" data-kind="MAKR" onchange="gridView1.setData(0);" required>
-		          				<option value="">전체</option>
-		          				</select>
-		          			</td>
+			                    <div class="search_form" >
+					              <input type="hidden" id="prjctCd_S">
+					              <input type="text" id="prjctNm_S" onkeyup="event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView1.setData(0) : ''">
+					              <button type="button" onclick="openSecondPrjctSearch('S');"><i class="i_search_w"></i></button>
+					            </div>
+			                </td>
 		          			<th colspan="2">수입구분</th>
 		          			<td colspan="3"> 
 		          				<select id="searchDtlImpYn" data-kind="YN" onchange="gridView1.setData(0);" required>
@@ -179,7 +181,7 @@
 		            {key: "whNm",     label: "출고지"  ,		align : "center", width : 90},
 		            {key: "ownerNm",  label: "주체",			align : "center", width : 50},
 		            {key: "typNm",    label: "유형",         align : "center", width : 50},
-		            {key: "makrNm",   label: "제조사",		align : "center", width : 80},
+		            {key: "prjctNm",  label: "프로젝트",	    align : "left",   width : 100},
 		            {key: "clntNm",   label: "거래처",		align : "left",   width : 100},
 		            {key: "prdtNm",   label: "제품",			align : "left",   width : 160},
 		          	{key: "prdtSpec", label: "스펙",    		align : "left",   width: 80},
@@ -199,7 +201,8 @@
 		            {key: "stockAmt", label: "단가", hidden:"true"},
 		            {key: "proprtStockQty", label: "적정재고수량(KG)", hidden:"true"},
 		            {key: "stockChgCd", label: "재고변동사유", hidden:"true"},
-		            {key: "prjctCd", label: "프로젝트", hidden:"true"}
+		            {key: "prjctCd", label: "프로젝트", hidden:"true"},
+		            {key: "makrNm",   label: "제조사",		align : "center", width : 80, hidden:"true"}
 		        ]
 		    });
 			return this;
@@ -212,7 +215,9 @@
 				"clntNm": $("#searchDtlClntNm").val(),
 				"ownerCd"  : $("#searchDtlOwnerCd").val(),
 				"typCd" : $("#searchDtlTypCd").val(),
-				"makrCd" : $("#searchDtlMakr").val(),
+			//	"makrCd" : $("#searchDtlMakr").val(),			
+				"prjctCd" : $("#prjctCd_S").val(),
+				"prjctNm" : $("#prjctNm_S").val(),
 				"impYn" : $("#searchDtlImpYn").val(),
 				"prdtNm" : $("#searchDtlPrdtNm").val(),
 				"pageNo" : _pageNo + 1
@@ -353,7 +358,8 @@
 		$("#searchDtlClntCd").val('');
 		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
 		$("#searchDtlTypCd option:eq(0)").prop("selected",true);
-		$("#searchDtlMakr option:eq(0)").prop("selected",true);
+		$("#searchPrjctCd option:eq(0)").prop("selected",true);
+	//	$("#searchDtlMakr option:eq(0)").prop("selected",true);
 		$("#searchDtlImpYn option:eq(0)").prop("selected",true);
 		$("#searchDtlPrdtCd").val('');
 	}
@@ -383,6 +389,26 @@
 			var row = grid.target.getList("selected")[0];
 			$targetRow.find('input[name="searchDtlPrdtCd"]').val(row.prdtCd);
 			$targetRow.find('input[name="searchDtlPrdtNm"]').val(row.prdtNm);
+		});
+	}
+	
+	// 현장 검색
+	function openSecondPrjctSearch(type) {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#prjctCd_S").val(row.prjctCd);
+				$("#prjctNm_S").val(row.prjctNm);
+			} else {
+				$("#siteCd").val(row.prjctCd);
+				$("#siteNm").val(row.prjctNm);
+				$("#prjctCd").val(row.prjctCd);
+			}
 		});
 	}
 </script>

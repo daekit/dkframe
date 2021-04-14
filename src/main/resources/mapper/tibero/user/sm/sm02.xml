@@ -36,19 +36,26 @@
 	<select id="selectUprCount" parameterType="Map" resultType="int">
 		SELECT
 			COUNT(*)
-		FROM TB_SM02M01 
+		FROM TB_SM02M01 A
+		  LEFT OUTER JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = A.PRJCT_CD
 		WHERE 1=1 
 		<if test="coCd != null and !coCd.equals('')">
 		 		AND OUT_CO_CD = #{coCd}
 		 </if>
 		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-		AND TRST_DT BETWEEN #{strtDt} AND #{endDt}
+	            AND TRST_DT BETWEEN #{strtDt} AND #{endDt}
 		</if>
 		<if test="outCoCd != null and !outCoCd.equals('')">
 		 		AND SELPCH_CD = #{selpchCd}
 		 </if>
 		 <if test="inCoCd != null and !inCoCd.equals('')">
 				AND PRDT_IMP_YN = #{prdtImpYn}
+		</if>
+		 <if test="prjctCd != null and !prjctCd.equals('')">
+				AND A.PRJCT_CD = #{prjctCd}
+		</if>
+		<if test="prjctNm != null and !prjctNm.equals('')">
+		        AND SD05.PRJCT_NM LIKE '%' || #{prjctNm} || '%'
 		</if>
 		ORDER BY TRST_NO
 	</select>
@@ -69,6 +76,8 @@
 					,FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
 					,A.TYP_CD
 					,FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+					,A.PRJCT_CD
+					,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
 					,A.MAKR_CD
 					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
 					,A.PRDT_CD
@@ -103,8 +112,15 @@
 				 <if test="inWhCd != null and !inWhCd.equals('')">
 					AND IN_WH_CD = #{inWhCd}
 				</if>
+			     <if test="prjctCd != null and !prjctCd.equals('')">
+						AND A.PRJCT_CD = #{prjctCd}
+				</if>
 				ORDER BY A.TRST_NO
 			) D
+			WHERE  1= 1 
+			     <if test="prjctNm != null and !prjctNm.equals('')">
+						AND D.PRJCT_NM LIKE '%' || #{prjctNm} || '%'
+				</if>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
@@ -113,12 +129,13 @@
 	<select id="selectUprDtlCount" parameterType="Map" resultType="int">
 		SELECT
 			COUNT(*)
-		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
+		FROM TB_SM01M01 A
+		  INNER JOIN TB_BM01M01 C ON A.PRDT_CD = C.PRDT_CD
+		  INNER JOIN TB_BM02M01 E ON  A.CLNT_CD = E.CLNT_CD
+		  LEFT OUTER JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = A.PRJCT_CD
 		WHERE 1=1 
-			AND A.PRDT_CD = C.PRDT_CD
-			AND A.CLNT_CD = E.CLNT_CD
 		<if test="coCd != null and !coCd.equals('')">
-			AND CO_CD = #{coCd}
+			AND A.CO_CD = #{coCd}
 		</if>
 		<if test="whCd != null and !whCd.equals('')">
 		 	AND WH_CD = #{whCd}
@@ -144,7 +161,9 @@
 		<if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
 				AND C.PRDT_COIL_YN LIKE  #{prdtCoilYn}
 		</if>
-		ORDER BY CO_CD
+	     <if test="prjctNm != null and !prjctNm.equals('')">
+				AND SD05.PRJCT_NM LIKE '%' || #{prjctNm} || '%'
+		</if>
 	</select>
 	
 	<select id="selectStockMoveStatMngmDtlList" parameterType="Map" resultType="CamelMap">
@@ -221,7 +240,14 @@
 				<if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
 						AND C.PRDT_COIL_YN LIKE  #{prdtCoilYn}
 				</if>
+			     <if test="prjctCd != null and !prjctCd.equals('')">
+						AND A.PRJCT_CD = #{prjctCd}
+				</if>
 			)D
+			WHERE  1= 1 
+			     <if test="prjctNm != null and !prjctNm.equals('')">
+						AND D.PRJCT_NM LIKE '%' || #{prjctNm} || '%'
+				</if>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
