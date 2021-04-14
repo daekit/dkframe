@@ -62,37 +62,37 @@
 					<tr>
 						<th>법인</th>
 		                <td>
-		                    <select id ="CO" data-kind="CO"  onchange="gridView.setData(0);">
+		                    <select data-kind="CO"  data-search="coCd">
 		                  	  <option value="">선택</option>
 		                    </select>
 		                </td>
 						<th>창고</th>
 		                <td>
-		                 	<select id ="WH" data-kind="WH" data-rprc="WHDIV_03" onchange="gridView.setData(0);">
+		                 	<select data-kind="WH" data-rprc="WHDIV03" data-search="whCd">
 		  						<option value="">선택</option>
 		                    </select>
 		                </td>
 						<th>재고주체구분</th>
 						<td>
-							<select id="OWNER" data-kind="OWNER" onchange="gridView.setData(0);">
+							<select data-kind="OWNER" data-search="ownerCd">
 								<option value="">선택</option>
 							</select>
 						</td>
 						<th>거래처</th>
 						<td>
-							<input type="text" id="clntNm" onchange="gridView.setData(0);">
+							<input type="text" data-search="clntNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 						</td>
 					</tr>
 					<tr>
 						<th>판매유형</th>
 						<td>
-							<select id="SELLTYPE" data-kind="SELLTYPE" onchange="gridView.setData(0);">
+							<select data-kind="SELLTYPE" data-search="typCd">
 								<option value="">선택</option>
 							</select>
 						</td>
 						<th>제조사</th>
 						<td>
-							<select id="MAKR" data-kind="MAKR" onchange="gridView.setData(0);">
+							<select data-kind="MAKR" data-search="makrCd">
 								<option value="">선택</option>
 							</select>
 						</td>
@@ -103,20 +103,16 @@
 					</tr>
 				</table>
 			</div>
-			<div style="display: none;" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
-				<select id=""></select>
-			</div>
 		</div>
 		<!-- 콘텐츠 타이틀 -->
 		<div class="contents no_bg">
 			<div class="contents_tit">
-				<select class="prae_select" onchange="gridView.setData(0);"
-					id="recordCnt">
+				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
-				</select> <input type="hidden" id="basisPriceSeq">
+				</select>
 			</div>
 		</div>
 		<!-- 콘텐츠 -->
@@ -186,19 +182,13 @@
 		}, 
 		setData: function(_pageNo) {
 			var targetObj = this.target;
-			var formData = {
-				"coCd" : $("#CO").val(),
-				"whCd" : $("#WH").val(),
-				"ownerCd" : $("#OWNER").val(),
-				"typCd" : $("#SELLTYPE").val(),
-				"clntNm" : $("#clntNm").val(),
-				"makrCd" : $("#MAKR").val(),
-				"prdtNm" : $("#prdtNm").val(),
-				"pageNo" : _pageNo + 1, 
-				"recordCnt" : $("#recordCnt").val()
-			}
+			var paramObj = {"pageNo": _pageNo + 1};
 			
-			postAjax("/user/sm/sm03/selectStockList", formData, null, function(data){
+			$.each($('[data-search]'), function(idx, elem){
+				paramObj[$(elem).data("search")] = $(elem).val();
+			});
+			
+			postAjax("/user/sm/sm03/selectStockList", paramObj, null, function(data){
 				var list = data.stockList;
 				targetObj.setData({
 					list : list,
@@ -216,6 +206,13 @@
 	$(document).ready(function() {
 		mainDefaultLoad("재고관리", "외주재고현황관리");
 		setCommonSelect($("#main_area select[data-kind]"));
+		$('[data-search="coCd"]').val(jwt.coCd);
+		
+		// 검색조건 이벤트 bind
+		$('select[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+		
 		gridView.initView().setData(0);
 	})
 </script>
