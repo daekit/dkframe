@@ -153,7 +153,9 @@
 				<td colspan="14" style="text-align: LEFT; border-right: 0;">※상세내역</td>
 			</tr>
 			<tr>
-				<th></th>
+				<th style="padding: 3px 5px;"> 
+					<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+				</th>
 				<th class="tc">제품명</th>
 				<th class="tc">사이즈</th>
 				<th class="tc">SPEC</th>
@@ -175,7 +177,7 @@
 				<input type="hidden" name="stockUpr">
 <!-- 				<input type="hidden" name="prdtStockCd"> -->
 				<td>
-					<input type="checkbox" name="detailChkBox">
+					<input type="checkbox" name="detailChkBox" onchange="ctrlAllChkBox();">
 				</td>
 				<td>
 					<div class="search_form">
@@ -620,6 +622,33 @@
 		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
 		$('#detailTable tbody').append($detailRow[0]);
 		return $detailRow;
+	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]').prop("checked", true);
+		}else{
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]').prop("checked", false);
+		}
+	}
+	
+	function ctrlAllChkBox(){
+		var isAllChk = true;
+		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]');
+		if($detailChkBoxes.length > 0){
+			$.each($detailChkBoxes, function(idx, elem){
+				if(!$(elem).is(':checked')){
+					isAllChk = false;
+				}
+			});
+			if(isAllChk){
+				$('#allChkBox').prop("checked", true);
+			}else{
+				$('#allChkBox').prop("checked", false);
+			}
+		}else{
+			$('#allChkBox').prop("checked", false);
+		}
 	}
 	
 	function downloadFile(fileKey) {
