@@ -138,7 +138,7 @@
 			AND A.CO_CD = #{coCd}
 		</if>
 		<if test="whCd != null and !whCd.equals('')">
-		 	AND WH_CD = #{whCd}
+		 	AND A.WH_CD = #{whCd}
 		</if>
 		<if test="clntNm != null and !clntNm.equals('')">
 			AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
@@ -332,30 +332,31 @@
 		MERGE INTO TB_SM01M01 A
 		USING (
 		   SELECT
-		   STOK_SEQ,
-		   CO_CD,
-		   #{sWhCd} AS WH_CD,
-		   PRDT_CD,
-		   PRDT_SIZE,
-		   PRDT_SPEC,
-		   PRDT_LEN,
-		   OWNER_CD,
-		   CLNT_CD,
-		   #{sellType} AS TYP_CD,
-		   MAKR_CD,
-		   PRJCT_CD,
-		   IMP_YN,
-		   #{moveQty} AS STOCK_QTY,
-		   STOCK_UPR,
-		   STOCK_AMT,
-		   STD_UPR,
-		   PCHS_UPR,
-		   SELL_UPR,
-		   PROPRT_STOCK_QTY,
-		   'STOCKCHG6',
-		   #{userId},
-		   #{pgmId}, 
-		   SYSDATE FROM TB_SM01M01
+			   STOK_SEQ,
+			   CO_CD,
+			   #{sWhCd} AS WH_CD,
+			   PRDT_CD,
+			   PRDT_SIZE,
+			   PRDT_SPEC,
+			   PRDT_LEN,
+			   OWNER_CD,
+			   CLNT_CD,
+			   #{sellType} AS TYP_CD,
+			   MAKR_CD,
+			   #{sPrjctCd} PRJCT_CD,
+			   IMP_YN,
+			   #{moveQty} AS STOCK_QTY,
+			   STOCK_UPR,
+			   STOCK_AMT,
+			   STD_UPR,
+			   PCHS_UPR,
+			   SELL_UPR,
+			   PROPRT_STOCK_QTY,
+			   'STOCKCHG6',
+			   #{userId},
+			   #{pgmId}, 
+			   SYSDATE 
+		   FROM TB_SM01M01
 		   WHERE  STOK_SEQ = #{stokSeq}) S 
 		ON (
 			  A.CO_CD     = S.CO_CD
@@ -467,7 +468,7 @@
 			#{clntCd},
 			#{typCd}, 
 			#{makrCd},
-			#{prjctCd}, 
+			#{sPrjctCd}, 
 			#{prdtCd}, 
 			#{prdtSize},
 			#{prdtSpec},
@@ -493,30 +494,31 @@
 		MERGE INTO TB_SM01M01 A
 		USING (
 		   SELECT 
-		   STOK_SEQ,
-		   CO_CD,
-		   #{sWhCd}     AS WH_CD,
-		   #{sPrdtCd}   AS PRDT_CD,
-		   #{sPrdtSize} AS PRDT_SIZE,
-		   #{sPrdtSpec} AS PRDT_SPEC,
-		   #{sPrdtLen}  AS PRDT_LEN,
-		   OWNER_CD,
-		   CLNT_CD,
-		   #{sellType} AS TYP_CD,
-		   MAKR_CD,
-		   PRJCT_CD,
-		   IMP_YN,
-		   #{moveQty} AS STOCK_QTY,
-		   STOCK_UPR,
-		   STOCK_AMT,
-		   STD_UPR,
-		   PCHS_UPR,
-		   SELL_UPR,
-		   PROPRT_STOCK_QTY,
-		   'STOCKCHG6',
-		   #{userId},
-		   #{pgmId}, 
-		   SYSDATE FROM TB_SM01M01
+			   STOK_SEQ,
+			   CO_CD,
+			   #{sWhCd}     AS WH_CD,
+			   #{sPrdtCd}   AS PRDT_CD,
+			   #{sPrdtSize} AS PRDT_SIZE,
+			   #{sPrdtSpec} AS PRDT_SPEC,
+			   #{sPrdtLen}  AS PRDT_LEN,
+			   OWNER_CD,
+			   CLNT_CD,
+			   #{sellType} AS TYP_CD,
+			   MAKR_CD,
+			   PRJCT_CD,
+			   IMP_YN,
+			   #{moveQty} AS STOCK_QTY,
+			   STOCK_UPR,
+			   STOCK_AMT,
+			   STD_UPR,
+			   PCHS_UPR,
+			   SELL_UPR,
+			   PROPRT_STOCK_QTY,
+			   'STOCKCHG6',
+			   #{userId},
+			   #{pgmId}, 
+			   SYSDATE
+		   FROM TB_SM01M01
 		   WHERE STOK_SEQ = #{stokSeq})S 
 		ON (
 			  A.CO_CD     = S.CO_CD
