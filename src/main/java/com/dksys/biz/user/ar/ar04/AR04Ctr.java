@@ -58,16 +58,11 @@ public class AR04Ctr {
     @PostMapping(value = "/selectTaxBilg")
 	public String selectTaxBilg(@RequestBody Map<String, String> paramMap, ModelMap model) {
 
-    	System.out.println("============");
     	Map<String, String> result = ar04Svc.selectTaxBilg(paramMap);
     	List<Map<String, String>> dtlResult = ar04Svc.selectBilgDetailList(paramMap);
-    	System.out.println(result);
-    	System.out.println(dtlResult);
     	model.addAttribute("result", result);
     	model.addAttribute("dtlResult", dtlResult);
 
-    	System.out.println(result);
-    	System.out.println(dtlResult);
     	return "jsonView";
 	}
     

@@ -191,20 +191,20 @@
 	                <col width="11%">
 	            </colgroup>
 				<tr>
-					<th class="tc">순번</th>
-					<th>구입일자</th>
-					<th>품목명</th>
-					<th>코드</th>
-					<th>규격</th>
-					<th>수량</th>
-					<th>단가</th>
-					<th>공급가액</th>
-					<th>세액</th>
-					<th>비고</th>
+					<th class="hit">순번</th>
+					<th class="tc">구입일자</th>
+					<th class="tc">품목명</th>
+					<th class="tc">코드</th>
+					<th class="tc">규격</th>
+					<th class="tc">수량</th>
+					<th class="tc">단가</th>
+					<th class="tc">공급가액</th>
+					<th class="tc">세액</th>
+					<th class="tc">비고</th>
 				</tr>
 				<tr class="detailRow">
 					<td><input type="text" id="ard113a" name="ard113a" style="text-align:center" comma onkeyup="addComma(this);"></td>
-					<td><input type="text" id="moa95004" name="moa95004" style="text-align:center"></td>
+					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center"></td>
 					<td><input type="text" id="dms1056" name="dms1056" style="text-align:center"></td>
@@ -216,7 +216,7 @@
 				</tr>
 				<tr class="detailRow">
 					<td><input type="text" id="ard113a" name="ard113a" style="text-align:center" comma onkeyup="addComma(this);"></td>
-					<td><input type="text" id="moa95004" name="moa95004" style="text-align:center"></td>
+					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center"></td>
 					<td><input type="text" id="dms1056" name="dms1056" style="text-align:center"></td>
@@ -228,7 +228,7 @@
 				</tr>
 				<tr class="detailRow">
 					<td><input type="text" id="ard113a" name="ard113a" style="text-align:center" comma onkeyup="addComma(this);"></td>
-					<td><input type="text" id="moa95004" name="moa95004" style="text-align:center"></td>
+					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center"></td>
 					<td><input type="text" id="dms1056" name="dms1056" style="text-align:center"></td>
@@ -240,7 +240,7 @@
 				</tr>
 				<tr class="detailRow">
 					<td><input type="text" id="ard113a" name="ard113a" style="text-align:center" comma onkeyup="addComma(this);"></td>
-					<td><input type="text" id="moa95004" name="moa95004" style="text-align:center"></td>
+					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center"></td>
 					<td><input type="text" id="dms1056" name="dms1056" style="text-align:center"></td>
@@ -283,14 +283,13 @@
 	
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
-		/* $('#sellDt').datepicker({
+
+		$('[name=moa95004]').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
-		}); */
+		})
 		setInit();
-		//$(".popup_area input").prop("readonly", true);
-		//$(".popup_area select").prop("disabled", true);
 	});
 	
 	function setInit() {
@@ -336,10 +335,6 @@
 			$("#popForm #rffAeaTh").removeClass("hit");
 		}
 		postAjax("/user/ar/ar04/selectTaxBilg", formData, null, function(data){
-			console.log("data");
-			console.log(data);
-			console.log(data.result);
-			console.log(data.dtlResult);
 			setTaxBilgInfo(data.result);
 			setTaxBilgDetailInfo(data.dtlResult);
 		});
@@ -363,13 +358,9 @@
 	}
 	
 	function setTaxBilgDetailInfo(obj){
-		console.log("SET TAX DETAIL");
-		console.log(obj.length);
 		for(var i = 0; i < obj.length; i++){
 			//메인정보 세팅
-			console.log(i);
 			$.each(obj[i], function(key, value){
-				console.log(key);
 				$('#popForm #'+key).eq(i).val(value);
 			});
 		}
@@ -410,6 +401,7 @@
 	}
 
 	function modalClose(){
+		gridView.setData(0);
 		modal.close();
 	}
 	
