@@ -52,12 +52,14 @@
 		          				<option value="">전체</option>
 		          				</select>
 		          			</td>
-		          			<th colspan= "2">제조사</th>
+		          			<th colspan= "2">프로젝트</th>
 		          			<td colspan="3"> 
-		          				<select id="searchDtlMakr" data-kind="MAKR" onchange="gridView1.setData(0);" required>
-		          				<option value="">전체</option>
-		          				</select>
-		          			</td>
+			                    <div class="search_form" >
+					              <input type="hidden" id="prjctCd_S">
+					              <input type="text" id="prjctNm_S" onkeyup="event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView1.setData(0) : ''">
+					              <button type="button" onclick="openSecondPrjctSearch('S');"><i class="i_search_w"></i></button>
+					            </div>
+			                </td>
 		          			<th colspan="2">수입구분</th>
 		          			<td colspan="3"> 
 		          				<select id="searchDtlImpYn" data-kind="YN" onchange="gridView1.setData(0);" required>
@@ -97,22 +99,34 @@
           	<tbody>
           	  <tr>
           		<th colspan="2">입고지</th>
-          		<td colspan="3"> 
+          		<td colspan="2"> 
           		  <select id="searchDtlWhCd" data-kind="WH" required></select>
           		</td> 
           		<th colspan="2">판매유형</th>
           		<td colspan="3"> 
           		  <select id="searchDtlType" data-kind="SELLTYPE" required></select>
           		</td>
+			    <th colspan= "2">프로젝트</th>
+	                <td colspan="3"> 
+	                    <div class="search_form">
+			              <input type="hidden" id="searchPrjctCd">
+			              <input type="text" id="searchPrjctNm" onkeyup="event.keyCode == 13 ? openSecondPrjctSearch('E') : ''"  readonly="readonly">
+			              <button type="button" onclick="openSecondPrjctSearch('E');"><i class="i_search_w"></i></button>
+			            </div>
+	                </td>
+       	  
+          	  </tr>
+           	  <tr>
+
 			    <th colspan= "2">이동일자</th>
-      		    <td colspan="3"> 
+      		    <td colspan="2"> 
       			  <input type="text" id="sTransDt" name="sTransDt" class="input_calendar">
       		    </td>
       		    <th colspan= "2">메모</th>
-      			  <td colspan="3"> 
+      			  <td colspan="8"> 
       			    <input id="searchRmk" required>
       		      </td>	          	  
-          	  </tr>
+          	  </tr>         	  
           	</tbody>
           </table>      		
       	</div>
@@ -143,7 +157,7 @@
 			this.target.setConfig({
 				showRowSelector: false,
 		    	multipleSelect: false,
-		    	//sortable: true,
+		    	sortable: true,
 		    	target: $('[data-ax5grid="search-grid"]'),
 		        header: {
 		        	align: "center", 
@@ -174,32 +188,33 @@
 		            }
 		        },
 		        columns: [
-		        	{key: "stokSeq",  label: "시퀀스",		align : "center", width : 100, hidden:"true"},
-		            {key: "coNm",     label: "출고회사",		align : "center", width : 100, hidden:"true"},
-		            {key: "whNm",     label: "출고지"  ,		align : "center", width : 90},
-		            {key: "ownerNm",  label: "주체",			align : "center", width : 50},
-		            {key: "typNm",    label: "유형",         align : "center", width : 50},
-		            {key: "makrNm",   label: "제조사",		align : "center", width : 80},
-		            {key: "clntNm",   label: "거래처",		align : "left",   width : 100},
-		            {key: "prdtNm",   label: "제품",			align : "left",   width : 160},
-		          	{key: "prdtSpec", label: "스펙",    		align : "left",   width: 80},
-		          	{key: "prdtSize", label: "사이즈",   		align : "left",   width: 100},
-		          	{key: "prdtLen",  label: "길이",    		align : "left",   width: 60},
-		            {key: "impNm",    label: "구분",      	align : "center", width : 60},
-		            {key: "stockQty", label: "현 재고 수량(KG)",align : "right",  width : 100, formatter: "money"},
-		            {key: "moveQty", label: "이동 수량(KG)",align : "right",  width : 120, formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
-		            {key: "coCd", label: "재고단가", hidden:"true"},
-		            {key: "stockUpr", label: "재고단가", hidden:"true"},
-		            {key: "stdUpr", label: "기준단가", hidden:"true"},
-		            {key: "pchsUpr", label: "최종매입단가", hidden:"true"},
-		            {key: "sellUpr", label: "최종매출단가", hidden:"true"},
-		            {key: "etcField1", label: "여분필드(고정)", hidden:"true"},
-		            {key: "etcField2", label: "여분필드(숫자)", hidden:"true"},
-		            {key: "etcField3", label: "여분필드(가변)", hidden:"true"},
-		            {key: "stockAmt", label: "단가", hidden:"true"},
-		            {key: "proprtStockQty", label: "적정재고수량(KG)", hidden:"true"},
-		            {key: "stockChgCd", label: "재고변동사유", hidden:"true"},
-		            {key: "prjctCd", label: "프로젝트", hidden:"true"}
+		        	{key: "stokSeq",        label: "시퀀스",		 align : "center", width : 100, hidden:"true"},
+		            {key: "coNm",           label: "출고회사",		 align : "center", width : 100, hidden:"true"},
+		            {key: "whNm",           label: "출고지"  ,	 align : "center", width : 90},
+		            {key: "ownerNm",        label: "주체",		 align : "center", width : 50},
+		            {key: "typNm",          label: "유형",         align : "center", width : 50},
+		            {key: "prjctNm",        label: "프로젝트",	      align : "left",   width : 100},
+		            {key: "clntNm",         label: "거래처",		  align : "left",   width : 100},
+		            {key: "prdtNm",         label: "제품",		   align : "left",   width : 160},
+		          	{key: "prdtSpec",       label: "스펙",    	   align : "left",   width: 80},
+		          	{key: "prdtSize",       label: "사이즈",   	   align : "left",   width: 100},
+		          	{key: "prdtLen",        label: "길이",    	   align : "left",   width: 60},
+		            {key: "impNm",          label: "구분",      	   align : "center", width : 60},
+		            {key: "stockQty",       label: "현 재고 수량(KG)",align : "right",  width : 100, formatter: "money"},
+		            {key: "moveQty",        label: "이동 수량(KG)",  align : "right",  width : 120, formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		            {key: "coCd",           label: "재고단가",       hidden:true},
+		            {key: "stockUpr",       label: "재고단가",       hidden:true},
+		            {key: "stdUpr",         label: "기준단가",       hidden:true},
+		            {key: "pchsUpr",        label: "최종매입단가",    hidden:true},
+		            {key: "sellUpr",        label: "최종매출단가",    hidden:true},
+		            {key: "etcField1",      label: "여분필드(고정)",  hidden:true},
+		            {key: "etcField2",      label: "여분필드(숫자)",  hidden:true},
+		            {key: "etcField3",      label: "여분필드(가변)",  hidden:true},
+		            {key: "stockAmt",       label: "단가",          hidden:true},
+		            {key: "proprtStockQty", label: "적정재고수량(KG)", hidden:true},
+		            {key: "stockChgCd",     label: "재고변동사유",     hidden:true},
+		            {key: "prjctCd",        label: "프로젝트",        hidden:true},
+		            {key: "makrNm",         label: "제조사",	       align : "center", width : 80, hidden:true}
 		        ]
 		    });
 			return this;
@@ -212,7 +227,9 @@
 				"clntNm": $("#searchDtlClntNm").val(),
 				"ownerCd"  : $("#searchDtlOwnerCd").val(),
 				"typCd" : $("#searchDtlTypCd").val(),
-				"makrCd" : $("#searchDtlMakr").val(),
+			//	"makrCd" : $("#searchDtlMakr").val(),			
+				"prjctCd" : $("#prjctCd_S").val(),
+				"prjctNm" : $("#prjctNm_S").val(),
 				"impYn" : $("#searchDtlImpYn").val(),
 				"prdtNm" : $("#searchDtlPrdtNm").val(),
 				"pageNo" : _pageNo + 1
@@ -332,7 +349,8 @@
 			"sWhCd" : $("#searchDtlWhCd").val(),
 			"sTransDt" : $("#sTransDt").val(),
 			"sRmk" : $("#searchRmk").val(),	
-			"sellType" : $("#searchDtlType").val()
+			"sellType" : $("#searchDtlType").val(),	
+			"sPrjctCd" : $("#searchPrjctCd").val()
 		}
 		// 상세내역 추가
 		//formData["detailArr"] = searchGrid.getList();
@@ -353,7 +371,8 @@
 		$("#searchDtlClntCd").val('');
 		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
 		$("#searchDtlTypCd option:eq(0)").prop("selected",true);
-		$("#searchDtlMakr option:eq(0)").prop("selected",true);
+		$("#searchPrjctCd option:eq(0)").prop("selected",true);
+	//	$("#searchDtlMakr option:eq(0)").prop("selected",true);
 		$("#searchDtlImpYn option:eq(0)").prop("selected",true);
 		$("#searchDtlPrdtCd").val('');
 	}
@@ -372,6 +391,7 @@
 		$targetRow = $(elem).closest('tr[name="tableCd"]');
 		// selpchCd - SELPCH2: 매출
 		var paramObj = {
+			"coCd": $('#searchDtlOutCoCd').val(),
 			"selpchCd": "SELPCH2",
 			"impYn": "N", 
 			"clntCd" : $("#clntCd").val(),
@@ -382,6 +402,29 @@
 			var row = grid.target.getList("selected")[0];
 			$targetRow.find('input[name="searchDtlPrdtCd"]').val(row.prdtCd);
 			$targetRow.find('input[name="searchDtlPrdtNm"]').val(row.prdtNm);
+		});
+	}
+	
+	// 현장 검색
+	function openSecondPrjctSearch(type) {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val(),
+			"prjctNm": $("#popForm #prjctNm").val()
+		}
+		
+		debugger;
+		
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#prjctCd_S").val(row.prjctCd);
+				$("#prjctNm_S").val(row.prjctNm);
+			} else {
+				$("#searchPrjctCd").val(row.prjctCd);
+				$("#searchPrjctNm").val(row.prjctNm);
+			}
 		});
 	}
 </script>

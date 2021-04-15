@@ -5,14 +5,16 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.admin.cm.cm04.mapper.CM04Mapper;
 import com.dksys.biz.admin.cm.cm06.mapper.CM06Mapper;
 import com.dksys.biz.admin.cm.cm06.service.CM06Svc;
 
 @Service
+@Transactional
 public class CM06SvcImpl implements CM06Svc {
-	
+
     @Autowired
     CM06Mapper cm06Mapper;
     
@@ -56,6 +58,14 @@ public class CM06SvcImpl implements CM06Svc {
 	@Override
 	public int insertPgmHistory(Map<String, String> paramMap) {
 		return cm06Mapper.insertPgmHistory(paramMap);
+	}
+
+	@Override
+	public int updatePw(Map<String, String> paramMap) {
+		int result = 0;
+		result += cm06Mapper.updatePw(paramMap);
+		result += cm06Mapper.updateTokenPw(paramMap);
+		return result;
 	}
 
 }

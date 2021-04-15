@@ -70,12 +70,13 @@ BEGIN
                    C_LINK_GRP_YN, 
                    C_LINK_GRP_CLNT_CD 	 
 		from TB_BM02M01 a LEFT OUTER JOIN TB_BM02D02 b 
-			ON a.CLNT_CD = b.CLNT_CD
-			AND b.PLDG_DIV_CD = 'PLDG03'
-			AND b.USE_YN = 'Y' 
-			AND nvl(B.EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT) 
+							 ON a.CLNT_CD = b.CLNT_CD
+							AND b.PLDG_DIV_CD = 'PLDG03'
+							AND b.USE_YN = 'Y' 
+							AND b.SELPCH_CD = 'SELPCH2'
+							AND nvl(B.EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT) 
 		WHERE  a.USE_YN = 'Y'
-		AND a.CLNT_CD = I_CLNT_CD;
+		  AND a.CLNT_CD = I_CLNT_CD;
 
 
 		IF C_LINK_GRP_YN = 'Y' THEN  -- 연계 여신관리 대상
@@ -92,13 +93,14 @@ BEGIN
 			       sum(nvl(b.PLDG_AMT*b.PLDG_RCOGN_RATE/100,0)) AS PLDG_AMT 
 	               into C_LINK_GRP_CLNT_CD, C_GRP_AMT, C_CO_AMT
 				from TB_BM02M01 a LEFT OUTER JOIN TB_BM02D02 b 
-					ON a.CLNT_CD = b.CLNT_CD
-					AND b.PLDG_DIV_CD = 'PLDG03'
-					AND b.USE_YN = 'Y' 
-					AND nvl(B.EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT) 
+									 ON a.CLNT_CD = b.CLNT_CD
+									AND b.PLDG_DIV_CD = 'PLDG03'
+									AND b.USE_YN = 'Y' 
+									AND b.SELPCH_CD = 'SELPCH2'
+									AND nvl(B.EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT) 
 				WHERE a.LINK_GRP_CLNT_CD = C_LINK_GRP_CLNT_CD
-				AND a.LINK_GRP_YN = 'Y' 
-				AND a.USE_YN = 'Y';
+			  	  AND a.LINK_GRP_YN      = 'Y' 
+				  AND a.USE_YN           = 'Y';
 				
 		END IF;  --C_LINK_GRP_YN
 		
@@ -106,11 +108,12 @@ BEGIN
  		SELECT sum(nvl((PLDG_AMT*PLDG_RCOGN_RATE/100),0)) 
              into O_CO_AMT
 			FROM TB_BM02D02
-			WHERE CLNT_CD = I_CLNT_CD
-		    AND CO_CD = I_CO_CD
-			AND PLDG_DIV_CD NOT IN ('PLDG03')
-			AND nvl(EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT)
-			AND USE_YN = 'Y';
+			WHERE CLNT_CD  = I_CLNT_CD
+		      AND CO_CD    = I_CO_CD
+			  AND PLDG_DIV_CD NOT IN ('PLDG03')
+			  AND SELPCH_CD = 'SELPCH2'
+			  AND nvl(EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT)
+			  AND USE_YN    = 'Y';
 
 
 		C_TRSP_AMT := 0;	--매출금액 임시 집계
@@ -125,18 +128,18 @@ BEGIN
 					     	ELSE nvl(TRST_AMT,0) 				--출하지시금액
 					     END ) 
 					into C_TRSP_AMT
-				FROM GOLDMOON.TB_AR02M01 
+				 FROM GOLDMOON.TB_AR02M01 
 				WHERE co_cd = I_CO_CD 
-				AND TRST_CLNT_CD = I_CLNT_CD
-				AND SELPCH_CD = 'SELPCH2'
-				AND TRST_DT <= TO_NUMBER(I_TR_DT);
+				  AND TRST_CLNT_CD = I_CLNT_CD
+			      AND SELPCH_CD = 'SELPCH2'
+				  AND TRST_DT <= TO_NUMBER(I_TR_DT);
 		
 			--거래처별 입급금액 누계액 계산
 				SELECT sum(nvl(ETRDPS_AMT,0)) into C_ETRDPS_AMT
-				FROM TB_AR05M01
+				 FROM TB_AR05M01
 				WHERE co_cd = I_CO_CD
-				AND CLNT_CD = I_CLNT_CD
-				AND ETRDPS_DT <= TO_NUMBER(I_TR_DT);
+				  AND CLNT_CD = I_CLNT_CD
+				  AND ETRDPS_DT <= TO_NUMBER(I_TR_DT);
 		END IF;
 
 		O_BLCE_AMT := 0;
@@ -161,7 +164,7 @@ BEGIN
 		SET CO_BLCE_AMT   = CO_BLCE_AMT + I_AMT		--여신잔액
 		   ,CELL_CLMN_AMT = CELL_CLMN_AMT + I_AMT	--수금금액
 		WHERE CLNT_CD = I_CLNT_CD
-		AND CO_CD = I_CO_CD;
+		  AND CO_CD   = I_CO_CD;
  	  EXCEPTION WHEN OTHERS THEN RETURN -8;
  	  END;
 		commit;	
@@ -181,7 +184,7 @@ BEGIN
 		SET CO_BLCE_AMT  = CO_BLCE_AMT - I_AMT	
 		   ,CELL_TOT_AMT = CELL_TOT_AMT + I_AMT	
 		WHERE CLNT_CD    = I_CLNT_CD
-		AND   CO_CD      = I_CO_CD;
+		  AND CO_CD      = I_CO_CD;
 		
 		exception when others then return -9;
 	  end;	

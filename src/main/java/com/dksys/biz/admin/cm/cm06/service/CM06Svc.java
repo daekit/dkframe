@@ -19,4 +19,6 @@ public interface CM06Svc {
 
 	public int insertPgmHistory(Map<String, String> paramMap);
 
+	public int updatePw(Map<String, String> paramMap);
+
 }

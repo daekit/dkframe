@@ -4,8 +4,10 @@
 	
 	$(document).ready(function() {
 		
-		 setCombo();
+		setCombo();
 		 
+		var row = secondGrid.getList("selected")[0];
+		
 		if(actionType == 'U'){
 			$('#actionBtn').text("수정");
 			setData();	
@@ -14,14 +16,11 @@
 		}else if(actionType == 'C'){
 			
 			if( thirdGrid.getList("selected")[0]){
-				var row = thirdGrid.getList("selected")[0];
+				 row = thirdGrid.getList("selected")[0];
 					
-			}else{
-				var row = secondGrid.getList("selected")[0];
 			}
-			
 			$("#basisPriceSeqCd").val(row.basisPriceSeq);
-			$("#prdtErqkCd").val(row.prdtErqkCd);
+			
 			$('#actionBtn').text("등록");
 			
 		}
@@ -37,12 +36,22 @@
 	})
 	
 	function setCombo(){
-		
-		var searchPrdtSize = document.getElementById("PDSZ");
-		document.getElementById("prdtSize").innerHTML = searchPrdtSize.innerHTML;
-		
-		var searchPrdtErqk = document.getElementById("PRDTERQK");
-		document.getElementById("prdtErqkCd").innerHTML = searchPrdtErqk.innerHTML;
+	
+		//철근 size 공통코드의 codeId가 아닌 codeNm 참조로 인한 변경 2021-04-14
+		var param = {
+				"codeKind" : "PDSZ"
+			};
+			postAjaxSync("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
+				var optionHtml = '';
+				var codeList = data.childCodeList;
+				$.each(codeList, function (index, item){
+					optionHtml += '<option value='+item.codeNm+' data-etc="'+item.codeEtc+'">';
+					optionHtml += item.codeNm;
+					optionHtml += '</option>';
+				});
+				$("#prdtSize").append(optionHtml);	
+				
+			})
 		
 	}
 	
@@ -52,7 +61,7 @@
 		
 		var paramObj = {
 				"basisPriceSeq": row.basisPriceSeq,
-				"prdtSize" : row.prdtSize,
+				"prdtSize" : row.prdtSizeNm,
 				"prdtErqkCd" : row.prdtErqkCd,
 				"userId": jwt.userId,
 				
@@ -171,14 +180,20 @@
 	          				<input type="text" id="basisPriceSeqCd" readonly>
 	          			<th class="hit" colspan= "2">내진 구분
 	          			</th>
-	          			<td colspan="6"> 
-	          				<select id="prdtErqkCd" required></select>
+	          			<td colspan="6">
+	          			 <select id="prdtErqkCd" required>
+	          				<option value="" selected="selected">선택</option>
+                  			<option value="N" >N</option>
+		                  	<option value="Y" >Y</option>
+		                  	</select>
 	          			</td>
 	          		</tr>
 	          		<tr>
 	          			<th class="hit" colspan="2">철근SIZE 구분</th>
 	          			<td colspan="6"> 
-	          				<select id="prdtSize" required></select>
+	          				<select id="prdtSize"  data-kind="PDSZ" required>
+	          					<option value="" selected="selected">선택</option>
+	          				</select>
 	          			</td>
 	          			
 	          			<th class="hit" colspan= "2">할증금액
@@ -193,9 +208,9 @@
 	          </table>
 	             	 <input id="userId" name="userId" type="hidden" >
 		          	<input type="hidden" id="pgmId" name="pgmId" value="SD0602P03">
+		          	
 	        </form>
 	        <div class ="popup_bottom_btn">
-				<!-- <button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button> -->
 				<button type="button"  onclick="checkOverLap();" id ="actionBtn"></button>
 				<button type="button"  onclick="modal.close();">닫기</button>
 			</div>

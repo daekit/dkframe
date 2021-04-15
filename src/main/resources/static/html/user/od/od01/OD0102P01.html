@@ -201,7 +201,7 @@
 	      		<col width="12%">   <!-- 지고 -->
 	        </colgroup>
 	        <tr>
-	            <th rowspan="2"></th>
+	            <th rowspan="2" style="text-align: center;"></th>
 	            <th rowspan="2" style="text-align: center;" class="hit">제품명</th>
 	            <th rowspan="2" style="text-align: center;">사이즈</th>
 	            <th rowspan="2" style="text-align: center;">SPEC</th>
@@ -397,6 +397,7 @@
 		});
 		setInit();
 		$("#dirtrsYn").change();
+		$("#coCd").val(jwt.coCd);
 	});
 	
 	function setInit() {
@@ -526,11 +527,10 @@
 	}
 	
 	function removeDetailRow(){
-		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
-			if($(elem).is(":checked")){
-				if($(elem).is(":checked") && ($($("input[name='ordrgYn']")[idx]).val() == "" || $($("input[name='ordrgYn']")[idx]).val() == "N")){
-					$(elem).closest('.detailRow').remove();
-				}
+		var $checkedDetails = $('input:checkbox[name="detailChkBox"]:checked');
+		$.each($checkedDetails, function(idx, elem){
+			if($($("input[name='ordrgYn']")[idx]).val() == "" || $($("input[name='ordrgYn']")[idx]).val() == "N"){
+				$(elem).closest('.detailRow').remove();
 			}
 		});
 		countTot();
@@ -551,7 +551,6 @@
 			$(".drctArea select").prop("disabled", false);
 			$(".drctArea button").prop("disabled", false);
 		}
-		$("#coCd").val(jwt.coCd);
 	}
 	
 	function downloadFile(idx) {
@@ -634,7 +633,22 @@
 		return formData;
 	}
 	
+	function validation() {
+		var returnFlag = false;
+		$.each($(".detailRow"), function(idx, item){
+			if($("input[name='prdtCoilYn']")[idx].value == "N" && $("input[name='prdtLen']")[idx].value == "0") {
+				returnFlag = true;
+				return false;
+			}
+		});
+		return returnFlag;
+	}
+	
 	function insertOrder() {
+		if(validation()) {
+			alert("길이가 0인 제품이 존재합니다.")
+			return;
+		}
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
@@ -648,6 +662,10 @@
 	}
 	
 	function updateOrder() {
+		if(validation()) {
+			alert("길이가 0인 제품이 존재합니다.")
+			return;
+		}
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
@@ -769,6 +787,7 @@
 		
 		// selpchCd - SELPCH2: 매출
 		var paramObj = {
+			"coCd": $("#coCd").val(),
 			"selpchCd": "SELPCH1",
 			"impYn": $("#impYn").val(), 
 			"clntCd" : $("#clntCd").val(),
@@ -781,9 +800,6 @@
 				if($("input[name="+key+"]")[selectedIdx] != undefined)
 					$("input[name="+key+"]")[selectedIdx].value = value;
 			});
-			if(row.prdtCoilYn == "N" && (row.prdtLen == 0 || row.prdtLen == undefined)) {
-				$('input[name="prdtLen"]')[selectedIdx].value = "1";
-			}
 			$("input[name=prdtUpr]")[selectedIdx].value = row.ordrgUpr;
 			countAmt($("input[name=prdtUpr]")[selectedIdx]);
 		});
@@ -807,6 +823,10 @@
 			$('#addrSub').val(row.siteAddrSub);
 			$('#mngTel').val(row.telNo);
 			$('#salesAreaCd').val(row.salesAreaCd);
+			$('#sellClntCd').val(row.clntCd);
+			$('#sellClntNm').val(row.clntNm);
+			$('#salesMng').val(row.salesEmpId);
+			$('#salesMngNm').val(row.salesEmpNm);
 		});
 	}
 

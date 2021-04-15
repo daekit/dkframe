@@ -223,7 +223,7 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd", "SELPCH1");
 			paramMap.put("trstDt", paramMap.get("dlvrDttm").replace("-", ""));
-			paramMap.put("estCoprt", detailMap.get("taxivcCoprt"));
+			paramMap.put("estCoprt", paramMap.get("taxivcCoprt"));
 			paramMap.put("pchsUpr", detailMap.get("realDlvrUpr"));
 			paramMap.put("stockUpr", detailMap.get("stockUpr"));
 			paramMap.put("trstQty", detailMap.get("ordrgQty"));

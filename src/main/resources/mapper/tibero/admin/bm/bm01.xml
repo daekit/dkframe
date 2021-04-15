@@ -44,7 +44,9 @@
 					, NVL(FN_CM05M01_CD_TO_NM(PRDT_SIZE), PRDT_SIZE) AS PRDT_SIZE_NM
 					, PRDT_SPEC
 					, NVL(FN_CM05M01_CD_TO_NM(PRDT_SPEC), PRDT_SPEC) AS PRDT_SPEC_NM
+					<if test="coCd != null and !coCd.equals('')">
 					, (SELECT SUM(STOCK_QTY) FROM TB_SM01M01 WHERE CO_CD = #{coCd} AND OWNER_CD = 'OWNER1' AND PRDT_CD = T.PRDT_CD) TOT_STOCK_QTY
+					</if>
 					, PRDT_COIL_YN
 					, PRDT_UNIT
 					, NVL(FN_CM05M01_CD_TO_NM(PRDT_UNIT), PRDT_UNIT) AS PRDT_UNIT_NM
@@ -84,8 +86,10 @@
 					, CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UPD_PGM, UDT_DTTM
 				FROM
 					TB_BM01M01 T
-				<where>
-			 		USE_YN = #{useYn}
+			    WHERE 1=1
+			 		<if test="useYn != null and !useYn.equals('')">
+			 		 AND  USE_YN = #{useYn}
+			 		</if>
 			 		<if test="prdtDiv != null and !prdtDiv.equals('')">
 			 			AND PRDT_DIV = #{prdtDiv}
 			 		</if>
@@ -95,7 +99,6 @@
 			 		<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%'||UPPER(#{searchValue})||'%'				
 					</if>
-		 	</where>
 			 	ORDER BY PRDT_DIV, PRDT_NM, PRDT_STKN, PRDT_ERQK_YN, PRDT_SIZE, PRDT_SPEC, PRDT_COIL_YN
 			) A
 		)
