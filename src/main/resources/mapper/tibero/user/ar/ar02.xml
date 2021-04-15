@@ -267,10 +267,12 @@
 		        PRDT_SPEC
 			FROM 
 			(
-			 	SELECT * FROM TB_AR02M01 T
+			 	SELECT T.* FROM TB_AR02M01 T
+			 	LEFT OUTER JOIN TB_SD09M01 SM09
+			 	          ON  T.CO_CD = SM09.CO_CD  AND T.SITE_CD = SM09.SITE_CD
 			 	WHERE SELPCH_CD = #{selpchCd}
 				<if test="coCd != null and !coCd.equals('')">
-					AND CO_CD = #{coCd}				
+					AND T.CO_CD = #{coCd}				
 				</if>
 			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 					AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
@@ -291,10 +293,13 @@
 					AND TYP_CD = #{typCd}				
 				</if>
 				<if test="prjctCd != null and !prjctCd.equals('')">
-					AND PRJCT_CD = #{prjctCd}				
+					AND T.PRJCT_CD = #{prjctCd}				
 				</if>
 				<if test="siteCd != null and !siteCd.equals('')">
-					AND SITE_CD = #{siteCd}				
+					AND T.SITE_CD = #{siteCd}				
+				</if>
+				<if test="siteNm != null and !siteNm.equals('')">
+					AND SM09.SITE_NM like '%'|| #{siteNm} || '%'				
 				</if>
 				<if test="pdsk != null and !pdsk.equals('')">
 					AND PRDT_STKN = #{pdsk}				
