@@ -101,7 +101,7 @@ th {
 	                <td>
 	                  <input type="hidden" id="clntCd_S">
 	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S">
+		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.initView().setData(0) : ''">
 		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
@@ -139,7 +139,7 @@ th {
 	                <td>
 	                    <div class="search_form" style="width: 50%;">
 			              <input type="hidden" id="siteCd_S">
-			              <input type="text" id="siteNm_S">
+			              <input type="text" id="siteNm_S"  onkeyup="event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? gridView.initView().setData(0) : ''">
 			              <a onclick="openSecondSiteSearch('S');"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
@@ -304,6 +304,7 @@ th {
 				"dirtrsYn" : $("#dirtrsYn_S").val(),
 				"typCd" : $("#typCd_S").val(),
 				"siteCd" : $("#siteCd_S").val(),
+				"siteNm" : $("#siteNm_S").val(),
 				"pdsk" : $("#pdsk_S").val(),
 				"bilgYn" : $("#bilgYn_S").val(),
 				"pageNo" : _pageNo + 1, 
@@ -482,15 +483,19 @@ th {
 	}
 	
 	function insertBilg() {
+		var url = "/user/ar/ar04/insertBilg";
 		var flag = false;
 		var clntFlag = false;
 		var returnFlag = false;
 		var list = gridView.target.getList("selected");
 		var trstCertiNoArr = [];
+		var bilgCertNo = null;
 		$.each(list, function(idx, obj) {
-			if (obj.bilgYn == "Y"){
-				flag = true;
-				return false;
+			if (idx > 0) {
+				if(list[idx].bilgYn != list[idx-1].bilgYn) {
+					flag = true;
+					return false;
+				}
 			}
 			if (idx > 0) {
 				if(list[idx].clntCd != list[idx-1].clntCd) {
@@ -507,7 +512,7 @@ th {
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
 		if (flag) {
-			alert("이미 발행된 건이 있습니다.");
+			alert("발행유무가 동일한 건끼리 가능합니다.");
 			return;
 		}
 		if (clntFlag) {
@@ -518,15 +523,22 @@ th {
 			alert("반품은 반품끼리만 발행가능합니다.");
 			return;
 		}
+		if(list[0].bilgCertNo != undefined) {
+			url = "/user/ar/ar04/updateBilg";
+			bilgCertNo = list[0].bilgCertNo
+		}
 		var formData = {
 			"trstCertiNo" : trstCertiNoArr,
+			"bilgCertNo" : bilgCertNo,
 			"userId" : jwt.userId,
 			"userNm" : jwt.userNm,
-			"pgmId" : "OD0201M01"
+			"pgmId" : "AR0201M01"
 		}
-		postAjax("/user/ar/ar04/insertBilg", formData, null, function(data){
+		postAjax(url, formData, null, function(data) {
 			alert(data.resultMessage);
-			gridView.setData(0);
+			if(data.resultCode == 200) {
+				gridView.setData(0);	
+			}
 		});
 	}
 	

@@ -59,7 +59,10 @@ public class AR04Ctr {
 	public String selectTaxBilg(@RequestBody Map<String, String> paramMap, ModelMap model) {
 
     	Map<String, String> result = ar04Svc.selectTaxBilg(paramMap);
+    	List<Map<String, String>> dtlResult = ar04Svc.selectBilgDetailList(paramMap);
     	model.addAttribute("result", result);
+    	model.addAttribute("dtlResult", dtlResult);
+
     	return "jsonView";
 	}
     
@@ -76,6 +79,19 @@ public class AR04Ctr {
     	return "jsonView";
     }
 	
+    @PostMapping(value = "/updateBilg")
+    public String updateBilg(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	int result = ar04Svc.updateBilg(paramMap);
+    	if(result == 0) {
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("noUpdateTax"));
+    	} else {
+    		model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}
+    	return "jsonView";
+    }
+    
     @PostMapping(value = "/selectTaxRcvList")
 	public String selectTaxRcvList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int totalCnt = ar04Svc.selectTaxRcvCount(paramMap);

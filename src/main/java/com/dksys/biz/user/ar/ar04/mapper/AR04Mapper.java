@@ -20,9 +20,15 @@ public interface AR04Mapper {
 
 	List<Map<String, String>> selectTaxBilgDetailList(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectBilgDetailList(Map<String, String> paramMap);
+
 	Map<String, String> selectTaxBilg(Map<String, String> paramMap);
 
 	int updateTaxBilg(Map<String, String> paramMap);
+
+	int deleteTaxBilgDetail(Map<String, String> paramMap);
+
+	int insertTaxBilgDetail(Map<String, String> paramMap);
 
 	int selectTaxRcvCount(Map<String, String> paramMap);
 
@@ -77,5 +83,9 @@ public interface AR04Mapper {
 	int insertInvItemDelete(Map<String, String> bilgInfo);
 
 	int updateTaxBilgNoDelete(Map<String, String> bilgInfo);
+
+	int insertBilgDetail(Map<String, String> bilgInfo);
+
+	int updateBilgAmt(Map<String, String> bilgParam);
 
 }

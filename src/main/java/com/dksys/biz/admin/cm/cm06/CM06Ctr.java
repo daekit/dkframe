@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.cm.cm06.service.CM06Svc;
+import com.dksys.biz.main.service.LoginService;
+import com.dksys.biz.main.vo.User;
 import com.dksys.biz.util.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,9 @@ public class CM06Ctr {
 
     @Autowired
     CM06Svc cm06Svc;
+    
+    @Autowired
+    LoginService loginService;
     
     // 사용자 리스트 조회
     @PostMapping("/selectUserList")
@@ -98,6 +103,30 @@ public class CM06Ctr {
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
     	}
     	
+    	return "jsonView";
+    }
+    
+    // 비밀번호 수정
+    @PutMapping("/updatePw")
+    public String updatePw(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	paramMap.put("id", paramMap.get("userId"));
+    	String prePw = paramMap.get("prePw");
+    	String newPw = paramMap.get("newPw");
+		paramMap.put("password", passwordEncoder.encode(newPw));
+    	User user = loginService.selectUserInfo(paramMap);
+		if(!passwordEncoder.matches(prePw, user.getPassword())) {
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("unMatchPw"));
+			return "jsonView";
+		}
+		int result = cm06Svc.updatePw(paramMap);
+		if(result == 2) {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("relogin"));
+		} else {
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
     	return "jsonView";
     }
 }

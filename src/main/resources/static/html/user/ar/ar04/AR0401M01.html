@@ -160,6 +160,12 @@
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
+
+	ax5.ui.grid.formatter["bilgYn"] = function () {
+		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
+		return '<img src="/static/img/'+color+'" style="width: 15px;height: 15px;"></img>';
+	};
+	
 	var gridView = {
 			initView : function() {
 				this.target = new ax5.ui.grid();
@@ -200,7 +206,7 @@
 					},
 			        footSum: [
 				    	[
-				    		{label: "총계", colspan:6, align:"center"},
+				    		{label: "총계", colspan:10, align:"center"},
 				    		{key:"taxDms57240", collector: "sum", formatter:"money", align: "right"},
 				    		{key: "taxMoa523", collector: "sum", formatter:"money", align: "right"},
 		                    {key: "taxMoa5124", collector: "sum", formatter:"money", align: "right"},
@@ -246,6 +252,11 @@
 				    ],
 					columns: [
 						{key: "coCd", hidden: true},
+
+			          	{key: "sndYn",          label: "전송",   	     align: "center",  width: 45,	formatter: "bilgYn"},
+			          	{key: "cseqRcvYn",      label: "결과",   	     align: "center",  width: 45},
+			          	{key: "taxAdmsYn",      label: "승인",   	 	 align: "center",  width: 45},
+			          	{key: "rcvYn",          label: "접수",   	     align: "center",  width: 45, 	formatter: "bilgYn"},
 			          	{key: "taxDt",          label: "계산서발행일",   	 align: "center",  width: 90},
 			          	{key: "taxBilgNo",      label: "계산서번호",   	     align: "center",  width: 110},
 			          	{key: "bilgCertNo",     label: "청구서번호",   	     align: "center",  width: 95},
@@ -294,17 +305,13 @@
 			          	{key: "transAmt",       label: "운송비",   	     align: "right",  width: 95, formatter: "money"},
 			          	{key: "trstDcAmt",      label: "할인금액",   	     align: "right",  width: 95, formatter: "money"},
 			          	{key: "etcAmt",         label: "기타금액",   	     align: "right",  width: 95, formatter: "money"},
-			          	{key: "sndYn",          label: "전송유무",   	     align: "center",  width: 80},
 			          	{key: "sndDttm",        label: "전송일시",   	     align: "center",  width: 80},
 			          	{key: "sndProcId",      label: "계산서전송ID",   	 align: "left",    width: 120},
-			          	{key: "cseqRcvYn",      label: "계산서처리결과여부",   align: "center",  width: 140},
 			          	{key: "cseqRcvDttm",    label: "계산서처리결과회신일시",align: "center",  width: 160},
-			          	{key: "taxAdmsYn",      label: "계산서승인여부",   	 align: "center",  width: 110},
-			          	{key: "taxAdmsDttm",    label: "계산서승인처리일시", 	 align: "center",  width: 125},
-			          	{key: "rcvYn",          label: "수신여부",   	     align: "center",  width: 80},
-			          	{key: "rcvDttm",        label: "수신일자",   	     align: "center",  width: 80},
-			          	{key: "rcvProcId",      label: "국세청접수번호",    align: "left",    width: 120},
-			          	{key: "accSlipNo",      label: "회계전표참조번호",   	align: "left",     width: 120},
+			          	{key: "taxAdmsDttm",    label: "승인처리일시", 	 align: "center",  width: 125},
+			          	{key: "rcvDttm",        label: "국세청접수일자",	 align: "center",  width: 80},
+			          	{key: "rcvProcId",      label: "국세청접수번호",     align: "left",    width: 120},
+			          	{key: "accSlipNo",      label: "회계전표참조번호",   align: "left",     width: 120},
 			          	{key: "accSlipYn",      label: "회계반영여부",   	align: "center",   width: 100},
 			          	{key: "accSlipDttm",    label: "회계반영일시",   	align: "center",   width: 100},
 			          	{key: "accProcId",      label: "회계처리작업자ID",   align: "left",  width: 120}
@@ -500,7 +507,7 @@
 			return;
 		}
 		this.actionType = actionType;
-		openModal("/static/html/user/ar/ar04/AR0401P01.html", 1000, 600, "");
+		openModal("/static/html/user/ar/ar04/AR0401P01.html", 1000, 800, "");
 	}
 	
 	// 거래처 검색창
@@ -598,7 +605,7 @@
 			
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 정발행의 경우 rffgn1 : 01, rffAea : null 인 건만 가능
-			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225 != 'BGM12259'){
+			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225Cd != 'BGM12259'){
 				//if((obj.rffGn1Cd != "02" && obj.rffAeaCd != "03")){
 					arrGnChk = false;
 					alert("세금계산서 종류를 확인 해 주세요.");
@@ -675,7 +682,7 @@
 			}
 			
 			// 취소는 정발행 세금계산서만 가능
-			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225 != 'BGM12259'){
+			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225Cd != 'BGM12259'){
 				arrGnChk = false;
 				alert("세금계산서 종류를 확인 해 주세요.");
 				return false;
@@ -746,7 +753,7 @@
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 
 			// 수정의 경우 rffgn1 : 01, rffAea : null 이 아닌 건만 가능
-			if(!obj.bilgCertNo || obj.rffAeaCd != '01' || (obj.rffGn1Cd != '01' && obj.rffGn1Cd != '02') || obj.bgm1225 != 'BGM12259'){
+			if(!obj.bilgCertNo || obj.rffAeaCd != '01' || (obj.rffGn1Cd != '01' && obj.rffGn1Cd != '02') || obj.bgm1225Cd != 'BGM12259'){
 				arrGnChk = false;
 				alert("세금계산서 종류를 확인 해 주세요.");
 				return false;

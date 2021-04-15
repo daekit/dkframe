@@ -30,5 +30,9 @@ public interface AR04Svc {
 	int updateBilgCancel(Map<String, Object> paramMap);
 
 	int updateBilgRvrs(Map<String, Object> paramMap);
+	
+	public List<Map<String, String>> selectBilgDetailList(Map<String, String> param);
+
+	int updateBilg(Map<String, Object> paramMap);
 
 }
