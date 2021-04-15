@@ -78,4 +78,8 @@ public interface AR04Mapper {
 
 	int updateTaxBilgNoDelete(Map<String, String> bilgInfo);
 
+	int insertBilgDetail(Map<String, String> bilgInfo);
+
+	int updateBilgAmt(Map<String, String> bilgParam);
+
 }

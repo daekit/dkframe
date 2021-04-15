@@ -38,5 +38,7 @@ public interface AR02Mapper {
 
 	long selectBilgVatAmt(Map<String, String> paramMap);
 
+	Map<String, String> selectBilgInfoUpdate(Map<String, String> paramMap);
+
 	
 }
