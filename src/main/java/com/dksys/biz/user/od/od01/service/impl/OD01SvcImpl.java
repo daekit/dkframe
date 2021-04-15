@@ -206,7 +206,7 @@ public class OD01SvcImpl implements OD01Svc {
 			//커플러일 경우 별도 단가 데이터 저장
 			if(detailMap.get("prdtStkn").contains("PDSKCP")) {
 				detailMap.put("coCd", paramMap.get("coCd"));
-				detailMap.put("clntCd", paramMap.get("clntCd"));
+				detailMap.put("clntCd", clntCd);
 				detailMap.put("selpchCd", "SELPCH1");
 				detailMap.put("prdtDt", paramMap.get("reqDt"));
 				detailMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
@@ -214,11 +214,12 @@ public class OD01SvcImpl implements OD01Svc {
 				sd08Mapper.insertCplrUntpc(detailMap);
 				if("Y".equals(paramMap.get("dirtrsYn"))) {
 					detailMap.put("selpchCd", "SELPCH2");
-					detailMap.put("clntCd", paramMap.get("sellClntCd"));
+					detailMap.put("clntCd", sellClntCd);
 					sd08Mapper.insertCplrUntpc(detailMap);
 				}
 			}
 			od01Mapper.updateConfirmDetail(detailMap);
+			//매출매입 데이터 세팅
 			detailMap = od01Mapper.selectOrderDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd", "SELPCH1");
@@ -248,7 +249,9 @@ public class OD01SvcImpl implements OD01Svc {
 			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
 			realTotTrstAmt += bilgVatAmt;
+			//매입
 			ar02Mapper.insertPchsSell(paramMap);
+			//재고 세팅
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
 				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
@@ -285,6 +288,7 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("clntCd", sellClntCd);
 				paramMap.put("clntNm", sellClntNm);
 				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
+				//매출
 				ar02Mapper.insertPchsSell(paramMap);
 				
 				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
@@ -305,6 +309,7 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}
 		}
+		//직송(매출)일 경우 여신체크
 		if("Y".equals(paramMap.get("dirtrsYn"))) {
 			paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
 			paramMap.put("clntCd",  sellClntCd);
