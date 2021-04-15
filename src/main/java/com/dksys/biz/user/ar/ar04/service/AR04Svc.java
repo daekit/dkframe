@@ -31,4 +31,6 @@ public interface AR04Svc {
 
 	int updateBilgRvrs(Map<String, Object> paramMap);
 
+	int updateBilg(Map<String, Object> paramMap);
+
 }

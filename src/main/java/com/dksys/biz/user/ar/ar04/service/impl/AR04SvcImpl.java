@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar04.mapper.AR04Mapper;
 import com.dksys.biz.user.ar.ar04.service.AR04Svc;
+import com.dksys.biz.util.DateUtil;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -37,11 +38,29 @@ public class AR04SvcImpl implements AR04Svc {
 		param.put("pgmId", pgmId);
 		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(param);
 		// bilgInfo: CamelMap이라 대문자 형태로 SET 해야함
-		int bilgCertNo = ar04Mapper.getBilgCertNo();
+		String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
 		bilgInfo.put("USER_ID", userId);
 		bilgInfo.put("PGM_ID", pgmId);
-		bilgInfo.put("BILG_CERT_NO", String.valueOf(bilgCertNo));
+		bilgInfo.put("BILG_CERT_NO", bilgCertNo);
 		result = ar04Mapper.insertBilg(bilgInfo);
+		Map<String, String> arParam = new HashMap<String, String>();
+		arParam.put("trstCertiNo", list.get(0));
+		arParam = ar02Mapper.selectSellInfo(arParam);
+		Map<String, String> bilgDetail = new HashMap<String, String>();
+		String ard5006 = list.size() > 1 ? arParam.get("prdtNm") + " 외 " + (list.size()-1) + "건" : arParam.get("prdtNm");
+		bilgDetail.put("bilgCertNo", bilgCertNo);
+		bilgDetail.put("moa95004", DateUtil.getCurrentYyyymmdd());
+		bilgDetail.put("ard5006", ard5006);
+		bilgDetail.put("ard113a", arParam.get("trstPrdtCd"));
+		bilgDetail.put("mea106154", arParam.get("prdtUnitNm"));
+		bilgDetail.put("dms1056", arParam.get("prdtSpec"));
+		bilgDetail.put("mea106314", bilgInfo.get("bilgQty"));
+		bilgDetail.put("moa1023", bilgInfo.get("bilgAmt"));
+		bilgDetail.put("moa10124", bilgInfo.get("taxMoa5124"));
+		bilgDetail.put("dms1000", arParam.get("trspRmk"));
+		bilgDetail.put("userId", userId);
+		bilgDetail.put("pgmId", pgmId);
+		result = ar04Mapper.insertBilgDetail(bilgDetail);
 		for (String trstCertiNo : list) {
 			Map<String, String> sellParam = new HashMap<String, String>();
 			sellParam.put("trstCertiNo", trstCertiNo);
@@ -292,10 +311,10 @@ public class AR04SvcImpl implements AR04Svc {
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("bilgCertNo", list.get(0));
 		Map<String, String> bilgInfo = ar04Mapper.selectTaxBilg(param);
-		if(bilgInfo.get("taxBilgNo") == null) {
+		if(bilgInfo.get("taxBilgNo") == null && bilgInfo.get("orgnTaxBilgNo") == null) {
 			result = ar04Mapper.deleteBilgInfo(param);
 			ar02Mapper.updateBilgCancel(param);
-		}
+		} 
 		return result;
 	}
 	
@@ -321,6 +340,21 @@ public class AR04SvcImpl implements AR04Svc {
 			param.put("coCd", list.get(i).split(",")[1]);
 			result = ar04Mapper.updateBilgRvrs(param); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 : 환입
 		}
+		return result;
+	}
+
+	@Override
+	public int updateBilg(Map<String, Object> paramMap) {
+		int result = 0;
+		String bilgCertNo = String.valueOf(paramMap.get("bilgCertNo"));
+		Map<String, String> param = new HashMap<String, String>();
+		param.put("userId", String.valueOf(paramMap.get("userId")));
+		param.put("userNm", String.valueOf(paramMap.get("userNm")));
+		param.put("bilgCertNo", bilgCertNo);
+		Map<String, String> bilgInfo = ar04Mapper.selectTaxBilg(param);
+		if(bilgInfo.get("taxBilgNo") != null) return result;
+		Map<String, String> bilgParam = ar02Mapper.selectBilgInfoUpdate(param);
+		result = ar04Mapper.updateBilgAmt(bilgParam);
 		return result;
 	}
 }
