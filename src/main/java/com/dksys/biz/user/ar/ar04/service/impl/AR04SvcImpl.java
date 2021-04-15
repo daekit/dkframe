@@ -1,5 +1,7 @@
 package com.dksys.biz.user.ar.ar04.service.impl;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar04.mapper.AR04Mapper;
 import com.dksys.biz.user.ar.ar04.service.AR04Svc;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -67,6 +72,11 @@ public class AR04SvcImpl implements AR04Svc {
 	}
 
 	@Override
+	public List<Map<String, String>> selectBilgDetailList(Map<String, String> paramMap) {
+		return ar04Mapper.selectBilgDetailList(paramMap);
+	}
+
+	@Override
 	public List<Map<String, String>> selectTaxBilgDetailList(Map<String, String> paramMap) {
 		return ar04Mapper.selectTaxBilgDetailList(paramMap);
 	}
@@ -78,7 +88,23 @@ public class AR04SvcImpl implements AR04Svc {
     
 	@Override
 	public int updateTaxBilg(Map<String, String> paramMap) {
-		return ar04Mapper.updateTaxBilg(paramMap);
+		int result = 0;
+		result = ar04Mapper.updateTaxBilg(paramMap);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		// 세금계산서관리 상세 delete
+		ar04Mapper.deleteTaxBilgDetail(paramMap);
+		// 세금계산서관리 상세 insert
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		for(Map<String, String> detailMap : detailList) {
+			detailMap.put("bilgCertNo", paramMap.get("bilgCertNo"));
+			detailMap.put("userId", paramMap.get("userId"));
+			detailMap.put("pgmId", paramMap.get("pgmId"));
+			if(!detailMap.get("ard113a").isEmpty()) {
+				ar04Mapper.insertTaxBilgDetail(detailMap);
+			}
+		}
+		return result;
 	}
     
 	@Override
@@ -323,4 +349,6 @@ public class AR04SvcImpl implements AR04Svc {
 		}
 		return result;
 	}
+	
+	
 }

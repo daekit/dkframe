@@ -2087,4 +2087,70 @@
 	     , BGM_4343 = #{bgm4343}
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
+	
+	<select id="selectBilgDetailList" resultType="CamelMap">
+	SELECT ROWNUM
+		 , BILG_CERT_NO AS BILG_CERT_NO
+		 , BILG_CERT_NO_SEQ AS BILG_CERT_NO_SEQ
+		 , TO_CHAR(TO_DATE(MOA9_5004, 'YYYYMMDD'), 'YYYY-MM-DD') AS MOA9_5004
+		 , ARD_5006 AS ARD_5006
+		 , MEA10_6154 AS MEA10_6154
+		 , DMS_1056 AS DMS_1056
+		 , MEA10_6314 AS MEA10_6314
+		 , MOA10_146 AS MOA10_146
+		 , MOA10_23 AS MOA10_23
+		 , MOA10_124 AS MOA10_124
+		 , DMS_1000 AS DMS_1000
+		 , ARD___113A AS ARD_113A
+	  FROM TB_AR04D01
+	 WHERE BILG_CERT_NO = #{bilgCertNo}
+	</select>
+	
+	<delete id="deleteTaxBilgDetail">
+	DELETE FROM TB_AR04D01
+	 WHERE BILG_CERT_NO = #{bilgCertNo}
+	</delete>
+	
+	<insert id="insertTaxBilgDetail">
+	INSERT INTO TB_AR04D01
+	(
+		BILG_CERT_NO,
+		BILG_CERT_NO_SEQ,
+		MOA9_5004,
+		ARD_5006,
+		ARD___113A,
+		MEA10_6154,
+		DMS_1056,
+		MEA10_6314,
+		MOA10_146,
+		MOA10_23,
+		MOA10_124,
+		DMS_1000,
+		CREAT_ID,
+		CREAT_PGM,
+		CREAT_DTTM,
+		UDT_ID,
+		UDT_PGM,
+		UDT_DTTM
+	) VALUES (
+		#{bilgCertNo},
+		(SELECT NVL(MAX(BILG_CERT_NO_SEQ), 0) + 1 FROM TB_AR04D01 WHERE BILG_CERT_NO = #{bilgCertNo}),
+		REPLACE(#{moa95004}, '-', ''),
+		#{ard5006},
+		#{ard113a},
+		#{mea106154},
+		#{dms1056},
+		#{mea106314},
+		#{moa10146},
+		#{moa1023},
+		#{moa10124},
+		#{dms1000},
+		#{userId},
+		#{pgmId},
+		SYSDATE,
+		#{userId},
+		#{pgmId},
+		SYSDATE
+	)
+	</insert>
 </mapper>
