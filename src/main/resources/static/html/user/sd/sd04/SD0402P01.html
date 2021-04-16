@@ -193,7 +193,7 @@
 				<th class="tc">길이</th>
 				<th class="tc">단위</th>
 				<th class="tc">기준단가</th>
-				<th class="tc">주문수량</th>
+				<th class="tc hit">주문수량</th>
 				<th class="tc">주문단가</th>
 				<th class="tc">금액</th>
 				<th class="tc">예상손익</th>
@@ -238,7 +238,7 @@
 					<input type="text" name="prdtUpr" comma readonly>
 				</td>
 				<td>
-					<input type="text" name="odrQty" onkeyup="addComma(this); calOdrWt(this); countAmt(this);" comma>
+					<input type="text" name="odrQty" onkeyup="addComma(this); calOdrWt(this); countAmt(this);" comma required>
 				</td>
 				<td>
 					<input type="text" name="odrUpr" onkeyup="addComma(this); countAmt(this);" comma>
@@ -772,7 +772,7 @@
 	function calOdrWt(elem){
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
 		var odrQty = Number(deleteCommaStr($targetRow.find('input[name="odrQty"]').val()));
-		var prdtCnvrsnWt = Number(deleteCommaStr($targetRow.find('input[name="prdtCnvrsnWt"]').val()));
+		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val());
 		var odrWt = odrQty * prdtCnvrsnWt;
 		$targetRow.find('input[name="odrWt"]').val(odrWt);
 	}
@@ -800,15 +800,15 @@
 		var totEpctPal = 0;
 		
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem) {
-			var odrQty = $(elem).find("input[name='odrQty']").val();
-			var odrWt = $(elem).find("input[name='odrWt']").val();
-			var odrAmt = $(elem).find("input[name='odrAmt']").val();
-			var epctPal = $(elem).find("input[name='epctPal']").val();
+			var odrQty = Number(deleteCommaStr($(elem).find("input[name='odrQty']").val()));
+			var odrWt = Number($(elem).find("input[name='odrWt']").val());
+			var odrAmt = Number(deleteCommaStr($(elem).find("input[name='odrAmt']").val()));
+			var epctPal = Number(deleteCommaStr($(elem).find("input[name='epctPal']").val()));
 			
-			totQty += Number(deleteCommaStr(odrQty));
-			totWt += Number(odrWt);
-			totAmt += Number(deleteCommaStr(odrAmt));
-			totEpctPal += Number(deleteCommaStr(epctPal))
+			totQty += odrQty;
+			totWt += odrWt;
+			totAmt += odrAmt;
+			totEpctPal += epctPal;
 		});
 		
 		$("#totQty").val(addCommaStr(totQty));
@@ -901,19 +901,6 @@
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);
 		
-		// 첨부파일 추가
-		$.each(fileArr, function(idx, obj) {
-			// 신규파일만 추가
-			if (obj.fileKey == 0) {
-				formData.append("files", obj.file);
-			}
-		});
-		
-		// 수정시 삭제된 파일 추가
-		if(actionType == "U"){
-			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		}
-		
 		// 상세내역 추가
 		var detailArr = [];
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem) {
@@ -930,6 +917,19 @@
 			}
 		});
 		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj) {
+			// 신규파일만 추가
+			if (obj.fileKey == 0) {
+				formData.append("files", obj.file);
+			}
+		});
+		
+		// 수정시 삭제된 파일 추가
+		if(actionType == "U"){
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		}
 		
 		return formData;
 	}
