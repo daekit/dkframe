@@ -39,5 +39,9 @@ public interface SD06Svc {
     public int insertOneDetail01(Map<String, String> param);
     
     public int insertOneDetail02(Map<String, String> param);
+
+    public int updateOneDetail01(Map<String, String> param);
+
+    public int updateOneDetail02(Map<String, String> param);
     
 }
