@@ -1,5 +1,6 @@
 package com.dksys.biz.user.sd.sd06;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -168,7 +169,26 @@ public class SD06Ctr {
     //자재 기준 단가관리 수정 및 등록
     @PutMapping("/insertOneMaster")
     public String insertOneMaster(@RequestBody Map<String, String> param, ModelMap model) {
-    	sd06svc.insertOneMaster(param);
+    	
+    	System.out.println(param);
+    	Map<String, String> tempParam = new HashMap<String, String>();
+    	
+    	tempParam.putAll(param);
+    	tempParam.put("prdtDt", "");
+    	
+    	int count = sd06svc.selectOneMasterCount(tempParam);
+    	//기존 기준단가 row가 있을 시, 강종, 철근 detail 자동저장
+    	if(count > 0) {
+    		sd06svc.insertOneMaster(param);
+    		sd06svc.updateOneDetail01(param);
+    		sd06svc.updateOneDetail02(param);
+    		
+    	}else {
+    		
+    		sd06svc.insertOneMaster(param);
+        	
+    	}
+    	
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";

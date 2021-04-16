@@ -101,6 +101,16 @@ public class SD06Svcmpl implements SD06Svc {
 	public int selectOneMasterCount(Map<String, String> param) {
 		return sd06Mapper.selectOneMasterCount(param);
 	}
+	
+	@Override
+	public int updateOneDetail01(Map<String, String> param) {
+		return sd06Mapper.updateOneDetail01(param);
+	}
+
+	@Override
+	public int updateOneDetail02(Map<String, String> param) {
+		return sd06Mapper.updateOneDetail02(param);
+	}
 
 
 }

@@ -42,6 +42,10 @@ public interface SD06Mapper {
 	int insertOneDetail01(Map<String, String> param);
 	
 	int insertOneDetail02(Map<String, String> param);
+	
+	int updateOneDetail01(Map<String, String> param);
+	
+	int updateOneDetail02(Map<String, String> param); 
 
 
 }
