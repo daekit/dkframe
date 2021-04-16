@@ -62,7 +62,9 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd" required onchange="gridView.setData(0);"></select>
+							<select data-kind="CO" data-search="coCd" required onchange="gridView.setData(0);">
+							<option value="">전체</option>
+							</select>
 						</td>
 						<th>사용여부</th>
 						<td>
@@ -80,6 +82,16 @@
 								</a>
 							</div>
 						</td>
+						<th>그룹사(연계)</th>
+						<td>
+							<input type="hidden" id="linkGrpClntCd_S" data-search="clntCd">
+							<div class="search_form" style="width: 100%;">
+								<input type="text" id="linkGrpClntNm_S" data-search="linkGrpClntNm" onkeyup="event.keyCode == 8 ? linkGrpClntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="clntSearch('LINK');">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>						
 					</tr>
 				</table>
 			</div>
@@ -189,13 +201,16 @@
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "거래처관리(여신)");
 		setCommonSelect($("#main_area select[data-kind]"));
-		$('[data-search="coCd"]').val(jwt.coCd);
+		//	$('[data-search="coCd"]').val(jwt.coCd);
+		$('[data-search="useYn"]').val("Y");
 		gridView.initView().setData(0);
 	});
 	
 	function initSearch() {
 		$(".contents.search select, .contents.search input").val("");
-		$('[data-search="coCd"]').val(jwt.coCd);
+		//	$('[data-search="coCd"]').val(jwt.coCd);
+		$('[data-search="coCd"]').val("");
+		$('[data-search="useYn"]').val("Y");
 		gridView.setData(0);
 	}
 	
@@ -225,11 +240,18 @@
 	}
 	
 	//거래처
-	function clntSearch() {
+	function clntSearch(type) {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd_S').val(row.clntCd);
-			$('#clntNm_S').val(row.clntNm);
+			if(type == 'LINK'){
+				$('#linkGrpClntCd_S').val(row.clntCd);
+				$('#linkGrpClntNm_S').val(row.clntNm);
+				
+			}else{
+				
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);
+			}
 		});
 	}
 
