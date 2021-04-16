@@ -6,25 +6,37 @@
 	<select id="selectClntCount" resultType="int">
 		SELECT 
 			COUNT(*)
-		FROM
-			TB_BM02M01
-		<where>
-			<if test="useYn != null and !useYn.equals('')">
-				USE_YN = #{useYn}
-			</if>
-			<if test="searchValue != null and !searchValue.equals('')">
-				AND ${searchType} LIKE '%${searchValue}%'
-			</if>
-			<if test="clntDivCd !=null and !clntDivCd.equals('')">
-				AND CLNT_DIV_CD = #{clntDivCd} 
-			</if>
-			<if test="clntCd != null and !clntCd.equals('')">
-				AND CLNT_CD =  #{clntCd}
-			</if>
-			<if test="clntNm != null and !clntNm.equals('')">
-				AND CLNT_NM LIKE '%${clntNm}%'
-			</if>
-		</where>
+		FROM (	SELECT BM02.*,		
+                     nvl2(LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = BM02.LINK_GRP_CLNT_CD),BM02.CLNT_NM ) AS LINK_GRP_CLNT_NM
+				FROM
+					TB_BM02M01 BM02			             
+				<where>
+					<if test="useYn != null and !useYn.equals('')">
+						BM02.USE_YN = #{useYn}
+					</if>
+					<if test="clntDivCd !=null and !clntDivCd.equals('')">
+						AND BM02.CLNT_DIV_CD = #{clntDivCd} 
+					</if>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND BM02.CLNT_CD =  #{clntCd}
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND BM02.CLNT_NM LIKE '%${clntNm}%'
+					</if>
+					<if test="linkGrpClntCd != null and !linkGrpClntCd.equals('')">
+						AND BM02.LINK_GRP_CLNT_CD = #{linkGrpClntCd}
+					</if>
+					<if test="searchValue != null and !searchValue.equals('')">
+						 ${searchType} LIKE '%${searchValue}%'
+					</if>
+					
+				</where>
+		     ) T
+				<where>
+					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">
+					    LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
+					</if>
+				</where>
 	</select>
 	
 	<select id="selectClntList" resultType="CamelMap">
@@ -33,7 +45,7 @@
 		FROM
 		(
 			SELECT
-				ROWNUM AS RNUM, A.*
+				ROWNUM AS RNUM, T.*
 			FROM
 			(
 				SELECT 
@@ -111,7 +123,9 @@
 					A.CREAT_ID,
 					A.CREAT_PGM,
 					A.UDT_ID,
-					A.UDT_PGM				 
+					A.UDT_PGM,
+					A.LINK_GRP_YN,
+                    A.LINK_GRP_CLNT_CD			 
 				FROM
 					TB_BM02M01 A
 				<where>
@@ -130,9 +144,17 @@
 					<if test="clntNm != null and !clntNm.equals('')">
 						AND A.CLNT_NM LIKE '%${clntNm}%'
 					</if>
+					<if test="linkGrpClntCd != null and !linkGrpClntCd.equals('')">
+						AND A.LINK_GRP_CLNT_CD =  #{linkGrpClntCd}
+					</if>
 				</where>
-				ORDER BY LINK_GRP_CLNT_CD, CLNT_CD
-			) A
+				ORDER BY A.LINK_GRP_CLNT_CD, A.CLNT_CD
+			) T
+				<where>
+					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
+						 LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
+					</if>
+				</where>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
