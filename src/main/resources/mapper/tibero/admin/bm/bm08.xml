@@ -41,40 +41,50 @@
 		FROM
 		(
 			SELECT
-				ROWNUM AS RNUM, A.*
+				ROWNUM AS RNUM, A.*,
+				CDTLN_AMT - PLDG01_AMT - PLDG02_AMT - PLDG04_AMT - PLDG05_AMT AS PLDG99_AMT
 			FROM
-			(
-	
+			(	
 			SELECT 
 				A.USE_YN,
 				A.LINK_GRP_CLNT_CD,
-				LINK_GRP_CLNT_NM,
+			    nvl2(A.LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 C WHERE C.CLNT_CD = A.LINK_GRP_CLNT_CD), A.CLNT_NM ) AS LINK_GRP_CLNT_NM,	
 				CO_CD, CO_NM,
 				CLNT_CD,
 				CLNT_NM,
-				min(BASIS_CDTLN_AMT) AS BASIS_CDTLN_AMT,
-				SUM(PLDG03_AMT) AS PLDG03_AMT,
-				SUM(CDTLN_AMT) AS CDTLN_AMT,
-				MAX(TOT_LOAN_AMT) AS TOT_LOAN_AMT, 
-				MAX(LOAN_AMT) AS LOAN_AMT
+				BASIS_CDTLN_AMT,
+				PLDG01_AMT, <!-- 부동산 -->
+				PLDG02_AMT, <!-- 보증보험 -->
+				PLDG04_AMT, <!-- 개별신용 -->
+				PLDG05_AMT, <!-- 현금 -->
+				CDTLN_AMT,
+					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
+					 WHERE B.CLNT_CD = A.CLNT_CD  
+					   AND B.USE_YN = 'Y'
+					   AND B.SELPCH_CD   = 'SELPCH2'
+					   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
+					 ) AS PLDG03_AMT,
+			    F_CREDIT_LOAN('T', A.CLNT_CD,A.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS TOT_LOAN_AMT,
+			    F_CREDIT_LOAN('C', A.CLNT_CD,A.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT
 			FROM (
 					SELECT 
 							A.USE_YN,
 						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
-		                    nvl2(A.LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 C WHERE C.CLNT_CD = A.LINK_GRP_CLNT_CD), A.CLNT_NM ) AS LINK_GRP_CLNT_NM,	
-							B.CO_CD,
+		                   B.CO_CD,
 							FN_CM05M01_CD_TO_NM(b.CO_CD) CO_NM,
 							A.CLNT_CD,
 							A.CLNT_NM,
 							A.BASIS_CDTLN_AMT,
-							decode(b.PLDG_DIV_CD,'PLDG03', decode(B.USE_YN,'N',0,(B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100)),0) AS PLDG03_AMT,
-							decode(b.PLDG_DIV_CD,'PLDG03',0,decode(B.USE_YN,'N',0,(B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT,
-						    F_CREDIT_LOAN('T', A.CLNT_CD,B.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS TOT_LOAN_AMT,
-						    F_CREDIT_LOAN('C', A.CLNT_CD,B.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT
+							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG01_AMT,
+							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG02_AMT,
+							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG04_AMT,
+							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG05_AMT,
+							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0)) AS CDTLN_AMT
 			        FROM TB_BM02M01 A
 						LEFT OUTER JOIN TB_BM02D02 B
-					             ON  A.CLNT_CD = B.CLNT_CD 
-					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd')
+					             ON  B.CLNT_CD = A.CLNT_CD 
+					             AND B.USE_YN = 'Y'
+<!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
 					             <if test="coCd !=null and !coCd.equals('')">
 				     	         AND B.CO_CD = #{coCd} 
 					            </if>
@@ -91,13 +101,19 @@
 					<if test="clntDivCd !=null and !clntDivCd.equals('')">
 					  AND A.CLNT_DIV_CD = #{clntDivCd} 
 					</if>
+					GROUP BY A.USE_YN,
+						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
+							B.CO_CD,
+							A.CLNT_CD,
+							A.CLNT_NM,
+							A.BASIS_CDTLN_AMT
 				) AS a
-				WHERE  a.TOT_LOAN_AMT != 0
-				GROUP BY a.LINK_GRP_CLNT_NM , LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
+				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
+	         WHERE TOT_LOAN_AMT != 0
+			 ORDER BY a.LINK_GRP_CLNT_NM 
 		)
-		WHERE
-			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+		WHERE  RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 
 	
