@@ -266,7 +266,7 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("stockChgCd", "STOCKCHG01");
 				if(stockInfo == null) {
 					paramMap.put("pchsUpr", detailMap.get("realDlvrUpr"));
-					paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
+					paramMap.put("sellUpr", "0");
 					paramMap.put("stockUpr", detailMap.get("realDlvrUpr"));
 					paramMap.put("stdUpr", detailMap.get("realDlvrUpr"));
 					paramMap.put("stockQty", detailMap.get("realDlvrQty"));
@@ -298,13 +298,14 @@ public class OD01SvcImpl implements OD01Svc {
 						paramMap.put("clntCd",  paramMap.get("whClntCd"));		
 					}
 					Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					if(stockInfo == null) {
-						paramMap.put("stockQty", detailMap.get("realDlvrQty"));
-					
-					} else {
+//					if(stockInfo == null) {
+//						paramMap.put("stockQty", detailMap.get("realDlvrQty"));
+//					
+//					} else {
 						int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
 						paramMap.put("stockQty", String.valueOf(stockQty));
-					}			
+						paramMap.put("sellUpr", detailMap.get("shipUpr"));
+//					}			
 					sm01Mapper.updateStockSell(paramMap);
 				}
 			}
