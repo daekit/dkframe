@@ -290,8 +290,8 @@
 			          	{key: "taxivcRcvBizcon",label: "공급받는자업태",   	 align: "left",  width: 120},
 			          	{key: "taxivcRcvBsty",  label: "공급받는자업종",   	 align: "left",  width: 120},
 			          	{key: "taxRcvNm",       label: "수신담당자",       align: "left",  width: 130},
-			          	{key: "taxRcvEmail",    label: "수신자이메일",      align: "left",  width: 140},
-			          	{key: "taxRcvEmail2",   label: "수신자이메일2",     align: "left",  width: 140},
+			          	{key: "taxRcvEmail",    label: "수신자이메일",      align: "left",  width: 180},
+			          	{key: "taxRcvEmail2",   label: "수신자이메일2",     align: "left",  width: 180},
 			          	{key: "taxRcvFax",      label: "수신자팩스",        align: "center",  width: 100},
 			          	{key: "taxRcvTel",      label: "수신자전화",        align: "center",  width: 100},
 			          	{key: "taxMoblphon",    label: "수신자휴대폰",       align: "center",  width: 100},
@@ -305,15 +305,15 @@
 			          	{key: "transAmt",       label: "운송비",   	     align: "right",  width: 95, formatter: "money"},
 			          	{key: "trstDcAmt",      label: "할인금액",   	     align: "right",  width: 95, formatter: "money"},
 			          	{key: "etcAmt",         label: "기타금액",   	     align: "right",  width: 95, formatter: "money"},
-			          	{key: "sndDttm",        label: "전송일시",   	     align: "center",  width: 80},
+			          	{key: "sndDttm",        label: "전송일시",   	     align: "center",  width: 140},
 			          	{key: "sndProcId",      label: "계산서전송ID",   	 align: "left",    width: 120},
-			          	{key: "cseqRcvDttm",    label: "계산서처리결과회신일시",align: "center",  width: 160},
-			          	{key: "taxAdmsDttm",    label: "승인처리일시", 	 align: "center",  width: 125},
+			          	{key: "cseqRcvDttm",    label: "계산서처리결과회신일시",align: "center",  width: 140},
+			          	{key: "taxAdmsDttm",    label: "승인처리일시", 	 align: "center",  width: 140},
 			          	{key: "rcvDttm",        label: "국세청접수일자",	 align: "center",  width: 80},
 			          	{key: "rcvProcId",      label: "국세청접수번호",     align: "left",    width: 120},
 			          	{key: "accSlipNo",      label: "회계전표참조번호",   align: "left",     width: 120},
 			          	{key: "accSlipYn",      label: "회계반영여부",   	align: "center",   width: 100},
-			          	{key: "accSlipDttm",    label: "회계반영일시",   	align: "center",   width: 100},
+			          	{key: "accSlipDttm",    label: "회계반영일시",   	align: "center",   width: 140},
 			          	{key: "accProcId",      label: "회계처리작업자ID",   align: "left",  width: 120}
 			        ]
 				});
@@ -600,8 +600,15 @@
 		var emailChk = true;
 		var emailIdx;
 		var arrGnChk = true;
+		var rvrsChk = true;
 		$.each(list, function(idx, obj){
-			if(obj.taxBilgNo) flag = true;
+			if(obj.taxBilgNo) {
+				flag = true;
+				if(obj.taxBilgNo == "역발행"){
+					rvrsChk = false;
+				}
+				return false;
+			}
 			
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 정발행의 경우 rffgn1 : 01, rffAea : null 인 건만 가능
@@ -624,6 +631,11 @@
 		});
 		if(!arrGnChk){
 			return false;
+		}
+		
+		if(!rvrsChk){
+			alert("역발행 된 세금계산서입니다.");
+			return;
 		}
 		if(!emailChk){
 			$.each(list, function(idx, obj){
