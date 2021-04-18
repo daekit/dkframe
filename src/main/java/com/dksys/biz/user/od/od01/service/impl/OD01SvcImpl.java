@@ -64,8 +64,7 @@ public class OD01SvcImpl implements OD01Svc {
 		int result = od01Mapper.insertOrder(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		// 발주상세 delete
-		od01Mapper.deleteOrderDetail(paramMap);
+		
 		// 발주상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
@@ -287,7 +286,7 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("stockChgCd", "STOCKCHG02");
 				paramMap.put("clntCd", sellClntCd);
 				paramMap.put("clntNm", sellClntNm);
-				paramMap.put("sellUpr", detailMap.get("realDlvrUpr"));
+				paramMap.put("sellUpr", detailMap.get("shipUpr"));
 				//매출
 				ar02Mapper.insertPchsSell(paramMap);
 				
