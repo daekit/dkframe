@@ -137,7 +137,11 @@
 					D02.PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
 					D02.PCHS_EACH_CREDIT_SECURITY,   <!-- 매입개별신용 -->
 					D02.PCHS_CASH_SECURITY,          <!-- 매입현금 -->
-					D02.PCHS_CDTLN_AMT               <!-- 매입답보 합계 -->
+					D02.PCHS_CDTLN_AMT,               <!-- 매입답보 합계 -->
+					A.PCHS_CLMN_DAY,    <!-- 매입 수금일자 -->
+	                A.PCHS_CLMN_RMK,    <!-- 매입 수금비고-->
+	                A.SELL_CLMN_DAY,    <!-- 판매 수금 일자-->
+	                A.SELL_CLMN_RMK     <!-- 판매 수금 비고-->
 				FROM
 					TB_BM02M01 A
 					LEFT OUTER JOIN (
@@ -210,7 +214,11 @@
 			CLNT_RMK, USE_YN,
 			LINK_GRP_YN,
             LINK_GRP_CLNT_CD,
-            (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD ) AS LINK_GRP_CLNT_NM
+            (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD ) AS LINK_GRP_CLNT_NM,
+			A.PCHS_CLMN_DAY,    <!-- 매입 수금일자 -->
+	        A.PCHS_CLMN_RMK,    <!-- 매입 수금비고-->
+	        A.SELL_CLMN_DAY,    <!-- 판매 수금 일자-->
+	        A.SELL_CLMN_RMK     <!-- 판매 수금 비고-->
 		FROM
 			TB_BM02M01 A
 		WHERE
@@ -262,8 +270,9 @@
 			CREAT_PGM,
 			CREAT_DTTM,
 			UDT_ID,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = UDT_ID ) AS UDT_NM,
 			UDT_PGM,
-			UDT_DTTM,
+			TO_CHAR(UDT_DTTM ,'YYYY-MM-DD') AS UDT_DTTM,
 			SELPCH_CD,
 			FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM
 		FROM 
@@ -298,7 +307,11 @@
 			CLNT_RMK, USE_YN, 
 			CREAT_ID, CREAT_PGM, CREAT_DTTM,
 			UDT_ID, UDT_PGM, UDT_DTTM,
-			LINK_GRP_YN,LINK_GRP_CLNT_CD
+			LINK_GRP_YN,LINK_GRP_CLNT_CD,
+			PCHS_CLMN_DAY,
+			PCHS_CLMN_RMK,
+			SELL_CLMN_DAY,
+			SELL_CLMN_RMK
 		) VALUES (
 			#{clntCd}, #{clntNm}, #{crn}, #{coprtNo},
 			#{clntDivCd}, #{repstNm},
@@ -312,7 +325,10 @@
 			#{userId}, #{pgmId}, SYSDATE,
 			#{userId}, #{pgmId}, SYSDATE,
 			#{linkGrpYn}, #{linkGrpClntCd}
-			
+			#{pchsClmnDay},
+			#{pchsClmnRmk},
+			#{sellClmnDay},
+			#{sellClmnRmk}			
 		)
 	</insert>
 	
@@ -351,7 +367,11 @@
 			UDT_PGM          = #{pgmId},
 			UDT_DTTM         = SYSDATE,			
 			LINK_GRP_YN      = #{linkGrpYn,     jdbcType=VARCHAR},
-			LINK_GRP_CLNT_CD = #{linkGrpClntCd, jdbcType=VARCHAR}
+			LINK_GRP_CLNT_CD = #{linkGrpClntCd, jdbcType=VARCHAR},
+			PCHS_CLMN_DAY    = #{pchsClmnDay},
+            PCHS_CLMN_RMK    = #{pchsClmnRmk},
+            SELL_CLMN_DAY    = #{sellClmnDay},
+            SELL_CLMN_RMK    = #{sellClmnRmk}
 		WHERE
 			CLNT_CD = #{clntCd}
 	</update>
