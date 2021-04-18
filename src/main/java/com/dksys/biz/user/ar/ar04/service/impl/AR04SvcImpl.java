@@ -242,6 +242,62 @@ public class AR04SvcImpl implements AR04Svc {
 	
 	@SuppressWarnings("all")
 	@Override
+	public int insertTaxHdReSend(Map<String, Object> paramMap) {
+		int result = 0;
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String deptId = String.valueOf(paramMap.get("deptId"));
+		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
+		//List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
+		Map<String, Object> param = new HashMap<String, Object>();
+		Map<String, String> taxHdInfo = new HashMap<String, String>();
+		int msgId = 0;
+		for(int i = 0; i < list.size(); i++) {
+			//
+			String xmlMsgId = "";
+			Map<String, String> taxHdParam = new HashMap<String, String>();
+			taxHdParam.put("msgId", Integer.toString(msgId));
+			String bgm1004 = "";
+			taxHdParam.put("userId", userId);
+			taxHdParam.put("userNm", userNm);
+			taxHdParam.put("deptId", deptId);
+			taxHdParam.put("pgmId", pgmId);
+			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
+			taxHdParam.put("coCd", list.get(i).split(",")[1]);
+			Map<String, String> bilgInfo = new HashMap<String, String>();
+			bilgInfo.putAll(ar04Mapper.selectBilgInfo(taxHdParam));
+
+			bgm1004 = bilgInfo.get("taxBilgNo");
+
+			msgId++;
+			xmlMsgId = ar04Mapper.selectMsgId(msgId);
+			taxHdParam.put("bgm1004", bgm1004);
+			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("docCode", "938"); //세금계산서 938
+			taxHdParam.put("bgm1060", ""); //거래명세서연계
+			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
+			result = ar04Mapper.insertTaxDtl(taxHdParam);
+			result = ar04Mapper.insertTaxItem(taxHdParam);
+			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
+			
+//			// 거래명세서 발행
+//			msgId++; //XML_MSG_ID 생성
+//			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+//			taxHdParam.put("xmlMsgId", xmlMsgId);
+//			taxHdParam.put("docCode", "780"); // 거래명세서 780
+//			result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
+//			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+//			result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
+//			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+			
+			
+		}
+		return result;
+	}
+
+	@SuppressWarnings("all")
+	@Override
 	public int insertTaxHdCancel(Map<String, Object> paramMap) {
 		int result = 0;
 		String userId = String.valueOf(paramMap.get("userId"));
@@ -368,7 +424,31 @@ public class AR04SvcImpl implements AR04Svc {
 		}
 		return result;
 	}
+	
 	@Override
+	@SuppressWarnings("all")
+	public int updateBilgRvrsCancel(Map<String, Object> paramMap) {
+
+		int result = 0;
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String deptId = String.valueOf(paramMap.get("deptId"));
+		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
+		//List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
+		Map<String, String> param = new HashMap<String, String>();
+		int msgId = 0;
+		for(int i = 0; i < list.size(); i++) {
+			param.put("userId", userId);
+			param.put("userNm", userNm);
+			param.put("deptId", deptId);
+			param.put("pgmId", pgmId);
+			param.put("bilgCertNo", list.get(i).split(",")[0]);
+			param.put("coCd", list.get(i).split(",")[1]);
+			result = ar04Mapper.updateBilgRvrsCancel(param); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 : 환입
+		}
+		return result;
+	}	@Override
 	public int updateBilg(Map<String, Object> paramMap) {
 		int result = 0;
 		String bilgCertNo = String.valueOf(paramMap.get("bilgCertNo"));

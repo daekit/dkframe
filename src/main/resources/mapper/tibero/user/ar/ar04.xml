@@ -1669,6 +1669,11 @@
 	UPDATE TB_AR04M01
 	SET TAX_DT = TO_CHAR(SYSDATE, 'YYYYMMDD')
 	  , TAX_BILG_NO = '역발행'
+      , SND_YN = 'Y'
+      , SND_DTTM = SYSDATE
+      , SND_PROC_ID = #{userId}
+      , CSEQ_RCV_YN = 'Y'
+      , CSEQ_RCV_DTTM = SYSDATE
 	  , RFF_APG = 'B'
 	  , RFF_APG_CHK_ID = #{userId}
 	  , UDT_ID = #{userId}
@@ -1677,6 +1682,24 @@
 	WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
 	
+	
+	<update id="updateBilgRvrsCancel">
+	UPDATE TB_AR04M01
+	SET TAX_DT = ''
+      , SND_YN = ''
+      , SND_DTTM = ''
+      , SND_PROC_ID = ''
+      , CSEQ_RCV_YN = ''
+      , CSEQ_RCV_DTTM = ''
+	  , TAX_BILG_NO = ''
+	  , RFF_APG = 'S'
+	  , RFF_APG_CHK_ID = #{userId}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHERE BILG_CERT_NO = #{bilgCertNo}
+	</update>
+
 	<select id="selectBgm4343" resultType="String">
 	SELECT MAX(NVL(BGM_4343, 0)) + 1 
 	  FROM KLUSER01.TAX_HD 

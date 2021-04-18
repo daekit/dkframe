@@ -42,6 +42,8 @@ public interface AR04Mapper {
 
 	int insertTaxHd(Map<String, String> bilgInfo);
 	
+	int insertTaxHdReSend(Map<String, String> bilgInfo);
+
 	int updateTaxBilgNo(Map<String, String> bilgCertNo);
 	
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
@@ -72,6 +74,8 @@ public interface AR04Mapper {
 
 	int updateBilgRvrs(Map<String, String> bilgInfo);
 	
+	int updateBilgRvrsCancel(Map<String, String> bilgInfo);
+
 	String selectBgm4343(String taxBilgNo);
 
 	int insertTaxHdDelete(Map<String, String> bilgInfo);

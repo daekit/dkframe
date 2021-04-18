@@ -25,11 +25,15 @@ public interface AR04Svc {
 
 	int insertTaxHd(Map<String, Object> paramMap);
 
+	int insertTaxHdReSend(Map<String, Object> paramMap);
+
 	int insertTaxHdCancel(Map<String, Object> paramMap);
 
 	int updateBilgCancel(Map<String, Object> paramMap);
 
 	int updateBilgRvrs(Map<String, Object> paramMap);
+
+	int updateBilgRvrsCancel(Map<String, Object> paramMap);
 	
 	public List<Map<String, String>> selectBilgDetailList(Map<String, String> param);
 
