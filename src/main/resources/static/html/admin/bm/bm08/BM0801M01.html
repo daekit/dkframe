@@ -97,6 +97,7 @@
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
 	                <a id="pldgUpdateBtn" onclick="openClntDetail('U');" style="height: 30px; width:50px; line-height: 28px;">담보등록</a>
+                  <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0); gridView2.setData(0);">
 					<option value="10">10</option>
@@ -129,6 +130,7 @@
 	    <li>
 	      <div>
 		    <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:550px; width: 100%" ></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 	      </div>
 	    </li>
 	    <li>	
@@ -226,6 +228,9 @@
 						totalPages : data.paginationInfo.totalPageCount
 					}
 				});
+
+				gridView2.initView().setData(0);
+				
 			});
 		}
 	}
@@ -292,6 +297,15 @@
 			},
 			setData: function(_pageNo){
 				var targetObj = this.target;
+				var coCd = $("#coCd").val();
+				var clntCd = $("#clntCd").val();
+				
+				if (coCd ==''|| clntCd ==''){
+					var row =  gridView.target.getList()[0];
+					$('#coCd').val(row.coCd);
+					$('#clntCd').val(row.clntCd);
+				}
+				
 				var formData = {
 						"coCd"		: $("#coCd").val(),
 						"clntCd"	: $("#clntCd").val(),
@@ -314,12 +328,42 @@
 				});
 			}
 		}
+
+	
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+		            	{key: "useYn",	       label: "사용",		width: 45,		align: "center"},
+		                {key: "linkGrpClntNm", label: "신용연계회사", 	width: 130,     align: "left"},	    
+		                {key: "clntCd",		   label: "거래처코드", 	width: 100, hidden: "true"},
+		                {key: "clntNm",		   label: "거래처", 		width: 130},
+		            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
+		                {key: "coNm",	       label: "회사",		width: 90,		align: "center"},
+		                {key: "loanAmt",	   label: "여신잔액", 	width: 100,		align: "right", formatter: "money"},
+		                {key: "basisCdtlnAmt", label: "기본여신", 	width: 100,		align: "right", formatter: "money"},
+		                {key: "pldg01Amt",	   label: "부동산",  width: 100,		align: "right", formatter: "money"},
+		                {key: "pldg02Amt",	   label: "보증보험",  width: 100,		align: "right", formatter: "money"},
+		                {key: "pldg03Amt",	   label: "공통신용",  width: 100,		align: "right", formatter: "money"},
+		                {key: "pldg04Amt",	   label: "개별신용",  width: 100,		align: "right", formatter: "money"},
+		                {key: "pldg05Amt",	   label: "현금",  width: 100,		align: "right", formatter: "money"},
+		                {key: "pldg99Amt",	   label: "기타",  width: 100,		align: "right", formatter: "money"},
+		                {key: "cdtlnAmt",	   label: "담보합계",  width: 100,		align: "right", formatter: "money"},
+		                {key: "totLoanAmt",	   label: "여신합계",  width: 100,		align: "right", formatter: "money"}
+			        ]
+			    });
+				return this;
+			}
+		}
+	
+	
 	
 	$(document).ready(function() {
 		mainDefaultLoad("영업관리", "거래처 담보현황 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
-		gridView.initView().setData(0);
-		gridView2.initView();
 		//selectChildCodeList();
 		$("#coCd").val(jwt.coCd);
 		$('#pldgUpdateBtn').hide();
@@ -327,6 +371,9 @@
 			$('#pldgUpdateBtn').show();			
 		}
 
+		gridView.initView().setData(0);
+		excelView.initView();
+		
 		$("#selpchCd_S option[value='SELPCH3']").remove();
 		$("#selpchCd_S option[value='SELPCH4']").remove();
 
@@ -359,4 +406,34 @@
 		actionType = type;
 		openModal("/static/html/admin/bm/bm06/BM0602P01.html", 1400, 800, "거래처 마스터");
 	}
+	
+	function excelDown() {
+		var targetObj = this.target;
+		var formData = {
+				"coCd"		: $("#coCd_S").val(),
+				"clntCd"	: $("#clntCd").val(),
+				"useYn" 	: $('#useType').val(),
+				"clntCdS"	: $('#clntCd_S').val(),
+				"clntNm"	: $('#clntNm_S').val(),
+				"selpchCd"	: $('#selpchCd_S').val(),
+				"pageNo" 	: 1, 
+				"recordCnt" : 9999999
+			}
+		
+		postAjax("/admin/bm/bm08/selectClntPledgeList", formData, null, function(data){
+				var list = data.clntList;				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("거래처 담보현황"+todayDate+".xls");
+			});	
+	}	
+	
+	
+	
 </script>
