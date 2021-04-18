@@ -30,48 +30,53 @@
 				, NAME AS SALES_EMP_NM
 			FROM
 			(
-				SELECT CO_CD
-					 , FN_CM05M01_CD_TO_NM(CO_CD) CO_NM
-					 , SITE_CD
-					 , CLNT_CD
+				SELECT T.CO_CD
+					 , FN_CM05M01_CD_TO_NM(T.CO_CD) CO_NM
+					 , T.SITE_CD
+					 , T.CLNT_CD
 					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
-					 , PRJCT_CD
+					 , T.PRJCT_CD
 					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
-					 , SITE_NM
-					 , SITE_ADDR_ZIP
-					 , SITE_ADDR
-					 , SITE_ADDR_SUB
-					 , SITE_ADDR || '  ' || SITE_ADDR_SUB AS ADDR_FULL 
-					 , SITE_MNG_NM
-					 , TEL_NO
-					 , USE_YN
-					 , RMK
-					 , SITE_MES_CD
-					 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
-					 , SALES_AREA_CD
-					 , ETC_FIELD1
-					 , ETC_FIELD2
-					 , ETC_FIELD3
-					 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID
+					 , DECODE(NVL(T.PRJCT_CD,0),0,'N','Y') AS PRJCT_YN
+					 , T.SITE_NM
+					 , T.SITE_ADDR_ZIP
+					 , T.SITE_ADDR
+					 , T.SITE_ADDR_SUB
+					 , T.SITE_ADDR || '  ' || T.SITE_ADDR_SUB AS ADDR_FULL 
+					 , T.SITE_MNG_NM
+					 , T.TEL_NO
+					 , T.USE_YN
+					 , T.RMK
+					 , T.SITE_MES_CD
+					 , FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) SALES_AREA_NM
+					 , T.SALES_AREA_CD
+					 , T.ETC_FIELD1
+					 , T.ETC_FIELD2
+					 , T.ETC_FIELD3
+					 , FN_BM02_MNG_ID( T.CO_CD, T.CLNT_CD)  SALES_EMP_ID
+					 , SD05.MAKR_CD
+					 , FN_CM05M01_CD_TO_NM(SD05.MAKR_CD) MAKR_NM
 				  FROM TB_SD09M01 T
+				  LEFT OUTER JOIN TB_SD05M01 SD05
+				        ON SD05.PRJCT_CD = T.PRJCT_CD
 				 	<where>
 				 	<if test="coCd != null and coCd != ''">
-				 	AND CO_CD = #{coCd}
+				 	AND T.CO_CD = #{coCd}
 				 	</if>
 				 	<if test="clntCd != null and clntCd != ''">
-				    AND CLNT_CD = #{clntCd}
+				    AND T.CLNT_CD = #{clntCd}
 				 	</if>
 				 	<if test="siteNm != null and siteNm != ''">
-				    AND SITE_NM LIKE '%' || UPPER(#{siteNm}) || '%'
+				    AND T.SITE_NM LIKE '%' || UPPER(#{siteNm}) || '%'
 				 	</if>
 				 	<if test="useYn != null and useYn != ''">
-				    AND USE_YN = #{useYn}
+				    AND T.USE_YN = #{useYn}
 				 	</if>
 				 	<if test="salesAreaCd != null and salesAreaCd != ''">
-				    AND SALES_AREA_CD = #{salesAreaCd}
+				    AND T.SALES_AREA_CD = #{salesAreaCd}
 				 	</if>
 				 	</where>
-				 ORDER BY SITE_CD DESC, CO_CD, CLNT_CD, SITE_NM
+				 ORDER BY T.SITE_CD DESC, T.CO_CD, T.CLNT_CD, T.SITE_NM
 			) A			
 				  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID
 		)
