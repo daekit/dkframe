@@ -130,11 +130,11 @@
 						<a onclick="viewCplrUntpcModal('E');" style="height: 30px; line-height: 28px; width: 75px;">이메일입력</a>
 						<a onclick="openTaxManagerTap();" style="height: 30px; line-height: 28px; width: 90px;">수신담당자관리</a>
 						<a onclick="insertTaxHd();" style="height: 30px; line-height: 28px; width: 80px;">계산서정발행</a>
-						<a onclick="insertTaxHd();" style="height: 30px; line-height: 28px; width: 80px;">재전송</a>
+						<a onclick="insertTaxHdReSend();" style="height: 30px; line-height: 28px; width: 80px;">재전송</a>
 						<a onclick="insertTaxHdCancel();" style="height: 30px; line-height: 28px; width: 80px;">정발행취소</a>
 						<a onclick="insertTaxHdUpdate();" style="height: 30px; line-height: 28px; width: 90px;">수정세금계산서</a>
 						<a onclick="updateTaxHdRvrs();" style="height: 30px; line-height: 28px; width: 80px;">역발행확인</a>
-						<a onclick="updateTaxHdRvrs();" style="height: 30px; line-height: 28px; width: 80px;">역발행취소</a>
+						<a onclick="updateTaxHdRvrsCancel();" style="height: 30px; line-height: 28px; width: 80px;">역발행취소</a>
 <!-- 						<a onclick="" style="height: 30px; line-height: 28px; width: 60px;">회계 전송</a> -->
 				</div>
 				<select class="prae_select" data-search="recordCnt">
@@ -574,6 +574,59 @@
 		});
 	}
 	
+
+	//세금계산서재전송
+	function insertTaxHdReSend(){
+		var flag = false;
+		var clntFlag = false;
+		var list = gridView.target.getList("selected");
+		var bilgCertNoArr = [];
+		var coCdArr = [];
+		var emailChk = true;
+		var emailIdx;
+		$.each(list, function(idx, obj){
+			if(obj.taxBilgNo) flag = true;
+			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+			if(!obj.taxRcvEmail){
+				emailChk = false;
+				alert("수신자 Email 입력 후 발행해 주세요.");
+				emailIdx = obj.__index;
+				return false;
+			}
+		});
+		if(!emailChk){
+			$.each(list, function(idx, obj){
+				gridView.target.select(obj.__index);
+			});
+			gridView.target.select(emailIdx);
+			viewCplrUntpcModal("U");
+			return false;
+		}
+		 if(!flag) {
+			alert("발행된 건이 아닙니다.");
+			return;
+		}; 
+		var rowLength = gridView.target.getList("selected").length;
+		if(rowLength == 0) {
+			alert("세금계산서를 선택해 주세요.");
+			return;
+		}
+		if(!confirm(rowLength + "건을 재전송 하시겠습니까?")){
+			return;
+		}
+		var formData = {
+			"bilgCertNoArr" : bilgCertNoArr,
+			"userId" : jwt.userId,
+			"userNm" : jwt.userNm,
+			"deptId" : jwt.deptId,
+			"pgmId" : "AR0401M01"
+		}
+		postAjax("/user/ar/ar04/insertTaxHdReSend", formData, null, function(data){
+			alert(data.resultMessage);
+			gridView.setData(0);
+		});
+	}
+	
 	function openTaxManagerTap(){
 		row = gridView.target.getList("selected")[0];
     	var rowLength = gridView.target.getList("selected").length;
@@ -859,4 +912,44 @@
 		});
 	}
 
+	function updateTaxHdRvrsCancel(){
+
+		var flag = false;
+		var bilgCertNoArr = [];
+		var coCdArr = [];
+		var list = gridView.target.getList("selected");
+		$.each(list, function(idx, obj){
+			if(obj.taxBilgNo == "역발행") flag = true;
+
+			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+		});
+		
+
+		if(!flag) {
+			alert("역발행 취소 대상을 선택하요!");
+			return;
+		};
+		
+		var rowLength = gridView.target.getList("selected").length;
+		
+		if(rowLength == 0) {
+			alert("역발행 확정 세금계산서를 선택해 주세요.");
+			return;
+		}
+		
+		if(!confirm(rowLength + "건을 역발행 취소 처리 하시겠습니까?")){
+			return;
+		}
+		var formData = {
+			"bilgCertNoArr" : bilgCertNoArr,
+			"userId" : jwt.userId,
+			"userNm" : jwt.userNm,
+			"deptId" : jwt.deptId,
+			"pgmId" : "AR0401M01"
+		}
+		postAjax("/user/ar/ar04/updateBilgRvrsCancel", formData, null, function(data){
+			alert(data.resultMessage);
+			gridView.setData(0);
+		});
+	}
 </script>
