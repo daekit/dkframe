@@ -255,7 +255,7 @@ public class AR04SvcImpl implements AR04Svc {
 			msgId++; //XML_MSG_ID 생성
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 			taxHdParam.put("xmlMsgId", xmlMsgId);
-			taxHdParam.put("docName", "APERAK"); //세금계산서 APERAK
+			taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 			taxHdParam.put("docCode", "780"); // 거래명세서 780
 			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 			result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
@@ -302,6 +302,7 @@ public class AR04SvcImpl implements AR04Svc {
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);
 			taxHdParam.put("bgm1004", bgm1004);
 			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 			taxHdParam.put("docCode", "938"); //세금계산서 938
 			taxHdParam.put("bgm1060", ""); //거래명세서연계
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
@@ -309,16 +310,19 @@ public class AR04SvcImpl implements AR04Svc {
 			result = ar04Mapper.insertTaxItem(taxHdParam);
 			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
 			
-//			// 거래명세서 발행
-//			msgId++; //XML_MSG_ID 생성
-//			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
-//			taxHdParam.put("xmlMsgId", xmlMsgId);
-//			taxHdParam.put("docCode", "780"); // 거래명세서 780
-//			result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
-//			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
-//			result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
-//			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+			// 거래명세서 발행
+			msgId++; //XML_MSG_ID 생성
+			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
+			taxHdParam.put("docCode", "780"); // 거래명세서 780
+			result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
+			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+			result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
+			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 			
+			//연계문서 발행
+			insertKladdi(msgId, taxHdParam);
 			
 		}
 		return result;
@@ -357,6 +361,7 @@ public class AR04SvcImpl implements AR04Svc {
 				
 				bgm1004 = ar04Mapper.selectBgmSeq();
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 				taxHdParam.put("docCode", "938"); //세금계산서 938
 				taxHdParam.put("bgm1004", bgm1004);
 				taxHdParam.put("xmlMsgId", xmlMsgId);
@@ -374,6 +379,7 @@ public class AR04SvcImpl implements AR04Svc {
 				msgId++; //XML_MSG_ID 생성
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 				taxHdParam.put("docCode", "780"); // 거래명세서 780
 				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 				result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
@@ -388,6 +394,7 @@ public class AR04SvcImpl implements AR04Svc {
 				
 				//bgm1004 = ar04Mapper.selectBgmSeq();
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 				taxHdParam.put("docCode", "938"); //세금계산서 938
 				taxHdParam.put("xmlMsgId", xmlMsgId);
 				taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
@@ -406,6 +413,7 @@ public class AR04SvcImpl implements AR04Svc {
 				msgId++; //XML_MSG_ID 생성
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 				taxHdParam.put("docCode", "780"); // 거래명세서 780
 				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 				result = ar04Mapper.insertInvHdDelete(taxHdParam); // 거래명세서용 inv Hd insert
@@ -504,8 +512,8 @@ public class AR04SvcImpl implements AR04Svc {
 		msgId++; //XML_MSG_ID 생성
 		String xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 		param.put("xmlMsgId", xmlMsgId);
-		param.put("docName", "KLADDI"); //세금계산서 KLADDI
-		param.put("docCode", "780"); // 거래명세서 780
+		param.put("docName", "KLADDI"); //연계문서 KLADDI
+		param.put("docCode", "6KQ"); // 문서코드 6KQ
 		result = ar04Mapper.insertMapoutKey(param); // 연계문서 mapoutkey insert
 		result = ar04Mapper.insertKladdiHd(param); // 연계문서 kladdi Hd insert
 		result = ar04Mapper.insertKladdiDtl(param); // 연계문서 kladdi dtl insert

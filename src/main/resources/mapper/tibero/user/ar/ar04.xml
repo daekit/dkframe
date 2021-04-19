@@ -1140,12 +1140,14 @@
 		XMLDOC_SEQ,
 		LIN_1082,
 		LIN_7140,
+		NAD7_3124A,
 		TIMESTAMP
 	)
 	SELECT #{xmlMsgId},
 			'1',
 			ROWNUM,
-			'.',
+			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD),
+			A.TRST_DT,
 			SYSDATE
 	  FROM TB_AR02M01 A
 		WHERE BILG_CERT_NO = #{bilgCertNo}
@@ -1190,7 +1192,7 @@
 			NVL(BILG_VAT_AMT, 0),
 			NVL(REAL_TRST_UPR, 0),
 			'CT',
-			'CT',
+			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.PRDT_UNIT),
 			NVL(REAL_TRST_QTY, 0),
 			NULL,
 			NULL,
@@ -2264,7 +2266,7 @@
 		#{xmlMsgId},
 		'1',
 		'6KQ',
-		NULL,
+		'1',
 		#{bgm1004},
 		'9',
 		'1',
