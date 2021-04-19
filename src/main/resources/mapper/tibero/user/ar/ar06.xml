@@ -4,9 +4,12 @@
 <mapper namespace="com.dksys.biz.user.ar.ar06.mapper.AR06Mapper">
 	
 	<select id="selectTaxInvoiceCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+		FROM (
 		SELECT
-			COUNT(*)
-		FROM TB_AR06M01 
+			A.CO_CD
+			,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM
+		FROM TB_AR06M01 A
 		WHERE 1=1
 		<if test= "coCd != null and !coCd.equals('')">
  			AND CO_CD = #{coCd}
@@ -17,6 +20,13 @@
 		<if test= "useYn != null and !useYn.equals('')">
  			AND USE_YN = #{useYn}
 		</if>
+		) D
+					<where>
+			   <if test= "clntNm != null and !clntNm.equals('')">
+		 			CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+				</if>
+			</where>
+			
 	</select>
 	
 	<select id="selectTaxInvoiceList" parameterType="Map" resultType="CamelMap">
@@ -54,6 +64,11 @@
 		 			AND A.USE_YN = #{useYn}
 				</if>
 			) D
+			<where>
+			   <if test= "clntNm != null and !clntNm.equals('')">
+		 			CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+				</if>
+			</where>
 		)
 		WHERE
 			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
