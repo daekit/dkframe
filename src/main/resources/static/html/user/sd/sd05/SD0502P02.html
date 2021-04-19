@@ -81,9 +81,9 @@
 		            {key: "prdtStknNm", label: "강종", align: "center", width: "20%", hidden: true},
 		            {key: "prdtCoilYn", label: "코일", align: "center", width: "8%", hidden: true},
 		            {key: "prdtUnitNm", label: "단위", align: "center", width: 50, hidden: true},
-		            {key: "prdtSize", label: "사이즈", align: "center", width: "100%"},
+		            {key: "prdtSize", label: "사이즈", align: "center", width: "100%", hidden:true},
 		        	{key: "ordrgUpr", label: "기준단가", align: "right", width: 100, formatter: "money", hidden: true},
-		            {key: "prdtSpec", label: "스펙", align: "center", width: "15%", hidden: true},
+		            {key: "prdtSpec", label: "스펙", align: "center", width: "100%", hidden: false},
 		        ]
 		    });
 			return this;
@@ -93,13 +93,14 @@
 			var paramObj = commonModal.paramObj;
 			paramObj.pageNo = _pageNo + 1;
 			paramObj.recordCnt = 10;
+			paramObj.prdtSktn = commonModal.paramObj.prdtSktn;
 			
 			for(var i=0;i<$('.popup_area [data-search]').length;i++){
 				var tempElem = $('.popup_area [data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			} 
 			
-			postAjax("/user/sd/sd05/prdtSizeCombo", paramObj, null, function(data){
+			postAjax("/user/sd/sd05/prdtSpecCombo", paramObj, null, function(data){
 				console.log(data);
 				var list = data.codeInfoList;
 				targetObj.setData({
@@ -119,20 +120,6 @@
 		setCommonSelect($('#commonPopup select[data-kind]'));
 		prdtGridView.initView().setData(0);
 	});
-	
-	function setPrdtStkn(elem){
-		var paramObj = {"codeKind" : $(elem).val()};
-		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
-			var optionHtml = '<option value="">전체</option>';
-			var childCodeList = data.childCodeList;
-			$.each(childCodeList, function(index, obj){
-				optionHtml += '<option value='+obj.codeId+'>';
-				optionHtml += obj.codeNm;
-				optionHtml += '</option>';
-			});
-			$('.popup_area [data-search="prdtStkn"]').html(optionHtml);
-		});
-	}
 	
 	function executeCallBack(){
 		//var prdtsize = [];

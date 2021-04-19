@@ -119,9 +119,9 @@ public class SD05Ctr {
 		return "jsonView";
 	}
 	
-	@PostMapping(value = "/prdtSizeCombo")
-	public String prdtSizeCombo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		List<Map<String, String>> codeInfoList = sd05Svc.prdtSizeCombo(paramMap);
+	@PostMapping(value = "/prdtSpecCombo")
+	public String prdtSpecCombo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		List<Map<String, String>> codeInfoList = sd05Svc.prdtSpecCombo(paramMap);
 		int totalCnt = codeInfoList.size();
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
