@@ -32,8 +32,8 @@
 	                <td>                                
 	                    <input type="hidden" id="clntCd" name="clntCd" required="required" disabled>
 		                <div class="search_form" style="width: 100%;">
-				            <input type="text" id="clntNm" name="clntNm" readonly="readonly">
-				            <!-- <a id="btnClnt" onclick="clntSearch('S');"><i class="i_search_w"></i></a> -->
+				            <input type="text" id="clntNm" name="clntNm" readonly="readonly" disabled>
+				            <a id="btnClnt" onclick="clntSearch('S');"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	            </tr>
@@ -119,7 +119,7 @@
 	            	</td>
 	            	<th>수신자 이메일2</th>
 	            	<td>
-	            		<input type="text" id="taxRcvEmail" name="taxRcvEmail2" style="width: 100%;" maxlength="40"> 
+	            		<input type="text" id="taxRcvEmail2" name="taxRcvEmail2" style="width: 100%;" maxlength="40"> 
 	            	</td>
 	            </tr>
 	            <tr>
@@ -251,13 +251,24 @@
 					<td><input type="text" id="dms1000" name="dms1000" style="text-align:left" maxLength="50"></td>
 				</tr>
 			</table>	        
+			
+			<table>
+	            <colgroup>
+	                <col width="16%">
+	                <col width="*">
+	            </colgroup>
+				<tr>
+					<th>에러내용</th>
+					<td><input type="text" id="errCnts" name="errCnts" readonly/></td>
+				</tr>
+			</table>
 	        
     		<input type="hidden" id="coCd" name="coCd">
     		<input type="hidden" id="clntCd" name="clntCd">
     		<input type="hidden" id="bilgCertNo" name="bilgCertNo">
     		<input type="hidden" id="cseqRcvYn" name="cseqRcvYn">
 	        <input type="hidden" id="userId" name="userId">
-	        <input type="hidden" id="pgmId" name="pgmId" value="AR0401">
+	        <input type="hidden" id="pgmId" name="pgmId" value="AR0401P01">
 	    </form>
     </div>
 
@@ -395,12 +406,21 @@
 			
 		} */
 		openSecondModal("/static/html/user/ar/ar04/AR0401P03.html", 1000, 420, "수신담당자검색");
+		
 	}
 	
 	// 거래처
 	function clntSearch(type) {
 		actionTp = type;
-		openSecondModal("/static/html/user/ar/ar04/AR0401P02.html", 500, 420, "거래처검색");
+		//openSecondModal("/static/html/user/ar/ar04/AR0401P02.html", 500, 420, "거래처검색");
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#popForm #taxivcRcvCrn').val(row.crn);
+			$('#popForm #taxivcRcvCeo').val(row.repstNm);
+			$('#popForm #taxivcRcvAddr').val(row.bizAddr);
+			$('#popForm #taxivcRcvBizcon').val(row.bizconNm);
+			$('#popForm #taxivcRcvBsty').val(row.bstyNm);
+		});
 	}
 
 	function modalClose(){

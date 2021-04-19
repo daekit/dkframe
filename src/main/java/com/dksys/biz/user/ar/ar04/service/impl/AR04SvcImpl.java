@@ -13,10 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar04.mapper.AR04Mapper;
 import com.dksys.biz.user.ar.ar04.service.AR04Svc;
+import com.dksys.biz.user.ar.ar06.mapper.AR06Mapper;
+import com.dksys.biz.util.DateUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.dksys.biz.util.DateUtil;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -27,6 +28,9 @@ public class AR04SvcImpl implements AR04Svc {
     
     @Autowired
     AR04Mapper ar04Mapper;
+    
+    @Autowired
+    AR06Mapper ar06Mapper;
 	
 	@SuppressWarnings("all")
 	@Override
@@ -108,6 +112,22 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int updateTaxBilg(Map<String, String> paramMap) {
 		int result = 0;
+
+		// 수신담당자 검색 후 없으면 insert (수신담당자 순번을 만들어야 하기 떄문에 ar04 update보다 먼저 수신담당자 검색 / 추가 함)
+		List<Map<String, String>> taxRcvList = ar06Mapper.selectTaxRcvInfo(paramMap);
+		if(taxRcvList.size() < 1) {
+			ar06Mapper.insertTaxRcvInfo(paramMap);
+		} else {
+			for(Map<String, String> taxRcvInfo : taxRcvList) {
+				if(taxRcvInfo.get("useYn").equals("N")) {
+					taxRcvInfo.put("USER_ID", paramMap.get("userId"));
+					taxRcvInfo.put("PGM_ID", paramMap.get("pgmId"));
+					ar06Mapper.updateTaxRcvInfoUseY(taxRcvInfo);
+				}
+				paramMap.put("taxRcvSn", taxRcvInfo.get("taxRcvSn")); //taxRcvSn 추가
+			}
+		}
+		
 		result = ar04Mapper.updateTaxBilg(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
@@ -123,6 +143,7 @@ public class AR04SvcImpl implements AR04Svc {
 				ar04Mapper.insertTaxBilgDetail(detailMap);
 			}
 		}
+		
 		return result;
 	}
     

@@ -136,4 +136,70 @@
 			AND TAX_RCV_SN = #{taxRcvSn}
 	</delete>
 	
+	<select id="selectTaxRcvInfo" parameterType="Map" resultType="camelMap">
+	SELECT CO_CD
+		 , CLNT_CD
+		 , TAX_RCV_SN
+		 , TAX_RCV_NM
+		 , TAX_RCV_EMAIL
+		 , TAX_RCV_EMAIL2
+		 , TAX_RCV_FAX
+		 , TAX_RCV_TEL
+		 , TAX_MOBLPHON
+		 , TAX_RCV_DEPT
+		 , SALES_EMP_ID
+		 , TAX_RMK
+		 , USE_YN
+	  FROM TB_AR06M01
+	 WHERE CO_CD = #{coCd}
+	   AND CLNT_CD = #{clntCd}
+	   AND TAX_RCV_NM = #{taxRcvNm}
+	   AND TAX_RCV_EMAIL = #{taxRcvEmail}
+	</select>
+	
+	<insert id="insertTaxRcvInfo" parameterType="Map">
+	<selectKey keyProperty="taxRcvSn" resultType="String" order="BEFORE">
+		SELECT TB_AR06M01_SQ01.NEXTVAL FROM DUAL
+	</selectKey>
+	INSERT INTO TB_AR06M01
+	(
+		CO_CD,
+		CLNT_CD,
+		TAX_RCV_SN,
+		TAX_RCV_NM,
+		TAX_RCV_EMAIL,
+		TAX_RCV_EMAIL2,
+		TAX_RCV_FAX,
+		TAX_RCV_TEL,
+		TAX_MOBLPHON,
+		CREAT_ID,
+		CREAT_PGM,
+		CREAT_DTTM
+	)
+	VALUES
+	(
+		#{coCd},
+		#{clntCd},
+		#{taxRcvSn},
+		#{taxRcvNm},
+		#{taxRcvEmail},
+		#{taxRcvEmail2},
+		#{taxRcvFax},
+		#{taxRcvTel},
+		#{taxMoblphon},
+		#{userId},
+		#{pgmId},
+		SYSDATE
+	)
+	</insert>
+	
+	<update id="updateTaxRcvInfoUseY" parameterType="Map">
+	UPDATE TB_AR06M01
+	   SET USE_YN = 'Y'
+		 , UDT_ID         = #{userId}
+		 , UDT_PGM        = #{pgmId}										
+		 , UDT_DTTM       = SYSDATE
+	 WHERE TAX_RCV_SN = #{taxRcvSn}
+	</update>
+	
 </mapper>
