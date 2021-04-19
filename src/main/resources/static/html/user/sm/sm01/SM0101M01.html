@@ -109,6 +109,17 @@
                 <td>
                   <input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}" data-search="prdtNm">
                 </td>
+                <th>프로젝트</th>
+				<td>
+					<div class="search_form" style="width: 60%;">
+					<input type="hidden" data-search="prjctCd" id="prjctCd" >
+						<input type="text" data-search="prjctNm" id="prjctNm"  onkeyup="event.keyCode == 8 ? prjctCd.value = '' : event.keyCode == 13 ? gridView.setData(0): ''">
+						<button type="button" onclick="openSecondPrjctSearch();">
+							<i class="i_search_w"></i>
+						</button>
+					</div>
+				</td>
+				
               </tr>
             </table>
           </div>
@@ -234,6 +245,8 @@
 				"clntNm" : $("#clntNm").val(),
 				"makrCd" : $("#MAKR").val(),
 				"prdtNm" : $("#prdtNm").val(),
+				"prjctCd" : $("#prjctCd").val(),
+				"prjctNm" : $("#prjctNm").val(),
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
@@ -288,6 +301,8 @@
 				"clntNm" : $("#clntNm").val(),
 				"makrCd" : $("#MAKR").val(),
 				"prdtNm" : $("#prdtNm").val(),
+				"prjctCd" : $("#prjctCd").val(),
+				"prjctNm" : $("#prjctNm").val(),
 				"pageNo" :  1, 
 				"recordCnt" : 100000
 			}
@@ -339,5 +354,14 @@
 				return this;
 			}
 		}	
-
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+	}
 </script>

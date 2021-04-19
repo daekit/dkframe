@@ -4,7 +4,10 @@
 <mapper namespace="com.dksys.biz.user.sm.sm01.mapper.SM01Mapper">
 
 	<select id="selectStockListCount" parameterType="Map" resultType="int">
-		SELECT COUNT(*)
+	SELECT COUNT(*)
+	FROM (SELECT  A.CO_CD 
+		      , A.PRJCT_CD
+	  		  , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
 		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD = C.PRDT_CD 
 				AND A.CLNT_CD = E.CLNT_CD(+)
@@ -27,10 +30,18 @@
 				<if test="prdtNm != null and !prdtNm.equals('')">
 						AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
 				</if>
+				<if test="prjctCd != null and !prjctCd.equals('')">
+						AND A.PRJCT_CD =  #{prjctCd}
+				</if>
 				<if test="clntNm != null and !clntNm.equals('')">
 						AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 				</if>
-				
+		) D
+				<where>
+			<if test="prjctNm != null and !prjctNm.equals('')">
+			   PRJCT_NM like '%' || #{prjctNm} || '%'
+			   </if>
+			</where>			
 	</select>
 
 	 <select id="selectStockList" parameterType="Map" resultType="CamelMap">
@@ -97,19 +108,30 @@
 						<if test="prdtNm != null and !prdtNm.equals('')">
 								AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
 						</if>
+						<if test="prjctCd != null and !prjctCd.equals('')">
+								AND A.PRJCT_CD =  #{prjctCd}
+						</if>
 						<if test="clntNm != null and !clntNm.equals('')">
 								AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 						</if>
 						
 				ORDER BY UDT_DTTM DESC
 			)D
+			<where>
+			<if test="prjctNm != null and !prjctNm.equals('')">
+			   PRJCT_NM like '%' || #{prjctNm} || '%'
+			   </if>
+			</where>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 
 	</select>
 	
 	<select id="selectStockHistoryListCount" parameterType="Map" resultType="int">
-		SELECT COUNT(*)
+	SELECT COUNT(*)
+	FROM (SELECT A.CO_CD 
+		      , A.PRJCT_CD
+	  		  , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
 		FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
 		WHERE  A.PRDT_CD = C.PRDT_CD AND A.CLNT_CD = E.CLNT_CD(+)
 				<if test="coCd != null and !coCd.equals('')">
@@ -133,10 +155,18 @@
 				<if test="clntNm != null and !clntNm.equals('')">
 						AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 				</if>
+				<if test="prjctCd != null and !prjctCd.equals('')">
+						AND A.PRJCT_CD =  #{prjctCd}
+				</if>
 				<if test="procDttm != null and !procDttm.equals('')">
 						AND A.PROC_DTTM LIKE '%' || #{procDttm} || '%'
 				</if>
-				
+		) D		
+			<where>
+			<if test="prjctNm != null and !prjctNm.equals('')">
+			   PRJCT_NM like '%' || #{prjctNm} || '%'
+			   </if>
+			</where>
 	</select>
 	
 	 <select id="selectStockHistoryList" parameterType="Map" resultType="CamelMap">
@@ -204,6 +234,9 @@
 				<if test="prdtNm != null and !prdtNm.equals('')">
 						AND C.PRDT_NM LIKE '%' || UPPER(#{prdtNm}) || '%'
 				</if>
+				<if test="prjctCd != null and !prjctCd.equals('')">
+						AND A.PRJCT_CD =  #{prjctCd}
+				</if>
 				<if test="clntNm != null and !clntNm.equals('')">
 						AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 				</if>
@@ -212,6 +245,11 @@
 				</if>
 				ORDER BY A.PRDT_CD, A.WH_CD, A.TYP_CD, A.OWNER_CD, A.CLNT_CD, PROC_DTTM DESC, A.TRST_NO DESC
 			)D
+			<where>
+			<if test="prjctNm != null and !prjctNm.equals('')">
+			   PRJCT_NM like '%' || #{prjctNm} || '%'
+			   </if>
+			</where>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 

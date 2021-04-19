@@ -102,6 +102,11 @@
 					 , PRJCT_NM
 					 , MAKR_CD
 					 , MAKR_NM)
+			<where>
+			<if test="prdtDiv != null and !prdtDiv.equals('')">
+				 D.PRJCT_NM  LIKE '%'||#{prjctNm}||'%'
+			</if>
+			</where>
 	</select>
 
 	 <select id="selectStockTotalList" parameterType="Map" resultType="CamelMap">
@@ -206,7 +211,12 @@
 					 , PRJCT_NM
 					 , MAKR_CD
 					 , MAKR_NM
-			)D
+			) D
+			<where>
+			<if test="prjctNm != null and !prjctNm.equals('')">
+				 D.PRJCT_NM  LIKE '%' || #{prjctNm} ||'%' 
+			</if>
+			</where>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex} 
@@ -240,7 +250,7 @@
 					AND A.PRDT_CD = #{prdtCd}
 				</if>
 				<if test="impYn != null and impYn.equals('')">
-					AND A.PRDT_CD = #{impYn}
+					AND A.IMP_YN = #{impYn}
 				</if>
 				
 	</select>
@@ -310,7 +320,7 @@
 					AND A.PRDT_CD = #{prdtCd}
 				</if>
 				<if test="impYn != null and impYn.equals('')">
-					AND A.PRDT_CD = #{impYn}
+					AND A.IMP_YN = #{impYn}
 				</if>
 				ORDER BY A.CO_CD, A.PRDT_CD, A.TYP_CD, A.IMP_YN, A.WH_CD, A.OWNER_CD, A.CLNT_CD
 			)D
