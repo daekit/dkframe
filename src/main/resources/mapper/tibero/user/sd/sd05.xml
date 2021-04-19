@@ -87,6 +87,10 @@
 					,A.WH_CD
 					,TO_CHAR(TO_DATE(A.PCHS_STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_STRT_DT
 					,TO_CHAR(TO_DATE(A.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT
+					,A.CLMN_DAY
+					,A.CLMN_RMK
+                    ,A.CLMN_DIV_CD
+                    ,FN_CM05M01_CD_TO_NM(A.CLMN_DIV_CD) AS CLMN_DIV_NM
 				FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 				WHERE A.CLNT_CD = B.CLNT_CD(+)
 				 AND  A.MNG_ID = C.ID(+)
@@ -119,7 +123,8 @@
 			TO_CHAR(TO_DATE(END_DT,'YYYYMMDD'),'YYYY-MM-DD') as END_DT2,
 			TO_CHAR(CREAT_DTTM,'YYYY-MM-DD') as CREAT_DTTM2 ,
 			TO_CHAR(TO_DATE(T.PCHS_STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_STRT_DT2,
-			TO_CHAR(TO_DATE(T.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT2
+			TO_CHAR(TO_DATE(T.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT2,
+            FN_CM05M01_CD_TO_NM(T.CLMN_DIV_CD) AS CLMN_DIV_NM
 		FROM TB_SD05M01 T
 		WHERE PRJCT_CD = #{prjctCd}
 	</select>
@@ -225,7 +230,10 @@
 			, UDT_PGM          = #{pgmId}							
 			, UDT_DTTM         = SYSDATE	
 			, PCHS_STRT_DT     = REPLACE(#{pchsStrtDt}, '-', '')
-			, PCHS_END_DT      = REPLACE(#{pchsEndDt}, '-', '')	 
+			, PCHS_END_DT      = REPLACE(#{pchsEndDt}, '-', '')	
+			, CLMN_DAY         = #{clmnDay}
+			, CLMN_RMK         = #{clmnRmk}
+			, CLMN_DIV_CD      = #{clmnDivCd}
 		WHERE 
 			PRJCT_CD = #{prjctCd}
 			AND CO_CD            = #{coCd}
@@ -294,7 +302,11 @@
 		, OUTORD_TEL_NO
 		, OUTORD_FAX_NO
 		, WH_CD
-		, SALES_AREA_CD)
+		, SALES_AREA_CD
+		, CLMN_DAY
+		, CLMN_RMK
+		, CLMN_DIV_CD
+			)
 		VALUES 
 		(
 		#{coCd}
@@ -340,6 +352,9 @@
 		, #{outordFaxNo}
 		, #{whCd}
 		, #{salesAreaCd}
+		, #{clmnDay}
+		, #{clmnRmk}
+		, #{clmnDivCd}
 		)
 	</insert>
 	
