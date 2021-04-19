@@ -167,6 +167,19 @@
 		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
 		return '<img src="/static/img/'+color+'" style="width: 15px;height: 15px;"></img>';
 	};
+
+	ax5.ui.grid.formatter["bttonOn"] = function () {
+		if (!this.value) {
+		    return '';
+		} else {
+			if (this.value == "역발행") {
+				return '역발행';
+			} else {
+//				return '<button type="button" class="btn btn-default btn-sm" class title="발행완료된 세금계산서" onclick="";">'+this.value+'</button>';
+				return '<A type="text" class title="발행완료된 세금계산서" onclick="";">'+this.value+'</A>';
+			}
+		}
+	};
 	
 	var gridView = {
 			initView : function() {
@@ -260,7 +273,7 @@
 			          	{key: "taxAdmsYn",      label: "승인",   	 	 align: "center",  width: 45},
 			          	{key: "rcvYn",          label: "접수",   	     align: "center",  width: 45, 	formatter: "bilgYn"},
 			          	{key: "taxDt",          label: "발행일",   	     align: "center",  width: 80},
-			          	{key: "taxBilgNo",      label: "계산서번호",   	 align: "center",  width: 110},
+			          	{key: "taxBilgNo",      label: "계산서번호",   	 align: "center",  width: 110, formatter: "bttonOn"},
 			          	{key: "bilgCertNo",     label: "청구서번호",   	 align: "center",  width: 95},
 			          	{key: "sellDt",         label: "매출일자",   	     align: "center",  width: 90},
 			          	{key: "clntNm",         label: "거래처명",   	     align: "left",    width: 160},
@@ -572,9 +585,11 @@
 	
 
 	//세금계산서재전송
-	function insertTaxHdReSend(){
+	function insertTaxHdReSend(index){
 		var flag = false;
 		var clntFlag = false;
+		alert(index);
+
 		var list = gridView.target.getList("selected");
 		var bilgCertNoArr = [];
 		var coCdArr = [];
@@ -590,6 +605,7 @@
 				return false;
 			}
 		});
+		return;
 		if(!emailChk){
 			$.each(list, function(idx, obj){
 				gridView.target.select(obj.__index);
