@@ -88,4 +88,8 @@ public interface AR04Mapper {
 
 	int updateBilgAmt(Map<String, String> bilgParam);
 
+	int insertKladdiHd(Map<String, String> bilgInfo);
+
+	int insertKladdiDtl(Map<String, String> bilgInfo);
+
 }
