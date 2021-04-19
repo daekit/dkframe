@@ -168,6 +168,7 @@ public class AR04SvcImpl implements AR04Svc {
 			Map<String, String> temp = new HashMap<String, String>();
 			orgnTaxBilgNo = bilgInfo.get("taxBilgNo");
 			taxHdParam.put("orgnTaxBilgNo", "");
+			taxHdParam.put("bgm1225", "9"); // 정발행은 9
 			if (bilgInfo.get("rffGn1").equals("RFFGN102")
 					&& bilgInfo.get("rffAea").equals("RFFAEA01") /* && bilgInfo.get("taxBilgNo") != null */) {
 				//수정세금계산서 취소 로직 시작
@@ -197,6 +198,9 @@ public class AR04SvcImpl implements AR04Svc {
 				result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
 				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
 				result = ar04Mapper.insertInvItemCancel(taxHdParam); // 거래명세서용 inv item insert
+				
+				//연계문서 발행
+				insertKladdi(msgId, taxHdParam);
 			}
 			
 
@@ -214,10 +218,11 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("rffGn1", bilgInfo.get("rffGn1"));
 			taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
 			taxHdParam.put("rffAea", bilgInfo.get("rffAea"));
-			
+			//세금계산서 발행
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);
 			taxHdParam.put("bgm1004", bgm1004);
 			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 			taxHdParam.put("docCode", "938"); //세금계산서 938
 			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
@@ -229,13 +234,15 @@ public class AR04SvcImpl implements AR04Svc {
 			msgId++; //XML_MSG_ID 생성
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("docName", "APERAK"); //세금계산서 APERAK
 			taxHdParam.put("docCode", "780"); // 거래명세서 780
 			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 			result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
 			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
 			result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
 			
-			
+			//연계문서 발행
+			insertKladdi(msgId, taxHdParam);
 		}
 		return result;
 	}
@@ -351,6 +358,9 @@ public class AR04SvcImpl implements AR04Svc {
 				result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
 				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
 				result = ar04Mapper.insertInvItemCancel(taxHdParam); // 거래명세서용 inv item insert
+				
+				//연계문서 발행
+				insertKladdi(msgId, taxHdParam);
 			} else { // 계산서 승인 전 -> bgm1225 를 3으로 계산서 발행
 				//수정세금계산서 "삭제" 로직 시작
 				msgId++;
@@ -380,6 +390,9 @@ public class AR04SvcImpl implements AR04Svc {
 				result = ar04Mapper.insertInvHdDelete(taxHdParam); // 거래명세서용 inv Hd insert
 				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
 				result = ar04Mapper.insertInvItemDelete(taxHdParam); // 거래명세서용 inv item insert
+				
+				//연계문서 발행
+				insertKladdi(msgId, taxHdParam);
 			}
 		}
 		return result;
@@ -460,6 +473,22 @@ public class AR04SvcImpl implements AR04Svc {
 		if(bilgInfo.get("taxBilgNo") != null) return result;
 		Map<String, String> bilgParam = ar02Mapper.selectBilgInfoUpdate(param);
 		result = ar04Mapper.updateBilgAmt(bilgParam);
+		return result;
+	}
+	
+	int insertKladdi(int msgId, Map<String, String> param) {
+		int result = 0;
+
+		//연계문서 발행
+		msgId++; //XML_MSG_ID 생성
+		String xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+		param.put("xmlMsgId", xmlMsgId);
+		param.put("docName", "KLADDI"); //세금계산서 KLADDI
+		param.put("docCode", "780"); // 거래명세서 780
+		result = ar04Mapper.insertMapoutKey(param); // 연계문서 mapoutkey insert
+		result = ar04Mapper.insertKladdiHd(param); // 연계문서 kladdi Hd insert
+		result = ar04Mapper.insertKladdiDtl(param); // 연계문서 kladdi dtl insert
+		
 		return result;
 	}
 }
