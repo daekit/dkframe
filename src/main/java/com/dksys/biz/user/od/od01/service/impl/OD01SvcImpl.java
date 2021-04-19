@@ -77,11 +77,11 @@ public class OD01SvcImpl implements OD01Svc {
 			if(stockInfo == null) {
 				detailMap.put("pchsUpr", "0");
 				detailMap.put("sellUpr", "0");
-				detailMap.put("stockUpr", "0");
+//				detailMap.put("stockUpr", "0");
 			} else {
 				detailMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				detailMap.put("sellUpr", stockInfo.get("sellUpr"));
-				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
+//				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 			}
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));

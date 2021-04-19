@@ -292,6 +292,7 @@
 			REAL_DLVR_WT,
 			REAL_DLVR_UPR,
 			REAL_DLVR_AMT,
+			SHIP_UPR,
 	        SELL_UPR,
 	        PCHS_UPR,
 	        STOCK_UPR,
@@ -328,6 +329,7 @@
 	        #{realDlvrWt},
 	        #{realDlvrUpr},
 	        #{realDlvrAmt},
+	        #{shipUpr},
 	        #{sellUpr},
 	        #{pchsUpr},
 	        #{stockUpr},
@@ -348,15 +350,21 @@
 		SELECT 
 			T.ORDRG_SEQ,
             T.CO_CD,
+            FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
             T.REQ_DT,
             T.CLNT_CD,
             T.PRJCT_CD,
             T.IMP_YN,
             T.MAKR_CD,
+			FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
             T.WH_CD,
+			FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
             T.TYP_CD,
+            FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
             T.OWNER_CD,
+			FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
             T.SALES_AREA_CD,
+            FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) AS SALES_AREA_NM,
             T.SELL_CLNT_CD,
             (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM,
             T.MNG_TEL,
@@ -375,6 +383,7 @@
             T.PCHS_NO,
             T.SALES_MNG,
             T.ORDRG_YN,
+            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND ORDRG_YN = 'Y') AS CONFIRM_CNT,
             T.ORDRG_PROC_ID,
             (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
             TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
@@ -391,7 +400,8 @@
 			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM ,
 			SITE_CD,		        
-			TAXIVC_COPRT,		        
+			TAXIVC_COPRT,
+			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,		        
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
 		FROM TB_OD01M01 T
@@ -450,11 +460,13 @@
 	        T.ORDRG_WT,
 	        T.ORDRG_UPR,
 	        T.ORDRG_AMT,
+	        DECODE(A.DIRTRS_YN, 'N', (T.STOCK_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY), (T.SHIP_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY)) AS EPCT_PAL,
 	        T.REAL_DLVR_QTY,
 	        T.REAL_DLVR_WT,
 	        T.REAL_DLVR_UPR,
 	        T.REAL_DLVR_AMT,
 	        (T.ORDRG_QTY - T.REAL_DLVR_QTY) AS INTEND_DLVR_QTY,
+	        T.SHIP_UPR,
 	        T.SELL_UPR,
 	        T.PCHS_UPR,
 	        T.STOCK_UPR,
@@ -483,10 +495,12 @@
 			B.PRDT_NM,
 			B.PRDT_CNVRSN_WT,
 			B.PRDT_STOCK_CD
-		FROM TB_OD01D01 T
-		INNER JOIN TB_BM01M01 B
-		   ON B.PRDT_CD = T.PRDT_CD
-		WHERE ORDRG_SEQ = #{ordrgSeq}
+		FROM 
+			TB_OD01D01 T
+			INNER JOIN TB_OD01M01 A ON T.ORDRG_SEQ = A.ORDRG_SEQ
+			INNER JOIN  TB_BM01M01 B ON B.PRDT_CD = T.PRDT_CD
+		WHERE 
+			T.ORDRG_SEQ = #{ordrgSeq}
 	</select>
 	
 	<select id="getOrderDetailList" parameterType="Map" resultType="camelMap">
