@@ -33,6 +33,6 @@ public interface SD05Svc {
 
 	public List<Map<String, String>> prdtDivCombo(Map<String, String> param);
 
-	public List<Map<String, String>> prdtSizeCombo(Map<String, String> param);
+	public List<Map<String, String>> prdtSpecCombo(Map<String, String> param);
 	
 }

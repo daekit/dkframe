@@ -154,8 +154,8 @@ public class SD05SvcImpl implements SD05Svc {
 	}
     
 	@Override
-	public List<Map<String, String>> prdtSizeCombo(Map<String, String> param) {
-		return sd05Mapper.prdtSizeCombo(param);
+	public List<Map<String, String>> prdtSpecCombo(Map<String, String> param) {
+		return sd05Mapper.prdtSpecCombo(param);
 	}
 	
 	public Map<String, String> insertNoti(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {

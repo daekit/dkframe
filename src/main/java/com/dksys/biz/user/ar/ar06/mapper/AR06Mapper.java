@@ -19,5 +19,11 @@ public interface AR06Mapper {
 	int updateTaxInvoice(Map<String, String> param);
 	
 	int deleteTaxInvoice(Map<String, String> param);
+
+	List<Map<String, String>> selectTaxRcvInfo(Map<String, String> paramMap);
+	
+	int insertTaxRcvInfo(Map<String, String> param);
+	
+	int updateTaxRcvInfoUseY(Map<String, String> param);
 	
 }

@@ -497,7 +497,9 @@
 		A.ACC_PROC_ID,
 		A.ETC_FIELD1,
 		A.ETC_FIELD2,
-		A.ETC_FIELD3
+		A.ETC_FIELD3,
+		A.ERR_CD,
+		A.ERR_CNTS
 	  FROM TB_AR04M01 A
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</select>
@@ -703,7 +705,7 @@
 		'DKSYL001',
 		'KL' || 'DKSYL001',
 		'KLLOGISBIL',
-		'VATDEC',
+		#{docName},
 		#{docCode},
 		'D00A',
 		'KECA',
@@ -2243,4 +2245,54 @@
 		TAX_MOA5_388  = #{taxMoa5388}
 	WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
+	
+	<insert id="insertKladdiHd" parameterType="Map">
+	INSERT INTO KLUSER01.KLADDI_HD
+	(
+		XML_MSG_ID,
+		XMLDOC_SEQ,
+		BGM_1001,
+		BGM_1000,
+		BGM_1004,
+		BGM_1225,
+		BGM_4343,
+		RFFXA_154,
+		TIMESTAMP
+	)
+	VALUES
+	(
+		#{xmlMsgId},
+		'1',
+		'6KQ',
+		NULL,
+		#{bgm1004},
+		'9',
+		'1',
+		NULL,
+		SYSDATE
+	)
+	</insert>
+	
+	<insert id="insertKladdiDtl" parameterType="Map">
+	INSERT INTO KLUSER01.KLADDI_DTL
+	(
+		XML_MSG_ID,
+		XMLDOC_SEQ,
+		DTLDOC_SEQ,
+		LIN_7140,
+		FTXACB_440,
+		FTXACB_453,
+		TIMESTAMP
+	)
+	VALUES
+	(
+		#{xmlMsgId},
+		'1',
+		(SELECT NVL(MAX(DTLDOC_SEQ), 0) + 1 FROM KLUSER01.KLADDI_DTL WHERE XML_MSG_ID = #{xmlMsgId}),
+		#{bgm1004},
+		#{bgm1004},
+		'780',
+		SYSDATE
+	)
+	</insert>
 </mapper>
