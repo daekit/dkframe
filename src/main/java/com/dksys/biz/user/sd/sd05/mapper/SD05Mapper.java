@@ -47,5 +47,5 @@ public interface SD05Mapper {
 	
 	List<Map<String, String>> prdtDivCombo(Map<String, String> param);
 	
-	List<Map<String, String>> prdtSizeCombo(Map<String, String> param);
+	List<Map<String, String>> prdtSpecCombo(Map<String, String> param);
 }
