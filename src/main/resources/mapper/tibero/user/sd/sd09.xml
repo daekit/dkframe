@@ -56,6 +56,8 @@
 					 , FN_BM02_MNG_ID( T.CO_CD, T.CLNT_CD)  SALES_EMP_ID
 					 , SD05.MAKR_CD
 					 , FN_CM05M01_CD_TO_NM(SD05.MAKR_CD) MAKR_NM
+					 , T.WH_CD
+					 , FN_CM05M01_CD_TO_NM(T.WH_CD) MAKR_NM
 				  FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -106,7 +108,9 @@
 			 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
 			 , SALES_AREA_CD
 			 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
-			 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID		
+			 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID
+			 , T.WH_CD
+			 , FN_CM05M01_CD_TO_NM(T.WH_CD) MAKR_NM		
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -135,6 +139,7 @@
 	 , CREAT_ID
 	 , CREAT_PGM
 	 , CREAT_DTTM
+	 , WH_CD
 	 ) VALUES (
 	 #{coCd}
 	 , #{siteCd}
@@ -152,25 +157,27 @@
 	 , #{userId}
 	 , #{pgmId} 
 	 , SYSDATE
+	 , #{whCd} 
 	 )
 	</insert>
 	
 	<update id="updateSite" parameterType="Map">
 	UPDATE TB_SD09M01
-	SET CLNT_CD = #{clntCd}
-	  , PRJCT_CD = #{prjctCd}
-	  , SITE_NM = #{siteNm}
+	SET CLNT_CD       = #{clntCd}
+	  , PRJCT_CD      = #{prjctCd}
+	  , SITE_NM       = #{siteNm}
 	  , SITE_ADDR_ZIP = #{siteAddrZip}
-	  , SITE_ADDR = #{siteAddr}
+	  , SITE_ADDR     = #{siteAddr}
 	  , SITE_ADDR_SUB = #{siteAddrSub}
-	  , SITE_MNG_NM = #{siteMngNm}
-	  , TEL_NO = #{telNo}
-	  , USE_YN = #{useYn}
-	  , RMK = #{rmk}
+	  , SITE_MNG_NM   = #{siteMngNm}
+	  , TEL_NO        = #{telNo}
+	  , USE_YN        = #{useYn}
+	  , RMK           = #{rmk}
 	  , SALES_AREA_CD = #{salesAreaCd}
-	  , UDT_ID = #{userId}
-	  , UDT_PGM = #{pgmId}
-	  , UDT_DTTM = SYSDATE
+	  , WH_CD         = #{whCd}
+	  , UDT_ID        = #{userId}
+	  , UDT_PGM       = #{pgmId}
+	  , UDT_DTTM      = SYSDATE
 	WHERE CO_CD = #{coCd}
 	  AND SITE_CD = #{siteCd}
 	</update>
