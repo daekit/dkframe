@@ -655,6 +655,11 @@ th {
 	
 	function setReport() {
 		
+		if ($('#coCd_S').val() == "") {
+			alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
+			return;
+		}
+		
 		var fileName = "AR0201R01.jrf";
 		var arg = "selPchCd#SELPCH2" 
 		         + "#coCd#"			+ $('#coCd_S').val()
@@ -683,11 +688,18 @@ th {
 		var flag = false;
 		var clntFlag = false;
 		var siteFlag = false;
+		var coFlag = false;
 		var list = gridView.target.getList("selected");
 		var trstNoArr = "";
 		var p_clntNm = "";
 		var p_clntCd = "";
 		var p_siteNm = "";
+		
+		if ($('#coCd_S').val() == "") {
+			alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
+			return;
+		}
+
 		$.each(list, function(idx, obj) {
 			if (!flag){
 				flag = true;
@@ -705,11 +717,17 @@ th {
 				}
 			}
 			if (idx > 0) {
+				if(list[idx].taxivcCoprtNm != list[idx-1].taxivcCoprtNm) {
+					coFlag = true;
+					return false;
+				}
+			}
+			if (idx > 0) {
 				if(list[idx].siteNm != list[idx-1].siteNm) {
 					siteFlag = true;
-//					return false;
 				}
-			}		});
+			}
+		});
 		if (!flag) {
 			alert("거래명세서 발행대상이 선택되지 않았습니다.");
 			return;
@@ -718,14 +736,22 @@ th {
 			alert("동일한 거래처만 발행이 가능합니다.");
 			return;
 		}
+		if (coFlag) {
+			alert("동일 매출법인만 발행이 가능합니다.");
+			return;
+		}
 		if (siteFlag) {
 //			alert("동일 현장만 발행이 가능합니다.");
 			p_siteNm = "";
 //			return;
-		}						
+		}				
+		if (!p_siteNm) {
+			p_siteNm = "";
+		}		
+		
 		var fileName = "AR0201R02.jrf";
 		var arg = "selPchCd#SELPCH2" 
-		         + "#coCd#"			+ $('#coCd_S').val()
+		         + "#coCd#"			+ $('#coCd_S').val() 
 		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
 		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
 		         + "#clntCd#"		+ p_clntCd
