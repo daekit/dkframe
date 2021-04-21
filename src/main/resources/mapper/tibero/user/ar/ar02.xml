@@ -313,7 +313,7 @@
 				ORDER BY CLNT_NM, TRST_DT, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
 			) T
 		)
-		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+		<!-- WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex} -->
 	</select>
 	
 	<select id="selectSellMainList" parameterType="Map" resultType="CamelMap">
@@ -324,17 +324,17 @@
 		        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 		        TYP_CD,
 		        FN_CM05M01_CD_TO_NM(TYP_CD) AS TYP_NM,
-		        SUM(BILG_QTY),
-		        SUM(BILG_WT),
-		        SUM(BILG_UPR),
-		        SUM(BILG_AMT),
+		        SUM(BILG_QTY) BILG_QTY,
+		        SUM(BILG_WT) BILG_WT,
+		        SUM(BILG_UPR) BILG_UPR,
+		        SUM(BILG_AMT) BILG_AMT,
 		        NVL(SUM(ETC_AMT), '0') AS ETC_AMT,
 		        NVL(SUM(TRANS_AMT), '0') AS TRANS_AMT,
 		        NVL(SUM(TRST_DC_AMT), '0') AS TRST_DC_AMT,
 		        CLNT_NM,
 		        SITE_CD,
 		        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
-		        SUM(BILG_VAT_AMT),
+		        SUM(BILG_VAT_AMT) BILG_VAT_AMT,
 		        SUM(BILG_VAT_AMT) + SUM(BILG_AMT) AS TOT_AMT
 		    FROM
 			(
