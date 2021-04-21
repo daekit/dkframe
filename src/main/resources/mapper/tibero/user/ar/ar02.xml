@@ -316,6 +316,77 @@
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
 	
+	<select id="selectSellMainList" parameterType="Map" resultType="CamelMap">
+		SELECT ROWNUM AS RNUM, A.* FROM (
+			SELECT
+				CO_CD,
+		        TAXIVC_COPRT,
+		        FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
+		        TYP_CD,
+		        FN_CM05M01_CD_TO_NM(TYP_CD) AS TYP_NM,
+		        SUM(BILG_QTY),
+		        SUM(BILG_WT),
+		        SUM(BILG_UPR),
+		        SUM(BILG_AMT),
+		        NVL(SUM(ETC_AMT), '0') AS ETC_AMT,
+		        NVL(SUM(TRANS_AMT), '0') AS TRANS_AMT,
+		        NVL(SUM(TRST_DC_AMT), '0') AS TRST_DC_AMT,
+		        CLNT_NM,
+		        SITE_CD,
+		        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
+		        SUM(BILG_VAT_AMT),
+		        SUM(BILG_VAT_AMT) + SUM(BILG_AMT) AS TOT_AMT
+		    FROM
+			(
+			 	SELECT T.* FROM TB_AR02M01 T
+			 	LEFT OUTER JOIN TB_SD09M01 SM09
+			 	          ON  T.CO_CD = SM09.CO_CD  AND T.SITE_CD = SM09.SITE_CD
+			 	WHERE SELPCH_CD = #{selpchCd}
+				<if test="coCd != null and !coCd.equals('')">
+					AND T.CO_CD = #{coCd}				
+				</if>
+			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+					AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+				</if>
+			 	<if test="clntNm != null and !clntNm.equals('')">
+					AND CLNT_NM LIKE '%${clntNm}%'
+				</if>
+			 	<if test="prdtDiv != null and !prdtDiv.equals('')">
+					AND PRDT_DIV = #{prdtDiv}				
+				</if>
+			 	<if test="estCoprt != null and !estCoprt.equals('')">
+					AND TAXIVC_COPRT = #{estCoprt}				
+				</if>
+			 	<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+					AND DIRTRS_YN = #{dirtrsYn}				
+				</if>
+			 	<if test="typCd != null and !typCd.equals('')">
+					AND TYP_CD = #{typCd}				
+				</if>
+				<if test="prjctCd != null and !prjctCd.equals('')">
+					AND T.PRJCT_CD = #{prjctCd}				
+				</if>
+				<if test="siteCd != null and !siteCd.equals('')">
+					AND T.SITE_CD = #{siteCd}				
+				</if>
+				<if test="siteNm != null and !siteNm.equals('')">
+					AND SM09.SITE_NM like '%'|| #{siteNm} || '%'				
+				</if>
+				<if test="pdsk != null and !pdsk.equals('')">
+					AND PRDT_STKN = #{pdsk}				
+				</if>
+				<if test='bilgYn == "Y"'>
+					AND BILG_CERT_NO IS NOT NULL 		
+				</if>
+				<if test='bilgYn == "N"'>
+					AND BILG_CERT_NO IS NULL 		
+				</if>
+				ORDER BY CLNT_NM, TYP_CD
+			) T
+			GROUP BY T.CO_CD, TAXIVC_COPRT, TYP_CD, CLNT_NM, SITE_CD
+		) A
+	</select>
+	
 	<update id="updatePchsSell" parameterType="Map">
 		UPDATE TB_AR02M01
 		SET
