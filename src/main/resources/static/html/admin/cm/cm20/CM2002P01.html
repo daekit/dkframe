@@ -1,0 +1,185 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="form-group">
+			<form id="sanctnFrom">
+				<table class="popup_table" >
+					<colgroup>
+						<col width="20%">
+						<col width="30%">
+						<col width="20%">
+						<col width="30%">
+					</colgroup>
+					<tr>
+						<th class="hit" colspan ="2">보고서 문서 코드</th>
+						<td colspan ="2">
+							<input type="text" class="form-control" id="sanctnCd" required>
+						</td>
+					</tr>
+					<tr name="table" >
+						<th colspan ="2" class="hit">1차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel1" name="sanctnLevel" value="1">
+							<select class="form-control input-sm" data-kind="PST" id="fstLevelCd" required name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+						<th colspan ="2">2차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel2" name="sanctnLevel" value="2">
+							<select class="form-control input-sm" data-kind="PST" id="sndLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+						<th colspan ="2">3차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel3" name="sanctnLevel" value="3">
+							<select class="form-control input-sm" data-kind="PST" id="thdLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+						<th colspan ="2">4차결재</th>
+						<td colspan ="2"> 
+							<input type="hidden" id="sanctnLevel4" name="sanctnLevel" value="4">
+							<select class="form-control input-sm" data-kind="PST" id="fouLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+					    <th colspan ="2">5차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel5" name="sanctnLevel" value="5">
+							<select class="form-control input-sm" data-kind="PST" id="fifLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+						<th colspan ="2">6차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel6" name="sanctnLevel" value="6">
+							<select class="form-control input-sm" data-kind="PST" id="sixLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+						<th colspan ="2">7차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel7" name="sanctnLevel" value="7">
+							<select class="form-control input-sm" data-kind="PST" id="sevLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr name="table">
+						<th colspan ="2">8차결재</th>
+						<td colspan ="2">
+							<input type="hidden" id="sanctnLevel8" name="sanctnLevel" value="8">
+							<select class="form-control input-sm" data-kind="PST" id="eghLevelCd" name="levelCd">
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>
+<div>
+	<button type="button" class="btn btn-default btn-sm" id="actionBtn" onclick="deleteSanctnInfo();"></button>
+	<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+		setCommonSelect($("#sanctnFrom select[data-kind]"));
+		
+		
+		if(actionType == "C"){
+			$('#actionBtn').text("등록");
+		}else if(actionType == "U"){
+			selectSanctnInfo();
+			$('#sanctnCd').prop("readOnly", true);
+			$('#actionBtn').text("저장");
+		}
+	});
+	
+	function selectSanctnInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"sanctnCd": row.sanctnCd};
+		postAjax("/admin/cm/cm20/selectSanctnInfo", paramObj, null, function(data){
+			setSanctnInfo(data.sanctnInfo);
+		});
+	}
+	
+	function setSanctnInfo(sanctnInfo){
+		$.each(sanctnInfo, function(key, value){
+			$('#'+key).val(value);
+		});
+	}
+	
+	function deleteSanctnInfo() {
+		
+		
+		if(inputValidation($('[required]'))){
+			
+			var detailArr = [];
+			$.each($('tr[name="table"]'), function (idx, elem){
+				var detailObj = {};
+				
+				$.each($(elem).find('[name]'), function(idx, elem){
+					
+						detailObj.actionType = actionType;
+						detailObj.userId = jwt.userId;
+						detailObj.sanctnCd = $("#sanctnCd").val();
+						detailObj[elem.name] = elem.value;
+				
+				});
+				
+				detailArr.push(detailObj);
+			});
+			
+			
+			var formData = {
+					"detailArr" : detailArr
+			}
+			
+			var formData2 = {
+					"sanctnCd" : $("#sanctnCd").val()
+			};
+		
+			deleteAjax("/admin/cm/cm20/deleteSanctnInfo", formData2, null, function (data){
+				if(data.resultCode == 200){
+					insertSanctnInfo(formData);
+				}
+			});
+		}
+	
+
+	}
+	
+	function insertSanctnInfo(formData){
+	
+		postAjax("/admin/cm/cm20/insertSanctnInfo", formData, null, function(data){
+			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				gridView.setData(0);
+				modal.close();
+			}
+		});
+
+		
+	}
+	
+	
+	
+
+</script>

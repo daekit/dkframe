@@ -1,0 +1,139 @@
+<div class="row">
+	<span style="font-size: 25px; font-weight: bold;">보고서 결재선 목록 관리</span>
+</div>
+<div class="row">
+	<div class="form-group form-inline">
+		<!-- <select class="form-control division" id="rootDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="0" style="display: none;">
+			<option value="">공통코드 선택</option>
+			<option value="ROOT">공통코드</option>
+		</select>
+		<select class="form-control division" id="codeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="1">
+			<option value="">코드분류 선택</option>
+		</select>
+		<select class="form-control division" id="largeDiv" onchange="selectChildCodeList(this); gridView.setData(0);" data-depth="2">
+			<option value="">대분류 선택</option>
+		</select>
+		<select class="form-control division" id="midDiv" onchange="gridView.setData(0);" data-depth="3">
+			<option value="">중분류 선택</option>
+		</select>
+		<select class="form-control" id="useType" onchange="gridView.setData(0);">
+			<option value="Y">사용</option>
+			<option value="N">미사용</option>
+		</select>
+		<select class="form-control" id="searchType">
+			<option value="CODE_ID">코드ID</option>
+			<option value="CODE_NM">코드명</option>
+			<option value="CODE_DESC">설명</option>
+		</select> -
+		<input type="text" class="form-control" id="searchValue" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+		<button class="btn btn-primary" type="button" onclick="gridView.setData(0);">검색</button> -->
+		<div style="float: right;">
+			<a class="btn btn-default btn-sm" onclick="detailCode('C');">등록</a>
+			<a class="btn btn-default btn-sm" onclick="detailCode('U');">수정</a>
+			<a class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+</div>
+<script type="text/javascript">
+	var actionType = null;
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="first-grid"]'),
+				showRowSelector: true,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	detailCode("U");
+		            },
+		        },
+	            page: {
+	                navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+	            },
+	            columns: [
+                    {key: "sanctnCd",     label: "결재문서ID",   width: 150},
+	                {key: "fstLevelCd",   width: 100,		 hidden: true},
+	                {key: "fstLevelNm",  label:"1차결재자", width: 100},
+	                {key: "sndLevelCd",   width: 100,		 hidden: true},
+	                {key: "sndLevelNm",  label:"2차결재자", width: 100},
+	                {key: "thdLevelCd",   width: 100,		 hidden: true},
+	                {key: "thdLevelNm",  label:"3차결재자", width: 100},
+	                {key: "fouLevelCd",   width: 100,		 hidden: true},
+	                {key: "fouLevelNm",  label:"4차결재자", width: 100},
+	                {key: "fifLevelCd",   width: 100,		 hidden: true},
+	                {key: "fifLevelNm",  label:"5차결재자", width: 100},
+	                {key: "sixLevelCd",   width: 100,		 hidden: true},
+	                {key: "sixLevelNm",  label:"6차결재자", width: 100},
+	                {key: "sevLevelCd",   width: 100,		 hidden: true},
+	                {key: "sevLevelNm",  label:"7차결재자", width: 100},
+	                {key: "eghLevelCd",   width: 100,		 hidden: true},
+	                {key: "eghLevelNm",  label:"8차결재자", width: 100},
+	            ]
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			
+			postAjax("/admin/cm/cm20/selectSanctnList", paramObj, null, function(data){
+				targetObj.setData({
+					list: data.resultList,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+
+		gridView.initView().setData(0);
+		
+	});
+	
+
+	
+	function detailCode(type) {
+		if(type == "U"){
+			if(selectGridValidation(gridView.target)) return;
+		}
+		
+		actionType = type;
+		openModal("/static/html/admin/cm/cm20/CM2002P01.html", 600, 400, "출력물 결재선 등록");
+	}
+
+	function deleteCode() {
+		if(!confirm("삭제하시겠습니까?")) return;
+		
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {"sanctnCd": row.sanctnCd, "userId": jwt.userId};
+		putAjax("/admin/cm/cm20/deleteSanctn", paramObj, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			}
+		});
+	}
+</script>

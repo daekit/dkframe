@@ -170,7 +170,6 @@ public class SD06Ctr {
     @PutMapping("/insertOneMaster")
     public String insertOneMaster(@RequestBody Map<String, String> param, ModelMap model) {
     	
-    	System.out.println(param);
     	Map<String, String> tempParam = new HashMap<String, String>();
     	
     	tempParam.putAll(param);
