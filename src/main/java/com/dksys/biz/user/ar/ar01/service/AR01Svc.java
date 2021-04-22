@@ -23,6 +23,8 @@ public interface AR01Svc {
 
 	int updateConfirm(Map<String, String> paramMap);
 
+	int updateConfirmToMes(Map<String, String> paramMap, List<Map<String, String>> detailList);
+
 	int selectConfirmCount(Map<String, String> paramMap);
 	
 	int selectDetailCount(Map<String, String> paramMap);

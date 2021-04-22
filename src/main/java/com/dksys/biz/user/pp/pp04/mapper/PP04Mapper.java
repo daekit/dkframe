@@ -17,6 +17,10 @@ public interface PP04Mapper {
 	List<Map<String, String>> selectMesAllocVehlDtlList(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectOdrList(Map<String, Object> paramMap);
+
+	Map<String, String> selectAr01MList(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectAr01DList(Map<String, String> paramMap);
 	
 	int insertMesList(Map<String, String> paramMap);
 	
