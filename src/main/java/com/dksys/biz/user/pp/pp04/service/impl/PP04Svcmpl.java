@@ -1,5 +1,6 @@
 package com.dksys.biz.user.pp.pp04.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.pp.pp04.mapper.PP04Mapper;
 import com.dksys.biz.user.pp.pp04.service.PP04Svc;
 
@@ -15,6 +17,9 @@ public class PP04Svcmpl implements PP04Svc {
 	
     @Autowired
     PP04Mapper pp04Mapper;  
+    
+    @Autowired
+    AR01Svc ar01Svc;
 
 
 	@Override
@@ -46,12 +51,22 @@ public class PP04Svcmpl implements PP04Svc {
 		List<Map<String,String>> listMap = (List<Map<String,String>>)paramMap.get("list");
 		for(int i = 0; i < listMap.size(); i++) {
 			listMap.get(i).put("userId", userId);
+			listMap.get(i).put("loginId", userId);
 			listMap.get(i).put("userNm", userNm);
 			listMap.get(i).put("pgmId", pgmId);
 			listMap.get(i).put("erpTransYn", "Y");
-			pp04Mapper.insertMesList(listMap.get(i));
-			pp04Mapper.insertMesDetailList(listMap.get(i));
-			pp04Mapper.insertSellTrst(listMap.get(i));
+			pp04Mapper.insertMesList(listMap.get(i)); //AR01M
+			pp04Mapper.insertMesDetailList(listMap.get(i)); //AR01D
+			Map<String, String> ar01mList = new HashMap<String, String>();
+			ar01mList.putAll(pp04Mapper.selectAr01MList(listMap.get(i)));
+			ar01mList.put("loginId", userId);
+			ar01mList.put("pgmId", userId);
+			List<Map<String,String>> ar01dList = new ArrayList<Map<String, String>>(); 
+			ar01dList.addAll(pp04Mapper.selectAr01DList(listMap.get(i)));
+			//ar01mList.put("detail_Arr", ar01dList.toString());
+			//pp04Mapper.insertSellTrst(listMap.get(i));
+			//System.out.println(ar01mList.toString());
+			ar01Svc.updateConfirmToMes(ar01mList, ar01dList);
 			pp04Mapper.updateMesListAmt(listMap.get(i));
 			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
 		}

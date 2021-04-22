@@ -196,6 +196,7 @@ public class AR04SvcImpl implements AR04Svc {
 				msgId++;
 				bgm1004 = ar04Mapper.selectBgmSeq();
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 				taxHdParam.put("docCode", "938"); //세금계산서 938
 				taxHdParam.put("bgm1004", bgm1004);
 				taxHdParam.put("xmlMsgId", xmlMsgId);
@@ -214,6 +215,7 @@ public class AR04SvcImpl implements AR04Svc {
 				msgId++; //XML_MSG_ID 생성
 				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
 				taxHdParam.put("docCode", "780"); // 거래명세서 780
 				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 				result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert

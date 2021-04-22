@@ -30,6 +30,17 @@ public class AR02Ctr {
     @Autowired
     CM08Svc cm08Svc;
     
+    @PostMapping(value = "/selectSellMainList")
+	public String selectSellMainList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar02Svc.selectSellMainList(paramMap).size();
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = ar02Svc.selectSellMainList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
     @PostMapping(value = "/selectSellList")
 	public String selectSellList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int totalCnt = ar02Svc.selectSellCount(paramMap);
