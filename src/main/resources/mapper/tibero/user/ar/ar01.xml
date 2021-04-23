@@ -306,7 +306,7 @@
 			 	<if test="shipYn != null and !shipYn.equals('')">
 					AND AR01.SHIP_YN = #{shipYn}				
 				</if>
-				ORDER BY REQ_DT DESC, SHIP_SEQ DESC
+				ORDER BY DLVR_DTTM DESC, SHIP_SEQ DESC
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -329,10 +329,15 @@
 	        (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 	        T.IMP_YN,
 	        T.MAKR_CD,
+	        FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
 	        T.WH_CD,
+	        FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
 	        T.TYP_CD,
+	        FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
 	        T.OWNER_CD,
+	        FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
 	        T.SALES_AREA_CD,
+	        FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) AS SALES_AREA_NM,
 	        T.MNG_TEL,
 	        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
 	        T.DIRTRS_YN,
@@ -353,6 +358,7 @@
 	        T.SALES_MNG,
 	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
 	        T.SHIP_YN,
+	        (SELECT COUNT(*) FROM TB_AR01D01 WHERE SHIP_SEQ = T.SHIP_SEQ AND SHIP_YN = 'Y') AS CONFIRM_CNT,
 	        T.SHIP_PROC_ID,
 	        TO_CHAR(T.SHIP_DTTM, 'YYYY-MM-DD') AS SHIP_DTTM,
 	        T.ODR_CREAT_DIV,
@@ -370,9 +376,12 @@
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 		    T.ALLOC_VEHL_NO,
 		    T.TAXIVC_COPRT,
+	        FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 		    T.RECPT_YN
-		FROM TB_AR01M01 T
-		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+		FROM 
+			TB_AR01M01 T
+		WHERE
+			SHIP_SEQ = #{shipSeq}
 	</select>
 	
 	<select id="getOrderInfo" parameterType="Map" resultType="camelMap">
@@ -425,6 +434,8 @@
 	        T.SHIP_WT,
 	        T.SHIP_UPR,
 	        T.SHIP_AMT,
+	        <!-- [출하 예상손익 조회] (매출단가 * 수량) minus (재고단가 * 수량) -->
+	        (T.SHIP_UPR * T.SHIP_QTY - T.STOCK_UPR * T.SHIP_QTY) AS EPCT_PAL,
 	        T.PCHS_UPR,
 	        T.SELL_UPR,
 	        T.STOCK_UPR,
@@ -451,9 +462,11 @@
 	        T.UDT_ID,
 	        T.UDT_PGM,
 	        T.UDT_DTTM,
-	        B.PRDT_CNVRSN_WT,
-	        B.PRDT_STOCK_CD,
+	        B.PRDT_DIV,
 	        B.PRDT_STKN,
+	        B.PRDT_STOCK_CD,
+	        B.PRDT_COIL_YN,
+	        B.PRDT_CNVRSN_WT,
 	        B.PRDT_DT
 		FROM TB_AR01D01 T
 		INNER JOIN TB_BM01M01 B
