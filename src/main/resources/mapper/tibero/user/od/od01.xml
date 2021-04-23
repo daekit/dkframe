@@ -405,7 +405,7 @@
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
 		FROM TB_OD01M01 T
-		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
+		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</select>
 	
 	<select id="getOrderInfo" parameterType="Map" resultType="camelMap">
@@ -448,6 +448,7 @@
 			T.ORDRG_SEQ,
 	        T.ORDRG_DTL_SEQ,
 	        T.PRDT_CD,
+	        B.PRDT_NM,
 	        T.PRDT_DIV,
 	        T.PRDT_STKN,
 	        T.PRDT_ERQK_YN,
@@ -460,7 +461,8 @@
 	        T.ORDRG_WT,
 	        T.ORDRG_UPR,
 	        T.ORDRG_AMT,
-	        DECODE(A.DIRTRS_YN, 'N', (T.STOCK_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY), (T.SHIP_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY)) AS EPCT_PAL,
+	        <!-- [발주 예상손익 조회] 직송여부'Y': (매출단가 * 수량) minus (발주단가 * 수량), 직송여부'N': (재고단가 * 수량) minus (발주단가 * 수량) -->
+	        DECODE(A.DIRTRS_YN, 'Y', (T.SHIP_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY), (T.STOCK_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY)) AS EPCT_PAL,
 	        T.REAL_DLVR_QTY,
 	        T.REAL_DLVR_WT,
 	        T.REAL_DLVR_UPR,
@@ -492,9 +494,11 @@
 	        NVL(FN_CM05M01_CD_TO_NM(T.PRDT_SPEC), T.PRDT_SPEC) AS PRDT_SPEC_NM,
 	        FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM,
 	        FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) AS PRDT_UNIT_NM,
-			B.PRDT_NM,
-			B.PRDT_CNVRSN_WT,
-			B.PRDT_STOCK_CD
+			B.PRDT_DIV,
+	        B.PRDT_STKN,
+	        B.PRDT_STOCK_CD,
+	        B.PRDT_COIL_YN,
+	        B.PRDT_CNVRSN_WT
 		FROM 
 			TB_OD01D01 T
 			INNER JOIN TB_OD01M01 A ON T.ORDRG_SEQ = A.ORDRG_SEQ
@@ -574,7 +578,7 @@
 		    UDT_PGM                = #{pgmId},                       
 		    UDT_DTTM               = SYSDATE,
 		    TAXIVC_COPRT           = #{taxivcCoprt}                         
-		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
+		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
 	
 	<update id="updateConfirm" parameterType="Map">
@@ -586,7 +590,7 @@
 		    UDT_ID          = #{userId},
 		    UDT_PGM         = #{pgmId},
 		    UDT_DTTM        = SYSDATE
-		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
+		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
 	
 	<update id="updateCancel" parameterType="Map">
@@ -598,7 +602,7 @@
 		    UDT_ID          = #{userId},
 		    UDT_PGM         = #{pgmId},
 		    UDT_DTTM        = SYSDATE
-		WHERE REQ_DT = #{reqDt} AND ORDRG_SEQ = #{ordrgSeq}
+		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
 	
 	<update id="updateConfirmDetail" parameterType="Map">

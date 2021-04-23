@@ -4,7 +4,7 @@
 	</div>
 	<div class="popup_table">
 		<form id="popForm">
-			<input type="hidden" id="pgmId" name="pgmId" value="OD0102P01">
+			<input type="hidden" id="pgmId" name="pgmId" value="OD0102V01">
 			<input type="hidden" id="ordrgSeq" name="ordrgSeq">
 			<input type="hidden" id="reqDt" name="reqDt">
 			<input type="hidden" id="whClntCd" name="whClntCd">
@@ -50,7 +50,7 @@
 						<input type="text" id="ownerNm" name="ownerNm" readonly>
 					</td>
 					<th>매출거래처</th>
-					<td class="drctArea">
+					<td>
 						<input type="hidden" id="sellClntCd" name="sellClntCd">
 						<input type="text" id="sellClntNm" name="sellClntNm" readonly>
 					</td>
@@ -83,7 +83,7 @@
 						<input type="text" id="siteNm" name="siteNm" readonly>
 					</td>
 					<th>판매지역</th>
-					<td class="drctArea">
+					<td>
 						<input type="hidden" id="salesAreaCd" name="salesAreaCd">
 						<input type="text" id="salesAreaNm" name="salesAreaNm" readonly>
 					</td>
@@ -98,7 +98,7 @@
 						<input type="text" id="mngTel" name="mngTel" readonly>
 					</td>
 					<th>납기일자</th>
-					<td class="drctArea">
+					<td>
 						<input type="text" id="dlvrDttm" name="dlvrDttm" readonly>
 					</td>
 				</tr>
@@ -204,10 +204,8 @@
 						<input type="checkbox" name="detailChkBox">
 					</td>
 					<td>
-						<div class="search_form">
-							<input type="hidden" name="prdtCd">
-							<input type="text" name="prdtNm" readonly>
-						</div>
+						<input type="hidden" name="prdtCd">
+						<input type="text" name="prdtNm" readonly>
 					</td>
 					<td>
 						<input type="text" class="tc" name="prdtSize" readonly>
@@ -304,7 +302,6 @@
 <script type="text/javascript">
 	var targetRow = null;
 	var fileArr = [];
-	var deleteFileArr = [];
 	var fileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -367,8 +364,7 @@
 		}
 		
 		var formData = {
-			"ordrgSeq" : row.ordrgSeq,
-			"reqDt" : row.reqDt.replace(/-/g, "")
+			"ordrgSeq" : row.ordrgSeq
 		}
 		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data){
 			setOrderInfo(data.result);
@@ -474,7 +470,7 @@
 
 	function updateConfirm() {
 		var checkCount = 0;
-		$.each($('.detailRow'), function(idx, elem){
+		$.each($('#detailTb tr.detailRow'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
 				checkCount++;
 			}
@@ -496,7 +492,7 @@
 	
 	function updateCancel() {
 		var checkCount = 0;
-		$.each($('.detailRow'), function(idx, elem){
+		$.each($('#detailTb tr.detailRow'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
 				checkCount++;
 			}
@@ -530,7 +526,7 @@
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('.detailRow'), function(idx, elem){
+		$.each($('#detailTb tr.detailRow'), function(idx, elem){
 			if(type == "CONFIRM") {
 				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
 					var detailObj = {};
@@ -552,10 +548,6 @@
 			}
 		});
 		formData.append("detailArr", JSON.stringify(detailArr));
-		
-		if(actionType == "U") {
-			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		} 
 		
 		return formData;
 	}

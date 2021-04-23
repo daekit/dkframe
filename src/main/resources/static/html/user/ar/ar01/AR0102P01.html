@@ -1,379 +1,376 @@
-<body>
-  <div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
-    <div class="tit_contents">
-        <h4 class="tit">출하요청서</h4>
-    </div>
+<div id="arViewDiv" class="popup_area of_a"
+	style="width: 100%; height: 100%;">
+	<div class="tit_contents">
+		<h4 class="tit"></h4>
+	</div>
+	<div class="popup_table">
+		<input type="file" id="file" style="display: none" multiple="multiple" onchange="setFile(this);" />
+		<form id="popForm">
+			<input type="hidden" id="pgmId" name="pgmId" value="AR0102P01"> 
+			<input type="hidden" id="reqDt" name="reqDt">
+			<input type="hidden" id="shipSeq" name="shipSeq"> 
+			<input type="hidden" id="ordrgSeq" name="ordrgSeq"> <!-- 발주번호 -->
+			<input type="hidden" id="ordrgDtlSeq" name="ordrgDtlSeq"> <!-- 발주상세번호 -->
+			<input type="hidden" id="realTotQty" name="realTotQty"> <!-- 총 수량 -->
+			<input type="hidden" id="realTotWt" name="realTotWt"> <!-- 총 중량 -->
+			<input type="hidden" id="realTotAmt" name="realTotAmt"> <!-- 총 금액 -->
+			<input type="hidden" id="sellVatCd" name="sellVatCd"> <!-- 부가세 코드-->
+			<input type="hidden" id="allocVehlNo" name="allocVehlNo"> <!-- 배차번호 -->
+			<table>
+				<colgroup>
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th class="hit">회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" required></select>
+					</td>
+					<th class="hit">판매유형</th>
+					<td>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>직송여부</th>
+					<td>
+						<select id="dirtrsYn" name="dirtrsYn" msg="직송여부" disabled>
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">매출거래처</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd" msg="매출거래처">
+							<input type="text" id="clntNm" readonly required>
+							<a onclick="openSecondClntSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th class="hit">재고주체</th>
+					<td>
+						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th class="hit">영업담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="salesMng" name="salesMng">
+							<input type="text" id="salesMngNm" name="salesMngNm" msg="영업담당자" readonly required>
+							<a onclick="openSecondUserSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">수입여부</th>
+					<td>
+						<select id="impYn" name="impYn" onchange="setMaker(this.value);" msg="수입여부" required>
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+					<th class="hit">출하창고</th>
+					<td>
+						<select id="whCd" name="whCd" data-kind="WH" onchange="setTaxivcCoprt();" msg="출하창고" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th class="hit">계산서발행법인</th>
+					<td>
+						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" msg="계산서발행법인" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">Maker</th>
+					<td>
+						<select id="makrCd" name="makrCd" data-kind="MAKR" msg="Maker" required></select>
+					</td>
+					<th>현장명</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd">
+							<input type="hidden" id="siteCd" name="siteCd">
+							<input type="text" id="siteNm" name="siteNm" readonly>
+							<a onclick="openArSiteSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>판매지역</th>
+					<td>
+						<select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>주문번호</th>
+					<td>
+						<div class="search_form">
+							<input type="text" id="odrSeq" name="odrSeq" readonly>
+							<a onclick="openSecondOrderSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>착지연락처</th>
+					<td>
+						<input type="text" id="mngTel" name="mngTel">
+					</td>
+					<th class="hit">납기일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="dlvrDttm" name="dlvrDttm" autocomplete="off" msg="납품일시" date required>
+					</td>
+				</tr>
+				<tr>
+					<th rowspan="2">착지주소</th>
+					<td>
+						<div class="search_form">
+							<input id="addrZip" name="addrZip" type="text" readonly>
+							<button type="button" onclick="openDaumPostcode();">
+								<i class="i_search_w"></i>
+							</button>
+						</div>
+					</td>
+					<th>운송비</th>
+					<td>
+						<div class="search_form">
+							<input type="text" id="transAmt" name="transAmt" onkeyup="addComma(this);" comma> 
+							<a onclick="transAmtModal();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th></th>
+					<td></td>
+				</tr>
+				<tr>
+					<td colspan="3" style="border-left: 0px !important;">
+						<input type="text" id="addrMain" name="addrMain" placeholder="선택 주소지" readonly>
+					</td>
+					<td colspan="2">
+						<input type="text" id="addrSub" name="addrSub" placeholder="상세 주소 입력">
+					</td>
+				</tr>
+				<tr>
+					<th>납기 비고<br>(내부용)</th>
+					<td colspan="5">
+						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>출하 비고</th>
+					<td colspan="5">
+						<textarea class="form-control" id="shipRmk" name="shipRmk" style="height: 60px;" maxlength="500"></textarea>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 테이블 -->
+	<div class="popup_table">
+		<table>
+			<tr>
+				<td colspan="2" style="text-align: LEFT; border-right: 0;">※상세내역</td>
+				<td colspan="14">
+					<div class="add_btn">
+						<a onclick="addDetailRow();">+</a> 
+						<a onclick="removeDetailRow();">-</a>
+					</div>
+				</td>
+			</tr>
+		</table>
 
-    <div class="popup_table">
-    	<input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/>
-    	<form id="popForm">
-	        <table>
-	            <colgroup>
-	                <col width="12%">
-	                <col width="">
-	                <col width="12%">
-	                <col width="">
-	                <col width="12%">
-	                <col width="">
-	            </colgroup>
-	            <tr>
-	                <th class="hit">회사</th>
-	                <td>                             
-	                    <select id="coCd" name="coCd" data-kind="CO" required="required" msg="회사">
-	                    </select>
-	                </td>
-	                <th class="hit">판매유형</th>
-	                <td>                                
-	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" required="required" msg="판매유형">
-	                        <option value="">선택</option> 
-	                    </select>
-	                </td>
-	                <th class="hit">직송여부</th>
-	                <td>                                
-	                    <select id="dirtrsYn" name="dirtrsYn" disabled="disabled" required="required" msg="직송여부">
-		                  	<option value="N" selected="selected">N</option>
-		                  	<option value="Y" >Y</option>
-		                </select>
-	                </td>
-	            </tr>
-	            <tr>
-	                <th class="hit">매출거래처</th>
-	                <td>     
-	                    <input type="hidden" id="clntCd" name="clntCd" style="width: 76%;" readonly="readonly" msg="매출거래처">
-	                    <div class="search_form">
-	                    	<input type="text" id="clntNm" readonly="readonly" required="required">
-	                    	<a onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
-	                    </div>
-	                </td>
-	                <th class="hit">재고주체</th>
-	                <td>   
-	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER" required="required" msg="재고주체">
-	                        <option value="">선택</option> 
-	                    </select>               
-	                </td>
-	                <th class="hit">영업담당자</th>
-	                <td>                                
-	                    <input type="hidden" id="salesMng" name="salesMng" msg="영업담당자">
-	                    <div class="search_form">
-		                    <input type="text" id="salesMngNm" name="salesMngNm" readonly="readonly" required="required" msg="영업담당자">
-	                    	<a onclick="openSecondUserSearch();"><i class="i_search_w"></i></a>
-	                    </div>
-	                </td>
-	            </tr>
-	            <tr>
-	            	<th class="hit">수입여부</th>
-	                <td>
-		                <select id="impYn" name="impYn" onchange="setMaker(this.value);" msg="수입여부">
-		                  	<option value="N" selected="selected">N</option>
-		                  	<option value="Y" >Y</option>
-		                </select>
-	                </td>
-	                <th class="hit">출하창고</th>
-	                <td>                                
-	                    <select id="whCd" name="whCd" data-kind="WH" required="required" onchange="setTaxivcCoprt()" msg="출하창고">
-		                  	<option value="">선택</option> 
-		                </select>
-	                </td>
-	                <th class="hit">계산서발행법인</th>
-	                <td>
-	                	<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" required="required" msg="계산서발행법인">
-							<option value="">선택</option> 
-	                	</select>
-	                </td>
-	            </tr>
-	            <tr>
-	            	<th class="hit">Maker</th>
-	                <td>                                
-	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required" msg="Maker"></select>
-	                </td>
-	                <th>현장명</th>
-	                <td>
-	                	<div class="search_form">
-			              <input type="hidden" id="siteCd" name="siteCd" value="0">
-			              <input type="text" id="siteNm" name="siteNm">
-			              <a onclick="openArSiteSearch();"><i class="i_search_w"></i></a>
-			            </div>
-	                </td>
-	                <th>판매지역</th>
-	                <td class="drctArea">                                
-	                    <select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
-	                        <option value="">선택</option> 
-	                    </select>
-	                </td>
-	            </tr>
-	            <tr>
-	                <th>주문번호</th>
-	                <td>     
-	                	<div class="search_form">
-		                    <input type="text" id="odrSeq" name="odrSeq" readonly="readonly"><!-- 주문번호 -->
-	                    	<a onclick="openSecondOrderSearch();"><i class="i_search_w"></i></a>
-	                    </div>
-	                </td>
-	                <th>담당자Tel</th>
-	                <td>
-	                	<input type="text" id="mngTel" name="mngTel">
-	                </td>
-	                <th class="hit">납품일시</th>
-	                <td>
-                		<input type="text" id="dlvrDttm" name="dlvrDttm" class="input_calendar" autocomplete="off" required="required" msg="납품일시">
-	                </td>
-	            </tr>
-	            <tr>
-	                <th rowspan="2">우편번호</th>
-	                <td>
-	                	<div class="search_form">
-		                    <input id="addrZip" name="addrZip" type="text" readonly="readonly">
-	                    	<a onclick="openDaumPostcode();"><i class="i_search_w"></i></a>
-	                    </div>
-	                </td>
-	                <th>운송비</th>
-	                <td>    
-	                	<div class="search_form"> 
-	                    	<input id="transAmt" name="transAmt" type="text" onkeyup="addComma(this);" comma>
-	                    	<a onclick="transAmtModal();"><i class="i_search_w"></i></a>
-	                    </div>
-	                </td>
-	                <th>요청일자</th>
-	                <td>
-	                	<input type="text" id="reqDt" name="reqDt" class="input_calendar">
-	                </td>
-	            </tr>
-	            <tr>
-	                <td colspan="3" style="border-left: 0px !important;">
-	                    <input id="addrMain" name="addrMain" type="text" style="width: 100%;" placeholder="선택 주소지" readonly="readonly">
-	                </td>
-	                <td colspan="2">
-	                	<input id="addrSub" name="addrSub" type="text" style="width: 100%;" placeholder="상세 주소 입력">
-	                </td>
-	            </tr>
-	            <tr>
-	            	<th>납기 비고<br>(내부용)</th>
-	                <td colspan="5">     
-	                	<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" type="text" style="height: 60px;" maxlength="500"></textarea>
-	                </td>
-	            </tr>
-	            <tr>
-	            	<th>출하 비고</th>
-	                <td colspan="5">     
-	                	<textarea class="form-control" id="shipRmk" name="shipRmk" type="text" style="height: 60px;" maxlength="500"></textarea>
-	                </td>
-	            </tr>
-	            <tr>
-	                <th style="text-align: center;">총 수량</th>
-	            	<td><input type="text" name="shipTotQty" style="text-align: right;" readonly="readonly" comma></td>
-	            	<th style="text-align: center;">총 금액</th>
-	            	<td><input type="text" name="shipTotAmt" style="text-align: right;" readonly="readonly" comma></td>
-
-	            </tr>
-	            
-	        </table>
-	        <input type="hidden" id="userId"      name="userId">
-	        <input type="hidden" id="pgmId"       name="pgmId"    value="AR0102P01">
-	        <input type="hidden" id="shipSeq"     name="shipSeq">
-	        <input type="hidden" id="ordrgSeq"    name="ordrgSeq">			<!-- 발주번호 -->
-	        <input type="hidden" id="ordrgDtlSeq" name="ordrgDtlSeq">	<!-- 발주상세번호 -->
-	        <input type="hidden" id="realTotQty"  name="realTotQty">	<!-- 총 수량 -->
-	        <input type="hidden" id="realTotWt"   name="realTotWt">     <!-- 총 중량 -->
-	        <input type="hidden" id="realTotAmt"  name="realTotAmt">	<!-- 총 금액 -->
-	        <input type="hidden" id="shipTotWt"   name="shipTotWt">		<!-- 총 중량 -->
-	        <input type="hidden" id="sellVatCd"   name="sellVatCd">	    <!-- 부가세 코드-->
-	        <input type="hidden" id="allocVehlNo" name="allocVehlNo">	<!-- 배차번호 -->
-	        <input type="hidden" id="prjctCd" 	  name="prjctCd" value="0">
-            <input type="hidden" id="prjctNm" 	  name="prjctNm">
-	    </form>
-    </div>
-
-    <br>
-    <!-- 테이블 -->
-    <div class="popup_table">
-      <table>
-        <tr>
-          <td colspan="2" style=" text-align: LEFT; border-right: 0; ">※상세내역</td>
-          <td colspan="14">
-            <div class="add_btn">
-              <a onclick="addRow();">+</a>
-              <a onclick="removeDetailRow();">-</a>
-            </div>
-          </td>
-        </tr>
-      </table>
-      
-     <div class="ofx_s" style="width:100%;">
-      <table id="detailTb" style="width: 1800px;">
-        <colgroup>
-        	<col width="2%">
-        	<col width="7%">    <!-- 제품명 -->
-      		<col width="5%">    <!-- SIZE -->
-      		<col width="5%">    <!-- SPEC-->
-      		<col width="3%">    <!-- 길이 -->
-      		<col width="3%">    <!-- 단위 -->
-      		<col width="5%">    <!-- 출하지시 수량-->
-      		<col width="5%">	<!-- 출하지시 단가-->
-      		<col width="5%">	<!-- 출하지시 금액-->
-      		<col width="5%">	<!-- 출하지시 손익-->
-      		<col width="4%">    <!-- 상태 -->
-      		<col width="5%">    <!-- 담당자 -->
-      		<col width="5%">    <!-- 완료일자 -->
-      		<col width="6%">    <!-- 차량번호 -->
-      		<col width="12%">   <!-- 지고 -->
-        </colgroup>
-        <tr>
-        	<th rowspan="2"></th>
-            <th rowspan="2" style="text-align: center;" class="hit">제품명</th>
-            <th rowspan="2" style="text-align: center;">사이즈</th>
-            <th rowspan="2" style="text-align: center;">SPEC</th>
-            <th rowspan="2" style="text-align: center;">길이</th>
-            <th rowspan="2" style="text-align: center;">단위</th>
-            <th colspan="4" style="text-align: center;">출하지시</th>
-            <th rowspan="2" style="text-align: center;">상태</th>
-            <th rowspan="2" style="text-align: center;">담당자</th>
-            <th rowspan="2" style="text-align: center;">완료일자</th>
-            <th rowspan="2" style="text-align: center;">차량번호</th>
-            <th rowspan="2" style="text-align: center;">비고</th>
-        </tr>
-        <tr>
-            <th style="text-align: center;" class="hit">수량</th>
-            <th style="text-align: center;">단가</th>
-            <th style="text-align: center;">금액</th>
-            <th style="text-align: center;">예상손익</th>
-        </tr>
-        <!-- // -->
-        <tbody>
-          <tr class="detailRow">
-          	<td>
-				<input type="checkbox" name="detailChkBox">
-			</td>
-            <td>
-              <input type="hidden" name="shipDtlSeq">
-              <input type="hidden" name="odrDtlSeq">
-              <input type="hidden" name="prdtCd">
-              <input type="hidden" name="prdtDiv">
-              <input type="hidden" name="prdtCoilYn">
-              <input type="hidden" name="pchsUpr" comma>
-              <input type="hidden" name="sellUpr" comma>
-              <input type="hidden" name="stockUpr" comma>
-              <input type="hidden" name="prdtUpr" comma>
-	          <input type="hidden" name="prdtCnvrsnWt" comma>  
-	          <input type="hidden" name="realShipQty" comma>  
-	          <input type="hidden" name="realShipWt" comma>  
-	          <input type="hidden" name="realShipUpr" comma>  
-	          <input type="hidden" name="realShipAmt" comma>   
-	          <input type="hidden" name="shipWt" comma>   
-	          <input type="hidden" name="prdtStockCd">
-	          <input type="hidden" name="bilgVatAmt" comma>    <!-- 부가세 -->
-	        
-              <div class="search_form">
-                <input type="text" name="prdtNm" readonly="readonly">
-              	<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></a>
-              </div>
-            </td>
-            <td><input type="text" style="text-align: right;" name="prdtSize"></td>
-            <td><input type="text" style="text-align: right;" name="prdtSpec"></td>
-            <td><input type="text" style="text-align: right;" name="prdtLen"></td>
-            <td>
-            	<input type="hidden" name="prdtUnit" readonly="readonly">
-            	<input type="text" name="prdtUnitNm" readonly="readonly" style="text-align: center;">
-            </td>
-            <td>
-	            <input type="text" name="shipQty" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" required comma msg="수량">
-	        </td>
-            <td>
-            	<input type="text" name="shipUpr" style="text-align: right;" onkeyup="addComma(this);countAmt(this);" comma>
-            </td>
-            <td>
-            	<input type="text" name="shipAmt" style="text-align: right;" readonly="readonly" comma>
-            </td>
-            <td>
-            	<input type="text" name="plAmt" style="text-align: right;" readonly="readonly" comma>
-            </td>
-            <td>
-            	<input type="text" name="shipYn" readonly="readonly" style="text-align: center;">
-            </td>
-            <td>
-            	<div class="search_form">
-	                <input type="hidden" name="shipProcId">
-	                <input type="text" name="shipProcNm" readonly="readonly">
-	            	<a onclick="openSecondUserSearch();"><i class="i_search_w"></i></a>  <!-- this, 'SHIP' -->
-	            </div>
-            </td>
-            <td>
-            	<input type="text" name="shipDttm" readonly="readonly" style="text-align: center;">
-            </td>
-            <td>
-            	<input type="text" name="shipVehNo">
-            </td>
-            <td>
-            	<input type="text" name="shipDtlRmk">
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <table style="width: 1800px;">
-      	<colgroup>
-       	<col width="2%">
-        	<col width="7%">   <!-- 제품명 -->
-      		<col width="5%">   <!-- SIZE -->
-      		<col width="5%">   <!-- SPEC-->
-      		<col width="3%">   <!-- 길이 -->
-      		<col width="3%">   <!-- 단위 -->
-      		<col width="5%">   <!-- 출하지시 수량-->
-      		<col width="5%">
-      		<col width="5%">
-      		<col width="5%">
-      		<!-- 실출하 -->
-      		<col width="4%">   <!-- 상태 -->
-      		<col width="5%">   <!-- 담당자 -->
-      		<col width="5%">   <!-- 완료일자 -->
-      		<col width="6%">   <!-- 차량번호 -->
-      		<col width="12%">  <!-- 비고 -->
-        </colgroup>
-      	<tr>
-            <th colspan="6" style="text-align: center;">합계</th>
-            <td id="shipTotQty" style="text-align: right;" comma></td>
-            <td>-</td>
-            <td id="shipTotAmt" style="text-align: right;" comma></td>
-            <td id="plTotAmt" style="text-align: right;" comma></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-      </table>
-      </div>
-    </div>
-    <br>
-    <div class="popup_table">
-      <table>
-        <colgroup>
-        	<col width="12%">
-        </colgroup>
-	  	<tr>
-	  		<th>
-	  			<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
-	  		</th>
-	  		<td>
-	  			<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
-	  		</td>
-	  	</tr>
-	  </table>
-    </div>
-    <!-- 하단 버튼 -->
-    <div class="popup_bottom_btn">
-      <button id="actionArBtn">등록</button>
-      <button class="close_btn" onclick="modal.close();">닫기</button>
-    </div>
-  </div>
- 
-</body>
-<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
-<script src="/static/js/jstree/jstree.min.js"></script>
+		<div class="ofx_s" style="width: 100%;">
+			<table id="detailTb" style="width: 1600px;">
+				<colgroup>
+					<col width="2%">
+					<col width="15%"> <!-- 제품명 -->
+					<col width="7%">  <!-- SIZE -->
+					<col width="7%">  <!-- SPEC-->
+					<col width="5%">  <!-- 길이 -->
+					<col width="5%">  <!-- 단위 -->
+					<col width="5%">  <!-- 출하지시 수량-->
+					<col width="5%">  <!-- 출하지시 중량-->
+					<col width="5%">  <!-- 출하지시 단가-->
+					<col width="7%">  <!-- 출하지시 금액-->
+					<col width="7%">  <!-- 출하지시 손익-->
+					<col width="7%">  <!-- 완료일자 -->
+					<col width="8%">  <!-- 차량번호 -->
+					<col width="15%"> <!-- 비고 -->
+				</colgroup>
+				<tr>
+					<th></th>
+					<th class="tc hit">제품명</th>
+					<th class="tc">사이즈</th>
+					<th class="tc">SPEC</th>
+					<th class="tc">길이</th>
+					<th class="tc">단위</th>
+					<th class="tc hit">수량</th>
+					<th class="tc hit">중량</th>
+					<th class="tc">매출단가</th>
+					<th class="tc">금액</th>
+					<th class="tc">예상손익</th>
+					<th class="tc">완료일자</th>
+					<th class="tc">차량번호</th>
+					<th class="tc">비고</th>
+				</tr>
+			</table>
+			<table id="frameTable" style="display: none;">
+				<tr class="detailRow">
+					<input type="hidden" name="shipDtlSeq"> 
+					<input type="hidden" name="odrDtlSeq"> 
+					
+					<input type="hidden" name="shipYn">
+					<input type="hidden" name="shipProcId">
+					
+					<input type="hidden" name="prdtDiv">
+					<input type="hidden" name="prdtStkn">
+					<input type="hidden" name="prdtStockCd">
+					<input type="hidden" name="prdtCoilYn"> 
+					<input type="hidden" name="prdtCnvrsnWt">
+					<input type="hidden" name="prdtDt">
+					
+					<input type="hidden" name="pchsUpr">
+					<input type="hidden" name="sellUpr">
+					<input type="hidden" name="stockUpr">
+					<input type="hidden" name="prdtUpr">
+					<input type="hidden" name="bilgVatAmt"> <!-- 부가세 -->
+					
+					<input type="hidden" name="realShipQty">
+					<input type="hidden" name="realShipWt">
+					<input type="hidden" name="realShipUpr">
+					<input type="hidden" name="realShipAmt">
+					<td>
+						<input type="checkbox" name="detailChkBox">
+					</td>
+					<td>
+						<div class="search_form">
+							<input type="hidden" name="prdtCd">
+							<input type="text" name="prdtNm" msg="제품명" readonly required>
+							<a onclick="openSecondPrdtSearch(this);">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td>
+						<input type="text" class="tc" name="prdtSize">
+					</td>
+					<td>
+						<input type="text" class="tc" name="prdtSpec">
+					</td>
+					<td>
+						<input type="text" class="tr" name="prdtLen">
+					</td>
+					<td>
+						<input type="hidden" name="prdtUnit">
+						<input type="text" class="tc" name="prdtUnitNm" readonly>
+					</td>
+					<td>
+						<input type="text" class="tr" name="shipQty" onkeyup="addComma(this); calShipWt(this); countAmt(this);" msg="수량" comma required>
+					</td>
+					<td>
+						<input type="text" class="tr" name="shipWt" onkeyup="addComma(this); countAmt(this);" msg="중량" comma required>
+					</td>
+					<td>
+						<input type="text" class="tr" name="shipUpr" onkeyup="addComma(this); countAmt(this);" comma>
+					</td>
+					<td>
+						<input type="text" class="tr" name="shipAmt" comma readonly>
+					</td>
+					<td>
+						<input type="text" class="tr" name="epctPal" comma readonly>
+					</td>
+					<td>
+						<input type="text" class="tc" name="shipDttm" readonly>
+					</td>
+					<td>
+						<input type="text" name="shipVehNo">
+					</td>
+					<td>
+						<input type="text" name="shipDtlRmk">
+					</td>
+				</tr>
+			</table>
+			<table style="width: 1600px;">
+				<colgroup>
+					<col width="2%">
+					<col width="15%"> <!-- 제품명 -->
+					<col width="7%">  <!-- SIZE -->
+					<col width="7%">  <!-- SPEC-->
+					<col width="5%">  <!-- 길이 -->
+					<col width="5%">  <!-- 단위 -->
+					<col width="5%">  <!-- 출하지시 수량-->
+					<col width="5%">  <!-- 출하지시 중량-->
+					<col width="5%">  <!-- 출하지시 단가-->
+					<col width="7%">  <!-- 출하지시 금액-->
+					<col width="7%">  <!-- 출하지시 손익-->
+					<col width="7%">  <!-- 완료일자 -->
+					<col width="8%">  <!-- 차량번호 -->
+					<col width="15%"> <!-- 비고 -->
+				</colgroup>
+				<tr>
+					<th class="tc" colspan="6">합계</th>
+					<td>
+						<input class="tr" type="text" id="shipTotQty" name="shipTotQty" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="shipTotWt" name="shipTotWt" comma readonly>
+					</td>
+					<td>-</td>
+					<td>
+						<input class="tr" type="text" id="shipTotAmt" name="shipTotAmt" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="totEpctPal" name="totEpctPal" comma readonly>
+					</td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<br>
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="12%">
+			</colgroup>
+			<tr>
+				<th>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+				</th>
+				<td>
+					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="actionArBtn">등록</button>
+		<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+	</div>
+</div>
 <script type="text/javascript">
-	
-	var treeType = null;
+	var targetRow = null;
 	var fileArr = [];
 	var deleteFileArr = [];
-	var selectedIdx = 0;
 	var fileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -389,7 +386,7 @@
 		            },
 		            onDBLClick: function () {
 		            	downloadFile(this.dindex);
-		            },
+		            }
 		        },
 	            columns: [
 	                {key: "fileName", label: "파일명", width: 405},
@@ -416,35 +413,42 @@
 	}
 	
 	$(document).ready(function() {
-		fileGridView.initView();
+		
+		// 공통코드 selectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
+		
+		// 납기일자 datepicker bind
 		$('#dlvrDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		});
-		setArInit();
-		$("#coCd").val(jwt.coCd);
-	});
-	
-	function setArInit() {
+		
+		// 파일 그리드 초기화
+		fileGridView.initView();
+		
 		if(actionType == "C"){
-			$('#actionArBtn').on("click", function(){insertShip();});
-			$('#actionArBtn').text("등록");
-			$("#reqDt").val(dateToStr(new Date()));
+			$("#coCd").val(jwt.coCd);
+			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
+			addDetailRow();
+			$('#actionArBtn').on("click", function(){insertShip();});
+			$('.tit_contents .tit').text("출하요청서 등록");
+			$('#actionArBtn').text("등록");
 		} else if(actionType == "U"){
 			selectShipInfo();
 			$('#actionArBtn').on("click", function(){updateShip();});
+			$('.tit_contents .tit').text("출하요청서 수정");
 			$('#actionArBtn').text("저장");
 		} else if(actionType == "O"){
 			getOrderInfo();
 			$('#odrSeq').siblings('a').remove();
 			$('#actionArBtn').on("click", function(){insertShip();});
+			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
 		}
-	}
+	});
 	
 	function selectShipInfo() {
 		var row;
@@ -454,8 +458,7 @@
 			row = gridView.target.getList()[selectedRowIdx];
 		}
 		var formData = {
-			"shipSeq" : row.shipSeq,
-			"reqDt" : row.reqDt.replace(/-/g, "")
+			"shipSeq" : row.shipSeq
 		}
 		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
 			setShipInfo(data.result);
@@ -476,42 +479,45 @@
 		var fileInfo = obj.fileList;
 		var shipInfo = obj.shipInfo;
 		var shipDetail = obj.shipDetail;
-		if(shipInfo.shipYn == "Y") {
-			$("#actionArBtn").hide();
-		}
-		//메인정보 세팅
+		
+		// 메인정보 세팅
 		$.each(shipInfo, function(key, value){
-			$('#'+key).val(value);
-			
-			// 제조사 set
-			if(key == "impYn"){
-				setMaker(value);
+			if($('#'+key)[0]){
+				if($('#'+key).is('[date]')){
+					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}else{
+					if($('#'+key).is('[comma]')){
+						value = addCommaStr(value);
+					}
+					$('#'+key).val(value);
+				}
+				// 제조사 set
+				if(key == "impYn"){
+					setMaker(value);
+				}
 			}
 		});
 		
 		//상세정보 세팅
-		$.each(shipDetail, function(idx, item){
-			if(idx != 0) addRow();
-			$.each(item, function(key, value){
-				if($(".detailRow").find("input[name="+key+"]")[idx] != undefined) {
-					$(".detailRow").find("input[name="+key+"]")[idx].value = value;
+		$.each(shipDetail, function(idx, obj){
+			var $addedRow = addDetailRow();
+			$.each($addedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
+				if(itemValue){
+					if($(elem).is("[comma]")){
+						itemValue = addCommaStr(itemValue);
+					}
+					$(elem).val(itemValue);
 				}
 			});
-			if(item.shipYn == "Y") {
-				$($("input[name='detailChkBox']")[idx]).prop("checked", true);
-				$($("input[name='detailChkBox']")[idx]).prop("disabled", true);
-				$($(".detailRow")[idx]).find("input").prop("disabled", true);
-				$($(".detailRow")[idx]).find("button").prop("disabled", true);
-			} else {
-				$($("input[name='detailChkBox']")[idx]).prop("disabled", false);
+			
+			if(obj.shipYn == "Y") {
+				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+				$addedRow.find('input').prop("readonly", true);
+				$addedRow.find('button').remove();
 			}
-			countTot();
 		});
-		
-		//콤마 추가
-		$.each($('input[comma]'), function(idx, elem){
-			addComma(elem);
-		});
+		countTot();
 		
 		if(actionType != "O"){
 			$.each(fileInfo, function(idx, obj){
@@ -526,6 +532,54 @@
 			// 첨부파일 그리드 set
 			fileGridView.setData();
 		}
+		
+		// 전체 출하확정시 수정버튼 hide
+		if(shipInfo.shipYn == "Y") {
+			$("#actionArBtn").hide();
+		}
+	}
+	
+	// 거래처 검색
+	function openSecondClntSearch(type) {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+			$('#sellVatCd').val(row.sellVatCd);
+			
+			var paramObj = {
+				"coCd": $('#coCd').val(),
+				"clntCd": row.clntCd
+			}
+			
+			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
+				if(data.mngInfo != null) {
+					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	
+				}
+			});
+		});
+	}
+	
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng').val(checkedNode.id);
+			$('#salesMngNm').val(checkedNode.text);
+		});
+	}
+	
+	// 입고창고 변경시 계산서발행법인 set
+	function setTaxivcCoprt(){
+		$('#taxivcCoprt').val($("#whCd option:selected").data("etc"));
 	}
 	
 	// 제조사 set
@@ -535,42 +589,173 @@
 		setCommonSelect($('#makrCd'));
 	}
 	
-	// 계산서발행법인 set
-	function setTaxivcCoprt(){
-		$('#taxivcCoprt').val($("#whCd option:selected").data("etc"));
+	// 현장 검색
+	function openArSiteSearch() {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			$("#siteCd").val(row.siteCd);
+			$("#siteNm").val(row.siteNm);
+			$("#prjctCd").val(row.prjctCd);
+			$('#addrZip').val(row.siteAddrZip);
+			$('#addrMain').val(row.siteAddr);
+			$('#addrSub').val(row.siteAddrSub);
+			$('#mngTel').val(row.telNo);
+			$('#salesAreaCd').val(row.salesAreaCd);
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+			$('#salesMng').val(row.salesEmpId);
+			$('#salesMngNm').val(row.salesEmpNm);
+			$("#whCd").val(row.whCd);
+		});
 	}
 	
-	function addRow() {
-		var row = $("#detailTb > tbody:last > tr:last").clone();
-		$("#detailTb > tbody:last").append(row);
-		$.each($(row).find(':input'), function(){
-			this.value = '';
-			this.checked = '';
-			$(this).prop("disabled", false);
+	function openSecondOrderSearch(){
+		openSecondModal("/static/html/cmn/modal/orderSearch.html", 700, 420, "주문서 검색", {}, function(grid){
+			var row = grid.target.getList("selected")[0];
+			$("#odrSeq").val(row.odrSeq);
 		});
-		$(row).find('input[name=realShipQty]').val("0");
-		$(row).find('input[name=realShipWt]').val("0");
-		$(row).find('input[name=realShipUpr]').val("0");
-		$(row).find('input[name=realShipAmt]').val("0");
-		countTot();
 	}
-
-	function removeDetailRow(){
-		var $checkedDetails = $('input:checkbox[name="detailChkBox"]:checked');
-		$.each($checkedDetails, function(idx, elem){
-			if($($("input[name='shipYn']")[idx]).val() == "" || $($("input[name='shipYn']")[idx]).val() == "N"){
-				$(elem).closest('.detailRow').remove();
+	
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#addrZip').val(data.zonecode);
+				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
 			}
+		}).open();
+	}
+	
+	function transAmtModal() {
+		openFrom = "AR0102P01";
+		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
+	}
+	
+	function addDetailRow() {
+		var $detailRow = $("#frameTable tr.detailRow").clone();
+		$('#detailTb tbody').append($detailRow[0]);
+		return $detailRow;
+	}
+	
+	function removeDetailRow(){
+		var $checkedDetails = $('#detailTb tr.detailRow input[name="detailChkBox"]:checked');
+		if($checkedDetails.length > 0){
+			$.each($checkedDetails, function(idx, elem){
+				$(elem).closest('tr.detailRow').remove();
+			});
+			countTot();
+			ctrlAllChkBox();
+		}else{
+			alert("삭제할 상세내역을 선택해주세요.");
+		}
+	}
+	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		$targetRow = $(elem).closest('tr.detailRow');
+		
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd": $("#coCd").val(),
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(),
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			// 값 초기화
+			$targetRow.find('input[name]').val("");
+			// input 제어
+			if(row.prdtStockCd == "Y"){
+				$targetRow.find('input[name="prdtSize"]').attr("readonly", false);
+				$targetRow.find('input[name="prdtSpec"]').attr("readonly", false);
+				$targetRow.find('input[name="prdtLen"]').attr("readonly", false);
+				$targetRow.find('input[name="shipQty"]').attr("readonly", false);
+				$targetRow.find('input[name="shipWt"]').attr("readonly", false);
+			}else{
+				$targetRow.find('input[name="prdtSize"]').attr("readonly", true);
+				$targetRow.find('input[name="prdtSpec"]').attr("readonly", true);
+				$targetRow.find('input[name="prdtLen"]').attr("readonly", true);
+				$targetRow.find('input[name="shipQty"]').attr("readonly", true);
+				$targetRow.find('input[name="shipWt"]').attr("readonly", true);
+			}
+			
+			$.each(row, function(key, value){
+				if($targetRow.find('[name="'+key+'"]')[0]){
+					$targetRow.find('[name="'+key+'"]').val(value);
+				}
+			});
+			$targetRow.find('input[name=prdtUpr]').val(row.ordrgUpr);
+			
+			countTot();
 		});
+	}
+	
+	function calShipWt(elem){
+		$targetRow = $(elem).closest('tr.detailRow');
+		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val()));
+		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val());
+		var shipWt = shipQty * prdtCnvrsnWt;
+		$targetRow.find('input[name="shipWt"]').val(addCommaStr(shipWt));
+		$targetRow.find('input[name="realShipWt"]').val(shipWt);
+	}
+	
+	function countAmt(elem) {
+		$targetRow = $(elem).closest('tr.detailRow');
+		var prdtStockCd = $targetRow.find('input[name="prdtStockCd"]').val();
+		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val()));
+		var shipWt = Number(deleteCommaStr($targetRow.find('input[name="shipWt"]').val()));
+		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val()));
+		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val());
+		
+		if(prdtStockCd == "Y"){
+			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipQty * shipUpr))
+			$targetRow.find('input[name="epctPal"]').val(addCommaStr((shipQty * shipUpr) - (shipQty * stockUpr)));
+		}else{
+			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr));
+		}
+		
+		$targetRow.find('input[name="realShipQty"]').val(deleteCommaStr($targetRow.find('input[name="shipQty"]').val()));
+		$targetRow.find('input[name="realShipWt"]').val(deleteCommaStr($targetRow.find('input[name="shipWt"]').val()));
+		$targetRow.find('input[name="realShipUpr"]').val(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val()));
+		$targetRow.find('input[name="realShipAmt"]').val(deleteCommaStr($targetRow.find('input[name="shipAmt"]').val()));
+		
 		countTot();
 	}
 	
-	function downloadFile(idx) {
-		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
-			var fileInfo = data.fileInfo;
-			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
-			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+	function countTot() {
+		var shipTotQty = 0;
+		var shipTotWt = 0;
+		var shipTotAmt = 0;
+		var totEpctPal = 0;
+		
+		$.each($("#detailTb tr.detailRow"), function(idx, elem){
+			var shipQty = Number(deleteCommaStr($(elem).find('input[name="shipQty"]').val()));
+			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val()));
+			var shipAmt = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
+			var epctPal = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val()));
+			
+			shipTotQty += shipQty;
+			shipTotWt += shipWt;
+			shipTotAmt += shipAmt; 
+			totEpctPal += epctPal; 
 		});
+		
+		$('#shipTotQty').val(addCommaStr(shipTotQty));
+		$('#shipTotWt').val(addCommaStr(shipTotWt));
+		$('#shipTotAmt').val(addCommaStr(shipTotAmt));
+		$("#realTotQty").val(shipTotQty);
+		$("#realTotWt").val(shipTotWt);
+		$("#realTotAmt").val(shipTotAmt);
+		$("#totEpctPal").val(addCommaStr(totEpctPal));
+
 	}
 	
 	function setFile(elem){
@@ -602,65 +787,17 @@
 		fileGridView.setData();
 	}
 	
-	function makeFormData() {
-		$("#popForm input").prop("disabled", false);
-		$("#popForm select").prop("disabled", false);
-		$("#userId").val(jwt.userId);
-		$("#reqDt").val($("#reqDt").val().replace(/-/g, ""));
-		if($("#prjctCd").val() == "") $("#prjctCd").val("0");
-		//콤마 제거
-		$.each($('input[comma]'), function(idx, elem){
-			deleteComma(elem);
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
-		
-		var formData = new FormData($("#popForm")[0]);
-		
-		// 첨부파일 추가
-		$.each(fileArr, function(idx, obj){
-			// 신규파일만 추가
-			if(obj.fileKey == 0){
-				formData.append("files", obj.file);
-			}
-		});
-		
-		// 상세내역 추가
-		var detailArr = [];
-		$.each($('.detailRow'), function(midx, elem){
-			if($(elem).find("input[name='shipYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "") {
-				var detailObj = {};
-				$.each($(elem).find('[name]'), function(idx, elem){
-					detailObj[elem.name] = elem.value;
-				});
-				detailArr.push(detailObj);
-			}
-		});
-		formData.append("detailArr", JSON.stringify(detailArr));
-		
-		if(actionType == "U") {
-			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		}
-		
-		return formData;
-	}
-	
-	function validation() {
-		var returnFlag = false;
-		$.each($(".detailRow"), function(idx, item){
-			if($("input[name='prdtCoilYn']")[idx].value == "N" && $("input[name='prdtStockCd']")[idx].value == "Y" 
-					&& $("input[name='prdtDiv']")[idx].value == "PRDTDIV11" && $("input[name='prdtLen']")[idx].value == "0") {
-				returnFlag = true;
-				return false;
-			}
-		});
-		return returnFlag;
 	}
 	
 	function insertShip() {
-		if(validation()) {
-			alert("길이가 0인 제품이 존재합니다.")
-			return;
-		}
-		if(inputValidation($('.popup_area [required]'))) {
+		if(!lengthValidation()) return false;
+		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
 				alert(data.resultMessage);
@@ -673,11 +810,8 @@
 	}
 	
 	function updateShip() {
-		if(validation()) {
-			alert("길이가 0인 제품이 존재합니다.")
-			return;
-		}
-		if(inputValidation($('.popup_area [required]'))) {
+		if(!lengthValidation()) return false;
+		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
 				alert(data.resultMessage);
@@ -694,202 +828,70 @@
 			});
 		}
 	}
+	
+	function lengthValidation() {
+		var isValid = true;
+		$.each($("#detailTb tr.detailRow"), function(idx, elem){
+			var prdtDiv = $(elem).find('input[name="prdtDiv"]').val();
+			var prdtCoilYn = $(elem).find('input[name="prdtCoilYn"]').val();
+			var prdtStockCd = $(elem).find('input[name="prdtStockCd"]').val();
+			var prdtLen = $(elem).find('input[name="prdtLen"]').val();
+			
+			// 철근이면서 코일여부가 N이고 재고관리 대상이면 길이가 있어야 한다.
+			if(prdtDiv == "PRDTDIV11" && prdtCoilYn == "N" && prdtStockCd == "Y" && (prdtLen == 0 || prdtLen == "")){
+				isValid = false;
+				alert("길이가 0인 제품이 존재합니다.");
+				return false;
+			}
+		});
+		return isValid;
+	}
+	
+	function makeFormData() {
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		if($("#prjctCd").val() == "") $("#prjctCd").val("0");
 		
-	function countAmt(el) {
-		var rowIdx       = $(el).closest('tr').prevAll().length;
-		var shipQty      = $("input[name='shipQty']")[rowIdx].value;
-		var shipUpr      = $("input[name='shipUpr']")[rowIdx].value;
-		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']")[rowIdx].value;
-		var realShipQty  = $("input[name='realShipQty']")[rowIdx].value;
-		var realShipUpr  = $("input[name='realShipUpr']")[rowIdx].value;
-		var prdtStockCd  = $("input[name='prdtStockCd']")[rowIdx].value;
-		var sellVatCd    = $('#sellVatCd').val();
-		var vatRate      = 0;
-		var prdtUpr = $("input[name='prdtUpr']")[rowIdx].value;
-		if(prdtStockCd == "N") {
-			$("input[name='shipWt']")[rowIdx].value = $("input[name='shipQty']")[rowIdx].value;
-			$("input[name='shipAmt']")[rowIdx].value = $("input[name='shipUpr']")[rowIdx].value;
-			$("input[name='plAmt']")[rowIdx].value = 0;
-		} else {
-			$("input[name='shipWt']")[rowIdx].value = (deleteCommaStr(shipQty) * deleteCommaStr(prdtCnvrsnWt));
-			$("input[name='shipAmt']")[rowIdx].value = (deleteCommaStr(shipQty) * deleteCommaStr(shipUpr));
-			$("input[name='plAmt']")[rowIdx].value = $("input[name='shipAmt']")[rowIdx].value - prdtUpr * shipQty;
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		var formData = new FormData($("#popForm")[0]);
+		
+		// 유저아이디 추가
+		formData.append("userId", jwt.userId);
+		
+		// 총수량, 총중량, 총금액 추가
+		formData.append("shipTotQty", $('#shipTotQty').val());
+		formData.append("shipTotWt", $('#shipTotWt').val());
+		formData.append("shipTotAmt", $('#shipTotAmt').val());
+		
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		// 상세내역 추가
+		var detailArr = [];
+		$.each($('#detailTb tr.detailRow'), function(midx, elem){
+			if($(elem).find("input[name='shipYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "") {
+				var detailObj = {};
+				$.each($(elem).find('[name]'), function(idx, elem){
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		if(actionType == "U") {
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		}
 		
-		$("input[name='realShipQty']")[rowIdx].value = $("input[name='shipQty']")[rowIdx].value;
-		$("input[name='realShipUpr']")[rowIdx].value = $("input[name='shipUpr']")[rowIdx].value;
-		$("input[name='realShipWt']")[rowIdx].value  = $("input[name='shipWt']")[rowIdx].value;
-		$("input[name='realShipAmt']")[rowIdx].value = $("input[name='shipAmt']")[rowIdx].value;
-		
-		addComma($("input[name='shipAmt']")[rowIdx]);
-		addComma($("input[name='shipWt']")[rowIdx]);
-		addComma($("input[name='plAmt']")[rowIdx]);
-		countTot();
+		return formData;
 	}
-	
-	function countTot() {
-		var shipTotQty = 0;
-		var shipTotWt = 0;
-		var shipTotAmt = 0;
-		var realTotQty = 0;
-		var realTotWt = 0;
-		var realTotAmt = 0;
-		var plTotAmt = 0;
-		$.each($(".detailRow"), function(idx, item){
-			var shipQty = $("input[name='shipQty']")[idx].value;
-			var shipWt = $("input[name='shipWt']")[idx].value;
-			var shipAmt = $("input[name='shipAmt']")[idx].value;
-			var realShipQty = $("input[name='realShipQty']")[idx].value;
-			var realShipWt = $("input[name='realShipWt']")[idx].value;
-			var realShipAmt = $("input[name='realShipAmt']")[idx].value;
-			var plAmt = $("input[name='plAmt']")[idx].value;
-			shipTotQty += Number(deleteCommaStr(shipQty)); 
-			shipTotWt += Number(deleteCommaStr(shipWt)); 
-			shipTotAmt += Number(deleteCommaStr(shipAmt));
-			realTotQty += Number(deleteCommaStr(realShipQty)); 
-			realTotWt += Number(deleteCommaStr(realShipWt)); 
-			realTotAmt += Number(deleteCommaStr(realShipAmt));
-			plTotAmt += Number(deleteCommaStr(plAmt)); 
-		});
-		$("#shipTotQty").html(addCommaStr(shipTotQty));
-		$("#shipTotWt").html(addCommaStr(shipTotWt));
-		$("#shipTotAmt").html(addCommaStr(shipTotAmt));
-		$("#realTotQty").html(addCommaStr(realTotQty));
-		$("#realTotWt").html(addCommaStr(realTotWt));
-		$("#realTotAmt").html(addCommaStr(realTotAmt));
-		$("#plTotAmt").html(addCommaStr(plTotAmt));
-		
-		$("input[name='shipTotQty']").val(addCommaStr(shipTotQty));
-		$("input[name='shipTotWt']").val(deleteCommaStr(shipTotWt));
-		$("input[name='shipTotAmt']").val(addCommaStr(shipTotAmt));
-		$("input[name='realTotQty']").val(deleteCommaStr(realTotQty));
-		$("input[name='realTotWt']").val(deleteCommaStr(realTotWt));
-		$("input[name='realTotAmt']").val(deleteCommaStr(realTotAmt));
-	}
-
-	function openSecondOrderSearch(){
-		openSecondModal("/static/html/cmn/modal/orderSearch.html", 700, 420, "주문서 검색", {}, function(grid){
-			var row = grid.target.getList("selected")[0];
-			$("#odrSeq").val(row.odrSeq);
-		});
-	}
-
-	function openDaumPostcode() {
-		new daum.Postcode({
-			oncomplete:function(data){
-				// 우편번호
-				$('#addrZip').val(data.zonecode);
-				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
-			}
-		}).open();
-	}
-
-	// 사용자 검색
-	function openSecondUserSearch() {
-		var paramObj = {
-			"coCd" : $('#coCd').val(),
-			"userId": $('#salesMng').val(),
-			"useYn": "Y"
-		};
-		
-		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
-			var checkedId = tree.get_checked()[0];
-			var checkedNode = tree.get_node(checkedId);
-			$('#salesMng').val(checkedNode.id);
-			$('#salesMngNm').val(checkedNode.text);
-		});
-	}
-
-	// 제품 검색
-	function openSecondPrdtSearch(elem) {
-		$targetRow = $(elem).closest('tr.detailRow');
-		
-		// selpchCd - SELPCH2: 매출
-		var paramObj = {
-			"coCd": $("#coCd").val(),
-			"selpchCd": "SELPCH2",
-			"impYn": $("#impYn").val(),
-			"clntCd" : $("#clntCd").val(),
-			"useYn": "Y"
-		};
-				
-		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
-			var row = grid.target.getList("selected")[0];
-			$targetRow.find('input').val("");
-			$targetRow.find('input[name="prdtDt"]').val(row.prdtDt);
-			$targetRow.find('input[name="prdtCd"]').val(row.prdtCd);
-			$targetRow.find('input[name="prdtDiv"]').val(row.prdtDiv);
-			$targetRow.find('input[name="prdtCnvrsnWt"]').val(row.prdtCnvrsnWt);
-			$targetRow.find('input[name="prdtNm"]').val(row.prdtNm);
-			$targetRow.find('input[name="prdtUnit"]').val(row.prdtUnit);
-			$targetRow.find('input[name="prdtUnitNm"]').val(row.prdtUnitNm);
-			$targetRow.find('input[name="shipUpr"]').val(row.ordrgUpr);
-			$targetRow.find('input[name="prdtUpr"]').val(row.ordrgUpr);
-			$targetRow.find('input[name="prdtSpec"]').val(row.prdtSpec);
-			$targetRow.find('input[name="prdtSize"]').val(row.prdtSize);
-			$targetRow.find('input[name="prdtLen"]').val(row.prdtLen);
-			$targetRow.find('input[name="prdtStockCd"]').val(row.prdtStockCd);
-			$targetRow.find('input[name="prdtCoilYn"]').val(row.prdtCoilYn);
-			if(row.prdtStockCd == "N") {
-				$targetRow.find('input[name="shipQty"]').prop("readonly", true);
-				$targetRow.find('input[name="shipQty"]').val("0");
-				$targetRow.find('input[name="shipAmt"]').val(row.ordrgUpr);
-			} else {
-				$targetRow.find('input[name="shipQty"]').prop("readonly", false);
-			}
-		});
-	}
-	
-	function transAmtModal() {
-		openFrom = "AR0102P01";
-		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
-	}
-	
-	// 현장 검색
-	function openArSiteSearch() {
-		var paramObj = {
-			"coCd": $('#popForm #coCd').val(), 
-			"clntCd": $("#popForm #clntCd").val(),
-			"clntNm": $("#popForm #clntNm").val()
-		}
-		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
-			var row = tree.target.getList("selected")[0];
-			$("#siteCd").val(row.siteCd);
-			$("#siteNm").val(row.siteNm);
-			$("#prjctCd").val(row.prjctCd);
-			$("#prjctNm").val(row.prjctNm);
-			$('#addrZip').val(row.siteAddrZip);
-			$('#addrMain').val(row.siteAddr);
-			$('#addrSub').val(row.siteAddrSub);
-			$('#mngTel').val(row.telNo);
-			$('#salesAreaCd').val(row.salesAreaCd);
-			$('#clntCd').val(row.clntCd);
-			$('#clntNm').val(row.clntNm);
-			$('#salesMng').val(row.salesEmpId);
-			$('#salesMngNm').val(row.salesEmpNm);
-		});
-	}
-
-	// 거래처 검색
-	function openSecondClntSearch(type) {
-		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
-			var row = grid.target.getList("selected")[0];
-			$('#clntCd').val(row.clntCd);
-			$('#clntNm').val(row.clntNm);
-			$('#sellVatCd').val(row.sellVatCd);
-			
-			var paramObj = {
-				"coCd": $('#coCd').val(),
-				"clntCd": row.clntCd
-			}
-			
-			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
-				if(data.mngInfo != null) {
-					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	
-				}
-			});
-		});
-	}
-	
 </script>
