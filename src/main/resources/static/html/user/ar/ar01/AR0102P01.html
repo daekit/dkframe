@@ -66,9 +66,9 @@
 						<div class="search_form">
 							<input type="hidden" id="salesMng" name="salesMng">
 							<input type="text" id="salesMngNm" name="salesMngNm" msg="영업담당자" readonly required>
-							<button type="button" onclick="openSecondUserSearch();">
+							<a onclick="openSecondUserSearch();">
 								<i class="i_search_w"></i>
-							</button>
+							</a>
 						</div>
 					</td>
 				</tr>
@@ -238,11 +238,12 @@
 					<input type="hidden" name="shipYn">
 					<input type="hidden" name="shipProcId">
 					
-					<input type="hidden" name="prdtStockCd">
-					<input type="hidden" name="prdtCnvrsnWt">
-					
 					<input type="hidden" name="prdtDiv">
+					<input type="hidden" name="prdtStkn">
+					<input type="hidden" name="prdtStockCd">
 					<input type="hidden" name="prdtCoilYn"> 
+					<input type="hidden" name="prdtCnvrsnWt">
+					<input type="hidden" name="prdtDt">
 					
 					<input type="hidden" name="pchsUpr">
 					<input type="hidden" name="sellUpr">
@@ -457,8 +458,7 @@
 			row = gridView.target.getList()[selectedRowIdx];
 		}
 		var formData = {
-			"shipSeq" : row.shipSeq,
-			"reqDt" : row.reqDt.replace(/-/g, "")
+			"shipSeq" : row.shipSeq
 		}
 		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
 			setShipInfo(data.result);
@@ -593,8 +593,7 @@
 	function openArSiteSearch() {
 		var paramObj = {
 			"coCd": $('#popForm #coCd').val(), 
-			"clntCd": $("#popForm #clntCd").val(),
-			"clntNm": $("#popForm #clntNm").val()
+			"clntCd": $("#popForm #clntCd").val()
 		}
 		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
 			var row = tree.target.getList("selected")[0];
@@ -723,10 +722,10 @@
 			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr));
 		}
 		
-		$targetRow.find('input[name="realShipQty"]').val(shipQty);
-		$targetRow.find('input[name="realShipWt"]').val(shipWt);
-		$targetRow.find('input[name="realShipUpr"]').val(shipUpr);
-		$targetRow.find('input[name="realShipAmt"]').val(shipQty * shipUpr);
+		$targetRow.find('input[name="realShipQty"]').val(deleteCommaStr($targetRow.find('input[name="shipQty"]').val()));
+		$targetRow.find('input[name="realShipWt"]').val(deleteCommaStr($targetRow.find('input[name="shipWt"]').val()));
+		$targetRow.find('input[name="realShipUpr"]').val(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val()));
+		$targetRow.find('input[name="realShipAmt"]').val(deleteCommaStr($targetRow.find('input[name="shipAmt"]').val()));
 		
 		countTot();
 	}
@@ -797,10 +796,7 @@
 	}
 	
 	function insertShip() {
-		if(validation()) {
-			alert("길이가 0인 제품이 존재합니다.")
-			return;
-		}
+		if(!lengthValidation()) return false;
 		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
@@ -814,10 +810,7 @@
 	}
 	
 	function updateShip() {
-		if(validation()) {
-			alert("길이가 0인 제품이 존재합니다.")
-			return;
-		}
+		if(!lengthValidation()) return false;
 		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
@@ -857,14 +850,22 @@
 	function makeFormData() {
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
-		$("#userId").val(jwt.userId);
 		if($("#prjctCd").val() == "") $("#prjctCd").val("0");
+		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
 			deleteComma(elem);
 		});
 		
 		var formData = new FormData($("#popForm")[0]);
+		
+		// 유저아이디 추가
+		formData.append("userId", jwt.userId);
+		
+		// 총수량, 총중량, 총금액 추가
+		formData.append("shipTotQty", $('#shipTotQty').val());
+		formData.append("shipTotWt", $('#shipTotWt').val());
+		formData.append("shipTotAmt", $('#shipTotAmt').val());
 		
 		// 첨부파일 추가
 		$.each(fileArr, function(idx, obj){
