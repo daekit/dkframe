@@ -184,6 +184,8 @@
 				<td colspan="2" class="tl" style="border-right: 0;">※상세내역</td>
 				<td colspan="14">
 					<div class="add_btn">
+						<a onclick="cloneDetailRow();" style="width: 50px">복사</a>
+						<a onclick="openSecondMultiPrdtSearch();" style="width: 50px">제품+</a>
 						<a onclick="addDetailRow();">+</a>
 						<a onclick="removeDetailRow();">-</a>
 					</div>
@@ -447,6 +449,28 @@
 		ctrlDirtrsMaster();
 	});
 	
+	function cloneDetailRow(){
+		var checkedRows = $('#detailTb tr.detailRow input[name="detailChkBox"]:checked');
+		
+		if(checkedRows.length == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		
+		if(checkedRows.length > 1){
+			alert("한 건만 선택해주세요.");
+			return false;
+		}
+		
+		$.each($('#detailTb tr.detailRow'), function(idx, elem){
+			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
+				var $clonedRow = $(elem).clone();
+				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
+				$('#detailTb tbody:last').append($clonedRow[0]);
+			}
+		})
+	}
+	
 	function selectOrderInfo() {
 		var row = gridView.target.getList()[selectedRowIdx];
 		var formData = {
@@ -704,7 +728,7 @@
 			"useYn": "Y"
 		};
 				
-		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 600, 420, "제품 검색", paramObj, function (grid) {
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			
 			// 값 초기화
@@ -732,6 +756,47 @@
 			$targetRow.find('input[name=prdtUpr]').val(row.ordrgUpr);
 			
 			countTot();
+		});
+	}
+	
+	// 제품 검색(다중)
+	function openSecondMultiPrdtSearch() {
+		// selpchCd - SELPCH1: 매입
+		var paramObj = {
+			"coCd": $("#coCd").val(),
+			"selpchCd": "SELPCH1",
+			"impYn": $("#impYn").val(), 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/multiPrdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var selectedRows = grid.target.getList("selected");
+			$.each(selectedRows, function(idx, obj){
+				// 행복사
+				var $detailRow = $("#frameTable tr.detailRow").clone();
+				
+				// 직송여부에 따른 dom 변경
+				if($("#dirtrsYn").val() == "N"){
+					$detailRow.find('input[name="shipUpr"]').prop("readonly", true);
+				}else{
+					$detailRow.find('input[name="shipUpr"]').prop("readonly", false);
+				}
+				
+				// 값 set
+				$.each($detailRow.find('[name]'), function(idx, elem){
+					var itemValue = obj[elem.name];
+					if(itemValue){
+						$(elem).val(itemValue);
+					}
+				});
+				
+				// prdtUpr에 ordrgUpr set (궁금한점.)
+				$detailRow.find('input[name=prdtUpr]').val(obj.ordrgUpr);
+				
+				// append
+				$('#detailTb tbody').append($detailRow[0]);
+			});
 		});
 	}
 	

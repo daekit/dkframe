@@ -165,6 +165,22 @@ function selectGridValidation(obj) {
 	}
 }
 
+function checkGridRow(grid, type){
+	var isValid = true;
+	if(grid.getList("selected").length == 0){
+		alert("선택된 데이터가 없습니다.");
+		isValid = false;
+	}
+	
+	if(type == "single"){
+		if(grid.getList("selected").length > 0){
+			alert("한건 만 선택해주세요.");
+			isValid = false;
+		}
+	}
+	return isValid;
+}
+
 var tokenErrorMsg = ["unauthorized", "invalid_token"];
 
 function postAjax(url, data, contentType, callback) {
