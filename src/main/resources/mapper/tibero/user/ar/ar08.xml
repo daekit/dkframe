@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar08.mapper.AR08Mapper">
+	
+	<select id="selectCreditCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+			FROM (
+				SELECT TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+						, A.CO_CD
+						, A.TRST_CLNT_CD AS CLNT_CD
+						, B.CLNT_NM
+						, DECODE(A.SELPCH_CD, 'SELPCH1', '외상매입금', 'SELPCH2', '외상매출금') AS GUBUN_NM
+						, A.SELPCH_CD AS GUBUN_CD
+						, DECODE(A.SELPCH_CD, 'SELPCH1' 
+							,	(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.PCHS_PMNT_MTD_CD)||  DECODE(B.PCHS_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.PCHS_CLMN_DIV_CD)|| ']') || DECODE(B.PCHS_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.PCHS_CLMN_DAY)
+							, 'SELPCH2'
+							, (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.SELL_PMNT_MTD_CD)||  DECODE(B.SELL_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD)|| ']') || DECODE(B.SELL_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.SELL_CLMN_DAY))  AS BIGO
+						, DECODE(A.SELPCH_CD, 'SELPCH1', A.PCHS_UPR, 0) AS PCHS_UPR 
+						, DECODE(A.SELPCH_CD, 'SELPCH2', A.SELL_UPR, 0) AS SELL_UPR
+				FROM TB_AR02M01 A, TB_BM02M01 B
+				WHERE A.TRST_CLNT_CD = B.CLNT_CD (+)
+				UNION ALL 
+				SELECT TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+				, A.CO_CD
+				, A.CLNT_CD
+				, B.CLNT_NM
+				, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) AS GUBUN_NM
+				, A.ETRDPS_TYP AS GUBUN_CD
+				, A.SUMRY AS BIGO
+				, DECODE(A.ETRDPS_TYP, 'ETRDPS02', A.ETRDPS_AMT, 'ETRDPS03', A.ETRDPS_AMT) AS PCHS_UPR
+				, DECODE(A.ETRDPS_TYP, 'ETRDPS01', A.ETRDPS_AMT, 'ETRDPS03', A.ETRDPS_AMT) AS SELL_UPR
+				FROM TB_AR05M01 A, TB_BM02M01 B
+				WHERE A.CLNT_CD = B.CLNT_CD(+)
+			)A
+			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+			<if test= "clntCd != null and !clntCd.equals('')">
+ 					AND A.CLNT_CD = #{clntCd}
+			</if>
+			<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+			</if>
+			 <if test= "clntNm != null and !clntNm.equals('')">
+				 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+			</if>
+			ORDER BY A.TRST_DT
+					
+	</select>
+	
+	<select id="selectCreditList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+		FROM (
+			SELECT ROWNUM AS RNUM, A.*
+			FROM (
+				SELECT TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+						, A.CO_CD
+						, A.TRST_CLNT_CD AS CLNT_CD
+						, B.CLNT_NM
+						, DECODE(A.SELPCH_CD, 'SELPCH1', '외상매입금', 'SELPCH2', '외상매출금') AS GUBUN_NM
+						, A.SELPCH_CD AS GUBUN_CD
+						, DECODE(A.SELPCH_CD, 'SELPCH1' 
+							,	(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.PCHS_PMNT_MTD_CD)||  DECODE(B.PCHS_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.PCHS_CLMN_DIV_CD)|| ']') || DECODE(B.PCHS_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.PCHS_CLMN_DAY)
+							, 'SELPCH2'
+							, (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.SELL_PMNT_MTD_CD)||  DECODE(B.SELL_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD)|| ']') || DECODE(B.SELL_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.SELL_CLMN_DAY))  AS BIGO
+						, DECODE(A.SELPCH_CD, 'SELPCH1', A.PCHS_UPR, 0) AS PCHS_UPR 
+						, DECODE(A.SELPCH_CD, 'SELPCH2', A.SELL_UPR, 0) AS SELL_UPR
+				FROM TB_AR02M01 A, TB_BM02M01 B
+				WHERE A.TRST_CLNT_CD = B.CLNT_CD (+)
+				UNION ALL 
+				SELECT TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+				, A.CO_CD
+				, A.CLNT_CD
+				, B.CLNT_NM
+				, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) AS GUBUN_NM
+				, A.ETRDPS_TYP AS GUBUN_CD
+				, A.SUMRY AS BIGO
+				, DECODE(A.ETRDPS_TYP, 'ETRDPS02', A.ETRDPS_AMT, 'ETRDPS03', A.ETRDPS_AMT) AS PCHS_UPR
+				, DECODE(A.ETRDPS_TYP, 'ETRDPS01', A.ETRDPS_AMT, 'ETRDPS03', A.ETRDPS_AMT) AS SELL_UPR
+				FROM TB_AR05M01 A, TB_BM02M01 B
+				WHERE A.CLNT_CD = B.CLNT_CD(+)
+			)A
+			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')	
+			<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND A.CLNT_CD = #{clntCd}
+			</if>
+			<if test= "coCd != null and !coCd.equals('')">
+		 	AND A.CO_CD = #{coCd}
+			</if>
+			 <if test= "clntNm != null and !clntNm.equals('')">
+		 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+			</if>
+			ORDER BY A.TRST_DT
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+			
+	</select>
+
+	
+</mapper>

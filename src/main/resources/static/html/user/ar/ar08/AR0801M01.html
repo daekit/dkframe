@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+	
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+	        <a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		    </a>
+	        <a onclick = "gridView.setData(0);">
+	          <button class="bg_gray">검 색</button>
+	        </a>
+	        </li>
+	      </ul>
+    	</div>
+    	
+    	<div class="contents search">
+        <div class="">
+            <!-- 테이블 인풋 3분할 -->
+            <table class="table_input type03">
+              <tr>
+                <th>회사</th>
+                <td>
+                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+<!--                   	<option value="">전체</option> -->
+                  </select>
+                </td>
+                <th>거래처</th>
+                <td>
+                  <input type="hidden" id="clntCd_S" name="clntCd_S">
+                  <div class="search_form" style="width: 50%;">
+	                <input type="text" id="clntNm_S" name="clntNm_S"  onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0): ''">
+	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+	              </div>
+                </td>
+                <th class="hit">기간</th>
+                <td>
+                    <div class="date_input">
+                      <input type="text" id="strtDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
+                      <span>~</span>
+                      <input type="text" id="endDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
+                    </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+    </div>
+          <div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+				<input type="hidden" id="pgmId" name="pgmId" value="AR0801M01">
+			</div>
+		</div>
+    	
+		<div class="contents">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 750px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;
+	var chkGrid = [];
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector: true,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center", 
+		        	selector: true
+		        },
+		        body: {
+		        	 onClick: function () {
+ 		                this.self.select(this.dindex);
+		            }
+		            , mergeCells : ["trstDt"]
+		            , grouping: {
+		            	by: ["trstDt"],
+		            	columns: [
+		            		{
+		            			label: function () {return "일 계"; }, colspan: 4
+		            		},
+		            	    {key: "sellUpr", collector: "sum", formatter: "money", align: "right"},
+		                    {key: "pchsUpr", 	collector: "sum", formatter: "money", align: "right"},
+		                    {key: "",  collector: "sum", formatter: "money", align: "right"}
+		              
+		            	]
+		            
+		            }
+		        },
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan:4, align:"center"},
+			    		{key:"sellUpr", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "pchsUpr", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "", collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display:true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		            {key: "trstDt", label: "날짜", align: "center", width: "8%"},
+		            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
+			        {key: "gubunNm", label: "구분", align: "left", width: "8%"},
+		            {key: "bigo", label: "적요", align: "left", width: "30%"},
+		            {key: "sellUpr", label: "차변", align: "right", formatter: "money", width: "11%"},
+		            {key: "pchsUpr", label: "대변", align: "right", formatter: "money", width: "10%"},
+		            {key: "", label: "잔액", align: "right", formatter: "money",width: "10%"},
+		         ]
+		    
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			firstGrid = this.target;
+			var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"clntCd" : $("#clntCd_S").val(),
+				"clntNm" : $("#clntNm_S").val(),
+				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+				"pageNo" : _pageNo + 1,
+				"recordCnt" : $("#recordCnt").val()
+			}
+			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
+				var list = data.resultList;
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
+			            {key: "trstDt", label: "날짜", align: "center", width: "8%"},
+			            {key: "gubunNm", label: "구분", align: "left", width: "15%"},
+			            {key: "bigo", label: "적요", align: "left", width: "15%"},
+			            {key: "sellUpr", label: "차변", align: "right", formatter: "money", width: "15%"},
+			            {key: "pchsUpr", label: "대변", align: "right", formatter: "money", width: "15%"},
+			            {key: "", label: "잔액", align: "right", formatter: "money",width: "15%"},
+				    ]
+			    });
+				return this;
+			}
+		}
+	
+	$(document).ready(function() {
+		mainDefaultLoad("기준관리", "거래처 외상매입/매출");
+		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
+		if($.urlParam('clntCd')){
+			$("#clntCd_S").val($.urlParam('clntCd'));
+			$("#clntNm_S").val(decodeURI($.urlParam('clntNm')));
+			//history.replaceState({}, null, location.pathname);
+		}
+		
+		$("#strtDt_S").val(lastWeek());
+		$("#endDt_S").val(dateToStr(new Date()));
+		
+		// 종료일
+		$('#strtDt_S, #endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			//autoclose : true
+		});
+		gridView.initView().setData(0);
+		excelView.initView();
+	})
+	
+	
+
+	//거래처
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
+		});
+	}
+	
+	function initSearch() {
+		$(".contents.search input[type='hidden']").val("");
+		$(".contents.search input[type='text']").val("");
+		$(".contents.search select").val("");
+		$("#searchType option").eq(0).prop("selected", true);
+		$("#coCd_S").val(jwt.coCd);
+		gridView.initView().setData(0);
+	}
+	
+	function excelDown() {
+		var formData = {
+				"coCd"      : $("#coCd_S").val(),
+				"clntCd"    : $("#clntCd_S").val(),
+				"clntNm" : $("#clntNm_S").val(),
+				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+				"pageNo"    : 1,
+				"recordCnt" : 9999999
+			}
+			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
+				var list = data.resultList;				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("거래처 외상매입/매출_"+todayDate+".xls");
+			});	
+	}	
+</script>
