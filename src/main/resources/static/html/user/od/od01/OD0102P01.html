@@ -44,7 +44,8 @@
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd">
 							<input type="text" id="clntNm" msg="매입거래처" readonly required>
-							<a onclick="openSecondClntSearch('PUR');"> 	<i class="i_search_w"></i>
+							<a onclick="openSecondClntSearch('PUR');">
+								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
@@ -59,7 +60,8 @@
 						<div class="search_form">
 							<input type="hidden" id="sellClntCd" name="sellClntCd">
 							<input type="text" id="sellClntNm" name="sellClntNm" readonly>
-							<a onclick="openSecondClntSearch('SELL');">	<i class="i_search_w"></i>
+							<a onclick="openSecondClntSearch('SELL');">
+								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
@@ -96,7 +98,8 @@
 							<input type="hidden" id="prjctCd" name="prjctCd"> 
 							<input type="hidden" id="siteCd" name="siteCd">
 							<input type="text" id="siteNm" name="siteNm" readonly> 
-							<a onclick="openOdSiteSearch();"><i class="i_search_w"></i>
+							<a onclick="openOdSiteSearch();">
+								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
@@ -112,7 +115,8 @@
 					<td>
 						<div class="search_form">
 							<input type="text" id="odrSeq" name="odrSeq" readonly> 
-							<a onclick="openSecondOrderSearch();"> <i class="i_search_w"></i>
+							<a onclick="openSecondOrderSearch();">
+								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
@@ -130,7 +134,8 @@
 					<td>
 						<div class="search_form">
 							<input type="text" id="addrZip" name="addrZip" readonly>
-							<a onclick="openDaumPostcode();"><i class="i_search_w"></i>
+							<a onclick="openDaumPostcode();">
+								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
@@ -138,7 +143,8 @@
 					<td>
 						<div class="search_form">
 							<input type="text" id="transAmt" name="transAmt" onkeyup="addComma(this);" comma> 
-							<a onclick="transAmtModal();"><i class="i_search_w"></i>
+							<a onclick="transAmtModal();">
+								<i class="i_search_w"></i>
 							</a>
 						</div>
 					</td>
@@ -317,7 +323,7 @@
 					<td>
 						<input class="tr" type="text" id="totQty" name="totQty" comma readonly>
 					</td>
-					<td
+					<td>
 						<input class="tr" type="text" id="totWt" name="totWt" comma readonly>
 					</td>
 					<td>-</td>
@@ -444,8 +450,7 @@
 	function selectOrderInfo() {
 		var row = gridView.target.getList()[selectedRowIdx];
 		var formData = {
-			"ordrgSeq" : row.ordrgSeq,
-			"reqDt" : row.reqDt.replace(/-/g, "")
+			"ordrgSeq" : row.ordrgSeq
 		}
 		postAjaxSync("/user/od/od01/selectOrderInfo", formData, null, function(data){
 			setOrderInfo(data.result);
@@ -538,11 +543,11 @@
 			$(".drctArea input").val("");
 			$(".drctArea select").prop("disabled", true);
 			$(".drctArea select").val("");
-			$(".drctArea button").prop("disabled", true);
+			$(".drctArea a").removeAttr("onclick");
 		} else {
 			$(".drctArea input").prop("disabled", false);
 			$(".drctArea select").prop("disabled", false);
-			$(".drctArea button").prop("disabled", false);
+			$(".drctArea a").attr("onclick", "openSecondClntSearch('SELL')");
 		}
 	}
 	
@@ -603,7 +608,8 @@
 	// 현장 검색
 	function openOdSiteSearch() {
 		var paramObj = {
-			"coCd": $('#popForm #coCd').val()
+			"coCd": $('#popForm #coCd').val(),
+			"clntCd": $("#popForm #sellClntCd").val()
 		}
 		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
 			var row = tree.target.getList("selected")[0];
