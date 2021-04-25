@@ -374,7 +374,8 @@
 						A.ACC_PROC_ID,
 						A.ETC_FIELD1,
 						A.ETC_FIELD2,
-						A.ETC_FIELD3
+						A.ETC_FIELD3,
+						A.ORGN_TAX_BILG_NO
 					  FROM TB_AR04M01 A
 					  <where>
 						<if test="coCd != null and !coCd.equals('')">
@@ -499,7 +500,8 @@
 		A.ETC_FIELD2,
 		A.ETC_FIELD3,
 		A.ERR_CD,
-		A.ERR_CNTS
+		A.ERR_CNTS,
+		A.ORGN_TAX_BILG_NO
 	  FROM TB_AR04M01 A
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</select>
@@ -918,6 +920,9 @@
 	     , SND_DTTM = SYSDATE
 	     , ORGN_TAX_BILG_NO = #{orgnTaxBilgNo}
 	     , SND_PROC_ID = #{userId}
+	     , UDT_ID = #{userId}
+	     , UDT_PGM = #{pgmId}
+	     , UPD_DTTM = SYSDATE
 	 WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
 		
@@ -1221,6 +1226,269 @@
 	 WHERE BGM_1004 = #{taxBilgNo}
 	</select>
 	
+	<insert id="insertCopyBilgTax" parameterType="Map">
+	INSERT INTO TB_AR04M01
+	(
+		BILG_CERT_NO
+		, CO_CD
+		, SELL_DT
+		, SELPCH_CD
+		, CLNT_CD
+		, CLNT_NM
+		, TAX_DT
+		, TAX_BILG_NO
+		, TAX_DMS5_7240
+		, TAX_MOA5_23
+		, TAX_MOA5_124
+		, TAX_MOA5_388
+		, RFF_CNO
+		, RFF_VA
+		, TAX_DIV_CD
+		, RFF_GN1
+		, RFF_GN2
+		, RFF_AEA
+		, BGM_1225
+		, BGM_4343
+		, XML_FLOW
+		, TAX_CREAT_ID
+		, TAX_CREAT_NM
+		, TAXIVC_COPRT
+		, TAXIVC_COPRT_NO
+		, TAXIVC_COPRT_CEO
+		, TAXIVC_COPRT_NM
+		, TAX_COPRT_BIZCON
+		, TAXVIC_COPRT_BSTY
+		, CTAII_MD_2
+		, COMII_AL
+		, COMII_EM
+		, COMII_TE
+		, COMII_FX
+		, CTAIV_BJ_1
+		, TAXIVC_RCV_CRN
+		, TAXIVC_RCV_CEO
+		, TAXIVC_RCV_ADDR
+		, TAXIVC_RCV_BIZCON
+		, TAXIVC_RCV_BSTY
+		, TAX_RCV_SN
+		, TAX_RCV_NM
+		, TAX_RCV_EMAIL
+		, TAX_RCV_EMAIL2
+		, TAX_RCV_FAX
+		, TAX_RCV_TEL
+		, TAX_MOBLPHON
+		, FTXAC1_1
+		, FTXAC2_1
+		, FTXAC3_1
+		, TAX_MOA5_22
+		, TAX_MOA5_212
+		, TAX_MOA5_308
+		, TAX_MOA5_9
+		, TRST_QTY
+		, TRST_WT
+		, TRST_UPR
+		, TRST_AMT
+		, REAL_TRST_QTY
+		, REAL_TRST_WT
+		, REAL_TRST_UPR
+		, REAL_TRST_AMT
+		, BILG_QTY
+		, BILG_WT
+		, BILG_UPR
+		, BILG_AMT
+		, TRANS_AMT
+		, TRST_DC_AMT
+		, ETC_AMT
+		, SND_YN
+		, SND_DTTM
+		, SND_PROC_ID
+		, CSEQ_RCV_YN
+		, CSEQ_RCV_DTTM
+		, TAX_ADMS_YN
+		, TAX_ADMS_DTTM
+		, RCV_YN
+		, RCV_DTTM
+		, RCV_PROC_ID
+		, ACC_SLIP_NO
+		, ACC_SLIP_YN
+		, ACC_SLIP_DTTM
+		, ACC_PROC_ID
+		, ETC_FIELD1
+		, ETC_FIELD2
+		, ETC_FIELD3
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+		, UDT_ID
+		, UDT_PGM
+		, UDT_DTTM
+		, ORGN_TAX_BILG_NO
+		, ERR_CD
+		, ERR_CNTS
+		, RFF_APG
+		, RFF_APG_CHK_ID
+	)
+	SELECT #{bilgCertNo}
+		, CO_CD
+		, SELL_DT
+		, SELPCH_CD
+		, CLNT_CD
+		, CLNT_NM
+		, TAX_DT
+		, #{bgm1004}
+		, TAX_DMS5_7240 * -1
+		, TAX_MOA5_23 * -1
+		, TAX_MOA5_124 * -1
+		, TAX_MOA5_388 * -1
+		, RFF_CNO
+		, RFF_VA
+		, TAX_DIV_CD
+		, #{rffGn1}
+		, #{rffGn2}
+		, CASE WHEN #{rffAea} = 'RFFAEA00' THEN NULL ELSE #{rffAea} END
+		, BGM_1225
+		, BGM_4343
+		, XML_FLOW
+		, TAX_CREAT_ID
+		, TAX_CREAT_NM
+		, TAXIVC_COPRT
+		, TAXIVC_COPRT_NO
+		, TAXIVC_COPRT_CEO
+		, TAXIVC_COPRT_NM
+		, TAX_COPRT_BIZCON
+		, TAXVIC_COPRT_BSTY
+		, CTAII_MD_2
+		, COMII_AL
+		, COMII_EM
+		, COMII_TE
+		, COMII_FX
+		, CTAIV_BJ_1
+		, TAXIVC_RCV_CRN
+		, TAXIVC_RCV_CEO
+		, TAXIVC_RCV_ADDR
+		, TAXIVC_RCV_BIZCON
+		, TAXIVC_RCV_BSTY
+		, TAX_RCV_SN
+		, TAX_RCV_NM
+		, TAX_RCV_EMAIL
+		, TAX_RCV_EMAIL2
+		, TAX_RCV_FAX
+		, TAX_RCV_TEL
+		, TAX_MOBLPHON
+		, FTXAC1_1
+		, FTXAC2_1
+		, FTXAC3_1
+		, TAX_MOA5_22 * -1
+		, TAX_MOA5_212 * -1
+		, TAX_MOA5_308 * -1
+		, TAX_MOA5_9 * -1
+		, TRST_QTY * -1
+		, TRST_WT
+		, TRST_UPR
+		, TRST_AMT * -1
+		, REAL_TRST_QTY * -1
+		, REAL_TRST_WT
+		, REAL_TRST_UPR
+		, REAL_TRST_AMT * -1
+		, BILG_QTY * -1
+		, BILG_WT
+		, BILG_UPR
+		, BILG_AMT * -1
+		, TRANS_AMT
+		, TRST_DC_AMT
+		, ETC_AMT * -1
+		, SND_YN
+		, SND_DTTM
+		, SND_PROC_ID
+		, CSEQ_RCV_YN
+		, CSEQ_RCV_DTTM
+		, TAX_ADMS_YN
+		, TAX_ADMS_DTTM
+		, RCV_YN
+		, RCV_DTTM
+		, RCV_PROC_ID
+		, ACC_SLIP_NO
+		, ACC_SLIP_YN
+		, ACC_SLIP_DTTM
+		, ACC_PROC_ID
+		, ETC_FIELD1
+		, ETC_FIELD2
+		, ETC_FIELD3
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+		, NULL
+		, NULL
+		, NULL
+		, TAX_BILG_NO
+		, ERR_CD
+		, ERR_CNTS
+		, RFF_APG
+		, RFF_APG_CHK_ID
+	FROM TB_AR04M01
+	WHERE BILG_CERT_NO = #{beforeBilgCertNo}
+	  AND ROWNUM = 1
+	ORDER BY TAX_BILG_NO DESC
+	</insert>
+
+	<update id="updateOrgnTaxBilgNo" parameterType="Map">
+	UPDATE TB_AR04M01
+	   SET ORGN_TAX_BILG_NO = TAX_BILG_NO
+	 WHERE BILG_CERT_NO = #{beforeBilgCertNo} 
+	</update>
+	
+	<insert id="insertCopyTaxBilgDetail" parameterType="Map">
+	INSERT INTO TB_AR04D01
+	(
+		BILG_CERT_NO
+		, BILG_CERT_NO_SEQ
+		, MOA9_5004
+		, ARD_5006
+		, ARD___113A
+		, MEA10_6154
+		, DMS_1056
+		, MEA10_6314
+		, MOA10_146
+		, MOA10_23
+		, MOA10_124
+		, DMS_1000
+		, ETC_FIELD1
+		, ETC_FIELD2
+		, ETC_FIELD3
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+	)
+	SELECT #{bilgCertNo}
+			, BILG_CERT_NO_SEQ
+			, MOA9_5004
+			, ARD_5006
+			, ARD___113A
+			, MEA10_6154
+			, DMS_1056
+			, MEA10_6314 * -1
+			, MOA10_146
+			, MOA10_23 * -1
+			, MOA10_124 * -1
+			, DMS_1000
+			, ETC_FIELD1
+			, ETC_FIELD2
+			, ETC_FIELD3
+			, #{userId}
+			, #{pgmId}
+			, SYSDATE
+	FROM TB_AR04D01
+	 WHERE BILG_CERT_NO = #{beforeBilgCertNo}
+	</insert>
+	
+	<update id="updateTrstInfo" parameterType="Map">
+	UPDATE TB_AR02M01
+	   SET BILG_QTY = BILG_QTY * -1
+	     , BILG_AMT = BILG_AMT * -1
+	     , BILG_CERT_NO = #{bilgCertNo}
+	     <!-- , ORGN_TAX_BILKG_NO = #{orgnTaxBilgNo} -->
+	WHERE BILG_CERT_NO = #{beforeBilgCertNo}
+	</update>
+	
 	<insert id="insertTaxHdCancel" parameterType="Map">
 	INSERT INTO KLUSER01.TAX_HD
 	(
@@ -1390,9 +1658,9 @@
 		COMP2_EM,
 		COMTE_315E,
 		DMS5_7240,
-		MOA5_23 * -1,
-		MOA5_124 * -1,
-		MOA5_388 * -1,
+		MOA5_23,
+		MOA5_124,
+		MOA5_388,
 		MOA5_22,
 		MOA5_212,
 		MOA5_308,
@@ -1535,8 +1803,8 @@
 		DMS5_1056,
 		DMS5_1060,
 		DMS5_7240,
-		MOA5_23 * -1,
-		MOA5_124 * -1,
+		MOA5_23,
+		MOA5_124,
 		MOA5_22,
 		MOA5_212,
 		MOA5_308,
@@ -1598,11 +1866,11 @@
 		 , NULL <!-- ARD__5104 중국일떄만 사용 -->
 		 , DMS_1056
 		 , DMS_1000
-		 , NVL(MOA10_23, 0) * -1
-		 , NVL(MOA10_124, 0) * -1
+		 , NVL(MOA10_23, 0) 
+		 , NVL(MOA10_124, 0)
 		 , NVL(MOA10_146, 0)
 		 , MEA10_6154
-		 , NVL(MEA10_6314, 0) * -1
+		 , NVL(MEA10_6314, 0)
 		 , NULL <!-- MOA10_5004 외화금액 -->
 		 , NULL <!-- MOA10_6345 외화통화코드 -->
 		 , SYSDATE
@@ -1644,12 +1912,12 @@
 			NULL,
 			(SELECT PRDT_SPEC FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD),
 			TRSP_RMK,
-			(NVL(REAL_TRST_AMT, 0) * -1),
-			(NVL(BILG_VAT_AMT, 0) * -1),
+			(NVL(REAL_TRST_AMT, 0)),
+			(NVL(BILG_VAT_AMT, 0)),
 			NVL(REAL_TRST_UPR, 0),
 			'CT',
 			'CT',
-			(NVL(REAL_TRST_QTY, 0) * -1),
+			(NVL(REAL_TRST_QTY, 0)),
 			NULL,
 			NULL,
 			SYSDATE

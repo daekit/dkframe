@@ -95,5 +95,13 @@ public interface AR04Mapper {
 	int insertKladdiHd(Map<String, String> bilgInfo);
 
 	int insertKladdiDtl(Map<String, String> bilgInfo);
+	
+	int insertCopyBilgTax(Map<String, String> bilgInfo);
+	
+	int insertCopyTaxBilgDetail(Map<String, String> bilgInfo);
+	
+	int updateTrstInfo(Map<String, String> bilgInfo);
+	
+	int updateOrgnTaxBilgNo(Map<String, String> bilgInfo);
 
 }
