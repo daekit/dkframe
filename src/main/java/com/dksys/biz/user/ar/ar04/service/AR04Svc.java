@@ -25,6 +25,8 @@ public interface AR04Svc {
 
 	int insertTaxHd(Map<String, Object> paramMap);
 
+	int insertTaxHdUpdate(Map<String, Object> paramMap);
+
 	int insertTaxHdReSend(Map<String, Object> paramMap);
 
 	int insertTaxHdCancel(Map<String, Object> paramMap);

@@ -175,7 +175,7 @@ public class AR04SvcImpl implements AR04Svc {
 			String xmlMsgId = "";
 			Map<String, String> taxHdParam = new HashMap<String, String>();
 			taxHdParam.put("msgId", Integer.toString(msgId));
-			String bgm1004 = "";
+			String bgm1004 = ""; // AR04 - taxBilgNo
 			String orgnTaxBilgNo = "";
 			taxHdParam.put("userId", userId);
 			taxHdParam.put("userNm", userNm);
@@ -266,6 +266,89 @@ public class AR04SvcImpl implements AR04Svc {
 			
 			//연계문서 발행
 			insertKladdi(msgId, taxHdParam);
+		}
+		return result;
+	}
+	
+	// 수정세금계산서 발행
+	@SuppressWarnings("all")
+	@Override
+	public int insertTaxHdUpdate(Map<String, Object> paramMap) {
+		int result = 0;
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String deptId = String.valueOf(paramMap.get("deptId"));
+		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
+		//List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
+		Map<String, Object> param = new HashMap<String, Object>();
+		Map<String, String> taxHdInfo = new HashMap<String, String>();
+		int msgId = 0;
+		for(int i = 0; i < list.size(); i++) {
+			//
+			String xmlMsgId = "";
+			Map<String, String> taxHdParam = new HashMap<String, String>();
+			taxHdParam.put("msgId", Integer.toString(msgId));
+			String bgm1004 = "";
+			String orgnTaxBilgNo = "";
+			taxHdParam.put("userId", userId);
+			taxHdParam.put("userNm", userNm);
+			taxHdParam.put("deptId", deptId);
+			taxHdParam.put("pgmId", pgmId);
+			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
+			taxHdParam.put("coCd", list.get(i).split(",")[1]);
+			Map<String, String> bilgInfo = new HashMap<String, String>();
+			bilgInfo.put("taxBilgNo", "");
+			bilgInfo.putAll(ar04Mapper.selectBilgInfo(taxHdParam));
+			Map<String, String> temp = new HashMap<String, String>();
+			orgnTaxBilgNo = bilgInfo.get("taxBilgNo");
+			taxHdParam.put("orgnTaxBilgNo", "");
+			taxHdParam.put("bgm1225", "9"); // 정발행은 9
+			//if (bilgInfo.get("rffGn1").equals("RFFGN101")
+			//		&& bilgInfo.get("rffAea").isEmpty()) { // 일반세금계산서이고 수정사유가 없으면 (-) 수정세금계산서 발행(기존 ar04 복사)
+				//수정세금계산서 취소 로직 시작
+				msgId++;
+				bgm1004 = ar04Mapper.selectBgmSeq();
+				xmlMsgId = ar04Mapper.selectMsgId(msgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
+				taxHdParam.put("docCode", "938"); //세금계산서 938
+				taxHdParam.put("bgm1004", bgm1004);
+				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
+				taxHdParam.put("rffGn1", "RFFGN102"); // 수정세금계산서
+				taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
+				taxHdParam.put("rffAea", bilgInfo.get("rffAea"));
+				taxHdParam.put("orgnTaxBilgNo", orgnTaxBilgNo);
+				taxHdParam.put("beforeBilgCertNo", taxHdParam.get("bilgCertNo"));
+				String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
+				taxHdParam.put("bilgCertNo", bilgCertNo);
+				ar04Mapper.insertCopyBilgTax(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
+				ar04Mapper.updateOrgnTaxBilgNo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
+				ar04Mapper.insertCopyTaxBilgDetail(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
+				ar04Mapper.updateTrstInfo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
+				// ar02업데이트
+				// ar04d 업데이트
+
+				result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
+				ar04Mapper.insertTaxHd(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
+				ar04Mapper.insertTaxDtl(taxHdParam);
+				result = ar04Mapper.insertTaxItem(taxHdParam);
+
+				//수정거래명세서 취소 로직 시작
+				msgId++; //XML_MSG_ID 생성
+				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+				taxHdParam.put("xmlMsgId", xmlMsgId);
+				taxHdParam.put("docName", "VATDEC"); //세금계산서 VATDEC
+				taxHdParam.put("docCode", "780"); // 거래명세서 780
+				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+				result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
+				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+				result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
+				//ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
+				
+				//연계문서 발행
+				insertKladdi(msgId, taxHdParam);
+			//}
 		}
 		return result;
 	}

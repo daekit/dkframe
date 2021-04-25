@@ -103,6 +103,14 @@ public class AR04Ctr {
     	return "jsonView";
 	}
 	
+	@PostMapping(value = "/insertTaxHdUpdate")
+	public String insertTaxHdUpdate(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		ar04Svc.insertTaxHdUpdate(paramMap);
+		model.addAttribute("resultCode", 200);
+		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		return "jsonView";
+	}
+	
 	@PostMapping(value = "/insertTaxHd")
 	public String insertTaxHd(@RequestBody Map<String, Object> paramMap, ModelMap model) {
 		ar04Svc.insertTaxHd(paramMap);
