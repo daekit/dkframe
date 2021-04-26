@@ -29,7 +29,8 @@
 			FROM(
 		
 				WITH SD01 AS (
-				   	 SELECT CO_CD
+				   	 SELECT PLAN_SEQ 
+				   	   , CO_CD
 				       , CLNT_CD 
 				       , TRIM(PRDT_DIV) PRDT_DIV
 				       , NVL(SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD
@@ -56,13 +57,15 @@
 				            </otherwise>
 			             </choose>
 			           </if>					  
-			          GROUP BY CO_CD
+			          GROUP BY PLAN_SEQ 
+				   	   , CO_CD
 				       , CLNT_CD 
 				       , TRIM(PRDT_DIV)
 				       , NVL(SALES_AREA_CD, 'SALESAREA99')
 				       , PLAN_YM
 				), AR02 AS (
-				   SELECT CO_CD
+				   SELECT '' AS PLAN_SEQ 
+				       , CO_CD
 				       , TRST_CLNT_CD
 				       , TRIM(PRDT_DIV) PRDT_DIV 
 				       , NVL(SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD 
@@ -92,7 +95,8 @@
 					  </if>
 				   GROUP BY CO_CD, TRST_CLNT_CD, TRIM(PRDT_DIV) ,NVL(SALES_AREA_CD, 'SALESAREA99') , SUBSTRING(TRST_DT, 0, 6)
 				)
-				SELECT T1.CO_CD
+				SELECT T1.PLAN_SEQ
+				     , T1.CO_CD
 					 , BM02.CLNT_DIV_CD
 					 , T1.SALES_AREA_CD
 					 , T1.PRDT_DIV
@@ -107,7 +111,8 @@
 					 , T1.TRST_N
 					 , T1.TRST_RATE
 				  FROM (
-				SELECT CASE WHEN S.CO_CD IS NOT NULL THEN S.CO_CD
+				SELECT S.PLAN_SEQ
+				    , CASE WHEN S.CO_CD IS NOT NULL THEN S.CO_CD
 				         ELSE A.CO_CD END CO_CD
 				    , CASE WHEN S.CLNT_CD IS NOT NULL THEN S.CLNT_CD
 				          ELSE A.TRST_CLNT_CD END CLNT_CD
@@ -122,11 +127,12 @@
 				    		ELSE 0 END AS TRST_RATE
 				  FROM SD01 S
 				 FULL OUTER JOIN AR02 A
-				 ON S.CO_CD = A.CO_CD
-				 AND S.CLNT_CD = A.TRST_CLNT_CD
-				 AND S.PRDT_DIV = A.PRDT_DIV
+				 ON S.CO_CD          = A.CO_CD
+				 AND S.PLAN_SEQ      = A.PLAN_SEQ
+				 AND S.CLNT_CD       = A.TRST_CLNT_CD
+				 AND S.PRDT_DIV      = A.PRDT_DIV
 				 AND S.SALES_AREA_CD = A.SALES_AREA_CD
-				 AND S.PLAN_YM = A.TRST_DT) T1
+				 AND S.PLAN_YM       = A.TRST_DT) T1
 				 , TB_BM02M01 BM02
 				 WHERE T1.CLNT_CD = BM02.CLNT_CD(+)
 				 ORDER BY T1.CO_CD, BM02.CLNT_DIV_CD,SALES_AREA_CD, T1.PRDT_DIV, T1.CLNT_CD 
