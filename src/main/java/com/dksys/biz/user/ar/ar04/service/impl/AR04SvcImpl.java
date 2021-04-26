@@ -279,6 +279,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
 		String deptId = String.valueOf(paramMap.get("deptId"));
+		String rffAea = String.valueOf(paramMap.get("rffAea"));
 		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
 		//List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
 		Map<String, Object> param = new HashMap<String, Object>();
@@ -322,6 +323,7 @@ public class AR04SvcImpl implements AR04Svc {
 				taxHdParam.put("beforeBilgCertNo", taxHdParam.get("bilgCertNo"));
 				String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
 				taxHdParam.put("bilgCertNo", bilgCertNo);
+				taxHdParam.put("rffAea", rffAea);
 				ar04Mapper.insertCopyBilgTax(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 				ar04Mapper.updateOrgnTaxBilgNo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 				ar04Mapper.insertCopyTaxBilgDetail(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
