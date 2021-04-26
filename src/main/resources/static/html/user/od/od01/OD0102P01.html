@@ -193,7 +193,7 @@
 			</tr>
 		</table>
 		<div class="ofx_s" style="width: 100%;">
-			<table id="detailTb" style="width: 1600px;">
+			<table id="detailTable" style="width: 1600px;">
 				<colgroup>
 					<col width="2%">
 					<col width="15%"> <!-- 제품명 -->
@@ -211,7 +211,9 @@
 					<col width="18%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
-					<th class="tc"></th>
+					<th class="tc" style="padding: 3px;"> 
+						<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+					</th>
 					<th class="tc hit">제품명</th>
 					<th class="tc">사이즈</th>
 					<th class="tc">SPEC</th>
@@ -228,7 +230,7 @@
 				</tr>
 			</table>
 			<table id="frameTable" style="display: none;">
-				<tr class="detailRow">
+				<tr name="detailRow">
 					<input type="hidden" name="ordrgDtlSeq">
 					<input type="hidden" name="odrDtlSeq">
 					
@@ -253,7 +255,7 @@
 					<input type="hidden" name="realDlvrUpr">
 					<input type="hidden" name="realDlvrAmt">
 					<td>
-						<input type="checkbox" name="detailChkBox">
+						<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
 					</td>
 					<td>
 						<div class="search_form">
@@ -290,7 +292,7 @@
 						<input type="text" class="tr" name="shipUpr" onkeyup="addComma(this); countAmt(this);" comma>
 					</td>
 					<td>
-						<input type="text" class="tr" name="ordrgAmt" value="0" comma readonly>
+						<input type="text" class="tr" name="ordrgAmt" value="0" onkeyup="addComma(this); countTot(this);" comma readonly>
 					</td>
 					<td>
 						<input type="text" class="tr" name="epctPal" value="0" comma readonly>
@@ -449,28 +451,6 @@
 		ctrlDirtrsMaster();
 	});
 	
-	function cloneDetailRow(){
-		var checkedRows = $('#detailTb tr.detailRow input[name="detailChkBox"]:checked');
-		
-		if(checkedRows.length == 0){
-			alert("선택된 데이터가 없습니다.");
-			return false;
-		}
-		
-		if(checkedRows.length > 1){
-			alert("한 건만 선택해주세요.");
-			return false;
-		}
-		
-		$.each($('#detailTb tr.detailRow'), function(idx, elem){
-			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
-				var $clonedRow = $(elem).clone();
-				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
-				$('#detailTb tbody:last').append($clonedRow[0]);
-			}
-		})
-	}
-	
 	function selectOrderInfo() {
 		var row = gridView.target.getList()[selectedRowIdx];
 		var formData = {
@@ -527,10 +507,25 @@
 				}
 			});
 			
+			// 확정여부에 따른 dom 변경
 			if(obj.ordrgYn == "Y") {
 				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
 				$addedRow.find('input').prop("readonly", true);
 				$addedRow.find('a').remove();
+			}
+			
+			// 재고관리에 따른 dom 변경
+			if(obj.prdtStockCd == "N"){
+				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
+				// 재고관리 대상이 아닐경우 금액 수정 가능
+				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+				$addedRow.find('input[name="ordrgQty"]').prop("required", false);
+				$addedRow.find('input[name="ordrgWt"]').prop("required", false);
 			}
 		});
 		countTot();
@@ -577,7 +572,7 @@
 	
 	// 직송여부 변경 detail
 	function ctrlDirtrsDetail() {
-		$.each($('#detailTb tr.detailRow'), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			// 발주 확정이 아닐때만
 			if($(elem).find('input[name="ordrgYn"]').val() != "Y"){
 				if($("#dirtrsYn").val() == "N") {
@@ -691,22 +686,45 @@
 		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
 	}
 	
+	function cloneDetailRow(){
+		var checkedRows = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		
+		if(checkedRows.length == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		
+		if(checkedRows.length > 1){
+			alert("한 건만 선택해주세요.");
+			return false;
+		}
+		
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
+				var $clonedRow = $(elem).clone();
+				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
+				$('#detailTable tbody:last').append($clonedRow[0]);
+			}
+		})
+	}
+	
 	function addDetailRow() {
-		var $detailRow = $("#frameTable tr.detailRow").clone();
+		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
 		if($("#dirtrsYn").val() == "N"){
 			$detailRow.find('input[name="shipUpr"]').prop("readonly", true);
 		}else{
 			$detailRow.find('input[name="shipUpr"]').prop("readonly", false);
 		}
-		$('#detailTb tbody').append($detailRow[0]);
+		$('#detailTable tbody').append($detailRow[0]);
+		ctrlAllChkBox();
 		return $detailRow;
 	}
 	
 	function removeDetailRow(){
-		var $checkedDetails = $('#detailTb tr.detailRow input[name="detailChkBox"]:checked');
+		var $checkedDetails = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		if($checkedDetails.length > 0){
 			$.each($checkedDetails, function(idx, elem){
-				$(elem).closest('tr.detailRow').remove();
+				$(elem).closest('tr[name="detailRow"]').remove();
 			});
 			countTot();
 			ctrlAllChkBox();
@@ -715,9 +733,36 @@
 		}
 	}
 	
+	function ctrlAllChkBox(){
+		var isAllChk = true;
+		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
+		if($detailChkBoxes.length > 0){
+			$.each($detailChkBoxes, function(idx, elem){
+				if(!$(elem).is(':checked')){
+					isAllChk = false;
+				}
+			});
+			if(isAllChk){
+				$('#allChkBox').prop("checked", true);
+			}else{
+				$('#allChkBox').prop("checked", false);
+			}
+		}else{
+			$('#allChkBox').prop("checked", false);
+		}
+	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
+		}else{
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+		}
+	}
+	
 	// 제품 검색
 	function openSecondPrdtSearch(elem) {
-		$targetRow = $(elem).closest('tr.detailRow');
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
 		
 		// selpchCd - SELPCH1: 매입
 		var paramObj = {
@@ -735,17 +780,27 @@
 			$targetRow.find('input[name]').val("");
 			// input 제어
 			if(row.prdtStockCd == "Y"){
-				$targetRow.find('input[name="prdtSize"]').attr("readonly", false);
-				$targetRow.find('input[name="prdtSpec"]').attr("readonly", false);
-				$targetRow.find('input[name="prdtLen"]').attr("readonly", false);
-				$targetRow.find('input[name="ordrgQty"]').attr("readonly", false);
-				$targetRow.find('input[name="ordrgWt"]').attr("readonly", false);
+				$targetRow.find('input[name="prdtSize"]').prop("readonly", false);
+				$targetRow.find('input[name="prdtSpec"]').prop("readonly", false);
+				$targetRow.find('input[name="prdtLen"]').prop("readonly", false);
+				$targetRow.find('input[name="ordrgQty"]').prop("readonly", false);
+				$targetRow.find('input[name="ordrgWt"]').prop("readonly", false);
+				// 재고관리 대상일 경우 금액 수정 불가능
+				$targetRow.find('input[name="ordrgAmt"]').prop("readonly", true);
+				// 재고관리 대상일 경우 수량 필수 입력값 추가 (수량, 중량)
+				$targetRow.find('input[name="ordrgQty"]').prop("required", true);
+				$targetRow.find('input[name="ordrgWt"]').prop("required", true);
 			}else{
-				$targetRow.find('input[name="prdtSize"]').attr("readonly", true);
-				$targetRow.find('input[name="prdtSpec"]').attr("readonly", true);
-				$targetRow.find('input[name="prdtLen"]').attr("readonly", true);
-				$targetRow.find('input[name="ordrgQty"]').attr("readonly", true);
-				$targetRow.find('input[name="ordrgWt"]').attr("readonly", true);
+				$targetRow.find('input[name="prdtSize"]').prop("readonly", true);
+				$targetRow.find('input[name="prdtSpec"]').prop("readonly", true);
+				$targetRow.find('input[name="prdtLen"]').prop("readonly", true);
+				$targetRow.find('input[name="ordrgQty"]').prop("readonly", true);
+				$targetRow.find('input[name="ordrgWt"]').prop("readonly", true);
+				// 재고관리 대상이 아닐경우 금액 수정 가능
+				$targetRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+				$targetRow.find('input[name="ordrgQty"]').prop("required", false);
+				$targetRow.find('input[name="ordrgWt"]').prop("required", false);
 			}
 			
 			$.each(row, function(key, value){
@@ -774,13 +829,27 @@
 			var selectedRows = grid.target.getList("selected");
 			$.each(selectedRows, function(idx, obj){
 				// 행복사
-				var $detailRow = $("#frameTable tr.detailRow").clone();
+				var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
 				
 				// 직송여부에 따른 dom 변경
 				if($("#dirtrsYn").val() == "N"){
 					$detailRow.find('input[name="shipUpr"]').prop("readonly", true);
 				}else{
 					$detailRow.find('input[name="shipUpr"]').prop("readonly", false);
+				}
+				
+				// 재고관리에 따른 dom 변경
+				if(obj.prdtStockCd == "N"){
+					$detailRow.find('input[name="prdtSize"]').prop("readonly", true);
+					$detailRow.find('input[name="prdtSpec"]').prop("readonly", true);
+					$detailRow.find('input[name="prdtLen"]').prop("readonly", true);
+					$detailRow.find('input[name="ordrgQty"]').prop("readonly", true);
+					$detailRow.find('input[name="ordrgWt"]').prop("readonly", true);
+					// 재고관리 대상이 아닐경우 금액 수정 가능
+					$detailRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+					// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+					$detailRow.find('input[name="ordrgQty"]').prop("required", false);
+					$detailRow.find('input[name="ordrgWt"]').prop("required", false);
 				}
 				
 				// 값 set
@@ -795,13 +864,13 @@
 				$detailRow.find('input[name=prdtUpr]').val(obj.ordrgUpr);
 				
 				// append
-				$('#detailTb tbody').append($detailRow[0]);
+				$('#detailTable tbody').append($detailRow[0]);
 			});
 		});
 	}
 	
 	function calOdrWt(elem){
-		$targetRow = $(elem).closest('tr.detailRow');
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
 		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val()));
 		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val());
 		var ordrgWt = ordrgQty * prdtCnvrsnWt;
@@ -810,7 +879,7 @@
 	}
 	
 	function countAmt(elem) {
-		$targetRow = $(elem).closest('tr.detailRow');
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
 		var prdtStockCd = $targetRow.find('input[name="prdtStockCd"]').val();
 		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val()));
 		var ordrgWt = Number(deleteCommaStr($targetRow.find('input[name="ordrgWt"]').val()));
@@ -845,7 +914,7 @@
 		var totOrdrgAmt = 0;
 		var totEpctPal = 0;
 		
-		$.each($("#detailTb tr.detailRow"), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val()));
 			var ordrgWt = Number(deleteCommaStr($(elem).find('input[name="ordrgWt"]').val()));
 			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val()));
@@ -931,7 +1000,7 @@
 	
 	function lengthValidation() {
 		var isValid = true;
-		$.each($("#detailTb tr.detailRow"), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			var prdtDiv = $(elem).find('input[name="prdtDiv"]').val();
 			var prdtCoilYn = $(elem).find('input[name="prdtCoilYn"]').val();
 			var prdtStockCd = $(elem).find('input[name="prdtStockCd"]').val();
@@ -970,7 +1039,7 @@
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('#detailTb tr.detailRow'), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='ordrgYn']").val() == "") {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
