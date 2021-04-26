@@ -451,28 +451,6 @@
 		ctrlDirtrsMaster();
 	});
 	
-	function cloneDetailRow(){
-		var checkedRows = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
-		
-		if(checkedRows.length == 0){
-			alert("선택된 데이터가 없습니다.");
-			return false;
-		}
-		
-		if(checkedRows.length > 1){
-			alert("한 건만 선택해주세요.");
-			return false;
-		}
-		
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
-				var $clonedRow = $(elem).clone();
-				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
-				$('#detailTable tbody:last').append($clonedRow[0]);
-			}
-		})
-	}
-	
 	function selectOrderInfo() {
 		var row = gridView.target.getList()[selectedRowIdx];
 		var formData = {
@@ -538,7 +516,16 @@
 			
 			// 재고관리에 따른 dom 변경
 			if(obj.prdtStockCd == "N"){
+				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
+				// 재고관리 대상이 아닐경우 금액 수정 가능
 				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+				$addedRow.find('input[name="ordrgQty"]').prop("required", false);
+				$addedRow.find('input[name="ordrgWt"]').prop("required", false);
 			}
 		});
 		countTot();
@@ -699,6 +686,28 @@
 		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
 	}
 	
+	function cloneDetailRow(){
+		var checkedRows = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		
+		if(checkedRows.length == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		
+		if(checkedRows.length > 1){
+			alert("한 건만 선택해주세요.");
+			return false;
+		}
+		
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
+				var $clonedRow = $(elem).clone();
+				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
+				$('#detailTable tbody:last').append($clonedRow[0]);
+			}
+		})
+	}
+	
 	function addDetailRow() {
 		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
 		if($("#dirtrsYn").val() == "N"){
@@ -771,21 +780,27 @@
 			$targetRow.find('input[name]').val("");
 			// input 제어
 			if(row.prdtStockCd == "Y"){
-				$targetRow.find('input[name="prdtSize"]').attr("readonly", false);
-				$targetRow.find('input[name="prdtSpec"]').attr("readonly", false);
-				$targetRow.find('input[name="prdtLen"]').attr("readonly", false);
-				$targetRow.find('input[name="ordrgQty"]').attr("readonly", false);
-				$targetRow.find('input[name="ordrgWt"]').attr("readonly", false);
+				$targetRow.find('input[name="prdtSize"]').prop("readonly", false);
+				$targetRow.find('input[name="prdtSpec"]').prop("readonly", false);
+				$targetRow.find('input[name="prdtLen"]').prop("readonly", false);
+				$targetRow.find('input[name="ordrgQty"]').prop("readonly", false);
+				$targetRow.find('input[name="ordrgWt"]').prop("readonly", false);
 				// 재고관리 대상일 경우 금액 수정 불가능
-				$targetRow.find('input[name="ordrgAmt"]').attr("readonly", true);
+				$targetRow.find('input[name="ordrgAmt"]').prop("readonly", true);
+				// 재고관리 대상일 경우 수량 필수 입력값 추가 (수량, 중량)
+				$targetRow.find('input[name="ordrgQty"]').prop("required", true);
+				$targetRow.find('input[name="ordrgWt"]').prop("required", true);
 			}else{
-				$targetRow.find('input[name="prdtSize"]').attr("readonly", true);
-				$targetRow.find('input[name="prdtSpec"]').attr("readonly", true);
-				$targetRow.find('input[name="prdtLen"]').attr("readonly", true);
-				$targetRow.find('input[name="ordrgQty"]').attr("readonly", true);
-				$targetRow.find('input[name="ordrgWt"]').attr("readonly", true);
+				$targetRow.find('input[name="prdtSize"]').prop("readonly", true);
+				$targetRow.find('input[name="prdtSpec"]').prop("readonly", true);
+				$targetRow.find('input[name="prdtLen"]').prop("readonly", true);
+				$targetRow.find('input[name="ordrgQty"]').prop("readonly", true);
+				$targetRow.find('input[name="ordrgWt"]').prop("readonly", true);
 				// 재고관리 대상이 아닐경우 금액 수정 가능
-				$targetRow.find('input[name="ordrgAmt"]').attr("readonly", false);
+				$targetRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+				$targetRow.find('input[name="ordrgQty"]').prop("required", false);
+				$targetRow.find('input[name="ordrgWt"]').prop("required", false);
 			}
 			
 			$.each(row, function(key, value){
@@ -825,7 +840,16 @@
 				
 				// 재고관리에 따른 dom 변경
 				if(obj.prdtStockCd == "N"){
+					$detailRow.find('input[name="prdtSize"]').prop("readonly", true);
+					$detailRow.find('input[name="prdtSpec"]').prop("readonly", true);
+					$detailRow.find('input[name="prdtLen"]').prop("readonly", true);
+					$detailRow.find('input[name="ordrgQty"]').prop("readonly", true);
+					$detailRow.find('input[name="ordrgWt"]').prop("readonly", true);
+					// 재고관리 대상이 아닐경우 금액 수정 가능
 					$detailRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+					// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+					$detailRow.find('input[name="ordrgQty"]').prop("required", false);
+					$detailRow.find('input[name="ordrgWt"]').prop("required", false);
 				}
 				
 				// 값 set

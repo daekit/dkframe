@@ -152,7 +152,7 @@
 			</table>
 
 			<div class="ofx_s" style="width: 100%;">
-				<table id="detailTb" style="width: 1600px;">
+				<table id="detailTable" style="width: 1600px;">
 					<colgroup>
 						<col width="2%">
 						<col width="15%"> <!-- 제품명 -->
@@ -170,7 +170,9 @@
 						<col width="15%"> <!-- 비고 -->
 					</colgroup>
 					<tr>
-						<th></th>
+						<th class="tc" style="padding: 3px;"> 
+							<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+						</th>
 						<th class="tc hit">제품명</th>
 						<th class="tc">사이즈</th>
 						<th class="tc">SPEC</th>
@@ -187,7 +189,7 @@
 					</tr>
 				</table>
 				<table id="frameTable" style="display: none;">
-					<tr class="detailRow">
+					<tr name="detailRow">
 						<input type="hidden" name="shipDtlSeq"> 
 						<input type="hidden" name="odrDtlSeq"> 
 						
@@ -212,7 +214,7 @@
 						<input type="hidden" name="realShipUpr">
 						<input type="hidden" name="realShipAmt">
 						<td>
-							<input type="checkbox" name="detailChkBox">
+							<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
 						</td>
 						<td>
 							<input type="hidden" name="prdtCd">
@@ -463,9 +465,36 @@
 	}
 	
 	function addDetailRow() {
-		var $detailRow = $("#frameTable tr.detailRow").clone();
-		$('#detailTb tbody').append($detailRow[0]);
+		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
+		$('#detailTable tbody').append($detailRow[0]);
 		return $detailRow;
+	}
+	
+	function ctrlAllChkBox(){
+		var isAllChk = true;
+		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
+		if($detailChkBoxes.length > 0){
+			$.each($detailChkBoxes, function(idx, elem){
+				if(!$(elem).is(':checked')){
+					isAllChk = false;
+				}
+			});
+			if(isAllChk){
+				$('#allChkBox').prop("checked", true);
+			}else{
+				$('#allChkBox').prop("checked", false);
+			}
+		}else{
+			$('#allChkBox').prop("checked", false);
+		}
+	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
+		}else{
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+		}
 	}
 	
 	function countTot() {
@@ -474,7 +503,7 @@
 		var shipTotAmt = 0;
 		var totEpctPal = 0;
 		
-		$.each($("#detailTb tr.detailRow"), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			var shipQty = Number(deleteCommaStr($(elem).find('input[name="shipQty"]').val()));
 			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val()));
 			var shipAmt = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
@@ -502,7 +531,7 @@
 	
 	function updateConfirm() {
 		var checkCount = 0;
-		$.each($('#detailTb tr.detailRow'), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
 				checkCount++;
 			}
@@ -531,7 +560,7 @@
 	
 	function updateCancel() {
 		var checkCount = 0;
-		$.each($('#detailTb tr.detailRow'), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "Y") {
 				checkCount++;
 			}
@@ -566,7 +595,7 @@
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('#detailTb tr.detailRow'), function(idx, elem){
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if(type == "CONFIRM") {
 				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
 					var detailObj = {};
