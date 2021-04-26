@@ -767,6 +767,7 @@
 	}
 
 	//세금계산서수정발행
+	var updateRffAea = "";
 	function insertTaxHdUpdate(){
 		var flag = false;
 		var clntFlag = false;
@@ -821,16 +822,22 @@
 		if(!confirm(rowLength + "건을 수정발행 하시겠습니까?")){
 			return;
 		}
-		var formData = {
-			"bilgCertNoArr" : bilgCertNoArr,
-			"userId" : jwt.userId,
-			"userNm" : jwt.userNm,
-			"deptId" : jwt.deptId,
-			"pgmId" : "AR0401M01"
-		}
-		postAjax("/user/ar/ar04/insertTaxHdUpdate", formData, null, function(data){
-			alert(data.resultMessage);
-			gridView.setData(0);
+
+		openSecondModal("/static/html/user/ar/ar04/AR0401P04.html", 600, 220, "수정사유코드 선택", {}, function (rffAea) {
+			
+
+			var formData = {
+				"bilgCertNoArr" : bilgCertNoArr,
+				"userId" : jwt.userId,
+				"userNm" : jwt.userNm,
+				"deptId" : jwt.deptId,
+				"pgmId" : "AR0401M01",
+				"rffAea" : rffAea
+			}
+			postAjax("/user/ar/ar04/insertTaxHdUpdate", formData, null, function(data){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			});
 		});
 	}
 	
