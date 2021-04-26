@@ -48,7 +48,8 @@
             UDT_DTTM,
             SITE_CD,
             ALLOC_VEHL_NO,
-            TAXIVC_COPRT
+            TAXIVC_COPRT,
+            SHIP_CNT
 	    ) 
 	    VALUES
 	    (
@@ -91,7 +92,8 @@
 			SYSDATE,
 			#{siteCd,  jdbcType=VARCHAR},
 			#{allocVehlNo,  jdbcType=VARCHAR},
-			#{taxivcCoprt,  jdbcType=VARCHAR}
+			#{taxivcCoprt,  jdbcType=VARCHAR},
+			NVL(#{shipCnt,  jdbcType=VARCHAR},1)
 	    )
 	</insert>
 	
@@ -269,7 +271,8 @@
 	            (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 		        T.ALLOC_VEHL_NO,
 		        T.TAXIVC_COPRT,
-		        T.RECPT_YN
+		        T.RECPT_YN,
+		        T.SHIP_CNT
 			FROM 
 			(
 			 	SELECT AR01.* FROM TB_AR01M01 AR01
@@ -377,7 +380,8 @@
 		    T.ALLOC_VEHL_NO,
 		    T.TAXIVC_COPRT,
 	        FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-		    T.RECPT_YN
+		    T.RECPT_YN,
+		    T.SHIP_CNT
 		FROM 
 			TB_AR01M01 T
 		WHERE
@@ -546,8 +550,9 @@
 			ODR_SEQ		  = #{odrSeq},
 			ORDRG_SEQ     = #{ordrgSeq},
 			SITE_CD       = #{siteCd},
-			TAXIVC_COPRT  = #{taxivcCoprt}
-		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+			TAXIVC_COPRT  = #{taxivcCoprt},
+			SHIP_CNT      = #{shipCnt}
+		WHERE SHIP_SEQ = #{shipSeq}
 	</update>
 	
 	<update id="updateConfirm" parameterType="Map">
@@ -559,7 +564,7 @@
 		    UDT_ID        = #{userId},
 		    UDT_PGM       = #{pgmId},
 		    UDT_DTTM      = SYSDATE
-		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+		WHERE SHIP_SEQ = #{shipSeq}
 	</update>
 	
 	<update id="updateCancel" parameterType="Map">
@@ -571,7 +576,7 @@
 		    UDT_ID        = #{userId},
 		    UDT_PGM       = #{pgmId},
 		    UDT_DTTM      = SYSDATE
-		WHERE REQ_DT = #{reqDt} AND SHIP_SEQ = #{shipSeq}
+		WHERE SHIP_SEQ = #{shipSeq}
 	</update>
 	
 	
@@ -606,7 +611,7 @@
 			UDT_ID       = #{userId},
 			UDT_PGM      = #{pgmId},
 			UDT_DTTM	 = SYSDATE
-		WHERE SHIP_SEQ = #{shipSeq}
+		WHERE SHIP_SEQ   = #{shipSeq}
 	</update>
 	
 	<select id="selectShipDetailInfo" parameterType="Map" resultType="CamelMap">
