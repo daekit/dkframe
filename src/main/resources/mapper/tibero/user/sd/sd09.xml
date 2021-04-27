@@ -6,7 +6,8 @@
 	<select id="selectSiteCount" resultType="int">
 	SELECT 
  		COUNT(*) 
-	  FROM TB_SD09M01
+	  FROM TB_SD09M01 SD09
+	  LEFT OUTER JOIN TB_BM02M01 BM01 ON BM01.CLNT_CD = SD09.CLNT_CD  
 	 	<where>
 	 	<if test="coCd != null and coCd != ''">
 	 	AND CO_CD = #{coCd}
@@ -17,6 +18,9 @@
 	 	<if test="siteNm != null and siteNm != ''">
 	    AND SITE_NM = #{siteNm}
 	 	</if>
+	 	<if test="clntNm != null and clntNm != ''">
+			AND  BM01.CLNT_NM like '%' || #{clntNm} ||'%'
+		</if>
 	 	</where>
 	</select>
 	
@@ -85,6 +89,11 @@
 				 ORDER BY T.SITE_CD DESC, T.CO_CD, T.CLNT_CD, T.SITE_NM
 			) A			
 				  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID
+		   <where>
+		   <if test="clntNm != null and clntNm != ''">
+				    CLNT_NM like '%' || #{clntNm} ||'%'
+			</if>
+		   </where>
 		)
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
