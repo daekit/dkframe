@@ -129,6 +129,14 @@ public class SD05SvcImpl implements SD05Svc {
 			dtl.put("pgmId", paramMap.get("pgmId"));
 			sd05Mapper.insertProjectDtl(dtl);
 		}
+		
+		paramMap.put("siteNm", paramMap.get("prjctNm"));
+		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
+		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
+		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
+		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));	
+		sd09Svc.updateSite(paramMap);
+		
 		return result;
 	}
 	

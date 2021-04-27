@@ -196,8 +196,18 @@
 	  , UDT_ID        = #{userId}
 	  , UDT_PGM       = #{pgmId}
 	  , UDT_DTTM      = SYSDATE
-	WHERE CO_CD = #{coCd}
-	  AND SITE_CD = #{siteCd}
+	WHERE CO_CD     = #{coCd}
+	<choose>
+	   <when test="siteCd != null and siteCd != ''">	   
+	    AND SITE_CD   = #{siteCd}
+	   </when>
+	   <when test="prjctCd != null and prjctCd != ''">
+	    AND PRJCT_CD  = #{prjctCd}
+	   </when>
+	   <otherwise>
+	    AND  1 = 2
+	   </otherwise>
+	</choose>
 	</update>
 	
 	<delete id="deleteSite" parameterType="Map">
