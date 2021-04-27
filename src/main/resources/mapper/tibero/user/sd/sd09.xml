@@ -6,7 +6,8 @@
 	<select id="selectSiteCount" resultType="int">
 	SELECT 
  		COUNT(*) 
-	  FROM TB_SD09M01
+	  FROM TB_SD09M01 SD09
+	  LEFT OUTER JOIN TB_BM02M01 BM01 ON BM01.CLNT_CD = SD09.CLNT_CD  
 	 	<where>
 	 	<if test="coCd != null and coCd != ''">
 	 	AND CO_CD = #{coCd}
@@ -17,6 +18,9 @@
 	 	<if test="siteNm != null and siteNm != ''">
 	    AND SITE_NM = #{siteNm}
 	 	</if>
+	 	<if test="clntNm != null and clntNm != ''">
+			AND  BM01.CLNT_NM like '%' || #{clntNm} ||'%'
+		</if>
 	 	</where>
 	</select>
 	
@@ -60,6 +64,8 @@
 					 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM
 					 , (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS TAXIVC_COPRT
 					 , SD05.ORD_TYP
+					 , T.MNG_ID
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM
 				  FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -83,6 +89,11 @@
 				 ORDER BY T.SITE_CD DESC, T.CO_CD, T.CLNT_CD, T.SITE_NM
 			) A			
 				  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID
+		   <where>
+		   <if test="clntNm != null and clntNm != ''">
+				    CLNT_NM like '%' || #{clntNm} ||'%'
+			</if>
+		   </where>
 		)
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
@@ -112,7 +123,9 @@
 			 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
 			 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID
 			 , T.WH_CD
-			 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM		
+			 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM	
+			 , T.MNG_ID
+			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM	
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -142,6 +155,7 @@
 	 , CREAT_PGM
 	 , CREAT_DTTM
 	 , WH_CD
+	 , MNG_ID
 	 ) VALUES (
 	 #{coCd}
 	 , #{siteCd}
@@ -160,6 +174,7 @@
 	 , #{pgmId} 
 	 , SYSDATE
 	 , #{whCd} 
+	 , #{mngId}
 	 )
 	</insert>
 	
@@ -177,11 +192,22 @@
 	  , RMK           = #{rmk}
 	  , SALES_AREA_CD = #{salesAreaCd}
 	  , WH_CD         = #{whCd}
+	  , MNG_ID        = #{mngId}
 	  , UDT_ID        = #{userId}
 	  , UDT_PGM       = #{pgmId}
 	  , UDT_DTTM      = SYSDATE
-	WHERE CO_CD = #{coCd}
-	  AND SITE_CD = #{siteCd}
+	WHERE CO_CD     = #{coCd}
+	<choose>
+	   <when test="siteCd != null and siteCd != ''">	   
+	    AND SITE_CD   = #{siteCd}
+	   </when>
+	   <when test="prjctCd != null and prjctCd != ''">
+	    AND PRJCT_CD  = #{prjctCd}
+	   </when>
+	   <otherwise>
+	    AND  1 = 2
+	   </otherwise>
+	</choose>
 	</update>
 	
 	<delete id="deleteSite" parameterType="Map">
