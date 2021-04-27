@@ -60,6 +60,8 @@
 					 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM
 					 , (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS TAXIVC_COPRT
 					 , SD05.ORD_TYP
+					 , T.MNG_ID
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM
 				  FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -112,7 +114,9 @@
 			 , TO_CHAR(CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
 			 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID
 			 , T.WH_CD
-			 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM		
+			 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM	
+			 , T.MNG_ID
+			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM	
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -142,6 +146,7 @@
 	 , CREAT_PGM
 	 , CREAT_DTTM
 	 , WH_CD
+	 , MNG_ID
 	 ) VALUES (
 	 #{coCd}
 	 , #{siteCd}
@@ -160,6 +165,7 @@
 	 , #{pgmId} 
 	 , SYSDATE
 	 , #{whCd} 
+	 , #{mngId}
 	 )
 	</insert>
 	
@@ -177,6 +183,7 @@
 	  , RMK           = #{rmk}
 	  , SALES_AREA_CD = #{salesAreaCd}
 	  , WH_CD         = #{whCd}
+	  , MNG_ID        = #{mngId}
 	  , UDT_ID        = #{userId}
 	  , UDT_PGM       = #{pgmId}
 	  , UDT_DTTM      = SYSDATE

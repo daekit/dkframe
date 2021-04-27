@@ -62,20 +62,23 @@
 	                </td>
 	            </tr>
 	            <tr>
-	            	<th rowspan="2">주소</th>
-	            	<td colspan="1">
-	            		<div class="search_form">
-							<input type="text" id="siteAddrZip" name="siteAddrZip" readonly> 
-							<a onclick="openDaumPostcode();"><i class="i_search_w"></i>
-							</a>
-						</div>
-	            	</td>
 	            	<th>가공공장</th>
 	            	<td>
 	            		<select id="whCd" name="whCd" data-kind="WH">
 	                    	<option value="">선택</option>
 	                    </select>
 	            	</td>
+	            	
+	            	<th>담당자</th>
+					<td>
+							<input type="hidden" id="mngId" name="mngId" style="width: 76%;" maxlength="20">
+							<div class="search_form">
+								<input type="text" id="mngNm" name="mngNm" readonly="readonly">
+								<a onclick="openUserTree();"><i class="i_search_w"></i>
+								</a>
+							</div>
+					</td>
+	            		            	
 	            	<th>사용여부</th>
 	            	<td>
 	            		<select id="useYn" name="useYn" data-kind="YN">
@@ -84,7 +87,15 @@
 	            	</td>
 	            </tr>
 	            <tr>
-	            	<td colspan="3">
+	            	<th rowspan="1">주소</th>
+	            	<td colspan="1">
+	            		<div class="search_form">
+							<input type="text" id="siteAddrZip" name="siteAddrZip" readonly> 
+							<a onclick="openDaumPostcode();"><i class="i_search_w"></i>
+							</a>
+						</div>
+	            	</td>
+	            	<td colspan="2">
 	            		<input type="text" id="siteAddr" name="siteAddr" placeholder="선택 주소지" readonly/>
 	            	</td>
 	            	<td colspan="2">
@@ -183,5 +194,20 @@
 
 	function modalClose(){
 		commonModal.closeTarget.close();
+	}
+	
+	function openUserTree() {
+		var paramObj = {
+		//	"coCd" : $('#coCd').val(),
+			"userId": $('#mngId').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#mngId').val(checkedNode.id);
+			$('#mngNm').val(checkedNode.text);
+		});
 	}
 </script>
