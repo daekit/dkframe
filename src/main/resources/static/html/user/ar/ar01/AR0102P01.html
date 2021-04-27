@@ -28,7 +28,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse();" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -148,7 +148,7 @@
 					<th>운송비</th>
 					<td>
 						<div class="search_form">
-							<input type="text" id="transAmt" name="transAmt" onkeyup="addComma(this);" comma> 
+							<input type="text" id="transAmt" name="transAmt" onkeyup="onlyNumberTest(this);" comma> 
 							<a onclick="transAmtModal();">
 								<i class="i_search_w"></i>
 							</a>
@@ -436,9 +436,10 @@
 		if(actionType == "C"){
 			$("#coCd").val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
+			setWareHouse($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
-		//	addDetailRow();
+			//	addDetailRow();
 			$('#actionArBtn').on("click", function(){insertShip();});
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
@@ -497,6 +498,12 @@
 					}
 					$('#'+key).val(value);
 				}
+				
+				// 창고 set
+				if(key == "coCd"){
+					setWareHouse(value);
+				}
+				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
@@ -560,8 +567,11 @@
 		}
 	}
 	
-	function setWareHouse(){
-		
+	// 창고 set
+	function setWareHouse(value){
+		$('#whCd').data("desc", value);
+		$('#whCd').empty();
+		setCommonSelect($('#whCd'));
 	}
 	
 	// 거래처 검색
