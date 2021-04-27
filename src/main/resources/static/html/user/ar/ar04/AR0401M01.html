@@ -664,10 +664,10 @@
 			viewCplrUntpcModal("U");
 			return false;
 		}
-		/* if(flag) {
+		if(flag) {
 			alert("이미 발행된 건이 있습니다.");
 			return;
-		}; */
+		}; 
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");
@@ -701,9 +701,15 @@
 		var emailIdx;
 		var arrGnChk = true;
 		var taxBilgChk = true;
+		var eFlag = true;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) flag = true;
-			
+			if((obj.taxAdmsYn =="Y") || (obj.rcvYn == "Y" )) {
+			    eFlag = false;
+				alert("승인완료건은 정발행취소 처리 불가!");
+				return false;
+			}
+	
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 취소의 경우 계산서 번호가 있을 경우 가능
 			if(!obj.taxBilgNo){
@@ -727,6 +733,9 @@
 				return false;
 			}
 		});
+		if(!eFlag){
+			return false;
+		}
 		if(!taxBilgChk){
 			return false;
 		}
