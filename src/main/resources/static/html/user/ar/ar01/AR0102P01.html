@@ -28,7 +28,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -148,7 +148,7 @@
 					<th>운송비</th>
 					<td>
 						<div class="search_form">
-							<input type="text" id="transAmt" name="transAmt" onkeyup="addComma(this);" comma> 
+							<input type="text" id="transAmt" name="transAmt" onkeyup="onlyNumberTest(this);" comma> 
 							<a onclick="transAmtModal();">
 								<i class="i_search_w"></i>
 							</a>
@@ -203,13 +203,13 @@
 			<table id="detailTable" style="width: 1600px;">
 				<colgroup>
 					<col width="2%">
-					<col width="15%"> <!-- 제품명 -->
+					<col width="13%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
 					<col width="5%">  <!-- 길이 -->
 					<col width="5%">  <!-- 단위 -->
-					<col width="5%">  <!-- 출하지시 수량-->
-					<col width="5%">  <!-- 출하지시 중량-->
+					<col width="6%">  <!-- 출하지시 수량-->
+					<col width="6%">  <!-- 출하지시 중량-->
 					<col width="5%">  <!-- 출하지시 단가-->
 					<col width="7%">  <!-- 출하지시 금액-->
 					<col width="7%">  <!-- 출하지시 손익-->
@@ -227,7 +227,7 @@
 					<th class="tc">길이</th>
 					<th class="tc">단위</th>
 					<th class="tc hit">수량</th>
-					<th class="tc hit">중량</th>
+					<th class="tc hit">중량(KG)</th>
 					<th class="tc">매출단가</th>
 					<th class="tc">금액</th>
 					<th class="tc">예상손익</th>
@@ -315,13 +315,13 @@
 			<table style="width: 1600px;">
 				<colgroup>
 					<col width="2%">
-					<col width="15%"> <!-- 제품명 -->
+					<col width="13%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
 					<col width="5%">  <!-- 길이 -->
 					<col width="5%">  <!-- 단위 -->
-					<col width="5%">  <!-- 출하지시 수량-->
-					<col width="5%">  <!-- 출하지시 중량-->
+					<col width="6%">  <!-- 출하지시 수량-->
+					<col width="6%">  <!-- 출하지시 중량-->
 					<col width="5%">  <!-- 출하지시 단가-->
 					<col width="7%">  <!-- 출하지시 금액-->
 					<col width="7%">  <!-- 출하지시 손익-->
@@ -436,9 +436,10 @@
 		if(actionType == "C"){
 			$("#coCd").val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
+			setWareHouse($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
-		//	addDetailRow();
+			//	addDetailRow();
 			$('#actionArBtn').on("click", function(){insertShip();});
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
@@ -497,6 +498,12 @@
 					}
 					$('#'+key).val(value);
 				}
+				
+				// 창고 set
+				if(key == "coCd"){
+					setWareHouse(value);
+				}
+				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
@@ -558,6 +565,13 @@
 		if(shipInfo.shipYn == "Y") {
 			$("#actionArBtn").hide();
 		}
+	}
+	
+	// 창고 set
+	function setWareHouse(value){
+		$('#whCd').data("desc", value);
+		$('#whCd').empty();
+		setCommonSelect($('#whCd'));
 	}
 	
 	// 거래처 검색

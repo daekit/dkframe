@@ -277,6 +277,9 @@
 			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 					AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 				</if>
+				<if test="clntCd != null and !clntCd.equals('')">
+					AND CLNT_CD = #{clntCd}
+				</if>
 			 	<if test="clntNm != null and !clntNm.equals('')">
 					AND CLNT_NM LIKE '%${clntNm}%'
 				</if>
@@ -560,7 +563,7 @@
 				SUM(TRANS_AMT) AS TRANS_AMT,
 				COUNT(*) AS TAX_DMS5_7240,
 		        SUM(BILG_AMT) AS TAX_MOA5_23,
-		        SUM(BILG_AMT)*0.1 AS TAX_MOA5_124,
+		        TRUNC(SUM(BILG_AMT)*0.1) AS TAX_MOA5_124,
 		        SUM(BILG_AMT) + SUM(BILG_AMT)*0.1 AS TAX_MOA5_388,
 		        CASE WHEN SELPCH_CD = 'SELPCH2' THEN 'PAYDIV01' ELSE 'PAYDIV02' END RFF_VA,
 		        'RFFGN101' AS RFF_GN1,
