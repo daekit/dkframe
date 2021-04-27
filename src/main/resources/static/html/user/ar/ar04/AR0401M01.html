@@ -61,7 +61,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd"  required="required" msg="회사">
+							<select id="coCd_S" data-kind="CO" data-search="coCd"  required="required" msg="회사">
 							</select>
 						</td>
 						<th class="hit">기준일자</th>
@@ -135,6 +135,7 @@
 						<a onclick="insertTaxHdUpdate();" style="height: 30px; line-height: 28px; width: 100px;"><i class="fas fa-file-signature"></i>수정세금계산서</a>
 						<a onclick="updateTaxHdRvrs();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-download"></i>역발행확인</a>
 						<a onclick="updateTaxHdRvrsCancel();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-redo"></i>역발행취소</a>
+						<a onclick="setReport();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-print"></i>계산서발행</a>
 <!-- 						<a onclick="" style="height: 30px; line-height: 28px; width: 60px;">회계 전송</a> -->
 				</div>
 				<select class="prae_select" data-search="recordCnt">
@@ -922,4 +923,50 @@
 			gridView.setData(0);
 		});
 	}
+	
+	function setReport() {
+		var flag = false;
+		var coFlag = false;
+		var errFlag = false;
+		var list = gridView.target.getList("selected");
+		var bilgCertNoArr = "";
+	
+		$.each(list, function(idx, obj) {
+			if (obj.taxBilgNo == "역발행" ) {
+				errFlag = true;
+				alert("역발행 세금계산서는 발행할 수 없습니다!");
+				return;
+			}
+			if (!obj.taxBilgNo) {
+				errFlag = true;
+				alert("세금계산서 정발행 후 출력 할 수 있습니다.");
+				return;
+			}
+			if (!flag){
+				flag = true;
+				bilgCertNoArr = obj.bilgCertNo;
+
+			} else {
+				bilgCertNoArr = bilgCertNoArr + "," + obj.bilgCertNo;
+			}
+		});
+
+		if (errFlag) {
+			return;
+		}
+
+		if (!flag) {
+			alert("세금계산서 발행대상이 선택되지 않았습니다.");
+			return;
+		}
+		
+		var fileName = "AR0401M01.jrf";
+		var arg =  "#ar_idx#"		+ bilgCertNoArr
+		         + "#";
+
+	alert(arg);
+
+		callReport(fileName, arg, 1040, 720);
+	}
+		
 </script>
