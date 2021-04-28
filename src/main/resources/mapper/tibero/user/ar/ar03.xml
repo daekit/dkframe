@@ -44,7 +44,6 @@
 						,TO_CHAR(TO_DATE(A.TRANS_DT,'YYYYMMDD'),'YYYY-MM-DD') AS TRANS_DT
 						,A.TRANS_CO
 						,B.CLNT_NM AS TRANS_NM
-						,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
 						,FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
 						,A.WH_CD
 						,A.DES_CD
@@ -70,7 +69,11 @@
 						,A.UDT_DTTM
 						,A.SITE_CD
 						, (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
-						, NVL( (SELECT H.TRANS_AMT FROM TB_AR02M01 H WHERE A.CO_CD = H.CO_CD  AND H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0) AS SALES_TRANS_AMT --매출운반비
+						, NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
+						         INNER JOIN TB_AR01M01 AR01 ON H.TRST_RPRC_SEQ = AR01.SHIP_SEQ 
+						                AND  H.CREAT_PGM =  AR01.CREAT_PGM
+						                AND  AR01.TRANS_SEQ = A.TRANS_SEQ
+						         WHERE H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0) AS SALES_TRANS_AMT --매출운반비
 				FROM TB_AR03M01 A, TB_BM02M01 B
 				WHERE A.CLNT_CD = B.CLNT_CD
 				<if test= "coCd != null and !coCd.equals('')">
@@ -175,8 +178,8 @@
 			(
 			 	SELECT A.* FROM TB_AR01M01 A, TB_AR03M01 B
 			 	WHERE 1=1
-			 	  AND A.SHIP_SEQ = B.SHIP_SEQ
-			 	  AND A.SHIP_SEQ = #{shipSeq}
+			 	  AND A.TRANS_SEQ = B.TRANS_SEQ
+			 	  AND A.TRANS_SEQ = #{transSeq}
 				ORDER BY UDT_DTTM DESC
 			) T
 		)
