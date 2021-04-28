@@ -149,7 +149,7 @@
 					<td>
 						<div class="search_form">
 						    <input type="hidden" id="transSeq" name="transSeq">
-							<input type="text" id="transAmt" name="transAmt" onkeyup="onlyNumberTest(this);" comma> 
+							<input type="text" id="transAmt" name="transAmt" onkeyup="addComma(this);" comma> 
 							<a onclick="transAmtModal();">
 								<i class="i_search_w"></i>
 							</a>
@@ -857,8 +857,8 @@
 	
 	function calShipWt(elem){
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
-		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val()));
-		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val());
+		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val())) || 0;
+		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val()) || 0;
 		var shipWt = shipQty * prdtCnvrsnWt;
 		$targetRow.find('input[name="shipWt"]').val(addCommaStr(shipWt));
 		$targetRow.find('input[name="realShipWt"]').val(shipWt);
@@ -867,14 +867,14 @@
 	function countAmt(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
 		var prdtStockCd = $targetRow.find('input[name="prdtStockCd"]').val();
-		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val()));
-		var shipWt = Number(deleteCommaStr($targetRow.find('input[name="shipWt"]').val()));
-		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val()));
-		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val());
+		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val())) || 0;
+		var shipWt = Number(deleteCommaStr($targetRow.find('input[name="shipWt"]').val())) || 0;
+		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val())) || 0;
+		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val()) || 0;
 		
 		if(prdtStockCd == "Y"){
-			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipQty * shipUpr))
-			$targetRow.find('input[name="epctPal"]').val(addCommaStr((shipQty * shipUpr) - (shipQty * stockUpr)));
+			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(Math.round(shipQty * shipUpr)))
+			$targetRow.find('input[name="epctPal"]').val(addCommaStr(Math.round(shipQty * shipUpr) - Math.round(shipQty * stockUpr)));
 		}else{
 			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr));
 		}
@@ -894,10 +894,10 @@
 		var totEpctPal = 0;
 		
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			var shipQty = Number(deleteCommaStr($(elem).find('input[name="shipQty"]').val()));
-			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val()));
-			var shipAmt = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
-			var epctPal = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val()));
+			var shipQty = Number(deleteCommaStr($(elem).find('input[name="shipQty"]').val())) || 0;
+			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val())) || 0;
+			var shipAmt = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val())) || 0;
+			var epctPal = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val())) || 0;
 			
 			shipTotQty += shipQty;
 			shipTotWt += shipWt;
