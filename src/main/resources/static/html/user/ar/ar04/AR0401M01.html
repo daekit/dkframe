@@ -664,10 +664,10 @@
 			viewCplrUntpcModal("U");
 			return false;
 		}
-		/* if(flag) {
+		if(flag) {
 			alert("이미 발행된 건이 있습니다.");
 			return;
-		}; */
+		}; 
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");
@@ -701,9 +701,20 @@
 		var emailIdx;
 		var arrGnChk = true;
 		var taxBilgChk = true;
+		var eFlag = true;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) flag = true;
-			
+			if((obj.taxAdmsYn =="Y") || (obj.rcvYn == "Y" )) {
+			    eFlag = false;
+				alert("승인완료건은 정발행취소 처리 불가!");
+				return false;
+			}
+			if((obj.sndYn =="Y") && (!obj.cseqRcvYn)) {
+			    eFlag = false;
+				alert("전송결과 확인 후 진행 가능!");
+				return false;
+			}
+		
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 취소의 경우 계산서 번호가 있을 경우 가능
 			if(!obj.taxBilgNo){
@@ -727,6 +738,9 @@
 				return false;
 			}
 		});
+		if(!eFlag){
+			return false;
+		}
 		if(!taxBilgChk){
 			return false;
 		}
@@ -787,7 +801,7 @@
 			// 수정의 경우 rffgn1 : 01, rffAea : null 이 아닌 건만 가능
 			if(obj.orgnTaxBilgNo || obj.rcvYn != "Y"){
 				arrGnChk = false;
-				alert("세금계산서 종류를 확인 해 주세요.");
+				alert("수정발행처리된 세금계산서입니다 확인하세요!");
 				return false;
 			}
 			
@@ -964,7 +978,7 @@
 		var arg =  "#ar_idx#"		+ bilgCertNoArr
 		         + "#";
 
-	alert(arg);
+//	alert(arg);
 
 		callReport(fileName, arg, 1040, 720);
 	}
