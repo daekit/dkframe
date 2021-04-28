@@ -69,15 +69,23 @@
 						,A.UDT_DTTM
 						,A.SITE_CD
 						, (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
+						<!-- 실제 발생한 운반비는 발주서에서 온거, 출하요청서에서 온거가 구분이 안된다.. 둘다 더하면 된다.. 한곳에만 존재함으로 -->
 						, NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
 						         INNER JOIN TB_AR01M01 AR01 ON H.TRST_RPRC_SEQ = AR01.SHIP_SEQ 
 						                AND  H.CREAT_PGM =  AR01.CREAT_PGM
 						                AND  AR01.TRANS_SEQ = A.TRANS_SEQ
-						         WHERE H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0) AS SALES_TRANS_AMT --매출운반비
-				FROM TB_AR03M01 A, TB_BM02M01 B
-				WHERE A.CLNT_CD = B.CLNT_CD
+						         WHERE H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0)
+						+  NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
+						         INNER JOIN TB_OD01M01 OD01 ON H.TRST_RPRC_SEQ = OD01.ORDRG_SEQ 
+						                AND  H.CREAT_PGM =  OD01.CREAT_PGM
+						                AND  OD01.TRANS_SEQ = A.TRANS_SEQ
+						         WHERE H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0)  
+						 AS SALES_TRANS_AMT --매출운반비
+				FROM TB_AR03M01 A
+				 LEFT OUTER JOIN TB_BM02M01 B ON A.TRANS_CO = B.CLNT_CD				 
+				<where>				
 				<if test= "coCd != null and !coCd.equals('')">
-		 			AND A.CO_CD = #{coCd}
+		 			    A.CO_CD = #{coCd}
 				</if>
 				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
 		 			AND A.TRANS_DT BETWEEN #{strtDt} AND #{endDt}
@@ -97,6 +105,7 @@
 				<if test= "procYn != null and !procYn.equals('')">
 		 			AND A.PROC_YN = #{procYn}
 				</if>
+				</where>
 			ORDER BY A.TRANS_DT,A.SITE_CD,A.TRANS_CO
 			) D
 		)
@@ -106,8 +115,8 @@
 	
 	<select id="selectCaryngInfo" parameterType="Map" resultType="camelMap">
 		SELECT T.*,
-			(SELECT CODE_NM  FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
-			(SELECT CLNT_NM  FROM TB_BM02M01 WHERE CLNT_CD   = T.TRANS_CO) AS TRANS_NM,
+			(SELECT CODE_NM  FROM TB_CM05M01 WHERE CODE_ID      = T.CO_CD) AS CO_NM,		
+			(SELECT CLNT_NM  FROM TB_BM02M01 WHERE CLNT_CD      = T.TRANS_CO) AS TRANS_NM,
 			(SELECT CLNT_NM  FROM TB_BM02M01 C WHERE T.CLNT_CD  = C.CLNT_CD) AS CLNT_NM,
 			(SELECT PRJCT_NM FROM TB_SD05M01 P WHERE P.PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,			
 			(SELECT SITE_NM  FROM TB_SD09M01 S WHERE S.SITE_CD  = T.SITE_CD) AS SITE_NM
