@@ -248,8 +248,12 @@ public class OD01SvcImpl implements OD01Svc {
 			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
 			realTotTrstAmt += bilgVatAmt;
-			//매입
-			ar02Mapper.insertPchsSell(paramMap);
+			
+			//매입, 매입금액이 없는 경우 매입내역 등록 안함.
+			double bilgAmtPchs     =  Double.parseDouble(detailMap.get("realDlvrAmt"));
+			if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
+		    	ar02Mapper.insertPchsSell(paramMap);
+			}
 			//재고 세팅
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
@@ -287,6 +291,36 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("clntCd", sellClntCd);
 				paramMap.put("clntNm", sellClntNm);
 				paramMap.put("sellUpr", detailMap.get("shipUpr"));
+				
+			// 매출자료를 세팅한다... 매출단가를 기준으로 모든 금액을 재계산한다.
+				
+				paramMap.put("trstUpr", detailMap.get("shipUpr"));
+				paramMap.put("realTrstUpr", detailMap.get("shipUpr"));
+				paramMap.put("bilgUpr", detailMap.get("shipUpr"));
+
+				//재고돤리 대상이 아닌 매출의 경우 물량 부문이 0으로 정리됨.
+				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
+				{
+					double trstQty     =  Double.parseDouble(detailMap.get("ordrgQty"));
+					double realDlvrQty =  Double.parseDouble(detailMap.get("realDlvrQty"));
+					double shipUpr     =  Double.parseDouble(detailMap.get("shipUpr"));
+            
+					int trstAmt     = (int)Math.floor(shipUpr * trstQty);
+					int realTrstAmt = (int)Math.floor(shipUpr * realDlvrQty);
+					int bilgAmt     = (int)Math.floor(shipUpr * realDlvrQty);
+					paramMap.put("trstAmt",    String.valueOf(trstAmt));
+					paramMap.put("realTrstAmt",String.valueOf(realTrstAmt));
+					paramMap.put("bilgAmt",    String.valueOf(bilgAmt));	
+				}else {					
+					paramMap.put("trstAmt",    detailMap.get("shipUpr"));
+					paramMap.put("realTrstAmt",detailMap.get("shipUpr"));
+					paramMap.put("bilgAmt",    detailMap.get("shipUpr"));
+				}
+					
+				
+				long bilgVatAmt2 = ar02Mapper.selectBilgVatAmt(paramMap);
+				paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
+				
 				//매출
 				ar02Mapper.insertPchsSell(paramMap);
 				
