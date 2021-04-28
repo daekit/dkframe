@@ -73,16 +73,11 @@
 						</span>
 					</div>
 				</td>
-				<th>퇴사일</th>
+				<th>관리회사</th>
 				<td>
-					<div class="form-group">
-		                <div class="input-group date" id="leaveDatePicker">
-		                    <input type="text" class="form-control input-sm" id="leaveDt" name="leaveDt"/>
-		                    <span class="input-group-addon">
-		                        <span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
-		                    </span>
-		                </div>
-		            </div>
+					<select  class="form-control input-sm" id="mngCoCd" name="mngCoCd" data-kind="CO" data-search="mngCoCd">
+                 		<option value="">선택</option>
+                 	</select>
 				</td>
 			</tr>
 			<tr>
@@ -105,6 +100,20 @@
 					</select>
 				</td>
 			</tr>
+			<tr>
+				<th>퇴사일</th>
+				<td>
+					<div class="form-group">
+		                <div class="input-group date" id="leaveDatePicker">
+		                    <input type="text" class="form-control input-sm" id="leaveDt" name="leaveDt"/>
+		                    <span class="input-group-addon">
+		                        <span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
+		                    </span>
+		                </div>
+		            </div>
+				</td>
+			</tr>
+			
 		</tbody>
 	</table>
 </form>
@@ -114,6 +123,8 @@
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {
+		setCommonSelect($("#userForm select[data-kind]"));
+
 		// 직급 set
 		postAjaxSync("/admin/cm/cm07/selectLevelList", {"useYn" : "Y"}, null, function(data){
 			var levelHtml = '';
@@ -151,6 +162,7 @@
 			$('#enterDatePicker').datepicker("setDate", userInfo.enterDt);
 			$('#useYn').val(userInfo.useYn);
 			$('#telNo').val(userInfo.telNo);
+			$('#mngCoCd').val(userInfo.mngCoCd);
 		});
 	}
 	
@@ -166,7 +178,7 @@
 				return false;
 			}
 		});
-		
+
 		if(isValid){
 			putAjax("/admin/cm/cm06/updateUser", $('#userForm').serializeObject(), null, function(data){
 				alert(data.resultMessage);
