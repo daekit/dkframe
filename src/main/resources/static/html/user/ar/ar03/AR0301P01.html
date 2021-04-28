@@ -224,6 +224,7 @@
 			var formData = {
 				"siteCd" : $("#siteCd").val(),
 				"shipSeq" : $("#shipSeq").val(),
+				"transSeq" : $("#transSeq").val(),
 				"pageNo" : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
@@ -263,23 +264,25 @@
 		setInit();
 		if(openFrom == "AR0102P01" || openFrom == "OD0102P01") {
 			$("#transViewDiv #coCd").val($("#arViewDiv #coCd").val());
+			$("#transViewDiv #transSeq").val($("#arViewDiv #transSeq").val());
 		}
 	});
 	
 	function setInit() {
+		debugger;
 		if(actionType == "C") {
 			$('#actionBtn').on("click", function(){insertCaryng();});
 			$("#actionBtn").text("등록");
 			$("#arvpayYn").val("N");
 		}else if(actionType == "U"){
-			if(!(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01")) {
+		//	if(!(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01")) {
 				$("#ordrgTable").show();
 				$("#shipmentTable").show();
 				AR01GridView.initView();
 				selectCaryngInfo();
 				$('#actionBtn').on("click", function(){updateCaryng();});
 				$('#actionBtn').text("수정");
-			}
+		//	}
 		}
 		changePayCo();
 	}
@@ -310,12 +313,9 @@
 	}
 	
 	function selectCaryngInfo(){
-		var row = gridView.target.getList("selected")[0];
-		var formData = {
-			"transSeq" : row.transSeq,
-			"salesMng" : row.mngId
-		}
-		postAjax("/user/ar/ar03/selectCaryngInfo", formData, null, function(data){
+		
+		debugger;
+		postAjax("/user/ar/ar03/selectCaryngInfo", commonModal.paramObj, null, function(data){
 			setCaryngInfo(data.result);
 		});
 	}
@@ -324,10 +324,10 @@
 		var transInfo = obj;
 		//메인정보 세팅
 		$.each(transInfo, function(key, value){
-			$('#'+key).val(value);
+			$('#transViewDiv #'+key).val(value);
 		});
 		//콤마세팅
-		$.each($('input[comma]'), function(idx, elem){
+		$.each($('#transViewDiv input[comma]'), function(idx, elem){
 			addComma(elem);
 		});
 		//출하요청서
@@ -354,12 +354,15 @@
 	} */
 	
 	function insertCaryng() {
+		debugger;
+		
 		if(inputValidation($('#transViewDiv [required]'))) {
 			var formData = makeCaryngData();
 			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
 				alert(data.resultMessage);           
 				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
 					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
+					$("#arViewDiv #transSeq").val(data.transSeq);
 					addComma($("#arViewDiv #transAmt"));
 					secondModal.close();
 				} else {
@@ -371,12 +374,16 @@
 	}
 	
 	function updateCaryng() {
-		if(inputValidation($('[required]'))) {
+		if(inputValidation($('#transViewDiv [required]'))) {
 			var formData = makeCaryngData();
 			putAjax("/user/ar/ar03/updateCaryng", formData, null, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
-				modal.close();
+				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
+					secondModal.close();
+				}else{
+					modal.close();
+				}
 			});
 		}
 	}

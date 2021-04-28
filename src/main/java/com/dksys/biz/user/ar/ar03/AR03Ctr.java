@@ -61,6 +61,7 @@ public class AR03Ctr {
     public String insertCaryng(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
 		try {
 			ar03Svc.insertCaryng(param);
+	    	model.addAttribute("transSeq",param.get("transSeq") );
 	    	model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
 		}catch (Exception e) {

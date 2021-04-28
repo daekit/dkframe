@@ -363,6 +363,8 @@ th {
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
+		        	{key: "rffAea", 	    label: "수정사유",  	align: "left", 		width: 120, hidden: true},
+		        	{key: "orgnTaxBilgNo", 	label: "원본세금계산서번호",  	align: "left", 		width: 120, hidden: true},
 		        ]
 		    });
 			return this;
@@ -401,6 +403,12 @@ th {
 			alert("삭제는 한건씩 진행해주세요");
 			return;
 		}
+		if (row.rffAea){
+			errFlag = true;
+			alert("수정세금계산서에서 작성된자료는 삭제불가!");
+			return false;
+		}
+		
 		//전표 미발행, 매출화면에서 직접 등록한 데이터만 삭제 가능
 		if (row.bilgCertNo == undefined && row.trstDtlSeq == undefined) {
 			if (confirm("삭제하시겠습니까?")) {
@@ -567,6 +575,7 @@ th {
 	function updateBilgCancel() {
 		var flag = false;
 		var bilgFlag = false;
+		var errFlag = false;
 		var list = gridView.target.getList("selected");
 		var bilgCertNoArr = [];
 		$.each(list, function(idx, obj) {
@@ -574,6 +583,12 @@ th {
 				flag = true;
 				return false;
 			}
+			if (obj.rffAea){
+				errFlag = true;
+				alert("수정세금계산서에서 작성된자료는 수정불가!");
+				return false;
+			}
+			
 			if (idx > 0) {
 				if(list[idx].bilgCertNo != list[idx-1].bilgCertNo) {
 					bilgFlag = true;
@@ -582,6 +597,9 @@ th {
 			}
 			bilgCertNoArr.push(obj.bilgCertNo);
 		});
+		if (errFlag) {
+			return;
+		}
 		if (flag) {
 			alert("발행되지 않은 매출 건이 포함되어 있습니다.");
 			return;

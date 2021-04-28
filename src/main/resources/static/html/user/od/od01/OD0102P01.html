@@ -142,6 +142,7 @@
 					<th>운송비</th>
 					<td>
 						<div class="search_form">
+						    <input type="hidden" id="transSeq" name="transSeq">
 							<input type="text" id="transAmt" name="transAmt" onkeyup="addComma(this);" comma> 
 							<a onclick="transAmtModal();">
 								<i class="i_search_w"></i>
@@ -706,7 +707,11 @@
 	// 운송비
 	function transAmtModal() {
 		openFrom = "OD0102P01";
-		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
+		var paramObj ={
+			transSeq :$('#transSeq').val()
+		}
+		if(!$('#transSeq').val()) {actionType = 'C';} 
+		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
 	}
 	
 	function cloneDetailRow(){
@@ -1082,9 +1087,9 @@
 		});
 		
 		// 수정시 삭제된 파일 추가
-		if(actionType == "U") {
+//		if(actionType == "U") {
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
-		}
+//		}
 		
 		return formData;
 	}
