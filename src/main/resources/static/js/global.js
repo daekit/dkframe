@@ -348,12 +348,9 @@ function inputValidation(inputList) {
 	return isValid;
 }
 
-// 숫자만 입력 (음수, 정수 가능.  소수 불가능)
 function onlyNumber(elem){
-	//	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
-	if(event.keyCode != 189 && event.keyCode != 37 && event.keyCode != 39) {
-		$(elem).val( $(elem).val().replace(/^(-?)([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/, '$1$2$4') );
-	}
+	var regExp = /^(-?)([0-9|,]*)(\.?[0-9]*)([^0-9]*)/g;
+	$(elem).val($(elem).val().replace(regExp, "$1$2$3"));
 }
 
 // 한글 제거
@@ -380,9 +377,10 @@ function crnFormatter(elem){
 
 // 원단위 콤마 추가
 function addComma(elem) {
-	onlyNumber(elem);
-	if(event.keyCode != 189 && event.keyCode != 37 && event.keyCode != 39) {
-		if($(elem).val() != "") $(elem).val(Number(deleteCommaStr($(elem).val())).toLocaleString('en'));
+	var regExp = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g;
+	if(event.keyCode != 37 && event.keyCode != 39) {
+		onlyNumber(elem);
+		$(elem).val(deleteCommaStr($(elem).val()).replace(regExp, ","));
 	}
 }
 
@@ -393,7 +391,7 @@ function deleteComma(elem) {
 
 // 원단위 콤마 추가 스트링변수용
 function addCommaStr(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }
 
 // 콤마 제거 스트링변수용
