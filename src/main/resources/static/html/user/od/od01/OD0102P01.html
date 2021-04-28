@@ -22,7 +22,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -429,6 +429,7 @@
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
+			setWareHouse($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 		//	addDetailRow();
@@ -487,6 +488,12 @@
 					}
 					$('#'+key).val(value);
 				}
+				
+				// 창고 set
+				if(key == "coCd"){
+					setWareHouse(value);
+				}
+				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
@@ -547,6 +554,13 @@
 		if(orderInfo.ordrgYn == "Y") {
 			$("#actionOdBtn").hide();
 		}
+	}
+	
+	// 창고 set
+	function setWareHouse(value){
+		$('#whCd').data("desc", value);
+		$('#whCd').empty();
+		setCommonSelect($('#whCd'));
 	}
 	
 	// 직송여부 변경

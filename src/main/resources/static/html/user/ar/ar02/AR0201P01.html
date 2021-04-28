@@ -36,14 +36,12 @@
 	            </table>
 	        </div>
 	    </div>
-		<!-- // 콘텐츠 -->
-
 		<!-- 콘텐츠 -->
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					할인할증: <input type="text" id="allAmt" style="text-align: right;" onkeyup="addComma(this);">
+					할인: <input type="text" id="allAmt" style="text-align: right;" onkeyup="addComma(this);">
 					<a onclick="setDcAmt('bilgUpr');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
 					<a onclick="setDcAmt('trstDcAmt');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
 				</div>
@@ -97,7 +95,7 @@
 // 		            	viewShipModal();
 		            },
 		            onDataChanged: function() {
-		            	var realTrstAmt = this.item.bilgQty * this.item.bilgUpr;
+		            	var realTrstAmt = Math.round(this.item.bilgQty * this.item.bilgUpr);
 		        		var bilgAmt = Number(this.item.realTrstAmt) - Number(this.item.trstDcAmt) + Number(this.item.transAmt) + Number(this.item.etcAmt);
 		        		if(realTrstAmt != this.item.realTrstAmt) {
 		        			this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
@@ -105,11 +103,10 @@
 		        		if(bilgAmt != this.item.bilgAmt) {
 		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
 		        			if(this.item.bilgVatAmt != 0) {
-		        				this.self.setValue(this.dindex, "bilgVatAmt", this.item.bilgAmt*0.1);
+		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt*0.1));
 		        				this.self.setValue(this.dindex, "totAmt", this.item.bilgVatAmt + this.item.bilgAmt);
 		        			}
 		        		}
-		        		
 		            }
 		        },
 		        columns: [
