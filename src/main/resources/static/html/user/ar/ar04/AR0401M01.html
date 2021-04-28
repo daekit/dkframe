@@ -289,7 +289,8 @@
 			          	{key: "taxMoa5388",     label: "총금액",   	     align: "right",   width: 95, formatter: "money", styleClass: function () {
                      return (this.item.taxMoa5388 < 0) ? "grid-font-red":"";}},
 			          	{key: "rcvProcId",      label: "국세청접수번호",     align: "left",    width: 120},
-			          	{key: "rffAea",         label: "전자세금계산서수정사유", align: "left",   width: 180},
+			          	{key: "rffAea",         label: "계산서수정사유",     align: "left",   width: 120},
+			          	{key: "orgnTaxBilgNo",  label: "원본계산서번호",     align: "left",   width: 150},
 			          	{key: "bgm4343",        label: "전송회차",   	     align: "center",  width: 80},
 			          	{key: "rffCno",         label: "영수/청구",   	     align: "center",  width: 80},
 			          	{key: "rffVa",          label: "부가세",           align: "center",  width: 80},
@@ -411,7 +412,7 @@
 				    ],
 					columns: [
 						{key: "coCd", hidden: true},
-			          	{key: "trstDt",     label: "출고일",   	align: "center",  width: 90},
+			          	{key: "trstDt",       label: "출고일",   	align: "center",  width: 90},
 			          	{key: "selpchNm",     label: "구분",   	align: "center",  width: 60},
 			          	{key: "prdtNm",       label: "품명",   	align: "left",    width: 125},
 			          	{key: "prdtStknNm",   label: "재질",   	align: "center",  width: 95},
@@ -419,12 +420,17 @@
 			          	{key: "makrNm",       label: "메이커",   	align: "left",    width: 115},
 			          	{key: "prdtLen",      label: "출고길이",  	align: "right",   width: 95, formatter: "money"},
 			          	{key: "prdtUnitNm",   label: "단위",   	align: "center",  width: 95},
-			          	{key: "realTrstWt",   label: "중량",   	align: "right",   width: 95, formatter: "money"},
-			          	{key: "bilgWt",       label: "청구중량",  	align: "right",   width: 95, formatter: "money"},
+			          	{key: "realTrstWt",   label: "중량",   	align: "right",   width: 95, formatter: "money", styleClass: function () {
+                     return (this.item.realTrstWt < 0) ? "grid-font-red":"";}},
+			          	{key: "bilgWt",       label: "청구중량",  	align: "right",   width: 95, formatter: "money", styleClass: function () {
+                     return (this.item.bilgWt < 0) ? "grid-font-red":"";}},
 			          	{key: "bilgUpr",      label: "단가",   	align: "right",   width: 95, formatter: "money"},
-			          	{key: "bilgAmt",      label: "공급 가액",  align: "right",   width: 95, formatter: "money"},
-			          	{key: "bilgVatAmt",   label: "부가세",   	align: "right",   width: 95, formatter: "money"},
-			          	{key: "realTrstQty",  label: "수량",   	align: "right",   width: 95, formatter: "money"},
+			          	{key: "bilgAmt",      label: "공급 가액",  align: "right",   width: 95, formatter: "money", styleClass: function () {
+                     return (this.item.bilgAmt < 0) ? "grid-font-red":"";}},
+			          	{key: "bilgVatAmt",   label: "부가세",   	align: "right",   width: 95, formatter: "money", styleClass: function () {
+                     return (this.item.bilgVatAmt < 0) ? "grid-font-red":"";}},
+			          	{key: "realTrstQty",  label: "수량",   	align: "right",   width: 95, formatter: "money", styleClass: function () {
+                     return (this.item.realTrstQty < 0) ? "grid-font-red":"";}},
 			          	{key: "trspRmk",      label: "비고",   	align: "left",   width: 95},
 			          	{key: "clntNm",       label: "수요가/북킹",	align: "left",   width: 125},
 			          	{key: "whNm",         label: "창고",   	align: "left",   width:115}
@@ -808,13 +814,20 @@
 			//gridView.target.select(obj.__index);
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 
+			//역발행 체크			
+			if(obj.taxBilgNo == "역발행"){
+				arrGnChk = false;
+				alert("역발행 확인된 세금계산서입니다 확인하세요!");
+				return false;
+			}
+
 			// 수정의 경우 rffgn1 : 01, rffAea : null 이 아닌 건만 가능
 			if(obj.orgnTaxBilgNo || obj.rcvYn != "Y"){
 				arrGnChk = false;
 				alert("수정발행처리된 세금계산서입니다 확인하세요!");
 				return false;
 			}
-			
+
 			//e-Mail 체크
 			if(!obj.taxRcvEmail){
 				emailChk = false;
