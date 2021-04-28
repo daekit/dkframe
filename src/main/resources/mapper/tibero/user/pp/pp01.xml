@@ -34,7 +34,7 @@
 					WORKS_CD,
 					(SELECT CODE_NM FROM GOLDMOON.TB_CM05M01 WHERE CODE_KIND = 'MESFTR' AND CODE_ETC = T.WORKS_CD) AS WORKS_NM,
 					FAC_CD,
-					ORD_NO,
+					ORD_NO AS MES_ORD_NO,
 					BARLIST_CD,
 					ORD_STATUS_CD,
 					ORD_COMP_CD,
@@ -75,5 +75,236 @@
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
+	
+	<select id="selectMesOrderDetail" resultType="CamelMap">
+	SELECT WORKS_CD
+		 , (SELECT CODE_NM FROM GOLDMOON.TB_CM05M01 WHERE CODE_KIND = 'MESFTR' AND CODE_ETC = T.WORKS_CD) AS WORKS_NM
+		 , FAC_CD
+		 , ORD_NO AS MES_ORD_NO
+		 , BARLIST_CD
+		 , ORD_STATUS_CD
+		 , ORD_COMP_CD
+		 , (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = T.WORKS_CD AND FAC_CD = T.FAC_CD AND CUST_TP != '1' AND CUST_CD = T.ORD_COMP_CD) AS ORD_COMP_NM
+		 , ORD_DD
+		 , CUST_CD
+		 , (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE CUST_TP = '1' AND WORKS_CD = T.WORKS_CD AND CUST_CD = T.CUST_CD) AS CUST_NM
+		 , CON_REGION
+		 , CON_SEQ
+		 , CON_ZONE
+		 , TOLRC_LOSS_RATE
+		 , CONT_FLAG
+		 , CONT_CD
+		 , CREATED_OBJECT_ID
+		 , CREATED_PROGRAM_ID
+		 , CREATION_TIMESTAMP
+		 , LAST_UPDATED_OBJECT_ID
+		 , LAST_UPDATE_PROGRAM_ID
+		 , LAST_UPDATE_TIMESTAMP
+		 , PART
+	  FROM KUMMUN.TB_MES_ORD_MST T
+	 WHERE WORKS_CD = #{worksCd}
+	   AND FAC_CD = #{facCd}
+	   AND ORD_NO = #{mesOrdNo}
+	   AND BARLIST_CD = #{barlistCd}
+	   AND ORD_STATUS_CD = #{ordStatusCd}	 
+	</select>
+	
+	<select id="selectOrderDetailList" resultType="CamelMap">
+	SELECT M.WORKS_CD
+		 , M.FAC_CD
+		 , M.ORD_NO AS MES_ORD_NO
+		 , M.ORD_LINE_NO AS MES_ORD_LINE_NO
+		 , M.ORD_TOT_WGT AS ODR_WT
+		 , M.ORD_TOT_PCS_CNT AS ODR_QTY
+		 , B.PRDT_CD
+		 , B.PRDT_NM
+		 , B.PRDT_DIV
+		 , B.PRDT_STKN
+		 , B.PRDT_ERQK_YN
+		 , B.PRDT_SIZE
+		 , B.PRDT_SPEC
+		 , B.PRDT_COIL_YN
+		 , B.PRDT_UNIT
+		 , B.PRDT_CNVRSN_WT
+		 , B.PRDT_WT
+		 , B.PRDT_UPR
+		 , B.PRDT_UPR ODR_UPR
+		 , M.ORD_TOT_PCS_CNT * B.PRDT_UPR AS ODR_AMT
+		 , B.PCHS_UPR
+		 , B.SELL_UPR
+		 , B.PRDT_DT
+		 , B.PRDT_DK_CD
+		 , B.PRDT_MES_CD
+		 , B.USE_YN
+		 , B.RMK
+		 , B.ETC_FIELD1
+		 , B.ETC_FIELD2
+		 , B.ETC_FIELD3
+		 , B.CREAT_ID
+		 , B.CREAT_PGM
+		 , B.CREAT_DTTM
+		 , B.UDT_ID
+		 , B.UPD_PGM
+		 , B.UDT_DTTM
+		 , B.PRDT_LEN
+		 , B.PRDT_STOCK_CD
+	  FROM KUMMUN.TB_MES_ORD_DTL M
+	  LEFT OUTER JOIN TB_BM01M01_MES E
+	    ON M.DIMS_CD = E.MES_DIMS_CD
+	    AND M.WORKS_CD = E.MES_FTR_CD 
+	  LEFT OUTER JOIN TB_BM01M01 B
+	    ON E.PRDT_CD = B.PRDT_CD 
+	 WHERE M.WORKS_CD = #{worksCd}
+	   AND M.FAC_CD = #{facCd}
+	   AND M.ORD_NO = #{mesOrdNo}
+	</select>
+	
+	<insert id="insertOrder">
+	<selectKey keyProperty="odrSeq" resultType="String" order="BEFORE">
+		SELECT TB_SD04M01_SQ01.NEXTVAL FROM DUAL
+	</selectKey>
+	INSERT INTO TB_SD04M01
+	(
+	CO_CD
+	, REQ_DT
+	, CLNT_CD
+	, ODR_SEQ
+	, PRJCT_CD
+	, WH_CD
+	, MNG_TEL
+	, DLVR_DTTM
+	, ADDR_ZIP
+	, ADDR_MAIN
+	, ADDR_SUB
+	, ODR_RMK
+	, DIRTRS_YN
+	, TOT_QTY
+	, TOT_WT
+	, TOT_AMT
+	, CREAT_ID
+	, CREAT_PGM
+	, CREAT_DTTM
+	) VALUES (
+	#{coCd}
+	, #{reqDt}
+	, #{clntCd}
+	, #{odrSeq}
+	, #{prjctCd}
+	, #{whCd}
+	, #{mngTel}
+	, #{dlvrDttm}
+	, #{addrZip}
+	, #{addrMain}
+	, #{addrSub}
+	, #{odrRmk}
+	, #{dirtrsYn}
+	, #{totQty}
+	, #{totWt}
+	, #{totAmt}
+	, #{userId}
+	, #{pgmId}
+	, SYSDATE
+	)
+	</insert>
+	
+	<insert id="insertMesOrder">
+	INSERT INTO TB_SD04M01_MES
+	(
+		CO_CD
+		, REQ_DT
+		, CLNT_CD
+		, ODR_SEQ
+		, MES_FTR_CD
+		, MES_ORD_NO
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+	)
+	VALUES
+	(
+		#{coCd}
+		, #{reqDt}
+		, #{clntCd}
+		, #{odrSeq}
+		, #{worksCd}
+		, #{mesOrdNo}
+		, #{userId}
+		, #{pgmId}
+		, sysdate
+	)
+	</insert>
+	
+	<insert id="insertOrderDetail">
+	<selectKey keyProperty="odrDtlSeq" resultType="String" order="BEFORE">
+		SELECT TB_SD04D01_SQ01.NEXTVAL FROM DUAL
+	</selectKey>
+	INSERT INTO TB_SD04D01
+	(
+		ODR_SEQ
+		, ODR_DTL_SEQ
+		, PRDT_CD
+		, PRDT_UNIT
+		, PRDT_LEN
+		, ODR_QTY
+		, ODR_WT
+		, ODR_UPR
+		, ODR_AMT
+		, PRDT_UPR
+		, ODR_DTL_RMK
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+		, PRDT_SIZE
+		, PRDT_SPEC
+	)
+	VALUES
+	(
+		#{odrSeq}
+		, #{odrDtlSeq}
+		, #{prdtCd}
+		, #{prdtUnit}
+		, #{prdtLen}
+		, #{odrQty}
+		, #{odrWt}
+		, #{odrUpr}
+		, #{odrAmt}
+		, #{prdtUpr}
+		, #{odrDtlRmk}
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+		, #{prdtSize}
+		, #{prdtSpec}
+	)
+	</insert>
+	
+	<insert id="insertMesOrderDetail">
+	INSERT INTO TB_SD04D01_MES
+	(
+		ODR_SEQ
+		, ODR_DTL_SEQ
+		, MES_FTR_CD
+		, MES_ORD_NO
+		, MES_ORD_LINE_NO
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+	)
+	VALUES
+	(
+		#{odrSeq}
+		, #{odrDtlSeq}
+		, #{worksCd}
+		, #{mesOrdNo}
+		, #{mesOrdLineNo}
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+	)
+	</insert>
+	
+	<update id="callPL_SD04_MES">
+	CALL PL_SD04_MES()
+	</update>
 	
 </mapper>
