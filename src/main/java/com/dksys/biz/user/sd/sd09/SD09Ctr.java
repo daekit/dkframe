@@ -82,4 +82,19 @@ public class SD09Ctr {
     	}
     	return "jsonView";
     }
+  
+    
+    @PutMapping(value = "/updateSiteYn")
+    public String updateSiteYn(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	try {
+    		sd09Svc.updateSiteYn(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+    
 }
