@@ -235,6 +235,7 @@ th {
 			            },
 			        },
 			        columns: [ 
+			        	{key: "coCd",    	 	label: "회사",		align: "left", 		width: 140, hidden:true},
 			        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 140},
 			          	{key: "taxivcCoprtNm",	label: "매입법인", 	align: "left", 		width: 130},
 			          	{key: "siteNm",         label: "현장명",		align: "left",		width: 180},
@@ -261,21 +262,22 @@ th {
 			}, 
 			setData: function(_pageNo) {
 				mainGrid = this.target;
+				setWareHouse("ESTCOPRT",$("#coCd_S").val());
 				var formData = {
-					"selpchCd" : "SELPCH1",
+					"selpchCd"  : "SELPCH1",
 					"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-					"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
-					"coCd" : $("#coCd_S").val(),
-					"clntNm" : $("#clntNm_S").val(),
-					"prdtDiv" : $("#prdtDiv_S").val(),
-					"estCoprt" : $("#estCoprt_S").val(),
-					"dirtrsYn" : $("#dirtrsYn_S").val(),
-					"typCd" : $("#typCd_S").val(),
-					"siteCd" : $("#siteCd_S").val(),
-					"siteNm" : $("#siteNm_S").val(),
-					"pdsk" : $("#pdsk_S").val(),
-					"bilgYn" : $("#bilgYn_S").val(),
-					"pageNo" : _pageNo + 1, 
+					"reqDtTo"   : $("#reqDtTo").val().replace(/\-/g,''),
+					"coCd"      : $("#coCd_S").val(),
+					"clntNm"    : $("#clntNm_S").val(),
+					"prdtDiv"   : $("#prdtDiv_S").val(),
+					"estCoprt"  : $("#estCoprt_S").val(),
+					"dirtrsYn"  : $("#dirtrsYn_S").val(),
+					"typCd"     : $("#typCd_S").val(),
+					"siteCd"    : $("#siteCd_S").val(),
+					"siteNm"    : $("#siteNm_S").val(),
+					"pdsk"      : $("#pdsk_S").val(),
+					"bilgYn"    : $("#bilgYn_S").val(),
+					"pageNo"    : _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val()
 				}
 				postAjax("/user/ar/ar02/selectSellMainList", formData, null, function(data){
@@ -502,6 +504,9 @@ th {
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
 		$("#coCd_S").val(jwt.coCd);
+		
+		setWareHouse("ESTCOPRT",jwt.coCd);
+		
 		$("#reqDtFrom").val(getMonth("S"));
 		$("#reqDtTo").val(getMonth("E"));
 	}
@@ -756,4 +761,21 @@ th {
 			$("#pdsk_S").html(optionHtml);
 		})
  	}
+	
+	// 코드 set
+	function setWareHouse(type,value){
+	  if(type == "WH"){
+
+			$('#whCd_S').data("desc", value);
+			$('#whCd_S option:not([value=""])').remove()
+			setCommonSelect($('#whCd_S'));  
+	  }else{  //ESTCOPRT
+
+			$('#estCoprt_S').data("rprc", value);
+			$('#estCoprt_S option:not([value=""])').remove()
+			setCommonSelect($('#estCoprt_S'));  
+	  }
+	}
+	
+	
 </script>
