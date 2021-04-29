@@ -383,17 +383,21 @@
 	
 	function selectShipInfo() {
 		var row = null;
+		var shipSeq = null;
 		if(openFrom == "SD0502P01"){
 			row = AR01GridView.target.getList("selected")[0];
+			shipSeq = row.shipSeq
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = shipGridView.target.getList("selected")[0];
+			shipSeq = row.shipSeq
 		}else if(openFrom == "CM1001M01"){
 			row = shipGridView.target.getList()[selectedRowIdx];
+			shipSeq = row.shipSeq
 		}else{
-			row = gridView.target.getList()[selectedRowIdx];
+			shipSeq = commonModal.paramObj.shipSeq;
 		}
 		var formData = {
-			"shipSeq" : row.shipSeq
+			"shipSeq": shipSeq
 		}
 		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
 			setShipInfo(data.result);
