@@ -134,7 +134,9 @@ public class AR04SvcImpl implements AR04Svc {
 		// 세금계산서관리 상세 delete
 		ar04Mapper.deleteTaxBilgDetail(paramMap);
 		// 세금계산서관리 상세 insert
+		System.out.println(paramMap.get("detailArr"));
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		System.out.println(detailList);
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("bilgCertNo", paramMap.get("bilgCertNo"));
 			detailMap.put("userId", paramMap.get("userId"));

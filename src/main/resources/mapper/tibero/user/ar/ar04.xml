@@ -254,8 +254,8 @@
 			<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
 			   AND A.SELL_DT BETWEEN REPLACE(#{startDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
 			</if>
-			<if test="clntCd != null and !clntCd.equals('')">
-			   AND A.CLNT_CD = #{clntCd}
+		 	<if test="clntNm != null and !clntNm.equals('')">
+				AND CLNT_NM LIKE '%${clntNm}%'
 			</if>
 			<if test="selpchCd != null and !selpchCd.equals('')">
 			   AND A.SELPCH_CD = #{selpchCd}
@@ -271,6 +271,15 @@
 			</if>
 			<if test="accSlipYn != null and !accSlipYn.equals('')">
 			   AND A.ACC_SLIP_YN = #{accSlipYn}
+			</if>
+			<if test="sndYn != null and !sndYn.equals('')">
+			   AND NVL(A.SND_YN, 'N') = #{sndYn}
+			</if>
+			<if test="rcvYn != null and !rcvYn.equals('')">
+			   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
+			</if>
+			<if test="taxCreatNm != null and !taxCreatNm.equals('')">
+			   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
 			</if>
 		   </where>
 	</select>
@@ -387,6 +396,9 @@
 						<if test="clntCd != null and !clntCd.equals('')">
 						   AND A.CLNT_CD = #{clntCd}
 						</if>
+					 	<if test="clntNm != null and !clntNm.equals('')">
+							AND CLNT_NM LIKE '%${clntNm}%'
+						</if>
 						<if test="selpchCd != null and !selpchCd.equals('')">
 						   AND A.SELPCH_CD = #{selpchCd}
 						</if>
@@ -402,6 +414,15 @@
 						<if test="accSlipYn != null and !accSlipYn.equals('')">
 						   AND A.ACC_SLIP_YN = #{accSlipYn}
 						</if>
+						<if test="sndYn != null and !sndYn.equals('')">
+						   AND NVL(A.SND_YN, 'N') = #{sndYn}
+						</if>
+						<if test="rcvYn != null and !rcvYn.equals('')">
+						   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
+						</if>
+						<if test="taxCreatNm != null and !taxCreatNm.equals('')">
+						   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
+						</if>
 					   </where>
 				 ORDER BY SELL_DT DESC, ORGN_TAX_BILG_NO, TAX_BILG_NO,  BILG_CERT_NO DESC
 			) A
@@ -409,7 +430,7 @@
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
-	
+
 	<select id="selectTaxBilg" resultType="CamelMap">
 	SELECT A.BILG_CERT_NO,
 		A.CO_CD,
@@ -1382,11 +1403,11 @@
 		, TAX_MOA5_308 * -1
 		, TAX_MOA5_9 * -1
 		, TRST_QTY * -1
-		, TRST_WT
+		, TRST_WT * -1
 		, TRST_UPR
 		, TRST_AMT * -1
 		, REAL_TRST_QTY * -1
-		, REAL_TRST_WT
+		, REAL_TRST_WT * -1
 		, REAL_TRST_UPR
 		, REAL_TRST_AMT * -1
 		, BILG_QTY * -1
@@ -1433,7 +1454,6 @@
 	<update id="updateOrgnTaxBilgNo" parameterType="Map">
 	UPDATE TB_AR04M01
 	   SET ORGN_TAX_BILG_NO = TAX_BILG_NO
-	     , RFF_AEA = #{rffAea}
 	     , RFF_GN1 = #{rffGn1}
 	 WHERE BILG_CERT_NO = #{beforeBilgCertNo} 
 	</update>
@@ -1484,11 +1504,12 @@
 	
 	<update id="updateTrstInfo" parameterType="Map">
 	UPDATE TB_AR02M01
-	   SET BILG_QTY = BILG_QTY * -1
-	     , BILG_AMT = BILG_AMT * -1
-	     , BILG_CERT_NO = #{bilgCertNo}
+	   SET BILG_CERT_NO = NULL
 	     , ORGN_TAX_BILG_NO = #{orgnTaxBilgNo}
 	     , RFF_AEA = #{rffAea}
+	     , UDT_ID = #{userId}
+	     , UDT_PGM = #{pgmId}
+	     , UDT_DTTM = SYSDATE
 	WHERE BILG_CERT_NO = #{beforeBilgCertNo}
 	</update>
 	

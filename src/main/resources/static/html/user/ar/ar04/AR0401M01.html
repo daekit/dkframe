@@ -74,10 +74,10 @@
 						</td>
 						<th>거래처</th>
 		                <td>
-		                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
+		                  <input type="hidden" id="clntCd">
 		                  <div class="search_form" style="width: 50%;">
-			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" disabled> <!--  onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> -->
-			              	<a onclick="clntSearch('L');"><i class="i_search_w"></i></a>
+			                <input type="text" id="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+			              	<a onclick="clntSearch('S');"><i class="i_search_w"></i></a>
 			              </div>
 		                </td>
 					</tr>
@@ -92,29 +92,27 @@
 						<td>
 							<input type="text" id="taxBilgNo" data-search="taxBilgNo"> 
 						</td>
-						<th>계산서승인 여부</th>
+						<th>접수여부</th>
 						<td>
-							<select data-search="taxAdmsYn">
+							<select data-search="rcvYn">
 								<option value="">전체</option>
-								<option value="N">N</option>
-								<option value="Y">Y</option>
+								<option value="N" selected>미접수</option>
+								<option value="Y">접수완료</option>
 							</select>
 						</td>
 					</tr>
 					<tr>
-						<th>송수신구분</th>
+						<th>전송구분</th>
 						<td>
-							<select data-kind="SR" data-search="xmlFlow">
+							<select data-search="sndYn">
 								<option value="">전체</option>
+								<option value="N" selected>미전송</option>
+								<option value="Y">전송</option>
 							</select>
 						</td>
-						<th>회계반영 여부</th>
+						<th>작성자명</th>
 						<td>
-							<select data-search="accSlipYn">
-							<option value="">전체</option>
-							<option value="N">N</option>
-							<option value="Y">Y</option>
-							</select>
+							<input type="text" id="taxCreatNm" data-search="taxCreatNm"> 
 						</td>
 						<th></th>
 						<td></td>
@@ -354,7 +352,10 @@
 								totalPages : data.paginationInfo.totalPageCount
 							}
 						});
-						gridDetailView.setData(0, 0);
+						console.log(gridView.target.list.length);
+						if(gridView.target.list.length > 0 ){
+							gridDetailView.setData(0, 0);
+						}
 					});
 				}
 			}
@@ -799,9 +800,14 @@
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 
 			// 수정의 경우 rffgn1 : 01, rffAea : null 이 아닌 건만 가능
-			if(obj.orgnTaxBilgNo || obj.rcvYn != "Y"){
+			if(obj.orgnTaxBilgNo){
 				arrGnChk = false;
 				alert("수정발행처리된 세금계산서입니다 확인하세요!");
+				return false;
+			}
+			if(obj.rcvYn != "Y"){
+				arrGnChk = false;
+				alert("전송 대기 중인 세금계산서입니다 확인하세요!");
 				return false;
 			}
 			
