@@ -29,6 +29,7 @@ IS
 	I_PRDT_SIZE       VARCHAR(30) := NULL;   -- SIZE
 	I_PCHS_UPR        NUMBER(15,2) := 0 ;   -- 최종 매입단가
 	I_SELL_UPR        NUMBER(15,2) := 0 ;   -- 최종 매출단가
+	C_SELL_UPR        NUMBER(15,2) := 0 ;   -- 커플러 매출단가
  
 BEGIN
    BEGIN
@@ -50,22 +51,21 @@ BEGIN
    END;
    /* 커플러일 경우 거래처별 단가를 조회한다. */
    IF (I_PRDT_DIV = 'PRDTDIV22' AND I_CLNT_CD IS NOT NULL) THEN 
-      BEGIN
-         SELECT PRDT_UPR INTO P_PRDT_UPR
-         FROM   TB_SD08M01
-         WHERE  CLNT_CD = I_CLNT_CD
-           AND  PRDT_CD = I_PRDT_CD
-           AND  PRDT_DT = (SELECT MAX(PRDT_DT) FROM TB_SD08M01
-                           WHERE  CLNT_CD    = I_CLNT_CD
-                             AND  PRDT_DT    <= I_PRDT_DT 
-                             AND  PRDT_CD    = I_PRDT_CD
-		                     AND  SELPCH_CD  = I_SELPCH_CD  )
-		   AND  SELPCH_CD  = I_SELPCH_CD ;
-          EXCEPTION WHEN OTHERS THEN P_PRDT_UPR := 0;
-           
-      END;
-      
-   ELSE 
+	      BEGIN
+	         SELECT PRDT_UPR INTO C_SELL_UPR
+	         FROM   TB_SD08M01
+	         WHERE  CLNT_CD = I_CLNT_CD
+	           AND  PRDT_CD = I_PRDT_CD
+	           AND  PRDT_DT = (SELECT MAX(PRDT_DT) FROM TB_SD08M01
+	                           WHERE  CLNT_CD    = I_CLNT_CD
+	                             AND  PRDT_DT    <= I_PRDT_DT 
+	                             AND  PRDT_CD    = I_PRDT_CD
+			                     AND  SELPCH_CD  = I_SELPCH_CD  )
+			   AND  SELPCH_CD  = I_SELPCH_CD ;
+	          EXCEPTION WHEN OTHERS THEN C_SELL_UPR := 0;
+	      END;
+	END IF;       
+   
 /* 매입,매출구분이 없어지고, 매입,매출항목을 추가함 추후 관리 방법이 다를경우 재활용 할 것  I_SELPCH_CD = 1(매입) */
 	    BEGIN
 		    SELECT PRDT_UPR,SELL_UPR,BASIS_PRICE_SEQ INTO P_PRDT_UPR,P_SELL_UPR,P_BASIS_PRICE_SEQ
@@ -96,7 +96,10 @@ BEGIN
 		    EXCEPTION WHEN OTHERS THEN P_SC_AMT_SIZE := 0;
 	        END;
 	    END IF;	    
-	END IF;       
+    
+	IF (I_PRDT_DIV = 'PRDTDIV22' AND C_SELL_UPR != 0) THEN
+		P_SELL_UPR := C_SELL_UPR;
+	END IF;
     
     SELECT NVL(P_PRDT_UPR,0) + NVL(P_SC_AMT_STKN,0) + NVL(P_SC_AMT_SIZE,0),
            NVL(P_SELL_UPR,0) + NVL(P_SC_AMT_STKN,0) + NVL(P_SC_AMT_SIZE,0)
@@ -108,12 +111,31 @@ BEGIN
     END IF;
     
     
-  /* 가격표에 단가가 없는 경우 자재 Master에 있는 최근 매입/매출단가를 활용한다.커플러 제외 */
-   IF(O_PRDT_UPR = 0  AND I_PRDT_DIV != 'PRDTDIV22') THEN
+  /* 가격표에 단가가 없는 경우 자재 Master에 있는 최근 매입/매출단가를 활용한다. */
+   IF(O_PRDT_UPR = 0) THEN
        IF (I_SELPCH_CD = 'SELPCH1') THEN O_PRDT_UPR := I_PCHS_UPR;  -- 매입단가
                                     ELSE O_PRDT_UPR := I_SELL_UPR;  -- 매출단가
        END IF;
     END IF;   
+  
+  /* 가격표에 단가가 없는 경우 자재 Master에 있는 최근 매입/매출단가를 활용한다. */
+	IF(O_PRDT_UPR = 0) THEN
+	    BEGIN
+		    SELECT 
+		           decode(PCHS_UPR,0,PRDT_UPR,PCHS_UPR) PCHS_UPR,
+		           decode(SELL_UPR,0,PRDT_UPR,SELL_UPR) SELL_UPR
+		         INTO P_PRDT_UPR, P_SELL_UPR
+		     FROM TB_BM01M01 
+		    WHERE  PRDT_CD       = I_PRDT_CD;
+	    EXCEPTION WHEN OTHERS THEN P_PRDT_UPR := 0;
+							       P_SELL_UPR := 0;
+	    END;       
+
+       IF (I_SELPCH_CD = 'SELPCH1') THEN O_PRDT_UPR := P_PRDT_UPR;  -- 매입단가
+                                    ELSE O_PRDT_UPR := P_SELL_UPR;  -- 매출단가
+       END IF;
+
+	END IF;   
   
 
     RETURN O_PRDT_UPR;
