@@ -132,4 +132,9 @@ public class BM02SvcImpl implements BM02Svc {
 	public Map<String, String> selectMngInfo(Map<String, String> paramMap) {
 		return bm02Mapper.selectMngInfo(paramMap);
 	}
+
+	@Override
+	public Map<String, String> selectCrnDupChk(Map<String, String> paramMap) {
+		return bm02Mapper.selectCrnDupChk(paramMap);
+	}
 }

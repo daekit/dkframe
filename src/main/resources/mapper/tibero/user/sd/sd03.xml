@@ -19,7 +19,7 @@
 			 	AND A.CO_CD = #{coCd}
 			</if>
 			<if test= "prdtDiv != null and !prdtDiv.equals('')">
-			 	AND B.PRDT_DIV = #{prdtDiv}
+				AND A.EST_NO IN (SELECT EST_NO FROM TB_SD03D01 WHERE PRDT_DIV=  #{prdtDiv})
 			</if>
 			<if test="strtDt != null and !strtDt.equals('')">
 				AND EST_DT BETWEEN #{strtDt} AND #{endDt}		
@@ -59,7 +59,9 @@
 					SUM(B.EST_QTY) as EST_QTY,
 					SUM(B.EST_AMT) as EST_AMT,
 					A.SALES_EMP_ID,
-					A.CREAT_PGM
+					A.CREAT_PGM,
+					A.WINBD_YN,
+					nvl2(A.WINBD_DT,TO_CHAR(TO_DATE(A.WINBD_DT, 'YYYYMMDD'),'YYYY-MM-DD'),'') AS WINBD_DT
 				FROM 
 					TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
 				WHERE 
@@ -70,7 +72,7 @@
 				 	AND A.CO_CD = #{coCd}
 				</if>
 				<if test= "prdtDiv != null and !prdtDiv.equals('')">
-				 	AND B.PRDT_DIV = #{prdtDiv}
+				 	AND A.EST_NO IN (SELECT EST_NO FROM TB_SD03D01 WHERE PRDT_DIV=  #{prdtDiv})
 				</if>
 				<if test="strtDt != null and !strtDt.equals('')">
 					AND EST_DT BETWEEN #{strtDt} AND #{endDt}		
@@ -78,7 +80,7 @@
 				<if test= "searchValue != null and !searchValue.equals('') and searchName != null and !searchName.equals('')">
 				 	AND ${searchValue} LIKE '%${searchName}%'
 				</if>
-				GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
+				GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM, A.WINBD_YN, WINBD_DT
 				ORDER BY EST_DT DESC, EST_NO DESC
 			)T
 		)
@@ -107,7 +109,9 @@
 			MNG_EMAIL,
 			PRJCT_NM,
 			EST_DT,
-			RMK
+			RMK,
+			T.WINBD_YN,
+			nvl2(T.WINBD_DT,TO_CHAR(TO_DATE(T.WINBD_DT, 'YYYYMMDD'),'YYYY-MM-DD'),'') AS WINBD_DT
 		FROM 
 			TB_SD03M01 T
 		WHERE 
@@ -168,7 +172,9 @@
 			CREAT_DTTM,
 			UDT_ID,
 			UDT_PGM,
-			UDT_DTTM
+			UDT_DTTM,
+			WINBD_YN,
+			WINBD_DT
 		)VALUES(
 			#{estNo},
 			#{coCd},
@@ -188,7 +194,9 @@
 			SYSDATE,
 			#{userId},
 			#{pgmId},
-			SYSDATE
+			SYSDATE,
+			#{winbdYn},
+			#{winbdDt}
 		)
 	</insert>
 	
@@ -215,7 +223,7 @@
 			CREAT_DTTM,
 			UDT_ID,
 			UDT_PGM,
-			UDT_DTTM
+			UDT_DTTM			
 		)VALUES(
 			#{estNo},
 			#{estPrdtSeq},
@@ -257,7 +265,9 @@
 			RMK = #{rmk},
 			UDT_ID = #{userId},
 			UDT_PGM = #{pgmId},
-			UDT_DTTM = SYSDATE
+			UDT_DTTM = SYSDATE,
+			WINBD_YN = #{winbdYn},
+			WINBD_DT = #{winbdDt}					
 		WHERE
 			EST_NO = #{estNo}
 	</update>

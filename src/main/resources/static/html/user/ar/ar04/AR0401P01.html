@@ -202,8 +202,9 @@
 					<th class="tc">세액</th>
 					<th class="tc">비고</th>
 				</tr>
-				<tr class="detailRow">
-					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"></td>
+				<tr class="detailRow" name="detailRow">
+					
+					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"><input type="hidden" id="ard113a" name="ard113a"></td>
 					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left" maxLength="50"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center" maxLength="25"></td>
@@ -214,8 +215,8 @@
 					<td><input type="text" id="moa10124" name="moa10124" style="text-align:right" comma onkeyup="addComma(this);" maxLength="13"></td>
 					<td><input type="text" id="dms1000" name="dms1000" style="text-align:left" maxLength="50"></td>
 				</tr>
-				<tr class="detailRow">
-					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"></td>
+				<tr class="detailRow" name="detailRow">
+					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"><input type="hidden" id="ard113a" name="ard113a"></td>
 					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left" maxLength="50"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center" maxLength="25"></td>
@@ -226,8 +227,8 @@
 					<td><input type="text" id="moa10124" name="moa10124" style="text-align:right" comma onkeyup="addComma(this);" maxLength="13"></td>
 					<td><input type="text" id="dms1000" name="dms1000" style="text-align:left" maxLength="50"></td>
 				</tr>
-				<tr class="detailRow">
-					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"></td>
+				<tr class="detailRow" name="detailRow">
+					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"><input type="hidden" id="ard113a" name="ard113a"></td>
 					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left" maxLength="50"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center" maxLength="25"></td>
@@ -238,8 +239,8 @@
 					<td><input type="text" id="moa10124" name="moa10124" style="text-align:right" comma onkeyup="addComma(this);" maxLength="13"></td>
 					<td><input type="text" id="dms1000" name="dms1000" style="text-align:left" maxLength="50"></td>
 				</tr>
-				<tr class="detailRow">
-					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"></td>
+				<tr class="detailRow" name="detailRow">
+					<td><input type="text" id="bilgCertNoSeq" name="bilgCertNoSeq" style="text-align:center" comma onkeyup="addComma(this);"><input type="hidden" id="ard113a" name="ard113a"></td>
 					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
 					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left" maxLength="50"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center" maxLength="25"></td>
@@ -370,6 +371,19 @@
 		} else {
 			$("#popForm #rffAea").attr("disabled", "disabled");
 		}
+		
+		if(obj.sndYn == "Y"){
+			$("#popForm input").prop("disabled", true);
+			$("#popForm select").prop("disabled", true);
+			$("#popForm #btnClnt").removeAttr("onclick");
+			$("#popForm #taxRcvNm").prop("disabled", false);
+			$("#popForm #taxRcvEmail").prop("disabled", false);
+			$("#popForm #taxRcvEmail2").prop("disabled", false);
+			$("#popForm #taxRcvFax").prop("disabled", false);
+			$("#popForm #taxRcvTel").prop("disabled", false);
+			$("#popForm #taxMoblphon").prop("disabled", false);
+			$("#popForm #rffAea").prop("disabled", false);
+		}
 	}
 	
 	function setTaxBilgDetailInfo(obj){
@@ -390,10 +404,28 @@
 			alert("수신담당자는 정보는 필수입니다.");
 			return;
 		}
+		var moa1023Sum = 0;
+		var moa10124Sum = 0;
+		$.each($('#detailTb tr[name="detailRow"]'), function(idx, elem) {
+			console.log($(elem).find("input[name='moa1023']").val());
+			moa1023Sum += Number(deleteCommaStr($(elem).find("input[name='moa1023']").val()));
+			moa10124Sum += Number(deleteCommaStr($(elem).find("input[name='moa10124']").val()));
+			
+		});
 
+		if(Number(deleteCommaStr($("#taxMoa523").val())) != moa1023Sum){
+			alert("공급가액 합계가 상세 내역과 불일치 합니다.");
+			return false;
+		}
+		
+		if(Number(deleteCommaStr($("#taxMoa5124").val())) != moa10124Sum){
+			alert("공급세액 합계가 상세 내역과 불일치 합니다.");
+			return false;
+		}
 		if(inputValidation($('[required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/ar/ar04/updateTaxBilg", formData, function(data){
+				console.log(data);
 				alert(data.resultMessage);    
 				if(data.resultCode == "200"){
 					gridView.setData(0);
@@ -404,7 +436,7 @@
 		
 	}
 
-	// 제품 조회
+	// 수신담당자검색
 	function rcvNmSearch() {
 		/* if($("#popForm #coCd").val() == ""){
 			
