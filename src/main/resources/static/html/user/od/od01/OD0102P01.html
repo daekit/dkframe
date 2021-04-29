@@ -22,7 +22,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setCodeSelectByCocd(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -439,7 +439,7 @@
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setWareHouse($('#coCd').val());
+			setCodeSelectByCocd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$("#dirtrsYn").val("Y"); 
@@ -500,9 +500,9 @@
 					$('#'+key).val(value);
 				}
 				
-				// 창고 set
+				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setWareHouse(value);
+					setCodeSelectByCocd(value);  
 				}
 				
 				// 제조사 set
@@ -569,10 +569,16 @@
 	}
 	
 	// 창고 set
-	function setWareHouse(value){
+	function setCodeSelectByCocd(value){
 		$('#whCd').data("desc", value);
-		$('#whCd').empty();
+		$('#whCd option:not([value=""])').remove()
 		setCommonSelect($('#whCd'));
+		
+  // 창고와 판매법인은 같이 바귐.		
+
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
 	}
 	
 	// 직송여부 변경
