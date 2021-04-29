@@ -67,7 +67,7 @@
 						</td>
 						<th class="hit">기준년월</th>
 						<td>
-							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;">
+							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;line-height: 20px !important;">
 						</td>
 						<th>제품구분</th>
 						<td>
@@ -255,6 +255,7 @@
 			return this;
 		},
 		setData : function(_pageNo) {
+			setWareHouse($('[data-search="coCd"]').val());
 			var targetObj = this.target;
 			var paramObj = {"pageNo" : _pageNo + 1};
 			for(var i=0;i<$('[data-search]').length;i++){
@@ -337,7 +338,8 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
-
+		setWareHouse(jwt.coCd);
+		
 		// 기준년월
 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		
@@ -360,6 +362,7 @@
 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
+		setWareHouse(jwt.coCd);
 		
 		// 재검색
 		gridView.setData(0);
@@ -433,4 +436,15 @@
 				excelView.target.exportExcel("제품수불관리_"+todayDate+".xls");
 			});	
 	}	
+	
+	
+	// 창고 set
+	function setWareHouse(value){
+
+		$('[data-search="whCd"]').data("desc", value);
+		$('[data-search="whCd"] option:not([value=""])').remove()
+		setCommonSelect($('[data-search="whCd"]'));
+	}
+	
+	
 </script>

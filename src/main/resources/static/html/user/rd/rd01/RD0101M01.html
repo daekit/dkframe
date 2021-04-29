@@ -59,8 +59,8 @@
 				<tr>
 					<th>회사</th>
 					<td>
-						<select data-kind="CO" data-search="coCd">
-							<option value="">전체</option>
+						<select data-kind="CO" data-search="coCd" >
+<!-- 							<option value="">전체</option> -->
 						</select>
 					</td>
 					<th>발주일자</th>
@@ -76,9 +76,9 @@
 						<select data-kind="WH" data-search="whCd">
 							<option value="">전체</option>
 						</select>
-						<span class="fr">
-							<a class="more_btn on"></a>
-						</span>
+<!-- 						<span class="fr"> -->
+<!-- 							<a class="more_btn on"></a> -->
+<!-- 						</span> -->
 					</td>
 				</tr>
 			</table>
@@ -253,6 +253,9 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
+
+			setWareHouse($('[data-search="coCd"]').val());
+			
 			var paramObj = {"pageNo" : _pageNo + 1, "recordCnt": 10};
 			for(var i=0;i<$('[data-search]').length;i++){
 				var tempElem = $('[data-search]')[i];
@@ -363,7 +366,8 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
-
+		setWareHouse(jwt.coCd);
+		
 		// 시작일 (시작일 기준 -3개월)
 		$('#reqDtFrom').datepicker({
 			format : "yyyy-mm-dd",
@@ -385,6 +389,7 @@
 			autoclose : true
 		})
 		.datepicker("setDate", new Date())
+		
 		.on("changeDate", function(){
 			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
 				alert("날짜를 확인해주세요");
@@ -401,6 +406,8 @@
 		// 검색조건 이벤트 bind
 		$('select[data-search]').on("change", function(){
 			inRsltsGridView.setData(0);
+			inRsltsGridView.target.select(0);
+			inRsltsDtlGridView.initView().setData(0);
 		});
 
 		// grid init
@@ -413,6 +420,10 @@
 	function initSearch() {
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
+
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		setWareHouse(jwt.coCd);
 		
 		// 기간
 		$('#reqDtFrom').datepicker("setDate", moment(new Date()).subtract(3, "month").toDate());
@@ -420,6 +431,8 @@
 
 		// 재검색
 		inRsltsGridView.setData(0);
+		inRsltsGridView.target.select(0);
+		inRsltsDtlGridView.initView().setData(0);
 	}
 	
 	// 프로젝트 검색
@@ -462,5 +475,14 @@
 	function openPrdtInOut(){
 		if(selectGridValidation(inRsltsGridView.target)) return false;
 		openModal("/static/html/user/rd/rd01/RD0102P01.html", 1000, 650, "");
+	}
+	
+	
+	// 창고 set
+	function setWareHouse(value){
+		debugger;
+		$('[data-search="whCd"]').data("desc", value);
+		$('[data-search="whCd"] option:not([value=""])').remove()
+		setCommonSelect($('[data-search="whCd"]'));
 	}
 </script>

@@ -22,4 +22,6 @@ public interface SD09Mapper {
 	
 	int deleteSite(Map<String, String> paramMap);
 
+	int updateSiteYn(Map<String, String> paramMap);
+
 }

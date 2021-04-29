@@ -61,7 +61,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd"  required="required" msg="회사" id="coCd">
+							<select data-kind="CO" data-search="coCd"  required="required" msg="회사" id="coCd" onchange="gridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -81,13 +81,13 @@
 					<tr>
 						<th>판매지역</th>
 						<td>
-							<select data-kind="SALESAREA" data-search="salesAreaCd" id="salesAreaCd" name="salesAreaCd">
+							<select data-kind="SALESAREA" data-search="salesAreaCd" id="salesAreaCd" name="salesAreaCd" onchange="gridView.setData(0);">
 	                			<option value="">전체</option>
 	              			</select> 
 						</td>
 						<th>사용여부</th>
 						<td>
-							<select data-kind="YN" data-search="useYn">
+							<select data-kind="YN" data-search="useYn" onchange="gridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -100,6 +100,8 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
+					<a onclick="updateSiteYn('N');" style="font-size:100%; width:70px; height: 30px; line-height: 28px;">종료</a>
+					<a onclick="updateSiteYn('Y');" style="font-size:100%; width:70px; height: 30px; line-height: 28px;">취소</a>
 	                <a onclick="viewSiteModal('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deleteSite();" style="height: 30px; line-height: 28px;">-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -130,8 +132,8 @@
 		initView : function() {
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
-				showRowSelector : false,
-				multipleSelect : false,
+				showRowSelector : true,
+				multipleSelect : true,
 				sortable : true,
 				target : $('[data-ax5grid="first-grid"]'),
 				header : {
@@ -233,6 +235,9 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
+		
+		// 사용여부 set
+		$('[data-search="useYn"]').val("Y");
 
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
@@ -254,6 +259,9 @@
 		// 거래처 초기화
 		$('[data-search="clntCd"]').val("");
 		$('#clntNm').val("");
+
+		// 사용여부 set
+		$('[data-search="useYn"]').val("Y");
 		
 		// 재검색
 		gridView.setData(0);
@@ -308,4 +316,34 @@
 				excelView.target.exportExcel("현장목록_"+todayDate+".xls");
 			});	
 	}	
+	
+	function updateSiteYn(yn) {
+		var rowList = gridView.target.getList("selected");
+		if(rowList.length == 0) {
+			alert("종료 건을 선택해주세요");
+			return;
+		}
+		var detailArr = [];
+		
+		$.each(rowList, function(idx, elem){
+			var detailObj = {};
+			detailObj["coCd"]   = elem.coCd;
+			detailObj["siteCd"] = elem.siteCd;
+			detailObj["useYn"]  = yn;
+			detailObj["pgmId"]  = "SD0901M01";
+			detailObj["userId"] = jwt.userId;
+			detailArr.push(detailObj);
+		});
+		
+		var formData = {
+			"detailArr" : detailArr
+		}
+		
+		putAjax("/user/sd/sd09/updateSiteYn", formData, null, function(data){
+			if(data.resultCode == 200){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			}
+		});
+	}
 </script>

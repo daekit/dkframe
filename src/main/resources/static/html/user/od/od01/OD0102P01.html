@@ -22,7 +22,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setCodeSelectByCocd(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -194,10 +194,10 @@
 			</tr>
 		</table>
 		<div class="ofx_s" style="width: 100%;">
-			<table id="detailTable" style="width: 1600px;">
+			<table id="detailTable" style="width: 1700px;">
 				<colgroup>
 					<col width="2%">
-					<col width="15%"> <!-- 제품명 -->
+					<col width="12%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
 					<col width="5%">  <!-- 길이 -->
@@ -210,7 +210,7 @@
 					<col width="7%">  <!-- 매출 금액-->
 					<col width="7%">  <!-- 발주지시 손익-->
 					<col width="7%">  <!-- 완료일자 -->
-					<col width="18%"> <!-- 비고 -->
+					<col width="14%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
 					<th class="tc" style="padding: 3px;"> 
@@ -222,7 +222,7 @@
 					<th class="tc">길이</th>
 					<th class="tc">단위</th>
 					<th class="tc hit">수량</th>
-					<th class="tc hit">중량</th>
+					<th class="tc hit">중량(KG)</th>
 					<th class="tc">발주단가</th>
 					<th class="tc">매출단가</th>
 					<th class="tc">발주금액</th>
@@ -311,10 +311,10 @@
 					</td>
 				</tr>
 			</table>
-			<table style="width: 1600px;">
+			<table style="width: 1700px;">
 				<colgroup>
 					<col width="2%">
-					<col width="15%"> <!-- 제품명 -->
+					<col width="12%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
 					<col width="5%">  <!-- 길이 -->
@@ -327,7 +327,7 @@
 					<col width="7%">  <!-- 매출 금액-->
 					<col width="7%">  <!-- 발주지시 손익-->
 					<col width="7%">  <!-- 완료일자 -->
-					<col width="18%"> <!-- 비고 -->
+					<col width="14%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
 					<th class="tc" colspan="6">합계</th>
@@ -439,7 +439,7 @@
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setWareHouse($('#coCd').val());
+			setCodeSelectByCocd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$("#dirtrsYn").val("Y"); 
@@ -500,9 +500,9 @@
 					$('#'+key).val(value);
 				}
 				
-				// 창고 set
+				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setWareHouse(value);
+					setCodeSelectByCocd(value);  
 				}
 				
 				// 제조사 set
@@ -569,10 +569,16 @@
 	}
 	
 	// 창고 set
-	function setWareHouse(value){
+	function setCodeSelectByCocd(value){
 		$('#whCd').data("desc", value);
-		$('#whCd').empty();
+		$('#whCd option:not([value=""])').remove()
 		setCommonSelect($('#whCd'));
+		
+  // 창고와 판매법인은 같이 바귐.		
+
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
 	}
 	
 	// 직송여부 변경
@@ -724,7 +730,8 @@
 	function transAmtModal() {
 		openFrom = "OD0102P01";
 		var paramObj ={
-			transSeq :$('#transSeq').val()
+			transSeq :$('#transSeq').val(),
+			coCd     : $('#coCd').val()
 		}
 		if(!$('#transSeq').val()) {actionType = 'C';} 
 		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
@@ -750,6 +757,8 @@
 				$('#detailTable tbody:last').append($clonedRow[0]);
 			}
 		})
+		
+		ctrlAllChkBox();
 	}
 	
 	function addDetailRow() {
@@ -920,8 +929,8 @@
 	
 	function calOdrWt(elem){
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
-		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val()));
-		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val());
+		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val())) || 0;
+		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val()) || 0;
 		var ordrgWt = ordrgQty * prdtCnvrsnWt;
 		$targetRow.find('input[name="ordrgWt"]').val(addCommaStr(ordrgWt));
 		$targetRow.find('input[name="realDlvrWt"]').val(ordrgWt);
@@ -930,11 +939,11 @@
 	function countAmt(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
 		var prdtStockCd = $targetRow.find('input[name="prdtStockCd"]').val();
-		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val()));
-		var ordrgWt = Number(deleteCommaStr($targetRow.find('input[name="ordrgWt"]').val()));
-		var ordrgUpr = Number(deleteCommaStr($targetRow.find('input[name="ordrgUpr"]').val()));
-		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val()));
-		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val());
+		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val())) || 0;
+		var ordrgWt = Number(deleteCommaStr($targetRow.find('input[name="ordrgWt"]').val())) || 0;
+		var ordrgUpr = Number(deleteCommaStr($targetRow.find('input[name="ordrgUpr"]').val())) || 0;
+		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val())) || 0;
+		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val()) || 0;
 		
 		if(prdtStockCd == "Y") {
 			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgQty * ordrgUpr))
@@ -967,11 +976,11 @@
 		var totEpctPal  = 0;
 		
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val()));
-			var ordrgWt  = Number(deleteCommaStr($(elem).find('input[name="ordrgWt"]').val()));
-			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val()));
-			var shipAmt  = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
-			var epctPal  = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val()));
+			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val())) || 0;
+			var ordrgWt  = Number(deleteCommaStr($(elem).find('input[name="ordrgWt"]').val())) || 0;
+			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val())) || 0;
+			var shipAmt  = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val())) || 0;
+			var epctPal  = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val())) || 0;
 			
 			totOrdrgQty += ordrgQty;
 			totOrdrgWt  += ordrgWt;

@@ -17,4 +17,6 @@ public interface SD09Svc {
 	
 	public int deleteSite(Map<String, String> param);
 	
+	public int updateSiteYn(Map<String, Object> param); // 현장 종료여부
+	
 }
