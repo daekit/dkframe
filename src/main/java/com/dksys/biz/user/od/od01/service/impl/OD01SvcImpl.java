@@ -313,10 +313,15 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}	
 
-			// P 매입확정, S 매출확정, A 일괄
+			// S 매출확정, A 일괄
 			// 직송일 이면서 매출이 N, 매출확정 혹은 일괄확정일 경우 매출 생성 및 재고차감.
-			if("Y".equals(paramMap.get("dirtrsYn"))    && "N".equals(paramMap.get("shipYn")) && (
-			   "S".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) ) {
+			// 매출만 확정인 경우에는 매입이 Y인 경우에만 가능함. 즉 매입확정 없이 매출만 단독으로 확정은 없음
+			
+	        // 매출확정 시작
+	        if("Y".equals(paramMap.get("dirtrsYn"))    && "N".equals(paramMap.get("shipYn"))) {		
+		       // 전체 확정인 경우는 진행
+		       // 매출확정이면서 매입이 확정이 된경우
+		      if ( "A".equals(paramMap.get("comfirmType")) || ( "S".equals(paramMap.get("comfirmType"))  && "Y".equals(paramMap.get("ordrgYn")))) {
 				creditFlag = true;
 				paramMap.put("selpchCd", "SELPCH2");
 				paramMap.put("stockChgCd", "STOCKCHG02");
@@ -376,16 +381,18 @@ public class OD01SvcImpl implements OD01Svc {
 					sm01Mapper.updateStockSell(paramMap);
 				}
 			}
-		}
-		//직송(매출)일 경우 여신체크
-		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType")))) {
-			paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
-			paramMap.put("clntCd",  sellClntCd);
-			if(creditFlag && ar02Svc.checkLoan(paramMap)) {
-				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-				return 0;
+			//직송(매출)일 경우 여신체크
+			if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType")))) {
+				paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
+				paramMap.put("clntCd",  sellClntCd);
+				if(creditFlag && ar02Svc.checkLoan(paramMap)) {
+					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+					return 0;
+				}
 			}
-		}
+	     } //매출확정 체크 종료
+		} // for문 종료
+		
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirm(paramMap);
 		}
@@ -430,14 +437,14 @@ public class OD01SvcImpl implements OD01Svc {
 					break;
 				}
 			}
-			// P 매입취소, S 매출취소, A 일괄 취소
-			if("P".equals(paramMap.get("cancleType")) || "A".equals(paramMap.get("cancleType"))){
+			// P 매입취소, S 매출취소, A 일괄 취소 
+			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			    od01Mapper.updateCancelDetail(detailMap);
 			    detailMap.put("selpchCd", "SELPCH1");
 				ar02Mapper.deletePchsSell(detailMap); //   	 메입만 삭제
 			}
 
-			if("S".equals(paramMap.get("cancleType")) || "A".equals(paramMap.get("cancleType"))){
+			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			    od01Mapper.updateCancelDetailS(detailMap);
 			    detailMap.put("selpchCd", "SELPCH2");
 				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
@@ -456,17 +463,23 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("prdtCd", detailMap.get("prdtCd"));
 					paramMap.put("prdtSize", detailMap.get("prdtSize"));
 					paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
-					paramMap.put("prdtLen", detailMap.get("prdtLen"));
-					Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
-					paramMap.put("stockQty", String.valueOf(stockQty));
+					paramMap.put("prdtLen", detailMap.get("prdtLen"));		
 					
-					// P 매입취소, A 일괄 취소
-					if("P".equals(paramMap.get("cancleType")) || "A".equals(paramMap.get("cancleType"))){
+					Map<String, String> stockInfo =null;
+					int stockQty = 0;
+					
+					// P 매입취소, A 일괄 취소 : 매입이 Y 인경우
+					if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
+					
+						stockInfo = sm01Mapper.selectStockInfo(paramMap);
+						stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
+						paramMap.put("stockQty", String.valueOf(stockQty));					
 					     sm01Mapper.updateStockCancel(paramMap);
 					}
-					// 직송이면서 매출취소(P), 일괄취소(A)  반영
-					if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancleType")) || "A".equals(paramMap.get("cancleType")))) {
+					
+					// 직송이면서 매출취소(S), 일괄취소(A)  : 매출이 Y 인경우
+					if("Y".equals(paramMap.get("dirtrsYn")) && "Y".equals(detailMap.get("shipYn")) &&
+					  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 						stockInfo = sm01Mapper.selectStockInfo(paramMap);
 						stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
 						paramMap.put("stockQty", String.valueOf(stockQty));
@@ -486,11 +499,11 @@ public class OD01SvcImpl implements OD01Svc {
 		ar02Svc.creditDeposit(paramMapObj);
 		
 		// P 매입취소, A 일괄 취소
-		if("P".equals(paramMap.get("cancleType")) || "A".equals(paramMap.get("cancleType"))){
+		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 		od01Mapper.updateCancel(paramMap);
 		}
 		// 직송이면서 매출취소(P), 일괄취소(A)  반영
-		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancleType")) || "A".equals(paramMap.get("cancleType")))) {
+		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 			od01Mapper.updateCancelS(paramMap);
 		}
 		return result;

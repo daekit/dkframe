@@ -319,7 +319,7 @@
 		<button id="ordrgYnBtnP" style="display: none;" onclick="updateConfirm('P');">매입확정</button>
 		<button id="ordrgYnBtnS" style="display: none;" onclick="updateConfirm('S');">매출확정</button>
 		<button id="ordrgYnBtnA" style="display: none;" onclick="updateConfirm('A');">일괄확정</button>
-		<button id="cancelBtnP" onclick="updateCancel('P');" style="background-color: red;">매입취소</button>
+<!-- 		<button id="cancelBtnP" onclick="updateCancel('P');" style="background-color: red;">매입취소</button> -->
 		<button id="cancelBtnS" onclick="updateCancel('S');" style="background-color: red;">매출취소</button>
 		<button id="cancelBtnA" onclick="updateCancel('A');" style="background-color: red;">일괄취소</button>
 		<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
@@ -377,7 +377,7 @@
 		}else{
 			$('#actionBtn').on("click", function(){updateOrderModal(commonModal.paramObj.ordrgSeq)});
 			$('#actionBtn').text("수정");
-			$("#ordrgYnBtnP").show();
+ 			$("#ordrgYnBtnP").show();
 			$("#ordrgYnBtnS").show();
 			$("#ordrgYnBtnA").show();
 		}
@@ -454,10 +454,10 @@
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 		
-		// 매입확정된 상세가 없을경우 취소버튼 hide
-		if(orderInfo.confirmCntP == 0){
-			$("#cancelBtnP").hide();
-		}		
+// 		// 매입확정된 상세가 없을경우 취소버튼 hide
+// 		if(orderInfo.confirmCntP == 0){
+// 			$("#cancelBtnP").hide();
+// 		}		
 		// 직송이 아니거나 매출 확정된 상세가 없을경우 취소버튼 hide
 		if(orderInfo.confirmCntS == 0 || $("#dirtrsYn").val() == 'N'){
 			$("#cancelBtnS").hide();
@@ -470,16 +470,18 @@
 		// 전체 매입확정시 확정  hide
 		if(orderInfo.ordrgYn == "Y") {
 			$("#ordrgYnBtnP").hide();
+			$("#ordrgYnBtnA").hide();
 		}
 		// 직송이 아니거나 전체 매출확정시 확정  hide
-		if(orderInfo.shipYn == "Y" || $("#dirtrsYn").val() == 'N') {
+		if(orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N') {
 			$("#ordrgYnBtnS").hide();
 		}
 
+		
 		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
-		if(orderInfo.ordrgYn == "Y" && orderInfo.shipYn == "Y") {
+		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N')) {
 			$("#ordrgYnBtnA").hide();
-			$("#actionBtn").hide();
+			$("#actionBtn").hide();   // 수정버턴
 		}
 		
 	}
@@ -555,16 +557,30 @@
 
 	function updateConfirm(type) {
 		var checkCount = 0;
+		var checkCountP = 0;
+		var checkCountS = 0;
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && ( $(elem).find("input[name='ordrgYn']").val() == "N"
 					                                                       || $(elem).find("input[name='shipYn']").val() == "N")) {
 				checkCount++;
 			}
+			if($(elem).find("input[name='ordrgYn']").val() == "Y") {
+				checkCountP++;
+			}
+			if($(elem).find("input[name='shipYn']").val() == "Y") {
+				checkCountS++;
+			}
+			
 		});
 		if(checkCount == 0){
 			alert("발주내역을 선택해주세요");
 			return;
 		}
+		
+		if (type == 'S' && checkCountP == 0){
+			alert("매출 확정은 매입이 완료된 건에 대한 확정입니다. 매입확정을 혹은 일괄확정 후 작업하십시요.");
+			return;
+		}		
 		
 		var formData = makeFormData('CONFIRM');
 		formData.append("comfirmType", type); // P 매입확정, S 매출확정, A 일괄
@@ -615,7 +631,7 @@
 		}
 		
 		var formData = makeFormData('CANCEL');		
-		formData.append("cancleType", type); // P 매입확정, S 매출확정, A 일괄
+		formData.append("cancelType", type); // P 매입취소, S 매출취소, A 일괄 취소
 		
 		filePutAjax("/user/od/od01/updateCancel", formData, function(data){
 			alert(data.resultMessage);
