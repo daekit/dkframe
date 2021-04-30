@@ -32,18 +32,38 @@ public interface OD01Mapper {
 
 	int updateOrder(Map<String, String> paramMap);
 
-	int updateConfirm(Map<String, String> paramMap);
-
-	int updateConfirmDetail(Map<String, String> detailMap);
+	int updateOrderDetail(Map<String, String> paramMap);
 
 	Map<String, String> selectOrderDetailInfo(Map<String, String> detailMap);
 
 	int selectDetailCount(Map<String, String> paramMap);
 
+	// 매입관련 업무
+    //-----------------------------------------------------------	
+	int updateConfirm(Map<String, String> paramMap);
+
+	int updateConfirmDetail(Map<String, String> detailMap);
+	
 	int selectConfirmCount(Map<String, String> paramMap);
 
 	int updateCancel(Map<String, String> paramMap);
 
 	int updateCancelDetail(Map<String, String> detailMap);
+
+    //-----------------------------------------------------------	
+	
+    // 매출관련 업무
+    //-----------------------------------------------------------	
+	int updateConfirmS(Map<String, String> paramMap);
+
+	int updateConfirmDetailS(Map<String, String> detailMap);
+	
+	int selectConfirmCountS(Map<String, String> paramMap);
+
+	int updateCancelS(Map<String, String> paramMap);
+
+	int updateCancelDetailS(Map<String, String> detailMap);
+    //-----------------------------------------------------------	
+	
 
 }
