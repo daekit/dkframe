@@ -10,6 +10,8 @@ public interface AR02Mapper {
 
 	int insertPchsSell(Map<String, String> paramMap);
 
+	int selectSellMainCount(Map<String, String> paramMap);
+	
 	List<Map<String, String>> selectSellMainList(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
@@ -41,6 +43,7 @@ public interface AR02Mapper {
 	long selectBilgVatAmt(Map<String, String> paramMap);
 
 	Map<String, String> selectBilgInfoUpdate(Map<String, String> paramMap);
+
 
 	
 }
