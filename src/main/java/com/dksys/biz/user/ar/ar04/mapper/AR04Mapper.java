@@ -59,6 +59,8 @@ public interface AR04Mapper {
 	int insertInvDtl(Map<String, String> bilgInfo);
 
 	int insertItem(Map<String, String> bilgInfo);
+
+	int insertItemMinus(Map<String, String> bilgInfo);
 	
 	Map<String, String> selectBilgInfo(Map<String, String> paramMap);
 
