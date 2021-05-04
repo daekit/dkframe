@@ -18,6 +18,8 @@ public interface FI01Mapper {
 
 	Map<String, String> selectPrftDeptDetail(Map<String, String> paramMap);
 
+	int selectPrdtDeptDuplicate(Map<String, String> paramMap);
+
 	int insertPrftDept(Map<String, String> paramMap);
 	
 	int updatePrftDept(Map<String, String> paramMap);
