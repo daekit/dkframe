@@ -450,53 +450,46 @@ public class OD01SvcImpl implements OD01Svc {
 				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
 
 			}   
-		//---------------------------------------------------------		
-				//---------------------------------------------------------			
+		
+			//재고원복
+			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
+			{
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+				}
+				paramMap.put("prdtCd", detailMap.get("prdtCd"));
+				paramMap.put("prdtSize", detailMap.get("prdtSize"));
+				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
+				paramMap.put("prdtLen", detailMap.get("prdtLen"));		
 				
-				//재고원복
-				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
-				{
-					// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
-					if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
-						paramMap.put("clntCd",  paramMap.get("whClntCd"));		
-					}
-					paramMap.put("prdtCd", detailMap.get("prdtCd"));
-					paramMap.put("prdtSize", detailMap.get("prdtSize"));
-					paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
-					paramMap.put("prdtLen", detailMap.get("prdtLen"));		
-					
-					Map<String, String> stockInfo =null;
-					int stockQty = 0;
-					
-					// P 매입취소, A 일괄 취소 : 매입이 Y 인경우
-					if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
-					
-						stockInfo = sm01Mapper.selectStockInfo(paramMap);
-						stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
-						paramMap.put("stockQty", String.valueOf(stockQty));					
-					     sm01Mapper.updateStockCancel(paramMap);
-					}
-					
-					// 직송이면서 매출취소(S), 일괄취소(A)  : 매출이 Y 인경우
-					if("Y".equals(paramMap.get("dirtrsYn")) && "Y".equals(detailMap.get("shipYn")) &&
-					  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
-						stockInfo = sm01Mapper.selectStockInfo(paramMap);
-						stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
-						paramMap.put("stockQty", String.valueOf(stockQty));
-						sm01Mapper.updateStockCancel(paramMap);
-					}
-				}			
-			// }
+				Map<String, String> stockInfo =null;
+				int stockQty = 0;
+				
+				// P 매입취소, A 일괄 취소 : 매입이 Y 인경우
+				if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
+				
+					stockInfo = sm01Mapper.selectStockInfo(paramMap);
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
+					paramMap.put("stockQty", String.valueOf(stockQty));					
+				     sm01Mapper.updateStockCancel(paramMap);
+				}
+				
+				// 직송이면서 매출취소(S), 일괄취소(A)  : 매출이 Y 인경우
+				if("Y".equals(paramMap.get("dirtrsYn")) && "Y".equals(detailMap.get("shipYn")) &&
+				  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
+					stockInfo = sm01Mapper.selectStockInfo(paramMap);
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
+					paramMap.put("stockQty", String.valueOf(stockQty));
+					sm01Mapper.updateStockCancel(paramMap);
+				}
+			}	
 		}
 		if(bilgFlag) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			return 0;
 		}
-		// 여신 원복
-		paramMap.put("clntCd",  clntCd);
-		paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
-		Map<String, Object> paramMapObj = new HashMap<>(paramMap);
-		ar02Svc.creditDeposit(paramMapObj);
+
 		
 		// P 매입취소, A 일괄 취소
 		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
@@ -505,6 +498,13 @@ public class OD01SvcImpl implements OD01Svc {
 		// 직송이면서 매출취소(P), 일괄취소(A)  반영
 		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 			od01Mapper.updateCancelS(paramMap);
+			
+			// 여신 원복
+			paramMap.put("clntCd",  clntCd);
+			paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
+			Map<String, Object> paramMapObj = new HashMap<>(paramMap);
+			ar02Svc.creditDeposit(paramMapObj);
+			
 		}
 		return result;
 	}

@@ -402,8 +402,7 @@
 			ordrgSeq = commonModal.paramObj.ordrgSeq;
 		}
 		
-		debugger;
-		var formData = {
+    	var formData = {
 			"ordrgSeq" : ordrgSeq
 		}
 		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data){
@@ -589,13 +588,11 @@
 		var formData = makeFormData('CONFIRM');
 		formData.append("comfirmType", type); // P 매입확정, S 매출확정, A 일괄
 		
-		debugger;
-		
 // 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
-		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분	
-		var mngLength = 0; 
-		if($('#whType').val() == "WHDIV01") {mngLength = 8;}
-		formData.append("mngLength", mngLength);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
+//		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+		var mngPrdtLen = ''; 
+		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
 //--------------------------------------------------------------------------------------------------------------
 
 
@@ -646,6 +643,14 @@
 		
 		var formData = makeFormData('CANCEL');		
 		formData.append("cancelType", type); // P 매입취소, S 매출취소, A 일괄 취소
+		
+
+// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
+//				$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+				var mngPrdtLen = ''; 
+				if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+				formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
+//--------------------------------------------------------------------------------------------------------------
 		
 		filePutAjax("/user/od/od01/updateCancel", formData, function(data){
 			alert(data.resultMessage);

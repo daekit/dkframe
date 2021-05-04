@@ -310,10 +310,15 @@
 			</if>
 			<if test="prdtSpec != null and !prdtSpec.equals('')">
 				AND A.PRDT_SPEC = #{prdtSpec}
-			</if>			
-			<if test="prdtLen != null and !prdtLen.equals('')">
-				AND A.PRDT_LEN  = #{prdtLen}
 			</if>
+			<choose>
+			   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
+				AND A.PRDT_LEN  = #{mngPrdtLen}
+			   </when>
+			   <when test="prdtLen != null and !prdtLen.equals('')">	
+				AND A.PRDT_LEN  = #{prdtLen}				   
+			   </when>
+			</choose>			
 		ORDER BY UDT_DTTM DESC
 	</select>
 	
@@ -337,9 +342,14 @@
 				<if test="prdtSpec != null and !prdtSpec.equals('')">
 					AND PRDT_SPEC = #{prdtSpec}	
 				</if>			
-				<if test="prdtLen != null and !prdtLen.equals('')">
-					AND PRDT_LEN  = #{prdtLen}
-				</if>
+				<choose>
+				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
+					AND A.PRDT_LEN  = #{mngPrdtLen}
+				   </when>
+				   <when test="prdtLen != null and !prdtLen.equals('')">	
+					AND A.PRDT_LEN  = #{prdtLen}				   
+				   </when>
+				</choose>
 				
 			)
 		WHEN MATCHED THEN
@@ -404,7 +414,17 @@
 				SYSDATE,
 				#{prdtSize, jdbcType=VARCHAR},
 				#{prdtSpec, jdbcType=VARCHAR},
-				#{prdtLen, jdbcType=VARCHAR}
+				<choose>
+				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
+					#{mngPrdtLen}
+				   </when>
+				   <when test="prdtLen != null and !prdtLen.equals('')">	
+					#{prdtLen}				   
+				   </when>
+				   <otherwise>
+				    0
+				   </otherwise>
+				</choose>
 			)
 	</update>
 	
@@ -426,9 +446,14 @@
 			<if test="prdtSpec != null and !prdtSpec.equals('')">
 				AND PRDT_SPEC = #{prdtSpec}	
 			</if>			
-			<if test="prdtLen != null and !prdtLen.equals('')">
-				AND PRDT_LEN  = #{prdtLen}
-			</if>
+				<choose>
+				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
+					AND PRDT_LEN  = #{mngPrdtLen}
+				   </when>
+				   <when test="prdtLen != null and !prdtLen.equals('')">	
+					AND PRDT_LEN  = #{prdtLen}				   
+				   </when>
+				</choose>
 	</update>
 	
 	<update id="updateStockUpr" parameterType="Map">
