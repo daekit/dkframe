@@ -81,7 +81,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd" onchange="mainGridView.setData(0);" required></select>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="mainGridView.setData(0);" required></select>
 						</td>
 						<th class="hit">매출일자</th>
 						<td>
@@ -105,19 +105,19 @@
 					<tr>
 						<th>제품유형</th>
 						<td>
-							<select data-kind="PRDTDIV" data-search="prdtDiv" onchange="prdtDivCombo(); mainGridView.setData(0);" required>
+							<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv" onchange="prdtDivCombo(); mainGridView.setData(0);" required>
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>판매법인</th>
 						<td>
-							<select data-kind="ESTCOPRT" data-search="estCoprt" onchange="mainGridView.setData(0);" required>
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="estCoprt" onchange="mainGridView.setData(0);" required>
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>직송구분</th>
 						<td>
-							<select data-search="dirtrsYn" onchange="mainGridView.setData(0);">
+							<select id="dirtrsYn_S" data-search="dirtrsYn" onchange="mainGridView.setData(0);">
 								<option value="">전체</option>
 								<option value="N">N</option>
 								<option value="Y">Y</option>
@@ -127,7 +127,7 @@
 					<tr>
 						<th>판매유형</th>
 						<td>
-							<select data-kind="SELLTYPE" data-search="typCd" onchange="mainGridView.setData(0);">
+							<select id="typCd_S" data-kind="SELLTYPE" data-search="typCd" onchange="mainGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -143,7 +143,7 @@
 						</td>
 						<th>강종</th>
 						<td>
-							<select data-kind="PDSK" data-search="pdsk" onchange="mainGridView.setData(0);">
+							<select id="pdsk_S" data-kind="PDSK" data-search="pdsk" onchange="mainGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -151,7 +151,7 @@
 					<tr>
 						<th>전표발행여부</th>
 						<td>
-							<select data-search="bilgYn" onchange="mainGridView.setData(0);">
+							<select id="bilgYn_S" data-search="bilgYn" onchange="mainGridView.setData(0);">
 								<option value="">전체</option>
 								<option value="N">N</option>
 								<option value="Y">Y</option>
@@ -183,11 +183,11 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertDivModal();">분할</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="openSalesDivision();"><i class="fas fa-divide"></i>매출분할</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="sellCal();"><i class="fas fa-calculator"></i>매출정산</a>
 					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertSellModal('U');"><i class="fas fa-window-close"></i>반품</a> 
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="insertBilg();"><i class="fas fa-file-signature"></i>매출확정</a>
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="updateBilgCancel();"><i class="fas fa-trash"></i>매출취소</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="updateBilgCancel();"><i class="fas fa-trash"></i>확정취소</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail();"><i class="fas fa-print"></i>거래명세서</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReport();"><i class="fas fa-print"></i>일보출력</a>
 					<a style="height: 30px; line-height: 28px;" onclick="insertSellModal('C');">+</a>
@@ -207,11 +207,6 @@
 </html>
 <script type="text/javascript">
 	var actionType = null;
-	ax5.ui.grid.formatter["bilgYn"] = function () {
-		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
-		return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
-	};
-	
 	var mainGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -295,6 +290,10 @@
 		}
 	}
 	
+	ax5.ui.grid.formatter["bilgYn"] = function () {
+		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
+		return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
+	};
 	var subGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -459,7 +458,7 @@
 			language : "ko",
 			autoclose : true
 		})
-		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
+		.datepicker("setDate", moment(new Date()).subtract(1, "month").startOf("month").toDate())
 		.on("changeDate", function(){
 			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
 				alert("날짜를 확인해주세요");
@@ -560,16 +559,18 @@
 			}
 		});
 	}
-
-	function insertDivModal() {
-		var row = subGridView.target.getList("selected")[0];
-		if(row != undefined && row.bilgYn == "N") {
-			openModal("/static/html/user/ar/ar02/AR0203P01.html", 400, 250, "");	
-		} else {
-			alert("");
+	
+	function openSalesDivision(){
+		if(checkGridRow(subGridView.target, "single")){
+			var row = subGridView.target.getList("selected")[0];
+			if(row.bilgYn == "N"){
+				openModal("/static/html/user/ar/ar02/AR0203P01.html", 900, 500, "");
+			}else{
+				alert("분할이 불가능한 데이터입니다.");
+			}
 		}
 	}
-	
+
 	function sellCal() {
 		if(checkGridRow(subGridView.target, "multi")){
 			modalTitle = "매출실적 정산";
@@ -740,8 +741,7 @@
 		if (!p_siteNm) {
 			p_siteNm = "";
 		}		
-		
-		var fileName = "AR0201R02.jrf";
+
 		var arg = "selPchCd#SELPCH2" 
 		         + "#coCd#"			+ $('#coCd_S').val() 
 		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
@@ -752,7 +752,12 @@
 		         + "#siteNm#"		+ p_siteNm
 		         + "#trstNoArr#"	+ trstNoArr
 		         + "#";
-		callReport(fileName, arg, "750", "1007");
+
+		if 	($('#siteAll').val() =="Y") { 	
+			callReport("AR0201R02.jrf", arg, "750", "1007");
+		} else {
+			callReport("AR0201R03.jrf", arg, "950", "690");
+		}
 	}
 	
 	function setReport() {
