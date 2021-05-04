@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface AR02Svc {
-
-	int selectSellCount(Map<String, String> paramMap);
 	
 	int selectSellMainCount(Map<String, String> paramMap);
 

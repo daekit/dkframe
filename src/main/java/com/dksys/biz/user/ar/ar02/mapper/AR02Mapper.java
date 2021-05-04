@@ -9,14 +9,12 @@ import org.apache.ibatis.annotations.Mapper;
 public interface AR02Mapper {
 
 	int insertPchsSell(Map<String, String> paramMap);
-
-	int selectSellMainCount(Map<String, String> paramMap);
 	
+	int selectSellMainCount(Map<String, String> paramMap);
+
 	List<Map<String, String>> selectSellMainList(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
-
-	int selectSellCount(Map<String, String> paramMap);
 
 	int updatePchsSell(Map<String, String> detailMap);
 
@@ -44,6 +42,4 @@ public interface AR02Mapper {
 
 	Map<String, String> selectBilgInfoUpdate(Map<String, String> paramMap);
 
-
-	
 }

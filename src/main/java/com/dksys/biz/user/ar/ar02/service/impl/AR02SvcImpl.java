@@ -32,13 +32,7 @@ public class AR02SvcImpl implements AR02Svc {
     AR02Svc ar02Svc;
 	
 	@Override
-	public int selectSellCount(Map<String, String> paramMap) {
-		return ar02Mapper.selectSellCount(paramMap);
-	}
-
-	@Override
 	public int selectSellMainCount(Map<String, String> paramMap) {
-		
 		return ar02Mapper.selectSellMainCount(paramMap);
 	}
 	
