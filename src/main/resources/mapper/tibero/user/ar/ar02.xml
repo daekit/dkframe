@@ -154,7 +154,7 @@
 			    T.TAXIVC_COPRT,
 			    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 			    T.SITE_CD,
-			    (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) SITE_NM,
+			    SD09M01.SITE_NM,
 			    SUM(T.BILG_QTY) BILG_QTY,
 			    SUM(T.BILG_WT) BILG_WT,
 			    SUM(T.BILG_UPR) BILG_UPR,
@@ -166,27 +166,31 @@
 			    SUM(T.BILG_VAT_AMT) + SUM(T.BILG_AMT) AS TOT_AMT
 			FROM 
 				TB_AR02M01 T
+				LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
 		 	WHERE 
 		 		SELPCH_CD = #{selpchCd}
 			<if test="coCd != null and !coCd.equals('')">
 				AND T.CO_CD = #{coCd}				
 			</if>
-		 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+			<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 				AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 			</if>
-		 	<if test="clntNm != null and !clntNm.equals('')">
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND T.CLNT_CD = #{clntCd}
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
 				AND T.CLNT_NM LIKE '%${clntNm}%'
 			</if>
-		 	<if test="prdtDiv != null and !prdtDiv.equals('')">
+			<if test="prdtDiv != null and !prdtDiv.equals('')">
 				AND T.PRDT_DIV = #{prdtDiv}				
 			</if>
-		 	<if test="estCoprt != null and !estCoprt.equals('')">
+			<if test="estCoprt != null and !estCoprt.equals('')">
 				AND T.TAXIVC_COPRT = #{estCoprt}				
 			</if>
-		 	<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 				AND T.DIRTRS_YN = #{dirtrsYn}				
 			</if>
-		 	<if test="typCd != null and !typCd.equals('')">
+			<if test="typCd != null and !typCd.equals('')">
 				AND T.TYP_CD = #{typCd}				
 			</if>
 			<if test="prjctCd != null and !prjctCd.equals('')">
@@ -201,13 +205,17 @@
 			<if test="pdsk != null and !pdsk.equals('')">
 				AND T.PRDT_STKN = #{pdsk}				
 			</if>
-			<if test='bilgYn == "Y"'>
-				AND T.BILG_CERT_NO IS NOT NULL 		
+			<if test="bilgYn != null and !bilgYn.equals('')">
+				<choose>
+					<when test='bilgYn == "Y"'>
+						AND T.BILG_CERT_NO IS NOT NULL 		
+					</when>
+					<otherwise>
+						AND T.BILG_CERT_NO IS NULL 
+					</otherwise>
+				</choose>
 			</if>
-			<if test='bilgYn == "N"'>
-				AND T.BILG_CERT_NO IS NULL 		
-			</if>
-			GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD
+			GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD, SD09M01.SITE_NM
 		)
 	</select>
 	
@@ -227,7 +235,7 @@
 				    T.TAXIVC_COPRT,
 				    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 				    T.SITE_CD,
-				    (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) SITE_NM,
+				    SD09M01.SITE_NM,
 				    SUM(T.BILG_QTY) BILG_QTY,
 				    SUM(T.BILG_WT) BILG_WT,
 				    SUM(T.BILG_UPR) BILG_UPR,
@@ -239,27 +247,31 @@
 				    SUM(T.BILG_VAT_AMT) + SUM(T.BILG_AMT) AS TOT_AMT
 				FROM 
 					TB_AR02M01 T
+					LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
 			 	WHERE 
 			 		SELPCH_CD = #{selpchCd}
 				<if test="coCd != null and !coCd.equals('')">
 					AND T.CO_CD = #{coCd}				
 				</if>
-			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+				<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 					AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 				</if>
-			 	<if test="clntNm != null and !clntNm.equals('')">
+				<if test="clntCd != null and !clntCd.equals('')">
+					AND T.CLNT_CD = #{clntCd}
+				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
 					AND T.CLNT_NM LIKE '%${clntNm}%'
 				</if>
-			 	<if test="prdtDiv != null and !prdtDiv.equals('')">
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
 					AND T.PRDT_DIV = #{prdtDiv}				
 				</if>
-			 	<if test="estCoprt != null and !estCoprt.equals('')">
+				<if test="estCoprt != null and !estCoprt.equals('')">
 					AND T.TAXIVC_COPRT = #{estCoprt}				
 				</if>
-			 	<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+				<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 					AND T.DIRTRS_YN = #{dirtrsYn}				
 				</if>
-			 	<if test="typCd != null and !typCd.equals('')">
+				<if test="typCd != null and !typCd.equals('')">
 					AND T.TYP_CD = #{typCd}				
 				</if>
 				<if test="prjctCd != null and !prjctCd.equals('')">
@@ -269,19 +281,23 @@
 					AND T.SITE_CD = #{siteCd}				
 				</if>
 				<if test="siteNm != null and !siteNm.equals('')">
-					AND T.SM09.SITE_NM like '%'|| #{siteNm} || '%'				
+					AND SD09M01.SITE_NM like '%'|| #{siteNm} || '%'				
 				</if>
 				<if test="pdsk != null and !pdsk.equals('')">
 					AND T.PRDT_STKN = #{pdsk}				
 				</if>
-				<if test='bilgYn == "Y"'>
-					AND T.BILG_CERT_NO IS NOT NULL 		
+				<if test="bilgYn != null and !bilgYn.equals('')">
+					<choose>
+						<when test='bilgYn == "Y"'>
+							AND T.BILG_CERT_NO IS NOT NULL 		
+						</when>
+						<otherwise>
+							AND T.BILG_CERT_NO IS NULL 
+						</otherwise>
+					</choose>
 				</if>
-				<if test='bilgYn == "N"'>
-					AND T.BILG_CERT_NO IS NULL 		
-				</if>
-				GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD
-				ORDER BY CLNT_NM, TAXIVC_COPRT_NM, SITE_NM
+				GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD, SD09M01.SITE_NM
+				ORDER BY T.CLNT_NM, TAXIVC_COPRT_NM, SD09M01.SITE_NM
 			) A
 		)
 		WHERE
@@ -383,25 +399,25 @@
 			<if test="coCd != null and !coCd.equals('')">
 				AND T.CO_CD = #{coCd}				
 			</if>
-		 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+			<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 				AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
 				AND T.CLNT_CD = #{clntCd}
 			</if>
-		 	<if test="clntNm != null and !clntNm.equals('')">
+			<if test="clntNm != null and !clntNm.equals('')">
 				AND T.CLNT_NM LIKE '%${clntNm}%'
 			</if>
-		 	<if test="prdtDiv != null and !prdtDiv.equals('')">
+			<if test="prdtDiv != null and !prdtDiv.equals('')">
 				AND T.PRDT_DIV = #{prdtDiv}				
 			</if>
-		 	<if test="estCoprt != null and !estCoprt.equals('')">
+			<if test="estCoprt != null and !estCoprt.equals('')">
 				AND T.TAXIVC_COPRT = #{estCoprt}				
 			</if>
-		 	<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 				AND T.DIRTRS_YN = #{dirtrsYn}				
 			</if>
-		 	<if test="typCd != null and !typCd.equals('')">
+			<if test="typCd != null and !typCd.equals('')">
 				AND T.TYP_CD = #{typCd}				
 			</if>
 			<if test="prjctCd != null and !prjctCd.equals('')">
@@ -416,11 +432,15 @@
 			<if test="pdsk != null and !pdsk.equals('')">
 				AND T.PRDT_STKN = #{pdsk}				
 			</if>
-			<if test='bilgYn == "Y"'>
-				AND T.BILG_CERT_NO IS NOT NULL 		
-			</if>
-			<if test='bilgYn == "N"'>
-				AND T.BILG_CERT_NO IS NULL 		
+			<if test="bilgYn != null and !bilgYn.equals('')">
+				<choose>
+					<when test='bilgYn == "Y"'>
+						AND T.BILG_CERT_NO IS NOT NULL 		
+					</when>
+					<otherwise>
+						AND T.BILG_CERT_NO IS NULL 
+					</otherwise>
+				</choose>
 			</if>
 			ORDER BY CLNT_NM, TRST_DT, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
 	</select>

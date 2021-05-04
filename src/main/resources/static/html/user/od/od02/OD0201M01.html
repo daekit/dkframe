@@ -167,7 +167,7 @@ th {
 
 	    <div class="contents">
 	      	<!-- 리스트 -->
-	        <div data-ax5grid="main-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%" ></div>
+	        <div class="ax5_grid" data-ax5grid="main-grid" data-ax5grid-config="{}" style="height: 320px; width: 100%" ></div>
 	    </div>
 		<!-- 콘텐츠 -->
 		<div class="contents no_bg">
@@ -223,38 +223,47 @@ th {
 			        target: $('[data-ax5grid="main-grid"]'),
 			        header: {
 			        	align: "center",
-			        	selector: true
+			        	selector: false
 			        },
 			        body: {
 			        	onClick: function () {
 							this.self.select(this.dindex);
 							gridView.setData(0, this.dindex);
-			            },
-			            onDBLClick: function () {
-//	 		            	viewShipModal();
-			            },
+			            }
 			        },
+			        page : {
+						navigationItemCount : 10,
+						height : 30,
+						display : true,
+						firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+						prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+						nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+						lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+						onChange : function() {
+							mainGridView.setData(this.page.selectPage);
+						}
+					},
 			        columns: [ 
-			        	{key: "coCd",    	 	label: "회사",		align: "left", 		width: 140, hidden:true},
-			        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 140},
-			          	{key: "taxivcCoprtNm",	label: "매입법인", 	align: "left", 		width: 130},
-			          	{key: "siteNm",         label: "현장명",		align: "left",		width: 180},
-			        	{key: "bilgAmt", 	    label: "매입금액",  	align: "right", 	width: 110,	formatter: "money"},
-			        	{key: "bilgVatAmt",	    label: "부가세",  	align: "right", 	width: 110,	formatter: "money"},
-			        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 130,	formatter: "money"},
-			        	{key: "bilgQty",        label: "매입수량", 	align: "right", 	width: 110, 	formatter: "money"},
-			        	{key: "bilgWt",         label: "매입중량", 	align: "right", 	width: 110, 	formatter: "money"},
-			        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 110, 	formatter: "money"},
+			        	{key: "coCd",    	 	label: "회사",		   align: "left", 		width: 140,     hidden:true},
+			        	{key: "clntNm",    	 	label: "거래처명",	   align: "left", 		width: 140},
+			          	{key: "taxivcCoprtNm",	label: "매입법인", 	   align: "left", 		width: 130},
+			          	{key: "siteNm",         label: "현장명",	   align: "left",		width: 180},
+			        	{key: "bilgAmt", 	    label: "매입금액",     align: "right", 	    width: 110,	    formatter: "money"},
+			        	{key: "bilgVatAmt",	    label: "부가세",  	   align: "right", 	    width: 110,	    formatter: "money"},
+			        	{key: "totAmt", 	    label: "합계",  	   align: "right", 	    width: 130,	    formatter: "money"},
+			        	{key: "bilgQty",        label: "매입수량", 	   align: "right", 	    width: 110, 	formatter: "money"},
+			        	{key: "bilgWt",         label: "매입중량", 	   align: "right", 	    width: 110, 	formatter: "money"},
+			        	{key: "trstDcAmt", 	    label: "할인금액",     align: "right", 	    width: 110, 	formatter: "money"}
 			        ],
 			        footSum: [
 				    	[
-				    		{label: "총계", 			align:"center",	  colspan:3},
+				    		{label: "총계", 		align:"center",	  colspan:3},
 				    		{key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 				    		{key: "bilgVatAmt", 	collector: "sum", formatter:"money", align: "right"},
 				    		{key: "totAmt", 		collector: "sum", formatter:"money", align: "right"},
 		                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
 		                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
-		                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
+		                    {key: "trstDcAmt", 		collector: "sum", formatter:"money", align: "right"}
 				    	]
 				    ]
 			    });
@@ -310,25 +319,7 @@ th {
 		        	selector: true
 		        },
 		        body: {
-		        	onClick: function () {
-// 		                this.self.select(this.dindex); 
-		            },
-		            onDBLClick: function () {
-// 		            	viewShipModal();
-		            },
-		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"],
-		        },
-		        page: {
-		            navigationItemCount: 9,
-		            height: 30,
-		            display: false,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	gridView.setData(this.page.selectPage);
-		            }
+		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"]
 		        },
 		        columns: [ 
 		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
@@ -400,15 +391,7 @@ th {
 			}
 			postAjax("/user/ar/ar02/selectSellList", formData, null, function(data){
 				var list = data.resultList;
-				firstGrid.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
-				});
+				firstGrid.setData(list);
 			});
 		}
 	}
