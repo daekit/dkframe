@@ -1,60 +1,65 @@
-<body>
-  <div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
-  	<div class="tit_contents">
-        <h4 class="tit">매출분할</h4>
-    </div>
-  
-    <div class="popup_table">
-    	<!-- <input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/> -->
-    	<form id="popForm">
-        <table>
-            <colgroup>
-                <col width="30%">
-                <col width="70%">
-            </colgroup>
-            <tr>
-            	<th class="hit">거래처</th>
-                <td>
-                  <input type="hidden" id="clntCd">
-                  <div class="search_form">
-	                <input type="text" id="clntNm" readonly="readonly" required="required">
-	              	<a onclick="openSecondClntSearch('D');"><i class="i_search_w"></i></a>
-	              </div>
-                </td>
-            </tr>
-            <tr>
-                <th>현수량</th>
-                <td>
-                  <input type="text" id="bilgQty" readonly="readonly">
-                </td>
-            </tr>
-            <tr>
-                <th class="hit">분할수량</th>
-                <td>
-                  <input type="text" id="divQty" required="required" onkeyup="addComma(this);" comma>
-                </td>
-            </tr>
-        </table>
-        <input type="hidden" id="userId" name="userId">
-	    <input type="hidden" id="pgmId" name="pgmId" value="AR0203P01">
-      </form>
-    </div>
-  	<div class="popup_bottom_btn">
-		<button id="actionBtn">분할</button>
-		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
-	</div> 
-  </div>
-</body>
-<script src="/static/js/jstree/jstree.min.js"></script>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div class="popup_table">
+		<div class="popup_table">
+			<table>
+<!-- 				<thead> -->
+<!-- 					<tr> -->
+<!-- 						<td class="tl">발주서</td> -->
+<!-- 					</tr> -->
+<!-- 				</thead> -->
+				<tr>
+					<td>
+						<div class="ax5_grid" data-ax5grid="sales-grid" data-ax5grid-config="{}" style="height: 70px; width: 100%"></div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="popup_bottom_btn">
+		
+	</div>
+</div>
 <script type="text/javascript">
-	$(document).ready(function() {
-		initDiv();
-	})
-	
-	function initDiv() {
-		var row = gridView.target.getList("selected")[0];
-		$("#bilgQty").val(row.bilgQty);
+	var salesGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="sales-grid"]'),		        
+		        page: {
+		        	display: false,
+		        },
+		        columns: [
+		          	{key: "trstCertiNo",    label: "거래지시번호",  hidden: true},
+		        	{key: "clntCd",    	 	label: "거래처",		hidden: true},
+		        	{key: "returnYn",    	label: "반품여부",		hidden: true},
+		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
+		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
+		        	{key: "prdtNm",    	 	label: "제품", 		    align: "left", 		width: 140},
+		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgQty",        label: "청구수량", 	    align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "bilgWt",         label: "청구중량",   	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "bilgUpr",        label: "청구단가", 	    align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
+		        	{key: "lossRate", 	    label: "할인율",  	    align: "right", 	width: 80, 	formatter: "money", hidden: true}
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function() {
+			var targetObj = this.target;
+			targetObj.setData(commonModal.paramObj.selectedRows);
+		}
 	}
 	
+	$(document).ready(function(){
+		salesGridView.initView().setData();	
+	});
 </script>
-</html>
