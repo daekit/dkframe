@@ -20,11 +20,11 @@
 	            <tr>
 	                <th class="hit">조직</th>
 	                <td>
-	                    <input type="text" name="baseDept" id="baseDept" maxlength="50" autocomplete="off">
+	                    <input type="text" name="baseDept" id="baseDept" maxlength="50" autocomplete="off" required="required" msg="조직">
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">상위조직1</th>
+	                <th>상위조직</th>
 	                <td>
 	                    <input type="text" name="upperDept" id="upperDept" list="upperDeptList" autocomplete="off" maxlength="50">
 					    <datalist id="upperDeptList">
@@ -32,7 +32,7 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">최상위조직</th>
+	                <th>최상위조직</th>
 	                <td>
 	                    <input type="text" name="lastDept" id="lastDept" list="lastDeptList" autocomplete="off" maxlength="50">
 					    <datalist id="lastDeptList">
@@ -40,7 +40,7 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">사용여부</th>
+	                <th>사용여부</th>
 	                <td>
 	                    <select id="useYn" name="useYn" data-kind="YN" required="required" msg="회사">
 	                    	<option value="">선택</option>
@@ -48,7 +48,7 @@
 	                </td>
 	            </tr>
 	            <tr>
-	                <th class="hit">비고</th>
+	                <th>비고</th>
 	                <td>
 	                    <textArea class="form-control" style="width: 100%; height: 80px" name="rmk" id="rmk" maxlength="500" autocomplete="off"></textArea>
 	                </td>
@@ -155,8 +155,10 @@
 			var formData = makeFormData();
 			filePostAjax("/user/fi/fi01/insertPrftDept", formData, function(data){
 				alert(data.resultMessage);           
-				gridView.setData(0);
-				modal.close();
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
 			});
 		}
 	}
@@ -165,7 +167,11 @@
 		if(inputValidation($('[required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/fi/fi01/updatePrftDept", formData, function(data){
-				alert(data.resultMessage);           
+				alert(data.resultMessage);        
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}         
 				gridView.setData(0);
 				modal.close();
 			});

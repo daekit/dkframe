@@ -117,8 +117,10 @@
 					selector : false
 				},
 				body : {
-					onDBLClick : function() {
+					onClick : function(){
 						this.self.select(this.dindex);
+					},
+					onDBLClick : function() {
 						viewPrftDeptModal("U");
 					}
 				},
@@ -136,12 +138,12 @@
 				},
 				columns: [
 					{key: "coCd", hidden: true},
-		          	{key: "coNm",         label: "회사",   align: "left",  width: 150},
-		        	{key: "baseDept",       label: "조직",    align: "left",    width: 150},
-		            {key: "upperDept",       label: "상위조직1",    align: "left",    width: 150},
-		        	{key: "lastDept",     label: "최상위조직",   align: "left",    width: 450},
-		        	{key: "rmk",  label: "비고",   align: "left",    width: 80},
-		        	{key: "useYn",    label: "사용유무",      align: "left", width: 120}
+		          	{key: "coNm",         label: "회사",   align: "left",  width: 160},
+		        	{key: "baseDept",       label: "조직",    align: "left",    width: 160},
+		            {key: "upperDept",       label: "상위조직",    align: "left",    width: 160},
+		        	{key: "lastDept",     label: "최상위조직",   align: "left",    width: 160},
+		        	{key: "rmk",  label: "비고",   align: "left",    width: 450},
+		        	{key: "useYn",    label: "사용유무",      align: "center", width: 120}
 		        ]
 			});
 			return this;
@@ -207,6 +209,23 @@
 	function viewPrftDeptModal(actionType) {
 		this.actionType = actionType;
 		openModal("/static/html/user/fi/fi01/FI0102P01.html", 450, 350, "");
+	}
+	
+	// 이익조직 삭제
+	function deletePrftDept(){
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+				"coCd" : row.coCd,
+				"baseDept" : row.baseDept,
+		}
+		if(confirm("삭제하시겠습니까?")){
+			putAjax("/user/fi/fi01/deletePrftDept", formData, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		}
 	}
 
 </script>
