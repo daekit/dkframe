@@ -5,9 +5,12 @@
 	<div class="popup_table">
 		<form id="popForm">
 			<input type="hidden" id="pgmId"       name="pgmId"       value="OD0102V01">
+			<input type="hidden" id="pgmNm"       name="pgmNm"       value="발주서조회 및 확정">
 			<input type="hidden" id="ordrgSeq"    name="ordrgSeq">
 			<input type="hidden" id="reqDt"       name="reqDt">
 			<input type="hidden" id="whClntCd"    name="whClntCd">
+			<input type="hidden" id="whType"      name="whType">
+			
 			<!--재고주체가 자사인경우 거래처 창고의 거래처-->
 			<input type="hidden" id="trspTypCd"   name="trspTypCd" value="TRSPTYP1">
 			<!--정상거래로 인식-->
@@ -199,7 +202,7 @@
 					<input type="hidden" name="stockUpr">
 					<input type="hidden" name="prdtUpr">
 					<input type="hidden" name="prdtCnvrsnWt">
-					<input type="hidden" name="ordrgWt">
+<!-- 					<input type="hidden" name="ordrgWt"> -->
 					<input type="hidden" name="prdtStockCd">
 <!-- 					<input type="hidden" name="ordrgYn"> 매입확정여부 -->
 <!-- 					<input type="hidden" name="shipYn">  매출확정여부 -->
@@ -369,7 +372,7 @@
 		
 		selectOrderInfo();
 		
-		if(openFrom == "SD0502P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
+		if( openFrom == "SD0502P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			$("#actionBtn").hide();
 			$("#ordrgYnBtnP").hide();
 			$("#ordrgYnBtnS").hide();
@@ -388,8 +391,9 @@
 		var ordrgSeq = null;
 		
 		if(openFrom == "SD0502P01"){
-			row = OD01GridView.target.getList("selected")[0];
-			ordrgSeq = row.ordrgSeq
+		//	row = OD01GridView.target.getList("selected")[0];
+		//	ordrgSeq = row.ordrgSeq
+			ordrgSeq = commonModal.paramObj.ordrgSeq;
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = ordrgGridView.target.getList("selected")[0];
 			ordrgSeq = row.ordrgSeq
@@ -580,11 +584,21 @@
 		if (type == 'S' && checkCountP == 0){
 			alert("매출 확정은 매입이 완료된 건에 대한 확정입니다. 매입확정을 혹은 일괄확정 후 작업하십시요.");
 			return;
-		}		
+		}
 		
 		var formData = makeFormData('CONFIRM');
 		formData.append("comfirmType", type); // P 매입확정, S 매출확정, A 일괄
 		
+		debugger;
+		
+// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
+		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분	
+		var mngLength = 0; 
+		if($('#whType').val() == "WHDIV01") {mngLength = 8;}
+		formData.append("mngLength", mngLength);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
+//--------------------------------------------------------------------------------------------------------------
+
+
 		filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
 			alert(data.resultMessage);           
 			if(data.resultCode == 200){
