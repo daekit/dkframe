@@ -41,6 +41,11 @@ public class FI01SvcImpl implements FI01Svc {
 	public Map<String, String> selectPrftDeptDetail(Map<String, String> paramMap) {
 		return fi01Mapper.selectPrftDeptDetail(paramMap);
 	}
+    
+	@Override
+	public int selectPrdtDeptDuplicate(Map<String, String> paramMap) {
+		return fi01Mapper.selectPrdtDeptDuplicate(paramMap);
+	}
 
 	@Override
 	public int insertPrftDept(Map<String, String> paramMap) {

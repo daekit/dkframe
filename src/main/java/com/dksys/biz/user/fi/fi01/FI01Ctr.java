@@ -56,9 +56,16 @@ public class FI01Ctr {
     @PostMapping(value = "/insertPrftDept")
     public String insertPrftDept(@RequestParam Map<String, String> paramMap, ModelMap model) {
     	try {
-    		fi01Svc.insertPrftDept(paramMap);
-        	model.addAttribute("resultCode", 200);
-        	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		int duplicate = fi01Svc.selectPrdtDeptDuplicate(paramMap);
+    		if(duplicate > 0 ) {
+            	model.addAttribute("resultCode", 999);
+            	model.addAttribute("resultMessage", "중복 에러입니다. 키 값을 확인해주세요.");
+    		} else {
+    			fi01Svc.insertPrftDept(paramMap);
+            	model.addAttribute("resultCode", 200);
+            	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		}
+    		
     	}catch (Exception e){
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
