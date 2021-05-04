@@ -158,6 +158,7 @@
 				<table id="detailTable" style="width: 1600px;">
 					<colgroup>
 						<col width="2%">
+						<col width="2%">  <!-- 확정여부 -->
 						<col width="13%"> <!-- 제품명 -->
 						<col width="7%">  <!-- SIZE -->
 						<col width="7%">  <!-- SPEC-->
@@ -176,6 +177,7 @@
 						<th class="tc" style="padding: 3px;"> 
 							<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
 						</th>
+					    <th class="tc pd0">매출</th>
 						<th class="tc">제품명</th>
 						<th class="tc">사이즈</th>
 						<th class="tc">SPEC</th>
@@ -196,7 +198,7 @@
 						<input type="hidden" name="shipDtlSeq"> 
 						<input type="hidden" name="odrDtlSeq"> 
 						
-						<input type="hidden" name="shipYn">
+<!-- 						<input type="hidden" name="shipYn"> -->
 						<input type="hidden" name="shipProcId">
 						
 						<input type="hidden" name="prdtDiv">
@@ -218,6 +220,9 @@
 						<input type="hidden" name="realShipAmt">
 						<td>
 							<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
+						</td>
+						<td>
+							<input type="text" class="tc" name="shipYn" readonly>
 						</td>
 						<td>
 							<input type="hidden" name="prdtCd">
@@ -265,6 +270,7 @@
 				<table style="width: 1600px;">
 					<colgroup>
 						<col width="2%">
+						<col width="2%">  <!-- 확정 여부 -->
 						<col width="13%"> <!-- 제품명 -->
 						<col width="7%">  <!-- SIZE -->
 						<col width="7%">  <!-- SPEC-->
@@ -280,7 +286,7 @@
 						<col width="15%"> <!-- 비고 -->
 					</colgroup>
 					<tr>
-						<th class="tc" colspan="6">합계</th>
+						<th class="tc" colspan="7">합계</th>
 						<td>
 							<input class="tr" type="text" name="shipTotQty" comma readonly>
 						</td>
@@ -429,14 +435,18 @@
 						itemValue = addCommaStr(itemValue);
 					}
 					$(elem).val(itemValue);
+					if(elem.name == "shipYn" && itemValue == 'N') { //red
+						$(elem).css({"color": "red"});
+					}
+					
 				}
 			});
 			
-			if(obj.shipYn == "Y") {
-				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-				$addedRow.find('input[name="detailChkBox"]').prop("checked", true);
-				$addedRow.find('a').remove();
-			}
+// 			if(obj.shipYn == "Y") {
+// 				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+// 				$addedRow.find('input[name="detailChkBox"]').prop("checked", true);
+// 				$addedRow.find('a').remove();
+// 			}
 		});
 		countTot();
 
