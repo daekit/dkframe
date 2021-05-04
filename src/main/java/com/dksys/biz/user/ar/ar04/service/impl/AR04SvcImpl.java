@@ -329,7 +329,6 @@ public class AR04SvcImpl implements AR04Svc {
 				ar04Mapper.insertCopyBilgTax(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 				ar04Mapper.updateOrgnTaxBilgNo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 				ar04Mapper.insertCopyTaxBilgDetail(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
-				ar04Mapper.updateTrstInfo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 				// ar02업데이트
 				// ar04d 업데이트
 
@@ -346,12 +345,13 @@ public class AR04SvcImpl implements AR04Svc {
 				taxHdParam.put("docCode", "780"); // 거래명세서 780
 				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
 				result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
-				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
-				result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
+				result = ar04Mapper.insertInvDtlUpdate(taxHdParam); // 거래명세서용 inv dtl insert
+				result = ar04Mapper.insertItemMinus(taxHdParam); // 거래명세서용 inv item insert
 				//ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
 				
 				//연계문서 발행
 				insertKladdi(msgId, taxHdParam);
+				ar04Mapper.updateTrstInfo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 			//}
 		}
 		return result;

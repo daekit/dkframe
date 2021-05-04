@@ -37,6 +37,7 @@
 		    ODR_CREAT_DIV,
 		    SALES_MNG,
 		    ORDRG_YN,
+		    SHIP_YN,
 		    CREAT_ID,
 		    CREAT_PGM,
 		    CREAT_DTTM,
@@ -75,6 +76,7 @@
 		    #{odrSeq},
 		    'ERP',
 		    #{salesMng},
+		    'N',
 		    'N',
 		    #{userId},
 		    #{pgmId},
@@ -133,6 +135,9 @@
 		<if test="ordrgYn != null and !ordrgYn.equals('')">
 			AND ORDRG_YN = #{ordrgYn}
 		</if>
+		<if test="shipYn != null and !shipYn.equals('')">
+			AND SHIP_YN = #{shipYn}
+		</if>
 	</select>
 	
 	<select id="selectOrderDetailCount" parameterType="Map" resultType="int">
@@ -178,7 +183,7 @@
 	            ,T.TOT_WT
 	            ,T.TOT_AMT
 	            ,(SELECT NVL(SUM(REAL_DLVR_QTY), 0) FROM TB_OD01D01 WHERE ORDRG_YN = 'Y' AND ORDRG_SEQ = T.ORDRG_SEQ) AS REAL_TOT_QTY
-		        ,(SELECT NVL(SUM(REAL_DLVR_WT), 0) FROM TB_OD01D01 WHERE ORDRG_YN = 'Y' AND ORDRG_SEQ = T.ORDRG_SEQ) AS REAL_TOT_WT
+		        ,(SELECT NVL(SUM(REAL_DLVR_WT), 0)  FROM TB_OD01D01 WHERE ORDRG_YN = 'Y' AND ORDRG_SEQ = T.ORDRG_SEQ) AS REAL_TOT_WT
 		        ,(SELECT NVL(SUM(REAL_DLVR_AMT), 0) FROM TB_OD01D01 WHERE ORDRG_YN = 'Y' AND ORDRG_SEQ = T.ORDRG_SEQ) AS REAL_TOT_AMT
 	            ,T.TRANS_AMT
 	            ,T.TRANS_SEQ
@@ -190,6 +195,10 @@
 	            ,T.ORDRG_PROC_ID
 	            ,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM
 	            ,TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM
+                ,T.SHIP_YN
+	            ,T.SHIP_PROC_ID
+	            ,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM
+	            ,TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM
 	            ,T.ETC_FIELD1
 	            ,T.ETC_FIELD2
 	            ,T.ETC_FIELD3
@@ -253,6 +262,9 @@
 				<if test="ordrgYn != null and !ordrgYn.equals('')">
 					AND ORDRG_YN = #{ordrgYn}
 				</if>
+				<if test="shipYn != null and !shipYn.equals('')">
+			        AND SHIP_YN = #{shipYn}
+		        </if>
 				ORDER BY DLVR_DTTM DESC, ORDRG_SEQ DESC
 			) T
 		)
@@ -266,7 +278,7 @@
 	
 	<delete id="deleteOrderDetail" parameterType="Map">
 		DELETE FROM TB_OD01D01
-		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'N'
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'N' AND SHIP_YN = 'N'
 	</delete>
 	
 	<insert id="insertOrderDetail" parameterType="Map">
@@ -301,6 +313,7 @@
 	        STOCK_UPR,
 	        PRDT_UPR,
 	        ORDRG_YN,
+	        SHIP_YN,
 	        ORDRG_PROC_ID,
 	        ORDRG_DTL_RMK,
 	        CREAT_ID,
@@ -337,6 +350,7 @@
 	        #{pchsUpr},
 	        #{stockUpr},
 	        #{prdtUpr},
+	        'N',
 	        'N',
 	        #{ordrgProcId},
 	        #{ordrgDtlRmk},
@@ -387,10 +401,15 @@
             T.PCHS_NO,
             T.SALES_MNG,
             T.ORDRG_YN,
-            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND ORDRG_YN = 'Y') AS CONFIRM_CNT,
+            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND ORDRG_YN = 'Y') AS CONFIRM_CNT_P,
+            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND SHIP_YN  = 'Y') AS CONFIRM_CNT_S,
             T.ORDRG_PROC_ID,
-            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
+            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,            
+            T.SHIP_YN,
             TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
+            T.SHIP_PROC_ID,
+            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
+            TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM,
             T.ETC_FIELD1,
             T.ETC_FIELD2,
             T.ETC_FIELD3,
@@ -484,6 +503,10 @@
 	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
 	        TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
 	        T.ORDRG_DTL_RMK,
+	        T.SHIP_YN,	        
+	        T.SHIP_PROC_ID,
+	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
+	        TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM,	        
 	        T.ETC_FIELD1,
 	        T.ETC_FIELD2,
 	        T.ETC_FIELD3,
@@ -585,6 +608,19 @@
 		    TAXIVC_COPRT           = #{taxivcCoprt}                         
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
+		<update id="updateOrderDetail" parameterType="Map">
+		UPDATE TB_OD01D01 T
+		SET ORDRG_UPR       = #{ordrgUpr}
+          , ORDRG_AMT       = #{ordrgAmt}
+          , REAL_DLVR_AMT   = #{realDlvrAmt}
+          , REAL_DLVR_UPR   = #{realDlvrUpr}
+          , SHIP_UPR        = #{shipUpr}
+          , ORDRG_DTL_RMK   = #{ordrgDtlRmk}
+		  , UDT_ID          = #{userId}
+		  , UDT_PGM         = #{pgmId}
+		  , UDT_DTTM        = SYSDATE		    
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
+	</update>	
 	
 	<update id="updateConfirm" parameterType="Map">
 		UPDATE TB_OD01M01 T
@@ -634,6 +670,53 @@
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
 	</update>
 	
+	<update id="updateConfirmS" parameterType="Map">
+		UPDATE TB_OD01M01 T
+		SET
+		    SHIP_PROC_ID    = #{userId},
+		    SHIP_PROC_DTTM  = SYSDATE,
+		    SHIP_YN 		= 'Y',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE ORDRG_SEQ = #{ordrgSeq}
+	</update>
+	
+	<update id="updateCancelS" parameterType="Map">
+		UPDATE TB_OD01M01 T
+		SET
+		    SHIP_PROC_ID    = '',
+		    SHIP_PROC_DTTM  = '',
+		    SHIP_YN 		= 'N',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE ORDRG_SEQ = #{ordrgSeq}
+	</update>
+	
+	<update id="updateConfirmDetailS" parameterType="Map">
+		UPDATE TB_OD01D01 T
+		SET
+		    SHIP_PROC_ID    = #{ordrgProcId},
+		    SHIP_PROC_DTTM  = SYSDATE,
+		    SHIP_YN 		= 'Y',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE		    
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
+	</update>
+	
+	<update id="updateCancelDetailS" parameterType="Map">
+		UPDATE TB_OD01D01 T
+		SET
+		    SHIP_PROC_ID    = '',
+		    SHIP_PROC_DTTM  = '',
+		    SHIP_YN 		= 'N',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE		    
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
+	</update>	
 	<select id="selectOrderDetailInfo" parameterType="Map" resultType="CamelMap">
 		SELECT 
 			T.*,
@@ -662,5 +745,10 @@
 		FROM TB_OD01D01
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'Y' 
 	</select>
-	
+	<select id="selectConfirmCountS" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND SHIP_YN = 'Y' 
+	</select>	
 </mapper>

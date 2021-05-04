@@ -4,15 +4,15 @@
 	</div>
 	<div class="popup_table">
 		<form id="popForm">
-			<input type="hidden" id="pgmId" name="pgmId" value="OD0102V01">
-			<input type="hidden" id="ordrgSeq" name="ordrgSeq">
-			<input type="hidden" id="reqDt" name="reqDt">
-			<input type="hidden" id="whClntCd" name="whClntCd">
+			<input type="hidden" id="pgmId"       name="pgmId"       value="OD0102V01">
+			<input type="hidden" id="ordrgSeq"    name="ordrgSeq">
+			<input type="hidden" id="reqDt"       name="reqDt">
+			<input type="hidden" id="whClntCd"    name="whClntCd">
 			<!--재고주체가 자사인경우 거래처 창고의 거래처-->
-			<input type="hidden" id="trspTypCd" name="trspTypCd" value="TRSPTYP1">
+			<input type="hidden" id="trspTypCd"   name="trspTypCd" value="TRSPTYP1">
 			<!--정상거래로 인식-->
-			<input type="hidden" id="prjctCd" name="prjctCd"> 
-			<input type="hidden" id="prjctNm" name="prjctNm">
+			<input type="hidden" id="prjctCd"     name="prjctCd"> 
+			<input type="hidden" id="prjctNm"     name="prjctNm">
 			<table>
 				<colgroup>
 					<col width="12%">
@@ -147,6 +147,8 @@
 			<table id="detailTable" style="width: 1700px;">
 				<colgroup>
 					<col width="2%">
+					<col width="2%">  <!-- 매입확정 -->
+					<col width="2%">  <!-- 매출확정 -->
 					<col width="12%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
@@ -166,13 +168,15 @@
 					<th class="tc" style="padding: 3px;"> 
 						<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
 					</th>
+					<th class="tc pd0">매입</th>
+					<th class="tc pd0">매출</th>
 					<th class="tc">제품명</th>
 					<th class="tc">사이즈</th>
 					<th class="tc">SPEC</th>
 					<th class="tc">길이</th>
 					<th class="tc">단위</th>
 					<th class="tc">수량</th>
-					<th class="tc">중량(KG)</th>
+					<th class="tc pd0">중량(KG)</th>
 					<th class="tc">발주단가</th>
 					<th class="tc">매출단가</th>
 					<th class="tc">금액</th>
@@ -197,7 +201,8 @@
 					<input type="hidden" name="prdtCnvrsnWt">
 					<input type="hidden" name="ordrgWt">
 					<input type="hidden" name="prdtStockCd">
-					<input type="hidden" name="ordrgYn">
+<!-- 					<input type="hidden" name="ordrgYn"> 매입확정여부 -->
+<!-- 					<input type="hidden" name="shipYn">  매출확정여부 -->
 					<input type="hidden" name="ordrgProcId">
 					<input type="hidden" name="ordrgProcNm">
 					<input type="hidden" name="realDlvrQty">
@@ -206,6 +211,12 @@
 					<input type="hidden" name="realDlvrAmt">
 					<td>
 						<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
+					</td>
+					<td>
+						<input type="text" class="tc" name="ordrgYn" readonly>
+					</td>
+					<td>
+						<input type="text" class="tc" name="shipYn" readonly>
 					</td>
 					<td>
 						<input type="hidden" name="prdtCd">
@@ -256,6 +267,8 @@
 			<table style="width: 1700px;">
 				<colgroup>
 					<col width="2%">
+					<col width="2%">
+					<col width="2%">
 					<col width="12%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
@@ -272,7 +285,7 @@
 					<col width="14%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
-					<th class="tc" colspan="6">합계</th>
+					<th class="tc" colspan="8">합계</th>
 					<td class="tr" id="totQtyDp" comma></td>
 					<td class="tr" id="totWtDp" comma></td>
 					<td>-</td>
@@ -303,8 +316,12 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionBtn"></button>
-		<button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
-		<button id="cancelBtn" onclick="updateCancel();" style="background-color: red;">발주취소</button>
+		<button id="ordrgYnBtnP" style="display: none;" onclick="updateConfirm('P');">매입확정</button>
+		<button id="ordrgYnBtnS" style="display: none;" onclick="updateConfirm('S');">매출확정</button>
+		<button id="ordrgYnBtnA" style="display: none;" onclick="updateConfirm('A');">일괄확정</button>
+<!-- 		<button id="cancelBtnP" onclick="updateCancel('P');" style="background-color: red;">매입취소</button> -->
+		<button id="cancelBtnS" onclick="updateCancel('S');" style="background-color: red;">매출취소</button>
+		<button id="cancelBtnA" onclick="updateCancel('A');" style="background-color: red;">일괄취소</button>
 		<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
 	</div>
 </div>
@@ -354,26 +371,36 @@
 		
 		if(openFrom == "SD0502P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			$("#actionBtn").hide();
-			$("#ordrgYnBtn").hide();
+			$("#ordrgYnBtnP").hide();
+			$("#ordrgYnBtnS").hide();
+			$("#ordrgYnBtnA").hide();
 		}else{
-			$('#actionBtn').on("click", function(){updateOrderModal();});
+			$('#actionBtn').on("click", function(){updateOrderModal(commonModal.paramObj.ordrgSeq)});
 			$('#actionBtn').text("수정");
-			$("#ordrgYnBtn").show();
+ 			$("#ordrgYnBtnP").show();
+			$("#ordrgYnBtnS").show();
+			$("#ordrgYnBtnA").show();
 		}
 	});
 	
 	function selectOrderInfo() {
 		var row = null;
+		var ordrgSeq = null;
+		
 		if(openFrom == "SD0502P01"){
 			row = OD01GridView.target.getList("selected")[0];
+			ordrgSeq = row.ordrgSeq
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = ordrgGridView.target.getList("selected")[0];
+			ordrgSeq = row.ordrgSeq
 		}else{
-			row = gridView.target.getList()[selectedRowIdx];
+			// row = gridView.target.getList()[selectedRowIdx];
+			ordrgSeq = commonModal.paramObj.ordrgSeq;
 		}
 		
+		debugger;
 		var formData = {
-			"ordrgSeq" : row.ordrgSeq
+			"ordrgSeq" : ordrgSeq
 		}
 		postAjax("/user/od/od01/selectOrderInfo", formData, null, function(data){
 			setOrderInfo(data.result);
@@ -407,10 +434,10 @@
 				}
 			});
 			
-			if(obj.ordrgYn == "Y") {
-				$addedRow.find('input[name="detailChkBox"]').prop("checked", true);
-				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-			}
+// 			if(obj.ordrgYn == "Y" && obj.shipYn == "Y") {
+// 				$addedRow.find('input[name="detailChkBox"]').prop("checked", true);
+// 				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+// 			}
 		});
 		countTot();
 		
@@ -427,16 +454,36 @@
 		// 첨부파일 그리드 set
 		fileGridView.setData();
 		
-		// 확정된 상세가 없을경우 취소버튼 hide
-		if(orderInfo.confirmCnt == 0){
-			$("#cancelBtn").hide();
+// 		// 매입확정된 상세가 없을경우 취소버튼 hide
+// 		if(orderInfo.confirmCntP == 0){
+// 			$("#cancelBtnP").hide();
+// 		}		
+		// 직송이 아니거나 매출 확정된 상세가 없을경우 취소버튼 hide
+		if(orderInfo.confirmCntS == 0 || $("#dirtrsYn").val() == 'N'){
+			$("#cancelBtnS").hide();
+		}
+		// 매임/매출 확정된 상세가 없을경우 전체 취소버튼 hide
+		if(orderInfo.confirmCntS == 0 && orderInfo.confirmCntP == 0){
+			$("#cancelBtnA").hide();
+		}	
+		
+		// 전체 매입확정시 확정  hide
+		if(orderInfo.ordrgYn == "Y") {
+			$("#ordrgYnBtnP").hide();
+			$("#ordrgYnBtnA").hide();
+		}
+		// 직송이 아니거나 전체 매출확정시 확정  hide
+		if(orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N') {
+			$("#ordrgYnBtnS").hide();
+		}
+
+		
+		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
+		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N')) {
+			$("#ordrgYnBtnA").hide();
+			$("#actionBtn").hide();   // 수정버턴
 		}
 		
-		// 전체 발주확정시 확정 및 수정버튼 hide
-		if(orderInfo.ordrgYn == "Y") {
-			$("#ordrgYnBtn").hide();
-			$("#actionBtn").hide();
-		}
 	}
 	
 	function addDetailRow() {
@@ -508,19 +555,36 @@
 		});
 	}
 
-	function updateConfirm() {
+	function updateConfirm(type) {
 		var checkCount = 0;
+		var checkCountP = 0;
+		var checkCountS = 0;
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && ( $(elem).find("input[name='ordrgYn']").val() == "N"
+					                                                       || $(elem).find("input[name='shipYn']").val() == "N")) {
 				checkCount++;
 			}
+			if($(elem).find("input[name='ordrgYn']").val() == "Y") {
+				checkCountP++;
+			}
+			if($(elem).find("input[name='shipYn']").val() == "Y") {
+				checkCountS++;
+			}
+			
 		});
 		if(checkCount == 0){
 			alert("발주내역을 선택해주세요");
 			return;
 		}
 		
+		if (type == 'S' && checkCountP == 0){
+			alert("매출 확정은 매입이 완료된 건에 대한 확정입니다. 매입확정을 혹은 일괄확정 후 작업하십시요.");
+			return;
+		}		
+		
 		var formData = makeFormData('CONFIRM');
+		formData.append("comfirmType", type); // P 매입확정, S 매출확정, A 일괄
+		
 		filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
 			alert(data.resultMessage);           
 			if(data.resultCode == 200){
@@ -530,19 +594,45 @@
 		});
 	}
 	
-	function updateCancel() {
-		var checkCount = 0;
+	function updateCancel(type) {
+		var checkCount  = 0;
+		var checkCountP = 0;
+		var checkCountS = 0;
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
+			if($(elem).find("input[name='detailChkBox']").is(":checked") || $(elem).find("input[name='ordrgYn']").val() == "Y"
+				                                                         || $(elem).find("input[name='shipYn']").val() == "Y") {
 				checkCount++;
 			}
+			if($(elem).find("input[name='ordrgYn']").val() == "Y") {
+				checkCountP++;
+			}
+			if($(elem).find("input[name='shipYn']").val() == "Y") {
+				checkCountS++;
+			}
 		});
-		if(checkCount == 0){
-			alert("확정 건이 존재하지 않습니다.");
-			return;
+		if(type == 'P'){
+			if(checkCountP == 0){
+				alert("매입 확정 건이 존재하지 않습니다.");
+				return;
+			}
+			
+		}else if (type == 'S'){
+
+			if(checkCountS == 0){
+				alert("매출 확정 건이 존재하지 않습니다.");
+				return;
+			}
+			
+		}else{
+			if(checkCount == 0){
+				alert("확정 건이 존재하지 않습니다.");
+				return;
+			}
 		}
 		
-		var formData = makeFormData('CANCEL');
+		var formData = makeFormData('CANCEL');		
+		formData.append("cancelType", type); // P 매입취소, S 매출취소, A 일괄 취소
+		
 		filePutAjax("/user/od/od01/updateCancel", formData, function(data){
 			alert(data.resultMessage);
 			if(data.resultCode == 200) {
@@ -568,7 +658,7 @@
 		var detailArr = [];
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if(type == "CONFIRM") {
-				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "N") {
+				if($(elem).find("input[name='detailChkBox']").is(":checked") ) {  //&& $(elem).find("input[name='ordrgYn']").val() == "N"
 					var detailObj = {};
 					$.each($(elem).find('[name]'), function(idx, elem){
 						if(elem.name == "ordrgProcId" && elem.value == "") elem.value = jwt.userId;
@@ -578,7 +668,7 @@
 					detailArr.push(detailObj);
 				}
 			} else {
-				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
+				if($(elem).find("input[name='detailChkBox']").is(":checked")) {  // && $(elem).find("input[name='ordrgYn']").val() == "Y"
 					var detailObj = {};
 					$.each($(elem).find('[name]'), function(idx, elem){
 						detailObj[elem.name] = elem.value;

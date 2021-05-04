@@ -104,13 +104,14 @@
 		        		if(bilgAmt != this.item.bilgAmt) {
 		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
 		        			if(this.item.bilgVatAmt != 0) {
-		        				this.self.setValue(this.dindex, "bilgVatAmt", this.item.bilgAmt*0.1);
+		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt*0.1));
 		        				this.self.setValue(this.dindex, "totAmt", this.item.bilgVatAmt + this.item.bilgAmt);
 		        			}
 		        		}
 		            }
 		        },
 		        columns: [
+		        	{key: "coCd",           label: "회사",	    align: "center",	width: 100, hidden:true},
 		        	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100},
 		          	{key: "bilgYn",         label: "전표발행여부",	align: "center",	width: 100},
 		          	{key: "prjctNm",        label: "프로젝트",		align: "left",		width: 140},
@@ -126,8 +127,8 @@
 		        	{key: "realTrstAmt",    label: "물품금액",		align: "right",  	width: 80, 	formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "lossRate", 	    label: "할인율",  	align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "transAmt",    	label: "운송비",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
-		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+// 		        	{key: "transAmt",    	label: "운송비",  	align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+// 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "bilgAmt", 	    label: "매입금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 100, editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "bilgVatAmt",	    label: "부가세",  	align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
@@ -205,12 +206,22 @@
 		var allAmt = Number(deleteCommaStr($("#allAmt").val()));		
 		var list = secondGrid.getList();
 		var setValue = 0;
-		var totAmt = 0;
+		var totAmt   = 0;      // 배부 누적금액
+		var totRealTrstAmt = 0; // 총금액
+		
+		// 배부금액 = 금액 * 할인금액 / 총금액
+		
+		$.each(list, function(idx, item) {
+			totRealTrstAmt +=  Number(item.realTrstAmt);
+		});	
+
 		$.each(list, function(idx, item) {
 			if(targetName == "bilgUpr") {
-				setValue = item.prdtUpr - Number(allAmt);
+				setValue = item.bilgUpr - Number(allAmt);
 			} else {
-				setValue = Math.round(allAmt / list.length);
+				// setValue = Math.round(allAmt / list.length);
+				setValue = Math.round(item.realTrstAmt * allAmt / totRealTrstAmt );		
+				
 				idx == list.length-1 ? setValue = allAmt - totAmt : totAmt += setValue;
 				var lossRate = Math.round(setValue / Number(item.realTrstAmt) * 100);
 				secondGrid.setValue(idx, "lossRate", lossRate);
@@ -233,7 +244,8 @@
 			var formData = makeFormData();
 			putAjax("/user/ar/ar02/updatePchsSell", formData, null, function(data){
 				alert(data.resultMessage);           
-				gridView.setData(0);
+				//gridView.setData(0);
+				gridView.setData(0, currentIdx);
 				modal.close();
 			});
 		}

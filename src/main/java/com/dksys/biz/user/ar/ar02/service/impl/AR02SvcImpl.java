@@ -255,5 +255,5 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		return false;
 	}
-	
+
 }

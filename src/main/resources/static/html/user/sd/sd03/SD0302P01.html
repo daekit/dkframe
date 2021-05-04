@@ -62,11 +62,11 @@
 				<tr>
 					<th class="">사업자 Tel.</th>
 					<td>
-						<input type="text" id="bizTelNo" name="bizTelNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+						<input type="text" id="bizTelNo" name="bizTelNo" onkeyup="telNumberFormatter(this);" maxlength="20">
 					</td>
 					<th class="">사업자 Fax</th>
 					<td>
-						<input type="text" id="bizFaxNo" name="bizFaxNo" onkeyup="telNumberFormatter(this);" maxlength="13">
+						<input type="text" id="bizFaxNo" name="bizFaxNo" onkeyup="telNumberFormatter(this);" maxlength="20">
 					</td>
 					<th class="">담당자 Email</th>
 					<td>
@@ -99,7 +99,7 @@
 				<tr>
 					<th class="">비고</th>
 					<td colspan="5">
-						<textarea class="form-control" id="rmk" name="rmk" style="height: 60px;" maxlength="500"></textarea>
+						<textarea class="form-control" id="rmk" name="rmk" style="height: 60px;" maxlength="1000"></textarea>
 					</td>
 				</tr>
 			</table>
@@ -575,8 +575,25 @@
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
 	}
+
+	//문자열 자르기
+	function cutStr(str, maxByte) {
 	
+		for(b=i=0;c=str.charCodeAt(i);) {
+	      b+=c>>7?2:1;
+	      if (b > maxByte)
+	      break;
+	      i++;
+	    }
+	  	return str.substring(0,i);
+	 }
+	 	
 	function insertEst() {
+		//비고 문자열 길이 필드길이로 byte 자르기
+		$("#estRprc").val(cutStr($("#estRprc").val(),100));
+		$("#prjctNm").val(cutStr($("#prjctNm").val(),100));
+		$("#rmk").val(cutStr($("#rmk").val(),1000));
+				
 		if(inputValidation($('.popup_area input[required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/sd/sd03/insertEst", formData, function(data){
@@ -590,6 +607,11 @@
 	}
 	
 	function updateEst() {
+		//비고 문자열 길이 필드길이로 byte 자르기
+		$("#estRprc").val(cutStr($("#estRprc").val(),100));
+		$("#prjctNm").val(cutStr($("#prjctNm").val(),100));
+		$("#rmk").val(cutStr($("#rmk").val(),1000));
+	
 		if(inputValidation($('.popup_area input[required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/sd/sd03/updateEst", formData, function(data){

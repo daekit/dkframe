@@ -85,11 +85,11 @@
 	            			<option value="03">외국인</option>
 	            		</select>
 	            	</td>
-	            	<th>수신담당자명</th>
+	            	<th  class="hit">수신담당자명</th>
 	            	<td>
 	                    <input type="hidden" id="taxRcvSn" name="taxRcvSn">
 	            		<div class="search_form" style="width: 100%;">
-				            <input type="text" id="taxRcvNm" name="taxRcvNm">
+				            <input type="text" id="taxRcvNm" name="taxRcvNm" required="required">
 				            <a id="btnRcv" onclick="rcvNmSearch();"><i class="i_search_w"></i></a>
 			            </div>
 			        </td>
@@ -103,9 +103,9 @@
 	            	<td>
 	            		<input type="text" id="taxivcRcvCrn" name="taxivcRcvCrn" style="width: 100%;" required="required" maxlength="12" onkeyup="crnFormatter(this)"> 
 	            	</td>
-	            	<th>수신자 이메일</th>
+	            	<th  class="hit">수신자 이메일</th>
 	            	<td>
-	            		<input type="text" id="taxRcvEmail" name="taxRcvEmail" style="width: 100%;" maxlength="40"> 
+	            		<input type="text" id="taxRcvEmail" name="taxRcvEmail" style="width: 100%;" maxlength="40" required="required"> 
 	            	</td>
 	            </tr>
 	            <tr>
@@ -399,9 +399,24 @@
 		});
 	}
 	
+	//문자열 자르기
+	function cutStr(str, maxByte) {
+	
+		for(b=i=0;c=str.charCodeAt(i);) {
+	      b+=c>>7?2:1;
+	      if (b > maxByte)
+	      break;
+	      i++;
+	    }
+	  	return str.substring(0,i);
+	 }
 	function updateTaxBilg() {
 		if ($("#popForm #taxRcvEmail").val() == "") {
 			alert("수신담당자는 정보는 필수입니다.");
+			return;
+		}
+		if ($("#popForm #taxRcvNm").val() == "") {
+			alert("수신담당자 이름 정보는 필수입니다.");
 			return;
 		}
 		var moa1023Sum = 0;
@@ -410,8 +425,13 @@
 			console.log($(elem).find("input[name='moa1023']").val());
 			moa1023Sum += Number(deleteCommaStr($(elem).find("input[name='moa1023']").val()));
 			moa10124Sum += Number(deleteCommaStr($(elem).find("input[name='moa10124']").val()));
-			
+			$(elem).find("input[name='dms1000']").val(cutStr($(elem).find("input[name='dms1000']").val(),100));  
 		});
+
+		//비고 문자열 길이 150byte로 자르기
+		$("#ftxac11").val(cutStr($("#ftxac11").val(),150));
+		$("#ftxac21").val(cutStr($("#ftxac21").val(),150));
+		$("#ftxac31").val(cutStr($("#ftxac31").val(),150));
 
 		if(Number(deleteCommaStr($("#taxMoa523").val())) != moa1023Sum){
 			alert("공급가액 합계가 상세 내역과 불일치 합니다.");

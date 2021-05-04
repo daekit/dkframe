@@ -172,6 +172,8 @@
 		            }
 		        },
 		        columns: [
+		            {key: "taxRcvSn", label: "순번", align: "left",  hidden: true},
+		            {key: "clntCd", label: "코드", align: "left",  hidden: true},
 		            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
 		            {key: "taxRcvNm", label: "수신담당자명", align: "center", width: "8%"},
 		            {key: "taxRcvEmail", label: "수신자 이메일", align: "left", width: "15%"},
@@ -252,6 +254,34 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		openModal("/static/html/user/ar/ar06/AR0601P01.html", 400, 650, "");
+	}
+
+
+	function deleteTaxInvoice() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+				"coCd"      : $("#coCd_S").val(),
+				"clntCd"    : $("#clntCd_S").val(),
+				"clntNm" : $("#clntNm_S").val(),		
+				"userId" : jwt.userId,
+				"pgmId" : "AR0601M01",
+				"clntCd" : row.clntCd,
+				"taxRcvSn" : row.taxRcvSn
+		}
+		if (gridView.target.getList("selected").length > 1) {
+			alert("삭제는 한건씩 진행해주세요");
+			return;
+		}
+
+		//삭제 가능
+		if (confirm("삭제하시겠습니까?")) {
+			deleteAjax("/user/ar/ar06/deleteTaxInvoice", formData, null, function(data) {
+				if (data.resultCode == 200) {
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		}
 	}
 	
 	//거래처

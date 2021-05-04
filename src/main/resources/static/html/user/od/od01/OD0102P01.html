@@ -59,7 +59,7 @@
 					<td class="drctArea">
 						<div class="search_form">
 							<input type="hidden" id="sellClntCd" name="sellClntCd">
-							<input type="text" id="sellClntNm" name="sellClntNm" readonly required >
+							<input type="text" id="sellClntNm" name="sellClntNm" msg="매출거래처" readonly required >
 							<a onclick="openSecondClntSearch('SELL');">
 								<i class="i_search_w"></i>
 							</a>
@@ -197,6 +197,8 @@
 			<table id="detailTable" style="width: 1700px;">
 				<colgroup>
 					<col width="2%">
+					<col width="2%">  <!-- 매입확정 -->
+					<col width="2%">  <!-- 매출확정 -->
 					<col width="12%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
@@ -216,6 +218,8 @@
 					<th class="tc" style="padding: 3px;"> 
 						<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
 					</th>
+					<th class="tc">매입</th>
+					<th class="tc">매출</th>
 					<th class="tc hit">제품명</th>
 					<th class="tc">사이즈</th>
 					<th class="tc">SPEC</th>
@@ -237,7 +241,8 @@
 					<input type="hidden" name="ordrgDtlSeq">
 					<input type="hidden" name="odrDtlSeq">
 					
-					<input type="hidden" name="ordrgYn">
+<!-- 					<input type="hidden" name="ordrgYn">  매입확정여부 -->
+<!-- 					<input type="hidden" name="shipYn">   매출확정여부 -->
 					<input type="hidden" name="ordrgProcId">
 					
 					<input type="hidden" name="prdtStockCd">
@@ -259,6 +264,12 @@
 					<input type="hidden" name="realDlvrAmt">
 					<td>
 						<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
+					</td>
+					<td>
+						<input type="text" class="tc" name="ordrgYn" readonly>
+					</td>
+					<td>
+						<input type="text" class="tc" name="shipYn" readonly>
 					</td>
 					<td>
 						<div class="search_form">
@@ -314,6 +325,8 @@
 			<table style="width: 1700px;">
 				<colgroup>
 					<col width="2%">
+					<col width="2%">
+					<col width="2%">
 					<col width="12%"> <!-- 제품명 -->
 					<col width="7%">  <!-- SIZE -->
 					<col width="7%">  <!-- SPEC-->
@@ -330,7 +343,7 @@
 					<col width="14%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
-					<th class="tc" colspan="6">합계</th>
+					<th class="tc" colspan="8">합계</th>
 					<td>
 						<input class="tr" type="text" id="totQty" name="totQty" comma readonly>
 					</td>
@@ -435,6 +448,8 @@
 		
 		// 파일 그리드 초기화
 		fileGridView.initView();
+
+		var ordrgSeq = commonModal.paramObj.ordrgSeq;
 		
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
@@ -448,11 +463,11 @@
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
 		}else if(actionType == "U"){
-			selectOrderInfo();
+			selectOrderInfo(ordrgSeq);
 			$('#actionOdBtn').on("click", function(){updateOrder();});
 			$('.tit_contents .tit').text("발주서 수정");
 			$('#actionOdBtn').text("저장");
-		}else if (actionType == "O"){
+		}else if (actionType == "O"){ // 주문에서 발주서 호춣할때 사용한다.
 			getOrderInfo();
 			$('#odrSeq').siblings('a').remove();
 			$('#actionOdBtn').on("click", function(){insertOrder();});
@@ -463,10 +478,10 @@
 		ctrlDirtrsMaster();
 	});
 	
-	function selectOrderInfo() {
-		var row = gridView.target.getList()[selectedRowIdx];
+	function selectOrderInfo(ordrgSeq) {
+		//var row = gridView.target.getList()[selectedRowIdx];
 		var formData = {
-			"ordrgSeq" : row.ordrgSeq
+			"ordrgSeq" : ordrgSeq
 		}
 		postAjaxSync("/user/od/od01/selectOrderInfo", formData, null, function(data){
 			setOrderInfo(data.result);
@@ -526,12 +541,38 @@
 			});
 			
 			// 확정여부에 따른 dom 변경
-			if(obj.ordrgYn == "Y") {
-				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-				$addedRow.find('input').prop("readonly", true);
-				$addedRow.find('a').remove();
+            // 직송이 아닐 경우 매입만 체크,, 직송은 매입/매출 전부 체크 
+            // 직송이면서 매입/매출전부 Y인경우 모두 일기 전용
+            // 직송이면서 매입이 Y인경우 매출만 수정 가능
+            // 직송이 아니면서 매입확정인 경우 전부 읽기전용
+            
+				// 재고관리 대상이 아닐경우 금액 수정 가능
+			//  $addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+			//  $addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+				
+			if(orderInfo.dirtrsYn == "Y"){			
+				if(obj.ordrgYn == "Y" && obj.shipYn =="Y" ) {
+					$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+					$addedRow.find('input').prop("readonly", true);
+					$addedRow.find('a').remove();
+				}else if (obj.ordrgYn == "Y"&& obj.shipYn =="N" ) {
+					$addedRow.find('input').prop("readonly", true);
+					$addedRow.find('a').remove();
+					$addedRow.find('input[name="shipUpr"]').prop("readonly", false);
+					$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+				}else if (obj.ordrgYn == "N" && obj.shipYn =="Y" ) {
+					$addedRow.find('input').prop("readonly", true);
+					$addedRow.find('a').remove();
+					$addedRow.find('input[name="ordrgUpr"]').prop("readonly", false);
+					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+				}
+			} else {
+					if(obj.ordrgYn == "Y") {
+						$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+						$addedRow.find('input').prop("readonly", true);
+						$addedRow.find('a').remove();
+					}
 			}
-			
 			// 재고관리에 따른 dom 변경
 			if(obj.prdtStockCd == "N"){
 				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
@@ -539,9 +580,6 @@
 				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
 				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
 				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
-				// 재고관리 대상이 아닐경우 금액 수정 가능
-				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-				$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
 				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
 				$addedRow.find('input[name="ordrgQty"]').prop("required", false);
 				$addedRow.find('input[name="ordrgWt"]').prop("required", false);
@@ -562,9 +600,15 @@
 			// 첨부파일 그리드 set
 			fileGridView.setData();
 		}
-		
-		if(orderInfo.ordrgYn == "Y") {
-			$("#actionOdBtn").hide();
+
+		if(orderInfo.dirtrsYn == "Y"){			
+			if(orderInfo.ordrgYn == "Y" && orderInfo.shipYn =="Y" ) {
+				$("#actionOdBtn").hide();
+			}
+		} else {
+			if(orderInfo.ordrgYn == "Y") {
+				$("#actionOdBtn").hide();
+			}
 		}
 	}
 	
@@ -944,10 +988,15 @@
 		var ordrgUpr = Number(deleteCommaStr($targetRow.find('input[name="ordrgUpr"]').val())) || 0;
 		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val())) || 0;
 		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val()) || 0;
+	
+		
+		debugger;
 		
 		if(prdtStockCd == "Y") {
 			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgQty * ordrgUpr))
-			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(ordrgQty * shipUpr))
+			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(ordrgQty * shipUpr))			
+		    $targetRow.find('input[name="realDlvrAmt"]').val(ordrgQty * ordrgUpr);
+			
 			if($('#dirtrsYn').val() == "Y"){
 				// 직송여부가 Y일때 예상손익 : 매출단가 * 수량 - 매입단가(발주단가) * 수량
 				$targetRow.find('input[name="epctPal"]').val(addCommaStr((ordrgQty * shipUpr) - (ordrgQty * ordrgUpr)));
@@ -958,12 +1007,12 @@
 		}else{
 			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgUpr));
 			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr));
+			$targetRow.find('input[name="realDlvrAmt"]').val(ordrgUpr);
 		}
 		
 		$targetRow.find('input[name="realDlvrQty"]').val(ordrgQty);
 		$targetRow.find('input[name="realDlvrWt"]').val(ordrgWt);
 		$targetRow.find('input[name="realDlvrUpr"]').val(ordrgUpr);
-		$targetRow.find('input[name="realDlvrAmt"]').val(ordrgQty * ordrgUpr);
 		
 		countTot();
 	}
@@ -1055,7 +1104,8 @@
 				alert(data.resultMessage);    
 				if(data.resultCode == 200){
 					gridView.setData(0);
-					viewOrderModal(selectedRowIdx);
+				//	viewOrderModal(selectedRowIdx);
+				   viewOrderModal($('#ordrgSeq').val());
 					modal.close();
 				}
 			});

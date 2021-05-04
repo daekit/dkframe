@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.fi.fi01.mapper.FI01Mapper">
+	
+	<select id="selectPrftDeptCount" resultType="int">
+	SELECT 
+ 		COUNT(*) 
+	  FROM TB_FI01M01 T
+	 	<where>
+	 	<if test="coCd != null and coCd != ''">
+	 	AND CO_CD = #{coCd}
+	 	</if>
+	 	<if test="useYn != null and useYn != ''">
+	 	AND USE_YN = #{useYn}
+	 	</if>				 	
+	 	</where>
+	</select>
+	
+	<select id="selectPrftDeptList" resultType="CamelMap">
+	SELECT
+		*
+	FROM
+	(
+		SELECT
+			ROWNUM AS RNUM, A.*
+		FROM
+		(
+			SELECT CO_CD
+				 , FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM
+				 , BASE_DEPT
+				 , UPPER_DEPT
+				 , LAST_DEPT
+				 , USE_YN
+				 , RMK
+			  FROM TB_FI01M01 T
+			 	<where>
+			 	<if test="coCd != null and coCd != ''">
+			 	AND CO_CD = #{coCd}
+			 	</if>
+			 	<if test="useYn != null and useYn != ''">
+			 	AND USE_YN = #{useYn}
+			 	</if>				 	
+			 	</where>
+			 ORDER BY CO_CD
+		) A			
+	)
+	WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectUpperDept" resultType="CamelMap">
+	SELECT UPPER_DEPT
+	  FROM TB_FI01M01
+	 WHERE CO_CD = #{coCd}
+	 GROUP BY UPPER_DEPT
+	</select>
+	
+	<select id="selecrLastDept" resultType="CamelMap">
+	SELECT LAST_DEPT
+	  FROM TB_FI01M01
+	 WHERE CO_CD = #{coCd}
+	 GROUP BY LAST_DEPT
+	</select>
+	
+	<select id="selectPrftDeptDetail" resultType="CamelMap">
+	SELECT CO_CD
+		 , FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM
+		 , BASE_DEPT
+		 , UPPER_DEPT
+		 , LAST_DEPT
+		 , USE_YN
+		 , RMK
+	  FROM TB_FI01M01 T
+	 	<where>
+	 	<if test="coCd != null and coCd != ''">
+	 	AND CO_CD = #{coCd}
+	 	</if>
+	 	<if test="baseDept != null and baseDept != ''">
+	 	AND BASE_DEPT = #{baseDept}
+	 	</if>
+	 	</where>
+	</select>
+	
+	<insert id="insertPrftDept" parameterType="Map">
+	INSERT INTO TB_FI01M01
+	(
+	CO_CD
+	 , BASE_DEPT
+	 , UPPER_DEPT
+	 , LAST_DEPT
+	 , USE_YN
+	 , RMK
+	 , CREAT_ID
+	 , CREAT_PGM
+	 , CREAT_DTTM
+	 ) VALUES (
+	 #{coCd}
+	 , #{baseDept}
+	 , #{upperDept}
+	 , #{lastDept}
+	 , #{useYn}
+	 , #{rmk}
+	 , #{userId}
+	 , #{pgmId}
+	 , SYSDATE
+	 )
+	</insert>
+	
+	<update id="updatePrftDept" parameterType="Map">
+	UPDATE TB_FI01M01
+	SET BASE_DEPT      = #{baseDept}
+	  , UPPER_DEPT       = #{upperDept}
+	  , LAST_DEPT = #{lastDept}
+	  , USE_YN     = #{useYn}
+	  , RMK     = #{rmk}
+	  , UDT_ID        = #{userId}
+	  , UDT_PGM       = #{pgmId}
+	  , UDT_DTTM      = SYSDATE
+	WHERE CO_CD     = #{coCd}
+	  AND BASE_DEPT = #{baseDept}
+	</update>
+	
+	<delete id="deletePrftDept" parameterType="Map">
+	DELETE FROM TB_FI01M01 
+	 WHERE CO_CD = #{coCd}
+	  AND BASE_DEPT = #{baseDept}
+	</delete>
+</mapper>

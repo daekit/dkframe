@@ -85,7 +85,7 @@ th {
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required"  onchange="mainGridView.setData(0);">
+	                 	<select id="coCd_S" data-kind="CO" required="required"  onchange="setCodeSelectByCocd('ESTCOPRT',this.value); mainGridView.setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -163,7 +163,18 @@ th {
 	            </table>
 	        </div>
 	    </div>
-		<!-- // 콘텐츠 -->
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div>
 
 	    <div class="contents">
 	      	<!-- 리스트 -->
@@ -183,12 +194,6 @@ th {
 	                <a onclick="deleteSell();" style="height: 30px; line-height: 28px;">-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
-				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
-					<option value="10">10</option>
-					<option value="20" selected="selected">20</option>
-					<option value="50">50</option>
-					<option value="100">100</option>
-				</select>
 			</div>
 		</div>
 	  	<!-- 콘텐츠 -->
@@ -207,6 +212,8 @@ th {
 	var prjctType = null;
 	var actionType = null;
 	var firstGrid = null;
+	
+	var currentIdx = null;
 	
 	ax5.ui.grid.formatter["bilgYn"] = function () {
 		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
@@ -229,7 +236,6 @@ th {
 			        	onClick: function () {
 							this.self.select(this.dindex);
 							gridView.setData(0, this.dindex);
-			            }
 			        },
 			        page : {
 						navigationItemCount : 10,
@@ -271,7 +277,7 @@ th {
 			}, 
 			setData: function(_pageNo) {
 				mainGrid = this.target;
-				setCodeSelectByCocd("ESTCOPRT",$("#coCd_S").val());
+				
 				var formData = {
 					"selpchCd"  : "SELPCH1",
 					"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
@@ -319,8 +325,31 @@ th {
 		        	selector: true
 		        },
 		        body: {
+<<<<<<< HEAD
 		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"]
 		        },
+=======
+		        	onClick: function () {
+// 		                this.self.select(this.dindex); 
+		            },
+		            onDBLClick: function () {
+// 		            	viewShipModal();
+		            },
+		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"],
+		        },
+// 		        page: {
+// 		            navigationItemCount: 9,
+// 		            height: 30,
+// 		            display: false,
+// 		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+// 		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+// 		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+// 		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+// 		            onChange: function () {
+// 		            	gridView.setData(this.page.selectPage);
+// 		            }
+// 		        },
+>>>>>>> master
 		        columns: [ 
 		          	{key: "trstCertiNo",    label: "거래지시번호",	align: "center",	width: 100, hidden: true},
 		          	{key: "bilgYn",         label: "전표",		align: "center",	width: 50,	formatter: "bilgYn"},
@@ -391,7 +420,21 @@ th {
 			}
 			postAjax("/user/ar/ar02/selectSellList", formData, null, function(data){
 				var list = data.resultList;
+<<<<<<< HEAD
 				firstGrid.setData(list);
+=======
+			
+				firstGrid.setData(list);
+// 				firstGrid.setData({
+// 					list : list
+// // 					page : {
+// // 						currentPage   : _pageNo,
+// // 						pageSize      : data.paginationInfo.pageSize,
+// // 						totalElements : data.paginationInfo.totalRecordCount,
+// // 						totalPages    : data.paginationInfo.totalPageCount
+// // 					}
+// 				});
+>>>>>>> master
 			});
 		}
 	}

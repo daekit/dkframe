@@ -202,7 +202,7 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			//커플러일 경우 별도 단가 데이터 저장
-			if(detailMap.get("prdtStkn").contains("PDSKCP")) {
+			if(detailMap.get("prdtDiv").contains("PRDTDIV22")) {
 				detailMap.put("coCd", paramMap.get("coCd"));
 				detailMap.put("clntCd", paramMap.get("clntCd"));
 				detailMap.put("selpchCd", "SELPCH2");

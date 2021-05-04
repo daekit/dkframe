@@ -185,7 +185,8 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	viewOrderModal(this.dindex);
+		            	debugger;
+		            	viewOrderModal(this.item.ordrgSeq);
 		            }
 		        },
 		        page: {
@@ -206,8 +207,8 @@
 		            {key: "dirtrsYn",   label: "직송",     align: "center",   width: 50},
 		        	{key: "ordrgYn",    label: "매입",      align: "center", width: 50, styleClass: function () {
 	                     return (this.item.ordrgYn == "N") ? "grid-font-red-bold":"";}},
-		        	{key: "sellYn",     label: "매출",      align: "center", width: 50, styleClass: function () {
-	                     return (this.item.ordrgYn == "N" && this.item.dirtrsYn == "Y") ? "grid-font-red-bold":"";}},
+		        	{key: "shipYn",     label: "매출",      align: "center", width: 50, styleClass: function () {
+	                     return (this.item.shipYn == "N" && this.item.dirtrsYn == "Y") ? "grid-font-red-bold":"";}},
 		        	{key: "typNm",      label: "판매유형",    align: "center", width: "6%"},
 		            {key: "clntNm",     label: "매입거래처",  align: "left",    width: "10%"},
 		        	{key: "sellClntNm", label: "매출거래처",   align: "left",   width: "10%"},
@@ -272,7 +273,7 @@
 			        	{key: "dlvrDttm",   label: "납기일자",   align: "center",  width: 80},
 			            {key: "dirtrsYn",   label: "직송",     align: "center",   width: 50},
 			        	{key: "ordrgYn",    label: "매입",      align: "center", width: 50},
-			        	{key: "sellYn",     label: "매출",      align: "center", width: 50},
+			        	{key: "shipYn",     label: "매출",      align: "center", width: 50},
 			        	{key: "typNm",      label: "판매유형",    align: "center", width: "6%"},
 			            {key: "clntNm",     label: "매입거래처",  align: "left",    width: "10%"},
 			        	{key: "sellClntNm", label: "매출거래처",   align: "left",   width: "10%"},
@@ -322,7 +323,10 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/od/od01/OD0102P01.html", 1200, 780, " ");
+		var paramObj = {
+				'ordrgSeq' : ""
+		};	
+		openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, " ", paramObj);
 	}
 	
 	function deleteOrder() {
@@ -355,19 +359,26 @@
 		$("#reqDtTo").val(getMonth("E"));
 	}
 
-	function viewOrderModal(idx) {
-		selectedRowIdx = idx;
-		openModal("/static/html/user/od/od01/OD0102V01.html", 1200, 780, " ");
+	function viewOrderModal(ordrgSeq) {
+		var paramObj = {
+				'ordrgSeq' : ordrgSeq
+		};
+
+		// var openModal = function(url, width, height, title, paramObj, callBack				
+		openModal("/static/html/user/od/od01/OD0102V01.html", 1300, 780, " ",paramObj);
 	}
 	
-	function updateOrderModal() {
+	function updateOrderModal(ordrgSeq) {
 		modal.close();
 		actionType = "U";
-		if(gridView.target.getList("selected")[0] == undefined) {
-			gridView.target.select(selectedRowIdx);	
-		}
-		selectedRowIdx = gridView.target.getList("selected")[0].__index;
-		openModal("/static/html/user/od/od01/OD0102P01.html", 1200, 780, " ");
+// 		if(gridView.target.getList("selected")[0] == undefined) {
+// 			gridView.target.select(selectedRowIdx);	
+// 		}
+// 		selectedRowIdx = gridView.target.getList("selected")[0].__index;
+		var paramObj = {
+				'ordrgSeq' : ordrgSeq
+		};		
+		openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, " ",paramObj);
 	}
 	
 	// 거래처 검색
