@@ -490,7 +490,7 @@
 
 	function changeRecordCnt() {
 		$("#recordCnt").val($(".prae_select").val());
-		gridView2.setData(0);
+		subGridView.setData(0);
 	}
 
 	function initSearch() {
@@ -562,7 +562,7 @@
 	}
 
 	function insertDivModal() {
-		var row = gridView2.target.getList("selected")[0];
+		var row = subGridView.target.getList("selected")[0];
 		if(row != undefined && row.bilgYn == "N") {
 			openModal("/static/html/user/ar/ar02/AR0203P01.html", 400, 250, "");	
 		} else {
@@ -571,7 +571,7 @@
 	}
 	
 	function sellCal() {
-		if(checkGridRow(gridView2.target, "multi")){
+		if(checkGridRow(subGridView.target, "multi")){
 			modalTitle = "매출실적 정산";
 			openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, modalTitle);
 		}
@@ -582,7 +582,7 @@
 		var flag = false;
 		var clntFlag = false;
 		var returnFlag = false;
-		var list = gridView2.target.getList("selected");
+		var list = subGridView.target.getList("selected");
 		var trstCertiNoArr = [];
 		var bilgCertNo = null;
 		$.each(list, function(idx, obj) {
@@ -632,7 +632,7 @@
 		postAjax(url, formData, null, function(data) {
 			alert(data.resultMessage);
 			if(data.resultCode == 200) {
-				gridView2.setData(0);	
+				subGridView.setData(0);	
 			}
 		});
 	}
@@ -640,7 +640,7 @@
 	function updateBilgCancel() {
 		var flag = false;
 		var bilgFlag = false;
-		var list = gridView2.target.getList("selected");
+		var list = subGridView.target.getList("selected");
 		var bilgCertNoArr = [];
 		$.each(list, function(idx, obj) {
 			if (obj.bilgYn == "N"){
@@ -671,7 +671,7 @@
 			}
 			putAjax("/user/ar/ar04/updateBilgCancel", formData, null, function(data) {
 				alert(data.resultMessage);
-				gridView2.setData(0);
+				subGridView.setData(0);
 			});
 		}
 	}
@@ -681,7 +681,7 @@
 		var clntFlag = false;
 		var siteFlag = false;
 		var coFlag = false;
-		var list = gridView2.target.getList("selected");
+		var list = subGridView.target.getList("selected");
 		var trstNoArr = "";
 		var p_clntNm = "";
 		var p_clntCd = "";
@@ -786,7 +786,7 @@
 		var modalTitle = "";
 		actionType = type;
 		if (type == "U") {
-			var rowLength = gridView2.target.getList("selected").length;
+			var rowLength = subGridView.target.getList("selected").length;
 			if (rowLength == 0) {
 				alert("반품 건을 선택해 주세요.");
 				return;
@@ -802,7 +802,7 @@
 	}
 	
 	function deleteSell() {
-		var row = gridView2.target.getList("selected")[0];
+		var row = subGridView.target.getList("selected")[0];
 		var formData = {
 			"trstCertiNo" : row.trstCertiNo,
 			"userId" : jwt.userId,
@@ -810,7 +810,7 @@
 			"ownerCd" : row.ownerCd,
 			"whCd" : row.whCd
 		}
-		if (gridView2.target.getList("selected").length > 1) {
+		if (subGridView.target.getList("selected").length > 1) {
 			alert("삭제는 한건씩 진행해주세요");
 			return;
 		}
@@ -820,7 +820,7 @@
 				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {
 					if (data.resultCode == 200) {
 						alert(data.resultMessage);
-						gridView2.setData(0);
+						subGridView.setData(0);
 					}
 				});
 			}
