@@ -5,17 +5,18 @@
 		</div>
 		<div class="popup_table">
 			<form id="popForm">
-				<input type="hidden" id="pgmId" name="pgmId" value="AR0102V01">
-				<input type="hidden" id="reqDt" name="reqDt">
-				<input type="hidden" id="selpchCd" name="selpchCd" value="SELPCH2">
-				<input type="hidden" id="shipSeq" name="shipSeq"> 
-				<input type="hidden" id="ordrgSeq" name="ordrgSeq"> <!-- 발주번호 -->
+				<input type="hidden" id="pgmId"       name="pgmId" value="AR0102V01">
+				<input type="hidden" id="reqDt"       name="reqDt">
+				<input type="hidden" id="selpchCd"    name="selpchCd" value="SELPCH2">
+				<input type="hidden" id="shipSeq"     name="shipSeq"> 
+				<input type="hidden" id="ordrgSeq"    name="ordrgSeq"> <!-- 발주번호 -->
 				<input type="hidden" id="ordrgDtlSeq" name="ordrgDtlSeq"> <!-- 발주상세번호 -->
-				<input type="hidden" id="odrDtlSeq" name="odrDtlSeq"> <!-- 주문상세번호 -->
-				<input type="hidden" id="whClntCd" name="whClntCd"> <!--재고주체가 자사인경우 거래처 창고의 거래처-->
-				<input type="hidden" id="trspTypCd" name="trspTypCd" value="TRSPTYP1"> <!--정상거래로 인식-->
-				<input type="hidden" id="prjctCd" name="prjctCd"> 
-				<input type="hidden" id="prjctNm" name="prjctNm">
+				<input type="hidden" id="odrDtlSeq"   name="odrDtlSeq"> <!-- 주문상세번호 -->
+				<input type="hidden" id="whClntCd"    name="whClntCd"> <!--재고주체가 자사인경우 거래처 창고의 거래처-->
+				<input type="hidden" id="whType"      name="whType"> <!--공장여부 확인-->
+				<input type="hidden" id="trspTypCd"   name="trspTypCd" value="TRSPTYP1"> <!--정상거래로 인식-->
+				<input type="hidden" id="prjctCd"     name="prjctCd"> 
+				<input type="hidden" id="prjctNm"     name="prjctNm">
 				<table>
 					<colgroup>
 						<col width="12%">
@@ -547,8 +548,15 @@
 			alert("출하내역을 선택해주세요");
 			return;
 		}
-		
 		var formData = makeFormData('CONFIRM');
+	
+// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
+//		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+		var mngPrdtLen = ''; 
+		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
+//--------------------------------------------------------------------------------------------------------------
+		
 		filePutAjax("/user/ar/ar01/updateConfirm", formData, function(data){
 			alert(data.resultMessage);  
 			if(data.resultCode == 200) {
@@ -576,8 +584,14 @@
 			alert("확정 건이 존재하지 않습니다.");
 			return;
 		}
-		
-		var formData = makeFormData('CANCEL');
+		var formData = makeFormData('CANCEL');		
+// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
+//		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+		var mngPrdtLen = ''; 
+		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
+//--------------------------------------------------------------------------------------------------------------
+
 		filePutAjax("/user/ar/ar01/updateCancel", formData, function(data){
 			alert(data.resultMessage);         
 			if(data.resultCode == 200) {
