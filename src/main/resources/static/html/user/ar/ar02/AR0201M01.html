@@ -310,18 +310,6 @@
 		        body: {
 		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"],
 		        },
-		        page: {
-		            navigationItemCount: 10,
-		            height: 30,
-		            display: true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	subGridView.setData(this.page.selectPage);
-		            }
-		        },
 		        columns: [
 		          	{key: "trstCertiNo",    label: "거래지시번호",  hidden: true},
 		        	{key: "clntCd",    	 	label: "거래처",		hidden: true},
@@ -562,9 +550,10 @@
 	
 	function openSalesDivision(){
 		if(checkGridRow(subGridView.target, "single")){
-			var row = subGridView.target.getList("selected")[0];
-			if(row.bilgYn == "N"){
-				openModal("/static/html/user/ar/ar02/AR0203P01.html", 900, 500, "");
+			var selectedRows = subGridView.target.getList("selected");
+			selectedRows[0].__selected__ = false;
+			if(selectedRows[0].bilgYn == "N"){
+				openModal("/static/html/user/ar/ar02/AR0203P01.html", 1000, 500, "매출분할", {"selectedRows": selectedRows});
 			}else{
 				alert("분할이 불가능한 데이터입니다.");
 			}
@@ -573,8 +562,11 @@
 
 	function sellCal() {
 		if(checkGridRow(subGridView.target, "multi")){
-			modalTitle = "매출실적 정산";
-			openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, modalTitle);
+			var selectedRows = subGridView.target.getList("selected");
+			$.each(selectedRows, function(idx, obj){
+				obj.__selected__ = false;
+			})
+			openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, "매출실적 정산", {"selectedRows": selectedRows});
 		}
 	}
 	
