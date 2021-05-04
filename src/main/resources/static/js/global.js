@@ -173,7 +173,7 @@ function checkGridRow(grid, type){
 	}
 	
 	if(type == "single"){
-		if(grid.getList("selected").length > 0){
+		if(grid.getList("selected").length > 1){
 			alert("한건 만 선택해주세요.");
 			isValid = false;
 		}
