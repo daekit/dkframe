@@ -220,7 +220,7 @@
 		VALUES 
 		(
 			#{bilgCertNo},
-			1,
+			(SELECT MAX(NVL(BILG_CERT_NO_SEQ, 0) + 1) FROM TB_AR04D01 WHERE BILG_CERT_NO = #{bilgCertNo}),
 			#{moa95004},
 			#{ard5006},
 			#{ard113a},
@@ -1524,7 +1524,7 @@
 	<update id="updateOrgnTaxBilgNo" parameterType="Map">
 	UPDATE TB_AR04M01
 	   SET ORGN_TAX_BILG_NO = TAX_BILG_NO
-	     , RFF_GN1 = #{rffGn1}
+		 , RFF_AEA = #{rffAea}
 	 WHERE BILG_CERT_NO = #{beforeBilgCertNo} 
 	</update>
 	
@@ -1551,7 +1551,7 @@
 		, CREAT_DTTM
 	)
 	SELECT #{bilgCertNo}
-			, BILG_CERT_NO_SEQ
+			, ARD___113A
 			, MOA9_5004
 			, ARD_5006
 			, ARD___113A
@@ -2568,7 +2568,7 @@
 		UDT_DTTM
 	) VALUES (
 		#{bilgCertNo},
-		(SELECT NVL(MAX(BILG_CERT_NO_SEQ), 0) + 1 FROM TB_AR04D01 WHERE BILG_CERT_NO = #{bilgCertNo}),
+		#{ard113a},
 		REPLACE(#{moa95004}, '-', ''),
 		#{ard5006},
 		#{ard113a},
