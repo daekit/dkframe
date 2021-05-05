@@ -76,9 +76,9 @@
                 <th>이력기간</th>
 				<td>
 					<div class="date_input">
-						<input type="text" class="input_calendar" autocomplete="off" id="startDt" data-search="startDt" > 
+						<input type="text" class="input_calendar" autocomplete="off" id="startDt" data-search="startDt" date onchange="dateValidation();"> 
 						<span>~</span> 
-						<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt" >
+						<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt" date onchange="dateValidation();">
 					</div>
 				</td>
 
@@ -284,6 +284,41 @@
 		$("#selpchCd_S option[value='SELPCH3']").remove();
 		$("#selpchCd_S option[value='SELPCH4']").remove();
 
+		
+
+		$("#startDt").val(lastWeek());
+		$("#endDt").val(dateToStr(new Date()));
+	
+		// 시작일 (현재날짜의 월 첫일)
+		$('#startDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).subtract(1, "month").startOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#startDt').datepicker("setDate", new Date($('#endDt').val()));
+			}
+		});
+		
+		// 종료일 (현재날짜의 월 말일)
+		$('#endDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
+			}
+		});
+		
+		
+		
 	});
 	
 	// 검색조건 초기화
@@ -293,7 +328,6 @@
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 재검색
 		gridView.setData(0);
-		gridView2.setData(0);
 	}
 	
 	//거래처
