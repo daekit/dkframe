@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	
+</head>
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+		    	<a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		        </a>
+		        <a onclick="gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
+	        </li>
+	      </ul>
+    	</div>
+		<div class="contents search">
+		  <div class="">
+            <!-- 테이블 인풋 2분할 -->
+            <table class="table_input type04">
+              <tr>
+            	<th class= "hit">회사</th>
+	            <td>
+	              <select id="coCd_S" data-search="coCd_S" data-kind="CO" required="required" onchange="gridView.setData(0);">
+	                <option value="">전체</option>
+	              </select>
+	            </td>
+	            <th>거래처</th>
+                <td>
+                  <input type="hidden" id="clntCd_S" data-search="clntCd_S">
+                  <div class="search_form" style="width: 50%;">
+	                <input type="text" id="clntNm_S" data-search="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+	              </div>
+                </td>
+                <th>기간</th>
+				<td>
+					<div class="date_input">
+						<input type="text" class="input_calendar" autocomplete="off" id="startDt" data-search="startDt" > 
+						<span>~</span> 
+						<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt" >
+					</div>
+				</td>
+
+              </tr>
+              <tr>
+	            <th>유형</th>
+				<td>
+					<select id="selpchCd_S" name="selpchCd_S" data-kind="SELPCH" data-search="selpchCd" onchange="gridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>						               
+              
+                 <th>사용유무</th>
+                <td>
+                  <select id="useType" data-search="useType" required="required" onchange="gridView.setData(0);">
+	                <option value="">전체</option>
+	                <option value="Y">사용</option>
+					<option value="N">미사용</option>
+	              </select>
+                </td>             
+              </tr>
+            </table>
+		  </div>
+		</div>		
+		
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+			</div>
+		</div>
+	<input type="hidden" id="coCd">
+	<input type="hidden" id="clntCd">
+	<div class="contents">	
+<!-- 	  <ul class="ul_list type01"> -->
+<!-- 	    <li> -->
+<!-- 	      <div> -->
+		    <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:550px; width: 100%" ></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+<!-- 	      </div> -->
+<!-- 	    </li> -->
+<!-- 	  </ul> -->
+	</div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="first-grid"]'),
+				showRowSelector: true,
+	        	multipleSelect: false,
+		    	sortable: true,
+				header: {align: "center", 
+		        	selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	//openClntDetail("U");
+		            },
+		            // mergeCells : ["clntCd","clntNm", "coNm"],
+		        },
+	            columns: [	            	
+	            	{key: "trstNo",	       label: "이력일련번호",	width: 45,		align: "center", hidden: "true"},
+	            	{key: "procDttm",	   label: "이력발생일자",	width: 80,		align: "center"},
+	            	{key: "chgCd",	       label: "변경코드",		width: 45,		align: "center", hidden: "true"},
+	            	{key: "chgNm",	       label: "변경내용",		width: 100,		align: "center"},
+	            	{key: "pldgSn",	       label: "담보번호",		width: 45,		align: "center", hidden: "true"},
+	            	{key: "clntCd",	       label: "거래처코드",		width: 45,		align: "center", hidden: "true"},
+	                {key: "clntNm",		   label: "거래처명", 		width: 130,      align: "left"},
+	            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
+	                {key: "coNm",	       label: "회사",			width: 90,		align: "center"},
+	                {key: "selpchCd",	   label: "구분",			width: 90,		align: "center", hidden: "true"},
+	                {key: "selpchNm",	   label: "매입/매풀구분",	width: 90,		align: "center"},
+	                {key: "pldgDivCd",	   label: "담보구분",		width: 90,		align: "center", hidden: "true"},
+	                {key: "pldgDivNm",	   label: "담보구분명",		width: 120,		align: "center"},
+	                {key: "pldgAmt",	   label: "담보금액",	 	width: 120,		align: "right", formatter: "money"},
+	                {key: "pldgRcognRate", label: "담보인증비율", 	width: 100,		align: "right", formatter: "money"},
+	            	{key: "exprtnDt",	   label: "담보만기일",		width: 90,		align: "center"},
+	            	{key: "setupDt",       label: "담보설정일",		width: 90,		align: "center"},
+	            	{key: "pldgRmk",       label: "비고",			width: 200,		align: "left"},
+	            	{key: "useYn",	       label: "사용",			width: 45,		align: "center"},
+	            	{key: "creatId",       label: "등록자",		width: 100,		align: "center"},
+	            	{key: "creatNm",       label: "등록자명",		width: 100,		align: "center"},
+	            	{key: "creatDttm",     label: "등록일",		width: 90,		align: "center"},
+	            	{key: "udtId",         label: "수정자",		width: 100,		align: "center"},
+	            	{key: "udtNm",         label: "수정자명",		width: 100,		align: "center"},
+	            	{key: "udtDttm",       label: "수정일",		width: 90,		align: "center"},
+	            ],
+	            page: {
+	                navigationItemCount: 10,
+	                height: 30,
+	                display: true,
+	                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+	                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+	                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+	                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+	                onChange: function () {
+	                    gridView.setData(this.page.selectPage);
+	                }
+	            }
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			var formData = {
+					"coCd"		: $("#coCd_S").val(),
+					"clntCd"	: $("#clntCd").val(),
+					"useYn" 	: $('#useType').val(),
+					"clntCdS"	: $('#clntCd_S').val(),
+					"clntNm"	: $('#clntNm_S').val(),
+					"selpchCd"	: $('#selpchCd_S').val(),
+					"startDt"	: $('#startDt').val(),
+					"endDt"   	: $('#endDt').val(),
+					"pageNo" 	: _pageNo + 1, 
+					"recordCnt" : $("#recordCnt").val()
+				}
+			
+			postAjax("/admin/bm/bm08/selectClntPldgHistoryList", formData, null, function(data){
+				targetObj.setData({
+					list: data.pldgList,
+					page : {
+						currentPage   : _pageNo,
+						pageSize      : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages    : data.paginationInfo.totalPageCount
+					}
+				});
+			
+			});
+		}
+	}
+
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+		            	{key: "trstNo",	       label: "이력일련번호",	width: 45,		align: "center", hidden: "true"},
+		            	{key: "procDttm",	   label: "이력발생일자",	width: 45,		align: "center"},
+		            	{key: "chgCd",	       label: "변경코드",		width: 45,		align: "center", hidden: "true"},
+		            	{key: "chgNm",	       label: "변경내용",		width: 45,		align: "center"},
+		            	{key: "pldgSn",	       label: "담보번호",		width: 45,		align: "center", hidden: "true"},
+		            	{key: "clntCd",	       label: "거래처코드",		width: 45,		align: "center", hidden: "true"},
+		                {key: "clntNm",		   label: "거래처명", 		width: 130,      align: "left"},
+		            	{key: "coCd",	       label: "회사코드",		width: 95,		align: "center", hidden: "true"},
+		                {key: "coNm",	       label: "회사",			width: 90,		align: "center"},
+		                {key: "selpchCd",	   label: "구분",			width: 90,		align: "center", hidden: "true"},
+		                {key: "selpchNm",	   label: "매입/매풀구분",	width: 90,		align: "center"},
+		                {key: "pldgDivCd",	   label: "담보구분",		width: 90,		align: "center", hidden: "true"},
+		                {key: "pldgDivNm",	   label: "담보구분명",		width: 90,		align: "center"},
+		                {key: "pldgAmt",	   label: "담보금액",	 	width: 100,		align: "right", formatter: "money"},
+		                {key: "pldgRcognRate", label: "담보인증비율", 	width: 100,		align: "right", formatter: "money"},
+		            	{key: "exprtnDt",	   label: "담보만기일",		width: 45,		align: "center"},
+		            	{key: "setupDt",       label: "담보설정일",		width: 45,		align: "center"},
+		            	{key: "pldgRmk",       label: "비고",			width: 45,		align: "left"},
+		            	{key: "useYn",	       label: "사용",			width: 45,		align: "center"},
+		            	{key: "creatId",       label: "등록자",		width: 45,		align: "center"},
+		            	{key: "creatNm",       label: "등록자명",		width: 45,		align: "center"},
+		            	{key: "creatDttm",     label: "등록일",		width: 45,		align: "center"},
+		            	{key: "udtId",         label: "수정자",		width: 45,		align: "center"},
+		            	{key: "udtNm",         label: "수정자명",		width: 45,		align: "center"},
+		            	{key: "udtDttm",       label: "수정일",		width: 45,		align: "center"},
+			        ]
+			    });
+				return this;
+			}
+		}
+	
+	
+	
+	$(document).ready(function() {
+		mainDefaultLoad("영업관리", "거래처 담보이력 조회");
+		setCommonSelect($("#main_area select[data-kind]"));
+		//selectChildCodeList();
+		$("#coCd").val(jwt.coCd);
+		$('#pldgUpdateBtn').hide();
+		if(jwt.authInfo == "AUTH003"){
+			$('#pldgUpdateBtn').show();			
+		}
+
+		gridView.initView().setData(0);
+		excelView.initView();
+		
+		$("#selpchCd_S option[value='SELPCH3']").remove();
+		$("#selpchCd_S option[value='SELPCH4']").remove();
+
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+
+		// 조건
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		// 재검색
+		gridView.setData(0);
+		gridView2.setData(0);
+	}
+	
+	//거래처
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
+		});
+	}
+	
+	function openClntDetail(type) {
+		if(type == "U"){
+			if(selectGridValidation(gridView.target)) return;
+		}
+		
+		actionType = type;
+		openModal("/static/html/admin/bm/bm06/BM0602P01.html", 1400, 800, "거래처 마스터");
+	}
+	
+	function excelDown() {
+		var targetObj = this.target;
+		var formData = {
+				"coCd"		: $("#coCd_S").val(),
+				"clntCd"	: $("#clntCd").val(),
+				"useYn" 	: $('#useType').val(),
+				"clntCdS"	: $('#clntCd_S').val(),
+				"clntNm"	: $('#clntNm_S').val(),
+				"selpchCd"	: $('#selpchCd_S').val(),
+				"startDt"	: $('#startDt').val(),
+				"endDt"   	: $('#endDt').val(),
+				"pageNo" 	: 1, 
+				"recordCnt" : 9999999
+			}
+		
+		postAjax("/admin/bm/bm08/selectClntPldgHistoryList", formData, null, function(data){
+				var list = data.pldgList;				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("거래처 담보 이력현황"+todayDate+".xls");
+			});	
+	}	
+	
+	
+	
+</script>
