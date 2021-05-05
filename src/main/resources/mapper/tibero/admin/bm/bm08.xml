@@ -219,4 +219,116 @@
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
+	
+	<select id="selectClntPldgHistoryCount" resultType="int">
+				SELECT count(*)
+			      FROM TB_BM02H02 A
+				  INNER JOIN TB_BM02M01 BM02
+				          ON BM02.CLNT_CD = A.CLNT_CD 
+				 WHERE 1 = 1
+				<if test="useYn != null and !useYn.equals('')">
+				   AND A.PROC_DTTM   = #{procDttm}
+				</if>				
+				<if test="chgCd != null and !chgCd.equals('')">   
+				   AND A.CHG_CD      = #{chgCd}
+				</if>				
+				<if test="clntCd != null and !clntCd.equals('')">
+				   AND A.CLNT_CD     = #{clntCd}
+				</if>				
+				<if test="coCd != null and !coCd.equals('')">
+				   AND A.CO_CD       = #{coCd}
+				</if>				
+				<if test="selpchCd != null and !selpchCd.equals('')">
+				   AND A.SELPCH_CD   = #{selpchCd}
+				</if>				
+				<if test="pldgDivCd != null and !pldgDivCd.equals('')">
+				   AND A.PLDG_DIV_CD = #{pldgDivCd}
+				</if>				
+				<if test="pldgRmk != null and !pldgRmk.equals('')">
+				   AND A.PLDG_RMK    LIKE '%' || #{pldgRmk} || '%'
+				</if>				
+				<if test="useYn != null and !useYn.equals('')">
+				   AND A.USE_YN      = #{useYn}
+				</if>			
+				<if test="clntNm != null and !clntNm.equals('')">
+				   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} || '%'
+				</if>
+		
+	</select>
+	
+	<select id="selectClntPldgHistoryList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT A.TRST_NO
+				     , TO_CHAR(A.PROC_DTTM,'YYYY-MM-DD') AS PROC_DTTM
+				     , A.CHG_CD
+				     , FN_CM05M01_CD_TO_NM(A.CHG_CD) AS CHG_NM
+				     , A.PLDG_SN
+				     , A.CLNT_CD
+				     , BM02.CLNT_NM
+				     , A.CO_CD
+				     , FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+				     , A.SELPCH_CD
+				     , FN_CM05M01_CD_TO_NM(A.SELPCH_CD) AS SELPCH_NM
+				     , A.PLDG_DIV_CD
+				     , FN_CM05M01_CD_TO_NM(A.PLDG_DIV_CD) AS PLDG_DIV_NM
+				     , A.PLDG_AMT
+				     , A.PLDG_RCOGN_RATE
+				     , TO_CHAR(TO_DATE(A.EXPRTN_DT,'YYYYMMDD'),'YYYY-MM-DD') AS EXPRTN_DT
+				     , TO_CHAR(TO_DATE(A.SETUP_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS SETUP_DT
+				     , A.PLDG_RMK
+				     , A.USE_YN
+				     , A.CREAT_ID
+				     ,(SELECT NAME FROM TB_CM06M01 WHERE ID = A.CREAT_ID) AS CREAT_NM
+				     , A.CREAT_PGM
+				     , TO_CHAR(A.CREAT_DTTM,'YYYY-MM-DD') AS CREAT_DTTM
+				     , A.UDT_ID
+				     ,(SELECT NAME FROM TB_CM06M01 WHERE ID = A.UDT_ID) AS UDT_NM
+				     , A.UDT_PGM
+				     , TO_CHAR(A.UDT_DTTM,'YYYY-MM-DD') AS UDT_DTTM
+				  FROM TB_BM02H02 A 
+				  INNER JOIN TB_BM02M01 BM02
+				          ON BM02.CLNT_CD = A.CLNT_CD 
+				 WHERE 1 = 1
+				<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+				   AND A.PROC_DTTM  BETWEEN TO_DATE(#{startDt},'YYYY-MM-DD') AND TO_CHAR(#{endDt}M'YYYY-MM-DD')
+				</if>				
+				<if test="chgCd != null and !chgCd.equals('')">   
+				   AND A.CHG_CD      = #{chgCd}
+				</if>				
+				<if test="clntCd != null and !clntCd.equals('')">
+				   AND A.CLNT_CD     = #{clntCd}
+				</if>				
+				<if test="coCd != null and !coCd.equals('')">
+				   AND A.CO_CD       = #{coCd}
+				</if>				
+				<if test="selpchCd != null and !selpchCd.equals('')">
+				   AND A.SELPCH_CD   = #{selpchCd}
+				</if>				
+				<if test="pldgDivCd != null and !pldgDivCd.equals('')">
+				   AND A.PLDG_DIV_CD = #{pldgDivCd}
+				</if>				
+				<if test="pldgRmk != null and !pldgRmk.equals('')">
+				   AND A.PLDG_RMK    LIKE '%' || #{pldgRmk} || '%'
+				</if>				
+				<if test="useYn != null and !useYn.equals('')">
+				   AND A.USE_YN      = #{useYn}
+				</if>			
+				<if test="clntNm != null and !clntNm.equals('')">
+				   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} || '%'
+				</if>
+
+			) A
+			ORDER BY PLDG_DIV_CD , CLNT_CD ,CO_CD 
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
 </mapper>

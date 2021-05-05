@@ -37,5 +37,15 @@ public class BM08SvcImpl implements BM08Svc {
 		return bm08Mapper.selectClntPledgeDetailList(paramMap);
 	}
 
+	@Override
+	public int selectClntPldgHistoryCount(Map<String, String> paramMap) {
+		return bm08Mapper.selectClntPldgHistoryCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectClntPldgHistoryList(Map<String, String> paramMap) {
+		return bm08Mapper.selectClntPldgHistoryList(paramMap);
+	}
+
 	
 }

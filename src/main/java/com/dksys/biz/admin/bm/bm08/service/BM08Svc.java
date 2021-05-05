@@ -15,6 +15,11 @@ public interface BM08Svc {
 	
 	List<Map<String, String>> selectClntPledgeDetailList(Map<String, String> paramMap);
 
+	// 답보 이력 추가
+	int selectClntPldgHistoryCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectClntPldgHistoryList(Map<String, String> paramMap);
+
 	
 
 }

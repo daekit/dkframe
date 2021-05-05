@@ -16,6 +16,11 @@ public interface BM08Mapper {
 	
 	List<Map<String, String>> selectClntPledgeDetailList(Map<String, String> paramMap);
 
+	// 답보이력추가
+	int selectClntPldgHistoryCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectClntPldgHistoryList(Map<String, String> paramMap);
+
 	
 
 }

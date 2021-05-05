@@ -51,4 +51,16 @@ public class BM08Ctr {
     	return "jsonView";
     }
     
+	// 거래처 담보 이력 리스트 조회
+    @PostMapping("/selectClntPldgHistoryList")
+    public String selectClntPledgeHistoryList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = bm08Svc.selectClntPldgHistoryCount(paramMap);
+    	PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> pldgList = bm08Svc.selectClntPldgHistoryList(paramMap);
+    	model.addAttribute("pldgList", pldgList);
+        return "jsonView";
+    }
+  
 }
