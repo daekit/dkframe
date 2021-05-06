@@ -101,8 +101,7 @@ th {
               <tr>
               	<th class="hit">회사</th>
                 <td style="width:200px">
-                  <select id= "coCd_S" style="width:70%;" data-kind="CO" onchange="gridView.setData(0);" required="required">
-                  <option value="">전체</option>
+                  <select id= "coCd_S" name="coCd_S" style="width:70%;" data-kind="CO" onchange="setWareHouse(this.value); gridView.setData(0);"  required="required">
                   </select>
                 </td>
                 <th>이동일자</th>
@@ -126,13 +125,13 @@ th {
               	
                 <th>출고지</th>
                 <td>
-                  <select id= "searchOutCoCd" data-kind="WH" onchange="gridView.setData(0);">
+                  <select id= "searchOutCoCd" name= "searchOutCoCd" data-kind="WH" onchange="gridView.setData(0);">
                   <option value="">전체</option>
                   </select>
                 </td>
                 <th >입고지</th>
                 <td>
-                  <select id= "searchInCoCd" data-kind="WH" onchange="gridView.setData(0);">
+                  <select id= "searchInCoCd" name= "searchInCoCd" data-kind="WH" onchange="gridView.setData(0);">
                   <option value="">전체</option>
                   </select>
                 </td>
@@ -291,6 +290,9 @@ th {
 		mainDefaultLoad("재고관리", "재고이동 현황관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
+		
+		//창고 초기값 설정
+		setWareHouse(jwt.coCd);
 
 		$("#strtDt").val(lastWeek());
 		$("#endDt").val(dateToStr(new Date()));
@@ -391,5 +393,16 @@ th {
 			$("#prdtNm").val(row.prdtNm);
 		});
 	}
-		
+
+	// 창고 set
+	function setWareHouse(value){
+		//출고고지 창고 법인별 설정
+		$('#searchOutCoCd').data("desc", value);
+		$('#searchOutCoCd').empty();
+		setCommonSelect($('#searchOutCoCd'));
+		//임고지 창고법인별 설정
+		$('#searchInCoCd').data("desc", value);
+		$('#searchInCoCd').empty();
+		setCommonSelect($('#searchInCoCd'));
+	}		
 </script>

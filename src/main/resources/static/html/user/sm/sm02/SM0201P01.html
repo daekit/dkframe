@@ -20,13 +20,13 @@
 		          		<tr>
 		          			<th colspan= "2">출고 회사</th>
 		          			<td colspan="3"> 
-		          				<select id="searchDtlOutCoCd" data-kind="CO" onchange="gridView1.setData(0);" required >
+		          				<select id="searchDtlOutCoCd" name="searchDtlOutCoCd" data-kind="CO" onchange="setWareHouse(this.value); gridView1.setData(0);" required >
 		          				<option value="">전체</option>
 		          				</select>
 		          			</td>
 		          			<th colspan="2">출고지(창고)</th>
 		          			<td colspan="3"> 
-		          				<select id="searchDtlOutWhCd" data-kind="WH" onchange="gridView1.setData(0);" required>
+		          				<select id="searchDtlOutWhCd" name="searchDtlOutWhCd" data-kind="WH" onchange="gridView1.setData(0);" required>
 		          				<option value="">전체</option>
 		          				</select>
 		          			</td>
@@ -100,7 +100,7 @@
           	  <tr>
           		<th colspan="2">입고지</th>
           		<td colspan="2"> 
-          		  <select id="searchDtlWhCd" data-kind="WH" required></select>
+          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" required></select>
           		</td> 
           		<th colspan="2">판매유형</th>
           		<td colspan="3"> 
@@ -254,6 +254,10 @@
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
 		$("#searchDtlOutCoCd").val(jwt.coCd);
+
+		//창고 초기값 설정
+		setWareHouse(jwt.coCd);
+		
 	    //setDtlSelectCombo();
 	    gridView1.initView().setData(0);
 	    $("#sTransDt").val(dateToStr(new Date()));
@@ -427,4 +431,17 @@
 			}
 		});
 	}
+
+
+	// 창고 set
+	function setWareHouse(value){
+		//출고고지 창고 법인별 설정
+		$('#searchDtlOutWhCd').data("desc", value);
+		$('#searchDtlOutWhCd').empty();
+		setCommonSelect($('#searchDtlOutWhCd'));
+		//임고지 창고법인별 설정
+		$('#searchDtlWhCd').data("desc", value);
+		$('#searchDtlWhCd').empty();
+		setCommonSelect($('#searchDtlWhCd'));
+	}	
 </script>
