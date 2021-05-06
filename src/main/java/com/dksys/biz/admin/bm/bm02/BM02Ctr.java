@@ -98,12 +98,12 @@ public class BM02Ctr {
 
 	
 	// 사업자부서 내역 삭제
-	@DeleteMapping("/deleteClntBizdept")
-    public String deleteClntBizdept(@RequestParam Map<String, Object> paramMap, ModelMap model) {
+	@PutMapping("/deleteClntBizdept")
+    public String deleteClntBizdept(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
 		try {
-    		bm02Svc.deleteClntBizdept(paramMap);
+    		bm02Svc.deleteClntBizdept(paramMap, mRequest);
     		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	}catch(Exception e){
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

@@ -146,10 +146,13 @@ public class BM02SvcImpl implements BM02Svc {
 	}
 
 	@Override
-	public void deleteClntBizdept(Map<String,Object> paramMap) {
-		List<Map<String, String>> bizdeptList = (List<Map<String, String>>) paramMap.get("bizdeptArr");
+	public void deleteClntBizdept(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+    	Gson gson = new Gson();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+
+		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
 		if(bizdeptList != null) {
-			// 사업부내역 delete
+			// 담보내역 update
 			for(Map<String, String> bizdeptMap : bizdeptList) {
 				bm02Mapper.deleteBizdept(bizdeptMap);				
 			}

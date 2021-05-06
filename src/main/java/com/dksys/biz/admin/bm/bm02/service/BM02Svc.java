@@ -25,5 +25,6 @@ public interface BM02Svc {
 
 	void deleteClntPldg(Map<String, Object> paramMap);
 
-	void deleteClntBizdept(Map<String, Object> paramMap);
+	void deleteClntBizdept(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+
 }
