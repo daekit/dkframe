@@ -231,6 +231,7 @@
 	
 	<select id="selectBizdeptList" resultType="CamelMap">
 		SELECT
+           BIZDEPT_SN,
 		    CLNT_CD,
 			BIZDEPT_NM,
 			BIZDEPT_DIV_CD,
@@ -243,7 +244,13 @@
 			SALES_CO_CD,
 			SALES_EMP_ID,
 			(SELECT NAME FROM TB_CM06M01 WHERE ID = A.SALES_EMP_ID) AS SALES_EMP_NM,
-			USE_YN
+			USE_YN,
+			CREAT_ID,
+			CREAT_PGM,
+			TO_CHAR(CREAT_DTTM,'YYYY-MM-DD') AS CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM,
+			TO_CHAR(UDT_DTTM,'YYYY-MM-DD') AS UDT_DTTM
 		FROM 
 			TB_BM02D01 A
 		WHERE 
@@ -399,7 +406,39 @@
 		FROM
 			TB_BM02D01
 		WHERE
-			CLNT_CD = #{clntCd}
+			BIZDEPT_SN = #{bizdeptSn}
+	</update> 
+	
+	<update id="updateBizdept">
+		UPDATE TB_BM02D01
+		   SET 
+		       BIZDEPT_NM      = #{bizdeptNm}
+		     , BIZDEPT_DIV_CD  = #{bizdeptDivCd}
+		     , MNG_NM          = #{mngNm}
+		     , MNG_DEPT_NM     = #{mngDeptNm}
+		     , MNG_PST_CD      = #{mngPstCd}
+		     , MNG_TEL_NO      = #{mngTelNo}
+		     , MNG_MOBLPHON_NO = #{mngMoblphonNo}
+		     , MNG_EMAIL       = #{mngEmail}
+		     , SALES_CO_CD     = #{salesCoCd}
+		     , SALES_EMP_ID    = #{salesEmpId}
+		     , USE_YN          = #{useYn}
+		     , UDT_ID          = #{udtId}
+		     , UDT_PGM         = #{udtPgm}
+		     , UDT_DTTM        = SYSDATE
+		 WHERE BIZDEPT_SN       = #{bizdeptSn}
+		   AND (BIZDEPT_NM     != #{bizdeptNm}
+		    OR BIZDEPT_DIV_CD  != #{bizdeptDivCd}
+		    OR MNG_NM          != #{mngNm}
+		    OR MNG_DEPT_NM     != #{mngDeptNm}
+		    OR MNG_PST_CD      != #{mngPstCd}
+		    OR MNG_TEL_NO      != #{mngTelNo}
+		    OR MNG_MOBLPHON_NO != #{mngMoblphonNo}
+		    OR MNG_EMAIL       != #{mngEmail}
+		    OR SALES_CO_CD     != #{salesCoCd}
+		    OR SALES_EMP_ID    != #{salesEmpId}
+		    OR USE_YN          != #{useYn}
+		   	)
 	</update>
 	
 	<insert id="insertBizdept">
@@ -463,9 +502,37 @@
 		FROM
 			TB_BM02D02
 		WHERE
-			CLNT_CD = #{clntCd}
+			 PLDG_SN = #{pldgSn}
+	</update>
+
+	<update id="updatePldg">
+		UPDATE TB_BM02D02
+		   SET 
+		       CO_CD           = #{coCd}
+		     , SELPCH_CD       = #{selpchCd}
+		     , PLDG_DIV_CD     = #{pldgDivCd}
+		     , PLDG_AMT        = #{pldgAmt}
+		     , PLDG_RCOGN_RATE = #{pldgRcognRate}
+		     , EXPRTN_DT       = #{exprtnDt}
+		     , SETUP_DT        = #{setupDt}
+		     , PLDG_RMK        = #{pldgRmk}
+		     , USE_YN          = #{useYn}
+		     , UDT_ID          = #{udtId}
+		     , UDT_PGM         = #{udtPgm}
+		     , UDT_DTTM        = SYSDATE
+		 WHERE PLDG_SN         = #{pldgSn}
+		   AND (PLDG_AMT       != #{pldgAmt}
+		    OR PLDG_RCOGN_RATE != #{pldgRcognRate}
+		    OR EXPRTN_DT       != #{exprtnDt}
+		    OR SETUP_DT        != #{setupDt}
+		    OR PLDG_RMK        != #{pldgRmk}
+		    OR USE_YN          != #{useYn}
+		    OR SELPCH_CD       != #{selpchCd}
+		    OR CO_CD           != #{coCd}
+		    )
 	</update>
 	
+		
 	<insert id="insertPldg">
 		INSERT INTO TB_BM02D02
 		(		

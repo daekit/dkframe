@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,6 +81,37 @@ public class BM02Ctr {
     	}
     	return "jsonView";
     }
+	
+	// 담보내역 삭제
+	@DeleteMapping("/deleteClntPldg")
+    public String deleteClntPldg(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		try {
+    		bm02Svc.deleteClntPldg(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+
+	
+	// 사업자부서 내역 삭제
+	@DeleteMapping("/deleteClntBizdept")
+    public String deleteClntBizdept(@RequestParam Map<String, Object> paramMap, ModelMap model) {
+		try {
+    		bm02Svc.deleteClntBizdept(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+		
+	
 	
 	// 거래처 사용안함 처리
 	@PutMapping("/unuseClnt")

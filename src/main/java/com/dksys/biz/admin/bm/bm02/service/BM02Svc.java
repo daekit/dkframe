@@ -23,4 +23,7 @@ public interface BM02Svc {
 	
 	Map<String, String> selectCrnDupChk(Map<String, String> paramMap);
 
+	void deleteClntPldg(Map<String, Object> paramMap);
+
+	void deleteClntBizdept(Map<String, Object> paramMap);
 }

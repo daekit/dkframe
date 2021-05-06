@@ -373,7 +373,7 @@
 				</thead>
 				<tbody>
 					<tr name="pldgHead">
-						<td colspan="11">
+						<td colspan="12">
 							<div class="add_btn">
 								<a onclick="addPldgRow();">+</a> 
 								<a onclick="removePldgRow();">-</a>
@@ -400,6 +400,7 @@
 			<table id="pldgFrameTable" style="display: none;">
 				<tr name="pldgRow">
 					<td>
+				 		<input type="hidden"   id="pldgSn" name="pldgSn" >
 						<input type="checkbox" name="pldgChkBox">
 					</td>
 					<td>
@@ -441,9 +442,6 @@
 							<option value="N">N</option>
 						</select>
 				 	</td>
-<!-- 				 	<td> -->
-<!-- 				 		<input type="text" class="form-control" name="udtNm" readonly> -->
-<!-- 				 	</td> -->
 				 	<td>
 				 		<input type="text" class="form-control" name="udtDttm" readonly>
 				 	</td>
@@ -666,9 +664,27 @@
 	// 담보내역 삭제
 	function removePldgRow(){
 		var $checkedPldgs = $('#pldgTable input[name="pldgChkBox"]:checked');
+		// 담보내역 추가
+		var pldgArr = [];
+		
+		
 		if($checkedPldgs.length > 0){
 			$.each($checkedPldgs, function(idx, elem){
-				$(elem).closest('tr[name="pldgRow"]').remove();
+				var pldgObj = {};
+				// 키 추가
+				var pldgSn = $(elem).closest('tr').find('[name="pldgSn"]').val();
+				if(pldgSn){
+					pldgObj["pldgSn"] = pldgSn;
+					pldgArr.push(pldgObj);
+				}
+				// 화면 삭제
+				$(elem).closest('tr[name="pldgRow"]').remove();	
+			});
+			
+			deleteAjax("/admin/bm/bm02/deleteClntPldg", {"pldgArr": pldgArr}, null, function(data) {
+				if (data.resultCode == 200) {
+					alert(data.resultMessage);
+				}
 			});
 		}else{
 			alert("삭제할 담보내역을 선택해주세요.");

@@ -26,15 +26,20 @@ public interface BM02Mapper {
 	
 	int insertBizdept(Map<String, String> paramMap);
 
+	int updateBizdept(Map<String, String> paramMap);
+
 	int unusePldg(Map<String, String> paramMap);
 	
 	int deletePldg(Map<String, String> paramMap);
 
 	int insertPldg(Map<String, String> paramMap);
+	
+	int updatePldg(Map<String, String> paramMap);
 
 	Map<String, String> selectMngInfo(Map<String, String> paramMap);
 	
 	// 동일 사업자 번호 체크
 	Map<String, String> selectCrnDupChk(Map<String, String> paramMap);
+
 
 }

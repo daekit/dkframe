@@ -89,26 +89,39 @@ public class BM02SvcImpl implements BM02Svc {
 		List<Map<String, String>> bizdeptList = gson.fromJson(paramMap.get("bizdeptArr"), mapList);
 		if(bizdeptList != null) {
 			// 사업부 delete
-			bm02Mapper.deleteBizdept(paramMap);
+		//	bm02Mapper.deleteBizdept(paramMap);
 			// 사업부 insert
 			for(Map<String, String> bizdeptMap : bizdeptList) {
 				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
 				bizdeptMap.put("userId", paramMap.get("userId"));
 				bizdeptMap.put("pgmId", paramMap.get("pgmId"));
-				bm02Mapper.insertBizdept(bizdeptMap);
+				bizdeptMap.put("udtId",  paramMap.get("userId"));
+				bizdeptMap.put("udtPgm", paramMap.get("pgmId"));
+				
+				if(bizdeptMap.get("bizdeptSn")==null || "".equals(bizdeptMap.get("bizdeptSn"))) {
+					bm02Mapper.insertBizdept(bizdeptMap);
+				}else {
+					bm02Mapper.updateBizdept(bizdeptMap);
+				}
 			}
 		}
 		
 		List<Map<String, String>> pldgList = gson.fromJson(paramMap.get("pldgArr"), mapList);
 		if(pldgList != null) {
-			// 담보내역 delete
-			bm02Mapper.deletePldg(paramMap);
 			// 담보내역 insert
 			for(Map<String, String> pldgMap : pldgList) {
 				pldgMap.put("clntCd", paramMap.get("clntCd"));
 				pldgMap.put("userId", paramMap.get("userId"));
-				pldgMap.put("pgmId", paramMap.get("pgmId"));
-				bm02Mapper.insertPldg(pldgMap);
+				pldgMap.put("pgmId",  paramMap.get("pgmId"));
+				pldgMap.put("udtId",  paramMap.get("userId"));
+				pldgMap.put("udtPgm", paramMap.get("pgmId"));
+		
+				if(pldgMap.get("pldgSn")==null || "".equals(pldgMap.get("pldgSn"))) {
+				    bm02Mapper.insertPldg(pldgMap);
+				}else {
+					bm02Mapper.updatePldg(pldgMap);
+				}
+				
 			}
 		}
 		
@@ -121,6 +134,28 @@ public class BM02SvcImpl implements BM02Svc {
 		}
 	}
 
+	@Override
+	public void deleteClntPldg(Map<String, Object> paramMap) {
+		List<Map<String, String>> pldgList = (List<Map<String, String>>) paramMap.get("pldgArr");
+		if(pldgList != null) {
+			// 담보내역 delete
+			for(Map<String, String> pldgMap : pldgList) {
+				bm02Mapper.deletePldg(pldgMap);				
+			}
+		}
+	}
+
+	@Override
+	public void deleteClntBizdept(Map<String,Object> paramMap) {
+		List<Map<String, String>> bizdeptList = (List<Map<String, String>>) paramMap.get("bizdeptArr");
+		if(bizdeptList != null) {
+			// 사업부내역 delete
+			for(Map<String, String> bizdeptMap : bizdeptList) {
+				bm02Mapper.deleteBizdept(bizdeptMap);				
+			}
+		}
+	}	
+	
 	@Override
 	public void unuseClnt(Map<String, String> paramMap) {
 		bm02Mapper.unuseClnt(paramMap);
