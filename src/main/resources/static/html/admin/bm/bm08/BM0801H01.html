@@ -26,6 +26,7 @@
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
 	<script src="/static/js/ax5/ax5core.min.js"></script>
 	<script src="/static/js/ax5/ax5grid.min.js"></script>
 	<script src="/static/js/ax5/ax5mask.min.js"></script>
@@ -76,9 +77,9 @@
                 <th>이력기간</th>
 				<td>
 					<div class="date_input">
-						<input type="text" class="input_calendar" autocomplete="off" id="startDt" data-search="startDt" date onchange="dateValidation();"> 
+						<input type="text" class="input_calendar" autocomplete="off" id="startDt" data-search="startDt" > 
 						<span>~</span> 
-						<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt" date onchange="dateValidation();">
+						<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt" >
 					</div>
 				</td>
 
@@ -172,6 +173,10 @@
 	                {key: "pldgDivNm",	   label: "담보구분명",		width: 120,		align: "center"},
 	                {key: "pldgAmt",	   label: "담보금액",	 	width: 120,		align: "right", formatter: "money"},
 	                {key: "pldgRcognRate", label: "담보인증비율", 	width: 100,		align: "right", formatter: "money"},
+	                {key: "cdtlnAmt",	   label: "여신금액",	 	width: 120,		align: "right", formatter: "money"},
+	                {key: "prePldgAmt",    label: "수정전담보금액", 	width: 100,		align: "right", formatter: "money"},
+	                {key: "prePldgRcognRate",label: "수정전인증비율",width: 120,		align: "right", formatter: "money"},
+	                {key: "preCdtlnAmt",   label: "수정전여신금액", 	width: 100,		align: "right", formatter: "money"},
 	            	{key: "exprtnDt",	   label: "담보만기일",		width: 90,		align: "center"},
 	            	{key: "setupDt",       label: "담보설정일",		width: 90,		align: "center"},
 	            	{key: "pldgRmk",       label: "비고",			width: 200,		align: "left"},
@@ -285,17 +290,13 @@
 		$("#selpchCd_S option[value='SELPCH4']").remove();
 
 		
-
-		$("#startDt").val(lastWeek());
-		$("#endDt").val(dateToStr(new Date()));
-	
-		// 시작일 (현재날짜의 월 첫일)
+		// 시작일 (시작일 기준 -3개월)
 		$('#startDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		})
-		.datepicker("setDate", moment(new Date()).subtract(1, "month").startOf("month").toDate())
+		.datepicker("setDate", moment(new Date()).subtract(3, "month").toDate())
 		.on("changeDate", function(){
 			if($('#startDt').val() > $('#endDt').val()){
 				alert("날짜를 확인해주세요");
@@ -303,19 +304,20 @@
 			}
 		});
 		
-		// 종료일 (현재날짜의 월 말일)
+		// 종료일
 		$('#endDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		})
-		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.datepicker("setDate", new Date())
 		.on("changeDate", function(){
 			if($('#startDt').val() > $('#endDt').val()){
 				alert("날짜를 확인해주세요");
 				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
 			}
 		});
+		
 		
 		
 		
