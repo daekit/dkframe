@@ -293,6 +293,7 @@
 			<table id="bizdeptFrameTable" style="display: none;">
 				<tr name="bizdeptRow">
 					<td>
+						<input type="hidden"   id="bizdeptSn" name="bizdeptSn">
 						<input type="checkbox" name="bizdeptChkBox">
 					</td>
 					<td>
@@ -574,6 +575,22 @@
 				}
 			}
 		});
+		// 사업부 set
+		var bizdeptList = clntInfo.bizdeptList;
+		if(bizdeptList.length > 0){
+			$.each(bizdeptList, function(idx, obj){
+				var $bizdeptRow = addBizdeptRow();
+				for(var i=0;i<$bizdeptRow.find('[name]').length;i++){
+					var bizdeptItem = $bizdeptRow.find('[name]')[i];
+					var itemValue = obj[bizdeptItem.name];
+					if(itemValue){
+						$(bizdeptItem).val(itemValue);
+					}
+				}
+			});
+		}else{
+			addBizdeptRow();
+		}
 		
 		// 담보내역 set
 		var pldgList = clntInfo.pldgList;
@@ -625,6 +642,75 @@
 			}
 		}).open();
 	}
+
+	// 사업부 추가
+	function addBizdeptRow(){
+		var $bizdeptRow = $('#bizdeptFrameTable tr[name="bizdeptRow"]').clone();
+		$('#bizdeptTable tbody').append($bizdeptRow[0]);
+		return $bizdeptRow;
+	}
+	
+	// 사업부 삭제
+	function removeBizdeptRow(){
+		var $checkedBizdepts = $('#bizdeptTable input[name="bizdeptChkBox"]:checked');
+		// 사업부 내역 추가
+		var bizdeptArr = [];
+
+		if($checkedBizdepts.length > 0){
+			$.each($checkedBizdepts, function(idx, elem){
+
+				var bizdepObj = {};
+				// 키 추가
+				var bizdeptSn = $(elem).closest('tr').find('[name="bizdeptSn"]').val();
+				if(pldgSn){
+					bizdepObj["bizdeptSn"] = bizdeptSn;
+					bizdeptArr.push(bizdepObj);
+				}
+				
+				$(elem).closest('tr[name="bizdeptRow"]').remove();
+			});
+			
+			deleteAjax("/admin/bm/bm02/deleteClntBizdept", {"bizdeptArr": bizdeptArr}, null, function(data) {
+				if (data.resultCode == 200) {
+					alert(data.resultMessage);
+				}
+			});
+		}else{
+			alert("삭제할 사업부를 선택해주세요.");
+		}
+	}
+	
+	// 영업회사 변경
+	function initSalesEmp(elem){
+		var changedRow = $(elem).closest('tr[name="bizdeptRow"]');
+		changedRow.find('[name="salesEmpId"]').val("");
+		changedRow.find('[name="salesEmpNm"]').val("");
+	}
+	
+	// 영업사원 검색
+	function openSecondUserSearch(elem){
+		$targetRow = $(elem).closest('tr[name="bizdeptRow"]');
+		
+		if(!$targetRow.find('[name="salesCoCd"]').val()){
+			alert("영업회사를 선택해주세요.");
+			$targetRow.find('[name="salesCoCd"]').focus();
+			return false;
+		}
+		
+		var paramObj = {
+			"coCd" : $targetRow.find('[name="salesCoCd"]').val(),
+			"userId": $targetRow.find('[name="salesEmpId"]').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$targetRow.find('[name=salesEmpId]').val(checkedNode.id);
+			$targetRow.find('[name=salesEmpNm]').val(checkedNode.text);
+		});
+	}
+	
 	
 	// 연계그룹 컨트롤
 	function ctrlLinkGrp() {
@@ -779,6 +865,19 @@
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);
 		
+		// 사업부 추가
+		var bizdeptArr = [];
+		$.each($('#bizdeptTable tr[name="bizdeptRow"]'), function(idx, elem){
+			var bizdeptObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				var elemName = elem.name;
+				var elemValue = elem.value;
+				bizdeptObj[elemName] = elemValue;
+			});
+			bizdeptArr.push(bizdeptObj);
+		});
+		formData.append("bizdeptArr", JSON.stringify(bizdeptArr));
+			
 		// 담보내역 추가
 		var pldgArr = [];
 		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
