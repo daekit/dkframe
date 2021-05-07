@@ -12,5 +12,7 @@ public interface AR08Mapper {
 
 	List<Map<String, String>> selectCreditList(Map<String, String> paramMap);
 
+	long selectBasisAmt(Map<String, String> paramMap);
+
 	
 }
