@@ -72,14 +72,16 @@
 						<!-- 실제 발생한 운반비는 발주서에서 온거, 출하요청서에서 온거가 구분이 안된다.. 둘다 더하면 된다.. 한곳에만 존재함으로 -->
 						, NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
 						         INNER JOIN TB_AR01M01 AR01 ON H.TRST_RPRC_SEQ = AR01.SHIP_SEQ 
-						                AND  H.CREAT_PGM =  AR01.CREAT_PGM
+						                AND  SUBSTR(H.CREAT_PGM,1,6) =  SUBSTR(AR01.CREAT_PGM,1,6)
 						                AND  AR01.TRANS_SEQ = A.TRANS_SEQ
-						         WHERE H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0)
+						        INNER JOIN TB_BM01M01 BM01	ON H.TRST_PRDT_CD = BM01.PRDT_CD 	
+	                                    AND PRDT_NM LIKE '%운반비%'), 0)
 						+  NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
 						         INNER JOIN TB_OD01M01 OD01 ON H.TRST_RPRC_SEQ = OD01.ORDRG_SEQ 
-						                AND  H.CREAT_PGM =  OD01.CREAT_PGM
+						                AND  SUBSTR(H.CREAT_PGM,1,6) =  SUBSTR(OD01.CREAT_PGM,1,6)
 						                AND  OD01.TRANS_SEQ = A.TRANS_SEQ
-						         WHERE H.PRDT_STKN LIKE '%' || '운반비' || '%'), 0)  
+						         INNER JOIN TB_BM01M01 BM01	ON H.TRST_PRDT_CD = BM01.PRDT_CD 	
+	                                    AND PRDT_NM LIKE '%운반비%'), 0)
 						 AS SALES_TRANS_AMT --매출운반비
 				FROM TB_AR03M01 A
 				 LEFT OUTER JOIN TB_BM02M01 B ON A.TRANS_CO = B.CLNT_CD				 
