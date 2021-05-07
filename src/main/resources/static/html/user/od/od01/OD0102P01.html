@@ -43,7 +43,7 @@
 					<td>
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd">
-							<input type="text" id="clntNm" msg="매입거래처" readonly required>
+							<input type="text" id="clntNm" msg="매입거래처" readonly required onchange="checkClnt()">
 							<a onclick="openSecondClntSearch('PUR');">
 								<i class="i_search_w"></i>
 							</a>
@@ -51,7 +51,7 @@
 					</td>
 					<th class="hit">재고주체</th>
 					<td>
-						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required>
+						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required onchange="checkClnt()">
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -59,7 +59,7 @@
 					<td class="drctArea">
 						<div class="search_form">
 							<input type="hidden" id="sellClntCd" name="sellClntCd">
-							<input type="text" id="sellClntNm" name="sellClntNm" msg="매출거래처" readonly required >
+							<input type="text" id="sellClntNm" name="sellClntNm" msg="매출거래처" readonly required  onchange="checkClnt()">
 							<a onclick="openSecondClntSearch('SELL');">
 								<i class="i_search_w"></i>
 							</a>
@@ -686,8 +686,7 @@
 				var paramObj = {
 					"coCd": $('#coCd').val(),
 					"clntCd": row.clntCd
-				}
-				
+				}				
 				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {			
 					if(data.mngInfo != null) {
 						$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
@@ -695,6 +694,7 @@
 					}
 				});	
 			}
+			checkClnt();
 		});
 	}
 	
@@ -1185,5 +1185,13 @@
 //		}
 		
 		return formData;
+	}
+	
+	function  checkClnt(){
+		var owner = $('#ownerCd').val();
+		if(owner != "OWNER1" && $('#dirtrsYn').val() == 'Y' ){   // 직송이면서 자사소유가 아닐경우 매입거래처 = 매출거래처 
+			$('#sellClntCd').val($('#clntCd').val());   //
+			$('#sellClntNm').val($('#clntNm').val());   //
+		}
 	}
 </script>
