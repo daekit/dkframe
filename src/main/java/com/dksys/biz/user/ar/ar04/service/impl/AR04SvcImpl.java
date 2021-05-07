@@ -67,13 +67,6 @@ public class AR04SvcImpl implements AR04Svc {
 		bilgDetail.put("moa1023", bilgInfo.get("bilgAmt"));
 		bilgDetail.put("moa10124", bilgInfo.get("taxMoa5124"));
 		bilgDetail.put("dms1000", arParam.get("trspRmk"));
-		
-		// 원본 세금계산서 번호가 있을때 수정세금계산서 타입으로 insert
-		if(null != arParam.get("orgnTaxBilgNo") && !"".equals(arParam.get("orgnTaxBilgNo").toString())) {
-			bilgDetail.put("RFF_GN1", "RFFGN102"); // 수정세금계산서
-			bilgDetail.put("RFF_AEA", arParam.get("RFF_AEA").toString()); // 수정사유
-		}
-		
 		bilgDetail.put("userId", userId);
 		bilgDetail.put("pgmId", pgmId);
 		result = ar04Mapper.insertBilgDetail(bilgDetail);
