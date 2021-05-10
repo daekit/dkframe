@@ -380,15 +380,6 @@ function crnFormatter(elem){
 	$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
 }
 
-// 원단위 콤마 추가
-function addComma(elem) {
-	var regExp = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g;
-	if(event.keyCode != 37 && event.keyCode != 39) {
-		onlyNumber(elem);
-		$(elem).val(deleteCommaStr($(elem).val()).replace(regExp, ","));
-	}
-}
-
 // 콤마 제거
 function deleteComma(elem) {
 	$(elem).val($(elem).val().replace(/,/g, ""));
