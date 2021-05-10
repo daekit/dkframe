@@ -1,0 +1,184 @@
+<div id="cplrUntpcDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">이익 조직 등록</h4>
+    </div>
+    <div class="popup_table">
+    	<form id="popForm">
+	        <table>
+	            <colgroup>
+	                <col width="40%">
+	                <col width="%">
+	            </colgroup>
+	            <tr>
+	                <th class="hit">회사</th>
+	                <td>
+	                    <select id="coCd" name="coCd" data-kind="CO" required="required" msg="회사" onchange="setDeptList();">
+	                    	<option value="">선택</option>
+	                    </select>
+	                </td>
+	            </tr>
+	            <tr>
+	                <th class="hit">조직</th>
+	                <td>
+	                    <input type="text" name="baseDept" id="baseDept" maxlength="50" autocomplete="off" required="required" msg="조직">
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>상위조직</th>
+	                <td>
+	                    <input type="text" name="upperDept" id="upperDept" list="upperDeptList" autocomplete="off" maxlength="50">
+					    <datalist id="upperDeptList">
+					    </datalist>
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>최상위조직</th>
+	                <td>
+	                    <input type="text" name="lastDept" id="lastDept" list="lastDeptList" autocomplete="off" maxlength="50">
+					    <datalist id="lastDeptList">
+					    </datalist>
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>사용여부</th>
+	                <td>
+	                    <select id="useYn" name="useYn" data-kind="YN" required="required" msg="회사">
+	                    	<option value="">선택</option>
+	                    </select>
+	                </td>
+	            </tr>
+	            <tr>
+	                <th>비고</th>
+	                <td>
+	                    <textArea class="form-control" style="width: 100%; height: 80px" name="rmk" id="rmk" maxlength="500" autocomplete="off"></textArea>
+	                </td>
+	            </tr>
+	        </table>
+	        <input type="hidden" id="userId" name="userId">
+	        <input type="hidden" id="pgmId" name="pgmId" value="FI0102P01">
+	    </form>
+    </div>
+
+    <br>
+    <!-- 하단 버튼 -->
+    <div class="popup_bottom_btn">
+      <button id="actionBtn"></button>
+      <button class="close_btn" onclick="modalClose();">닫기</button>
+    </div>
+</div>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">	
+	$(document).ready(function() {
+		setCommonSelect($(".popup_area select[data-kind]"));
+
+		$("#popForm #coCd").val(jwt.coCd);
+		setDeptList();
+
+		//$(".popup_area input").prop("readonly", true);
+		//$(".popup_area select").prop("disabled", true);
+	});
+	
+	function setDeptList(){
+		var formData = {
+			"coCd" : $("#popForm #coCd").val()
+		}
+		postAjax("/user/fi/fi01/selectUpperDept", formData, null, function(data){
+			var upperDeptList = data.upperDeptList;
+			var upperOption = "";
+			for(var i = 0; i < upperDeptList.length; i++){
+				upperOption += "<option value='" + upperDeptList[i].upperDept + "'>";
+			}
+			$("#upperDeptList").html(upperOption);
+			var lastDeptList = data.lastDeptList;
+			var lastOption = "";
+			for(var i = 0; i < lastDeptList.length; i++){
+				lastOption += "<option value='" + lastDeptList[i].lastDept + "'>";
+			}
+			$("#lastDeptList").html(lastOption);
+			setInit();
+		});
+	}
+	
+	function setInit() {
+		if(actionType == "C"){
+			$('#actionBtn').on("click", function(){insertPrftDept();});
+			$('#actionBtn').text("등록");
+			$("#popForm #useYn").val("Y");
+		} else if(actionType == "U"){
+			$('#actionBtn').on("click", function(){updatePrftDept();});
+			$('#actionBtn').text("저장");
+			selectPrftDeptDetail();
+		}
+		
+	}
+	
+	function makeFormData(){
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		$("#userId").val(jwt.userId);
+		
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		var formData = new FormData($("#popForm")[0]);
+		return formData;
+	}
+	
+	function selectPrftDeptDetail(){
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+				"coCd" : row.coCd,
+				"baseDept" : row.baseDept
+		}
+		postAjax("/user/fi/fi01/selectPrftDeptDetail", formData, null, function(data){
+			setPrftDeptDetail(data.result);
+		});
+	}
+	
+	function setPrftDeptDetail(obj){
+		
+		//메인정보 세팅
+		$.each(obj, function(key, value){
+			$('#popForm #'+key).val(value);
+		});
+		
+		$.each($('input[comma]'), function(idx, elem){
+			addComma(elem);
+		});
+	}
+	
+	function insertPrftDept() {
+		if(inputValidation($('[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/fi/fi01/insertPrftDept", formData, function(data){
+				alert(data.resultMessage);           
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
+			});
+		}
+	}
+	
+	function updatePrftDept() {
+		if(inputValidation($('[required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/fi/fi01/updatePrftDept", formData, function(data){
+				alert(data.resultMessage);        
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}         
+				gridView.setData(0);
+				modal.close();
+			});
+		}
+	}
+
+	function modalClose(){
+		modal.close();
+	}
+</script>

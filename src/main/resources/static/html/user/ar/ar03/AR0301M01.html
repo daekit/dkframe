@@ -84,7 +84,7 @@
               <tr>
                 <th>회사</th>
                 <td>
-                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);setWareHouse(this.value);">
                   	<option value="">전체</option>
                   </select>
                 </td>
@@ -100,7 +100,7 @@
                 <td>
                   <input type="hidden" id="transCo_S" name="transCo_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="transNm_S" name="transNm_S" disabled>
+	                <input type="text" id="transNm_S" name="transNm_S"  onkeyup="event.keyCode == 8 ? transCo_S.value = '' : event.keyCode == 13 ? gridView.setData(0): ''">
 	              	<a onclick="clntSearch2();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -123,7 +123,7 @@
                 <td>
                   <input type="hidden" id="clntCd_S" name="clntCd_S">
                   <div class="search_form" style="width: 50%;">
-	                <input type="text" id="clntNm_S" name="clntNm_S" disabled>
+	                <input type="text" id="clntNm_S" name="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0): ''">
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -251,17 +251,18 @@
 		},
 		setData: function(_pageNo){
 			firstGrid = this.target;
-			setWareHouse($("#coCd_S").val());
 			var formData = {
-				"coCd" : $("#coCd_S").val(),
-				"strtDt"  : $("#strtDt_S").val().replace(/\-/g,''),
-				"endDt"  : $("#endDt_S").val().replace(/\-/g,''),
+				"coCd"     : $("#coCd_S").val(),
+				"strtDt"   : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"    : $("#endDt_S").val().replace(/\-/g,''),
 				"transCo"  : $("#transCo_S").val(),
-				"whCd"  : $("#whCd_S").val(),
-				"desNm"  : $("#desNm_S").val(),
-				"clntCd"  : $("#clntCd_S").val(),
-				"procYn" : $("#procYn_S").val(),
-				"pageNo" : _pageNo + 1,
+				"transNm"  : $("#transNm_S").val(),
+				"whCd"     : $("#whCd_S").val(),
+				"desNm"    : $("#desNm_S").val(),
+				"clntCd"   : $("#clntCd_S").val(),
+				"clntNm"   : $("#clntNm_S").val(),
+				"procYn"   : $("#procYn_S").val(),
+				"pageNo"   : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/ar/ar03/selectCaryngList", formData, null, function(data){
@@ -316,6 +317,14 @@
 			language : "ko",
 			//autoclose : true
 		});
+		
+		if($.urlParam('clntCd')){
+			$("#clntCd_S").val($.urlParam('clntCd'));
+			$("#clntNm_S").val(decodeURI($.urlParam('clntNm')));
+			$("#whCd_S").val(decodeURI($.urlParam('whCd')));
+			//history.replaceState({}, null, location.pathname);
+		}	
+		
 		
 		gridView.initView().setData(0);
 		excelView.initView();
@@ -436,14 +445,16 @@
 	function excelDown() {
 		var targetObj = this.target;
 		var formData = {
-				"coCd" : $("#coCd_S").val(),
-				"strtDt"  : $("#strtDt_S").val().replace(/\-/g,''),
-				"endDt"  : $("#endDt_S").val().replace(/\-/g,''),
+				"coCd"     : $("#coCd_S").val(),
+				"strtDt"   : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"    : $("#endDt_S").val().replace(/\-/g,''),
 				"transCo"  : $("#transCo_S").val(),
-				"whCd"  : $("#whCd_S").val(),
-				"desNm"  : $("#desNm_S").val(),
-				"clntCd"  : $("#clntCd_S").val(),
-				"procYn" : $("#procYn_S").val(),
+				"transNm"  : $("#transNm_S").val(),
+				"whCd"     : $("#whCd_S").val(),
+				"desNm"    : $("#desNm_S").val(),
+				"clntCd"   : $("#clntCd_S").val(),
+				"clntNm"   : $("#clntNm_S").val(),
+				"procYn"   : $("#procYn_S").val(),
 				"pageNo" : 1,
 				"recordCnt" : 9999999
 			}

@@ -39,9 +39,11 @@ public class AR04SvcImpl implements AR04Svc {
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String ftxac11 = String.valueOf(paramMap.get("ftxac11"));
 		List<String> list = (List<String>) paramMap.get("trstCertiNo");
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("list", list);
+		param.put("ftxac11", ftxac11);
 		param.put("userId", userId);
 		param.put("userNm", userNm);
 		param.put("pgmId", pgmId);
@@ -509,6 +511,7 @@ public class AR04SvcImpl implements AR04Svc {
 				
 				//연계문서 발행
 				insertKladdi(msgId, taxHdParam);
+				ar04Mapper.updateTrstInfo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 			}
 		}
 		return result;
