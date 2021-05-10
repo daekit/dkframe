@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.fi.fi02.mapper.FI02Mapper">
+	
+	<select id="selectPalBillCount" resultType="int">
+	SELECT 
+ 		COUNT(*) 
+	  FROM TB_FI02M01 T
+		 	<where>
+		 	<if test="coCd != null and coCd != ''">
+		 	AND CO_CD = #{coCd}
+		 	</if>
+		 	<if test="prftYm != null and prftYm != ''">
+		 	AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+		 	</if>				 	
+		 	</where>
+	</select>
+	
+	<select id="selectPalBillList" resultType="CamelMap">
+	SELECT
+		*
+	FROM
+	(
+		SELECT
+			ROWNUM AS RNUM, A.*
+		FROM
+		(
+			SELECT CO_CD
+				 , FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM
+				 , PRFT_YM
+				 , BASE_DEPT
+				 , UPPER_DEPT
+				 , LAST_DEPT
+				 , SELL_AMT
+				 , SELL_PRFT_AMT
+				 , SELL_MNG_AMT
+				 , SALES_PRFT_AMT
+				 , BFRX_PRFT_AMT
+				 , RMK
+				 , CREAT_ID
+			  FROM TB_FI02M01 T
+			 	<where>
+			 	<if test="coCd != null and coCd != ''">
+			 	AND CO_CD = #{coCd}
+			 	</if>
+			 	<if test="prftYm != null and prftYm != ''">
+			 	AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+			 	</if>				 	
+			 	</where>
+			 ORDER BY PRFT_YM
+		) A			
+	)
+	WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="selectBaseDept" resultType="CamelMap">
+	SELECT BASE_DEPT as CD
+	     , BASE_DEPT AS NM
+	  FROM TB_FI01M01
+	 WHERE CO_CD = #{coCd}
+	 GROUP BY BASE_DEPT
+	</select>
+	
+	<select id="selectUpperDept" resultType="CamelMap">
+	SELECT UPPER_DEPT as CD
+	     , UPPER_DEPT AS NM
+	  FROM TB_FI01M01
+	 WHERE CO_CD = #{coCd}
+	 GROUP BY UPPER_DEPT
+	</select>
+	
+	<select id="selecrLastDept" resultType="CamelMap">
+	SELECT LAST_DEPT as CD
+	     , LAST_DEPT AS NM
+	  FROM TB_FI01M01
+	 WHERE CO_CD = #{coCd}
+	 GROUP BY LAST_DEPT
+	</select>
+	
+	<select id="selectPalBillDetail" resultType="CamelMap">
+	SELECT CO_CD
+		 , FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM
+		 , PRFT_YM
+		 , BASE_DEPT
+		 , UPPER_DEPT
+		 , LAST_DEPT
+		 , SELL_AMT
+		 , SELL_PRFT_AMT
+		 , SELL_MNG_AMT
+		 , SALES_PRFT_AMT
+		 , BFRX_PRFT_AMT
+		 , RMK
+	  FROM TB_FI02M01 T
+	 	<where>
+	 	<if test="coCd != null and coCd != ''">
+	 	AND CO_CD = #{coCd}
+	 	</if>
+	 	<if test="prftYm != null and prftYm != ''">
+	 	AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+	 	</if>
+	 	</where>
+	</select>
+	
+	<select id="selectPrdtDeptDuplicate" resultType="int">
+	SELECT COUNT(*)
+	  FROM TB_FI02M01
+	 WHERE CO_CD = #{coCd}
+	 	AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+	</select>
+	
+	<insert id="insertPalBill" parameterType="Map">
+	INSERT INTO TB_FI02M01
+	(
+	CO_CD
+	 , PRFT_YM
+	 , BASE_DEPT
+	 , UPPER_DEPT
+	 , LAST_DEPT
+	 , SELL_AMT
+	 , SELL_PRFT_AMT
+	 , SELL_MNG_AMT
+	 , SALES_PRFT_AMT
+	 , BFRX_PRFT_AMT
+	 , RMK
+	 , CREAT_ID
+	 , CREAT_PGM
+	 , CREAT_DTTM
+	 ) VALUES (
+	 #{coCd}
+	 , REPLACE(#{prftYm}, '-', '')
+	 , #{baseDept}
+	 , #{upperDept}
+	 , #{lastDept}
+	 , #{sellAmt}
+	 , #{sellPrftAmt}
+	 , #{sellMngAmt}
+	 , #{salesPrftAmt}
+	 , #{bfrxPrftAmt}
+	 , #{rmk}
+	 , #{userId}
+	 , #{pgmId}
+	 , SYSDATE
+	 )
+	</insert>
+	
+	<update id="updatePalBill" parameterType="Map">
+	UPDATE TB_FI02M01
+	SET CO_CD = #{coCd}
+	  , PRFT_YM = REPLACE(#{prftYm}, '-', '')
+	  , BASE_DEPT = #{baseDept}
+	  , UPPER_DEPT = #{upperDept}
+	  , LAST_DEPT = #{lastDept}
+	  , SELL_AMT = #{sellAmt}
+	  , SELL_PRFT_AMT = #{sellPrftAmt}
+	  , SELL_MNG_AMT = #{sellMngAmt}
+	  , SALES_PRFT_AMT = #{salesPrftAmt}
+	  , BFRX_PRFT_AMT = #{bfrxPrftAmt}
+	  , RMK = #{rmk}
+	  , UDT_ID = #{userId}
+	  , UDT_PGM = #{pgmId}
+	  , UDT_DTTM = SYSDATE
+	WHERE CO_CD = #{coCd}
+	  AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+	</update>
+	
+	<delete id="deletePalBill" parameterType="Map">
+	DELETE FROM TB_FI02M01 
+	 WHERE CO_CD = #{coCd}
+	  AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+ 	  <if test="baseDept != null and baseDept != ''">
+	  AND BASE_DEPT = #{baseDept}
+	  </if>
+	</delete>
+	
+	<insert id="savePalBill" parameterType="Map">
+	MERGE INTO TB_FI02M01
+	USING DUAL
+	ON (
+		CO_CD = #{coCd}
+	  	AND PRFT_YM = REPLACE(#{prftYm}, '-', '')
+	  	AND BASE_DEPT = #{baseDept}
+	)
+	WHEN MATCHED THEN 
+		UPDATE SET 
+		  UPPER_DEPT = #{upperDept, jdbcType=VARCHAR}
+		  , LAST_DEPT = #{lastDept, jdbcType=VARCHAR}
+		  , SELL_AMT = TO_NUMBER(#{sellAmt, jdbcType=VARCHAR})
+		  , SELL_PRFT_AMT = TO_NUMBER(#{sellPrftAmt, jdbcType=VARCHAR})
+		  , SELL_MNG_AMT = TO_NUMBER(#{sellMngAmt, jdbcType=VARCHAR})
+		  , SALES_PRFT_AMT = TO_NUMBER(#{salesPrftAmt, jdbcType=VARCHAR})
+		  , BFRX_PRFT_AMT = TO_NUMBER(#{bfrxPrftAmt, jdbcType=VARCHAR})
+		  , RMK = #{rmk, jdbcType=VARCHAR}
+		  , UDT_ID = #{userId}
+		  , UDT_PGM = #{pgmId}
+		  , UDT_DTTM = SYSDATE
+	WHEN NOT MATCHED THEN 
+		INSERT 
+		(
+		CO_CD
+		 , PRFT_YM
+		 , BASE_DEPT
+		 , UPPER_DEPT
+		 , LAST_DEPT
+		 , SELL_AMT
+		 , SELL_PRFT_AMT
+		 , SELL_MNG_AMT
+		 , SALES_PRFT_AMT
+		 , BFRX_PRFT_AMT
+		 , RMK
+		 , CREAT_ID
+		 , CREAT_PGM
+		 , CREAT_DTTM
+		 ) VALUES (
+		 #{coCd}
+		 , REPLACE(#{prftYm}, '-', '')
+		 , #{baseDept}
+		 , #{upperDept, jdbcType=VARCHAR}
+		 , #{lastDept, jdbcType=VARCHAR}
+		 , TO_NUMBER(#{sellAmt, jdbcType=VARCHAR})
+		 , TO_NUMBER(#{sellPrftAmt, jdbcType=VARCHAR})
+		 , TO_NUMBER(#{sellMngAmt, jdbcType=VARCHAR})
+		 , TO_NUMBER(#{salesPrftAmt, jdbcType=VARCHAR})
+		 , TO_NUMBER(#{bfrxPrftAmt, jdbcType=VARCHAR})
+		 , #{rmk, jdbcType=VARCHAR}
+		 , #{userId}
+		 , #{pgmId}
+		 , SYSDATE
+		 )
+	</insert>
+	
+	<insert id="copyPrevMonth" parameterType="Map">
+	INSERT INTO TB_FI02M01
+	(
+		CO_CD
+		 , PRFT_YM
+		 , BASE_DEPT
+		 , UPPER_DEPT
+		 , LAST_DEPT
+		 , SELL_AMT
+		 , SELL_PRFT_AMT
+		 , SELL_MNG_AMT
+		 , SALES_PRFT_AMT
+		 , BFRX_PRFT_AMT
+		 , RMK
+		 , CREAT_ID
+		 , CREAT_PGM
+		 , CREAT_DTTM
+	)
+	SELECT #{coCd}
+		 , REPLACE(#{prftYm}, '-', '')
+		 , BASE_DEPT
+		 , UPPER_DEPT
+		 , LAST_DEPT
+		 , SELL_AMT
+		 , SELL_PRFT_AMT
+		 , SELL_MNG_AMT
+		 , SALES_PRFT_AMT
+		 , BFRX_PRFT_AMT
+		 , RMK
+		 , #{userId}
+		 , #{pgmId}
+		 , CREAT_DTTM
+	  FROM TB_FI02M01
+	 WHERE CO_CD = #{coCd}
+	  	AND PRFT_YM = TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{prftYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM')
+	</insert>
+</mapper>
