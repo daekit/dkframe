@@ -153,8 +153,10 @@
 				T.CLNT_NM,
 			    T.TAXIVC_COPRT,
 			    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-			    T.SITE_CD,
-			    SD09M01.SITE_NM,
+			    <if test='monSumYn != null and monSumYn.equals("N")'>
+				    T.SITE_CD,
+				    SD09M01.SITE_NM,
+			    </if>
 			    SUM(T.BILG_QTY) BILG_QTY,
 			    SUM(T.BILG_WT) BILG_WT,
 			    SUM(T.BILG_UPR) BILG_UPR,
@@ -228,7 +230,14 @@
 			<if test="trspRmk != null and !trspRmk.equals('')">
 				AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 			</if>
-			GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD, SD09M01.SITE_NM
+			GROUP BY 
+				T.CO_CD 
+				, T.CLNT_NM 
+				, T.TAXIVC_COPRT
+				<if test='monSumYn != null and monSumYn.equals("N")'>
+					, T.SITE_CD
+					, SD09M01.SITE_NM
+				</if>
 		)
 	</select>
 	
@@ -247,8 +256,10 @@
 					T.CLNT_NM,
 				    T.TAXIVC_COPRT,
 				    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-				    T.SITE_CD,
-				    SD09M01.SITE_NM,
+				    <if test='monSumYn != null and monSumYn.equals("N")'>
+					    T.SITE_CD,
+				    	SD09M01.SITE_NM,
+				    </if>
 				    SUM(T.BILG_QTY) BILG_QTY,
 				    SUM(T.BILG_WT) BILG_WT,
 				    SUM(T.BILG_UPR) BILG_UPR,
@@ -322,8 +333,20 @@
 				<if test="trspRmk != null and !trspRmk.equals('')">
 					AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 				</if>
-				GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD, SD09M01.SITE_NM
-				ORDER BY T.CLNT_NM, TAXIVC_COPRT_NM, SD09M01.SITE_NM
+				GROUP BY 
+					T.CO_CD 
+					, T.CLNT_NM 
+					, T.TAXIVC_COPRT
+					<if test='monSumYn != null and monSumYn.equals("N")'>
+						, T.SITE_CD
+						, SD09M01.SITE_NM
+					</if>
+				ORDER BY 
+					T.CLNT_NM
+					, TAXIVC_COPRT_NM
+					<if test='monSumYn != null and monSumYn.equals("N")'>
+						,SD09M01.SITE_NM
+					</if>
 			) A
 		)
 		WHERE
