@@ -102,7 +102,8 @@
 			SELECT ROWNUM AS RNUM, B.*
 			FROM (
 			  SELECT * FROM (
-			   	SELECT   ROWNUM AS RN
+			   	SELECT   1 AS TYPE
+			   	        ,  ROWNUM AS RN
 				        , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 						, A.CO_CD
 						, A.TRST_CLNT_CD AS CLNT_CD
@@ -123,7 +124,7 @@
 			             ON A.TRST_CLNT_CD = B.CLNT_CD
 			     LEFT OUTER JOIN TB_SD05M01 SD05
 			                  ON SD05.PRJCT_CD = A.PRJCT_CD
-			     <where>
+			    WHERE BILG_CERT_NO IS NULL
 			     <if test= "selpchCd != null and !selpchCd.equals('')">
 					 <choose>	
 					     <when test="selpchCd == 'SELPCH1'">
@@ -134,9 +135,35 @@
 	 			         </otherwise>
 				     </choose>
 			     </if>
-			     </where>
+			    UNION ALL
+			    SELECT  2 AS TYPE
+			   	        , ROWNUM AS RN
+			            ,TO_CHAR(TO_DATE(AR04.SELL_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+						, AR04.CO_CD
+						, AR04.CLNT_CD
+						, AR04.CLNT_NM
+						, DECODE(AR04.SELPCH_CD, 'SELPCH1', '외상매입금', 'SELPCH2', '외상매출금','SELPCH3',	'외상매입금','SELPCH4', '외상매출금') AS GUBUN_NM
+						, AR04.SELPCH_CD AS GUBUN_CD
+						, FTXAC1_1 ||':'||FTXAC2_1||':'||FTXAC3_1  AS BIGO
+						, DECODE(AR04.SELPCH_CD, 'SELPCH1', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS PCHS_AMT
+						, DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS SELL_AMT
+						, 0 AS BASIS_AMT
+				  FROM  TB_AR04M01 AR04
+				  <where>
+					  <if test= "selpchCd != null and !selpchCd.equals('')">
+						 <choose>	
+						     <when test="selpchCd == 'SELPCH1'">
+						      AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH3')
+						     </when>			 	
+		 			         <otherwise>
+		 			          AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH4')
+		 			         </otherwise>
+					     </choose>
+				     </if>
+				  </where>
 				UNION ALL 
-				SELECT    ROWNUM AS RN
+				SELECT  3 AS TYPE
+			   	        , ROWNUM AS RN
 				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 				        , A.CO_CD
 			        	, A.CLNT_CD
@@ -161,7 +188,8 @@
 					     </if>
 			     UNION
 			     SELECT  
-			           0 
+			           0 AS TYPE
+			   	      ,0 
 			          ,TO_CHAR(TO_DATE(REPLACE(#{strtDt}, '-', ''),'YYYYMMDD'),'YYYY-MM-DD')          
 			          <if test= "coCd != null and !coCd.equals('')">
 			          ,#{coCd}
@@ -194,7 +222,7 @@
 			 <if test= "clntNm != null and !clntNm.equals('')">
 		 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 			</if>
-			ORDER BY A.TRST_DT, DECODE(RN,0,0,1),A.CLNT_NM
+			ORDER BY A.TRST_DT, DECODE(RN,0,0,1),TYPE, A.CLNT_NM
 		  ) B
 		)
 		WHERE
