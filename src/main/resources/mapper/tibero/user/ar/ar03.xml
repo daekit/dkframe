@@ -6,29 +6,38 @@
 	<select id="selectCaryngCount" parameterType="Map" resultType="int">
 		SELECT
 			COUNT(*)
-		FROM TB_AR03M01 
-		WHERE 1=1
+		FROM TB_AR03M01 A		
+		 LEFT OUTER JOIN TB_BM02M01 B ON A.TRANS_CO = B.CLNT_CD		
+		 LEFT OUTER JOIN TB_BM02M01 C ON A.CLNT_CD  = C.CLNT_CD				 
+		<where>				
 		<if test= "coCd != null and !coCd.equals('')">
-	 			AND CO_CD = #{coCd}
-			</if>
-			<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-	 			AND TRANS_DT BETWEEN #{strtDt} AND #{endDt}
-			</if>
-			<if test= "transCo != null and !transCo.equals('')">
-	 			AND TRANS_CO = #{transCo}
-			</if>
-			<if test= "whCd != null and !whCd.equals('')">
-	 			AND WH_CD = #{whCd}
-			</if>
-			<if test= "desNm != null and !desNm.equals('')">
-	 			AND DES_NM = #{desNm}
-			</if>
-			<if test= "clntCd != null and !clntCd.equals('')">
-	 			AND CLNT_CD = #{clntCd}
-			</if>
-			<if test= "procYn != null and !procYn.equals('')">
-	 			AND PROC_YN = #{procYn}
-			</if>
+ 			    A.CO_CD = #{coCd}
+		</if>
+		<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
+ 			AND A.TRANS_DT BETWEEN #{strtDt} AND #{endDt}
+		</if>
+		<if test= "transCo != null and !transCo.equals('')">
+ 			AND A.TRANS_CO = #{transCo}
+		</if>
+		<if test= "transNm != null and !transNm.equals('')">
+ 			AND B.CLNT_NM LIKE '%'|| #{transNm} ||'%'
+		</if>
+		<if test= "whCd != null and !whCd.equals('')">
+ 			AND A.WH_CD = #{whCd}
+		</if>
+		<if test= "desNm != null and !desNm.equals('')">
+ 			AND A.DES_NM LIKE '%' || #{desNm} ||'%'
+		</if>
+		<if test= "clntCd != null and !clntCd.equals('')">
+ 			AND A.CLNT_CD = #{clntCd}
+		</if>
+		<if test= "clntNm != null and !clntNm.equals('')">
+ 			AND C.CLNT_NM LIKE '%'|| #{clntNm}||'%'
+		</if>
+		<if test= "procYn != null and !procYn.equals('')">
+ 			AND A.PROC_YN = #{procYn}
+		</if>
+		</where>
 	</select>
 	
 	<select id="selectCaryngList" parameterType="Map" resultType="CamelMap">
