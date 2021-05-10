@@ -104,13 +104,18 @@
 <!--                   </select> -->
 <!--                 </td> -->
                  <th >제품</th>
-                <td>
-                  <input type="text" id="prdtNm"  data-search="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
-                </td>
+						<td>
+			                <input type="hidden" data-search="prdtCd" id="prdtCd">
+							<div class="search_form" style="width: 50%;">
+								<input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}" data-search="prdtNm">
+								<a onclick="openSecondPrdtSearch(this); "><i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
                 <th>재고주체</th>
-               	 <td>
-                  <input type="text" id="clntNm" data-search="clntNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
-                </td>
+	               	 <td>
+		                  <input type="text" id="clntNm" data-search="clntNm"  onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
+	                </td>
                 <th>프로젝트</th>
 				<td>
 					<div class="search_form" style="width: 60%;">
@@ -259,6 +264,41 @@
 			});
 		}
 	}
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "procDttm", 	label: "변동일자", 	align: "center", width: 80},
+			        	{key: "whNm", 		label: "창고", 		align: "center", width: 120},
+			          	{key: "ownerNm", 	label: "구분", 	    align: "center", width: 60},
+			          	{key: "clntNm", 	label: "재고주체", 	align: "left",   width: 130},
+			          	{key: "typNm", 		label: "유형", 		align: "center", width: 50},
+			          	{key: "prjctNm",	label: "프로젝트", 	align: "left",   width: 130},
+			          	{key: "makrNm", 	label: "제조사", 		align: "center", width: 90},
+			          	{key: "prdtNm", 	label: "제품", 		align: "left",   width: 160},
+			          	{key: "prdtSpec",   label: "스펙",    	align: "left",   width: 100},
+			          	{key: "prdtSize",   label: "사이즈",   	align: "right",   width: 100},
+			          	{key: "prdtLen",    label: "길이",    	align: "right",   width: 60},
+			         	{key: "stockChgNm", label: "거래유형", 	align: "center", width: 80},
+			          	{key: "chgQty", 	label: "변동수량", 	align: "right",  width: 90, formatter:"money", styleClass:"grid-cell-blue"},
+			          	{label: "재고",  columns:[
+			          		{key: "stockQty", label: "수량(KG)", align: "right", width: 90, formatter:"money" },
+				          	{key: "stockUpr", label: "단가", 		align: "right", width: 90, formatter:"money" },
+				          	{key: "stockAmt", label: "금액", 		align: "right", width: 90, formatter:"money" }
+			          	]},
+			          	{key: "stdUpr", 	label: "기준 단가", 	align: "right", width: 90, formatter:"money" },
+				         
+			          	{key: "pchsUpr", 	label: "최종<br/>매입 단가", align: "right",  width: 100, formatter:"money" },
+			          	{key: "sellUpr", 	label: "최종<br/>매출 단가", align: "right",  width: 100, formatter:"money" },
+			          	{key: "impNm", 		label: "수입", 		align: "center", width: 50},
+			          	{key: "chgNm", 		label: "변동 구분", 	align: "center", width: 80}
+			        ]
+			    });
+				return this;
+			}
+		}	
 	
 
 	$(document).ready(function() {
@@ -315,9 +355,28 @@
 			
 			$("#prjctCd").val(row.prjctCd);
 			$("#prjctNm").val(row.prjctNm);
+			gridView.setData(0);
 		});
 	}
-	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(), 
+// 			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prdtCd").val(row.prdtCd);
+			$("#prdtNm").val(row.prdtNm);
+			gridView.setData(0);
+		});
+	}
+		
 	
 	function excelDown() {
 		var formData = {
@@ -331,8 +390,8 @@
 				"prjctCd" : $("#prjctCd").val(),
 				"prjctNm" : $("#prjctNm").val(),
 				"procDttm" : $("#procDttm").val(),
-				"pageNo" : _pageNo + 1, 
-				"recordCnt" : $("#recordCnt").val()
+				"pageNo" :  1, 
+				"recordCnt" : 100000
 			}
 			
 			postAjax("/user/sm/sm01/selectStockHistoryList", formData, null, function(data){
