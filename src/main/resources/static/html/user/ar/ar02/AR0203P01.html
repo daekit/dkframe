@@ -2,11 +2,6 @@
 	<div class="popup_table">
 		<div class="popup_table">
 			<table>
-<!-- 				<thead> -->
-<!-- 					<tr> -->
-<!-- 						<td class="tl">발주서</td> -->
-<!-- 					</tr> -->
-<!-- 				</thead> -->
 				<tr>
 					<td>
 						<div class="ax5_grid" data-ax5grid="sales-grid" data-ax5grid-config="{}" style="height: 70px; width: 100%"></div>
@@ -15,11 +10,157 @@
 			</table>
 		</div>
 	</div>
+	<br>
+	<div class="popup_table">
+		<table id="detailTable">
+			<colgroup>
+				<col width="3%">
+				<col width="16%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+			</colgroup>
+			<tr>
+				<td colspan="11">
+					<div class="add_btn">
+						<a onclick="addDetailRow();">+</a> 
+						<a onclick="removeDetailRow();">-</a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th class="tc" style="padding: 3px;"> 
+					<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+				</th>
+				<th class="tc">거래처</th>
+				<th class="tc">비율(%)</th>
+				<th class="tc">금액</th>
+				<th class="tc">청구금액</th>
+				<th class="tc">부가세</th>
+				<th class="tc">수량</th>
+				<th class="tc">중량</th>
+				<th class="tc">청구수량</th>
+				<th class="tc">청구중량</th>
+				<th class="tc">할인금액</th>
+			</tr>
+		</table>
+		<table id="frameTable" style="display: none;">
+			<colgroup>
+				<col width="3%">
+				<col width="16%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+			</colgroup>
+			<tr name="detailRow">
+				<input type="hidden" name="trstCertiNo">
+				<th class="tc" style="padding: 3px;">
+					<input type="checkbox" name="detailChkBox" onchange="ctrlAllChkBox();">
+				</th>
+				<td>
+					<div class="search_form">
+						<input type="hidden" name="clntCd" msg="거래처" required>
+						<input type="text" name="clntNm" readonly> 
+						<a onclick="openSecondClntSearch(this);">
+							<i class="i_search_w"></i>
+						</a>
+					</div>
+				</td>
+				<td>
+					<input type="text" class="tr" name="percent" onkeyup="onlyNumber(this); calculateAmt(this);">
+				</td>
+				<td>
+					<input type="text" class="tr" name="realTrstAmt" onkeyup="onlyInteger(this); displayDiffer(); calculatePercent(this);" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="bilgAmt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="bilgVatAmt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="realTrstQty" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="realTrstWt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="bilgQty" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="bilgWt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+				<td>
+					<input type="text" class="tr" name="trstDcAmt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+				</td>
+			</tr>
+		</table>
+		<table id="diffTable">
+			<colgroup>
+				<col width="3%">
+				<col width="16%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+				<col width="9%">
+			</colgroup>
+			
+			<tr name="diffRow">
+				<th class="tc" colspan="2">합계 / 차이</th>
+				<td>
+					<input type="text" class="tr" id="totPercent" readonly>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffRealTrstAmt" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffBilgAmt" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffBilgVatAmt" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffRealTrstQty" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffRealTrstWt" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffBilgQty" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffBilgWt" readonly validation>
+				</td>
+				<td class="tr">
+					<input type="text" class="tr" id="diffTrstDcAmt" readonly validation>
+				</td>
+			</tr>
+		</table>
+	</div>
 	<div class="popup_bottom_btn">
-		
+		<button type="button" onclick="insertSalesDivision();">저장</button>
+		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
+	var $targetRow = null;
 	var salesGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -27,7 +168,10 @@
 		    	showRowSelector: false,
 		    	multipleSelect: false,
 		    	sortable: true,
-		        target: $('[data-ax5grid="sales-grid"]'),		        
+		        target: $('[data-ax5grid="sales-grid"]'),
+		        header: {
+		        	align: "center"
+		        },
 		        page: {
 		        	display: false,
 		        },
@@ -35,20 +179,21 @@
 		          	{key: "trstCertiNo",    label: "거래지시번호",  hidden: true},
 		        	{key: "clntCd",    	 	label: "거래처",		hidden: true},
 		        	{key: "returnYn",    	label: "반품여부",		hidden: true},
+		        	{key: "lossRate", 	    label: "할인율",  	    hidden: true},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		        	{key: "prdtNm",    	 	label: "제품", 		    align: "left", 		width: 140},
-		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
+		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money"},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "realTrstWt", 	label: "중량", 		    align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "bilgQty",        label: "청구수량", 	    align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgWt",         label: "청구중량",   	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgUpr",        label: "청구단가", 	    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money", hidden: true},
-		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "lossRate", 	    label: "할인율",  	    align: "right", 	width: 80, 	formatter: "money", hidden: true}
+		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"}
 		        ]
 		    });
 			return this;
@@ -60,6 +205,215 @@
 	}
 	
 	$(document).ready(function(){
-		salesGridView.initView().setData();	
+		
+		// 원본 grid set
+		salesGridView.initView().setData();
+		
+		// 원본 table set
+		var originSales = salesGridView.target.getList()[0];
+		var $addedRow = addDetailRow();
+		
+		$.each($addedRow.find('input[name]'), function(idx, elem){
+			var itemValue = originSales[elem.name];
+			if(itemValue){
+				if($(elem).is("[comma]")){
+					itemValue = addCommaStr(itemValue);
+				}
+				$(elem).val(itemValue);
+			}
+			
+			if(elem.name == "percent"){
+				elem.value = 100;
+			}
+		});
+		
+		// 합계/차이 set
+		displayDiffer();
 	});
+	
+	function addDetailRow(){
+		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
+		$('#detailTable tbody').append($detailRow[0]);
+		ctrlAllChkBox();
+		return $detailRow;
+	}
+	
+	function removeDetailRow(){
+		var $checkedDetails = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		if($checkedDetails.length > 0){
+			$.each($checkedDetails, function(idx, elem){
+				var $detailRow = $(elem).closest('tr[name="detailRow"]');
+				if(!$detailRow.find('input[name="trstCertiNo"]').val()){
+					$detailRow.remove();
+				}
+			});
+			displayDiffer();
+		}else{
+			alert("삭제할 데이터를 선택해주세요.");
+		}
+	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]').prop("checked", true);
+		}else{
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]').prop("checked", false);
+		}
+	}
+	
+	function ctrlAllChkBox(){
+		var isAllChk = true;
+		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]');
+		if($detailChkBoxes.length > 0){
+			$.each($detailChkBoxes, function(idx, elem){
+				if(!$(elem).is(':checked')){
+					isAllChk = false;
+				}
+			});
+			if(isAllChk){
+				$('#allChkBox').prop("checked", true);
+			}else{
+				$('#allChkBox').prop("checked", false);
+			}
+		}else{
+			$('#allChkBox').prop("checked", false);
+		}
+	}
+	
+	// 거래처 검색
+	function openSecondClntSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$targetRow.find('[name="clntCd"]').val(row.clntCd);
+			$targetRow.find('[name="clntNm"]').val(row.clntNm);
+		});
+	}
+	
+	// 비율에 따른 금액계산
+	function calculateAmt(elem){
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		if(elem.name == "percent"){
+			$(elem).data("round", elem.value);
+		}
+		
+		var originSales = salesGridView.target.getList()[0];
+		var percentage = Number($targetRow.find('input[name="percent"]').data("round"));
+		var ratio = percentage / 100;
+		
+		var realTrstAmt = Number(originSales.realTrstAmt); // 금액
+		var bilgAmt = Number(originSales.bilgAmt); // 청구금액
+		var bilgVatAmt = Number(originSales.bilgVatAmt); // 부가세
+		var realTrstQty = Number(originSales.realTrstQty); // 수량
+		var realTrstWt = Number(originSales.realTrstWt); // 중량
+		var bilgQty = Number(originSales.bilgQty); // 청구수량
+		var bilgWt = Number(originSales.bilgWt); // 청구중량
+		var trstDcAmt = Number(originSales.trstDcAmt) // 할인금액
+		
+		$targetRow.find('[name="realTrstAmt"]').val(addCommaStr(Math.round(realTrstAmt * ratio)));
+		$targetRow.find('[name="bilgAmt"]').val(addCommaStr(Math.round(bilgAmt * ratio)));
+		$targetRow.find('[name="bilgVatAmt"]').val(addCommaStr(Math.round(bilgVatAmt * ratio)));
+		$targetRow.find('[name="realTrstQty"]').val(addCommaStr(Math.round(realTrstQty * ratio)));
+		$targetRow.find('[name="realTrstWt"]').val(addCommaStr(Math.round(realTrstWt * ratio)));
+		$targetRow.find('[name="bilgQty"]').val(addCommaStr(Math.round(bilgQty * ratio)));
+		$targetRow.find('[name="bilgWt"]').val(addCommaStr(Math.round(bilgWt * ratio)));
+		$targetRow.find('[name="trstDcAmt"]').val(addCommaStr(Math.round(trstDcAmt * ratio)));
+		
+		displayDiffer();
+	}
+	
+	// 금액에 따른 비율계산
+	function calculatePercent(elem){
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		var originSales = salesGridView.target.getList()[0];
+		var realTrstAmt = Number(deleteCommaStr($targetRow.find('input[name="realTrstAmt"]').val()));
+		var percent = (realTrstAmt / originSales.realTrstAmt) * 100;
+		$targetRow.find('[name="percent"]').val(parseFloat(percent.toFixed(2)));
+		$targetRow.find('[name="percent"]').data("round", percent);
+		calculateAmt(elem);
+	}
+	
+	function displayDiffer(){
+		var originSales = salesGridView.target.getList()[0];
+		var totPercent = 0;
+		var totRealTrstAmt = 0; // 금액 합계
+		var totBilgAmt = 0; // 청구금액 합계 
+		var totBilgVatAmt = 0; // 부가세 합계
+		var totRealTrstQty = 0; // 수량 합계
+		var totRealTrstWt = 0; // 중량 합계
+		var totBilgQty = 0; // 청구수량 합계
+		var totBilgWt = 0; // 청구중량 합계
+		var totTrstDcAmt = 0; // 할인금액 합계
+		
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+			var percent = Number(deleteCommaStr($(elem).find('input[name="percent"]').val()));
+			var realTrstAmt = Number(deleteCommaStr($(elem).find('input[name="realTrstAmt"]').val()));
+			var bilgAmt = Number(deleteCommaStr($(elem).find('input[name="bilgAmt"]').val()));
+			var bilgVatAmt = Number(deleteCommaStr($(elem).find('input[name="bilgVatAmt"]').val()));
+			var realTrstQty = Number(deleteCommaStr($(elem).find('input[name="realTrstQty"]').val()));
+			var realTrstWt = Number(deleteCommaStr($(elem).find('input[name="realTrstWt"]').val()));
+			var bilgQty = Number(deleteCommaStr($(elem).find('input[name="bilgQty"]').val()));
+			var bilgWt = Number(deleteCommaStr($(elem).find('input[name="bilgWt"]').val()));
+			var trstDcAmt = Number(deleteCommaStr($(elem).find('input[name="trstDcAmt"]').val()));
+			
+			totPercent += percent;
+			totRealTrstAmt += realTrstAmt;
+			totBilgAmt += bilgAmt;
+			totBilgVatAmt += bilgVatAmt;
+			totRealTrstQty += realTrstQty;
+			totRealTrstWt += realTrstWt;
+			totBilgQty += bilgQty;
+			totBilgWt += bilgWt;
+			totTrstDcAmt += trstDcAmt;
+		})
+		
+		$('#totPercent').val(parseFloat(totPercent.toFixed(2)));
+		$('#diffRealTrstAmt').val(addCommaStr(Math.round(originSales.realTrstAmt - totRealTrstAmt)));
+		$('#diffBilgAmt').val(addCommaStr(Math.round(originSales.bilgAmt - totBilgAmt)));
+		$('#diffBilgVatAmt').val(addCommaStr(Math.round(originSales.bilgVatAmt - totBilgVatAmt)));
+		$('#diffRealTrstQty').val(addCommaStr(Math.round(originSales.realTrstQty - totRealTrstQty)));
+		$('#diffRealTrstWt').val(addCommaStr(Math.round(originSales.realTrstWt - totRealTrstWt)));
+		$('#diffBilgQty').val(addCommaStr(Math.round(originSales.bilgQty - totBilgQty)));
+		$('#diffBilgWt').val(addCommaStr(Math.round(originSales.bilgWt - totBilgWt)));
+		$('#diffTrstDcAmt').val(addCommaStr(Math.round(originSales.trstDcAmt - totTrstDcAmt)));
+	}
+	
+	function insertSalesDivision(){
+		// 합계 / 차이 validation
+		var isValid = true;
+		$('#diffTable tr[name="diffRow"] [validation]').each(function(idx, elem){
+			if(deleteCommaStr($(elem).val()) != 0){
+				isValid = false;
+				return false;
+			}
+		});
+		
+		if(isValid){
+			var salesArr = [];
+			$('#detailTable tr[name="detailRow"]').each(function(idx, elem){
+				var salesObj = {};
+				$.each($(elem).find('[name]'), function(idx, elem){
+					var itemValue = elem.value;
+					if($(elem).is('[comma]')){
+						itemValue = deleteCommaStr(itemValue);
+					}
+					salesObj[elem.name] = itemValue;
+				});
+				salesObj.userId = jwt.userId;
+				salesArr.push(salesObj);
+			});
+			
+			postAjax("/user/ar/ar02/insertSalesDivision", salesArr, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200) {
+					// subGrid set
+					subGridView.setData(0);
+					// modal close
+					modal.close();
+				}
+			});
+		}else{
+			alert("모든 차이값은 0이어야 합니다.");
+		}
+	}
 </script>
