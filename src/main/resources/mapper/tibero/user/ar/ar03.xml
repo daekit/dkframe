@@ -84,7 +84,8 @@
 	                                    AND PRDT_NM LIKE '%운반비%'), 0)
 						 AS SALES_TRANS_AMT --매출운반비
 				FROM TB_AR03M01 A
-				 LEFT OUTER JOIN TB_BM02M01 B ON A.TRANS_CO = B.CLNT_CD				 
+				 LEFT OUTER JOIN TB_BM02M01 B ON A.TRANS_CO = B.CLNT_CD		
+				 LEFT OUTER JOIN TB_BM02M01 C ON A.CLNT_CD  = C.CLNT_CD				 
 				<where>				
 				<if test= "coCd != null and !coCd.equals('')">
 		 			    A.CO_CD = #{coCd}
@@ -95,14 +96,20 @@
 				<if test= "transCo != null and !transCo.equals('')">
 		 			AND A.TRANS_CO = #{transCo}
 				</if>
+				<if test= "transNm != null and !transNm.equals('')">
+		 			AND B.CLNT_NM LIKE '%'|| #{transNm} ||'%'
+				</if>
 				<if test= "whCd != null and !whCd.equals('')">
 		 			AND A.WH_CD = #{whCd}
 				</if>
 				<if test= "desNm != null and !desNm.equals('')">
-		 			AND A.DES_NM = #{desNm}
+		 			AND A.DES_NM LIKE '%' || #{desNm} ||'%'
 				</if>
 				<if test= "clntCd != null and !clntCd.equals('')">
 		 			AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test= "clntNm != null and !clntNm.equals('')">
+		 			AND C.CLNT_NM LIKE '%'|| #{clntNm}||'%'
 				</if>
 				<if test= "procYn != null and !procYn.equals('')">
 		 			AND A.PROC_YN = #{procYn}
