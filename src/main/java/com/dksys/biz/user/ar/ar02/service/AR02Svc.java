@@ -16,6 +16,8 @@ public interface AR02Svc {
 	int deleteSell(Map<String, String> paramMap);
 
 	int insertPchsSell(Map<String, String> paramMap);
+	
+	void insertSalesDivision(List<Map<String, String>> paramList);
 
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 	

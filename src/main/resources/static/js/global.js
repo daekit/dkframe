@@ -349,8 +349,13 @@ function inputValidation(inputList) {
 }
 
 function onlyNumber(elem){
-	var regExp = /^(-?)([0-9|,]*)(\.?[0-9]*)([^0-9]*)/g;
-	$(elem).val($(elem).val().replace(regExp, "$1$2$3"));
+	var regExp = /^(-?)([0-9]*)(\.?[0-9]*)([^0-9]*)/g;
+	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2$3")));
+}
+
+function onlyInteger(elem){
+	var regExp = /^(-?)([0-9]*)([^0-9]*)/g;
+	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2")));
 }
 
 // 한글 제거
