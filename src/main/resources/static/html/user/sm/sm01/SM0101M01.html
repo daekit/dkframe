@@ -112,9 +112,14 @@
 						</select>
 					</td>
                 <th >제품</th>
-                <td>
-                  <input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}" data-search="prdtNm">
-                </td>
+						<td>
+			                <input type="hidden" data-search="prdtCd" id="prdtCd">
+							<div class="search_form" style="width: 50%;">
+								<input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}" data-search="prdtNm">
+								<a onclick="openSecondPrdtSearch(this); "><i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
                 <th>프로젝트</th>
 				<td>
 					<div class="search_form" style="width: 60%;">
@@ -379,10 +384,32 @@
 			
 			$("#prjctCd").val(row.prjctCd);
 			$("#prjctNm").val(row.prjctNm);
+			gridView.setData(0);
 		});
 	}
 
-
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"selpchCd": "SELPCH2",
+			"impYn": "Y", 
+			"clntCd" : "1",
+			"prdrCd" : $('#prdrCd').val(),
+			"prdrNm" : $('#prdrNm').val(),
+			"clntCd" : "1",
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prdtCd").val(row.prdtCd);
+			$("#prdtNm").val(row.prdtNm);
+			gridView.setData(0);
+		});
+	}
+	
 	// 창고 set
 	function setWareHouse(value){
 		//출고고지 창고 법인별 설정
