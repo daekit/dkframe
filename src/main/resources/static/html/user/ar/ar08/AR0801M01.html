@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
-	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
 	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
 	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
 	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
@@ -24,8 +24,8 @@
 	<script src="/static/js/jquery.serializeObject.js"></script>
 	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
-	<script src="/static/js/moment/moment-with-locales.js"></script>
 	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
 	<script src="/static/js/ax5/ax5core.min.js"></script>
 	<script src="/static/js/ax5/ax5grid.min.js"></script>
 	<script src="/static/js/ax5/ax5mask.min.js"></script>
@@ -33,8 +33,6 @@
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
 	<script src="/static/js/global.js"></script>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
-	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
 </head>
 
 <body>
@@ -82,6 +80,16 @@
                       <input type="text" id="endDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
                     </div>
                 </td>
+              </tr>
+              <tr>
+	                <th>매입매출구분</th>
+	                <td>
+	                    <select id="selpch_S" required="required">
+	                    	<option value="">전체</option>
+	                    	<option value="SELPCH2">매출</option>
+	                    	<option value="SELPCH1">매입</option>
+	                 	</select>
+	                </td>              
               </tr>
             </table>
           </div>
@@ -138,9 +146,9 @@
 		            		{
 		            			label: function () {return "일 계"; }, colspan: 4
 		            		},
-		            	    {key: "sellUpr", collector: "sum", formatter: "money", align: "right"},
-		                    {key: "pchsUpr", 	collector: "sum", formatter: "money", align: "right"},
-		                    {key: "",  collector: "sum", formatter: "money", align: "right"}
+		            	    {key: "sellAmt", collector: "sum", formatter: "money", align: "right"},
+		                    {key: "pchsAmt", 	collector: "sum", formatter: "money", align: "right"},
+		                    {key: "remaindAmt", collector: "", formatter: "money", align: "right"}
 		              
 		            	]
 		            
@@ -149,8 +157,8 @@
 		        footSum: [
 			    	[
 			    		{label: "총계", colspan:4, align:"center"},
-			    		{key:"sellUpr", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "pchsUpr", collector: "sum", formatter:"money", align: "right"},
+			    		{key:"sellAmt", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "pchsAmt", collector: "sum", formatter:"money", align: "right"},
 			    		{key: "", collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
@@ -171,9 +179,9 @@
 		            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
 			        {key: "gubunNm", label: "구분", align: "left", width: "8%"},
 		            {key: "bigo", label: "적요", align: "left", width: "30%"},
-		            {key: "sellUpr", label: "차변", align: "right", formatter: "money", width: "11%"},
-		            {key: "pchsUpr", label: "대변", align: "right", formatter: "money", width: "10%"},
-		            {key: "", label: "잔액", align: "right", formatter: "money",width: "10%"},
+		            {key: "sellAmt", label: "차변", align: "right", formatter: "money", width: "11%"},
+		            {key: "pchsAmt", label: "대변", align: "right", formatter: "money", width: "10%"},
+		            {key: "remaindAmt", label: "잔액", align: "right", formatter: "money",width: "10%"},
 		         ]
 		    
 			});
@@ -182,12 +190,13 @@
 		setData: function(_pageNo){
 			firstGrid = this.target;
 			var formData = {
-				"coCd" : $("#coCd_S").val(),
-				"clntCd" : $("#clntCd_S").val(),
-				"clntNm" : $("#clntNm_S").val(),
+				"coCd"      : $("#coCd_S").val(),
+				"clntCd"    : $("#clntCd_S").val(),
+				"clntNm"    : $("#clntNm_S").val(),
 				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
 				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
-				"pageNo" : _pageNo + 1,
+				"selpchCd"  : $("#selpch_S").val(),
+				"pageNo"    : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
@@ -211,13 +220,13 @@
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [
-			            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
 			            {key: "trstDt", label: "날짜", align: "center", width: "8%"},
+			            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
 			            {key: "gubunNm", label: "구분", align: "left", width: "15%"},
 			            {key: "bigo", label: "적요", align: "left", width: "15%"},
-			            {key: "sellUpr", label: "차변", align: "right", formatter: "money", width: "15%"},
-			            {key: "pchsUpr", label: "대변", align: "right", formatter: "money", width: "15%"},
-			            {key: "", label: "잔액", align: "right", formatter: "money",width: "15%"},
+			            {key: "sellAmt", label: "차변", align: "right", formatter: "money", width: "15%"},
+			            {key: "pchsAmt", label: "대변", align: "right", formatter: "money", width: "15%"},
+			            {key: "remaindAmt", label: "잔액", align: "right", formatter: "money",width: "15%"},
 				    ]
 			    });
 				return this;
@@ -274,6 +283,7 @@
 				"clntNm" : $("#clntNm_S").val(),
 				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
 				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+				"selpchCd"  : $("#selpch_S").val(),
 				"pageNo"    : 1,
 				"recordCnt" : 9999999
 			}

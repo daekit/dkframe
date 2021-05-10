@@ -49,7 +49,7 @@
 					<td>
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd" msg="매출거래처">
-							<input type="text" id="clntNm" readonly required>
+							<input type="text" id="clntNm" readonly  msg="매출거래처" required>
 							<a onclick="openSecondClntSearch();">
 								<i class="i_search_w"></i>
 							</a>
@@ -573,6 +573,12 @@
 		$('#whCd').data("desc", value);
 		$('#whCd').empty();
 		setCommonSelect($('#whCd'));
+		 // 창고와 판매법인은 같이 바귐.		
+
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+		
 	}
 	
 	// 거래처 검색
@@ -959,13 +965,15 @@
 		if(!lengthValidation()) return false;
 		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
-			filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
-				alert(data.resultMessage);
-				if(data.resultCode == 200){
-					gridView.setData(0);
-					modal.close();
-				}
-			});
+			if(formData){
+				filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
+					alert(data.resultMessage);
+					if(data.resultCode == 200){
+						gridView.setData(0);
+						modal.close();
+					}
+				});
+			}
 		}
 	}
 	
@@ -1018,6 +1026,13 @@
 		});
 		
 		var formData = new FormData($("#popForm")[0]);
+
+		var typeChk = $('#typCd').val();
+		var siteChk = $('#siteCd').val();
+		if(typeChk == 'SELLTYPE2'  && siteChk ==''){
+			alert("판매유형이 가공일경우 현장은 필수입니다. 현장을 입력하세요.");
+			return false;
+		}		
 		
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);

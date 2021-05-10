@@ -430,25 +430,33 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
 			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
-			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
-			for (Map<String, String> map : bilgList) {
-				if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
-					bilgFlag = true;
-					break;
-				}
-			}
 			// P 매입취소, S 매출취소, A 일괄 취소 
 			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			    od01Mapper.updateCancelDetail(detailMap);
 			    detailMap.put("selpchCd", "SELPCH1");
+			    // 매입확정 체크
+				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+				for (Map<String, String> map : bilgList) {
+					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+						bilgFlag = true;
+						break;
+					}
+				}
 				ar02Mapper.deletePchsSell(detailMap); //   	 메입만 삭제
 			}
 
 			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			    od01Mapper.updateCancelDetailS(detailMap);
 			    detailMap.put("selpchCd", "SELPCH2");
+			    //매출확정 체크
+				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+				for (Map<String, String> map : bilgList) {
+					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+						bilgFlag = true;
+						break;
+					}
+				}
 				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
-
 			}   
 		
 			//재고원복

@@ -67,8 +67,8 @@
               <tr>
                 <th>회사</th>
                 <td>
-                    <select id ="CO" data-kind="CO"  onchange="gridView.setData(0);" data-search="coCd">
-                  	  <option value="">전체</option>
+                    <select id ="CO" data-kind="CO"  onchange="setWareHouse(this.value);  gridView.setData(0);" data-search="coCd">
+<!--                   	  <option value="">전체</option> -->
                     </select>
                 </td>
                 <th>창고구분</th>
@@ -116,7 +116,7 @@
               <th>제품구분</th>
 						<td>
 							<select id="prdtDiv" data-kind="PRDTDIV" data-search="prdtDiv" onchange="gridView.setData(0);">
-								<option value="">전체</option>
+<!-- 								<option value="">전체</option> -->
 							</select>
 						</td>
               <th >제품</th>
@@ -322,6 +322,9 @@
 		//접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 		
+		//창고 초기값 설정
+		setWareHouse(jwt.coCd);
+
 		gridView.initView().setData(0);
 		excelView.initView();
 		
@@ -392,4 +395,13 @@
 	function openSetPrintDate(){
 		openModal("/static/html/user/sm/sm06/SM0601P02.html", 400, 200, "출력일자");
 	}
+
+	// 창고 set
+	function setWareHouse(value){
+		//출고고지 창고 법인별 설정
+		$('#WH').data("desc", value);
+		$('#WH').empty();
+		$('#WH').append('<option value="">전체</option>');	
+		setCommonSelect($('#WH'));
+	}		
 </script>
