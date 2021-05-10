@@ -251,16 +251,16 @@ th {
 						}
 					},
 			        columns: [ 
-			        	{key: "coCd",    	 	label: "회사",		   align: "left", 		width: 140,     hidden:true},
+			        	{key: "coCd",    	 	label: "회사",	   align: "left", 		width: 140,     hidden:true},
 			        	{key: "clntNm",    	 	label: "거래처명",	   align: "left", 		width: 140},
-			          	{key: "taxivcCoprtNm",	label: "매입법인", 	   align: "left", 		width: 130},
+			          	{key: "taxivcCoprtNm",	label: "매입법인",	   align: "left", 		width: 130},
 			          	{key: "siteNm",         label: "현장명",	   align: "left",		width: 180},
-			        	{key: "bilgAmt", 	    label: "매입금액",     align: "right", 	    width: 110,	    formatter: "money"},
-			        	{key: "bilgVatAmt",	    label: "부가세",  	   align: "right", 	    width: 110,	    formatter: "money"},
+			        	{key: "bilgAmt", 	    label: "매입금액",    align: "right", 	    width: 110,	    formatter: "money"},
+			        	{key: "bilgVatAmt",	    label: "부가세", 	   align: "right", 	    width: 110,	    formatter: "money"},
 			        	{key: "totAmt", 	    label: "합계",  	   align: "right", 	    width: 130,	    formatter: "money"},
-			        	{key: "bilgQty",        label: "매입수량", 	   align: "right", 	    width: 110, 	formatter: "money"},
-			        	{key: "bilgWt",         label: "매입중량", 	   align: "right", 	    width: 110, 	formatter: "money"},
-			        	{key: "trstDcAmt", 	    label: "할인금액",     align: "right", 	    width: 110, 	formatter: "money"}
+			        	{key: "bilgQty",        label: "매입수량",	   align: "right", 	    width: 110, 	formatter: "money"},
+			        	{key: "bilgWt",         label: "매입중량",	   align: "right", 	    width: 110, 	formatter: "money"},
+			        	{key: "trstDcAmt", 	    label: "할인금액",    align: "right", 	    width: 110, 	formatter: "money"}
 			        ],
 			        footSum: [
 				    	[
@@ -398,22 +398,25 @@ th {
 		}, 
 		setData: function(_pageNo, _dindex) {
 			firstGrid = this.target;
-			row = mainGridView.target.getList();
+			row = mainGridView.target.getList("selected");
+			if(row){
+				row=mainGridView.target.getList(0);
+			}
 			var formData = {
-				"selpchCd" : "SELPCH1",
+				"selpchCd"  : "SELPCH1",
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
-				"coCd" : row[_dindex].coCd,
-				"clntNm" : row[_dindex].clntNm,
-				"prdtDiv" : $("#prdtDiv_S").val(),
-				"estCoprt" : $("#estCoprt_S").val(),
-				"dirtrsYn" : $("#dirtrsYn_S").val(),
-				"typCd" : row[_dindex].typCd,
-				"siteCd" : row[_dindex].siteCd,
-				"siteNm" : row[_dindex].siteNm,
-				"pdsk" : $("#pdsk_S").val(),
-				"bilgYn" : $("#bilgYn_S").val(),
-				"pageNo" : _pageNo + 1, 
+				"reqDtTo"   : $("#reqDtTo").val().replace(/\-/g,''),
+				"coCd"      : row[_dindex].coCd,
+				"clntNm"    : row[_dindex].clntNm,
+				"prdtDiv"   : $("#prdtDiv_S").val(),
+				"estCoprt"  : $("#estCoprt_S").val(),
+				"dirtrsYn"  : $("#dirtrsYn_S").val(),
+				"typCd"     : row[_dindex].typCd,
+				"siteCd"    : row[_dindex].siteCd,
+				"siteNm"    : row[_dindex].siteNm,
+				"pdsk"      : $("#pdsk_S").val(),
+				"bilgYn"    : $("#bilgYn_S").val(),
+				"pageNo"    : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
 			postAjax("/user/ar/ar02/selectSellList", formData, null, function(data){
@@ -510,7 +513,7 @@ th {
 				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {
 					if (data.resultCode == 200) {
 						alert(data.resultMessage);
-						gridView.setData(0);
+						gridView.setData(0,0);
 					}
 				});
 			}
@@ -598,7 +601,13 @@ th {
 		var flag = false;
 		var clntFlag = false;
 		var returnFlag = false;
-		var list = gridView.target.getList("selected");
+		var list       = gridView.target.getList("selected");
+		var mainList   = mainGridView.target.getList("selected");
+		if(mainList){
+			mainList = mainGridView.target.getList(0);
+		}
+		var ftxac11    = mainList[0].siteNm;
+		
 		var trstCertiNoArr = [];
 		var bilgCertNo = null;
 		$.each(list, function(idx, obj) {
@@ -640,15 +649,17 @@ th {
 		}
 		var formData = {
 			"trstCertiNo" : trstCertiNoArr,
-			"bilgCertNo" : bilgCertNo,
-			"userId" : jwt.userId,
-			"userNm" : jwt.userNm,
-			"pgmId" : "AR0201M01"
+			"bilgCertNo"  : bilgCertNo,
+			"ftxac11"     : ftxac11,
+			"ftxac21"     : $('#reqDtFrom').val() + '~' + $('#reqDtTo').val(),
+			"userId"      : jwt.userId,
+			"userNm"      : jwt.userNm,
+			"pgmId"       : "AR0201M01"
 		}
 		postAjax(url, formData, null, function(data) {
 			alert(data.resultMessage);
 			if(data.resultCode == 200) {
-				gridView.setData(0);	
+				gridView.setData(0,0);	
 			}
 		});
 	}
@@ -687,7 +698,7 @@ th {
 			}
 			putAjax("/user/ar/ar04/updateBilgCancel", formData, null, function(data) {
 				alert(data.resultMessage);
-				gridView.setData(0);
+				gridView.setData(0,0);
 			});
 		}
 	}
