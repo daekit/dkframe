@@ -87,6 +87,7 @@
 						, C.PRDT_STKN
 			            , C.PRDT_CNVRSN_WT
 			            , C.PRDT_STOCK_CD
+			            , C.PRDT_DIV
 						, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
 						, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
@@ -165,7 +166,7 @@
 						AND A.PRJCT_CD =  #{prjctCd}
 				</if>
 				<if test="procDttm != null and !procDttm.equals('')">
-						AND A.PROC_DTTM LIKE '%' || #{procDttm} || '%'
+						<![CDATA[ AND TO_CHAR(A.PROC_DTTM, 'YYYYMMDD')  <=  REPLACE(#{procDttm}, '-', '') ]]>
 				</if>
 		) D		
 			<where>
@@ -217,6 +218,7 @@
 						, C.PRDT_STKN
 			            , C.PRDT_CNVRSN_WT
 			            , C.PRDT_STOCK_CD
+			            , C.PRDT_DIV
 						, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
 						, TO_CHAR(A.PROC_DTTM, 'YYYY-MM-DD') AS PROC_DTTM 
 				FROM TB_SM01H01 A, TB_BM01M01 C, TB_BM02M01 E
@@ -247,7 +249,7 @@
 						AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
 				</if>
 				<if test="procDttm != null and !procDttm.equals('')">
-						AND TO_CHAR(A.PROC_DTTM, 'YYYYMMDD') = REPLACE(#{procDttm}, '-', '')
+						<![CDATA[ AND TO_CHAR(A.PROC_DTTM, 'YYYYMMDD')  <=  REPLACE(#{procDttm}, '-', '') ]]>
 				</if>
 				ORDER BY A.PRDT_CD, A.WH_CD, A.TYP_CD, A.OWNER_CD, A.CLNT_CD, PROC_DTTM DESC, A.TRST_NO DESC
 			)D
@@ -295,6 +297,7 @@
 			, C.PRDT_STKN
 			, C.PRDT_CNVRSN_WT
 			, C.PRDT_STOCK_CD
+			, C.PRDT_DIV
 			, FN_CM05M01_CD_TO_NM(C.PRDT_STKN) AS PRDT_STKN_NM
 			, TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM 
 		FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
