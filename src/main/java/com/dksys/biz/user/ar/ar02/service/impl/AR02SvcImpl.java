@@ -173,6 +173,61 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		return result;
 	}
+	
+	@Override
+	public void insertSalesDivision(List<Map<String, String>> paramList) {
+		Map<String, String> originSales = ar02Mapper.selectSellInfo(paramList.get(0));
+		// 거래일자 하이픈 제거
+		originSales.put("TRST_DT", originSales.get("trstDt").toString().replaceAll("-", ""));
+		
+		for(int i=0;i<paramList.size();i++) {
+			Map<String, String> salesMap = paramList.get(i);
+			Map<String, String> paramMap = new HashMap<String, String>();
+			paramMap.putAll(originSales);
+			// 거래처
+			paramMap.put("clntCd", salesMap.get("clntCd"));
+			paramMap.put("clntNm", salesMap.get("clntNm"));
+			// 금액
+			paramMap.put("realTrstAmt", salesMap.get("realTrstAmt"));
+			// 청구금액
+			paramMap.put("bilgAmt", salesMap.get("bilgAmt"));
+			// 부가세
+			paramMap.put("bilgVatAmt", salesMap.get("bilgVatAmt"));
+			// 수량
+			paramMap.put("realTrstQty", salesMap.get("realTrstQty"));
+			// 중량
+			paramMap.put("realTrstWt", salesMap.get("realTrstWt"));
+			// 청구수량
+			paramMap.put("bilgQty", salesMap.get("bilgQty"));
+			// 청구중량
+			paramMap.put("bilgWt", salesMap.get("bilgWt"));
+			// 할인금액
+			paramMap.put("trstDcAmt", salesMap.get("trstDcAmt"));
+			// 사용자 아이디
+			paramMap.put("userId", salesMap.get("userId"));
+			// 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
+			paramMap.put("pgmId", originSales.get("creatPgm"));
+			if(i == 0) {
+			// 원본 update
+				// 거래처가 변경되었을경우
+				if(!originSales.get("clntCd").toString().equals(salesMap.get("clntCd"))) {
+					// 원본계산서번호 제거
+					paramMap.put("orgnTaxBilgNo", "");
+					// 세금계산서 수정사유 제거
+					paramMap.put("rffAea", "");
+				}
+				ar02Mapper.updatePchsSell(paramMap);
+			} else {
+			// 신규 insert
+				// 원본계산서번호 제거
+				paramMap.put("orgnTaxBilgNo", "");
+				// 세금계산서 수정사유 제거
+				paramMap.put("rffAea", "");
+				// insert
+ 				ar02Mapper.insertPchsSell(paramMap);
+			}
+		}
+	}
 
 	@Override
 	public Map<String, String> selectSellInfo(Map<String, String> paramMap) {
@@ -257,5 +312,4 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		return false;
 	}
-
 }

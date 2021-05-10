@@ -349,8 +349,13 @@ function inputValidation(inputList) {
 }
 
 function onlyNumber(elem){
-	var regExp = /^(-?)([0-9|,]*)(\.?[0-9]*)([^0-9]*)/g;
-	$(elem).val($(elem).val().replace(regExp, "$1$2$3"));
+	var regExp = /^(-?)([0-9]*)(\.?[0-9]*)([^0-9]*)/g;
+	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2$3")));
+}
+
+function onlyInteger(elem){
+	var regExp = /^(-?)([0-9]*)([^0-9]*)/g;
+	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2")));
 }
 
 // 한글 제거
@@ -373,15 +378,6 @@ function telNumberFormatter(elem){
 function crnFormatter(elem){
 	onlyNumber(elem);
 	$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
-}
-
-// 원단위 콤마 추가
-function addComma(elem) {
-	var regExp = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g;
-	if(event.keyCode != 37 && event.keyCode != 39) {
-		onlyNumber(elem);
-		$(elem).val(deleteCommaStr($(elem).val()).replace(regExp, ","));
-	}
 }
 
 // 콤마 제거
