@@ -167,6 +167,7 @@
 			FROM 
 				TB_AR02M01 T
 				LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
+				LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
 		 	WHERE 
 		 		SELPCH_CD = #{selpchCd}
 			<if test="coCd != null and !coCd.equals('')">
@@ -176,7 +177,7 @@
 				AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
-				AND T.CLNT_CD = #{clntCd}
+				AND T.TRST_CLNT_CD = #{clntCd}
 			</if>
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND T.CLNT_NM LIKE '%${clntNm}%'
@@ -200,7 +201,7 @@
 				AND T.SITE_CD = #{siteCd}				
 			</if>
 			<if test="siteNm != null and !siteNm.equals('')">
-				AND SD09M01.SITE_NM like '%'|| #{siteNm} || '%'				
+				AND SD09M01.SITE_NM LIKE '%'|| #{siteNm} || '%'				
 			</if>
 			<if test="pdsk != null and !pdsk.equals('')">
 				AND T.PRDT_STKN = #{pdsk}				
@@ -214,6 +215,18 @@
 						AND T.BILG_CERT_NO IS NULL 
 					</otherwise>
 				</choose>
+			</if>
+			<if test="salesMng != null and !salesMng.equals('')">
+				AND T.SALES_MNG = #{salesMng}				
+			</if>
+			<if test="salesMngNm != null and !salesMngNm.equals('')">
+				AND CM06M01.NAME LIKE '%'|| #{salesMngNm} || '%'				
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+				AND T.WH_CD = #{whCd}
+			</if>
+			<if test="trspRmk != null and !trspRmk.equals('')">
+				AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 			</if>
 			GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD, SD09M01.SITE_NM
 		)
@@ -248,6 +261,7 @@
 				FROM 
 					TB_AR02M01 T
 					LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
+					LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
 			 	WHERE 
 			 		SELPCH_CD = #{selpchCd}
 				<if test="coCd != null and !coCd.equals('')">
@@ -257,7 +271,7 @@
 					AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 				</if>
 				<if test="clntCd != null and !clntCd.equals('')">
-					AND T.CLNT_CD = #{clntCd}
+					AND T.TRST_CLNT_CD = #{clntCd}
 				</if>
 				<if test="clntNm != null and !clntNm.equals('')">
 					AND T.CLNT_NM LIKE '%${clntNm}%'
@@ -281,7 +295,7 @@
 					AND T.SITE_CD = #{siteCd}				
 				</if>
 				<if test="siteNm != null and !siteNm.equals('')">
-					AND SD09M01.SITE_NM like '%'|| #{siteNm} || '%'				
+					AND SD09M01.SITE_NM LIKE '%'|| #{siteNm} || '%'				
 				</if>
 				<if test="pdsk != null and !pdsk.equals('')">
 					AND T.PRDT_STKN = #{pdsk}				
@@ -295,6 +309,18 @@
 							AND T.BILG_CERT_NO IS NULL 
 						</otherwise>
 					</choose>
+				</if>
+				<if test="salesMng != null and !salesMng.equals('')">
+					AND T.SALES_MNG = #{salesMng}				
+				</if>
+				<if test="salesMngNm != null and !salesMngNm.equals('')">
+					AND CM06M01.NAME LIKE '%'|| #{salesMngNm} || '%'				
+				</if>
+				<if test="whCd != null and !whCd.equals('')">
+					AND T.WH_CD = #{whCd}
+				</if>
+				<if test="trspRmk != null and !trspRmk.equals('')">
+					AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 				</if>
 				GROUP BY T.CO_CD, T.CLNT_NM, T.TAXIVC_COPRT, T.SITE_CD, SD09M01.SITE_NM
 				ORDER BY T.CLNT_NM, TAXIVC_COPRT_NM, SD09M01.SITE_NM
@@ -427,7 +453,7 @@
 				AND T.SITE_CD = #{siteCd}				
 			</if>
 			<if test="siteNm != null and !siteNm.equals('')">
-				AND SD09M01.SITE_NM like '%'|| #{siteNm} || '%'				
+				AND SD09M01.SITE_NM LIKE '%'|| #{siteNm} || '%'				
 			</if>
 			<if test="pdsk != null and !pdsk.equals('')">
 				AND T.PRDT_STKN = #{pdsk}				
