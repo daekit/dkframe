@@ -64,6 +64,28 @@
 <!--                   	<option value="">전체</option> -->
                   </select>
                 </td>
+               <th class="hit">기간</th>
+                <td>
+                    <div class="date_input">
+                      <input type="text" id="strtDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
+                      <span>~</span>
+                      <input type="text" id="endDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
+                    </div>
+                </td>  
+				<th>일계표시</th>
+				<td>
+				  <input type="checkbox" id="dailySumYn"  name="dailySumYn" value="Y">
+				</td> 
+              </tr>
+              <tr>
+                <th>매입매출구분</th>
+                <td>
+                    <select id="selpch_S" required="required">
+                    	<option value="">전체</option>
+                    	<option value="SELPCH2">매출</option>
+                    	<option value="SELPCH1">매입</option>
+                 	</select>
+                </td>    
                 <th>거래처</th>
                 <td>
                   <input type="hidden" id="clntCd_S" name="clntCd_S">
@@ -72,25 +94,11 @@
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
-                <th class="hit">기간</th>
-                <td>
-                    <div class="date_input">
-                      <input type="text" id="strtDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
-                      <span>~</span>
-                      <input type="text" id="endDt_S" class="input_calendar" autocomplete="off"  required="required" onchange="dateValidation();">
-                    </div>
-                </td>
-              </tr>
-              <tr>
-	                <th>매입매출구분</th>
-	                <td>
-	                    <select id="selpch_S" required="required">
-	                    	<option value="">전체</option>
-	                    	<option value="SELPCH2">매출</option>
-	                    	<option value="SELPCH1">매입</option>
-	                 	</select>
-	                </td>              
-              </tr>
+				<th>월계표시</th>
+				<td>
+					<input type="checkbox" id="monthlySumYn"   name="monthlySumYn" value="Y">
+				</td>        
+             </tr>
             </table>
           </div>
     </div>
@@ -100,12 +108,13 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
-				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
-					<option value="10">10</option>
-					<option value="20" selected="selected">20</option>
-					<option value="50">50</option>
-					<option value="100">100</option>
-				</select>
+	            <input type="hidden" id="recordCnt" name="recordCnt" >
+<!-- 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);"> -->
+<!-- 					<option value="10">10</option> -->
+<!-- 					<option value="20" selected="selected">20</option> -->
+<!-- 					<option value="50">50</option> -->
+<!-- 					<option value="100">100</option> -->
+<!-- 				</select> -->
 				<input type="hidden" id="pgmId" name="pgmId" value="AR0801M01">
 			</div>
 		</div>
@@ -123,6 +132,17 @@
 	var actionType = null;
 	var firstGrid = null;
 	var chkGrid = [];
+	var grouping = {
+// 		by: ["trstDt","clntNm"],
+//      	columns: [
+//      		{
+//      			label: function () {return "일 계"; }, colspan: 4
+//      		},
+//      	    {key: "sellAmt", collector: "sum", formatter: "money", align: "right"},
+//             {key: "pchsAmt", 	collector: "sum", formatter: "money", align: "right"},
+//             {key: "remaindAmt", collector: "", formatter: "money", align: "right"}
+//      	]
+	};
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -140,19 +160,7 @@
  		                this.self.select(this.dindex);
 		            }
 		            , mergeCells : ["trstDt"]
-		            , grouping: {
-		            	by: ["trstDt"],
-		            	columns: [
-		            		{
-		            			label: function () {return "일 계"; }, colspan: 4
-		            		},
-		            	    {key: "sellAmt", collector: "sum", formatter: "money", align: "right"},
-		                    {key: "pchsAmt", 	collector: "sum", formatter: "money", align: "right"},
-		                    {key: "remaindAmt", collector: "", formatter: "money", align: "right"}
-		              
-		            	]
-		            
-		            }
+		            , grouping: grouping
 		        },
 		        footSum: [
 			    	[
@@ -162,18 +170,18 @@
 			    		{key: "", collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
-		        page: {
-		            navigationItemCount: 9,
-		            height: 30,
-		            display:true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	gridView.setData(this.page.selectPage);
-		            }
-		        },
+// 		        page: {
+// 		            navigationItemCount: 9,
+// 		            height: 30,
+// 		            display:true,
+// 		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+// 		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+// 		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+// 		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+// 		            onChange: function () {
+// 		            	gridView.setData(this.page.selectPage);
+// 		            }
+//		        },
 		        columns: [
 		            {key: "trstDt", label: "날짜", align: "center", width: "8%"},
 		            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
@@ -188,28 +196,38 @@
 			return this;
 		},
 		setData: function(_pageNo){
+		// 일계, 월계 여부
+		    var dailySumYn = 'N';
+			var monthlySumYn = 'N';
+			if($("#dailySumYn").is(":checked"))  { dailySumYn = 'Y';};
+			if($("#monthlySumYn").is(":checked")){ monthlySumYn = 'Y';};
+			
 			firstGrid = this.target;
 			var formData = {
-				"coCd"      : $("#coCd_S").val(),
-				"clntCd"    : $("#clntCd_S").val(),
-				"clntNm"    : $("#clntNm_S").val(),
-				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
-				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
-				"selpchCd"  : $("#selpch_S").val(),
-				"pageNo"    : _pageNo + 1,
-				"recordCnt" : $("#recordCnt").val()
+				"coCd"         : $("#coCd_S").val(),
+				"clntCd"       : $("#clntCd_S").val(),
+				"clntNm"       : $("#clntNm_S").val(),
+				"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
+				"selpchCd"     : $("#selpch_S").val(),
+				"dailySumYn"   : dailySumYn,
+				"monthlySumYn" : monthlySumYn,
+				"pageNo"       : 1, //_pageNo + 1,
+				"recordCnt"    : 999999999 // $("#recordCnt").val()
 			}
+			
 			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
 				var list = data.resultList;
-				firstGrid.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
-				});
+				firstGrid.setData(list);
+// 				firstGrid.setData({
+// 					list : list,
+// 					page : {
+// 						currentPage : _pageNo,
+// 						pageSize : data.paginationInfo.pageSize,
+// 						totalElements : data.paginationInfo.totalRecordCount,
+// 						totalPages : data.paginationInfo.totalPageCount
+// 					}
+// 				});
 			});
 		}
 	}
@@ -288,13 +306,14 @@
 				"recordCnt" : 9999999
 			}
 			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
-				var list = data.resultList;				
-				excelView.target.setData({
-					list : list,
-					page : {
-						totalElements : list.length,
-					}
-				});
+ 				var list = data.resultList;	
+                excelView.target.setData(list);
+// 				excelView.target.setData({
+// 					list : list,
+// 					page : {
+// 						totalElements : list.length,
+// 					}
+//				});
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("거래처 외상매입/매출_"+todayDate+".xls");
 			});	

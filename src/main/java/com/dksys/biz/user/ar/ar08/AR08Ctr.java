@@ -30,9 +30,9 @@ public class AR08Ctr {
 	
     @PostMapping(value = "/selectCreditList")
 	public String selectCreditList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int totalCnt = ar08Svc.selectCreditCount(paramMap);
-		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
-    	model.addAttribute("paginationInfo", paginationInfo);
+   // 	int totalCnt = ar08Svc.selectCreditCount(paramMap);
+	//	PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+ //   	model.addAttribute("paginationInfo", paginationInfo);
     	
     	List<Map<String, String>> resultList = ar08Svc.selectCreditList(paramMap);
     	model.addAttribute("resultList", resultList);

@@ -3,107 +3,19 @@
 
 <mapper namespace="com.dksys.biz.user.ar.ar08.mapper.AR08Mapper">
 	
-	<select id="selectCreditCount" parameterType="Map" resultType="int">
-		SELECT COUNT(*)
-			FROM (
-				SELECT TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
-						, A.CO_CD
-						, A.TRST_CLNT_CD AS CLNT_CD
-						, B.CLNT_NM
-						, DECODE(A.SELPCH_CD, 'SELPCH1', '외상매입금', 'SELPCH2', '외상매출금','SELPCH3',	'외상매입금','SELPCH4', '외상매출금') AS GUBUN_NM
-						, A.SELPCH_CD AS GUBUN_CD
-						, DECODE(A.SELPCH_CD, 'SELPCH1' 
-							,	(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.PCHS_PMNT_MTD_CD)||  DECODE(B.PCHS_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.PCHS_CLMN_DIV_CD)|| ']') || DECODE(B.PCHS_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.PCHS_CLMN_DAY)
-							, 'SELPCH2'
-							, (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.SELL_PMNT_MTD_CD)||  DECODE(B.SELL_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD)|| ']') || DECODE(B.SELL_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.SELL_CLMN_DAY))  AS BIGO
-						, DECODE(A.SELPCH_CD, 'SELPCH1', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS PCHS_AMT
-						, DECODE(A.SELPCH_CD, 'SELPCH2', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS SELL_AMT
-						, 0 AS BASIS_AMT
-				FROM TB_AR02M01 A, TB_BM02M01 B
-				WHERE A.TRST_CLNT_CD = B.CLNT_CD (+)
-			     <if test= "selpchCd != null and !selpchCd.equals('')">
-					 <choose>	
-					     <when test="selpchCd == 'SELPCH1'">
-					      AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH3')
-					     </when>			 	
-	 			         <otherwise>
-	 			          AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH4')
-	 			         </otherwise>
-				     </choose>
-			     </if>
-				UNION ALL 
-				SELECT TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
-				, A.CO_CD
-				, A.CLNT_CD
-				, B.CLNT_NM
-				, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) AS GUBUN_NM
-				, A.ETRDPS_TYP AS GUBUN_CD
-				, A.SUMRY AS BIGO
-				, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
-				, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
-				, 0
-				FROM TB_AR05M01 A, TB_BM02M01 B
-				WHERE A.CLNT_CD = B.CLNT_CD(+)				
-			     <if test= "selpchCd != null and !selpchCd.equals('')">
- 			      <choose>	
-					     <when test="selpchCd == 'SELPCH1'">
-					      AND ( A.ETRDPS_TYP IN ('ETRDPS02','ETRDPS03'))
-					     </when>			 	
-	 			         <otherwise>
-	 			          AND ( A.ETRDPS_TYP IN ('ETRDPS01','ETRDPS03'))
-	 			         </otherwise>
-				     </choose>
-			     </if>
-			     UNION
-			     SELECT  
-			          #{strtDt}			          
-			          <if test= "coCd != null and !coCd.equals('')">
-			          ,#{coCd}
-			          </if>
-			          <if test= "coCd == null and coCd.equals('')">
-			          ,'' AS CO_CD
-			          </if>
-			          <if test= "clntCd != null and !clntCd.equals('')">
-			          ,#{clntCd}
-			          </if>
-			          <if test= "clntCd == null or clntCd.equals('')">
-			          , 0 AS CLNT_CD
-			          </if>
-			          ,'이월' AS CLNT_NM
-			          ,'전일기초' AS GUBUN_NM
-			          ,'' AS GUBUN_CD
-			          ,'' AS BIGO
-			          , 0 AS PCHS_AMT
-			          , 0 AS SELL_AMT
-			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ) AS BASIS_AMT
-			       FROM DUAL
-			)A
-			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
-			<if test= "clntCd != null and !clntCd.equals('')">
- 					AND A.CLNT_CD = #{clntCd}
-			</if>
-			<if test= "coCd != null and !coCd.equals('')">
-		 			AND A.CO_CD = #{coCd}
-			</if>
-			 <if test= "clntNm != null and !clntNm.equals('')">
-				 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
-			</if>
-			ORDER BY A.TRST_DT
-					
-	</select>
-	
 	<select id="selectBasisAmt" parameterType="Map" resultType="long">
 	  SELECT NVL(FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ),0) AS BASIS_AMT FROM DUAL;
 	</select>
 		
 	<select id="selectCreditList" parameterType="Map" resultType="CamelMap">
-		SELECT *
-		FROM (
+<!-- 		SELECT * -->
+<!-- 		FROM ( -->
 			SELECT ROWNUM AS RNUM, B.*
 			FROM (
 			  SELECT * FROM (
 			   	SELECT   1 AS TYPE
 			   	        ,  ROWNUM AS RN
+				        , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM')   AS TRST_YM
 				        , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 						, A.CO_CD
 						, A.TRST_CLNT_CD AS CLNT_CD
@@ -116,8 +28,8 @@
 							, DECODE(A.PRJCT_CD,0,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.SELL_PMNT_MTD_CD)||  DECODE(B.SELL_CLMN_DIV_CD, NULL, NULL, ' [' || FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD)|| ']') || DECODE(B.SELL_CLMN_DAY, NULL, NULL, ' 결제일: ' || B.SELL_CLMN_DAY)
 							                     ,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD ) || ' ' || FN_CM05M01_CD_TO_NM(B.SELL_PMNT_MTD_CD)||  DECODE(SD05.CLMN_DIV_CD, NULL, NULL,   ' [' || FN_CM05M01_CD_TO_NM(SD05.CLMN_DIV_CD)|| ']')   || DECODE(SD05.CLMN_DAY,   NULL, NULL, ' 결제일: ' || SD05.CLMN_DAY)))
 						 || A.TRSP_RMK  AS BIGO
-						, DECODE(A.SELPCH_CD, 'SELPCH1', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS PCHS_AMT
-						, DECODE(A.SELPCH_CD, 'SELPCH2', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS SELL_AMT
+						, DECODE(A.SELPCH_CD, 'SELPCH1', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 'SELPCH3', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS PCHS_AMT
+						, DECODE(A.SELPCH_CD, 'SELPCH2', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 'SELPCH4', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS SELL_AMT
 						, 0 AS BASIS_AMT
 				FROM TB_AR02M01 A
 				 LEFT OUTER  JOIN TB_BM02M01 B
@@ -138,25 +50,27 @@
 			    UNION ALL
 			    SELECT  2 AS TYPE
 			   	        , ROWNUM AS RN
+			            ,TO_CHAR(TO_DATE(AR04.SELL_DT, 'YYYYMMDD'), 'YYYY-MM') AS TRST_YM
 			            ,TO_CHAR(TO_DATE(AR04.SELL_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 						, AR04.CO_CD
 						, AR04.CLNT_CD
 						, AR04.CLNT_NM
 						, DECODE(AR04.SELPCH_CD, 'SELPCH1', '외상매입금', 'SELPCH2', '외상매출금','SELPCH3',	'외상매입금','SELPCH4', '외상매출금') AS GUBUN_NM
 						, AR04.SELPCH_CD AS GUBUN_CD
-						, FTXAC1_1 ||':'||FTXAC2_1||':'||FTXAC3_1  AS BIGO
-						, DECODE(AR04.SELPCH_CD, 'SELPCH1', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS PCHS_AMT
-						, DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS SELL_AMT
+						, (SELECT ARD_5006 FROM TB_AR04D01 D WHERE D.BILG_CERT_NO = AR04.BILG_CERT_NO AND  ARD_5006 IS NOT NULL AND BILG_CERT_NO_SEQ = 1) || ' '||
+						   FTXAC1_1 ||' '||FTXAC2_1||' '||FTXAC3_1  AS BIGO
+						, DECODE(AR04.SELPCH_CD, 'SELPCH1', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH3', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS PCHS_AMT
+						, DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH4', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS SELL_AMT
 						, 0 AS BASIS_AMT
 				  FROM  TB_AR04M01 AR04
 				  <where>
 					  <if test= "selpchCd != null and !selpchCd.equals('')">
 						 <choose>	
 						     <when test="selpchCd == 'SELPCH1'">
-						      AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH3')
+						      AND ( AR04.SELPCH_CD = #{selpchCd} OR AR04.SELPCH_CD ='SELPCH3')
 						     </when>			 	
 		 			         <otherwise>
-		 			          AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH4')
+		 			          AND ( AR04.SELPCH_CD = #{selpchCd} OR AR04.SELPCH_CD ='SELPCH4')
 		 			         </otherwise>
 					     </choose>
 				     </if>
@@ -164,6 +78,7 @@
 				UNION ALL 
 				SELECT  3 AS TYPE
 			   	        , ROWNUM AS RN
+				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM') AS TRST_YM
 				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 				        , A.CO_CD
 			        	, A.CLNT_CD
@@ -171,8 +86,8 @@
 						, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) ||':'|| FN_CM05M01_CD_TO_NM(A.SETLE_TYP_CD)  AS GUBUN_NM
 						, A.ETRDPS_TYP AS GUBUN_CD
 						, A.SUMRY AS BIGO
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
+						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
+						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
 						, 0
 						FROM TB_AR05M01 A, TB_BM02M01 B
 						WHERE A.CLNT_CD = B.CLNT_CD(+)				
@@ -190,6 +105,7 @@
 			     SELECT  
 			           0 AS TYPE
 			   	      ,0 
+			          ,TO_CHAR(TO_DATE(REPLACE(#{strtDt}, '-', ''),'YYYYMMDD'),'YYYY-MM')   
 			          ,TO_CHAR(TO_DATE(REPLACE(#{strtDt}, '-', ''),'YYYYMMDD'),'YYYY-MM-DD')          
 			          <if test= "coCd != null and !coCd.equals('')">
 			          ,#{coCd}
@@ -198,12 +114,17 @@
 			          ,'' AS CO_CD
 			          </if>
 			          <if test= "clntCd != null and !clntCd.equals('')">
-			          ,#{clntCd}
+			          ,TO_NUMBER(#{clntCd}) AS CLNT_CD
 			          </if>
 			          <if test= "clntCd == null or clntCd.equals('')">
 			          , 0 AS CLNT_CD
 			          </if>
-			          ,'' AS CLNT_NM
+			         <if test= "clntNm != null and !clntNm.equals('')">
+			          , #{clntNm} AS CLNT_NM
+			          </if>
+			         <if test= "clntNm == null or clntNm.equals('')">
+			          ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = #{clntCd}) AS CLNT_NM
+			          </if>
 			          ,'이월' AS GUBUN_NM
 			          ,'' AS GUBUN_CD
 			          ,'전기 이월' AS BIGO
@@ -224,9 +145,9 @@
 			</if>
 			ORDER BY A.TRST_DT, DECODE(RN,0,0,1),TYPE, A.CLNT_NM
 		  ) B
-		)
-		WHERE
-			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+
+<!-- 	WHERE -->
+<!-- 			RNUM BETWEEN ${firstIndex} AND ${lastIndex} -->
 			
 	</select>
 
