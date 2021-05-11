@@ -101,7 +101,7 @@ public class AR02Ctr {
 		try {
 			ar02Svc.insertSalesDivision(paramList);
 			model.addAttribute("resultCode", 200);
-			model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+			model.addAttribute("resultMessage", messageUtils.getMessage("save"));
 		}catch(Exception e) {
 			model.addAttribute("resultCode", 500);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

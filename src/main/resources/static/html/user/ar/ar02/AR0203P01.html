@@ -38,7 +38,7 @@
 				<th class="tc" style="padding: 3px;"> 
 					<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
 				</th>
-				<th class="tc">거래처</th>
+				<th class="tc hit">거래처</th>
 				<th class="tc">비율(%)</th>
 				<th class="tc">금액</th>
 				<th class="tc">청구금액</th>
@@ -71,39 +71,39 @@
 				</th>
 				<td>
 					<div class="search_form">
-						<input type="hidden" name="clntCd" msg="거래처" required>
-						<input type="text" name="clntNm" readonly> 
+						<input type="hidden" name="clntCd">
+						<input type="text" name="clntNm" msg="거래처" readonly required> 
 						<a onclick="openSecondClntSearch(this);">
 							<i class="i_search_w"></i>
 						</a>
 					</div>
 				</td>
 				<td>
-					<input type="text" class="tr" name="percent" onkeyup="onlyNumber(this); calculateAmt(this);">
+					<input type="text" class="tr" name="percent" onkeyup="onlyNumber(this); calculateAmt(this);" value="0">
 				</td>
 				<td>
-					<input type="text" class="tr" name="realTrstAmt" onkeyup="onlyInteger(this); displayDiffer(); calculatePercent(this);" comma>
+					<input type="text" class="tr" name="realTrstAmt" onkeyup="onlyInteger(this); displayDiffer(); calculatePercent(this);" value="0" comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="bilgAmt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="bilgAmt" onkeyup="onlyInteger(this); displayDiffer();" value="0" comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="bilgVatAmt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="bilgVatAmt" onkeyup="onlyInteger(this); displayDiffer();" value="0"comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="realTrstQty" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="realTrstQty" onkeyup="onlyInteger(this); displayDiffer();" value="0" comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="realTrstWt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="realTrstWt" onkeyup="onlyInteger(this); displayDiffer();" value="0"comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="bilgQty" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="bilgQty" onkeyup="onlyInteger(this); displayDiffer();" value="0" comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="bilgWt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="bilgWt" onkeyup="onlyInteger(this); displayDiffer();" value="0" comma>
 				</td>
 				<td>
-					<input type="text" class="tr" name="trstDcAmt" onkeyup="onlyInteger(this); displayDiffer();" comma>
+					<input type="text" class="tr" name="trstDcAmt" onkeyup="onlyInteger(this); displayDiffer();" value="0" comma>
 				</td>
 			</tr>
 		</table>
@@ -379,7 +379,10 @@
 	}
 	
 	function insertSalesDivision(){
-		// 합계 / 차이 validation
+		// 필수값 check
+		if(!inputValidation($('.popup_area [required]').not('#frameTable [required]'))) return false;
+		
+		// 합계 / 차이 check
 		var isValid = true;
 		$('#diffTable tr[name="diffRow"] [validation]').each(function(idx, elem){
 			if(deleteCommaStr($(elem).val()) != 0){
