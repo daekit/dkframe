@@ -31,4 +31,12 @@ public interface FI02Mapper {
 	int savePalBill(Map<String, String> paramMap);
 	
 	int copyPrevMonth(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectPalBillSalesPrft(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectPalBillSalesPrftChart(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectPalBillBfrxPrft(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectPalBillBfrxPrftChart(Map<String, String> paramMap);
 }
