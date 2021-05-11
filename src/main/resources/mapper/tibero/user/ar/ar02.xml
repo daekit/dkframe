@@ -95,7 +95,7 @@
 			#{prjctCd},
 			#{makrCd},
 			#{whCd, jdbcType=VARCHAR},
-			#{mngTel},
+			#{mngTel, jdbcType=VARCHAR},
 			#{dlvrDttm, jdbcType=VARCHAR},
 			#{dirtrsYn, jdbcType=VARCHAR},
 			#{prdtDiv,  jdbcType=VARCHAR},
@@ -134,7 +134,14 @@
 			#{pgmId},
 			SYSDATE,
 			#{userId},
-			#{pgmId},
+			<choose>
+				<when test="updatePgmId != null and !updatePgmId.equals('')">
+					#{updatePgmId},
+				</when>
+				<otherwise>
+					#{pgmId},
+				</otherwise>
+			</choose>
 			SYSDATE,
 	        #{salesAreaCd, jdbcType=VARCHAR},
 	        NVL(#{siteCd,  jdbcType=VARCHAR},0),
@@ -520,9 +527,17 @@
 	        LOSS_RATE       = #{lossRate},
 	        ODR_CREAT_DIV   = 'ERP',
 	        UDT_ID          = #{userId},
-	        UDT_PGM         = #{pgmId},
+	        <choose>
+				<when test="updatePgmId != null and !updatePgmId.equals('')">
+					UDT_PGM = #{updatePgmId},
+				</when>
+				<otherwise>
+					UDT_PGM = #{pgmId},
+				</otherwise>
+			</choose>
 	        UDT_DTTM        = SYSDATE
-		WHERE TRST_CERTI_NO = #{trstCertiNo}
+		WHERE 
+			TRST_CERTI_NO = #{trstCertiNo}
 	</update>
 	
 	<delete id="deleteSell" parameterType="Map">

@@ -205,8 +205,8 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("trstDcAmt", salesMap.get("trstDcAmt"));
 			// 사용자 아이디
 			paramMap.put("userId", salesMap.get("userId"));
-			// 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
-			paramMap.put("pgmId", originSales.get("creatPgm"));
+			// 수정 프로그램 아이디: 분할 화면ID
+			paramMap.put("updatePgmId", salesMap.get("updatePgmId"));
 			if(i == 0) {
 			// 원본 update
 				// 거래처가 변경되었을경우
@@ -223,6 +223,8 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("orgnTaxBilgNo", "");
 				// 세금계산서 수정사유 제거
 				paramMap.put("rffAea", "");
+				// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
+				paramMap.put("pgmId", originSales.get("creatPgm"));
 				// insert
  				ar02Mapper.insertPchsSell(paramMap);
 			}
