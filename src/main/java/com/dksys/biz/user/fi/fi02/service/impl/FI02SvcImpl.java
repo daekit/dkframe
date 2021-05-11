@@ -98,4 +98,25 @@ public class FI02SvcImpl implements FI02Svc {
 		fi02Mapper.deletePalBill(paramMap);
 		return fi02Mapper.copyPrevMonth(paramMap);
 	}
+
+
+	@Override
+	public List<Map<String, String>> selectPalBillSalesPrft(Map<String, String> paramMap) {
+		return fi02Mapper.selectPalBillSalesPrft(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectPalBillSalesPrftChart(Map<String, String> paramMap) {
+		return fi02Mapper.selectPalBillSalesPrftChart(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectPalBillBfrxPrft(Map<String, String> paramMap) {
+		return fi02Mapper.selectPalBillBfrxPrft(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectPalBillBfrxPrftChart(Map<String, String> paramMap) {
+		return fi02Mapper.selectPalBillBfrxPrftChart(paramMap);
+	}
 }
