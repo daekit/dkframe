@@ -43,6 +43,10 @@ public class AR02Ctr {
     
     @PostMapping(value = "/selectSellList")
 	public String selectSellList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar02Svc.selectSellCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
     	List<Map<String, String>> resultList = ar02Svc.selectSellList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";

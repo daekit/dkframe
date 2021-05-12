@@ -40,6 +40,11 @@ public class AR02SvcImpl implements AR02Svc {
 	public List<Map<String, String>> selectSellMainList(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellMainList(paramMap);
 	}
+	
+	@Override
+	public int selectSellCount(Map<String, String> paramMap) {
+		return ar02Mapper.selectSellCount(paramMap);
+	}
 
 	@Override
 	public List<Map<String, String>> selectSellList(Map<String, String> paramMap) {
@@ -321,5 +326,5 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		return false;
 	}
-	
+
 }

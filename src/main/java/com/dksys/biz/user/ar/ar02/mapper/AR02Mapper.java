@@ -13,6 +13,8 @@ public interface AR02Mapper {
 	int selectSellMainCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectSellMainList(Map<String, String> paramMap);
+	
+	int selectSellCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
 
