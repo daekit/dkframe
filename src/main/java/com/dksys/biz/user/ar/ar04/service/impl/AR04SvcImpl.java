@@ -50,11 +50,21 @@ public class AR04SvcImpl implements AR04Svc {
 		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(param);
 		// bilgInfo: CamelMap이라 대문자 형태로 SET 해야함
 		String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
-		bilgInfo.put("ftxac11", ftxac11);
-		bilgInfo.put("ftxac21", ftxac21);
 		bilgInfo.put("USER_ID", userId);
 		bilgInfo.put("PGM_ID", pgmId);
 		bilgInfo.put("BILG_CERT_NO", bilgCertNo);
+		
+		if(!"".equals(ftxac11) && !"null".equals(ftxac11)) { // 현장
+		    bilgInfo.put("ftxac11", ftxac11);
+		}
+		if(!"".equals(ftxac21) && !"null".equals(ftxac21)) { // 기간
+			bilgInfo.put("ftxac21", "기간 : " + ftxac21);
+		}
+		// 은행 및 계좌, 예금주
+		if (!"".equals(bilgInfo.get("bankNm")) && !"".equals(bilgInfo.get("bkacNo")) && !"".equals(bilgInfo.get("bkacOwner"))) {			   
+			bilgInfo.put("ftxac31", bilgInfo.get("bankNm") + bilgInfo.get("bkacNo") + bilgInfo.get("bkacOwner"));			
+		}
+		
 		result = ar04Mapper.insertBilg(bilgInfo);
 		
 		Map<String, String> arParam = new HashMap<String, String>();
