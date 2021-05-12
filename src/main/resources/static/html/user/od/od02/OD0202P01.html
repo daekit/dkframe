@@ -240,6 +240,8 @@
 	});
 	
 	function setInit() {
+
+		setCodeSelectByCocd(jwt.coCd);		
 		if(actionType == "C"){
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
 			$('#actionOdBtn').text("등록");
@@ -249,7 +251,7 @@
 			$("#trspTypCd").val("TRSPTYP1");
 			$("#trstDcAmt").val("0");
 			$("#etcAmt").val("0");
-			
+			selectSellInfoBase();
 		}else if(actionType == "U"){
 			selectSellInfo();
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
@@ -260,7 +262,6 @@
 			$('#actionOdBtn').text("등록");
 		}
 		
-		setCodeSelectByCocd(jwt.coCd);
 	}
 	
 	function selectSellInfo() {
@@ -299,7 +300,20 @@
 			onlyNumber(elem);
 		});
 	}
-	
+	function selectSellInfoBase() {
+		var row = mainGridView.target.getList("selected");
+		//초기값의 경우 선택된거 없음.
+		if(row.length != 1){
+			row = mainGridView.target.getList(0);
+		}
+		$("#clntCd").val(row[0].trstClntCd); 
+		$("#clntNm").val(row[0].clntNm); 
+		$("#estCoprt").val(row[0].taxivcCoprt); 
+		$("#trstDt").val(dateToStr(new Date()));
+		
+		
+	}
+		
 	// 제품 검색
 	function openSecondPrdtSearch(elem) {
 		$targetRow = $(elem).closest('tr.detailRow');
