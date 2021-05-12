@@ -18,6 +18,8 @@ public interface AR02Svc {
 	int insertPchsSell(Map<String, String> paramMap);
 	
 	void insertSalesDivision(List<Map<String, String>> paramList);
+	
+	void updateSalesClnt(List<Map<String, String>> paramList);
 
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 	
@@ -30,5 +32,5 @@ public interface AR02Svc {
 	boolean checkSellClose(Map<String, String> paramMap);
 	
 	boolean checkPchsClose(Map<String, String> paramMap);
-	
+
 }
