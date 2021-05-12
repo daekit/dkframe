@@ -614,12 +614,16 @@
 	
 	function updateCancel(type) {
 		var checkCount  = 0;
+		var checkCountChk  = 0;
 		var checkCountP = 0;
 		var checkCountS = 0;
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") || $(elem).find("input[name='ordrgYn']").val() == "Y"
 				                                                         || $(elem).find("input[name='shipYn']").val() == "Y") {
 				checkCount++;
+			}
+			if($(elem).find("input[name='detailChkBox']").is(":checked")) {
+				checkCountChk++;
 			}
 			if($(elem).find("input[name='ordrgYn']").val() == "Y") {
 				checkCountP++;
@@ -628,6 +632,10 @@
 				checkCountS++;
 			}
 		});
+		if(checkCountChk == 0){
+			alert("발주내역을 선택해주세요");
+			return;
+		}
 		if(type == 'P'){
 			if(checkCountP == 0){
 				alert("매입 확정 건이 존재하지 않습니다.");
@@ -648,7 +656,7 @@
 			}
 		}
 		
-		var formData = makeFormData('CANCEL');		
+		var formData = makeFormData('CANCEL');
 		formData.append("cancelType", type); // P 매입취소, S 매출취소, A 일괄 취소
 		
 
