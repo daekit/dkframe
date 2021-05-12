@@ -107,6 +107,7 @@
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+					<a onclick="setReport();" style="height: 30px; line-height: 28px; width: 80px;" title="거래처원장을 출력합니다."><i class="fas fa-print"></i>출력</a>
 	            </div>
 	            <input type="hidden" id="recordCnt" name="recordCnt" >
 <!-- 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);"> -->
@@ -199,10 +200,31 @@
 		// 일계, 월계 여부
 		    var dailySumYn = 'N';
 			var monthlySumYn = 'N';
+			var clntCd   = $("#clntCd_S").val();
+			var clntNm   = $("#clntNm_S").val();
 			if($("#dailySumYn").is(":checked"))  { dailySumYn = 'Y';};
 			if($("#monthlySumYn").is(":checked")){ monthlySumYn = 'Y';};
 			
 			firstGrid = this.target;
+			// 거래처 명만 있을 경우 거래처가 2개 이상인지 확인.
+			if(clntCd =='' &&  clntNm != '' ){
+				var formData = {
+						"clntCd"    : $("#clntCd_S").val(),
+						"clntNm"    : $("#clntNm_S").val(),
+						"useYn"     : 'Y',
+						"pageNo"    : 1,
+						"recordCnt" : 9999999
+					}
+				postAjaxSync("/admin/bm/bm02/selectClntList", formData, null, function(data){
+	 				var list     = data.clntList;	
+						clntList = list.length;
+	 				if(list.length != 1){
+	 					alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
+	 				}else{
+	 					$("#clntCd_S").val(list[0].clntCd);
+	 				}
+				});	
+			}
 			var formData = {
 				"coCd"         : $("#coCd_S").val(),
 				"clntCd"       : $("#clntCd_S").val(),
@@ -252,7 +274,7 @@
 		}
 	
 	$(document).ready(function() {
-		mainDefaultLoad("기준관리", "거래처 외상매입/매출");
+		mainDefaultLoad("기준관리", "거래처 원장");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
 		if($.urlParam('clntCd')){
@@ -291,6 +313,15 @@
 		$(".contents.search select").val("");
 		$("#searchType option").eq(0).prop("selected", true);
 		$("#coCd_S").val(jwt.coCd);
+		$("#strtDt_S").val(lastWeek());
+		$("#endDt_S").val(dateToStr(new Date()));
+		
+		// 종료일
+		$('#strtDt_S, #endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			//autoclose : true
+		});
 		gridView.initView().setData(0);
 	}
 	
@@ -317,5 +348,59 @@
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("거래처 외상매입/매출_"+todayDate+".xls");
 			});	
-	}	
+	}
+	
+	function setReport() {
+		var clntCd   = $("#clntCd_S").val();
+		var coCd     = $("#coCd_S").val();
+		var clntCd   = $("#clntCd_S").val();
+		var clntNm   = $("#clntNm_S").val();
+		var strtDt   = $("#strtDt_S").val(); //.replace(/\-/g,'');
+		var endDt    = $("#endDt_S").val();  //.replace(/\-/g,'');
+		var selpchCd = $("#selpch_S").val();
+		var dailyYn  = "N";
+		var monthYn  = "N";
+		var clntList = 0;
+		
+
+		if($("#dailySumYn").is(":checked"))  { dailyYn = 'Y';};
+		if($("#monthlySumYn").is(":checked")){ monthYn = 'Y';};
+		
+		if(clntCd =='' &&  clntNm != '' ){
+			var formData = {
+					"clntCd"    : $("#clntCd_S").val(),
+					"clntNm"    : $("#clntNm_S").val(),
+					"useYn"     : 'Y',
+					"pageNo"    : 1,
+					"recordCnt" : 9999999
+				}
+			postAjaxSync("/admin/bm/bm02/selectClntList", formData, null, function(data){
+ 				var list     = data.clntList;	
+					clntList = list.length;
+ 				if(list.length != 1){
+ 					alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
+ 				}else{
+ 					clntCd = list[0].clntCd;
+ 				}
+			});	
+		}
+	debugger;	
+		var fileName = "AR0801R01.jrf";
+		if ( dailyYn != "Y"){
+			fileName = "AR0801R02.jrf";  // 일계 제외
+		}
+		
+		var arg = "coCd#"			+ coCd
+                + "#clntCd#"		+ clntCd
+                + "#strtDt#"		+ strtDt
+                + "#endDt#"	    	+ endDt
+                + "#selpchCd#"		+ selpchCd
+                + "#dailyYn#"		+ dailyYn
+                + "#monthYn#"		+ monthYn
+		         + "#";
+
+//	alert(arg);
+
+		callReport(fileName, arg, "1050", "700");
+	}
 </script>
