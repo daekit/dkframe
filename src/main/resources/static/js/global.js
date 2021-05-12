@@ -348,14 +348,21 @@ function inputValidation(inputList) {
 	return isValid;
 }
 
+// 양수, 음수, 소수점 포함 원단위 포맷 적용
 function onlyNumber(elem){
 	var regExp = /^(-?)([0-9]*)(\.?[0-9]*)([^0-9]*)/g;
 	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2$3")));
 }
 
+// 양수, 음수 포함 원단위 포맷 적용
 function onlyInteger(elem){
 	var regExp = /^(-?)([0-9]*)([^0-9]*)/g;
 	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2")));
+}
+
+//0-9(십진수)만 허용
+function onlyDecimal(elem){
+	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
 }
 
 // 한글 제거
@@ -370,13 +377,13 @@ function onlyBkac(elem){
 
 // 전화번호 포맷 변경
 function telNumberFormatter(elem){
-	onlyNumber(elem);
+	onlyDecimal(elem);
 	$(elem).val($(elem).val().replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/g,"$1-$2-$3"));
 }
 
 // 사업자 등록번호 포맷 변경
 function crnFormatter(elem){
-	onlyNumber(elem);
+	onlyDecimal(elem);
 	$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
 }
 
