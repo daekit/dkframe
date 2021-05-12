@@ -230,6 +230,13 @@ public class AR02SvcImpl implements AR02Svc {
 			}
 		}
 	}
+	
+	@Override
+	public void updateSalesClnt(List<Map<String, String>> paramList) {
+		for(Map<String, String> paramMap : paramList) {
+			ar02Mapper.updateSalesClnt(paramMap);
+		}
+	}
 
 	@Override
 	public Map<String, String> selectSellInfo(Map<String, String> paramMap) {
@@ -314,4 +321,5 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		return false;
 	}
+	
 }

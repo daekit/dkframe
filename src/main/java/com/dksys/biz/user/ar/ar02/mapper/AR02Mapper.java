@@ -25,6 +25,10 @@ public interface AR02Mapper {
 	Map<String, String> selectBilgInfo(Map<String, Object> param);
 
 	int updatePchsSellBilg(Map<String, String> sellParam);
+	
+	int updateBilgCancel(Map<String, String> param);
+	
+	int updateSalesClnt(Map<String, String> paramMap);
 
 	long callCreditLoan(Map<String, Object> map);
 
@@ -33,8 +37,6 @@ public interface AR02Mapper {
 	int deletePchsSell(Map<String, String> detailMap);
 
 	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
-
-	int updateBilgCancel(Map<String, String> param);
 
 	String selectOwner1ClntCd(Map<String, String> paramMap);
 
