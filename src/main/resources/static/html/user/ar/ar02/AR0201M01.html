@@ -179,9 +179,9 @@
 						<td>
 							<input type="text" id="trspRmk_S" data-search="trspRmk" onkeyup="event.keyCode == 13 ? mainGridView.setData(0) : ''">
 		                </td>
-		                <th>월합계산서</th>
+		                <th>현장구분</th>
 		                <td>
-		                	<input type="checkbox" id="monSumYn">
+		                	<input type="checkbox" id="siteDivYn" checked>
 		                </td>
 					</tr>
 				</table>
@@ -209,6 +209,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="openClntChange();"><i class="fas fa-exchange-alt"></i>거래처변경</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="openSalesDivision();"><i class="fas fa-divide"></i>매출분할</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="sellCal();"><i class="fas fa-calculator"></i>매출정산</a>
 					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertSellModal('U');"><i class="fas fa-window-close"></i>반품</a> 
@@ -266,11 +267,11 @@
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 140},
 		        	{key: "taxivcCoprtNm",	label: "매출법인", 	    align: "left", 		width: 130},
 		        	{key: "siteNm",         label: "현장명",		align: "left",		width: 180},
+		        	{key: "bilgQty", 	    label: "청구수량", 		align: "right", 	width: 110,	   formatter: "money"},
+		        	{key: "bilgWt",         label: "청구중량",   	align: "right", 	width: 110,    formatter: "money"},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 110,	   formatter: "money"},
 		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 110,	   formatter: "money"},
 		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 130,	   formatter: "money"},
-		        	{key: "bilgQty", 	    label: "청구수량", 		align: "right", 	width: 110,	   formatter: "money"},
-		        	{key: "bilgWt",         label: "청구중량",   	align: "right", 	width: 110,    formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 110,    formatter: "money"}
 		        ],
 		        footSum: [
@@ -299,11 +300,11 @@
 				paramObj[$(elem).data('search')] = searchValue;
 			});
 			
-			// 월합계산서 유무 추가
-			if($('#monSumYn').is(':checked')){
-				paramObj.monSumYn = "Y";
+			// 현장구분 유무 추가
+			if($('#siteDivYn').is(':checked')){
+				paramObj.siteDivYn = "Y";
 			}else{
-				paramObj.monSumYn = "N";
+				paramObj.siteDivYn = "N";
 			}
 			
 			postAjaxSync("/user/ar/ar02/selectSellMainList", paramObj, null, function(data){
@@ -319,6 +320,8 @@
 				});
 			});
 			this.target.select(0);
+			
+			// subGrid set
 			subGridView.setData();
 		}
 	}
@@ -348,9 +351,9 @@
 		        	{key: "clntCd",    	 	label: "거래처",		hidden: true},
 		        	{key: "returnYn",    	label: "반품여부",		hidden: true},
 		          	{key: "bilgYn",      	label: "전표",		    align: "center",	width: 50,	formatter: "bilgYn"},
+		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		          	{key: "bilgCertNo",     label: "청구번호", 	    align: "center", 	width: 70},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
-		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		        	{key: "taxivcCoprtNm",	label: "매출법인", 	    align: "left", 		width: 120},
 		        	{key: "prdtNm",    	 	label: "제품", 		    align: "left", 		width: 140},
@@ -358,16 +361,17 @@
 		        	{key: "prdtSizeNm",     label: "사이즈",  	    align: "center", 	width: 80},
 		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50},
 		          	{key: "siteNm",         label: "현장명",		align: "left",		width: 140},
-		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money", hidden: true},
-		        	{key: "prdtUpr",        label: "기준단가", 	    align: "right", 	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
-		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money", hidden: true},
+		        	{key: "realTrstWt", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money", hidden: true},
+		        	{key: "prdtUpr",        label: "기준단가", 	    align: "right", 	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "bilgQty",        label: "청구수량", 	    align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgWt",         label: "청구중량",   	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgUpr",        label: "청구단가", 	    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "lossRate", 	    label: "할인율",  	    align: "right", 	width: 80, 	formatter: "money", hidden: true},
 // 		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money"},
@@ -394,9 +398,9 @@
 			return this;
 		}, 
 		setData: function() {
+			this.target.setData([]);			
 			var targetObj = this.target;
 			var item = mainGridView.target.getList("selected")[0];
-			
 			if(item){
 				var paramObj = {"selpchCd": "SELPCH2"};
 				$.each($('#main_area [data-search]'), function(idx, elem){
@@ -436,9 +440,9 @@
 		        	{key: "clntCd",    	 	label: "거래처",		hidden: true},
 		        	{key: "returnYn",    	label: "반품여부",		hidden: true},
 		          	{key: "bilgYn",      	label: "전표",		    align: "center",	width: 50,	formatter: "bilgYn"},
+		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		          	{key: "bilgCertNo",     label: "청구번호", 	    align: "center", 	width: 70},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
-		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		        	{key: "taxivcCoprtNm",	label: "매출법인", 	    align: "left", 		width: 120},
 		        	{key: "prdtNm",    	 	label: "제품", 		    align: "left", 		width: 140},
@@ -446,16 +450,17 @@
 		        	{key: "prdtSizeNm",     label: "사이즈",  	    align: "center", 	width: 80},
 		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50},
 		          	{key: "siteNm",         label: "현장명",		align: "left",		width: 140},
-		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money", hidden: true},
-		        	{key: "prdtUpr",        label: "기준단가", 	    align: "right", 	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120},
-		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "realTrstQty", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money", hidden: true},
+		        	{key: "realTrstWt", 	label: "수량", 		    align: "right", 	width: 80,	formatter: "money", hidden: true},
+		        	{key: "prdtUpr",        label: "기준단가", 	    align: "right", 	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money", hidden: true},
 		        	{key: "bilgQty",        label: "청구수량", 	    align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgWt",         label: "청구중량",   	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgUpr",        label: "청구단가", 	    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "realTrstAmt",    label: "금액",		    align: "right",  	width: 80, 	formatter: "money", hidden: true},
+		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money"},
+		        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "lossRate", 	    label: "할인율",  	    align: "right", 	width: 80, 	formatter: "money", hidden: true},
 // 		        	{key: "transAmt",    	label: "청구운송비",  	align: "right", 	width: 80, 	formatter: "money"},
@@ -590,6 +595,48 @@
 			$('#salesMngNm_S').val(checkedNode.text);
 		});
 	}
+	
+	// 거래처변경 모달 오픈
+	function openClntChange(){
+		if(checkGridRow(subGridView.target, "multi")){
+			var selectedRows = subGridView.target.getList("selected");
+			var isValid = true;
+			$.each(selectedRows, function(idx, obj){
+				if(obj.bilgYn == "Y"){
+					isValid = false;
+					return false;
+				}
+			});
+			
+			if(isValid){
+				openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 변경", {}, function (grid) {
+					var salesArr = [];
+					var selectedRows = subGridView.target.getList("selected");
+					var selectedClnt = grid.target.getList("selected")[0];
+					for(var i=0;i<selectedRows.length;i++){
+						var selectedRow = selectedRows[i];
+						var salesObj = {
+							"trstCertiNo": selectedRow.trstCertiNo,
+							"clntCd": selectedClnt.clntCd,
+							"clntNm": selectedClnt.clntNm,
+							"userId": jwt.userId,
+							"updatePgmId": "AR0203P01"
+						}
+						salesArr.push(salesObj);
+					}
+					
+	 				putAjax("/user/ar/ar02/updateSalesClnt", salesArr, null, function(data){
+	 					alert(data.resultMessage);
+	 					if(data.resultCode == 200) {
+	 						mainGridView.setData(0);
+	 					}
+	 				});
+				});
+			}else{
+				alert("변경이 불가능한 데이터가 포함되어 있습니다.");
+			}
+		}
+	}	
 	
 	// 매출분할 모달 오픈
 	function openSalesDivision(){

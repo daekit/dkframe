@@ -109,6 +109,18 @@ public class AR02Ctr {
     	return "jsonView";
     }
 	
+	@PutMapping(value = "/updateSalesClnt")
+    public String updateSalesClnt(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+		try {
+			ar02Svc.updateSalesClnt(paramList);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 	
 	@PostMapping(value = "/excelDownload")
 	public String excelDownload(@RequestBody Map<String, String> paramMap, ModelMap model) {

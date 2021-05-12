@@ -187,20 +187,20 @@ public class AR02SvcImpl implements AR02Svc {
 			// 거래처
 			paramMap.put("clntCd", salesMap.get("clntCd"));
 			paramMap.put("clntNm", salesMap.get("clntNm"));
-			// 금액
-			paramMap.put("realTrstAmt", salesMap.get("realTrstAmt"));
-			// 청구금액
-			paramMap.put("bilgAmt", salesMap.get("bilgAmt"));
-			// 부가세
-			paramMap.put("bilgVatAmt", salesMap.get("bilgVatAmt"));
 			// 수량
 			paramMap.put("realTrstQty", salesMap.get("realTrstQty"));
 			// 중량
 			paramMap.put("realTrstWt", salesMap.get("realTrstWt"));
+			// 금액
+			paramMap.put("realTrstAmt", salesMap.get("realTrstAmt"));
 			// 청구수량
 			paramMap.put("bilgQty", salesMap.get("bilgQty"));
 			// 청구중량
 			paramMap.put("bilgWt", salesMap.get("bilgWt"));
+			// 청구금액
+			paramMap.put("bilgAmt", salesMap.get("bilgAmt"));
+			// 부가세
+			paramMap.put("bilgVatAmt", salesMap.get("bilgVatAmt"));
 			// 할인금액
 			paramMap.put("trstDcAmt", salesMap.get("trstDcAmt"));
 			// 사용자 아이디
@@ -219,15 +219,22 @@ public class AR02SvcImpl implements AR02Svc {
 				ar02Mapper.updatePchsSell(paramMap);
 			} else {
 			// 신규 insert
+				// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
+				paramMap.put("pgmId", originSales.get("creatPgm"));
 				// 원본계산서번호 제거
 				paramMap.put("orgnTaxBilgNo", "");
 				// 세금계산서 수정사유 제거
 				paramMap.put("rffAea", "");
-				// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
-				paramMap.put("pgmId", originSales.get("creatPgm"));
 				// insert
  				ar02Mapper.insertPchsSell(paramMap);
 			}
+		}
+	}
+	
+	@Override
+	public void updateSalesClnt(List<Map<String, String>> paramList) {
+		for(Map<String, String> paramMap : paramList) {
+			ar02Mapper.updateSalesClnt(paramMap);
 		}
 	}
 
@@ -314,4 +321,5 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		return false;
 	}
+	
 }

@@ -28,4 +28,12 @@ public interface FI02Svc {
 	public int savePalBill(Map<String, String> param);	
 	
 	public int copyPrevMonth(Map<String, String> param);	
+
+	public List<Map<String, String>> selectPalBillSalesPrft(Map<String, String> param);
+
+	public List<Map<String, String>> selectPalBillSalesPrftChart(Map<String, String> param);
+
+	public List<Map<String, String>> selectPalBillBfrxPrft(Map<String, String> param);
+
+	public List<Map<String, String>> selectPalBillBfrxPrftChart(Map<String, String> param);
 }

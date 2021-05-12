@@ -161,7 +161,7 @@
 				T.CLNT_NM,
 			    T.TAXIVC_COPRT,
 			    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-			    <if test='monSumYn != null and monSumYn.equals("N")'>
+			    <if test='siteDivYn != null and siteDivYn.equals("Y")'>
 				    T.SITE_CD,
 				    SD09M01.SITE_NM,
 			    </if>
@@ -243,7 +243,7 @@
 				, T.TRST_CLNT_CD
 				, T.CLNT_NM 
 				, T.TAXIVC_COPRT
-				<if test='monSumYn != null and monSumYn.equals("N")'>
+				<if test='siteDivYn != null and siteDivYn.equals("Y")'>
 					, T.SITE_CD
 					, SD09M01.SITE_NM
 				</if>
@@ -266,7 +266,7 @@
 					T.CLNT_NM,
 				    T.TAXIVC_COPRT,
 				    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-				    <if test='monSumYn != null and monSumYn.equals("N")'>
+				    <if test='siteDivYn != null and siteDivYn.equals("Y")'>
 					    T.SITE_CD,
 				    	SD09M01.SITE_NM,
 				    </if>
@@ -348,14 +348,14 @@
 					, T.TRST_CLNT_CD
 					, T.CLNT_NM 
 					, T.TAXIVC_COPRT
-					<if test='monSumYn != null and monSumYn.equals("N")'>
+					<if test='siteDivYn != null and siteDivYn.equals("Y")'>
 						, T.SITE_CD
 						, SD09M01.SITE_NM
 					</if>
 				ORDER BY 
 					T.CLNT_NM
 					, TAXIVC_COPRT_NM
-					<if test='monSumYn != null and monSumYn.equals("N")'>
+					<if test='siteDivYn != null and siteDivYn.equals("Y")'>
 						,SD09M01.SITE_NM
 					</if>
 			) A
@@ -501,6 +501,18 @@
 						AND T.BILG_CERT_NO IS NULL 
 					</otherwise>
 				</choose>
+			</if>
+			<if test="salesMng != null and !salesMng.equals('')">
+				AND T.SALES_MNG = #{salesMng}				
+			</if>
+			<if test="salesMngNm != null and !salesMngNm.equals('')">
+				AND CM06M01.NAME LIKE '%'|| #{salesMngNm} || '%'				
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+				AND T.WH_CD = #{whCd}
+			</if>
+			<if test="trspRmk != null and !trspRmk.equals('')">
+				AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 			</if>
 			ORDER BY CLNT_NM, TRST_DT, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
 	</select>
@@ -782,6 +794,20 @@
 		UPDATE TB_AR02M01
 		SET BILG_CERT_NO = ''
 		WHERE BILG_CERT_NO = #{bilgCertNo}
+	</update>
+	
+	<update id="updateSalesClnt" parameterType="Map">
+		UPDATE
+			TB_AR02M01
+		SET
+			TRST_CLNT_CD = #{clntCd},
+			CLNT_NM = #{clntNm},
+			ORGN_TAX_BILG_NO = NULL,
+			RFF_AEA = NULL,
+			UDT_PGM = #{updatePgmId},
+			UDT_DTTM = SYSDATE
+		WHERE
+			TRST_CERTI_NO = #{trstCertiNo}
 	</update>
 	
     <select id="callCreditLoan" parameterType="Map" resultType="long">

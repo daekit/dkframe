@@ -16,6 +16,9 @@ import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.user.fi.fi02.service.FI02Svc;
 import com.dksys.biz.util.MessageUtils;
 
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
 @Controller
 @RequestMapping("/user/fi/fi02")
 public class FI02Ctr {
@@ -135,4 +138,118 @@ public class FI02Ctr {
     	}
     	return "jsonView";
     }    
+    
+    @PostMapping(value = "/selectPalBillStat")
+	public String selectPalBillStat(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> selectPalBillSalesPrft = fi02Svc.selectPalBillSalesPrft(paramMap);
+    	model.addAttribute("resultList1", selectPalBillSalesPrft);
+
+    	List<Map<String, String>> selectPalBillSalesPrftChart = fi02Svc.selectPalBillSalesPrftChart(paramMap);
+    	JSONObject data = new JSONObject();
+    	JSONObject objCols1 = new JSONObject();
+    	JSONObject objCols2 = new JSONObject();
+    	JSONObject objCols3 = new JSONObject();
+    	JSONObject objCols4 = new JSONObject();
+    	JSONArray arryCols = new JSONArray();
+    	JSONArray arryRows = new JSONArray();
+
+    	objCols1.put("type", "string");
+    	objCols2.put("type", "number");
+    	objCols2.put("label", "금문철강(주)");
+    	objCols4.put("type", "number");
+    	objCols4.put("label", "지지엠");
+    	objCols3.put("type", "number");
+    	objCols3.put("label", "지지스틸");
+
+    	arryCols.add(objCols1);
+    	arryCols.add(objCols2);
+    	arryCols.add(objCols3);
+    	arryCols.add(objCols4);
+    	for(int i = 0; i < selectPalBillSalesPrftChart.size(); i++) {
+    		JSONObject legend = new JSONObject();
+    		legend.put("v", selectPalBillSalesPrftChart.get(i).get("prftYm"));
+    		legend.put("f", null);
+    		JSONObject value1 = new JSONObject();
+    		value1.put("v", selectPalBillSalesPrftChart.get(i).get("gum"));
+    		value1.put("f", null);
+    		JSONObject value2 = new JSONObject();
+    		value2.put("v", selectPalBillSalesPrftChart.get(i).get("ggm"));
+    		value2.put("f", null);
+    		JSONObject value3 = new JSONObject();
+    		value3.put("v", selectPalBillSalesPrftChart.get(i).get("ggs"));
+    		value3.put("f", null);
+    		
+    		JSONArray cValueArry = new JSONArray();
+    		cValueArry.add(legend);
+    		cValueArry.add(value1);
+    		cValueArry.add(value2);
+    		cValueArry.add(value3);
+    		
+    		JSONObject cValueObj = new JSONObject();
+    		cValueObj.put("c", cValueArry);
+    		
+    		arryRows.add(cValueObj);
+    	}
+    	
+    	data.put("cols", arryCols);
+    	data.put("rows", arryRows);
+    	model.addAttribute("chartData1", data);
+    	
+
+    	List<Map<String, String>> selectPalBillBfrxPrft = fi02Svc.selectPalBillBfrxPrft(paramMap);
+		PaginationInfo paginationInfo2 = new PaginationInfo(paramMap, selectPalBillBfrxPrft.size());
+    	model.addAttribute("resultList2", selectPalBillBfrxPrft);
+
+    	List<Map<String, String>> selectPalBillBfrxPrftChart = fi02Svc.selectPalBillBfrxPrftChart(paramMap);
+    	data = new JSONObject();
+    	objCols1 = new JSONObject();
+    	objCols2 = new JSONObject();
+    	objCols3 = new JSONObject();
+    	objCols4 = new JSONObject();
+    	arryCols = new JSONArray();
+    	arryRows = new JSONArray();
+
+    	objCols1.put("type", "string");
+    	objCols2.put("type", "number");
+    	objCols2.put("label", "금문철강(주)");
+    	objCols4.put("type", "number");
+    	objCols4.put("label", "지지엠");
+    	objCols3.put("type", "number");
+    	objCols3.put("label", "지지스틸");
+
+    	arryCols.add(objCols1);
+    	arryCols.add(objCols2);
+    	arryCols.add(objCols3);
+    	arryCols.add(objCols4);
+    	for(int i = 0; i < selectPalBillBfrxPrftChart.size(); i++) {
+    		JSONObject legend = new JSONObject();
+    		legend.put("v", selectPalBillBfrxPrftChart.get(i).get("prftYm"));
+    		legend.put("f", null);
+    		JSONObject value1 = new JSONObject();
+    		value1.put("v", selectPalBillBfrxPrftChart.get(i).get("gum"));
+    		value1.put("f", null);
+    		JSONObject value2 = new JSONObject();
+    		value2.put("v", selectPalBillBfrxPrftChart.get(i).get("ggm"));
+    		value2.put("f", null);
+    		JSONObject value3 = new JSONObject();
+    		value3.put("v", selectPalBillBfrxPrftChart.get(i).get("ggs"));
+    		value3.put("f", null);
+    		
+    		JSONArray cValueArry = new JSONArray();
+    		cValueArry.add(legend);
+    		cValueArry.add(value1);
+    		cValueArry.add(value2);
+    		cValueArry.add(value3);
+    		
+    		JSONObject cValueObj = new JSONObject();
+    		cValueObj.put("c", cValueArry);
+    		
+    		arryRows.add(cValueObj);
+    	}
+    	
+    	data.put("cols", arryCols);
+    	data.put("rows", arryRows);
+    	model.addAttribute("chartData2", data);
+    	return "jsonView";
+    }
 }
