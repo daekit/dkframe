@@ -306,7 +306,7 @@
 						<input type="text" class="tr" name="shipUpr" onkeyup="onlyNumber(this); countAmt(this);" comma>
 					</td>
 					<td>
-						<input type="text" class="tr" name="ordrgAmt" value="0" onkeyup="onlyNumber(this); countTot(this);" comma readonly>
+						<input type="text" class="tr" name="ordrgAmt" value="0" onkeyup="onlyNumber(this); copyAmt(this); countTot(this);" comma readonly>
 					</td>
 					<td>
 						<input type="text" class="tr" name="shipAmt" value="0" onkeyup="onlyNumber(this); countTot(this);" comma readonly>
@@ -995,13 +995,9 @@
 		var shipUpr = Number(deleteCommaStr($targetRow.find('input[name="shipUpr"]').val())) || 0;
 		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val()) || 0;
 	
-		
-		debugger;
-		
 		if(prdtStockCd == "Y") {
 			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgQty * ordrgUpr))
 			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(ordrgQty * shipUpr))			
-		    $targetRow.find('input[name="realDlvrAmt"]').val(ordrgQty * ordrgUpr);
 			
 			if($('#dirtrsYn').val() == "Y"){
 				// 직송여부가 Y일때 예상손익 : 매출단가 * 수량 - 매입단가(발주단가) * 수량
@@ -1013,14 +1009,22 @@
 		}else{
 			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgUpr));
 			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr));
-			$targetRow.find('input[name="realDlvrAmt"]').val(ordrgUpr);
 		}
 		
-		$targetRow.find('input[name="realDlvrQty"]').val(ordrgQty);
-		$targetRow.find('input[name="realDlvrWt"]').val(ordrgWt);
-		$targetRow.find('input[name="realDlvrUpr"]').val(ordrgUpr);
+		// real관련 값 복사
+		$targetRow.find('input[name="realDlvrQty"]').val(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val()));
+		$targetRow.find('input[name="realDlvrWt"]').val(deleteCommaStr($targetRow.find('input[name="ordrgWt"]').val()));
+		$targetRow.find('input[name="realDlvrUpr"]').val(deleteCommaStr($targetRow.find('input[name="ordrgUpr"]').val()));
+		$targetRow.find('input[name="realDlvrAmt"]').val(deleteCommaStr($targetRow.find('input[name="ordrgAmt"]').val()));
 		
 		countTot();
+	}
+	
+	// 재고관리 대상이 아닐경우 금액만 입력시 realDlvrUpr, realDlvrAmt에 값 복사
+	function copyAmt(elem){
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		$targetRow.find('input[name="realDlvrUpr"]').val(deleteCommaStr($targetRow.find('input[name="ordrgUpr"]').val()));
+		$targetRow.find('input[name="realDlvrAmt"]').val(deleteCommaStr($targetRow.find('input[name="ordrgAmt"]').val()));
 	}
 	
 	function countTot() {
