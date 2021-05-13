@@ -172,7 +172,7 @@
 					<tr>
 						<th class="">Loss율(%)</th>
 						<td>
-							<input id="lossRate" name="lossRate" type="text" onkeyup="onlyDecimal(this)" maxlength="4">
+							<input id="lossRate" name="lossRate" type="text" onkeyup="onlyNumber(this)">
 						</td>
 						<th>커플러<br>사용여부
 						</th>
@@ -249,12 +249,16 @@
 						<col width="30%">
 						<col width="30%">
 						<col width="30%">
+						<col width="30%">
+						<col width="30%">
 					</colgroup>
 					<tr>
 						<th></th>
 						<th class="tc">제품구분</th>
 						<th class="tc">제품강종</th>
 						<th class="tc">SPEC</th>
+						<th class="tc">Loss율(%)</th>
+						<th class="tc">커플러단가</th>
 					</tr>
 					<!-- // -->
 					<tr class="detailRow" name="tableCd">
@@ -282,6 +286,12 @@
 								<a onclick="prdtSpecSearch(this);"><i class="i_search_w"></i>
 								</a>
 							</div>
+						</td>
+						<td>
+							<input class="tc" name="lossRate" type="text" onkeyup="onlyNumber(this)" comma>
+						</td>
+						<td>
+							<input class="tc" name="cplrUpr" type="text" onkeyup="onlyNumber(this)" comma>
 						</td>
 					</tr>
 				</table>
@@ -325,7 +335,7 @@
 					<tr>
 						<th class="">Loss율(%)</th>
 						<td>
-							<input id="outordLossRate" name="outordLossRate" type="text" maxlength="4" onkeyup="onlyDecimal(this)">
+							<input id="outordLossRate" name="outordLossRate" type="text" onkeyup="onlyNumber(this)">
 						</td>
 						<th>연락처</th>
 						<td>
@@ -422,7 +432,7 @@
 			<button type="button" id="printBtn" class="btn btn-default btn-sm" onclick="setReport();">
 				<i class="fas fa-print"></i>출력
 			</button>
-			<button id="prjctActionBtn">등록</button>
+			<button type="button" id="prjctActionBtn">등록</button>
 			<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 		</div>
 	</form>
@@ -783,7 +793,12 @@
 	function setPrjctDtail(idx, item){
 		$.each(item, function(key, value){
 			if($(".detailRow").find("[name="+key+"]")[idx] != undefined) {
-				$(".detailRow").find("[name="+key+"]")[idx].value = value;
+				var itemValue = value;
+				if($(".detailRow").find("[name="+key+"]").eq(idx).is('[comma]')){
+					itemValue = addCommaStr(itemValue);
+				}
+				$(".detailRow").find("[name="+key+"]")[idx].value = itemValue;
+				
 				if(key == "prdtDivCd"){
 					if(value == "PRDTDIV11"){
 						$('.detailRow button').eq(idx).prop("disabled",false);
@@ -792,6 +807,14 @@
 						$('.detailRow button').eq(idx).prop("disabled",true);
 			 	 		//$('.detailRow [name=prdtSizeNm]').eq(idx).prop("disabled",true);
 					}
+					if(value == "PRDTDIV22"){
+			 	 		$('.detailRow [name=lossRate]').eq(idx).prop("readonly",true);
+			 	 		$('.detailRow [name=cplrUpr]').eq(idx).prop("readonly",false);
+					} else {
+			 	 		$('.detailRow [name=lossRate]').eq(idx).prop("readonly",false);
+			 	 		$('.detailRow [name=cplrUpr]').eq(idx).prop("readonly",true);
+					}
+					
 				}
 			}
 		});
@@ -1043,6 +1066,14 @@
 			} else {
 				$targetRow.find('button').prop("disabled",false);
 	 	 		$targetRow.find('[name=prdtSizeNm]').prop("disabled",false);
+			}
+
+			if($targetRow.find('select[name="prdtDivCd"]').val() == "PRDTDIV22"){
+				$targetRow.find('[name=lossRate]').prop("readonly",true);
+				$targetRow.find('[name=cplrUpr]').prop("readonly",false);
+			} else {
+				$targetRow.find('[name=lossRate]').prop("readonly",false);
+				$targetRow.find('[name=cplrUpr]').prop("readonly",true);;
 			}
 		}
  	}
