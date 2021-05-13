@@ -262,6 +262,8 @@
 		        	{key: "returnYn",    	label: "반품여부",		hidden: true},
 		          	{key: "bilgYn",      	label: "전표",		    align: "center",	width: 50,	formatter: "bilgYn"},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
+		            {key: "pchsClmnDivNm",  label: "결제예상",  	align: "left",   	width: 150},
+		            {key: "pchsClmnDay",    label: "결제예상일",  	align: "left",   	width: 80},
 		          	{key: "bilgCertNo",     label: "청구번호", 	    align: "center", 	width: 70},
 		        	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
@@ -726,9 +728,9 @@
 			p_siteNm = "";
 //			return;
 		}				
-		if (!p_siteNm) {
-			p_siteNm = "";
-		}		
+// 		if (!p_siteNm) {
+// 			p_siteNm = "";
+// 		}		
 
 		var arg = "selPchCd#SELPCH2" 
 		         + "#coCd#"			+ $('#coCd_S').val() 
@@ -741,10 +743,12 @@
 		         + "#trstNoArr#"	+ trstNoArr
 		         + "#";
 
-		if 	($('#siteAll').val() =="Y") { 	
+		if (!siteFlag) { 	 
 			callReport("AR0201R02.jrf", arg, "750", "1007");
-		} else {
+		} else if ($('#typCd_S').val() =="SELLTYPE1"){
 			callReport("AR0201R03.jrf", arg, "950", "690");
+		} else {
+			callReport("AR0201R04.jrf", arg, "950", "690");
 		}
 	}
 	
