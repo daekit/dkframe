@@ -30,4 +30,13 @@ public class AR07Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+    
+    @PostMapping(value = "/selectClosCditList")
+	public String selectClosCditList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+
+    	List<Map<String, String>> resultList = ar07Svc.selectClosCditList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
 }

@@ -8,5 +8,7 @@ public interface AR07Svc {
 	public List<Map<String, String>> selectMtClosCditList(Map<String, String> param);
 	
 	public int selectMtClosCditCount(Map<String, String> param);
+
+	public List<Map<String, String>> selectClosCditList(Map<String, String> param);
 	
 }

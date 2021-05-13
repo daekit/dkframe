@@ -12,4 +12,6 @@ public interface AR07Mapper {
 
 	List<Map<String, String>> selectMtClosCditList(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectClosCditList(Map<String, String> paramMap);
+
 }
