@@ -193,7 +193,6 @@
 					<div class="add_btn">
 						<a onclick="cloneDetailRow();" style="width: 50px">복사</a>
 						<a onclick="openSecondMultiPrdtSearch();">+</a>
-<!-- 						<a onclick="addDetailRow();">+</a>  -->
 						<a onclick="removeDetailRow();">-</a>
 					</div>
 				</td>
@@ -440,7 +439,6 @@
 			setWareHouse($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
-			//	addDetailRow();
 			$('#actionArBtn').on("click", function(){insertShip();});
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
@@ -830,36 +828,31 @@
 		openSecondModal("/static/html/cmn/modal/multiPrdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var selectedRows = grid.target.getList("selected");
 			$.each(selectedRows, function(idx, obj){
-				// 행복사
-				var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
-				
-				// 재고관리에 따른 dom 변경
-				if(obj.prdtStockCd == "N"){
-					$detailRow.find('input[name="prdtSize"]').prop("readonly", true);
-					$detailRow.find('input[name="prdtSpec"]').prop("readonly", true);
-					$detailRow.find('input[name="prdtLen"]').prop("readonly", true);
-					$detailRow.find('input[name="shipQty"]').prop("readonly", true);
-					$detailRow.find('input[name="shipWt"]').prop("readonly", true);
-					// 재고관리 대상이 아닐경우 금액 수정 가능
-					$detailRow.find('input[name="shipAmt"]').prop("readonly", false);
-					// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-					$detailRow.find('input[name="shipQty"]').prop("required", false);
-					$detailRow.find('input[name="shipWt"]').prop("required", false);
-				}
-				
+				// 행 추가
+				var $addedRow = addDetailRow();
 				// 값 set
-				$.each($detailRow.find('[name]'), function(idx, elem){
+				$.each($addedRow.find('[name]'), function(idx, elem){
 					var itemValue = obj[elem.name];
 					if(itemValue){
 						$(elem).val(itemValue);
 					}
 				});
-				
 				// prdtUpr에 ordrgUpr set (궁금한점.)
-				$detailRow.find('input[name=prdtUpr]').val(obj.ordrgUpr);
+				$addedRow.find('input[name=prdtUpr]').val(obj.ordrgUpr);
 				
-				// append
-				$('#detailTable tbody').append($detailRow[0]);
+				// 재고관리에 따른 dom 변경
+				if(obj.prdtStockCd == "N"){
+					$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+					$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+					$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+					$addedRow.find('input[name="shipQty"]').prop("readonly", true);
+					$addedRow.find('input[name="shipWt"]').prop("readonly", true);
+					// 재고관리 대상이 아닐경우 금액 수정 가능
+					$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+					// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+					$addedRow.find('input[name="shipQty"]').prop("required", false);
+					$addedRow.find('input[name="shipWt"]').prop("required", false);
+				}
 			});
 		});
 	}
