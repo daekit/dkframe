@@ -7,12 +7,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.pp.pp04.mapper.PP04Mapper;
 import com.dksys.biz.user.pp.pp04.service.PP04Svc;
 
 @Service
+@Transactional("erpTransactionManager")
 public class PP04Svcmpl implements PP04Svc {
 	
     @Autowired
