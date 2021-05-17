@@ -97,6 +97,8 @@
           	  <tr>
           		<th colspan="2">입고지</th>
           		<td colspan="3"> 
+			      <input type="hidden" id="sCoCd"         name="sCoCd" >
+                  <input type="hidden" id="searchPrjctCd" name="searchMovePrdtCd" style="width: 76%;">
           		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" required></select>
           		</td> 
           		<th colspan="2">판매유형</th>
@@ -229,7 +231,9 @@
 				"whCd"   : $("#searchDtlOutWhCd").val(),
 				"clntNm": $("#searchDtlClntNm").val(),
 				"ownerCd"  : $("#searchDtlOwnerCd").val(),
-				"typCd" : $("#searchDtlTypCd").val(),
+				"typCd" : $("#searchDtlTypCd").val(),			
+// 				"prjctCd" : $("#prjctCd_S").val(),
+// 				"prjctNm" : $("#prjctNm_S").val(),
 			//	"makrCd" : $("#searchDtlMakr").val(),
 				"impYn" : $("#searchDtlImpYn").val(),
 				"prdtNm" : $("#searchDtlPrdtNm").val(),
@@ -268,6 +272,13 @@
 			language : "ko",
 			autoclose : true
 		});
+	    
+	 // 재고이동은 유통 <->가공간에만 발생함.
+		$("#searchDtlTypCd option[value='SELLTYPE3']").remove();
+		$("#searchDtlTypCd option[value='SELLTYPE4']").remove();
+		$("#searchDtlType option[value='SELLTYPE3']").remove();
+		$("#searchDtlType option[value='SELLTYPE4']").remove();
+	    
 	})	
 	
 	//공통코드 조회
@@ -352,14 +363,15 @@
 		
 		var formData = $("#popForm").serializeObject();
 		var formData2 = {
+			"sCoCd"  : $("#searchDtlOutCoCd").val(),   // 출고회사가 바뀌면 매입매출고 처리함.
 			"sWhCd" : $("#searchDtlWhCd").val(),
 			"sTransDt" : $("#sTransDt").val(),
 			"sRmk" : $("#searchRmk").val(),	
 			"sellType" : $("#searchDtlType").val(),
 			"sPrjctCd" : $("#searchPrjctCd").val(),
 			"sPrdtCd" : $("#searchMovePrdtCd").val(),
-			"sPrdtSize" : $("#searchMovePrdtSize").val(),
 			"sPrdtSpec" : $("#searchMovePrdtSpec").val(),
+			"sPrdtSize" : $("#searchMovePrdtSize").val(),
 			"sPrdtLen" : $("#searchMovePrdtLen").val()
 		}
 		// 상세내역 추가

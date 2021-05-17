@@ -135,6 +135,14 @@ th {
                   <option value="">전체</option>
                   </select>
                 </td>
+                <th>프로젝트명</th>
+	                <td>
+	                    <div class="search_form" style="width: 50%;">
+			              <input type="hidden" id="prjctCd_S">
+			              <input type="text" id="prjctNm_S"  onkeyup="event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+			              <a onclick="openPrjctSearch('S');"><i class="i_search_w"></i></a>
+			            </div>
+	                </td>
               </tr>              
             </table>
           </div>
@@ -206,23 +214,35 @@ th {
 		            }
 		        },
 		        columns: [
-		            {key: "prdtNm", 	  label: "제품", align: "left", width: "13%"},
-		          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 100},
-		          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 100},
-		          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
-		          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
-		          	{key: "impNm",        label: "수입",    align: "center", width: 50},
-		          	{key: "prjctNm",      label: "프로젝트",    align: "center", width: 50},
-		            {key: "trstDt", 	  label: "이동일자", align: "center", width: "7%"},
-		        	{key: "outWhNm",      label: "출고창고",    align: "center", width: 90},
 		            {key: "outCoNm", 	  label: "출고회사", align: "center", width: "7%"}, 
-		            {key: "ownerNm", 	  label: "재고주체", align: "center", width: "7%"},
-		            {key: "moWh", 	   	  label: "이동 수량(KG)", align: "right", width: "7%", formatter: "money"},
-		            {key: "stdUpr", 	  label: "기준 단가", align: "right", width: "7%", formatter: "money"},
-		            {key: "inCoNm", 	  label: "입고회사", align: "center", width: "7%", hidden : true},
-		            {key: "inWhNm", 	  label: "입고창고", align: "center", width: "9%"},
+		            {label: "출고",  columns:[
+			            {key: "prdtNm", 	  label: "제품",	  align: "left", width:100},
+			          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 80},
+			          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 100},
+			          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
+			          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
+			          	{key: "prjctNm",      label: "프로젝트", align: "center", width: 100},
+			        	{key: "outWhNm",      label: "출고창고", align: "center", width: 90},		            	
+			         ]},
+		            {key: "trstDt", 	  label: "이동일자",      align: "center", width: 90},
+		            {key: "moWh", 	   	  label: "이동 수량(KG)", align: "right", width: 80, formatter: "money"},
+		            {label: "입고",  columns:[
+			            {key: "inPrdtNm", 	  label: "제품",    align: "center", width: 100},
+			            {key: "inPrdtSpec",   label: "Spec",  align: "center", width: 80},
+			            {key: "inPrdtSize",   label: "Size",  align: "center", width: 100},
+			          	{key: "inPrdtLen",    label: "길이",    align: "left",   width: 60},
+			          	{key: "inTypNm",      label: "판매유형", align: "center", width: 60},
+			            {key: "inPrjctNm", 	  label: "프로젝트", align: "center", width: 100},
+			            {key: "inWhNm", 	  label: "창고", 	  align: "center", width: 90},
+		          	]},
+		            {key: "rmk", 	  	  label: "비고", 		align: "center", width: 200},
+		            {key: "stdUpr", 	  label: "기준 단가",  align: "right",  width: 60, formatter: "money"},
+		            
 		            {key: "creatDttm", 	  label: "최종 변경일", align: "center", width: "7%", hidden : true},
-		            {key: "makrNm", 	  label: "제조사", align: "center", width: "7%", hidden : true}
+		            {key: "makrNm", 	  label: "제조사", 	align: "center", width: "7%", hidden : true},		          	
+		          	{key: "impNm",        label: "수입",     align: "center", width: 50, hidden : true},		
+		            {key: "ownerNm", 	  label: "재고주체",   align: "center", width: "7%", hidden : true},	
+		            {key: "inCoNm", 	  label: "회사",    align: "center", width: "7%", hidden : true},	
 		        ]
 		    });
 			return this;
@@ -236,6 +256,8 @@ th {
 				"outWhCd": $("#searchOutCoCd").val(),
 				"prdtCd" : $("#prdtCd").val(),
 			    "prdtNm" : $("#prdtNm").val(),
+				"prjctCd" : $("#prjctCd_S").val(),
+			    "prjctNm" : $("#prjctNm_S").val(),
 				"inWhCd" : $("#searchInCoCd").val(),
 				"pageNo" : _pageNo + 1,
 				"recordCnt" : $("#recordCnt").val()
@@ -406,5 +428,26 @@ th {
 		$('#searchInCoCd').empty();
 		$('#searchInCoCd').append('<option value="">전체</option>');	
 		setCommonSelect($('#searchInCoCd'));
-	}		
+	}	
+	
+	// 프로젝트 검색
+	function openPrjctSearch(type) {
+		var paramObj = {
+			"coCd"  : $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#prjctCd_S").val(row.prjctCd);
+				$("#prjctNm_S").val(row.prjctNm);
+			} else {
+				$("#prjctCd").val(row.prjctCd);
+				$("#prjctNm").val(row.prjctNm);
+			}
+		});
+	}
+
+	
 </script>

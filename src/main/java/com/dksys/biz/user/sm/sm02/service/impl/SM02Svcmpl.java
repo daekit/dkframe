@@ -95,14 +95,13 @@ public class SM02Svcmpl implements SM02Svc {
 		for (Map<String, String> detailMap : detailList) {
 			detailMap.put("userId",    param.get("userId").toString());
 			detailMap.put("pgmId",     param.get("pgmId").toString());
-			detailMap.put("sCoCd",     detail.get("coCd"));
+			detailMap.put("sCoCd",     detail.get("sCoCd"));
 			detailMap.put("sWhCd",     detail.get("sWhCd"));
 			detailMap.put("sTransDt",  detail.get("sTransDt"));
 			detailMap.put("sRmk",      detail.get("sRmk"));
 			detailMap.put("sellType",  detail.get("sellType"));
 			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
 			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
-			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
 			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
 			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
 			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
@@ -124,10 +123,12 @@ public class SM02Svcmpl implements SM02Svc {
 		for (Map<String, String> detailMap : detailList) {
 			detailMap.put("userId",    param.get("userId").toString());
 			detailMap.put("pgmId",     param.get("pgmId").toString());
+			detailMap.put("sCoCd",     detail.get("sCoCd"));
 			detailMap.put("sWhCd",     detail.get("sWhCd"));
 			detailMap.put("sTransDt",  detail.get("sTransDt"));
 			detailMap.put("sRmk",      detail.get("sRmk"));
 			detailMap.put("sellType",  detail.get("sellType"));
+			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
 			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
 			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
 			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));

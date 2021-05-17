@@ -100,6 +100,11 @@
           	  <tr>
           		<th colspan="2">입고지</th>
           		<td colspan="2"> 
+			              <input type="hidden" id="sCoCd"     name="sCoCd" >
+			              <input type="hidden" id="sPrdtCd"   name="sPrdtCd" >
+			              <input type="hidden" id="sPrdtLen"  name="sPrdtLen" >
+			              <input type="hidden" id="sPrdtSpec" name="sPrdtSpec" >
+			              <input type="hidden" id="sPrdtSize" name="sPrdtSize" >
           		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" required></select>
           		</td> 
           		<th colspan="2">판매유형</th>
@@ -266,6 +271,17 @@
 			language : "ko",
 			autoclose : true
 		});
+	    
+	    
+
+// 재고이동은 유통 <->가공간에만 발생함.
+		$("#searchDtlTypCd option[value='SELLTYPE3']").remove();
+		$("#searchDtlTypCd option[value='SELLTYPE4']").remove();
+		$("#searchDtlType option[value='SELLTYPE3']").remove();
+		$("#searchDtlType option[value='SELLTYPE4']").remove();
+		
+		
+	    
 	})	
 	
 	//공통코드 조회
@@ -350,11 +366,16 @@
 		
 		var formData = $("#popForm").serializeObject();
 		var formData2 = {
+			"sCoCd"  : $("#searchDtlOutCoCd").val(),   // 출고회사가 바뀌면 매입매출고 처리함.
 			"sWhCd" : $("#searchDtlWhCd").val(),
 			"sTransDt" : $("#sTransDt").val(),
 			"sRmk" : $("#searchRmk").val(),	
 			"sellType" : $("#searchDtlType").val(),	
-			"sPrjctCd" : $("#searchPrjctCd").val()
+			"sPrjctCd" : $("#searchPrjctCd").val(),	
+			"sPrdtCd" : $("#sPrdtCd").val(),
+			"sPrdtSpec" : $("#sPrdtSpec").val(),	
+			"sPrdtSize" : $("#sPrdtSize").val(),	
+			"sPrdtLen" : $("#sPrdtLen").val(),	
 		}
 		// 상세내역 추가
 		//formData["detailArr"] = searchGrid.getList();

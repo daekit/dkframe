@@ -82,22 +82,30 @@
 					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
 					,A.PRDT_CD
 					,C.PRDT_NM 
+					,A.PRDT_SIZE
+					,A.PRDT_SPEC
+					,A.PRDT_LEN
 					,A.IMP_YN
-					,FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM 
+					,FN_CM05M01_CD_TO_NM(A.IMP_YN ) AS IMP_NM
 					,A.MO_WH
 					,A.STD_UPR
 					,A.IN_CO_CD
 					,FN_CM05M01_CD_TO_NM(A.IN_CO_CD) AS IN_CO_NM
+					,A.IN_TYP_CD
+					,FN_CM05M01_CD_TO_NM(A.IN_TYP_CD) AS IN_TYP_NM
 					,A.IN_WH_CD
 					,FN_CM05M01_CD_TO_NM(A.IN_WH_CD) AS IN_WH_NM
-					,A.IMP_YN
-					,FN_CM05M01_CD_TO_NM(A.IMP_YN ) AS IMP_NM
-					,A.PRDT_SIZE
-					,A.PRDT_SPEC
-					,A.PRDT_LEN
+					,A.IN_PRJCT_CD
+					,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.IN_PRJCT_CD ) AS IN_PRJCT_NM
+					,A.IN_PRDT_CD
+					,(SELECT PRDT_NM FROM TB_BM01M01 C WHERE C.PRDT_CD = A.IN_PRDT_CD) AS IN_PRDT_NM
+					,A.IN_PRDT_SIZE
+					,A.IN_PRDT_SPEC
+					,A.IN_PRDT_LEN
 					,TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS TRST_DT
 					,A.UDT_DTTM
 					,TO_CHAR(A.CREAT_DTTM,'YYYY-MM-DD') AS CREAT_DTTM
+					,A.RMK
 				FROM TB_SM02M01 A, TB_BM01M01 C
 				WHERE A.PRDT_CD = C.PRDT_CD
 				<if test="coCd != null and !coCd.equals('')">
@@ -115,11 +123,18 @@
 			     <if test="prjctCd != null and !prjctCd.equals('')">
 						AND A.PRJCT_CD = #{prjctCd}
 				</if>
+			     <if test="prdtCd != null and !prdtCd.equals('')">
+						AND A.PRDT_CD = #{prdtCd}
+				</if>
+			     <if test="prdtNm != null and !prdtNm.equals('')">
+						AND C.PRDT_NM LIKE '%'|| #{prdtNm} ||'%'
+				</if>
 				ORDER BY A.TRST_NO
 			) D
 			WHERE  1= 1 
 			     <if test="prjctNm != null and !prjctNm.equals('')">
-						AND D.PRJCT_NM LIKE '%' || #{prjctNm} || '%'
+						AND ( D.PRJCT_NM    LIKE '%' || #{prjctNm} || '%'
+						  OR  D.IN_PRJCT_NM LIKE '%' || #{inPrjctNm} || '%' )
 				</if>
 		)
 		WHERE
@@ -379,6 +394,11 @@
 			IN_CO_CD, 
 			IN_TYP_CD, 
 			IN_WH_CD, 
+			IN_PRJCT_CD,
+			IN_PRDT_CD,
+			IN_PRDT_SPEC,
+			IN_PRDT_SIZE,
+			IN_PRDT_LEN,
 			STOCK_UPR, 
 			STD_UPR,
 			PCHS_UPR, 
@@ -399,15 +419,20 @@
 			#{clntCd},
 			#{typCd}, 
 			#{makrCd},
-			#{sPrjctCd}, 
+			#{prjctCd}, 
 			#{prdtCd}, 
 			#{prdtSize},
 			#{prdtSpec},
 			#{prdtLen},
 			#{impYn},
-			#{coCd}, 
+			#{sCoCd}, 
 			#{sellType}, 
-			#{sWhCd},	
+			#{sWhCd},
+			NVL(#{sPrjctCd}, #{prjctCd}),
+            NVL(#{sPrdtCd} , #{prdtCd}),
+		    NVL(#{sPrdtSpec},#{prdtSpec}),
+		    NVL(#{sPrdtSize},#{prdtSize}),
+            NVL(#{sPrdtLen}, #{prdtLen}),
 			#{stockUpr},
 			#{stdUpr}, 
 			#{pchsUpr}, 
@@ -541,6 +566,11 @@
 			IN_CO_CD, 
 			IN_TYP_CD,
 			IN_WH_CD, 
+			IN_PRJCT_CD,
+			IN_PRDT_CD,
+			IN_PRDT_SPEC,
+			IN_PRDT_SIZE,
+			IN_PRDT_LEN,
 			STOCK_UPR, 
 			STD_UPR,
 			PCHS_UPR, 
@@ -562,14 +592,19 @@
 			#{typCd}, 
 			#{makrCd},
 			#{prjctCd}, 
-			#{sPrdtCd}, 
-			#{sPrdtSize},
-			#{sPrdtSpec},
-			#{sPrdtLen},
+			#{prdtCd}, 
+			#{prdtSize},
+			#{prdtSpec},
+			#{prdtLen},
 			#{impYn},
-			#{coCd}, 
-			#{sellType}, 
-			#{sWhCd},	
+			#{sCoCd}, 
+			NVL(#{sellType}, #{typCd}),
+			NVL(#{sWhCd},    #{whCd}),
+			NVL(#{sPrjctCd}, #{prjctCd}),
+            NVL(#{sPrdtCd} , #{prdtCd}),
+            NVL(#{sPrdtSpec},#{prdtSpec}),	
+            NVL(#{sPrdtSize},#{prdtSize}),	
+            NVL(#{sPrdtLen}, #{prdtLen}),	
 			#{stockUpr},
 			#{stdUpr}, 
 			#{pchsUpr}, 
