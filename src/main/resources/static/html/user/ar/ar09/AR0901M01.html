@@ -88,31 +88,25 @@
                     <option value="">전체</option>
                   </select>
                 </td>
-                <th>일자</th>
-                <td>
-                    <div class="date_input">
-                      <input type="text" id="startDt" class="input_calendar" autocomplete="off" data-search="strtDt" required="required" onchange="dateValidation();">
-                      <span>~</span>
-                      <input type="text" id="endDt" class="input_calendar" autocomplete="off"  data-search="endDt" required="required" onchange="dateValidation();">
-                    </div>
-                </td>
+                <th>기준 년도</th>
+						<td>
+							<div class="date_input">
+								<input type="text" class="input_calendar" autocomplete="off" id="salesYy" name="salesYy" data-search="salesYy" date> 
+							</div>
+						</td>						
                 <th>계산서</th>
                 <td>
-              	  <select id="bill" name="bill" data-search="bill" style="width:100%;" onchange="billSearch(); gridView.setData(0);">
+              	  <select id="bill" name="bill" data-search="bill" style="width:100%;" onchange="gridView.setData(0);">
                   <option value="">전체</option>
                   <option value="Y">확정</option>
                   <option value="N">미확정</option>
-                  </select>
-              	</td>
-                <td>
-              	  <select id="bilgCertNo_S" name="bilgCertNo_S" data-search="bilgCertNo_S" style="width:100%;" onchange="gridView.setData(0);">
                   </select>
               	</td>
               </tr>
               <tr>
               <th>매입/매출</th>
                 <td>
-              	<select id="selpch" data-kind="SELPCH" data-search="selpch" onchange="billSearch(); gridView.setData(0);">
+              	<select id="selpchCd" data-kind="SELPCH" data-search="selpchCd" onchange="gridView.setData(0);">
               	  <option value="">전체</option>
                 </select>
                 </td>
@@ -124,14 +118,14 @@
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
-                <th>담당자</th>
-	            <td>                                
-	              <input type="hidden" id="salesMng" name="salesMng" data-search="salesMng">
-	              <div class="search_form" style="width: 62%;">
-	                <input type="text" id="salesMngNm" name="salesMngNm" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
-	                <a onclick="openUserTree();"><i class="i_search_w"></i></a>
-	              </div>
-	            </td>
+<!--                 <th>담당자</th> -->
+<!-- 	            <td>                                 -->
+<!-- 	              <input type="hidden" id="salesMng" name="salesMng" data-search="salesMng"> -->
+<!-- 	              <div class="search_form" style="width: 62%;"> -->
+<!-- 	                <input type="text" id="salesMngNm" name="salesMngNm" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> -->
+<!-- 	                <a onclick="openUserTree();"><i class="i_search_w"></i></a> -->
+<!-- 	              </div> -->
+<!-- 	            </td> -->
               </tr>
               <tr>
                 <th>제품유형</th>
@@ -174,7 +168,7 @@
 				<div class="add_btn_small pdl10">
 	         <!--       <a onclick="insertUpdatePrdtAcins('C');" style="height: 30px; line-height: 28px;">+</a> -->
 	          <!--      <a onclick="deletePrdtAcins();" style="height: 30px; line-height: 28px;">-</a>   -->
-	                <a onclick="setReport();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-print"></i> 집계표출력</a>
+<!-- 	                <a onclick="setReport();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-print"></i> 집계표출력</a> -->
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" data-search="recordCnt" onchange="gridView.setData(0);">
@@ -183,7 +177,7 @@
 					<option value="50">50</option>
 					<option value="100">100</option>
 				</select>
-				<input type="hidden" id="pgmId" name="pgmId" value="SM0501M01">
+				<input type="hidden" id="pgmId" name="pgmId" value="AR0901M01">
 			</div>
 		</div>
     	
@@ -199,6 +193,7 @@
 	var authRole = null;
 	var actionType = null;
 	var firstGrid = null;
+	var Yy   = "";
 	var chkGrid = [];
 	var gridView = {
 		initView: function(){
@@ -235,21 +230,43 @@
 		        footSum: [
 			    	[
 			    		{label: "합 계", colspan:2, align:"center"},
-			    		{key:"bilgWt", collector: "sum", formatter:"money", align: "right"},
-			    		{key: "bilgAmt", collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt01",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt02",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt03",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt04",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt05",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt06",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt07",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt08",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt09",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt10",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt11",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "bilgWt12",   collector: "sum", formatter:"money", align: "right"},
+			    		{key: "bilgWt",     collector: "sum", formatter:"money", align: "right"},
+			    		{key: "bilgAmt",    collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgVatAmt", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "totalAmt", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totalAmt",   collector: "sum", formatter:"money", align: "right"},
 			    	]
 			    ],
 		        columns: [
-		            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
-		            {key: "clntDivNm",  label: "구분",   align: "left", width: "130px"},
-		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
-		            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
-		            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
-		            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
-		            {key: "totalAmt",   label: "합계금액",  align: "right", width: "100px", formatter: "money"},
-		            {key: "bilgCertNo", label: "전표번호",  align: "right", width: "150px"}
+		            {key: "clntNm",     label: "거래처",   align: "left", width: 130},
+		            {key: "clntDivNm",  label: "구분",   align: "left", width: 130},
+		            {key: "bilgWt01",   label: Yy+".01", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt02",   label: Yy+".02", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt03",   label: Yy+".03", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt04",   label: Yy+".04", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt05",   label: Yy+".05", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt06",   label: Yy+".06", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt07",   label: Yy+".07", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt08",   label: Yy+".08", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt09",   label: Yy+".09", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt10",   label: Yy+".10", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt11",   label: Yy+".11", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt12",   label: Yy+".12", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgWt",     label: Yy+"합계", align: "right", width: 80, formatter: "money"},
+		            {key: "bilgAmt",    label: "공급가액",  align: "right", width: 100, formatter: "money"},
+		            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: 100, formatter: "money"},
+		            {key: "totalAmt",   label: "합계금액",  align: "right", width: 100, formatter: "money"}
 		        ]
 			});
 			return this;
@@ -262,7 +279,7 @@
 					var tempElem = $('[data-search]')[i];
 					paramObj[$(tempElem).data("search")] = $(tempElem).val();
 				}
-				postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
+				postAjax("/user/ar/ar09/selectYySalesList", paramObj, null, function(data){
 					var list = data.resultList;
 					targetObj.setData({
 						list : list,
@@ -283,14 +300,46 @@
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
+			        footSum: [
+				    	[
+				    		{label: "합 계", colspan:2, align:"center"},
+				            {key: "bilgWt01",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt02",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt03",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt04",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt05",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt06",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt07",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt08",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt09",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt10",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt11",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "bilgWt12",   collector: "sum", formatter:"money", align: "right"},
+				    		{key: "bilgWt",     collector: "sum", formatter:"money", align: "right"},
+				    		{key: "bilgAmt",    collector: "sum", formatter:"money", align: "right"},
+		                    {key: "bilgVatAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "totalAmt",   collector: "sum", formatter:"money", align: "right"},
+				    	]
+				    ],
 			        columns: [
-			            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
-			            {key: "salesMngNm", label: "담당자명",  align: "center", width: "110px"},
-			            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
-			            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
-			            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
-			            {key: "totalAmt",   label: "합계금액",  align: "right", width: "100px", formatter: "money"},
-			            {key: "bilgCertNo", label: "전표번호",  align: "right", width: "150px"}
+			            {key: "clntNm",     label: "거래처",   align: "left", width: 130},
+			            {key: "clntDivNm",  label: "구분",   align: "left", width: 130},
+			            {key: "bilgWt01",   label: Yy+".01", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt02",   label: Yy+".02", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt03",   label: Yy+".03", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt04",   label: Yy+".04", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt05",   label: Yy+".05", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt06",   label: Yy+".06", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt07",   label: Yy+".07", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt08",   label: Yy+".08", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt09",   label: Yy+".09", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt10",   label: Yy+".10", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt11",   label: Yy+".11", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt12",   label: Yy+".12", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgWt",     label: Yy+"합계", align: "right", width: 80, formatter: "money"},
+			            {key: "bilgAmt",    label: "공급가액",  align: "right", width: 100, formatter: "money"},
+			            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: 100, formatter: "money"},
+			            {key: "totalAmt",   label: "합계금액",  align: "right", width: 100, formatter: "money"}
 			        ]
 			    });
 				return this;
@@ -298,15 +347,10 @@
 		}	
 	
 	$(document).ready(function() {
-		mainDefaultLoad("매출관리", "매입/매출집계 관리");
+		mainDefaultLoad("매출관리", "년간매출조회");
 		setCommonSelect($("#main_area select[data-kind]"));
-		initSearch();
-		$('#startDt, #endDt').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			//autoclose : true
-		});
-		$('#bilgCertNo_S').hide();
+		initSearch();		
+		// 마감년월 set	
 		gridView.initView().setData(0);
 		excelView.initView();
 	})
@@ -315,62 +359,23 @@
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
 		$("#coCd").val(jwt.coCd);
-		$("#startDt").val(getMonth("S"));
-		$("#endDt").val(getMonth("E"));
-	}
-	
-	function billSearch(){
-		if($('#bill').val() == "Y"){
-			$('#bilgCertNo_S').val("");
-			var targetObj = this.target;
-			var paramObj = {};
-			for(var i=0;i<$('[data-search]').length;i++){
-				var tempElem = $('[data-search]')[i];
-				paramObj[$(tempElem).data("search")] = $(tempElem).val();
-			}
-			postAjax("/user/sm/sm05/bilgCertNoList", paramObj, null, function(data){
-				var list = data.resultList;
-				var optionHtml = '<option value="">전체</option>';
-				for (var i = 0; i < list.length; i++) {
-					if(list[i].bilgCertNo != null){
-						optionHtml += '<option value=\"' +  list[i].bilgCertNo + '\">'
-						+ list[i].bilgCertNo + '</option>';
-					}
-				};
-				document.getElementById("bilgCertNo_S").innerHTML = optionHtml;
-			});
-			$('#bilgCertNo_S').show();
-		}else{
-			$('#bilgCertNo_S').val("");
-			var targetObj = this.target;
-			var paramObj = {};
-			for(var i=0;i<$('[data-search]').length;i++){
-				var tempElem = $('[data-search]')[i];
-				paramObj[$(tempElem).data("search")] = $(tempElem).val();
-			}
-			postAjax("/user/sm/sm05/bilgCertNullNoList", paramObj, null, function(data){
-				var list = data.resultList;
-				var optionHtml = '<option value="">전체</option>';
-				for (var i = 0; i < list.length; i++) {
-					if(list[i].bilgCertNo != null){
-						optionHtml += '<option value=\"' +  list[i].bilgCertNo + '\">'
-						+ list[i].bilgCertNo + '</option>';
-					}
-				};
-				document.getElementById("bilgCertNo_S").innerHTML = optionHtml;
-			});
-			$('#bilgCertNo_S').hide();
-		}
-	}
-	
-	
-	/*수정 or 등록 버튼 클릭시*/
-	function insertUpdatePrdtAcins(type) {
-		actionType = type;
-		if ( actionType == 'U' && selectGridValidation(firstGrid)){
-			return;
-		}
-		openModal("/static/html/user/sm/sm04/SM0401P01.html", 400, 650, "");
+		$('#salesYy').datepicker({
+			format : "yyyy",
+			minViewMode: 2,
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date());
+		
+		Yy = $('#salesYy').val();
+		
+
+
+		$("#selpchCd option[value='SELPCH3']").remove();
+		$("#selpchCd option[value='SELPCH4']").remove();
+		
+//		$("#searchYy").val(getMonth("S"));
+//		$("#endDt").val(getMonth("E"));
 	}
 	
 	//거래처 검색
@@ -427,20 +432,7 @@
 			}
 		});
 	}	
-	function prdtStknChange(elem) {
-		var paramObj = {"codeKind" : $(elem).val()};
-		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
-			var optionHtml = '<option value="">전체</option>';
-			var childCodeList = data.childCodeList;
-			$.each(childCodeList, function(index, obj){
-				optionHtml += '<option value='+obj.codeId+'>';
-				optionHtml += obj.codeNm;
-				optionHtml += '</option>';
-			});
-			$('.main_area [data-search="prdtStkn"]').html(optionHtml);
-		});
-	}
-	
+
 	function excelDown() {
 		var paramObj = {"pageNo" : 1,"recordCnt"   : 9999999};
 		if(inputValidation($('[required]'))){
@@ -448,7 +440,7 @@
 				var tempElem = $('[data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
-			postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
+			postAjax("/user/ar/ar09/selectYySalesList", paramObj, null, function(data){
 				var list = data.resultList;
 				excelView.target.setData({
 					list : list,
@@ -457,33 +449,9 @@
 					}
 				});
 				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("매입_매출집계목록_"+todayDate+".xls");
+				excelView.target.exportExcel("년간매출집_"+todayDate+".xls");
 			});	
 		}
 	}	
 
-	function setReport() {
-		    
-		var fileName = "SM0501R01.jrf";
-		var arg = "selPchCd#"		+$('#selpch').val() 
-		         + "#coCd#"			+$('#coCd').val()
-		         + "#fromDt#"		+$('#startDt').val().replace(/\-/g,'')
-		         + "#toDt#"			+$('#endDt').val().replace(/\-/g,'')
-		         + "#salesMng#"		+$('#salesMng').val()
-		         + "#salesMngNm#"	+$('#salesMngNm').val()
-		         + "#clntCd#"		+$('#clntCd').val()
-		         + "#clntNm#"		+$('#clntNm').val()
-		         + "#prdtDiv#"		+$('#prdtDiv').val()
-		         + "#prdtDivNm#"	+$('#prdtDiv option:selected').text()
-		         + "#prdtStkn#"		+$('#prdtStkn').val()
-		         + "#prdtStknNm#"	+$('#prdtStkn option:selected').text()
-		         + "#prjctCd#"		+$('#prjctCd').val()
-		         + "#prjctNm#"		+$('#prjctNm').val()
-		         + "#bill#"			+$('#bill').val()
-		         + "#";
-
-//	alert(arg);	   
-      
-		callReport(fileName, arg, 750, 900);
-	}		
 </script>
