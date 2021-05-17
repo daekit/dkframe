@@ -238,6 +238,12 @@ public class OD01SvcImpl implements OD01Svc {
 			//매출매입 데이터 세팅
 			Map<String, String> detailMap2 = od01Mapper.selectOrderDetailInfo(detailMap);
 
+			
+			paramMap.put("prdtSpec",    "");
+			paramMap.put("prdtSize",    "");
+			paramMap.put("prdtLen",    "");
+			
+
 			paramMap.putAll(detailMap2);
 			detailMap.putAll(detailMap2);
 			
@@ -305,9 +311,16 @@ public class OD01SvcImpl implements OD01Svc {
 				//매입, 매입금액이 없는 경우 매입내역 등록 안함.
 				double bilgAmtPchs     =  Double.parseDouble(detailMap.get("realDlvrAmt"));
 				if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
+					
+					paramMap.put("clntCd", clntCd);
 			    	ar02Mapper.insertPchsSell(paramMap);
+			    	
 			    	if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 					{
+			    		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+						if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+							paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+						}
 						sm01Mapper.updateStockSell(paramMap);
 					}
 				}
@@ -349,9 +362,9 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("realTrstAmt",String.valueOf(realTrstAmt));
 					paramMap.put("bilgAmt",    String.valueOf(bilgAmt));	
 				}else {					
-					paramMap.put("trstAmt",    detailMap.get("shipUpr"));
-					paramMap.put("realTrstAmt",detailMap.get("shipUpr"));
-					paramMap.put("bilgAmt",    detailMap.get("shipUpr"));
+					paramMap.put("trstAmt",    detailMap.get("shipAmt"));
+					paramMap.put("realTrstAmt",detailMap.get("shipAmt"));
+					paramMap.put("bilgAmt",    detailMap.get("shipAmt"));
 				}
 					
 				
