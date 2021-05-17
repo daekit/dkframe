@@ -60,7 +60,7 @@ public class CM11Ctr {
     		legend.put("v", resultList1.get(i).get("prdtDivNm"));
     		legend.put("f", null);
     		JSONObject value1 = new JSONObject();
-    		value1.put("v", resultList1.get(i).get("trstQty"));
+    		value1.put("v", resultList1.get(i).get("planWt"));
     		value1.put("f", null);
     		JSONObject value2 = new JSONObject();
     		value2.put("v", resultList1.get(i).get("realTrstQty"));
@@ -110,7 +110,7 @@ public class CM11Ctr {
     		legend.put("v", resultList2.get(i).get("clntNm"));
     		legend.put("f", null);
     		JSONObject value1 = new JSONObject();
-    		value1.put("v", resultList2.get(i).get("trstQty"));
+    		value1.put("v", resultList2.get(i).get("planWt"));
     		value1.put("f", null);
     		JSONObject value2 = new JSONObject();
     		value2.put("v", resultList2.get(i).get("realTrstQty"));
