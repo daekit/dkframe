@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.sm.sm02.mapper.SM02Mapper;
 import com.dksys.biz.user.sm.sm02.service.SM02Svc;
@@ -15,6 +16,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @Service
+@Transactional("erpTransactionManager")
 public class SM02Svcmpl implements SM02Svc {
 	
     @Autowired
@@ -91,18 +93,23 @@ public class SM02Svcmpl implements SM02Svc {
 		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId",   param.get("userId").toString());
-			detailMap.put("pgmId",    param.get("pgmId").toString());
-			detailMap.put("sWhCd",    detail.get("sWhCd"));
-			detailMap.put("sTransDt", detail.get("sTransDt"));
-			detailMap.put("sRmk",     detail.get("sRmk"));
-			detailMap.put("sellType", detail.get("sellType"));
-			detailMap.put("sPrjctCd", detail.get("sPrjctCd"));
-	//		detailMap.put("sPrdtCd",  detail.get("sPrdtCd"));
+			detailMap.put("userId",    param.get("userId").toString());
+			detailMap.put("pgmId",     param.get("pgmId").toString());
+			detailMap.put("sCoCd",     detail.get("coCd"));
+			detailMap.put("sWhCd",     detail.get("sWhCd"));
+			detailMap.put("sTransDt",  detail.get("sTransDt"));
+			detailMap.put("sRmk",      detail.get("sRmk"));
+			detailMap.put("sellType",  detail.get("sellType"));
+			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
+			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
+			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
+			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
+			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
+			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
 			
-			sm02Mapper.sm01UpdateInsertStockMove(detailMap);
-			sm02Mapper.sm01UpdateStockMove(detailMap);
-			sm02Mapper.sm02InsertStockMove(detailMap);
+			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가
+			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
+			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 		}
 		
 	}

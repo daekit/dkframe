@@ -5,11 +5,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.sm.sm06.mapper.SM06Mapper;
 import com.dksys.biz.user.sm.sm06.service.SM06Svc;
 
 @Service
+@Transactional("erpTransactionManager")
 public class SM06Svcmpl implements SM06Svc {
 	
     @Autowired
