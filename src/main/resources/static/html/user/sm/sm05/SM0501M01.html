@@ -120,7 +120,7 @@
                 <td>
                   <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
                   <div class="search_form" style="width: 60%;">
-	                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" disabled>
+	                <input type="text" id="clntNm" name="clntNm" data-search="clntNm"  onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -128,7 +128,7 @@
 	            <td>                                
 	              <input type="hidden" id="salesMng" name="salesMng" data-search="salesMng">
 	              <div class="search_form" style="width: 62%;">
-	                <input type="text" id="salesMngNm" name="salesMngNm" data-search="salesMngNm" disabled>
+	                <input type="text" id="salesMngNm" name="salesMngNm" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 	                <a onclick="openUserTree();"><i class="i_search_w"></i></a>
 	              </div>
 	            </td>
@@ -146,14 +146,24 @@
 	                	<option value="">전체</option>
 	                </select>
                 </td>
-                <th >프로젝트<br>현장명</th>
-		        <td>
+<!--                 <th >프로젝트명</th> -->
+<!-- 		        <td> -->
 		          <input type="hidden" id="prjctCd" name="prjctCd" data-search="prjctCd">
+<!-- 		          <div class="search_form" style="width: 62%;"> -->
+<!-- 		            <input type="text" id="prjctNm" name="prjctNm" data-search="prjctNm" onkeyup="event.keyCode == 8 ? prjctCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> -->
+<!-- 		            <a onclick="prjctSearch();"><i class="i_search_w"></i></a> -->
+<!-- 		          </div> -->
+<!-- 		        </td> -->
+		        <th >현장명</th>
+		        <td>
+		          <input type="hidden" id="siteCd" name="siteCd" data-search="siteCd">
 		          <div class="search_form" style="width: 62%;">
-		            <input type="text" id="prjctNm" name="prjctNm" data-search="prjctNm" disabled>
-		            <a onclick="prjctSearch();"><i class="i_search_w"></i></a>
+		            <input type="text" id="siteNm" name="siteNm" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+		            <a onclick="openSiteSearch('S');"><i class="i_search_w"></i></a>
 		          </div>
 		        </td>
+		        
+		        
               </tr>
             </table>
           </div>
@@ -233,6 +243,7 @@
 			    ],
 		        columns: [
 		            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
+		            {key: "clntDivNm",  label: "구분",   align: "left", width: "130px"},
 		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
 		            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
 		            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
@@ -397,7 +408,25 @@
 			$("#prjctNm").val(row.prjctNm);
 		});
 	}
-	
+	// 현장 검색
+	function openSiteSearch(type) {
+		var paramObj = {
+			"coCd"  : $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+			} else {
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+			}
+		});
+	}	
 	function prdtStknChange(elem) {
 		var paramObj = {"codeKind" : $(elem).val()};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
