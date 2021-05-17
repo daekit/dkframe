@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar09.mapper.AR09Mapper">
+
+	<select id="selectYySalesListCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM 
+		(SELECT
+			T.TRST_CLNT_CD
+					,FN_CM05M01_CD_TO_NM((SELECT CLNT_DIV_CD FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD)) AS CLNT_DIV_NM
+					,T.CLNT_NM
+					,SUM(BILG_WT) AS BILG_WT 
+					,SUM(BILG_AMT) AS BILG_AMT
+					,SUM(BILG_VAT_AMT) AS BILG_VAT_AMT 
+					,SUM(BILG_AMT + BILG_VAT_AMT) AS TOTAL_AMT
+			FROM TB_AR02M01 T
+				LEFT OUTER JOIN TB_SD09M01 SD09
+				             ON SD09.SITE_CD = T.SITE_CD
+			WHERE 1=1
+			  <if test= "coCd != null and !coCd.equals('')">
+		 			AND T.CO_CD = #{coCd}
+				</if>
+				  AND TO_CHAR(TO_DATE(T.TRST_DT,'YYYYMMDD'),'YYYY') = #{salesYy} 
+				<if test= "selpchCd != null and !selpchCd.equals('')">
+		 			<if test= 'selpchCd == "SELPCH1"'>
+		 			AND T.SELPCH_CD IN ( #{selpchCd} , 'SELPCH3')
+		 			</if>
+		 			<if test= 'selpchCd == "SELPCH2"'>
+		 			AND T.SELPCH_CD IN ( #{selpchCd} , 'SELPCH4')
+		 			</if>
+				</if>
+				<if test= 'bill == "Y"'>
+		 			AND T.BILG_CERT_NO IS NOT NULL
+				</if>
+				<if test= 'bill == "N"'>
+		 			AND T.BILG_CERT_NO IS NULL
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND T.TRST_CLNT_CD = #{clntCd}
+				</if>
+				<if test= "clntNm != null and !clntNm.equals('')">
+		 			AND T.CLNT_NM  LIKE '%' || #{clntNm} || '%'
+				</if>
+				<if test= "trspRmk != null and !trspRmk.equals('')">
+		 			AND T.TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+				</if>
+				<if test="salesMng != null and !salesMng.equals('')">
+					AND T.SALES_MNG = #{salesMng}
+				</if>
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
+					AND T.PRDT_DIV = #{prdtDiv}
+				</if>
+				<if test="prdtStkn != null and !prdtStkn.equals('')">
+					AND T.PRDT_STKN = #{prdtStkn}
+				</if>
+				<if test= "prjctCd != null and !prjctCd.equals('')">
+		 			AND T.PRJCT_CD = #{prjctCd}
+				</if>
+				<if test= "siteCd != null and !siteCd.equals('')">
+		 			AND T.SITE_CD = #{siteCd}
+				</if>
+				<if test= "siteNm != null and !siteNm.equals('')">
+		 			AND SD09.SITE_NM like '%'|| #{siteNm} || '%'
+				</if>
+			GROUP BY T.TRST_CLNT_CD, T.CLNT_NM
+		)D
+		<where>
+		<if test= "salesMngNm != null and !salesMngNm.equals('')">
+		  D.SALES_MNG_NM LIKE '%' || #{salesMngNm} ||'%'
+		  </if>
+		</where>			
+	</select>
+
+	<select id="selectYySalesList" parameterType="Map" resultType="CamelMap">	
+	   SELECT *
+		FROM(
+			SELECT
+		   			ROWNUM AS RNUM, D.*
+	    	 FROM (
+	    	   SELECT
+					 T.TRST_CLNT_CD
+					,FN_CM05M01_CD_TO_NM((SELECT CLNT_DIV_CD FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD)) AS CLNT_DIV_NM
+					,T.CLNT_NM
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'01',BILG_WT,0))                 AS BILG_WT_01 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'01',BILG_AMT,0))                AS BILG_AMT_01
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'01',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_01 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'01',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_01					
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'02',BILG_WT,0))                 AS BILG_WT_02 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'02',BILG_AMT,0))                AS BILG_AMT_02
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'02',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_02 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'02',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_02
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'03',BILG_WT,0))                 AS BILG_WT_03
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'03',BILG_AMT,0))                AS BILG_AMT_03
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'03',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_03
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'03',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_03
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'04',BILG_WT,0))                 AS BILG_WT_04
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'04',BILG_AMT,0))                AS BILG_AMT_04
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'04',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_04
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'04',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_04
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'05',BILG_WT,0))                 AS BILG_WT_05 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'05',BILG_AMT,0))                AS BILG_AMT_05
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'05',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_05
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'05',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_05
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'06',BILG_WT,0))                 AS BILG_WT_06
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'06',BILG_AMT,0))                AS BILG_AMT_06
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'06',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_06
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'06',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_06
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'07',BILG_WT,0))                 AS BILG_WT_07
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'07',BILG_AMT,0))                AS BILG_AMT_07
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'07',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_07
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'07',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_07
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'08',BILG_WT,0))                 AS BILG_WT_08 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'08',BILG_AMT,0))                AS BILG_AMT_08
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'08',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_08 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'08',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_08
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'09',BILG_WT,0))                 AS BILG_WT_09 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'09',BILG_AMT,0))                AS BILG_AMT_09
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'09',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_09
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'09',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_09
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'10',BILG_WT,0))                 AS BILG_WT_10
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'10',BILG_AMT,0))                AS BILG_AMT_10
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'10',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_10 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'10',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_10
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'11',BILG_WT,0))                 AS BILG_WT_11 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'11',BILG_AMT,0))                AS BILG_AMT_11
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'11',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_11 
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'11',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_11
+					
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'12',BILG_WT,0))                 AS BILG_WT_12
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'12',BILG_AMT,0))                AS BILG_AMT_12
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'12',BILG_VAT_AMT,0))            AS BILG_VAT_AMT_12
+					,SUM(DECODE(SUBSTRING(TRST_DT,5,2),'12',BILG_AMT + BILG_VAT_AMT,0)) AS TOTAL_AMT_12
+					,SUM(BILG_WT) AS BILG_WT 
+					,SUM(BILG_AMT) AS BILG_AMT
+					,SUM(BILG_VAT_AMT) AS BILG_VAT_AMT 
+					,SUM(BILG_AMT + BILG_VAT_AMT) AS TOTAL_AMT
+				FROM TB_AR02M01 T
+				LEFT OUTER JOIN TB_SD09M01 SD09
+				             ON SD09.SITE_CD = T.SITE_CD
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND T.CO_CD = #{coCd}
+				</if>
+				  AND TO_CHAR(TO_DATE(T.TRST_DT,'YYYYMMDD'),'YYYY') = #{salesYy} 
+				<if test= "selpchCd != null and !selpchCd.equals('')">
+		 			<if test= 'selpchCd == "SELPCH1"'>
+		 			AND T.SELPCH_CD IN ( #{selpchCd} , 'SELPCH3')
+		 			</if>
+		 			<if test= 'selpchCd == "SELPCH2"'>
+		 			AND T.SELPCH_CD IN ( #{selpchCd} , 'SELPCH4')
+		 			</if>
+				</if>
+				<if test= 'bill == "Y"'>
+		 			AND T.BILG_CERT_NO IS NOT NULL
+				</if>
+				<if test= 'bill == "N"'>
+		 			AND T.BILG_CERT_NO IS NULL
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND T.TRST_CLNT_CD = #{clntCd}
+				</if>
+				<if test= "clntNm != null and !clntNm.equals('')">
+		 			AND T.CLNT_NM  LIKE '%' || #{clntNm} || '%'
+				</if>
+				<if test= "trspRmk != null and !trspRmk.equals('')">
+		 			AND T.TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+				</if>
+				<if test="salesMng != null and !salesMng.equals('')">
+					AND T.SALES_MNG = #{salesMng}
+				</if>
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
+					AND T.PRDT_DIV = #{prdtDiv}
+				</if>
+				<if test="prdtStkn != null and !prdtStkn.equals('')">
+					AND T.PRDT_STKN = #{prdtStkn}
+				</if>
+				<if test= "prjctCd != null and !prjctCd.equals('')">
+		 			AND T.PRJCT_CD = #{prjctCd}
+				</if>
+				<if test= "siteCd != null and !siteCd.equals('')">
+		 			AND T.SITE_CD = #{siteCd}
+				</if>
+				<if test= "siteNm != null and !siteNm.equals('')">
+		 			AND SD09.SITE_NM like '%'|| #{siteNm} || '%'
+				</if>
+				GROUP BY T.TRST_CLNT_CD, T.CLNT_NM
+				ORDER BY T.CLNT_NM
+			)D
+			<where>
+			<if test= "salesMngNm != null and !salesMngNm.equals('')">
+			  D.SALES_MNG_NM LIKE '%' || #{salesMngNm} ||'%'
+			  </if>
+			</where>
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+
+	
+</mapper>
