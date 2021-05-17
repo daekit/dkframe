@@ -7,11 +7,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.ar.ar08.mapper.AR08Mapper;
 import com.dksys.biz.user.ar.ar08.service.AR08Svc;
 
 @Service
+@Transactional("erpTransactionManager")
 public class AR08Svcmpl implements AR08Svc {
 	
     @Autowired
