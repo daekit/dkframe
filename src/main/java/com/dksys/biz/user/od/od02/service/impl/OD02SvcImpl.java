@@ -5,11 +5,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.od.od02.mapper.OD02Mapper;
 import com.dksys.biz.user.od.od02.service.OD02Svc;
 
 @Service
+@Transactional("erpTransactionManager")
 public class OD02SvcImpl implements OD02Svc {
     
 	@Autowired
