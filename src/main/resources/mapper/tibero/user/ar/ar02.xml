@@ -180,6 +180,7 @@
 				TB_AR02M01 T
 				LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
 				LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
+				LEFT JOIN TB_BM01M01 BM01    ON T.TRST_PRDT_CD = BM01.PRDT_CD
 		 	WHERE 
 		 		SELPCH_CD = #{selpchCd}
 			<if test="coCd != null and !coCd.equals('')">
@@ -240,6 +241,9 @@
 			<if test="trspRmk != null and !trspRmk.equals('')">
 				AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 			</if>
+			<if test="prdtGrp != null and !prdtGrp.equals('')">
+				AND BM01.PRDT_GRP = #{prdtGrp}
+			</if>
 			GROUP BY 
 				T.CO_CD
 				, T.TRST_CLNT_CD
@@ -285,6 +289,7 @@
 					TB_AR02M01 T
 					LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
 					LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
+					LEFT JOIN TB_BM01M01 BM01    ON T.TRST_PRDT_CD = BM01.PRDT_CD
 			 	WHERE 
 			 		SELPCH_CD = #{selpchCd}
 				<if test="coCd != null and !coCd.equals('')">
@@ -345,6 +350,9 @@
 				<if test="trspRmk != null and !trspRmk.equals('')">
 					AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
 				</if>
+				<if test="prdtGrp != null and !prdtGrp.equals('')">
+					AND BM01.PRDT_GRP = #{prdtGrp}
+				</if>
 				GROUP BY 
 					T.CO_CD
 					, T.TRST_CLNT_CD
@@ -371,6 +379,7 @@
 			COUNT(*)
 		FROM 
 			TB_AR02M01 T
+			LEFT JOIN TB_BM01M01 BM01M01 ON T.TRST_PRDT_CD = BM01M01.PRDT_CD
 			LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
 	 	WHERE 
 	 		SELPCH_CD = #{selpchCd}
@@ -431,6 +440,9 @@
 			</if>
 			<if test="trspRmk != null and !trspRmk.equals('')">
 				AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
+			</if>
+			<if test="prdtGrp != null and !prdtGrp.equals('')">
+				AND BM01M01.PRDT_GRP = #{prdtGrp}
 			</if>
 	</select>
 	
@@ -600,6 +612,9 @@
 					</if>
 					<if test="trspRmk != null and !trspRmk.equals('')">
 						AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
+					</if>
+					<if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND BM01M01.PRDT_GRP = #{prdtGrp}
 					</if>
 					ORDER BY TRST_DT, CLNT_NM, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
 			) A
