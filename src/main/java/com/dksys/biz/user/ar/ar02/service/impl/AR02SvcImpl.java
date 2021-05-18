@@ -319,8 +319,8 @@ public class AR02SvcImpl implements AR02Svc {
 		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
 		if(sd07result != null) {
 			int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
-			int closeDay = Integer.parseInt(sd07result.get("sellCloseDttm").replace("-", ""));
-			if("Y".equals(sd07result.get("sellCloseYn")) && today > closeDay) {
+			int closeDay = Integer.parseInt(sd07result.get("pchsCloseDttm").replace("-", ""));
+			if("Y".equals(sd07result.get("pchsCloseYn")) && today > closeDay) {
 				return true;
 			}
 		}

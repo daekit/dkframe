@@ -200,10 +200,6 @@ public class OD01SvcImpl implements OD01Svc {
 		 *    - 직송일 경우 매출확정 : 기존 매출이 (N)
 		 */
 		
-		//마감 체크
-		if(ar02Svc.checkPchsClose(paramMap)) {
-			return 500;
-		}
 		int result = 0;
 		int realTotTrstAmt = 0;
 		boolean creditFlag = false;
@@ -312,6 +308,11 @@ public class OD01SvcImpl implements OD01Svc {
 				double bilgAmtPchs     =  Double.parseDouble(detailMap.get("realDlvrAmt"));
 				if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
 					
+					//마감 체크
+					if(ar02Svc.checkPchsClose(paramMap)) {
+						return 500;
+					}	
+					
 					paramMap.put("clntCd", clntCd);
 			    	ar02Mapper.insertPchsSell(paramMap);
 			    	
@@ -372,7 +373,12 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
 
 				// P 매입확정, S 매출확정, A 일괄
-				//매출
+				//매출				
+				// 마감 체크....매출
+				if(ar02Svc.checkSellClose(paramMap)) {
+					return 501;
+				}
+				
 				od01Mapper.updateConfirmDetailS(detailMap);
 				ar02Mapper.insertPchsSell(paramMap);
 				
@@ -428,6 +434,7 @@ public class OD01SvcImpl implements OD01Svc {
 	}
 	@Override
 	public int updateCancel(Map<String, String> paramMap) {
+
 		int result = 0;
 		int realTotTrstAmt = 0;
 		boolean bilgFlag = false;
@@ -455,6 +462,11 @@ public class OD01SvcImpl implements OD01Svc {
 						break;
 					}
 				}
+				
+				// 마감 체크....매입
+				if(ar02Svc.checkPchsClose(paramMap)) {
+					return 500;
+				}				
 				ar02Mapper.deletePchsSell(detailMap); //   	 메입만 삭제
 			}
 
@@ -469,6 +481,11 @@ public class OD01SvcImpl implements OD01Svc {
 						break;
 					}
 				}
+				
+				//마감 체크 .. 매출
+				if(ar02Svc.checkSellClose(paramMap)) {
+					return 501;
+				}				
 				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
 			}   
 		
@@ -511,7 +528,6 @@ public class OD01SvcImpl implements OD01Svc {
 			return 0;
 		}
 
-		
 		// P 매입취소, A 일괄 취소
 		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 		od01Mapper.updateCancel(paramMap);
