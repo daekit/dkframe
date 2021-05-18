@@ -63,6 +63,7 @@
 					FROM TB_SM01D01 SM01
 					   , TB_BM01M01 BM01 
 					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
 					  <if test="coCd != null and !coCd.equals('')">
 					  	AND SM01.CO_CD = #{coCd}			
 					  	</if>	
@@ -93,6 +94,7 @@
 				 FROM TB_AR02M01 AR02
 					   , TB_BM01M01 BM01 
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
 					  <if test="coCd != null and !coCd.equals('')">
 							AND AR02.CO_CD   = #{coCd}				
 						</if>
@@ -320,7 +322,8 @@
 						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),SM01.STOCK_QTY,0) AS STOCK_QTY -- 현재고
 					FROM TB_SM01D01 SM01
 					   , TB_BM01M01 BM01 
-					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
+					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD		  
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
 					  <if test="coCd != null and !coCd.equals('')">
 					  	AND SM01.CO_CD = #{coCd}			
 					  	</if>	
@@ -350,7 +353,8 @@
 						 , 0 AS STOCK_QTY -- 현재고
 				 FROM TB_AR02M01 AR02
 					   , TB_BM01M01 BM01 
-					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
+					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD					  
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
 					  <if test="coCd != null and !coCd.equals('')">
 							AND AR02.CO_CD   = #{coCd}				
 						</if>
@@ -535,26 +539,29 @@
 	</select>
 	
 	<select id="selectRcvpayDtlList" resultType="CamelMap">
-	SELECT TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TRST_DT
-		 , TRSP_TYP_CD
-		 , FN_CM05M01_CD_TO_NM(TRSP_TYP_CD) TRSP_TYP_NM
-		 , PRDT_SPEC
-		 , PRDT_SIZE
-		 , PRDT_LEN
-		 , REAL_TRST_QTY
-		 , REAL_TRST_WT
-	  FROM TB_AR02M01
-	 WHERE SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')
-	   AND SELPCH_CD  = #{selpchCd}
-  	   AND CO_CD        = #{coCd}
-  	   AND WH_CD        = #{whCd}
-  	   AND TRST_PRDT_CD = #{prdtCd}
-  	   AND OWNER_CD     = #{ownerCd}
-  	   AND TRST_CLNT_CD = #{clntCd}
-  	   AND TYP_CD       = #{typCd}
-  	   AND MAKR_CD      = #{makrCd}
-  	   AND PRJCT_CD     = #{prjctCd}
-  	   AND IMP_YN       = #{impYn}
+	SELECT TO_CHAR(TO_DATE(AR02.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TRST_DT
+		 , AR02.TRSP_TYP_CD
+		 , FN_CM05M01_CD_TO_NM(AR02.TRSP_TYP_CD) TRSP_TYP_NM
+		 , AR02.PRDT_SPEC
+		 , AR02.PRDT_SIZE
+		 , AR02.PRDT_LEN
+		 , AR02.REAL_TRST_QTY
+		 , AR02.REAL_TRST_WT
+	  FROM TB_AR02M01 AR02
+		 INNER JOIN  TB_BM01M01 BM01 
+				ON	AR02.PRDT_CD   = BM01.PRDT_CD
+			   AND  BM01.PRDT_STOCK_CD = 'Y'
+	 WHERE SUBSTRING(AR02.TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')
+	   AND AR02.SELPCH_CD  = #{selpchCd}
+  	   AND AR02.CO_CD        = #{coCd}
+  	   AND AR02.WH_CD        = #{whCd}
+  	   AND AR02.TRST_PRDT_CD = #{prdtCd}
+  	   AND AR02.OWNER_CD     = #{ownerCd}
+  	   AND AR02.TRST_CLNT_CD = #{clntCd}
+  	   AND AR02.TYP_CD       = #{typCd}
+  	   AND AR02.MAKR_CD      = #{makrCd}
+  	   AND AR02.PRJCT_CD     = #{prjctCd}
+  	   AND AR02.IMP_YN       = #{impYn}
   	 UNION
   	 SELECT SUBSTRING(SM02.TRST_DT,0,6) 
   	        , 'TRSPTYP5'
