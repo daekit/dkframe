@@ -311,13 +311,16 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("stockUpr", detailMap.get("realDlvrUpr"));
 					paramMap.put("stdUpr",   detailMap.get("realDlvrUpr"));
 					paramMap.put("stockQty", detailMap.get("realDlvrQty"));
+					paramMap.put("stockWt",  detailMap.get("realDlvrWt"));
 				} else {
 					paramMap.put("pchsUpr",  detailMap.get("realDlvrUpr"));
 					paramMap.put("sellUpr",  stockInfo.get("sellUpr"));
 					paramMap.put("stockUpr", stockInfo.get("stockUpr"));
 					paramMap.put("stdUpr",   stockInfo.get("stdUpr"));
 					int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
+					int stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));
+					paramMap.put("stockWt" , String.valueOf(stockWt));
 				}
 			}			
 			
@@ -397,12 +400,15 @@ public class OD01SvcImpl implements OD01Svc {
 					}
 					Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 //					if(stockInfo == null) {
-//						paramMap.put("stockQty", detailMap.get("realDlvrQty"));
+//					paramMap.put("stockQty", detailMap.get("realDlvrQty"));
+//					paramMap.put("stockWt",  detailMap.get("realDlvrWt"));
 //					
 //					} else {
 						int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
+						int stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(detailMap.get("realDlvrWt"));
 						paramMap.put("stockQty", String.valueOf(stockQty));
-						paramMap.put("sellUpr", detailMap.get("shipUpr"));
+						paramMap.put("stockWt",  String.valueOf(stockWt));
+						paramMap.put("sellUpr",  detailMap.get("shipUpr"));
 //					}			
 					sm01Mapper.updateStockSell(paramMap);
 				}
@@ -521,13 +527,16 @@ public class OD01SvcImpl implements OD01Svc {
 				
 				Map<String, String> stockInfo =null;
 				int stockQty = 0;
+				int stockWt  = 0;
 				
 				// P 매입취소, A 일괄 취소 : 매입이 Y 인경우
 				if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
 				
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
 					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));					
+					paramMap.put("stockWt" , String.valueOf(stockWt));					
 				     sm01Mapper.updateStockCancel(paramMap);
 				}
 				
@@ -536,7 +545,9 @@ public class OD01SvcImpl implements OD01Svc {
 				  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
 					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));
+					paramMap.put("stockWt" , String.valueOf(stockWt));
 					sm01Mapper.updateStockCancel(paramMap);
 				}
 			}	
