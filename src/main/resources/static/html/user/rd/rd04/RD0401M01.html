@@ -205,9 +205,11 @@
 	                    {},
 	                    {},
 	                    {key: "bfrStockQty", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "selpch1Qty", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "selpch2Qty", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "stockQty", collector: "sum", formatter:"money", align: "right"}
+	                    {key: "selpch1Qty",  collector: "sum", formatter:"money", align: "right"},
+			        	{key: "inMoveQty",   collector: "sum", formatter:"money", align: "right"},
+			        	{key: "selpch2Qty",	 collector: "sum", formatter:"money", align: "right"},
+			        	{key: "outMoveQty",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "stockQty",    collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
 				page : {
@@ -296,9 +298,11 @@
 		                    {},
 		                    {},
 		                    {key: "bfrStockQty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "selpch1Qty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "selpch2Qty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "stockQty", collector: "sum", formatter:"money", align: "right"}
+		                    {key: "selpch1Qty",  collector: "sum", formatter:"money", align: "right"},
+				        	{key: "inMoveQty",   collector: "sum", formatter:"money", align: "right"},
+				        	{key: "selpch2Qty",	 collector: "sum", formatter:"money", align: "right"},
+				        	{key: "outMoveQty",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "stockQty",    collector: "sum", formatter:"money", align: "right"}
 				    	]
 				    ],
 					columns: [
@@ -327,6 +331,9 @@
 			        	{key: "impYn",     		label: "수입여부",    align: "center", width: 40},
 			        	{key: "bfrStockQty",    label: "전월재고",    align: "right", width: 100, formatter: "money"},
 			        	{key: "selpch1Qty",     label: "입고",  	  align: "right",   width:100, formatter: "money"},
+			        	{key: "inMoveQty",      label: "이동입고",   align: "right",   width:100, formatter: "money"},
+			        	{key: "selpch2Qty",	    label: "출고", 		align: "right", width:100, formatter: "money"},
+			        	{key: "outMoveQty",     label: "이동출고",   align: "right",   width:100, formatter: "money"},
 			        	{key: "selpch2Qty",	    label: "출고", 		align: "right", width:100, formatter: "money"},
 			        	{key: "stockQty",  		label: "현재고",    align: "right", width: 100, formatter: "money"},
 			        ]
@@ -420,12 +427,14 @@
 	
 	function excelDown() {
 		var targetObj = this.target;
-		var paramObj = {"pageNo" : 1,
-		                "recordCnt" : 9999999};
+		
+		var paramObj = {"pageNo" : 1};
+		
 		for(var i=0;i<$('[data-search]').length;i++){
 			var tempElem = $('[data-search]')[i];
 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
 		}
+		paramObj["recordCnt"] = 9999999;
 		
 		postAjax("/user/rd/rd04/selectRcvpayList", paramObj, null, function(data) {
 			var list = data.resultList;				

@@ -546,15 +546,69 @@
 	  FROM TB_AR02M01
 	 WHERE SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')
 	   AND SELPCH_CD  = #{selpchCd}
-  	   AND CO_CD = #{coCd}
-  	   AND WH_CD = #{whCd}
+  	   AND CO_CD        = #{coCd}
+  	   AND WH_CD        = #{whCd}
   	   AND TRST_PRDT_CD = #{prdtCd}
-  	   AND OWNER_CD = #{ownerCd}
+  	   AND OWNER_CD     = #{ownerCd}
   	   AND TRST_CLNT_CD = #{clntCd}
-  	   AND TYP_CD = #{typCd}
-  	   AND MAKR_CD = #{makrCd}
-  	   AND PRJCT_CD = #{prjctCd}
-  	   AND IMP_YN = #{impYn}
+  	   AND TYP_CD       = #{typCd}
+  	   AND MAKR_CD      = #{makrCd}
+  	   AND PRJCT_CD     = #{prjctCd}
+  	   AND IMP_YN       = #{impYn}
+  	 UNION
+  	 SELECT SUBSTRING(SM02.TRST_DT,0,6) 
+  	        , 'TRSPTYP5'
+		    , FN_CM05M01_CD_TO_NM('TRSPTYP5') TRSP_TYP_NM
+			, SM02.IN_PRDT_SPEC
+			, SM02.IN_PRDT_SIZE
+			, SM02.IN_PRDT_LEN
+			, SUM(NVL(SM02.MOVE_QTY,0)) * -1 AS IN_MOVE_QTY
+		    , SUM(NVL(SM02.MOVE_WT,0)) * -1 AS IN_MOVE_WT
+	   FROM TB_SM02M01 SM02
+		 INNER JOIN  TB_BM01M01 BM01 
+				ON	SM02.IN_PRDT_CD   = BM01.PRDT_CD
+	  WHERE	 SUBSTRING(SM02.TRST_DT,0,6)  = REPLACE('202105', '-', '')
+	    AND 'SELPCH1'        = #{selpchCd}
+  	    AND SM02.IN_CO_CD    = #{coCd}
+  	    AND SM02.IN_WH_CD    = #{whCd}
+  	    AND SM02.IN_PRDT_CD  = #{prdtCd}
+  	    AND SM02.OWNER_CD    = #{ownerCd}
+  	    AND SM02.CLNT_CD     = #{clntCd}
+  	    AND SM02.IN_TYP_CD   = #{typCd}
+  	    AND SM02.MAKR_CD     = #{makrCd}
+  	    AND SM02.IN_PRJCT_CD = #{prjctCd}
+  	    AND SM02.IMP_YN      = #{impYn}
+  	    GROUP BY SUBSTRING(SM02.TRST_DT,0,6) 
+			, SM02.IN_PRDT_SPEC
+			, SM02.IN_PRDT_SIZE
+			, SM02.IN_PRDT_LEN
+  	 UNION
+  	 SELECT SUBSTRING(SM02.TRST_DT,0,6) 
+  	        , 'TRSPTYP5'
+		    , FN_CM05M01_CD_TO_NM('TRSPTYP5') TRSP_TYP_NM
+			, SM02.PRDT_SPEC
+			, SM02.PRDT_SIZE
+			, SM02.PRDT_LEN
+			, SUM(NVL(SM02.MOVE_QTY,0)) AS OUT_MOVE_QTY
+		    , SUM(NVL(SM02.MOVE_WT,0))  AS OUT_MOVE_WT
+	   FROM TB_SM02M01 SM02
+		 INNER JOIN  TB_BM01M01 BM01 
+				ON	SM02.IN_PRDT_CD   = BM01.PRDT_CD
+	  WHERE	 SUBSTRING(SM02.TRST_DT,0,6)  = REPLACE('202105', '-', '')
+	    AND 'SELPCH2'      = #{selpchCd}
+  	    AND SM02.OUT_CO_CD = #{coCd}
+  	    AND SM02.IN_WH_CD  = #{whCd}
+  	    AND SM02.PRDT_CD   = #{prdtCd}
+  	    AND SM02.OWNER_CD  = #{ownerCd}
+  	    AND SM02.CLNT_CD   = #{clntCd}
+  	    AND SM02.TYP_CD    = #{typCd}
+  	    AND SM02.MAKR_CD   = #{makrCd}
+  	    AND SM02.PRJCT_CD  = #{prjctCd}
+  	    AND SM02.IMP_YN    = #{impYn}  	
+  	    GROUP BY SUBSTRING(SM02.TRST_DT,0,6) 
+			, SM02.PRDT_SPEC
+			, SM02.PRDT_SIZE
+			, SM02.PRDT_LEN   
 	</select>
 </mapper>
 <!-- 
