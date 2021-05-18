@@ -74,6 +74,7 @@
 					    , A.STOCK_CHG_CD
 					    , FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
 						, A.STOCK_QTY
+						, A.STOCK_WT
 						, A.STOCK_UPR
 						, (A.STOCK_QTY*A.STOCK_UPR) as STOCK_AMT
 						, A.STD_UPR
@@ -208,6 +209,7 @@
 						, A.STOCK_UPR
 						, A.STOCK_QTY
 						, (NVL(A.STOCK_UPR,0) * NVL(A.STOCK_QTY,0)) AS STOCK_AMT
+						, A.STOCK_WT
 						, A.STD_UPR
 						, A.PCHS_UPR 
 						, A.SELL_UPR 
@@ -286,6 +288,7 @@
 			, FN_CM05M01_CD_TO_NM(A.STOCK_CHG_CD) AS STOCK_CHG_NM
 			, A.STOCK_AMT
 			, A.STOCK_QTY
+			, A.STOCK_WT
 			, A.STOCK_UPR
 			, A.STD_UPR
 			, A.PCHS_UPR 
@@ -364,6 +367,7 @@
 		WHEN MATCHED THEN
 			UPDATE SET
 				STOCK_QTY    = #{stockQty},
+				STOCK_WT     = #{stockWt},
 				SELL_UPR     = #{sellUpr},
 				STOCK_CHG_CD = #{stockChgCd},
 				UDT_ID       = #{userId},
@@ -383,6 +387,7 @@
 		        PRJCT_CD,
 		        IMP_YN,
 		        STOCK_QTY,
+		        STOCK_WT,
 		        STOCK_UPR,
 		        STD_UPR,
 		        PCHS_UPR,
@@ -410,6 +415,7 @@
 				#{prjctCd},
 				#{impYn},
 				#{stockQty},
+				#{stockWt},
 				#{stockUpr},
 				#{stdUpr},
 				#{pchsUpr},
@@ -440,6 +446,7 @@
 	<update id="updateStockCancel" parameterType="Map">
 		UPDATE TB_SM01M01
 		SET STOCK_QTY = #{stockQty}
+		   ,STOCK_WT  = #{stockWt}
 		WHERE   CO_CD     = #{coCd}
 			AND WH_CD     = #{whCd}
 			AND PRDT_CD   = #{prdtCd}
