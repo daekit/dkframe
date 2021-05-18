@@ -186,7 +186,7 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
 		//마감 체크
-		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
+//		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
 		if(ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
