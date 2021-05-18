@@ -22,11 +22,14 @@
 			<a class="btn btn-default btn-sm" onclick="detailMaterial('C');">등록</a>
 			<a class="btn btn-default btn-sm" onclick="detailMaterial('U');">수정</a>
 			<a class="btn btn-default btn-sm" onclick="deleteMaterial();">삭제</a>
+  		    <a class="btn btn-default btn-sm" onclick="excelDown();"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
+
 		</div>
 	</div>
 </div>
 <div class="row">
 	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+	<div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 </div>
 
 <script type="text/javascript">
@@ -83,7 +86,8 @@
 		        	{key: "prdtMesCd",    label: "MES코드",	      align: "center"},
 		        	{key: "prdtLen",      label: "기준길이",	      align: "right",	width:60},
 		        	{key: "prdtStockCd",  label: "재고관리",	      align: "center",	width:60},
-		        	{key: "useYn",        label: "사용",			  align: "center",	width:60}
+		        	{key: "useYn",        label: "사용",			  align: "center",	width:60},
+		        	{key: "rmk",          label: "비고",			  align: "center",	width:120},
 		        ]
 		    });
 			return this;
@@ -110,7 +114,43 @@
 			});
 		}
 	}
-	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			        	{key: "prdtCd",       label: "제품코드",		  align: "center"},
+			        	{key: "prdtNm",       label: "제품명",	      align: "left",	width:160},
+			        	{key: "prdtUnitNm",   label: "단위",			  align: "center",	width:50},
+			        	{key: "prdtGrpNm",    label: "제품그룹",		  align: "center",	width:70},
+			        	{key: "prdtDivNm",    label: "제품구분",		  align: "center",	width:70},
+			        	{key: "prdtStknNm",   label: "제품상세",		  align: "center"},
+			        	{key: "prdtSpecNm",   label: "제품규격",		  align: "left",	width:100},
+ 			        	{key: "prdtSize",     label: "사이즈",	      align: "left",	width:100},
+			        	{key: "prdtSpec",     label: "SPEC",	      align: "left",	width:100},
+			        	{key: "prdtLen",      label: "길이",	     	  align: "left",	width:100},
+			        	{key: "prdtErqkYn",   label: "내진여뷰",			  align: "center",	width:60},
+			        	{key: "prdtCoilYn",   label: "코일여부",			  align: "center",	width:60},
+			        	{key: "prdtWt",       label: "단위중량",		  align: "right",	width:80},
+			        	{key: "prdtCnvrsnWt", label: "환산중량",		  align: "right",	width:80},
+			        	{key: "prdtUpr",      label: "기준단가",		  align: "right"},
+			        	{key: "prdtDt",       label: "기준일자",		  align: "center"},
+			        	{key: "prdtDkCd",     label: "동국제강코드",      align: "center",  width:100},
+			        	{key: "prdtMesCd",    label: "MES코드",	      align: "center"},
+			        	{key: "prdtStockCd",  label: "재고관리여부",	      align: "center",	width:60},
+			        	{key: "useYn",        label: "사용",			  align: "center",	width:60},
+			        	{key: "rmk",          label: "비고",			  align: "center",	width:60},
+			        	{key: "prdtUnit",     label: "단위코드",			  align: "center",	width:60},
+			        	{key: "prdtGrp",      label: "제품그룹코드",		  align: "center",	width:70},
+			        	{key: "prdtDiv",   	  label: "제품구분코드",		  align: "center",	width:70},
+			        	{key: "prdtStkn",     label: "제품상세코드",		  align: "center"},
+// 			        	{key: "prdtSizeNm",   label: "사이즈",	      align: "left",	width:100},
+			        ]
+			    });
+				return this;
+		}
+	}
 	$(document).ready(function() {
 		setCommonSelect($('select[data-kind]'));
 		
@@ -122,6 +162,7 @@
 //		.datepicker("setDate", new Date());
 		
 		gridView.initView().setData(0);
+		excelView.initView();
 	})
 	
 	function setPrdtStkn(elem, target){
@@ -161,6 +202,27 @@
 				alert(data.resultMessage);
 				gridView.setData(gridView.target.page.currentPage);
 			}
+		});
+	}
+	
+	function excelDown() {
+		var paramObj = {"pageNo":  1};
+		
+		$.each($('[data-search]'), function(idx, elem){
+			paramObj[$(elem).data("search")] = $(elem).val();
+		});
+		debugger;
+		paramObj["recordCnt"] =  9999999;		
+		postAjax("/admin/bm/bm01/selectMaterialList", paramObj, null, function(data){
+			var list = data.materialList;
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : data.paginationInfo.totalRecordCount
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("자재목록_"+todayDate+".xls");
 		});
 	}
 </script>
