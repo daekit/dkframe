@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sm.sm02.mapper.SM02Mapper;
 import com.dksys.biz.user.sm.sm02.service.SM02Svc;
+import com.dksys.biz.util.DateUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -22,6 +24,8 @@ public class SM02Svcmpl implements SM02Svc {
     @Autowired
     SM02Mapper sm02Mapper;
 
+	@Autowired
+	SD07Mapper sd07Mapper;
     
 	@Override
 	public List<Map<String, String>> selectCmnCodeList(Map<String, String> param) {
@@ -86,11 +90,18 @@ public class SM02Svcmpl implements SM02Svc {
 	 */
 
 	@Override
-	public void sm01UpdateInsertStockMove(Map<String, String> param) {
+	public int sm01UpdateInsertStockMove(Map<String, String> param) {
+		
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		Type map = new TypeToken<Map<String, String>>() {}.getType();
 		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
+		//마감 체크 .. 매출
+		param.put("coCd",  detail.get("sCoCd"));
+		param.put("sTransDt",  detail.get("sTransDt"));
+		if(checkStockClose(param)) {
+			return 500;
+		}			
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
 			detailMap.put("userId",    param.get("userId").toString());
@@ -110,15 +121,25 @@ public class SM02Svcmpl implements SM02Svc {
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 		}
+		return 200;
 		
 	}
 
 	@Override
-	public void sm01UpdateInsertBarterStockMove(Map<String, String> param) {
+	public int sm01UpdateInsertBarterStockMove(Map<String, String> param) {
+
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		Type map = new TypeToken<Map<String, String>>() {}.getType();
-		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
+		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);	
+
+		//마감 체크 .. 매출
+		param.put("coCd",  detail.get("sCoCd"));
+		param.put("sTransDt",  detail.get("sTransDt"));
+		if(checkStockClose(param)) {
+			return 500;
+		}	
+		
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
 			detailMap.put("userId",    param.get("userId").toString());
@@ -138,7 +159,23 @@ public class SM02Svcmpl implements SM02Svc {
 			sm02Mapper.sm01UpdateStockMove(detailMap);
 			sm02Mapper.sm02InsertBarterStockMove(detailMap);
 		}
+		return 200;
 		
+	}
+	
+	@Override
+	public boolean checkStockClose(Map<String, String> paramMap) {
+		String trstDt = paramMap.get("sTransDt").replace("-", "");
+		paramMap.put("closeYm", trstDt.substring(0,6));
+		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
+		if(sd07result != null) {
+			int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
+			int closeDay = Integer.parseInt(sd07result.get("stockCloseDttm").replace("-", ""));
+			if("Y".equals(sd07result.get("stockCloseYn")) && today > closeDay) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }

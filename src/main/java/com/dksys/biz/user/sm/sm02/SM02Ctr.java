@@ -85,21 +85,35 @@ public class SM02Ctr {
     //일반 재고 이동 등록
     @PutMapping("/insertUpdateStockMove")
     public String insertUpdateStockMove(@RequestBody Map<String, String> param, ModelMap model) {
-    	sm02svc.sm01UpdateInsertStockMove(param);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-    	
-    	return "jsonView";
-    }
+		int result = sm02svc.sm01UpdateInsertStockMove(param);    	
+		if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else if(result == 500) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("stockClose"));
+		} else {
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}
+		return "jsonView";
+	}
     
     //바터 재고 이동 등록
     @PutMapping("/insertUpdateBarterStockMove")
     public String insertUpdateBarterStockMove(@RequestBody Map<String, String> param, ModelMap model) {
-    	sm02svc.sm01UpdateInsertBarterStockMove(param);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-    	
-    	return "jsonView";
-    }
+		int result = sm02svc.sm01UpdateInsertBarterStockMove(param);    	
+		if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else if(result == 500) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("stockClose"));
+		} else {
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}
+		return "jsonView";
+	}
     
 }
