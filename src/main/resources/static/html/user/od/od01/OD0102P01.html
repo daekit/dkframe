@@ -26,7 +26,7 @@
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
-						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" required>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value);" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -43,7 +43,7 @@
 					<td>
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd">
-							<input type="text" id="clntNm" msg="매입거래처" readonly required onchange="checkClnt()">
+							<input type="text" id="clntNm" msg="매입거래처" readonly required">
 							<a onclick="openSecondClntSearch('PUR');">
 								<i class="i_search_w"></i>
 							</a>
@@ -51,7 +51,7 @@
 					</td>
 					<th class="hit">재고주체</th>
 					<td>
-						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required onchange="checkClnt()">
+						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -59,7 +59,7 @@
 					<td class="drctArea">
 						<div class="search_form">
 							<input type="hidden" id="sellClntCd" name="sellClntCd">
-							<input type="text" id="sellClntNm" name="sellClntNm" msg="매출거래처" readonly required  onchange="checkClnt()">
+							<input type="text" id="sellClntNm" name="sellClntNm" msg="매출거래처" readonly required>
 							<a onclick="openSecondClntSearch('SELL');">
 								<i class="i_search_w"></i>
 							</a>
@@ -659,11 +659,56 @@
 		$('#whCd option:not([value=""])').remove()
 		setCommonSelect($('#whCd'));
 		
-  	// 창고와 판매법인은 같이 바귐.		
-
+  		// 창고와 판매법인은 같이 바귐.		
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
+	}
+	
+	function setBySellType(value){
+		// 판매유형
+		// SELLTYPE1: 유통
+		// SELLTYPE2: 가공
+		// SELLTYPE4: 임가공
+		
+		// 재고주체
+		// OWNER1: 자사
+		// OWNER2: 제강사
+		// OWNER3: 건설사
+		// OWNER4: 기타
+		
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2"){
+		// 판매유형이 선택, 유통, 가공일때
+			
+			// 재고주체 초기화
+			$('#ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ownerCd'));
+			
+			if(value == ""){
+			// 판매유형이 선택일때
+				// 재고주체 활성화
+				$('#ownerCd').prop("disabled", false);
+			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
+			// 판매유형이 유통, 가공일때
+				// 재고주체 자사 set, 비활성화
+				$('#ownerCd').val("OWNER1");
+				$('#ownerCd').prop("disabled", true);
+			}
+			
+			// 직송여부 Y set
+			$('#dirtrsYn').val("Y");
+			$('#dirtrsYn').prop("disabled", false);
+			ctrlDirtrs();
+		}else if(value == "SELLTYPE4"){
+		// 판매유형이 임가공일때
+			// 재고주체에서 자사 삭제
+			$('#ownerCd option[value="OWNER1"]').remove();
+			$('#ownerCd').prop("disabled", false);
+			// 직송여부 N set
+			$('#dirtrsYn').val("N");
+			$('#dirtrsYn').prop("disabled", true);
+			ctrlDirtrs();
+		}
 	}
 	
 	// 직송여부 변경
@@ -743,16 +788,7 @@
 					}
 				});	
 			}
-			checkClnt();
 		});
-	}
-	
-	function checkClnt(){
-		var owner = $('#ownerCd').val();
-		if(owner != "OWNER1" && $('#dirtrsYn').val() == 'Y' ){   // 직송이면서 자사소유가 아닐경우 매입거래처 = 매출거래처 
-			$('#sellClntCd').val($('#clntCd').val());   //
-			$('#sellClntNm').val($('#clntNm').val());   //
-		}
 	}
 	
 	// 입고창고 변경시 계산서발행법인 set
