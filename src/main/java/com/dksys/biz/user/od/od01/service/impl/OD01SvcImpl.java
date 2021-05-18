@@ -200,6 +200,27 @@ public class OD01SvcImpl implements OD01Svc {
 		 *    - 직송일 경우 매출확정 : 기존 매출이 (N)
 		 */
 		
+		
+/* 마감체크 부문 */
+		// 매입 N 이면서  P 매입확정, A 일괄인 경우 매입확정
+		if("P".equals(paramMap.get("comfirmType"))|| "A".equals(paramMap.get("comfirmType"))) {
+				//마감 체크
+				if(ar02Svc.checkPchsClose(paramMap)) {
+					return 500;
+				}	
+		}		
+		   // 직송이면서 매출여부 N인경우 매출확정 시작
+        if("Y".equals(paramMap.get("dirtrsYn"))) {		
+		       // 전체 확정인 경우는 진행
+		       // 매출확정이면서 매입이 확정이 된경우   P 매입확정, S 매출확정, A 일괄
+		      if ( "A".equals(paramMap.get("comfirmType")) ||  "S".equals(paramMap.get("comfirmType"))) {
+				// 마감 체크....매출
+				if(ar02Svc.checkSellClose(paramMap)) {
+					return 501;
+				}		
+		      }
+        }
+//-----------------------------------------------------------------------------------------------------------------------------------------------		
 		int result = 0;
 		int realTotTrstAmt = 0;
 		boolean creditFlag = false;
@@ -307,15 +328,8 @@ public class OD01SvcImpl implements OD01Svc {
 				//매입, 매입금액이 없는 경우 매입내역 등록 안함.
 				double bilgAmtPchs     =  Double.parseDouble(detailMap.get("realDlvrAmt"));
 				if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
-					
-					//마감 체크
-					if(ar02Svc.checkPchsClose(paramMap)) {
-						return 500;
-					}	
-					
 					paramMap.put("clntCd", clntCd);
 			    	ar02Mapper.insertPchsSell(paramMap);
-			    	
 			    	if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 					{
 			    		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
@@ -371,13 +385,6 @@ public class OD01SvcImpl implements OD01Svc {
 				
 				long bilgVatAmt2 = ar02Mapper.selectBilgVatAmt(paramMap);
 				paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
-
-				// P 매입확정, S 매출확정, A 일괄
-				//매출				
-				// 마감 체크....매출
-				if(ar02Svc.checkSellClose(paramMap)) {
-					return 501;
-				}
 				
 				od01Mapper.updateConfirmDetailS(detailMap);
 				ar02Mapper.insertPchsSell(paramMap);
@@ -435,6 +442,14 @@ public class OD01SvcImpl implements OD01Svc {
 	@Override
 	public int updateCancel(Map<String, String> paramMap) {
 
+		// 작업 시작전에 매입은 체크 매출은 건별로 체크
+		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+			// 마감 체크....매입
+			if(ar02Svc.checkPchsClose(paramMap)) {
+				return 500;
+			}				
+		}
+		
 		int result = 0;
 		int realTotTrstAmt = 0;
 		boolean bilgFlag = false;
@@ -443,6 +458,11 @@ public class OD01SvcImpl implements OD01Svc {
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
 		String clntCd = paramMap.get("clntCd");
+
+		// 매출만 있는 경우에 매입을 취소하기 위
+		for(Map<String, String> detailMap : detailList) {
+
+		}		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -450,6 +470,28 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
 			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
+
+			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+				
+				if("Y".equals(detailMap.get("shipYn"))){
+					//마감 체크 .. 매출   ,   매출없이 매입만 있는 경우 매출에 대한 마감이 진행 중이면.. 매입도 마감이 아니어도 취소가 안됨.해서 매출 건별로 먼저 체크함.
+					if(ar02Svc.checkSellClose(paramMap)) {
+						return 501;
+					}				
+				}
+			    od01Mapper.updateCancelDetailS(detailMap);
+			    detailMap.put("selpchCd", "SELPCH2");
+			    //매출확정 체크
+				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+				for (Map<String, String> map : bilgList) {
+					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+						bilgFlag = true;
+						break;
+					}
+				}
+				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
+			} 
+			
 			// P 매입취소, S 매출취소, A 일괄 취소 
 			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			    od01Mapper.updateCancelDetail(detailMap);
@@ -461,33 +503,9 @@ public class OD01SvcImpl implements OD01Svc {
 						bilgFlag = true;
 						break;
 					}
-				}
-				
-				// 마감 체크....매입
-				if(ar02Svc.checkPchsClose(paramMap)) {
-					return 500;
 				}				
 				ar02Mapper.deletePchsSell(detailMap); //   	 메입만 삭제
-			}
-
-			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
-			    od01Mapper.updateCancelDetailS(detailMap);
-			    detailMap.put("selpchCd", "SELPCH2");
-			    //매출확정 체크
-				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
-				for (Map<String, String> map : bilgList) {
-					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
-						bilgFlag = true;
-						break;
-					}
-				}
-				
-				//마감 체크 .. 매출
-				if(ar02Svc.checkSellClose(paramMap)) {
-					return 501;
-				}				
-				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
-			}   
+			} 
 		
 			//재고원복
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 

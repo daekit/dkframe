@@ -105,6 +105,12 @@ public class OD01Ctr {
 		if(result == 0) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("bilgComplete"));
+		} else if(result == 500) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
+		} else if(result == 501) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
 		} else {
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("cancel"));

@@ -186,8 +186,9 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
 		//마감 체크
+		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
 		if(ar02Svc.checkSellClose(paramMap)) {
-			return 501;
+			return 500;
 		}
 		int result = 0;
 		int realTotTrstAmt = 0;
@@ -245,6 +246,7 @@ public class AR01SvcImpl implements AR01Svc {
 			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
 			realTotTrstAmt += bilgVatAmt;
+			
 			ar02Mapper.insertPchsSell(paramMap);
 			
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
@@ -421,8 +423,9 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateCancel(Map<String, String> paramMap) {
 		
 		//마감 체크
+//		paramMap.put("dlvrDttm", paramMap.get("dlvrDttm"));
 		if(ar02Svc.checkSellClose(paramMap)) {
-			return 501;
+			return 500;
 		}
 		
 		int result = 0;
