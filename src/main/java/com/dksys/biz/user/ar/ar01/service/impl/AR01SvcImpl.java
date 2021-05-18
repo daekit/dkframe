@@ -187,7 +187,7 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateConfirm(Map<String, String> paramMap) {
 		//마감 체크
 		if(ar02Svc.checkSellClose(paramMap)) {
-			return 500;
+			return 501;
 		}
 		int result = 0;
 		int realTotTrstAmt = 0;
@@ -419,6 +419,12 @@ public class AR01SvcImpl implements AR01Svc {
 
 	@Override
 	public int updateCancel(Map<String, String> paramMap) {
+		
+		//마감 체크
+		if(ar02Svc.checkSellClose(paramMap)) {
+			return 501;
+		}
+		
 		int result = 0;
 		int realTotTrstAmt = 0;
 		boolean bilgFlag = false;
