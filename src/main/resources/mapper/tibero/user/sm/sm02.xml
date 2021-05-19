@@ -302,7 +302,7 @@
 			   PCHS_UPR,
 			   SELL_UPR,
 			   PROPRT_STOCK_QTY,
-			   'STOCKCHG6',
+			   'STOCKCHG06',
 			   #{userId},
 			   #{pgmId}, 
 			   SYSDATE 
@@ -323,7 +323,9 @@
 		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0)
 		)
 		WHEN MATCHED THEN 
-			UPDATE SET   ( STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+			UPDATE SET   ( STOCK_QTY )= ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
+			           ,(STOCK_WT ) = ( SELECT STOCK_WT + #{moveWt} AS STOCK_Wt FROM TB_SM01M01 
 			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
 		WHEN NOT MATCHED THEN 
 		INSERT
@@ -375,7 +377,7 @@
 		   S.PCHS_UPR,
 		   S.SELL_UPR,
 		   S.PROPRT_STOCK_QTY,
-		   'STOCKCHG6',
+		   'STOCKCHG06',
 		   #{userId},
 		   #{pgmId}, 
 		   SYSDATE)
@@ -409,7 +411,8 @@
 			STD_UPR,
 			PCHS_UPR, 
 			SELL_UPR,	
-			MOVE_QTY, 
+			MOVE_QTY,
+			MOVE_WT,
 			RMK,	
 			CREAT_ID, 
 			CREAT_PGM, 
@@ -444,6 +447,7 @@
 			#{pchsUpr}, 
 			#{sellUpr},
 			#{moveQty},
+			#{moveWt},
 			#{sRmk},
 			#{userId}, 
 			#{pgmId}, 
@@ -470,13 +474,14 @@
 			   PRJCT_CD,
 			   IMP_YN,
 			   #{moveQty} AS STOCK_QTY,
+			   #{moveWt} AS STOCK_Wt,
 			   STOCK_UPR,
 			   STOCK_AMT,
 			   STD_UPR,
 			   PCHS_UPR,
 			   SELL_UPR,
 			   PROPRT_STOCK_QTY,
-			   'STOCKCHG6',
+			   'STOCKCHG06',
 			   #{userId},
 			   #{pgmId}, 
 			   SYSDATE
@@ -499,6 +504,8 @@
 		WHEN MATCHED THEN 
 			UPDATE SET   ( STOCK_QTY ) = ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
 			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
+			 	        ,( STOCK_WT ) = ( SELECT STOCK_WT + #{moveWt} AS STOCK_WT FROM TB_SM01M01 
+			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )                   
 		WHEN NOT MATCHED THEN 
 		INSERT
 		(
@@ -516,6 +523,7 @@
 		   PRJCT_CD,
 		   IMP_YN,
 		   STOCK_QTY,
+		   STOCK_WT,
 		   STOCK_UPR,
 		   STOCK_AMT,
 		   STD_UPR,
@@ -541,13 +549,14 @@
 		   S.PRJCT_CD,
 		   S.IMP_YN,
 		   S.STOCK_QTY,
+		   S.STOCK_WT,
 		   S.STOCK_UPR,
 		   S.STOCK_AMT,
 		   S.STD_UPR,
 		   S.PCHS_UPR,
 		   S.SELL_UPR,
 		   S.PROPRT_STOCK_QTY,
-		   'STOCKCHG6',
+		   'STOCKCHG06',
 		   #{userId},
 		   #{pgmId}, 
 		   SYSDATE)
@@ -582,6 +591,7 @@
 			PCHS_UPR, 
 			SELL_UPR,	
 			MOVE_QTY, 
+			MOVE_WT, 
 			RMK,	
 			CREAT_ID, 
 			CREAT_PGM, 
@@ -616,6 +626,7 @@
 			#{pchsUpr}, 
 			#{sellUpr},
 			#{moveQty},
+			#{moveWt},
 			#{sRmk},
 			#{userId}, 
 			#{pgmId}, 
