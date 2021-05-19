@@ -113,7 +113,6 @@
                    <input type="text" id="prdtLen" name="prdtLen" disabled>
                 </td>
             </tr>
-                                                   
             <tr>
                 <th class="">재고수량</th>
                 <td>                                
@@ -121,9 +120,21 @@
                 </td>
             </tr>
             <tr>
+                <th class="">재고중량</th>
+                <td>                                
+                    <input type="text" id="stockWt" name="stockWt" onkeyup="onlyNumber(this);" disabled  comma>
+                </td>
+            </tr>
+            <tr>
                 <th class="hit">실사수량</th>
                 <td>                                
-                    <input type="text" id="acinsQty" name="acinsQty" onkeyup="onlyNumber(this);" required="required"  comma>
+                    <input type="text" id="acinsQty" name="acinsQty" onkeyup="onlyNumber(this); calcWt();" required="required"  comma>
+                </td>
+            </tr>
+            <tr>
+                <th class="hit">실사중량</th>
+                <td>                                
+                    <input type="text" id="acinsWt" name="acinsWt" onkeyup="onlyNumber(this);" disabled comma>
                 </td>
             </tr>
             <tr>
@@ -137,6 +148,7 @@
 	        <input type="hidden" id="userId" name="userId">
 		    <input type="hidden" id="pgmId" name="pgmId" value="SM0401P01">
 		    <input type="hidden" id="stokSeq" name="stokSeq">
+		    <input type="hidden" id="prdtCnvrsnWt" name="prdtCnvrsnWt">
 		    
 		    	
         </form>
@@ -281,6 +293,7 @@
 			//		"impYn" : $('#impYn').val(),
 		    //		"stockQty" : $('#stockQty').val(),
 					"acinsQty" : $('#acinsQty').val(),
+					"acinsWt"  : $('#acinsWt').val(),
  					"acinsId"  : jwt.userId,
 					"rmk" : $('#rmk').val(),
  					"userId" : jwt.userId,
@@ -332,5 +345,15 @@
 			$("#clntCd").val(row.clntCd);
 			$("#clntNm").val(row.clntNm);
 		});
+	}
+	
+	// 중량계산
+	function calcWt(){
+
+		debugger;
+		var acinsQty     = deleteCommaStr($('#acinsQty').val());
+		var prdtCnvrsnWt = deleteCommaStr($('#prdtCnvrsnWt').val());
+		var acinsWt       = addCommaStr(acinsQty  * prdtCnvrsnWt);
+		$('#acinsWt').val(acinsWt );
 	}
 </script>
