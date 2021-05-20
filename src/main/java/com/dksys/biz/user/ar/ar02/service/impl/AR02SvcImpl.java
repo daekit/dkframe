@@ -264,22 +264,12 @@ public class AR02SvcImpl implements AR02Svc {
 		return false;
 	}
 	
-	public void creditWithdraw(Map<String, Object> paramMap) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("loanCd", 'P');
-		map.put("clntCd", paramMap.get("clntCd"));
-		map.put("coCd", paramMap.get("coCd"));
-		map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
-		map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt"))*-1);
-		ar02Mapper.callCreditLoan(map);
-	}
-	
 	public boolean checkLoan(Map<String, String> paramMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("loanCd", 'C');
 		map.put("clntCd", paramMap.get("clntCd"));
 		map.put("coCd", paramMap.get("coCd"));
-		map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
+		map.put("iTrDt", paramMap.get("dlvrDttm").replace("-", ""));
 		map.put("amt", paramMap.get("realTotTrstAmt"));
 		long result = ar02Mapper.callCreditLoan(map);
 		if(result < Integer.parseInt(paramMap.get("realTotTrstAmt"))) {
