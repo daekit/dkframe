@@ -84,6 +84,7 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
+			detailMap.put("reqSeq", paramMap.get("reqSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			if(isOdr) {
@@ -168,6 +169,7 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 			}
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("reqSeq", paramMap.get("reqSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			// 매입, 매출 하나라도 확정이 되었으면 수정으로 한다.
@@ -234,6 +236,7 @@ public class OD01SvcImpl implements OD01Svc {
 		String sellClntNm = paramMap.get("sellClntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("reqSeq", paramMap.get("reqSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			//커플러일 경우 별도 단가 데이터 저장
