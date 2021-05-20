@@ -174,7 +174,7 @@
 						<td>
 							<input id="lossRate" name="lossRate" type="text" onkeyup="onlyNumber(this)">
 						</td>
-						<th>커플러<br>사용여부
+						<th>커플러사용여부
 						</th>
 						<td>
 							<select id="cplrYn" name="cplrYn" class="form-control">
@@ -246,10 +246,10 @@
 				<table id="detailTb">
 					<colgroup>
 						<col width="3%">
+						<col width="20%">
 						<col width="30%">
-						<col width="30%">
-						<col width="30%">
-						<col width="30%">
+						<col width="50%">
+						<col width="20%">
 						<col width="30%">
 					</colgroup>
 					<tr>
@@ -310,7 +310,7 @@
 						<col>
 					</colgroup>
 					<tr>
-						<th rowspan="2">턴키<br>외주<br>진행
+						<th rowspan="3">턴키<br>외주<br>진행
 						</th>
 						<th>외주가공장</th>
 						<td>
@@ -318,10 +318,22 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>단가</th>
+						<th>외주가공장1</th>
 						<td>
-							<input id="outordUpr" name="outordUpr" type="text" maxlength="13" onkeyup="onlyNumber(this); onlyNumber(this);" comma>
-						</td>
+							<select id="scndWhCd" name="scndWhCd" data-kind="WH">
+								<option value="">전체</option>
+							</select>
+						</td>	
+						<th>외주가공장2</th>
+						<td>
+							<select id="thrdWhCd" name="thrdWhCd" data-kind="WH">
+								<option value="">전체</option>
+							</select>
+						</td>	
+
+					</tr>
+					<tr>
+
 						<th>외주담당자</th>
 						<td>
 							<input type="hidden" id="outordMngCd" name="outordMngCd" style="width: 76%;">
@@ -331,12 +343,16 @@
 								</a>
 							</div>
 						</td>
-					</tr>
-					<tr>
 						<th class="">Loss율(%)</th>
 						<td>
 							<input id="outordLossRate" name="outordLossRate" type="text" onkeyup="onlyNumber(this)">
-						</td>
+						</td>										
+						<th>단가</th>
+						<td>
+							<input id="outordUpr" name="outordUpr" type="text" maxlength="13" onkeyup="onlyNumber(this); onlyNumber(this);" comma>
+						</td>						
+					</tr>
+					<tr>
 						<th>연락처</th>
 						<td>
 							<input id="outordTelNo" name="outordTelNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
@@ -345,7 +361,7 @@
 						<td>
 							<input id="outordFaxNo" name="outordFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
 						</td>
-					</tr>
+					</tr>					
 					<tr>
 						<th colspan="2">비고</th>
 						<td colspan="5">
@@ -675,7 +691,6 @@
 		prdtDivCombo();
 		$("#userId").val(jwt.userId);
 		$("#coCd").val(jwt.coCd);
-		setByCoCd(jwt.coCd);
 		if(actionType == "C") {
 			document.getElementById('creatDttm2').value= new Date().toISOString().slice(0, 10);
 			$("#outordLossRate").val("3");
@@ -685,6 +700,7 @@
 			$("#printBtn").hide();
 			$(".detailRow [name='prdtDivCd']").eq(0).val("PRDTDIV11");
 			prdtDivCombo($(".detailRow [name='prdtDivCd']"));
+			setByCoCd($("#coCd").val());
 		}else if(actionType == "U"){
 			$("#ordrgTable").show();
 			$("#shipmentTable").show();
@@ -695,6 +711,8 @@
 			$('#prjctActionBtn').on("click", function(){updateOrder();});
 			$('#prjctActionBtn').text("수정");
 		}
+
+		
 	    $('#strtDt2').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
@@ -743,6 +761,11 @@
 		//메인정보 세팅
 		$.each(prjInfo, function(key, value){
 			$('#'+key).val(value);
+
+			// 창고 set
+			if(key == "coCd"){
+				setByCoCd(value);
+			}
 		});
 		//발주서 세팅
 		OD01GridView.setData(0);
@@ -1147,10 +1170,20 @@
 	}	
 	
 	function setByCoCd(value){
+		
+		debugger;
 		// 창고 set
 		$('#whCd').data("desc", value);
 		$('#whCd option:not([value=""])').remove();
 		setCommonSelect($('#whCd'));
+		// 창고 set
+		$('#scndWhCd').data("desc", value);
+		$('#scndWhCd option:not([value=""])').remove();
+		setCommonSelect($('#scndWhCd'));
+		
+		$('#thrdWhCd').data("desc", value);
+		$('#thrdWhCd option:not([value=""])').remove();
+		setCommonSelect($('#thrdWhCd'));
 		
 		// 판매법인 set
 // 		$('#estCoprt_S').data("rprc", value);

@@ -86,6 +86,8 @@
 					,A.OUTORD_TEL_NO
 					,A.OUTORD_FAX_NO
 					,A.WH_CD
+					,A.SCND_WH_CD
+					,A.THRD_WH_CD
 					,TO_CHAR(TO_DATE(A.PCHS_STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_STRT_DT
 					,TO_CHAR(TO_DATE(A.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT
 					,A.CLMN_DAY
@@ -100,7 +102,7 @@
 		 			AND A.CO_CD = #{coCd}
 				</if>
 				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
+				 	AND ( #{strtDt}  BETWEEN A.STRT_DT AND   A.END_DT  OR  #{endDt}  BETWEEN  A.STRT_DT AND A.END_DT )
 				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
@@ -134,6 +136,8 @@
 		SELECT TO_CHAR(TO_DATE(REQ_DT,'YYYYMMDD'),'YYYY-MM-DD') AS ORD_REQ_DT
 			  ,B.CLNT_CD AS ORD_CLNT_CD
 			  ,A.WH_CD AS ORD_WH_CD
+ 			  ,A.SCND_WH_CD
+			  ,A.THRD_WH_CD
 			  ,ADDR_MAIN AS ORD_ADDR_MAIN
 			  ,ADDR_SUB AS ORD_ADDR_SUB
 			  ,CONCAT(CONCAT(B.ADDR_MAIN,' '),B.ADDR_SUB) AS ORD_ADDR
@@ -227,7 +231,9 @@
 			, OUTORD_MNG_NM    = #{outordMngNm}           
 			, OUTORD_TEL_NO    = #{outordTelNo} 
 			, OUTORD_FAX_NO    = #{outordFaxNo}		
-			, WH_CD            = #{whCd}            
+			, WH_CD            = #{whCd}        	
+			, SCND_WH_CD       = #{scndWhCd}        	
+			, THRD_WH_CD       = #{thrdWhCd}            
 			, SALES_AREA_CD    = #{salesAreaCd} 
 			, UDT_ID           = #{userId}		 
 			, UDT_PGM          = #{pgmId}							
@@ -307,6 +313,8 @@
 		, OUTORD_TEL_NO
 		, OUTORD_FAX_NO
 		, WH_CD
+		, SCND_WH_CD
+		, THRD_WH_CD
 		, SALES_AREA_CD
 		, CLMN_DAY
 		, CLMN_RMK
@@ -356,6 +364,8 @@
 		, #{outordTelNo}
 		, #{outordFaxNo}
 		, #{whCd}
+		, #{scndWhCd}
+		, #{thrdWhCd}
 		, #{salesAreaCd}
 		, #{clmnDay}
 		, #{clmnRmk}
