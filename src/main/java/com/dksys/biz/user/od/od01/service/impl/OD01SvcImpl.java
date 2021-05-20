@@ -277,6 +277,7 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("realTrstWt",  detailMap2.get("realDlvrWt"));
 			paramMap.put("realTrstUpr", detailMap2.get("realDlvrUpr"));
 			paramMap.put("realTrstAmt", detailMap2.get("realDlvrAmt"));
+			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
 			paramMap.put("bilgQty",     detailMap2.get("realDlvrQty"));
 			paramMap.put("bilgWt",      detailMap2.get("realDlvrWt"));
 			paramMap.put("bilgUpr",     detailMap2.get("realDlvrUpr"));
