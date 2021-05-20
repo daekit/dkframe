@@ -265,7 +265,7 @@
 	}
 	
 	function selectSellInfo() {
-		var row = gridView.target.getList("selected")[0];
+		var row = subGridView.target.getList("selected")[0];
 		var formData = {
 			"trstCertiNo" : row.trstCertiNo
 		}
@@ -292,7 +292,7 @@
 			}
 		});
 		
-		// 운반비는 제거 .. 운송비는 (-) 발새하지 않음		
+		// 운반비는 제거 .. 운송비는 (-) 발생하지 않음
 		$("#transAmt").val(0);  
 			
 		//콤마 추가
@@ -300,18 +300,13 @@
 			onlyNumber(elem);
 		});
 	}
+	
 	function selectSellInfoBase() {
 		var row = mainGridView.target.getList("selected");
-		//초기값의 경우 선택된거 없음.
-		if(row.length != 1){
-			row = mainGridView.target.getList(0);
-		}
 		$("#clntCd").val(row[0].trstClntCd); 
 		$("#clntNm").val(row[0].clntNm); 
 		$("#estCoprt").val(row[0].taxivcCoprt); 
 		$("#trstDt").val(dateToStr(new Date()));
-		
-		
 	}
 		
 	// 제품 검색
@@ -380,18 +375,7 @@
 			var formData = makeFormData();
 			postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
 				alert(data.resultMessage);
-				gridView.setData(0);
-				modal.close();
-			});
-		}
-	}
-	
-	function updateShip() {
-		if(inputValidation($('input[required]'))) {
-			var formData = makeFormData();
-			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
+				subGridView.setData(0);
 				modal.close();
 			});
 		}
