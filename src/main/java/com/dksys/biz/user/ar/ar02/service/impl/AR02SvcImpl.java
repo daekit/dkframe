@@ -129,7 +129,7 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	public int insertPchsSell(Map<String, String> paramMap) {
 		int result = 0;
-		int realTotTrstAmt = 0;
+		long realTotTrstAmt = 0;
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
 		int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
 		String clntCd = paramMap.get("clntCd");
@@ -169,9 +169,10 @@ public class AR02SvcImpl implements AR02Svc {
 		
 
 		paramMap.put("taxivcCoprt", paramMap.get("estCoprt"));
+		long bilgAmt    = Long.parseLong(paramMap.get("bilgAmt"));
 		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
-		realTotTrstAmt += bilgVatAmt;
+		realTotTrstAmt = realTotTrstAmt + bilgAmt + bilgVatAmt;
 		result = ar02Mapper.insertPchsSell(paramMap);
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
 		{
@@ -185,9 +186,11 @@ public class AR02SvcImpl implements AR02Svc {
 		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
 		paramMap.put("clntCd", clntCd);
 		paramMap.put("dlvrDttm", paramMap.get("trstDt"));
-		if(ar02Svc.checkLoan(paramMap)) {
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
+		if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+			if(ar02Svc.checkLoan(paramMap)) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				return 0;
+			}	
 		}
 		return result;
 	}
