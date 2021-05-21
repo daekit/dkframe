@@ -16,7 +16,7 @@
 	            <tr>
 	                <th class="hit">회사</th>
 	                <td>
-	                    <select id="coCd" name="coCd" data-kind="CO" required="required">
+	                    <select id="coCd" name="coCd" data-kind="CO" required="required" msg="회사" onchange="setWareHouse(this.value);">
 	                    	<option value="">선택</option>
 	                    </select>
 	                </td>
@@ -44,10 +44,10 @@
 	            <tr>
 	                <th>프로젝트</th>
 	                <td colspan="1" style="border-left: 0px !important;">
-	                    <input type="hidden" id="prjctCd" name="prjctCd">
+	                    <input type="hidden" id="prjctCd" name="prjctCd" value="0">
 		                <div class="search_form" style="width: 100%;">
 				            <input type="text" id="prjctNm" name="prjctNm" disabled>
-				            <a id="btnPrjct" onclick="openSecondPrjctSearch();"><i class="i_search_w"></i></a>
+				            <a id="btnPrjct" onclick="openThirdPrjctSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
 	                <th>판매지역</th>
@@ -110,8 +110,7 @@
 	            </tr>      
 	        </table>
 	        <input type="hidden" id="userId" name="userId">
-	        <input type="hidden" id="pgmId" name="pgmId" value="SD0901P01">
-	        <input type="hidden" id="prjctCd" name="prjctCd" value="">
+	        <input type="hidden" id="pgmId" name="pgmId" value="SD0902P02">
 	    </form>
     </div>
 
@@ -152,10 +151,11 @@
 	    var date = format.getDate();
 	    if(date<10) date = '0' + date;
 		$("#creatDttm").val(year + "-" + month + "-" + date);
-		$("#siteSearchForm #coCd").val(jwt.coCd);
+		$("#siteSearchForm #coCd").val(commonModal.paramObj.coCd);
 		$("#siteSearchForm #clntCd").val(commonModal.paramObj.clntCd);
 		$("#siteSearchForm #clntNm").val(commonModal.paramObj.clntNm);
 		$("#siteSearchForm #useYn").val("Y");
+		setWareHouse($("#siteSearchForm #coCd").val());
 		
 	}
 	
@@ -180,14 +180,25 @@
 			});
 		}
 	}
-	
+	// 프로젝트 검색
+	function openThirdPrjctSearch() {
+		openThirdModal("/static/html/cmn/modal/prjctSearch.html", 600, 420, "프로젝트 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#siteSearchForm #prjctCd").val(row.prjctCd);
+			$("#siteSearchForm #prjctNm").val(row.prjctNm);
+			$("#siteSearchForm #siteAddrZip").val(row.prjctAddrZip);
+			$("#siteSearchForm #siteAddr").val(row.prjctAddr);
+			$("#siteSearchForm #siteAddrSub").val(row.prjctAddrSub);
+		});
+	}
+		
 	// 주소 검색
 	function openDaumPostcode() {
 		new daum.Postcode({
 			oncomplete:function(data){
 				// 우편번호
-				$('#siteAddrZip').val(data.zonecode);
-				$('#siteAddr').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+				$('#siteSearchForm #siteAddrZip').val(data.zonecode);
+				$('#siteSearchForm #siteAddr').val((data.roadAddress || data.address) + ' ' + data.buildingName);
 			}
 		}).open();
 	}
@@ -203,11 +214,22 @@
 			"useYn": "Y"
 		};
 		
-		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+		openThirdModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
 			var checkedId = tree.get_checked()[0];
 			var checkedNode = tree.get_node(checkedId);
-			$('#mngId').val(checkedNode.id);
-			$('#mngNm').val(checkedNode.text);
+			$('#siteSearchForm #mngId').val(checkedNode.id);
+			$('#siteSearchForm #mngNm').val(checkedNode.text);
 		});
 	}
+	
+	// 창고 set
+	function setWareHouse(value){
+	
+		$('#siteSearchForm #whCd').data("desc", value);
+	//	$('#whCd_S').empty();
+		$('#siteSearchForm #whCd option:not([value=""])').remove()
+		setCommonSelect($('#siteSearchForm #whCd'));
+	}
+	
+	
 </script>
