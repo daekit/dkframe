@@ -54,6 +54,17 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	@SuppressWarnings("all")
 	public int updatePchsSell(Map<String, Object> paramMap) {
+
+//		//마감 체크
+//		Map<String, String> closeChkMap = new HashMap<String, String>();
+//
+//	    closeChkMap.put("CO_CD", paramMap.get("coCd").toString());
+//	    closeChkMap.put("DLVR_DTTM", paramMap.get("dlvrDttm").toString());
+//	    
+//		if(ar02Svc.checkSellClose(closeChkMap)) {
+//			return 500;
+//		}
+		
 		int result = 0;
 		int bilgAmt = 0;
 		String selpchCd = "";
@@ -91,6 +102,12 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Override
 	public int deleteSell(Map<String, String> paramMap) {
+		
+//		//마감 체크
+//		if(ar02Svc.checkSellClose(paramMap)) {
+//			return 500;
+//		}		
+//		
 		Map<String, String> resultMap = ar02Mapper.selectSellInfo(paramMap);
 		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
 		if("OWNER1".equals(resultMap.get("ownerCd").toString())) {		
@@ -128,6 +145,19 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Override
 	public int insertPchsSell(Map<String, String> paramMap) {
+		//마감 체크
+        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkPchsClose(paramMap)) {
+				return 500;				
+			}
+        }
+        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkSellClose(paramMap)) {
+				return 501;
+			}	
+        }
 		int result = 0;
 		long realTotTrstAmt = 0;
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
