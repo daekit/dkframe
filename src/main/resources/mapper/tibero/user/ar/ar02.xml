@@ -987,17 +987,23 @@
 	<select id="selectBilgVatAmt" parameterType="Map" resultType="long">
 		<if test='selpchCd == "SELPCH1" or selpchCd == "SELPCH3"'>
 	        SELECT 
-	        	TRUNC(${realTrstAmt} / 100 * NVL((SELECT A.CODE_RPRC 
-	        FROM TB_CM05M01 A 
-	            INNER JOIN TB_CM05M01 A1 ON A1.CODE_ID = #{whCd, jdbcType=VARCHAR}
-	            INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = A1.CODE_ETC
-	            INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC),10)) AS BILG_VAT_AMT
+	        	TRUNC(${realTrstAmt} / 100 * NVL((
+	        	SELECT 
+	        		A.CODE_RPRC 
+	        	FROM 
+		        	TB_CM05M01 A 
+		            INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = #{taxivcCoprt}
+		            INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC),10)) AS BILG_VAT_AMT
 	        FROM DUAL
         </if>
         <if test='selpchCd == "SELPCH2" or selpchCd == "SELPCH4"'>
 	        SELECT 
-	        	TRUNC(${realTrstAmt} / 100 * NVL((SELECT CODE_RPRC FROM TB_CM05M01 A 
-	        	INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}),10)) AS BILG_VAT_AMT
+	        	TRUNC(${realTrstAmt} / 100 * NVL((
+	        		SELECT 
+	        			CODE_RPRC 
+	        		FROM 
+	        			TB_CM05M01 A 
+	        			INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}),10)) AS BILG_VAT_AMT
 	        FROM DUAL
         </if>
 	</select>
