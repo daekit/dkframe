@@ -45,7 +45,7 @@
 				<h3 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h3>
 			</div>
 			<!-- 리스트 -->
-			<table class="form-group" >				
+			<table class="form-group">
 				<thead>
 					<tr>
 						<td style="text-align: left;">
@@ -69,132 +69,131 @@
 						</td>
 					</tr>
 				</tbody>
-			</table>			
+			</table>
 		</div>
 	</div>
-</body>
 
 
-<script type="text/javascript">
-	var actionType = null;
-	var odrSeq = null;
-	var odrDtlSeqArr = [];
+	<script type="text/javascript">
+		var actionType = null;
+		var odrSeq = null;
+		var odrDtlSeqArr = [];
 
-	var gridView4 = {
-		initView: function () {
-			this.target = new ax5.ui.grid();
-			this.target.setConfig({
-				showRowSelector: false,
-				multipleSelect: false,
-				sortable: true,
-				target: $('[data-ax5grid="grid04"]'),
-				header: {
-					align: "center",
-					selector: false
-				},
-				body: {
-					onClick: function () {
-						this.self.select(this.dindex);
-					}
-				},
-				page: {
-					display: true,
-				},
-				footSum: [
-					[{
-							label: "합계",
-							align: "center"
+		var gridView4 = {
+			initView: function () {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector: false,
+					multipleSelect: false,
+					sortable: true,
+					target: $('[data-ax5grid="grid04"]'),
+					header: {
+						align: "center",
+						selector: false
+					},
+					body: {
+						onClick: function () {
+							this.self.select(this.dindex);
+						}
+					},
+					page: {
+						display: true,
+					},
+					footSum: [
+						[{
+								label: "합계",
+								align: "center"
+							},
+							{
+								key: "trstQty",
+								collector: "sum",
+								formatter: "money",
+								align: "right"
+							},
+							{
+								key: "realTrstQty",
+								collector: "sum",
+								formatter: "money",
+								align: "right"
+							}
+						]
+					],
+					columns: [{
+							key: "facNm",
+							label: "공장",
+							align: "center",
+							width: 100
 						},
 						{
-							key: "trstQty",
-							collector: "sum",
-							formatter: "money",
-							align: "right"
+							key: "mmPlan",
+							label: "계획",
+							align: "right",
+							width: 120,
+							formatter: "money"
 						},
 						{
-							key: "realTrstQty",
-							collector: "sum",
-							formatter: "money",
-							align: "right"
+							key: "mmWgt",
+							label: "실적",
+							align: "right",
+							width: 120,
+							formatter: "money"
 						}
 					]
-				],
-				columns: [{
-						key: "facNm",
-						label: "공장",
-						align: "center",
-						width: 100
-					},
-					{
-						key: "mmPlan",
-						label: "계획",
-						align: "right",
-						width: 120,
-						formatter: "money"
-					},
-					{
-						key: "mmWgt",
-						label: "실적",
-						align: "right",
-						width: 120,
-						formatter: "money"
-					}
-				]
-			});
-			return this;
-		},
-		setData: function () {
-			var paramObj = {};
-			postAjax(DOMAIN_URL + "/user/cm/cm11/selectDashBoardList", paramObj, null, function (data) {
-				
-				$("#searchDttm").html("조회 일시 : " + data.searchDttm);
-
-				gridView4.target.setData({
-					list: data.resultList4,
-					page: {
-						totalElements: data.paginationInfo4.totalRecordCount
-					}
 				});
-				google.charts.setOnLoadCallback(function drawChart() {
-					var chartData4 = new google.visualization.DataTable(data
-					.chartData4); // 생산실적(제품)     
-					
-					var chart4 = new google.visualization.ColumnChart(document.getElementById(
-						"chart_div4")); // 생산실적(제품)     
-					
-					var options = {
-						height: 300,
-						width: 340,
-						fontSize: '10',
-						//curveType: 'function',
-						animation: { //차트가 뿌려질때 실행될 애니메이션 효과
-							startup: true,
-							duration: 1000,
-							easing: 'linear'
+				return this;
+			},
+			setData: function () {
+				var paramObj = {};
+				postAjax(DOMAIN_URL + "/user/cm/cm11/selectDashBoardList", paramObj, null, function (data) {
+
+					$("#searchDttm").html("조회 일시 : " + data.searchDttm);
+
+					gridView4.target.setData({
+						list: data.resultList4,
+						page: {
+							totalElements: data.paginationInfo4.totalRecordCount
 						}
-					}				
-					chart4.draw(chartData4, options); // 생산실적(제품)
-					
+					});
+					google.charts.setOnLoadCallback(function drawChart() {
+						var chartData4 = new google.visualization.DataTable(data
+							.chartData4); // 생산실적(제품)     
+
+						var chart4 = new google.visualization.BarChart(document.getElementById(
+							"chart_div4")); // 생산실적(제품)     
+
+						var options = {
+							height: 300,
+							width: 340,
+							fontSize: '10',
+							//curveType: 'function',
+							animation: { //차트가 뿌려질때 실행될 애니메이션 효과
+								startup: true,
+								duration: 1000,
+								easing: 'linear'
+							}
+						}
+						chart4.draw(chartData4, options); // 생산실적(제품)
+
+					});
 				});
-			});
+			}
 		}
-	}
 
-	$(document).ready(function () {
-		// 페이지 타이틀 set
-		// mainDefaultLoad("대시보드", "임원진 현황");
-		// grid init		
-		gridView4.initView().setData();
-		var setDataInterval = setInterval(function () {
+		$(document).ready(function () {
+			// 페이지 타이틀 set
+			// mainDefaultLoad("대시보드", "임원진 현황");
+			// grid init		
 			gridView4.initView().setData();
-		}, 600000);
+			var setDataInterval = setInterval(function () {
+				gridView4.initView().setData();
+			}, 600000);
+		});
 
+		google.charts.load('current', {
+			'packages': ['corechart']
+		});
+	</script>
 
-	});
-
-	google.charts.load('current', {
-		'packages': ['corechart']
-	});
-</script>
+</body>
 
 </html>
