@@ -100,17 +100,21 @@ public class AR02SvcImpl implements AR02Svc {
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(resultMap);
 		if(stockInfo != null) {
 			int stockQty = 0;
+			int stockWt = 0;
 			String stockChgCd = "STOCKCHG09";
 			if("SELPCH2".equals(resultMap.get("selpchCd"))) 
 			{
 				stockChgCd = "STOCKCHG09";
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(resultMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(resultMap.get("realTrstWt"));
 			} else 
 			{
 				stockChgCd = "STOCKCHG08";
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(resultMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(resultMap.get("realTrstWt"));
 			}
 			resultMap.put("STOCK_QTY", String.valueOf(stockQty));
+			resultMap.put("STOCK_WT",  String.valueOf(stockWt));
 			resultMap.put("STOCK_UPR", stockInfo.get("stockUpr"));
 			resultMap.put("STD_UPR", stockInfo.get("stdUpr"));
 			resultMap.put("STOCK_CHG_CD", stockChgCd);
@@ -127,6 +131,7 @@ public class AR02SvcImpl implements AR02Svc {
 		int result = 0;
 		int realTotTrstAmt = 0;
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
+		int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
 		String clntCd = paramMap.get("clntCd");
 		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
@@ -136,7 +141,9 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
 			paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
 			stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty*-1;
+			stockWt  = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockWt : stockWt*-1;
 			paramMap.put("stockQty", String.valueOf(stockQty));
+			paramMap.put("stockWt", String.valueOf(stockWt));
 		} else {
 			//매출일 떄 
 			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
@@ -144,6 +151,7 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt")) - stockWt;
 			}
 			//매입일 떄
 			else 
@@ -151,11 +159,16 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("sellUpr", stockInfo.get("sellUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + stockQty;
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt")) + stockWt;
 			}
 			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("stockQty", String.valueOf(stockQty));
+			paramMap.put("stockWt",  String.valueOf(stockWt));
 		}
+		
+
+		paramMap.put("taxivcCoprt", paramMap.get("estCoprt"));
 		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
 		realTotTrstAmt += bilgVatAmt;

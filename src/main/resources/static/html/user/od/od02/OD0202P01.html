@@ -56,7 +56,7 @@
 	            <tr>
 	                <th class="hit">판매유형</th>
 	                <td>                             
-	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" required="required">
+	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" onchange="setBySellType(this.value);" required="required">
 	                        <option value="">선택</option> 
 	                    </select>
 	                </td>
@@ -239,9 +239,7 @@
 		setInit();
 	});
 	
-	function setInit() {
-
-		setCodeSelectByCocd(jwt.coCd);		
+	function setInit() {		
 		if(actionType == "C"){
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
 			$('#actionOdBtn').text("등록");
@@ -261,7 +259,7 @@
 			$('#actionOdBtn').on("click", function(){insertShip();});
 			$('#actionOdBtn').text("등록");
 		}
-		
+		setCodeSelectByCocd($("#coCd").val());
 	}
 	
 	function selectSellInfo() {
@@ -302,11 +300,16 @@
 	}
 	
 	function selectSellInfoBase() {
+	
 		var row = mainGridView.target.getList("selected");
+		$("#coCd").val(row[0].coCd); 
 		$("#clntCd").val(row[0].trstClntCd); 
 		$("#clntNm").val(row[0].clntNm); 
 		$("#estCoprt").val(row[0].taxivcCoprt); 
 		$("#trstDt").val(dateToStr(new Date()));
+		$("#siteCd").val(row[0].siteCd);
+		$("#siteNm").val(row[0].siteNm);
+		$("#prjctCd").val(row[0].prjctCd);
 	}
 		
 	// 제품 검색
@@ -446,6 +449,64 @@
 			setCommonSelect($('#estCoprt'));  
 	}
 	
-	
-	
+	// 현장 검색
+	function openSecondSiteSearch(type) {
+		var paramObj = {
+			"coCd"  : $('#popForm #coCd').val()
+// 	매입은 거래처가 필요 없음.		, 
+// 			"clntCd": $("#popForm #clntCd").val(),
+// 			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+		});
+	}
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);	
+		});
+	}	
+	function setBySellType(value){
+		// 판매유형
+		// SELLTYPE1: 유통
+		// SELLTYPE2: 가공
+		// SELLTYPE4: 임가공
+		
+		// 재고주체
+		// OWNER1: 자사
+		// OWNER2: 제강사
+		// OWNER3: 건설사
+		// OWNER4: 기타
+		
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2"){
+		// 판매유형이 선택, 유통, 가공일때
+			
+			// 재고주체 초기화
+			$('#ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ownerCd'));
+			
+			if(value == ""){
+			// 판매유형이 선택일때
+				// 재고주체 활성화
+				$('#ownerCd').prop("disabled", false);
+			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
+			// 판매유형이 유통, 가공일때
+				// 재고주체 자사 set, 비활성화
+				$('#ownerCd').val("OWNER1");
+				$('#ownerCd').prop("disabled", true);
+			}
+		}else if(value == "SELLTYPE4"){
+		// 판매유형이 임가공일때
+			// 재고주체에서 자사 삭제
+			$('#ownerCd option[value="OWNER1"]').remove();
+			$('#ownerCd').prop("disabled", false);
+		}
+	}
+		
 </script>
