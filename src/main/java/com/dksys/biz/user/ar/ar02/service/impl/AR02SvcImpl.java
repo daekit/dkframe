@@ -54,17 +54,6 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	@SuppressWarnings("all")
 	public int updatePchsSell(Map<String, Object> paramMap) {
-
-//		//마감 체크
-//		Map<String, String> closeChkMap = new HashMap<String, String>();
-//
-//	    closeChkMap.put("CO_CD", paramMap.get("coCd").toString());
-//	    closeChkMap.put("DLVR_DTTM", paramMap.get("dlvrDttm").toString());
-//	    
-//		if(ar02Svc.checkSellClose(closeChkMap)) {
-//			return 500;
-//		}
-		
 		int result = 0;
 		int bilgAmt = 0;
 		String selpchCd = "";
@@ -75,6 +64,21 @@ public class AR02SvcImpl implements AR02Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
 			result += ar02Mapper.updatePchsSell(detailMap);
 			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("totAmt")));
+
+			//마감 체크
+			Map<String, String> closeChkMap = new HashMap<String, String>();
+			closeChkMap.put("dlvrDttm",detailMap.get("trstDt").toString());
+			closeChkMap.put("coCd",detailMap.get("coCd").toString());
+	        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+				if(ar02Svc.checkPchsClose(closeChkMap)) {
+					return 500;				
+				}
+	        }
+	        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+				if(ar02Svc.checkSellClose(closeChkMap)) {
+					return 501;
+				}	
+	        }
 		}
 		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)) {
 			int creditAmt = Integer.parseInt(paramMap.get("creditAmt").toString());
