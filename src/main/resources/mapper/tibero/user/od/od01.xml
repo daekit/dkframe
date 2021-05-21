@@ -45,7 +45,8 @@
 		    UDT_PGM,
 		    UDT_DTTM,
 		    SITE_CD,
-		    TAXIVC_COPRT
+		    TAXIVC_COPRT,
+		    REQ_SEQ
 	    ) 
 	    VALUES
 	    (
@@ -85,7 +86,8 @@
 		    #{pgmId},
 		    SYSDATE,
 		    NVL(#{siteCd,  	jdbcType=VARCHAR},0),
-		    #{taxivcCoprt,  jdbcType=VARCHAR}
+		    #{taxivcCoprt,  jdbcType=VARCHAR},
+		    #{reqSeq,       jdbcType=VARCHAR}
 	    )
 	</insert>
 	
@@ -215,6 +217,7 @@
 	            ,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM
 			    ,(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
 			    ,(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE
+			    ,T.REQ_SEQ
 			FROM 
 			(
 			 	SELECT OD01.* FROM TB_OD01M01 OD01
@@ -323,7 +326,9 @@
 	        CREAT_DTTM,
 	        UDT_ID,
 	        UDT_PGM,
-	        UDT_DTTM
+	        UDT_DTTM,
+	        REQ_SEQ,
+			REQ_DTL_SEQ
         ) 
         VALUES
         (
@@ -362,7 +367,9 @@
 		    SYSDATE,
 		    #{userId},
 		    #{pgmId},
-		    SYSDATE
+		    SYSDATE,
+        	#{reqSeq},
+	        #{reqDtlSeq}
         )
 	</insert>
 	
@@ -430,7 +437,8 @@
 			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,		        
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
-			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE
+			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE,
+	        REQ_SEQ
 		FROM TB_OD01M01 T
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</select>
@@ -530,7 +538,9 @@
 	        B.PRDT_STKN,
 	        B.PRDT_STOCK_CD,
 	        B.PRDT_COIL_YN,
-	        B.PRDT_CNVRSN_WT
+	        B.PRDT_CNVRSN_WT,	        
+	        T.REQ_SEQ,
+			T.REQ_DTL_SEQ
 		FROM 
 			TB_OD01D01 T
 			INNER JOIN TB_OD01M01 A ON T.ORDRG_SEQ = A.ORDRG_SEQ

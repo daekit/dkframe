@@ -17,6 +17,8 @@
 		 , A.SHIP_SEQ
 		 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM
 		 , A.PRJCT_CD
+		 , A.SITE_CD
+		 , (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
 		 , A.MAKR_CD
 		 , A.WH_CD
 		 , FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
@@ -57,6 +59,7 @@
 			, A.CLNT_CD
 			, A.SHIP_SEQ
 			, A.PRJCT_CD
+		    , A.SITE_CD
 			, A.MAKR_CD
 			, A.WH_CD
 			, A.TYP_CD
@@ -103,6 +106,8 @@
 		 , A.ORDRG_SEQ
 		 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM
 		 , A.PRJCT_CD
+		 , A.SITE_CD
+		 , (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
 		 , A.MAKR_CD
 		 , FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
 		 , A.WH_CD
@@ -142,6 +147,7 @@
 			 , A.CLNT_CD
 			 , A.ORDRG_SEQ
 			 , A.PRJCT_CD
+		     , A.SITE_CD
 			 , A.MAKR_CD
 			 , A.WH_CD
 			 , A.TYP_CD
@@ -170,4 +176,62 @@
 			 , A.ODR_CREAT_DIV
 			 ORDER BY REQ_DT, ORDRG_SEQ
 	</select>
+	
+	<select id="selectReqNCount" resultType="int">
+	SELECT COUNT(*)
+		  FROM TB_OD02M01 A
+		 WHERE A.ORDRG_YN = 'N'
+	</select>
+	
+	<select id="selectReqNList" resultType="CamelMap">
+		SELECT T.*, ORDRG_QTY - REAL_DLVR_QTY AS REMAIN_QTY
+      FROM 
+      (
+		SELECT A.CO_CD
+			 , TO_CHAR(TO_DATE(A.REQ_DT, 'YYYYMMDD'), 'YYYY-MM-DD') REQ_DT
+			 , A.REQ_SEQ
+			 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM
+			 , A.PRJCT_CD
+			 , A.SITE_CD
+			 , (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
+			 , A.WH_CD
+			 , FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+			 , A.TYP_CD
+			 , A.IMP_YN
+			 , A.DLVR_DTTM
+			 , A.REQ_RMK
+			 , A.TOT_QTY
+			 , A.TOT_WT
+			 , A.REQ_MNG_ID
+			 , A.ORDRG_YN
+			 , A.RECPT_YN
+			 , B.ORDRG_SEQ
+			 , A.REQ_CREAT_DIV
+			 , SUM(B.REQ_QTY) ORDRG_QTY
+			 , (SELECT SUM(REAL_DLVR_QTY) FROM TB_OD01D01   OD01D01 WHERE OD01D01.ORDRG_SEQ = B.ORDRG_SEQ) REAL_DLVR_QTY
+		  FROM TB_OD02M01 A
+		     , TB_OD02D01 B
+		 WHERE A.REQ_SEQ = B.REQ_SEQ
+		   AND A.ORDRG_YN = 'N'
+		   GROUP BY  A.CO_CD
+			 , A.REQ_DT
+			 , A.REQ_SEQ
+			 , A.PRJCT_CD
+			 , A.SITE_CD
+			 , A.WH_CD
+			 , A.TYP_CD
+			 , A.IMP_YN
+			 , A.DLVR_DTTM
+			 , A.REQ_RMK
+			 , A.TOT_QTY
+			 , A.TOT_WT
+			 , A.REQ_MNG_ID
+			 , A.ORDRG_YN
+			 , B.ORDRG_SEQ
+			 , A.RECPT_YN
+			 , A.REQ_CREAT_DIV
+				 ORDER BY REQ_DT, REQ_SEQ
+			 ) T
+	</select>
+	
 </mapper>

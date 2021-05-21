@@ -84,6 +84,7 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
+            detailMap.put("reqSeq", paramMap.get("reqSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			if(isOdr) {
@@ -168,7 +169,8 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 			}
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
-			detailMap.put("userId", paramMap.get("userId"));
+            detailMap.put("reqSeq", paramMap.get("reqSeq"));
+            detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			// 매입, 매출 하나라도 확정이 되었으면 수정으로 한다.
 			if("Y".equals(detailMap.get("ordrgYn")) || "Y".equals(detailMap.get("shipYn"))) {
@@ -222,7 +224,8 @@ public class OD01SvcImpl implements OD01Svc {
         }
 //-----------------------------------------------------------------------------------------------------------------------------------------------		
 		int result = 0;
-		int realTotTrstAmt = 0;
+		int realTotTrstAmt1 = 0; // 매입
+		int realTotTrstAmt2 = 0; // 매출
 		boolean creditFlag = false;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
@@ -234,6 +237,7 @@ public class OD01SvcImpl implements OD01Svc {
 		String sellClntNm = paramMap.get("sellClntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+            detailMap.put("reqSeq", paramMap.get("reqSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			//커플러일 경우 별도 단가 데이터 저장
@@ -277,7 +281,6 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("realTrstWt",  detailMap2.get("realDlvrWt"));
 			paramMap.put("realTrstUpr", detailMap2.get("realDlvrUpr"));
 			paramMap.put("realTrstAmt", detailMap2.get("realDlvrAmt"));
-			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
 			paramMap.put("bilgQty",     detailMap2.get("realDlvrQty"));
 			paramMap.put("bilgWt",      detailMap2.get("realDlvrWt"));
 			paramMap.put("bilgUpr",     detailMap2.get("realDlvrUpr"));
@@ -291,7 +294,6 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("trspRmk", paramMap.get("ordrgRmk"));
 			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 			paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
-			realTotTrstAmt += bilgVatAmt;
 			
 			//재고 세팅
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
@@ -380,15 +382,18 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("trstAmt",    String.valueOf(trstAmt));
 					paramMap.put("realTrstAmt",String.valueOf(realTrstAmt));
 					paramMap.put("bilgAmt",    String.valueOf(bilgAmt));	
+					realTotTrstAmt2 += bilgAmt;
 				}else {					
 					paramMap.put("trstAmt",    detailMap.get("shipAmt"));
 					paramMap.put("realTrstAmt",detailMap.get("shipAmt"));
 					paramMap.put("bilgAmt",    detailMap.get("shipAmt"));
+					realTotTrstAmt2 += Integer.parseInt(detailMap.get("shipAmt"));
 				}
 					
 				
 				long bilgVatAmt2 = ar02Mapper.selectBilgVatAmt(paramMap);
 				paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
+				realTotTrstAmt2 += bilgVatAmt2;
 				
 				od01Mapper.updateConfirmDetailS(detailMap);
 				ar02Mapper.insertPchsSell(paramMap);
@@ -416,7 +421,7 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 			//직송(매출)일 경우 여신체크
 			if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType")))) {
-				paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
+				paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt2));
 				paramMap.put("clntCd",  sellClntCd);
 				if(creditFlag && ar02Svc.checkLoan(paramMap)) {
 					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

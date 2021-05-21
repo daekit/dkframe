@@ -16,4 +16,8 @@ public interface CM10Mapper {
 
 	List<Map<String, String>> selectOrdrgNList(Map<String, String> paramMap);
 
+	int selectReqNCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectReqNList(Map<String, String> paramMap);
+
 }
