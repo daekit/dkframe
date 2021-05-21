@@ -21,32 +21,32 @@
 	                </td>
 	                <th class="hit">회사</th>
 	                <td>                                
-	                    <select id="coCd" name="coCd" data-kind="CO">
+	                    <select id="coCd" name="coCd" data-kind="CO" onchange="setCodeSelectByCocd(this.value);">
 	                 	</select>
 	                </td>
 	            </tr>
 	            <tr>
 	                <th class="hit">판매법인</th>
 	                <td>                             
-	                    <select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required="required">
-	                    	<option value="">선택</option> 
+	                    <select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required="required"  msg="판매법인">
+<!-- 	                    	<option value="">선택</option>  -->
 	                 	</select>
 	                </td>
 	                <th class="hit">거래유형</th>
 	                <td>                             
-	                    <select id="trspTypCd" name="trspTypCd" data-kind="TRSPTYP" required="required">
-	                    	<option value="">선택</option> 
+	                    <select id="trspTypCd" name="trspTypCd" data-kind="TRSPTYP" required="required" msg="거래유형">
+<!-- 	                    	<option value="">선택</option>  -->
 	                 	</select>
 	                </td>	                
 	            </tr>
 	            <tr>
 	                <th class="hit">매출일자</th>
 	                <td>                             
-	                    <input type="text" id="trstDt" name="trstDt" class="input_calendar" autocomplete="off" required="required" >
+	                    <input type="text" id="trstDt" name="trstDt" class="input_calendar" autocomplete="off" required="required" msg="매출일자">
 	                </td>
 	                <th>수입여부</th>
 	                <td>                             
-	                    <select id="impYn" name="impYn" required="required">
+	                    <select id="impYn" name="impYn" required="required"  msg="수입여부">
 		                  	<option value="N" selected="selected">N</option>
 		                  	<option value="Y" >Y</option>
 		                </select>
@@ -57,8 +57,8 @@
 	            <tr>
 	                <th class="hit">판매유형</th>
 	                <td>                             
-	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" required="required">
-	                        <option value="">선택</option> 
+	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" required="required"  msg="판매유형">
+<!-- 	                        <option value="">선택</option>  -->
 	                    </select>
 	                </td>
 	                <th>메이커</th>
@@ -73,7 +73,7 @@
 	            <tr>
 	                <th>재고주체</th>
 	                <td>   
-	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER" required="required">
+	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER" required="required"  msg="재고주체">
 	                    </select>               
 	                </td>
 	                <th>담당자연락처</th>
@@ -86,7 +86,7 @@
 	            <tr>
 	                <th class="hit">창고</th>
 	                <td>                                
-	                    <select id="whCd" name="whCd" data-kind="WH" required="required">
+	                    <select id="whCd" name="whCd" data-kind="WH" required="required"  msg="창고">
 		                  	<option value="">선택</option> 
 		                </select>
 	                </td>
@@ -113,7 +113,7 @@
 	                        <input type="hidden" name="prdtDivNm">
 	                        <input type="hidden" name="prdtStkn">
 	                        <input type="hidden" name="prdtStknNm" >
-			                <input type="text" name="prdtNm" readonly="readonly" required="required" >
+			                <input type="text" name="prdtNm" readonly="readonly" required="required"  msg="제품명">
 			              	<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>	            
@@ -155,7 +155,7 @@
 	                <th class="hit">청구단가</th>
 	                <td>                             
 	                	<input type="hidden" name="realTrstUpr" readonly="readonly">
-	                    <input type="text" name="bilgUpr" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma>
+	                    <input type="text" name="bilgUpr" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma  msg="청구단가">
 	                </td>
 	                <th>제품기준단가</th>
 	                <td>                                
@@ -193,7 +193,7 @@
 	                <th>청구금액</th>
 	                <td>                             
 	                	<input type="hidden" name="realTrstAmt" readonly="readonly" minus>
-	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma minus readonly="readonly">
+	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma minus readonly="readonly" msg="청구금액">
 	                </td>
 	                <th>전표발행여부</th>
 	                <td>                                
@@ -253,6 +253,8 @@
 			$("#makrCd").val("MAKR09");
 			$("#trspTypCd option[value='TRSPTYP2']").remove();
 			$("#trspTypCd option[value='TRSPTYP3']").remove();
+			selectSellInfoBase();
+			setCodeSelectByCocd($("#coCd").val());
 		}else if(actionType == "U"){
 			selectSellInfo();
 			$('#actionArBtn').on("click", function(){insertPchsSell();});
@@ -269,6 +271,10 @@
 		var formData = {
 			"trstCertiNo" : row.trstCertiNo
 		}
+		
+		$("#coCd").val(row.coCd);
+		setCodeSelectByCocd($("#coCd").val());
+		
 		postAjax("/user/ar/ar02/selectSellInfo", formData, null, function(data){
 			setSellInfo(data.result);
 		});
@@ -298,6 +304,21 @@
 		});
 	}
 	
+	function selectSellInfoBase() {
+		
+     	var row = subGridView.target.getList("selected");
+		if(row.length == 0){
+			row = subGridView.target.getList();
+		}
+		$("#coCd").val(row[0].coCd); 
+		$("#clntCd").val(row[0].trstClntCd); 
+		$("#clntNm").val(row[0].clntNm); 
+		$("#estCoprt").val(row[0].taxivcCoprt); 
+		$("#trstDt").val(dateToStr(new Date()));
+		$("#siteCd").val(row[0].siteCd);
+		$("#siteNm").val(row[0].siteNm);
+		$("#prjctCd").val(row[0].prjctCd);
+	}	
 	// 거래처 검색
 	function openSecondClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -414,7 +435,20 @@
 			$('#salesMngNm').val(checkedNode.text);
 		});
 	}
-	
+	// 현장 검색
+	function openSecondSiteSearch(type) {
+		var paramObj = {
+			"coCd"  : $('#popForm #coCd').val(),
+			"clntCd": $("#popForm #clntCd").val(),
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+		});
+	}	
 	function countAmt(el) {
 		var bilgQty = $("input[name='bilgQty']").val();
 		var bilgUpr = $("input[name='bilgUpr']").val();
@@ -444,4 +478,15 @@
 		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "");
 	}
 	
+	// 코드 set
+	function setCodeSelectByCocd(value){
+
+			$('#whCd').data("desc", value);
+			$('#whCd option:not([value=""])').remove()
+			setCommonSelect($('#whCd'));  
+
+			$('#estCoprt').data("rprc", value);
+			$('#estCoprt option:not([value=""])').remove()
+			setCommonSelect($('#estCoprt'));  
+	}
 </script>
