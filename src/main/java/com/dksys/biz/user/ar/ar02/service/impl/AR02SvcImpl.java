@@ -95,6 +95,7 @@ public class AR02SvcImpl implements AR02Svc {
 				}
 			} else {
 				paramMap.put("creditAmt", String.valueOf(exceedAmt));
+				paramMap.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
 				if(creditDeposit(paramMap)) {
 					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 					return 0;
