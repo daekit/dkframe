@@ -37,8 +37,8 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
-<body>
-    <div>
+<body style="min-width: 300px;">
+	<div class="container-fluid">
         <!-- 콘텐츠 -->
         <div class="contents">
             <div style="text-align:right">
@@ -64,7 +64,7 @@
 
                         <td>
                             <div class="" style="margin:0px;padding:0px;width:100%;">
-                                <div data-ax5grid="grid03" data-ax5grid-config="{}" style="height:250px; width: 100%">
+                                <div data-ax5grid="grid03" data-ax5grid-config="{}" style="height:250px; width: 340px">
                                 </div>
                             </div>
                         </td>
@@ -79,10 +79,9 @@
             </table>
         </div>
     </div>
-</body>
 
 
-<script type="text/javascript">
+    <script type="text/javascript">
     var actionType = null;
     var odrSeq = null;
     var odrDtlSeqArr = [];
@@ -123,49 +122,19 @@
                 columns: [{
                         key: "clntNm",
                         label: "회사",
-                        align: "center",
-                        width: "52%"
+                        align: "center",                        
+                        width: "53%"
                     },
                     {
                         key: "realTrstQty",
                         label: "실적",
-                        align: "right",
-                        width: "50%",
+                        align: "right",                        
+                        width: "53%",
                         formatter: "money"
                     }
                 ]
             });
             return this;
-        },
-        setData: function () {
-            var targetObj = this.target;
-            var paramObj = {};
-            postAjax(DOMAIN_URL + "/user/cm/cm11/selectClntSelpch1List", paramObj, null, function (data) {
-                var list = data.resultList;
-                targetObj.setData({
-                    list: list,
-                    page: {
-                        totalElements: data.paginationInfo.totalRecordCount
-                    }
-                });
-                google.charts.setOnLoadCallback(function drawChart() {
-                    var chartData = new google.visualization.DataTable(data.chartData);
-
-                    var chart = new google.visualization.LineChart(document.getElementById(
-                        "chart_div3"));
-
-                    var options = {
-                        height: 300,
-                        fontSize: '10',
-                        animation: { //차트가 뿌려질때 실행될 애니메이션 효과
-                            startup: true,
-                            duration: 1000,
-                            easing: 'linear'
-                        }
-                    }
-                    chart.draw(chartData, options);
-                });
-            });
         },
         reqSetData: function () {
             var paramObj = {};
@@ -184,34 +153,18 @@
                     var chart3 = new google.visualization.PieChart(document.getElementById(
                         "chart_div3")); // 매입실적(거래처)    						
                     var options = {
+                         is3D: true,
                         height: 300,
-                        fontSize: '10',
+                        width: 380,
+                        fontSize: '8',
                         //curveType: 'function',
                         animation: { //차트가 뿌려질때 실행될 애니메이션 효과
                             startup: true,
                             duration: 1000,
                             easing: 'linear'
                         }
-                    }
-                    var options2 = {
-                        title: "매출/매입실적 (월별)",
-                        width: 1750,
-                        height: 300,
-                        chartArea: {
-                            left: 100
-                        },
-                        backgroundColor: {
-                            'fill': '(00)#F4F4F4',
-                            'opacity': 100
-                        },
-                        fontSize: '15',
-                        //curveType: 'function',
-                        animation: { //차트가 뿌려질때 실행될 애니메이션 효과
-                            startup: true,
-                            duration: 1000,
-                            easing: 'linear'
-                        }
-                    }
+                    }                    
+                        
                     chart3.draw(chartData3, options); // 매입실적(거래처)						
                 });
             });
@@ -233,6 +186,12 @@
         'packages': ['corechart']
     });
 </script>
+
+
+
+</body>
+
+
 
 
 </html>
