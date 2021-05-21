@@ -1,6 +1,7 @@
 package com.dksys.biz.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -18,8 +19,8 @@ public class Oauth2ResourceConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-      http.authorizeRequests()
-      			.antMatchers("/", "/login", "/static/**", "/oauth/token", "/oauth/**", "/download/**", "/ws/**", "/admin/cm/cm08/**").permitAll()
+    	http.cors().and().authorizeRequests()
+		.antMatchers("/", "/login", "/static/**", "/oauth/token", "/oauth/**", "/download/**", "/ws/**", "/admin/cm/cm08/**").permitAll()
       			.anyRequest().authenticated();
     }
 	

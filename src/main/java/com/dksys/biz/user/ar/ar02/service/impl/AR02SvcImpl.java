@@ -64,6 +64,21 @@ public class AR02SvcImpl implements AR02Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
 			result += ar02Mapper.updatePchsSell(detailMap);
 			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("totAmt")));
+
+			//마감 체크
+			Map<String, String> closeChkMap = new HashMap<String, String>();
+			closeChkMap.put("dlvrDttm",detailMap.get("trstDt").toString());
+			closeChkMap.put("coCd",detailMap.get("coCd").toString());
+	        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+				if(ar02Svc.checkPchsClose(closeChkMap)) {
+					return 500;				
+				}
+	        }
+	        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+				if(ar02Svc.checkSellClose(closeChkMap)) {
+					return 501;
+				}	
+	        }
 		}
 		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)) {
 			int creditAmt = Integer.parseInt(paramMap.get("creditAmt").toString());
@@ -91,6 +106,21 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Override
 	public int deleteSell(Map<String, String> paramMap) {
+		
+		//마감 체크
+        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkPchsClose(paramMap)) {
+				return 500;				
+			}
+        }
+        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkSellClose(paramMap)) {
+				return 501;
+			}	
+        }
+        
 		Map<String, String> resultMap = ar02Mapper.selectSellInfo(paramMap);
 		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
 		if("OWNER1".equals(resultMap.get("ownerCd").toString())) {		
@@ -100,17 +130,21 @@ public class AR02SvcImpl implements AR02Svc {
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(resultMap);
 		if(stockInfo != null) {
 			int stockQty = 0;
+			int stockWt = 0;
 			String stockChgCd = "STOCKCHG09";
 			if("SELPCH2".equals(resultMap.get("selpchCd"))) 
 			{
 				stockChgCd = "STOCKCHG09";
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(resultMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(resultMap.get("realTrstWt"));
 			} else 
 			{
 				stockChgCd = "STOCKCHG08";
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(resultMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(resultMap.get("realTrstWt"));
 			}
 			resultMap.put("STOCK_QTY", String.valueOf(stockQty));
+			resultMap.put("STOCK_WT",  String.valueOf(stockWt));
 			resultMap.put("STOCK_UPR", stockInfo.get("stockUpr"));
 			resultMap.put("STD_UPR", stockInfo.get("stdUpr"));
 			resultMap.put("STOCK_CHG_CD", stockChgCd);
@@ -124,9 +158,23 @@ public class AR02SvcImpl implements AR02Svc {
 
 	@Override
 	public int insertPchsSell(Map<String, String> paramMap) {
+		//마감 체크
+        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkPchsClose(paramMap)) {
+				return 500;				
+			}
+        }
+        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkSellClose(paramMap)) {
+				return 501;
+			}	
+        }
 		int result = 0;
-		int realTotTrstAmt = 0;
+		long realTotTrstAmt = 0;
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
+		int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
 		String clntCd = paramMap.get("clntCd");
 		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
@@ -136,7 +184,9 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
 			paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
 			stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty*-1;
+			stockWt  = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockWt : stockWt*-1;
 			paramMap.put("stockQty", String.valueOf(stockQty));
+			paramMap.put("stockWt", String.valueOf(stockWt));
 		} else {
 			//매출일 떄 
 			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
@@ -144,6 +194,7 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt")) - stockWt;
 			}
 			//매입일 떄
 			else 
@@ -151,14 +202,20 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("sellUpr", stockInfo.get("sellUpr"));
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + stockQty;
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt")) + stockWt;
 			}
 			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("stockQty", String.valueOf(stockQty));
+			paramMap.put("stockWt",  String.valueOf(stockWt));
 		}
+		
+
+		paramMap.put("taxivcCoprt", paramMap.get("estCoprt"));
+		long bilgAmt    = Long.parseLong(paramMap.get("bilgAmt"));
 		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
-		realTotTrstAmt += bilgVatAmt;
+		realTotTrstAmt = realTotTrstAmt + bilgAmt + bilgVatAmt;
 		result = ar02Mapper.insertPchsSell(paramMap);
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
 		{
@@ -172,9 +229,11 @@ public class AR02SvcImpl implements AR02Svc {
 		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
 		paramMap.put("clntCd", clntCd);
 		paramMap.put("dlvrDttm", paramMap.get("trstDt"));
-		if(ar02Svc.checkLoan(paramMap)) {
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
+		if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+			if(ar02Svc.checkLoan(paramMap)) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				return 0;
+			}	
 		}
 		return result;
 	}

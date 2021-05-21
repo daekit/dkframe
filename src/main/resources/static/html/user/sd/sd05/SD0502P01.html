@@ -239,6 +239,7 @@
 							<div class="add_btn">
 								<a onclick="addRow();">+</a> 
 								<a onclick="removeDetailRow();">-</a>
+	                            <a onclick="excelDown();" style="height: 22px; line-height: 20px; width: 120px;"><i class="fas fa-file-excel"></i> 계약상세엑셀다운</a>
 							</div>
 						</td>
 					</tr>
@@ -258,7 +259,7 @@
 						<th class="tc">제품강종</th>
 						<th class="tc">SPEC</th>
 						<th class="tc">Loss율(%)</th>
-						<th class="tc">커플러단가</th>
+						<th class="tc" title="철근:가공단가, 기타:판매단가">단가</th>
 					</tr>
 					<!-- // -->
 					<tr class="detailRow" name="tableCd">
@@ -291,7 +292,7 @@
 							<input class="tc" name="lossRate" type="text" onkeyup="onlyNumber(this)" comma>
 						</td>
 						<td>
-							<input class="tc" name="cplrUpr" type="text" onkeyup="onlyNumber(this)" comma>
+							<input class="tc" name="cplrUpr" type="text" onkeyup="onlyNumber(this)" comma title="철근:가공단가, 기타:판매단가">
 						</td>
 					</tr>
 				</table>
@@ -451,6 +452,10 @@
 			<button type="button" id="prjctActionBtn">등록</button>
 			<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 		</div>
+		<div class="contents">
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+		
 	</form>
 </div>
 <script type="text/javascript">
@@ -674,7 +679,27 @@
 			});
 		}
 	}
-	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			            {key: "prjctCd",     	label: "프로젝트코드",   	  align: "center", width: 100},
+			            {key: "prjctNm",     	label: "프로젝트명",      	  align: "center", width: 100},
+			            {key: "prdtDivCd",   	label: "제품구분", 		align: "center", width: 80},
+			            {key: "prdtDivNm",   	label: "제품구분", 			align: "center", width: 80},
+			            {key: "prdtStknCd",  	label: "제품강종",  	  align: "left",    width: 240},
+			            {key: "prdtStknNm",  	label: "제품강종",     	  align: "left",    width: 160},
+			            {key: "prdtSizeNm",    	label: "SPEC",     	  align: "center",  width: 90},
+			            {key: "lossRate",     	label: "총중량(KG)", 	  align: "right",   width: 100,formatter: "money"},
+			            {key: "cplrUpr",   		label: "철근:가공단가, 기타:판매단가",   		align: "right",   width: 100, formatter: "money"},
+			            
+			        ]
+			    });
+				return this;
+			}
+		}		
 	function viewShipModal() {
 		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 920, 780, " ");
 	}
@@ -688,6 +713,8 @@
 			$(this).closest('table').find('tbody').toggle();
 		});
 		fileGridView.initView();
+		excelView.initView();
+		
 		prdtDivCombo();
 		$("#userId").val(jwt.userId);
 		$("#coCd").val(jwt.coCd);
@@ -831,13 +858,15 @@
 						$('.detailRow button').eq(idx).prop("disabled",true);
 			 	 		//$('.detailRow [name=prdtSizeNm]').eq(idx).prop("disabled",true);
 					}
-					if(value == "PRDTDIV22"){
-			 	 		$('.detailRow [name=lossRate]').eq(idx).prop("readonly",true);
-			 	 		$('.detailRow [name=cplrUpr]').eq(idx).prop("readonly",false);
-					} else {
-			 	 		$('.detailRow [name=lossRate]').eq(idx).prop("readonly",false);
-			 	 		$('.detailRow [name=cplrUpr]').eq(idx).prop("readonly",true);
-					}
+					
+// 모든 제품에 대해서 loss 및 단가 입력가능하게 한다.				
+// 					if(value == "PRDTDIV22"){
+// 			 	 		$('.detailRow [name=lossRate]').eq(idx).prop("readonly",true);
+// 			 	 		$('.detailRow [name=cplrUpr]').eq(idx).prop("readonly",false);
+// 					} else {
+// 			 	 		$('.detailRow [name=lossRate]').eq(idx).prop("readonly",false);
+// 			 	 		$('.detailRow [name=cplrUpr]').eq(idx).prop("readonly",false);
+// 					}
 					
 				}
 			}
@@ -1092,13 +1121,14 @@
 	 	 		$targetRow.find('[name=prdtSizeNm]').prop("disabled",false);
 			}
 
-			if($targetRow.find('select[name="prdtDivCd"]').val() == "PRDTDIV22"){
-				$targetRow.find('[name=lossRate]').prop("readonly",true);
-				$targetRow.find('[name=cplrUpr]').prop("readonly",false);
-			} else {
-				$targetRow.find('[name=lossRate]').prop("readonly",false);
-				$targetRow.find('[name=cplrUpr]').prop("readonly",true);;
-			}
+// 모든 제품에 대해서 loss 및 단가 입력가능하게 한다.	
+// 			if($targetRow.find('select[name="prdtDivCd"]').val() == "PRDTDIV22"){
+// 				$targetRow.find('[name=lossRate]').prop("readonly",true);
+// 				$targetRow.find('[name=cplrUpr]').prop("readonly",false);
+// 			} else {
+// 				$targetRow.find('[name=lossRate]').prop("readonly",false);
+// 				$targetRow.find('[name=cplrUpr]').prop("readonly",true);;
+// 			}
 		}
  	}
  	
@@ -1190,5 +1220,25 @@
 // 		$('#estCoprt_S option:not([value=""])').remove()
 // 		setCommonSelect($('#estCoprt_S'));  
 	}
-	
+	function excelDown() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"prjctCd" : row.prjctCd,
+			"salesMng" : row.mngId,
+			"pageNo"      : 1,
+			"recordCnt"   : 9999999
+		}
+		postAjax("/user/sd/sd05/selectPrjInfo", formData, null, function(data){
+				var list = data.result.prjctDtl;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("프로젝트제품상세목록"+todayDate+".xls");
+			});	
+	}	
 </script>

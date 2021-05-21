@@ -72,6 +72,12 @@ public class AR02Ctr {
     	if(result == 0) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else if (result == 500){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
+		} else if (result == 501){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
 		} else {
 			model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
@@ -81,9 +87,21 @@ public class AR02Ctr {
 
 	@DeleteMapping(value = "/deleteSell")
     public String deleteSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		ar02Svc.deleteSell(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+		int result = ar02Svc.deleteSell(paramMap);
+		
+    	if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else if (result == 500){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
+		} else if (result == 501){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+		}
     	return "jsonView";
     }
 
@@ -93,6 +111,12 @@ public class AR02Ctr {
     	if(result == 0) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else if (result == 500){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
+		} else if (result == 501){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
 		} else {
 			model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));

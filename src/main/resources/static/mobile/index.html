@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">	
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no,  maximum-scale=1.0, minimum-scale=1.0"> -->
+
+	<link rel="icon" href="/static/favicon.ico"  type="image/x-icon">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/login.css" />
+	<script src="/static/js/jquery-3.5.1.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+<script type="text/javascript">	
+
+	$(document).ready(function() {
+		var loginId = getCookie("loginId");
+		var validYn = getCookie("jwtToken");
+		if(validYn != null) {            
+			checkToken();
+		}
+		if(loginId != null) {
+			$("#id").val(loginId);
+			$("#idSaveCheck").prop("checked", true);
+		}
+		$("body").keydown(function(key) {
+			if (key.keyCode == 13) {
+				loginAction();
+			}
+		});
+		$("#idSaveCheck").change(function(){ // 체크박스에 변화가 발생시
+	        if($("#idSaveCheck").is(":checked")){ // ID 저장하기 체크했을 때,
+	            var loginId = $("#id").val();
+	            setCookie("loginId", loginId, 7); // 7일 동안 쿠키 보관
+	        }else{ // ID 저장하기 체크 해제 시,
+	            deleteCookie("loginId");
+	        }
+	    });
+		// ID 저장하기를 체크한 상태에서 ID를 입력하는 경우, 이럴 때도 쿠키 저장.
+	    $("#id").keyup(function(){ // ID 입력 칸에 ID를 입력할 때,
+	        if($("#idSaveCheck").is(":checked")){ // ID 저장하기를 체크한 상태라면,
+	            var loginId = $("#id").val();
+	            setCookie("loginId", loginId, 7); // 7일 동안 쿠키 보관
+	        }
+	    });
+	    setImg();
+	});
+	
+	function checkToken() {
+		$.ajax({
+		    type: "POST",
+		    url: DOMAIN_URL + "/admin/cm/cm02/selectRoleInfo",
+		    beforeSend: function (request) {
+	            request.setRequestHeader("Authorization", authorizationToken);
+	        },
+		    success: function(data){
+		    	
+				location.href = "/static/mobile/menu.html";
+		    },
+	        error: function (data) {
+	        	return;
+	        }
+		});
+	}
+	
+	function setupAuthorization(headerValue) {
+		$.ajaxSetup({
+			contentType: "application/x-www-form-urlencoded; charset=utf-8",
+			beforeSend: function (request)
+            {
+                request.setRequestHeader("Authorization", headerValue);
+            }
+		});
+	}
+	
+	function getToken() {
+		//헤더 세팅
+		setupAuthorization("Basic "+btoa($("#id").val()+":"+$("#pass").val()));
+		
+		var formData = {
+			"grant_type" : "password",	
+			"id" : $("#id").val(),
+			"password" : $("#pass").val()
+		}
+
+		console.log('mobile - getToken');	
+
+		$.post(
+			DOMAIN_URL + "/oauth/token",
+			formData,
+			function(data, status, request) {
+				setCookie("jwtToken", "Bearer "+data.access_token, 1);
+				authorizationToken = getCookie("jwtToken");
+				jwt = parseJwt(authorizationToken);				
+				location.href = "/static/mobile/menu.html";				
+			}
+		);
+		
+	}
+	
+	
+	function loginAction() {
+		var isValid = true;
+		$("input").each(function(index, item){
+			if($(this)[0].id != '_retVal12'){
+				if($(this).val() == "") {
+					isValid = false;
+					return false;
+				}
+			}
+		});
+		if(!isValid) {
+			alert("모든 정보를 입력하셔야 합니다.");
+			return;
+		}
+		var formData = {
+			"grant_type" : "password",	
+			"id" : $("#id").val(),
+			"password" : $("#pass").val()
+		}
+		
+		$.ajax({
+		    type: "POST",
+		    url: DOMAIN_URL + "/login",
+		    contentType: "application/json; charset=utf-8",
+		    data: JSON.stringify(formData),
+		    success: function(data){
+		    	if(data.msg == "success"){
+		    		getToken();
+		    	} else {
+		    		alert(data.msg);
+		    	}
+		    }
+		});
+	}
+	
+	function setImg() {
+		var imgUrl = "";
+		var bgImgUrl = "";
+		if(location.hostname == "localhost") {
+			imgUrl = "/static/img/Logo_GUM.png";
+			bgImgUrl = "/static/img/Login_bg_GUM.png";
+		} else {
+			imgUrl = "/static/img/Logo_GG.png";
+			bgImgUrl = "/static/img/Login_bg_GG.png";
+		}
+		$("#logoImg").attr("src", imgUrl);
+		$("#login").css("background", "url("+bgImgUrl+") no-repeat 100% 0% #ffffff");
+	}
+	
+</script>
+<body>
+  <div id="login">
+    <div class="login_box">
+      <h1 class="logo">
+        <img id="logoImg" src="" alt="금문철강">
+      </h1>
+      <h2>Login - mobile</h2>
+      <ul>
+        <li><input id="id" type="text" placeholder="ID"></li>
+        <li><input id="pass" type="password" placeholder="Password"></li>
+        <li style="margin-top: 0px;">
+        	<input type="checkbox" id="idSaveCheck" style="width: 20px  !important; cursor: pointer;">
+        	<label style="font-size: larger;vertical-align:sub;">아이디 저장</label> 
+        </li>
+      </ul>
+      <button onclick="loginAction();">Login</button>
+    </div>
+
+  </div>
+</body>
+</html>
