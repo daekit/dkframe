@@ -21,6 +21,16 @@ var deleteCookie = function (name) {
 	} 
 }
 
+
+var DOMAIN_URL = "";
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+if(isMobile()){
+	DOMAIN_URL = "http://localhost";
+}
+
 var authorizationToken = getCookie("jwtToken");
 var jwt = parseJwt(authorizationToken);
 var menuIdx = getCookie("menuIdx");
@@ -135,14 +145,19 @@ var openThirdModal = function(url, width, height, title, paramObj, callBack) {
     });
 };
 
-function parseJwt (token) {
+function parseJwt(token) {
+	
+	console.log('parseJwt !!!');
 	if(token == null) {
-		if(location.href.search("/static/index.html") == -1) {
-//			alert("토큰이 만료되었습니다.");
-        	location.href = "/static/index.html";
-		} else {
+		if(location.href.search("/static/index.html") != -1  || location.href.search("/static/mobile/index.html") != -1 )  {			
 			return;
-		}
+		}else{
+			if(isMobile()){
+				location.href = "/static/mobile/index.html";
+			}else{
+				location.href = "/static/index.html";
+			}
+		}		
 	}
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -184,6 +199,7 @@ function checkGridRow(grid, type){
 var tokenErrorMsg = ["unauthorized", "invalid_token"];
 
 function postAjax(url, data, contentType, callback) {
+	console.log(`postAjax url = ${url} `);
 	if(contentType == null) {
 		contentType = "application/json; charset=utf-8";
 		data = JSON.stringify(data);
@@ -206,13 +222,18 @@ function postAjax(url, data, contentType, callback) {
         error: function (data) {
         	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1) {
 //        		alert("토큰이 만료되었습니다.");
-        		location.href = "/static/index.html";
+				if(isMobile()){
+					location.href = "/static/mobile/index.html";
+				}else{
+					location.href = "/static/index.html";
+				}        		
         	}
         }
 	});
 }
 
 function postAjaxSync(url, data, contentType, callback) {
+	console.log(`postAjaxSync url = ${url} `);
 	if(contentType == null) {
 		contentType = "application/json; charset=utf-8";
 		data = JSON.stringify(data);
@@ -234,7 +255,11 @@ function postAjaxSync(url, data, contentType, callback) {
         error: function (data) {
         	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1) {
 //        		alert("토큰이 만료되었습니다.");
-        		location.href = "/static/index.html";
+				if(isMobile()){
+					location.href = "/static/mobile/index.html";
+				}else{
+					location.href = "/static/index.html";
+				}        		
         	}
         }
 	});
@@ -258,7 +283,12 @@ function deleteAjax(url, data, contentType, callback) {
         error: function (data) {
         	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
-        		location.href = "/static/index.html";
+
+				if(isMobile()){
+					location.href = "/static/mobile/index.html";
+				}else{
+					location.href = "/static/index.html";
+				}
         	}
         }
 	});
@@ -282,7 +312,11 @@ function putAjax(url, data, contentType, callback) {
         error: function (data) {
         	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
-        		location.href = "/static/index.html";
+        		if(isMobile()){
+					location.href = "/static/mobile/index.html";
+				}else{
+					location.href = "/static/index.html";
+				}
         	}
         }
 	});
@@ -305,7 +339,12 @@ function filePostAjax(url, data, callback) {
         error: function (data) {
         	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
-        		location.href = "/static/index.html";
+
+        		if(isMobile()){
+					location.href = "/static/mobile/index.html";
+				}else{
+					location.href = "/static/index.html";
+				}
         	}
         }
 	});
@@ -328,7 +367,11 @@ function filePutAjax(url, data, callback) {
         error: function (data) {
         	if(tokenErrorMsg.indexOf(data.responseJSON.error) > -1){
 //        		alert("토큰이 만료되었습니다.");
-        		location.href = "/static/index.html";
+        		if(isMobile()){
+					location.href = "/static/mobile/index.html";
+				}else{
+					location.href = "/static/index.html";
+				}
         	}
         }
 	});

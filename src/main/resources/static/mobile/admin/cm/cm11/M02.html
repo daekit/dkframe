@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.css">
+    <link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+    <link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+    <link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+    <link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+    <link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+    <link rel="stylesheet" href="/static/css/gnb.css" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/sub.css" />
+    <link rel="stylesheet" href="/static/css/common.css" />
+
+    <script src="/static/js/jquery-latest.min.js"></script>
+    <script src="/static/js/jquery.serializeObject.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+    <script src="/static/js/moment/moment-with-locales.js"></script>
+    <script src="/static/js/ax5/ax5core.min.js"></script>
+    <script src="/static/js/ax5/ax5grid.min.js"></script>
+    <script src="/static/js/ax5/ax5mask.min.js"></script>
+    <script src="/static/js/ax5/ax5modal.min.js"></script>
+    <script src="/static/js/ax5/ax5toast.min.js"></script>
+    <script src="/static/js/jstree/jstree.min.js"></script>
+    <script src="/static/js/global.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+
+<body>
+    <div>
+        <!-- 콘텐츠 -->
+        <div class="contents">
+            <div style="text-align:right">
+                <h3 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h3>
+            </div>
+            <!-- 리스트 -->
+            <table class="form-group popup_table" id="scndTable">
+                <colgroup>
+                    <col>
+
+                </colgroup>
+                <thead>
+                    <tr>
+                        <td style="text-align: left;">
+                            <h3 class="location"><span class="page_tit">매입실적(판매법인)</span></h3>(단위:톤)
+                            <!-- <span id="ordrgTotCnt"></span> -->
+                        </td>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+
+                        <td>
+                            <div class="" style="margin:0px;padding:0px;width:100%;">
+                                <div data-ax5grid="grid03" data-ax5grid-config="{}" style="height:250px; width: 100%">
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <div id="chart_div3"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script type="text/javascript">
+    var actionType = null;
+    var odrSeq = null;
+    var odrDtlSeqArr = [];
+
+    var gridView3 = {
+        initView: function () {
+            this.target = new ax5.ui.grid();
+            this.target.setConfig({
+                showRowSelector: false,
+                multipleSelect: false,
+                sortable: true,
+                target: $('[data-ax5grid="grid03"]'),
+                header: {
+                    align: "center",
+                    selector: false
+                },
+                body: {
+                    onClick: function () {
+                        this.self.select(this.dindex);
+                    }
+                },
+                page: {
+                    display: true,
+                },
+                footSum: [
+                    [{
+                            label: "합계",
+                            align: "center"
+                        },
+                        {
+                            key: "realTrstQty",
+                            collector: "sum",
+                            formatter: "money",
+                            align: "right"
+                        }
+                    ]
+                ],
+                columns: [{
+                        key: "clntNm",
+                        label: "회사",
+                        align: "center",
+                        width: "52%"
+                    },
+                    {
+                        key: "realTrstQty",
+                        label: "실적",
+                        align: "right",
+                        width: "50%",
+                        formatter: "money"
+                    }
+                ]
+            });
+            return this;
+        },
+        setData: function () {
+            var targetObj = this.target;
+            var paramObj = {};
+            postAjax(DOMAIN_URL + "/user/cm/cm11/selectClntSelpch1List", paramObj, null, function (data) {
+                var list = data.resultList;
+                targetObj.setData({
+                    list: list,
+                    page: {
+                        totalElements: data.paginationInfo.totalRecordCount
+                    }
+                });
+                google.charts.setOnLoadCallback(function drawChart() {
+                    var chartData = new google.visualization.DataTable(data.chartData);
+
+                    var chart = new google.visualization.LineChart(document.getElementById(
+                        "chart_div3"));
+
+                    var options = {
+                        height: 300,
+                        fontSize: '10',
+                        animation: { //차트가 뿌려질때 실행될 애니메이션 효과
+                            startup: true,
+                            duration: 1000,
+                            easing: 'linear'
+                        }
+                    }
+                    chart.draw(chartData, options);
+                });
+            });
+        },
+        reqSetData: function () {
+            var paramObj = {};
+            postAjax(DOMAIN_URL + "/user/cm/cm11/selectDashBoardList", paramObj, null, function (data) {
+                $("#searchDttm").html("조회 일시 : " + data.searchDttm);
+                gridView3.target.setData({
+                    list: data.resultList3,
+                    page: {
+                        totalElements: data.paginationInfo3.totalRecordCount
+                    }
+
+                });
+                google.charts.setOnLoadCallback(function drawChart() {
+                    var chartData3 = new google.visualization.DataTable(data
+                    .chartData3); // 매입실적(거래처)    
+                    var chart3 = new google.visualization.PieChart(document.getElementById(
+                        "chart_div3")); // 매입실적(거래처)    						
+                    var options = {
+                        height: 300,
+                        fontSize: '10',
+                        //curveType: 'function',
+                        animation: { //차트가 뿌려질때 실행될 애니메이션 효과
+                            startup: true,
+                            duration: 1000,
+                            easing: 'linear'
+                        }
+                    }
+                    var options2 = {
+                        title: "매출/매입실적 (월별)",
+                        width: 1750,
+                        height: 300,
+                        chartArea: {
+                            left: 100
+                        },
+                        backgroundColor: {
+                            'fill': '(00)#F4F4F4',
+                            'opacity': 100
+                        },
+                        fontSize: '15',
+                        //curveType: 'function',
+                        animation: { //차트가 뿌려질때 실행될 애니메이션 효과
+                            startup: true,
+                            duration: 1000,
+                            easing: 'linear'
+                        }
+                    }
+                    chart3.draw(chartData3, options); // 매입실적(거래처)						
+                });
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        // 페이지 타이틀 set
+        mainDefaultLoad("대시보드", "임원진 현황");
+        // grid init		
+        gridView3.initView().reqSetData();
+        var setDataInterval = setInterval(function () {
+            gridView3.initView().reqSetData();
+        }, 600000);
+
+    });
+
+    google.charts.load('current', {
+        'packages': ['corechart']
+    });
+</script>
