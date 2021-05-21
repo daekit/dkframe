@@ -420,7 +420,7 @@
 				 		</select>
 				 	</td>
 				 	<td>
-				 		<input type="text" class="form-control" name="pldgAmt" onkeyup="onlyNumber(this); calCdtlnAmt(this);" comma>
+				 		<input type="text" class="form-control" name="pldgAmt" onkeyup="onlyNumber(this); calCdtlnAmt(this); countTot();" comma>
 				 	</td>
 				 	<td>
 				 		<input type="text" class="form-control tr" name="pldgRcognRate" onkeyup="onlyNumber(this); calCdtlnAmt(this);" maxlength="3">
@@ -447,6 +447,37 @@
 				 		<input type="text" class="form-control" name="udtDttm" readonly>
 				 	</td>
 				 </tr>
+			</table>
+			<table>
+				<colgroup>
+					<col width="3%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="8%">
+					<col width="11%">
+					<col width="11%">
+					<col width="11%">
+					<col width="12%">
+					<col width="8%">
+					<col width="8%">
+				</colgroup>
+				<tr>
+					<th class="tc" colspan="4">합계</th>
+					<td>
+						<input class="tr" type="text" id="pldgTotAmt" name="pldgTotAmt" comma readonly>
+					</td>
+					<td></td>
+					<td>
+						<input class="tr" type="text" id="cdtlnTotAmt" name="cdtlnTotAmt" comma readonly>
+					</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
 			</table>
 			<br>
 			<!-- 첨부파일 테이블 -->
@@ -616,6 +647,7 @@
 		}else{
 			addPldgRow();
 		}
+		countTot();
 		
 		// 첨부파일 set
 		var clntFileList = clntInfo.clntFileList;
@@ -914,5 +946,21 @@
 		}
 		
 		return formData;
+	}
+	
+	function countTot() {
+		var pldgTotAmt = 0;
+		var cdtlnTotAmt = 0;
+		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
+			var pldgAmt = Number(deleteCommaStr($(elem).find('input[name="pldgAmt"]').val())) || 0;
+			var cdtlnAmt = Number(deleteCommaStr($(elem).find('input[name="cdtlnAmt"]').val())) || 0;
+			
+			pldgTotAmt += pldgAmt;
+			cdtlnTotAmt += cdtlnAmt;
+		});
+		
+		$('#pldgTotAmt').val(addCommaStr(pldgTotAmt));
+		$('#cdtlnTotAmt').val(addCommaStr(cdtlnTotAmt));
+
 	}
 </script>
