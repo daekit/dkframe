@@ -41,6 +41,8 @@ public interface AR02Mapper {
 	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
 
 	String selectOwner1ClntCd(Map<String, String> paramMap);
+	
+	int selectBilgVatPer(Map<String, String> paramMap);
 
 	long selectBilgVatAmt(Map<String, String> paramMap);
 
