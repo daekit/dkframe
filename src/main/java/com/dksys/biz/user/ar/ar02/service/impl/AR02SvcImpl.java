@@ -103,11 +103,20 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	public int deleteSell(Map<String, String> paramMap) {
 		
-//		//마감 체크
-//		if(ar02Svc.checkSellClose(paramMap)) {
-//			return 500;
-//		}		
-//		
+		//마감 체크
+        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkPchsClose(paramMap)) {
+				return 500;				
+			}
+        }
+        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
+        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+			if(ar02Svc.checkSellClose(paramMap)) {
+				return 501;
+			}	
+        }
+        
 		Map<String, String> resultMap = ar02Mapper.selectSellInfo(paramMap);
 		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
 		if("OWNER1".equals(resultMap.get("ownerCd").toString())) {		
