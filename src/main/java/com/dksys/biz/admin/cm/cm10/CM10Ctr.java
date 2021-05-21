@@ -44,4 +44,16 @@ public class CM10Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+ 
+    @PostMapping(value = "/selectReqNList")
+	public String selectReqNList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = cm10Svc.selectReqNCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = cm10Svc.selectReqNList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
 }

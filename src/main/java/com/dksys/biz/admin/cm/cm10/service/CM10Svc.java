@@ -12,5 +12,9 @@ public interface CM10Svc {
 	public List<Map<String, String>> selectOrdrgNList(Map<String, String> param);
 	
 	public int selectOrdrgNCount(Map<String, String> param);
+
+	public int selectReqNCount(Map<String, String> param);
+
+	public List<Map<String, String>> selectReqNList(Map<String, String> param);
 	
 }

@@ -91,7 +91,7 @@
                 <th>기준 년도</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" autocomplete="off" id="salesYy" name="salesYy" data-search="salesYy" date> 
+								<input type="text" class="input_calendar" autocomplete="off" id="salesYy" name="salesYy" data-search="salesYy" date onchange="initYy();gridView.initView().setData(0);">> 
 							</div>
 						</td>						
                 <th>계산서</th>
@@ -211,9 +211,6 @@
 		        	 onClick: function () {
  		                this.self.select(this.dindex);
 		            },
-		            onDBLClick: function () {
-		            	insertUpdatePrdtAcins("U");
-		            }, 
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -250,7 +247,7 @@
 			    ],
 		        columns: [
 		            {key: "clntNm",     label: "거래처",   align: "left", width: 130},
-		            {key: "clntDivNm",  label: "구분",   align: "left", width: 130},
+		            {key: "clntDivNm",  label: "구분",    align: "center", width: 80},
 		            {key: "bilgWt01",   label: Yy+".01", align: "right", width: 80, formatter: "money"},
 		            {key: "bilgWt02",   label: Yy+".02", align: "right", width: 80, formatter: "money"},
 		            {key: "bilgWt03",   label: Yy+".03", align: "right", width: 80, formatter: "money"},
@@ -273,6 +270,7 @@
 		},
 		setData: function(_pageNo){
 			var targetObj = this.target;
+			Yy = $('#salesYy').val();
 			var paramObj = {"pageNo" : _pageNo + 1};
 			if(inputValidation($('[required]'))){
 				for(var i=0;i<$('[data-search]').length;i++){
@@ -366,11 +364,7 @@
 			autoclose : true
 		})
 		.datepicker("setDate", new Date());
-		
-		Yy = $('#salesYy').val();
-		
-
-
+		initYy();
 		$("#selpchCd option[value='SELPCH3']").remove();
 		$("#selpchCd option[value='SELPCH4']").remove();
 		
@@ -378,6 +372,9 @@
 //		$("#endDt").val(getMonth("E"));
 	}
 	
+	function initYy(){		
+		Yy = $('#salesYy').val();		
+	}
 	//거래처 검색
 	function clntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {

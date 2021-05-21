@@ -67,15 +67,19 @@
 					,A.ORD_TYP
 					,FN_CM05M01_CD_TO_NM(A.ORD_TYP) AS ORD_TYP_NM
 					,A.BILDNG_TYP
+					,FN_CM05M01_CD_TO_NM(A.BILDNG_TYP) AS BILDNG_TYP_NM
 					,A.ENGRK_TYP
+					,FN_CM05M01_CD_TO_NM(A.ENGRK_TYP) AS ENGRK_TYP_NM
 					,A.MAKR_MNG_NM
 					,A.CLNT_EMAIL
 					,A.CLNT_FAX_NO
 					,A.PRCSN_UPR
 					,A.DC_DIV
+					,FN_CM05M01_CD_TO_NM(A.DC_DIV) AS DC_DIV_NM
 					,A.PRDT_UPR
 					,A.CPLR_YN
 					,A.PMNT_MTD_CD
+					,FN_CM05M01_CD_TO_NM(A.PMNT_MTD_CD) AS PMNT_MTD_NM
 					,A.SHOP_CLNT_CD
 			        ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.SHOP_CLNT_CD) AS SHOP_CLNT_NM
 					,A.SHOP_UPR
@@ -86,6 +90,11 @@
 					,A.OUTORD_TEL_NO
 					,A.OUTORD_FAX_NO
 					,A.WH_CD
+					,FN_CM05M01_CD_TO_NM(A.WH_CD) AS WH_NM
+					,A.SCND_WH_CD
+					,FN_CM05M01_CD_TO_NM(A.SCND_WH_CD) AS SCND_WH_NM
+					,A.THRD_WH_CD
+					,FN_CM05M01_CD_TO_NM(A.THRD_WH_CD) AS THRD_WH_NM
 					,TO_CHAR(TO_DATE(A.PCHS_STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_STRT_DT
 					,TO_CHAR(TO_DATE(A.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT
 					,A.CLMN_DAY
@@ -100,7 +109,7 @@
 		 			AND A.CO_CD = #{coCd}
 				</if>
 				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				 	AND (A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt})
+				 	AND ( #{strtDt}  BETWEEN A.STRT_DT AND   A.END_DT  OR  #{endDt}  BETWEEN  A.STRT_DT AND A.END_DT )
 				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
@@ -125,6 +134,7 @@
 			TO_CHAR(CREAT_DTTM,'YYYY-MM-DD') as CREAT_DTTM2 ,
 			TO_CHAR(TO_DATE(T.PCHS_STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_STRT_DT2,
 			TO_CHAR(TO_DATE(T.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT2,
+            FN_CM05M01_CD_TO_NM(T.CLMN_DIV_CD) AS CLMN_DIV_NM,
             FN_CM05M01_CD_TO_NM(T.CLMN_DIV_CD) AS CLMN_DIV_NM
 		FROM TB_SD05M01 T
 		WHERE PRJCT_CD = #{prjctCd}
@@ -134,6 +144,8 @@
 		SELECT TO_CHAR(TO_DATE(REQ_DT,'YYYYMMDD'),'YYYY-MM-DD') AS ORD_REQ_DT
 			  ,B.CLNT_CD AS ORD_CLNT_CD
 			  ,A.WH_CD AS ORD_WH_CD
+ 			  ,A.SCND_WH_CD
+			  ,A.THRD_WH_CD
 			  ,ADDR_MAIN AS ORD_ADDR_MAIN
 			  ,ADDR_SUB AS ORD_ADDR_SUB
 			  ,CONCAT(CONCAT(B.ADDR_MAIN,' '),B.ADDR_SUB) AS ORD_ADDR
@@ -164,16 +176,19 @@
 	</select>
 	
 	<select id="selectProjectDtl" parameterType="Map" resultType="camelMap">
-	SELECT CO_CD
-		 , PRJCT_CD
-		 , PRJCT_SEQ
-		 , PRDT_DIV PRDT_DIV_CD
-		 , PRDT_STKN PRDT_STKN_CD 
-		 , SIZE_LIST PRDT_SIZE_NM
-		 , LOSS_RATE
-		 , CPLR_UPR
-	  FROM TB_SD05D01
-	 WHERE PRJCT_CD = #{prjctCd}
+	SELECT T.CO_CD
+		 , T.PRJCT_CD
+		 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+		 , T.PRJCT_SEQ
+		 , T.PRDT_DIV PRDT_DIV_CD
+         , FN_CM05M01_CD_TO_NM(T.PRDT_DIV) AS PRDT_DIV_NM
+		 , T.PRDT_STKN PRDT_STKN_CD 
+         , FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM
+		 , T.SIZE_LIST PRDT_SIZE_NM
+		 , T.LOSS_RATE
+		 , T.CPLR_UPR
+	  FROM TB_SD05D01 T
+	 WHERE T.PRJCT_CD = #{prjctCd}
 	</select>
 	
 	<select id="selectProjectClntList" parameterType="Map" resultType="CamelMap">
@@ -227,7 +242,9 @@
 			, OUTORD_MNG_NM    = #{outordMngNm}           
 			, OUTORD_TEL_NO    = #{outordTelNo} 
 			, OUTORD_FAX_NO    = #{outordFaxNo}		
-			, WH_CD            = #{whCd}            
+			, WH_CD            = #{whCd}        	
+			, SCND_WH_CD       = #{scndWhCd}        	
+			, THRD_WH_CD       = #{thrdWhCd}            
 			, SALES_AREA_CD    = #{salesAreaCd} 
 			, UDT_ID           = #{userId}		 
 			, UDT_PGM          = #{pgmId}							
@@ -307,6 +324,8 @@
 		, OUTORD_TEL_NO
 		, OUTORD_FAX_NO
 		, WH_CD
+		, SCND_WH_CD
+		, THRD_WH_CD
 		, SALES_AREA_CD
 		, CLMN_DAY
 		, CLMN_RMK
@@ -356,6 +375,8 @@
 		, #{outordTelNo}
 		, #{outordFaxNo}
 		, #{whCd}
+		, #{scndWhCd}
+		, #{thrdWhCd}
 		, #{salesAreaCd}
 		, #{clmnDay}
 		, #{clmnRmk}

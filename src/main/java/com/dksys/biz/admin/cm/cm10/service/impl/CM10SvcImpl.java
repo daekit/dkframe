@@ -36,4 +36,15 @@ public class CM10SvcImpl implements CM10Svc {
 	public List<Map<String, String>> selectOrdrgNList(Map<String, String> paramMap) {
 		return cm10Mapper.selectOrdrgNList(paramMap);
 	}
+
+	@Override
+	public int selectReqNCount(Map<String, String> paramMap) {
+		// TODO Auto-generated method stub
+		return cm10Mapper.selectReqNCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectReqNList(Map<String, String> paramMap) {
+		return cm10Mapper.selectReqNList(paramMap);
+	}
 }
