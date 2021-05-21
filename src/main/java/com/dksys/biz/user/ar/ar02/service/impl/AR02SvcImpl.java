@@ -95,6 +95,7 @@ public class AR02SvcImpl implements AR02Svc {
 				}
 			} else {
 				paramMap.put("creditAmt", String.valueOf(exceedAmt));
+				paramMap.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
 				if(creditDeposit(paramMap)) {
 					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 					return 0;
@@ -313,7 +314,7 @@ public class AR02SvcImpl implements AR02Svc {
 			map.put("loanCd", 'M');
 			map.put("clntCd", paramMap.get("clntCd"));
 			map.put("coCd", paramMap.get("coCd"));
-			map.put("iTrDt", DateUtil.getCurrentYyyymmdd());
+			map.put("iTrDt", paramMap.get("dlvrDttm").toString().replace("-", ""));
 			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
 			ar02Mapper.callCreditLoan(map);
 		} catch (NumberFormatException e) {

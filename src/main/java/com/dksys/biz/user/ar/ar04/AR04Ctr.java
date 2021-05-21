@@ -27,9 +27,14 @@ public class AR04Ctr {
 	
 	@PostMapping(value = "/insertBilg")
 	public String insertBilg(@RequestBody Map<String, Object> paramMap, ModelMap model) {
-		ar04Svc.insertBilg(paramMap);
-		model.addAttribute("resultCode", 200);
-		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		try {
+			ar04Svc.insertBilg(paramMap);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}catch(Exception e){
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
 		return "jsonView";
 	}
 	

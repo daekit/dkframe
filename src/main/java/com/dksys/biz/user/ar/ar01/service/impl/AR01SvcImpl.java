@@ -185,8 +185,8 @@ public class AR01SvcImpl implements AR01Svc {
 	//출하확정 수정시 updateConfirmToMes도 같이 수정해주어야함.
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
-		//마감 체크
-//		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
+		// 마감 체크
+		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
 		if(ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
@@ -428,7 +428,7 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public int updateCancel(Map<String, String> paramMap) {
 		
-		//마감 체크
+		// 마감 체크
 		if(ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
