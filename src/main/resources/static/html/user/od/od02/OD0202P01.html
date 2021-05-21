@@ -28,13 +28,13 @@
 	            <tr>
 	                <th class="hit">판매법인</th>
 	                <td>                             
-	                    <select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required="required">
-	                    	<option value="">선택</option> 
+	                    <select id="estCoprt" name="estCoprt" data-kind="ESTCOPRT" required="required" msg="판매법인">
+<!-- 	                    	<option value="">선택</option>  -->
 	                 	</select>
 	                </td>
 	                <th class="hit">거래유형</th>
 	                <td>                             
-	                    <select id="trspTypCd" name="trspTypCd" data-kind="TRSPTYP" required="required">
+	                    <select id="trspTypCd" name="trspTypCd" data-kind="TRSPTYP" required="required"  msg="거래유형">
 	                    	<option value="">선택</option> 
 	                 	</select>
 	                </td>
@@ -42,7 +42,7 @@
 	            <tr>
 	                <th class="hit">매입일자</th>
 	                <td>                             
-	                    <input type="text" id="trstDt" name="trstDt" class="input_calendar" required="required">
+	                    <input type="text" id="trstDt" name="trstDt" class="input_calendar" required="required"  msg="매입일자">
 	                </td>
 	                <th>수입여부</th>
 	                <td>                             
@@ -56,20 +56,20 @@
 	            <tr>
 	                <th class="hit">판매유형</th>
 	                <td>                             
-	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" required="required">
-	                        <option value="">선택</option> 
+	                    <select id="typCd" name="typCd" data-kind="SELLTYPE" onchange="setBySellType(this.value);" required="required" msg="판매유형">
+<!-- 	                        <option value="">선택</option>  -->
 	                    </select>
 	                </td>
  	                <th>메이커</th>
 	                <td>                                
-	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required">
+	                    <select id="makrCd" name="makrCd" data-kind="MAKR" required="required" msg="메이커">
 	                    </select>
 	                </td>   
 	            </tr>
 	            <tr>
 	                <th>재고주체</th>
 	                <td>   
-	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER" required="required">
+	                	<select id="ownerCd" name="ownerCd" data-kind="OWNER" required="required" msg="재고주체">
 	                    </select>               
 	                </td>
   	                <th>담당자연락처</th>
@@ -82,8 +82,8 @@
 
 	                <th class="hit">창고</th>
 	                <td>                                
-	                    <select id="whCd" name="whCd" data-kind="WH" required="required">
-		                  	<option value="">선택</option> 
+	                    <select id="whCd" name="whCd" data-kind="WH" required="required" msg="창고">
+<!-- 		                  	<option value="">선택</option>  -->
 		                </select>
 	                </td>	                
 	                <th>현장</th>
@@ -109,7 +109,7 @@
 	                        <input type="hidden" name="prdtStkn">
 	                        <input type="hidden" name="prdtStknNm">
 	                    	<input type="hidden" name="dirtrsYn" value="N">
-			                <input type="text" name="prdtNm" readonly="readonly" required="required" >
+			                <input type="text" name="prdtNm" readonly="readonly" required="required"   msg="제품명">
 			              	<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>	            
@@ -150,11 +150,11 @@
 	                <th class="hit">매입단가</th>
 	                <td>                             
 	                	<input type="hidden" name="realTrstUpr" readonly="readonly">
-	                    <input type="text" name="bilgUpr" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma>
+	                    <input type="text" name="bilgUpr" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma  msg="매입단가">
 	                </td>
 	                <th>제품기준단가</th>
 	                <td>                                
-	                    <input type="text" name="prdtUpr" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma>
+	                    <input type="text" name="prdtUpr" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma  msg="제품기준단가">
 	                </td>
 	            </tr>
 	            <tr>
@@ -188,7 +188,7 @@
 	                <th>매입금액</th>
 	                <td>                             
 	                	<input type="hidden" name="realTrstAmt" readonly="readonly" minus>
-	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma minus>
+	                    <input type="text" name="bilgAmt" style="text-align: right;" onkeyup="onlyNumber(this);countAmt(this);" required comma minus  msg="매입금액">
 	                </td>
 	                <th>전표발행여부</th>
 	                <td>                                
@@ -239,9 +239,7 @@
 		setInit();
 	});
 	
-	function setInit() {
-
-		setCodeSelectByCocd(jwt.coCd);		
+	function setInit() {		
 		if(actionType == "C"){
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
 			$('#actionOdBtn').text("등록");
@@ -261,7 +259,7 @@
 			$('#actionOdBtn').on("click", function(){insertShip();});
 			$('#actionOdBtn').text("등록");
 		}
-		
+		setCodeSelectByCocd($("#coCd").val());
 	}
 	
 	function selectSellInfo() {
@@ -302,11 +300,20 @@
 	}
 	
 	function selectSellInfoBase() {
-		var row = mainGridView.target.getList("selected");
+	
+		debugger;
+		var row = subGridView.target.getList("selected");
+		if(row.length == 0){
+			row = subGridView.target.getList();
+		}
+		$("#coCd").val(row[0].coCd); 
 		$("#clntCd").val(row[0].trstClntCd); 
 		$("#clntNm").val(row[0].clntNm); 
 		$("#estCoprt").val(row[0].taxivcCoprt); 
 		$("#trstDt").val(dateToStr(new Date()));
+		$("#siteCd").val(row[0].siteCd);
+		$("#siteNm").val(row[0].siteNm);
+		$("#prjctCd").val(row[0].prjctCd);
 	}
 		
 	// 제품 검색
@@ -446,6 +453,64 @@
 			setCommonSelect($('#estCoprt'));  
 	}
 	
-	
-	
+	// 현장 검색
+	function openSecondSiteSearch(type) {
+		var paramObj = {
+			"coCd"  : $('#popForm #coCd').val()
+// 	매입은 거래처가 필요 없음.		, 
+// 			"clntCd": $("#popForm #clntCd").val(),
+// 			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+				$("#siteCd").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+		});
+	}
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);	
+		});
+	}	
+	function setBySellType(value){
+		// 판매유형
+		// SELLTYPE1: 유통
+		// SELLTYPE2: 가공
+		// SELLTYPE4: 임가공
+		
+		// 재고주체
+		// OWNER1: 자사
+		// OWNER2: 제강사
+		// OWNER3: 건설사
+		// OWNER4: 기타
+		
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2"){
+		// 판매유형이 선택, 유통, 가공일때
+			
+			// 재고주체 초기화
+			$('#ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ownerCd'));
+			
+			if(value == ""){
+			// 판매유형이 선택일때
+				// 재고주체 활성화
+				$('#ownerCd').prop("disabled", false);
+			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
+			// 판매유형이 유통, 가공일때
+				// 재고주체 자사 set, 비활성화
+				$('#ownerCd').val("OWNER1");
+				$('#ownerCd').prop("disabled", true);
+			}
+		}else if(value == "SELLTYPE4"){
+		// 판매유형이 임가공일때
+			// 재고주체에서 자사 삭제
+			$('#ownerCd option[value="OWNER1"]').remove();
+			$('#ownerCd').prop("disabled", false);
+		}
+	}
+		
 </script>
