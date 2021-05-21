@@ -34,25 +34,32 @@ public class AR04SvcImpl implements AR04Svc {
 	
 	@SuppressWarnings("all")
 	@Override
-	public int insertBilg(Map<String, Object> paramMap) {
-		int result = 0;
-		String userId = String.valueOf(paramMap.get("userId"));
+	public void insertBilg(Map<String, Object> paramMap) {
+		String userId = paramMap.get("userId").toString();
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
 		String ftxac11 = String.valueOf(paramMap.get("ftxac11")); //  현장
 		String ftxac21 = String.valueOf(paramMap.get("ftxac21")); //  기간
-		List<String> list = (List<String>) paramMap.get("trstCertiNo");
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("list", list);
-		param.put("userId", userId);
-		param.put("userNm", userNm);
-		param.put("pgmId", pgmId);
-		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(param);
+		List<String> trstCertiNoList = (List<String>) paramMap.get("trstCertiNoList");
+		
+//		Map<String, Object> param = new HashMap<String, Object>();
+//		param.put("list", list);
+//		param.put("userId", userId);
+//		param.put("userNm", userNm);
+//		param.put("pgmId", pgmId);
+		
+		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(paramMap);
+		
 		// bilgInfo: CamelMap이라 대문자 형태로 SET 해야함
 		String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
 		bilgInfo.put("USER_ID", userId);
 		bilgInfo.put("PGM_ID", pgmId);
 		bilgInfo.put("BILG_CERT_NO", bilgCertNo);
+		
+		int siteCnt = Integer.parseInt(bilgInfo.get("siteCnt"));
+		if(siteCnt > 1) {
+			// 한건이상일때만 " 외" 붙힐것.
+		}
 		
 		if(!"".equals(ftxac11) && !"null".equals(ftxac11)) { // 현장
 		    bilgInfo.put("ftxac11", ftxac11);
@@ -62,16 +69,16 @@ public class AR04SvcImpl implements AR04Svc {
 		}
 		// 은행 및 계좌, 예금주
 		if (!"".equals(bilgInfo.get("bankNm")) && !"".equals(bilgInfo.get("bkacNo")) && !"".equals(bilgInfo.get("bkacOwner"))) {			   
-			bilgInfo.put("ftxac31", bilgInfo.get("bankNm") + bilgInfo.get("bkacNo") + bilgInfo.get("bkacOwner"));			
+			bilgInfo.put("ftxac31", bilgInfo.get("bankNm") + "/" + bilgInfo.get("bkacNo") + "/" + bilgInfo.get("bkacOwner"));			
 		}
 		
-		result = ar04Mapper.insertBilg(bilgInfo);
+		ar04Mapper.insertBilg(bilgInfo);
 		
 		Map<String, String> arParam = new HashMap<String, String>();
-		arParam.put("trstCertiNo", list.get(0));
+		arParam.put("trstCertiNo", trstCertiNoList.get(0));
 		arParam = ar02Mapper.selectSellInfo(arParam);
 		Map<String, String> bilgDetail = new HashMap<String, String>();
-		String ard5006 = list.size() > 1 ? arParam.get("prdtNm") + " 외 " + (list.size()-1) + "건" : arParam.get("prdtNm");
+		String ard5006 = trstCertiNoList.size() > 1 ? arParam.get("prdtNm") + " 외 " + (trstCertiNoList.size()-1) + "건" : arParam.get("prdtNm");
 		bilgDetail.put("bilgCertNo", bilgCertNo);
 		bilgDetail.put("moa95004", DateUtil.getCurrentYyyymmdd());
 		bilgDetail.put("ard5006", ard5006);
@@ -84,14 +91,15 @@ public class AR04SvcImpl implements AR04Svc {
 		bilgDetail.put("dms1000", arParam.get("trspRmk"));
 		bilgDetail.put("userId", userId);
 		bilgDetail.put("pgmId", pgmId);
-		result = ar04Mapper.insertBilgDetail(bilgDetail);
-		for (String trstCertiNo : list) {
+		ar04Mapper.insertBilgDetail(bilgDetail);
+		
+		// 청구번호 UPDATE
+		for (String trstCertiNo : trstCertiNoList) {
 			Map<String, String> sellParam = new HashMap<String, String>();
 			sellParam.put("trstCertiNo", trstCertiNo);
 			sellParam.put("bilgCertNo", bilgInfo.get("bilgCertNo"));
 			ar02Mapper.updatePchsSellBilg(sellParam);
 		}
-		return result;
 	}
 	
 	@Override
