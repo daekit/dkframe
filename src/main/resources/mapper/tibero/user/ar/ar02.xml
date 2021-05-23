@@ -849,10 +849,11 @@
 		        '1' AS BGM_4343,
 		        'S' AS XML_FLOW,
 		        #{userId} AS TAX_CREAT_ID,
-		        #{userNm} AS TAX_CREAT_NM
+		        #{userNm} AS TAX_CREAT_NM,
+		        COUNT(DISTINCT SITE_CD) AS SITE_CNT
 			FROM TB_AR02M01 T
 			WHERE TRST_CERTI_NO IN
-			<foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
+			<foreach item="item" index="index" collection="trstCertiNoList" open="(" close=")" separator=",">
 				#{item}
 			</foreach>
 			GROUP BY CO_CD, TAXIVC_COPRT, TRST_CLNT_CD, SELPCH_CD, CLNT_NM
@@ -986,21 +987,20 @@
 		) AS WH_CLNT_CD FROM DUAL	
 	</select>
 	
-	<select id="selectBilgVatPer" parameterType="Map" resultType="long">
+	<select id="selectBilgVatPer" parameterType="Map" resultType="int">
 		<if test='selpchCd == "SELPCH1" or selpchCd == "SELPCH3"'>
-		SELECT 
-			NVL(
-					(
-						SELECT 
-							A.CODE_RPRC 
-						FROM 
-					    	TB_CM05M01 A 
-					        INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = #{taxivcCoprt}
-					        INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC
-					)
-			   ,10)
-			 AS BILG_VAT_PER
-		FROM DUAL	
+			SELECT 
+				NVL(
+						(
+							SELECT 
+								A.CODE_RPRC 
+							FROM 
+						    	TB_CM05M01 A 
+						        INNER JOIN TB_CM05M01 A2 ON A2.CODE_ID = #{taxivcCoprt}
+						        INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.PCHS_VAT_CD AND B.CLNT_CD = A2.CODE_ETC
+						)
+				,10) AS BILG_VAT_PER
+			FROM DUAL	
         </if>
         <if test='selpchCd == "SELPCH2" or selpchCd == "SELPCH4"'>
 	        SELECT 
@@ -1012,7 +1012,7 @@
 			        			TB_CM05M01 A 
 			        			INNER JOIN TB_BM02M01 B ON A.CODE_ID = B.SELL_VAT_CD AND B.CLNT_CD = #{clntCd}
 			        	)
-			       ,10) AS BILG_VAT_AMT
+				,10) AS BILG_VAT_AMT
 	        FROM DUAL
         </if>
 	</select>
