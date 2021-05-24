@@ -100,7 +100,7 @@ public class OD01Ctr {
     }
     
     @PutMapping(value = "/updateCancel")
-	public String updateCancel(@RequestParam Map<String, String> paramMap, ModelMap model) {
+	public String updateCancel(@RequestBody Map<String, String> paramMap, ModelMap model) {
 		int result = od01Svc.updateCancel(paramMap);
 		if(result == 0) {
 			model.addAttribute("resultCode", 500);
