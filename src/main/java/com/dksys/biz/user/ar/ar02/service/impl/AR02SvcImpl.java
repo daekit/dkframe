@@ -177,8 +177,19 @@ public class AR02SvcImpl implements AR02Svc {
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
 		int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
 		String clntCd = paramMap.get("clntCd");
+		
+		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
+		{
+			// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+			if("OWNER1".equals(paramMap.get("ownerCd").toString())) {		
+				paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
+			}
+		}
 		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+		// 거래처 원복
+		paramMap.put("clntCd", clntCd);
+		
 		if(stockInfo == null) {
 			paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
 			paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
@@ -211,7 +222,6 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockWt",  String.valueOf(stockWt));
 		}
 		
-
 		paramMap.put("taxivcCoprt", paramMap.get("estCoprt"));
 		long bilgAmt    = Long.parseLong(paramMap.get("bilgAmt"));
 		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
