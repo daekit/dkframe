@@ -35,45 +35,36 @@ public class AR04SvcImpl implements AR04Svc {
 	@SuppressWarnings("all")
 	@Override
 	public void insertBilg(Map<String, Object> paramMap) {
-		String userId = paramMap.get("userId").toString();
-		String userNm = String.valueOf(paramMap.get("userNm"));
-		String pgmId = String.valueOf(paramMap.get("pgmId"));
-		String ftxac11 = String.valueOf(paramMap.get("ftxac11")); //  현장
-		String ftxac21 = String.valueOf(paramMap.get("ftxac21")); //  기간
-		List<String> trstCertiNoList = (List<String>) paramMap.get("trstCertiNoList");
-		
-//		Map<String, Object> param = new HashMap<String, Object>();
-//		param.put("list", list);
-//		param.put("userId", userId);
-//		param.put("userNm", userNm);
-//		param.put("pgmId", pgmId);
 		
 		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(paramMap);
-		
-		// bilgInfo: CamelMap이라 대문자 형태로 SET 해야함
 		String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
-		bilgInfo.put("USER_ID", userId);
-		bilgInfo.put("PGM_ID", pgmId);
+		// bilgInfo: CamelMap이라 대문자 형태로 SET
+		bilgInfo.put("USER_ID", paramMap.get("userId").toString());
+		bilgInfo.put("PGM_ID", paramMap.get("pgmId").toString());
 		bilgInfo.put("BILG_CERT_NO", bilgCertNo);
 		
+		// 비고1에 현장 put
 		int siteCnt = Integer.parseInt(bilgInfo.get("siteCnt"));
-		if(siteCnt > 1) {
-			// 한건이상일때만 " 외" 붙힐것.
+		if(null != bilgInfo.get("siteNm")) {
+			String ftxac11 = bilgInfo.get("siteNm").toString();
+			if(siteCnt > 1) {
+				// 한건이상일때만 " 외" 붙힐것.
+				ftxac11 = ftxac11 + " 외";
+			}
+			bilgInfo.put("ftxac11", ftxac11);
 		}
 		
-		if(!"".equals(ftxac11) && !"null".equals(ftxac11)) { // 현장
-		    bilgInfo.put("ftxac11", ftxac11);
-		}
-		if(!"".equals(ftxac21) && !"null".equals(ftxac21)) { // 기간
-			bilgInfo.put("ftxac21", "기간 : " + ftxac21);
-		}
-		// 은행 및 계좌, 예금주
-		if (!"".equals(bilgInfo.get("bankNm")) && !"".equals(bilgInfo.get("bkacNo")) && !"".equals(bilgInfo.get("bkacOwner"))) {			   
+		// 비고2에 검색기간 put
+		bilgInfo.put("ftxac21", "기간: " + paramMap.get("ftxac21").toString());
+		
+		// 비고3에 은행/계좌번호/예금주 put
+		if (null != bilgInfo.get("bankNm") && null != bilgInfo.get("bkacNo") && null != bilgInfo.get("bkacOwner")) {			   
 			bilgInfo.put("ftxac31", bilgInfo.get("bankNm") + "/" + bilgInfo.get("bkacNo") + "/" + bilgInfo.get("bkacOwner"));			
 		}
 		
 		ar04Mapper.insertBilg(bilgInfo);
 		
+		List<String> trstCertiNoList = (List<String>) paramMap.get("trstCertiNoList");
 		Map<String, String> arParam = new HashMap<String, String>();
 		arParam.put("trstCertiNo", trstCertiNoList.get(0));
 		arParam = ar02Mapper.selectSellInfo(arParam);
@@ -89,8 +80,8 @@ public class AR04SvcImpl implements AR04Svc {
 		bilgDetail.put("moa1023", bilgInfo.get("bilgAmt"));
 		bilgDetail.put("moa10124", bilgInfo.get("taxMoa5124"));
 		bilgDetail.put("dms1000", arParam.get("trspRmk"));
-		bilgDetail.put("userId", userId);
-		bilgDetail.put("pgmId", pgmId);
+		bilgDetail.put("userId", paramMap.get("userId").toString());
+		bilgDetail.put("pgmId", paramMap.get("pgmId").toString());
 		ar04Mapper.insertBilgDetail(bilgDetail);
 		
 		// 청구번호 UPDATE
