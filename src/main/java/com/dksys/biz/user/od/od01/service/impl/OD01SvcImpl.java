@@ -190,6 +190,12 @@ public class OD01SvcImpl implements OD01Svc {
 
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
+		int result = 0;
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		result = detailList.size();
+		
 		/*
 		 * 1. 일괄 확정 (A)
 		 *    - 매입확정 : 기존 매입이 (N)
@@ -198,39 +204,58 @@ public class OD01SvcImpl implements OD01Svc {
 		 * 2. 매입확정 (P)
 		 *    - 매입확정 : 기존 매입이 (N)
 		 *    
-		 * 3. 매출확정(S)   
+		 * 3. 매출확정 (S)   
 		 *    - 직송일 경우 매출확정 : 기존 매출이 (N)
 		 */
 		
-		
-/* 마감체크 부문 */
+		/* 마감체크 부문 */
 		// 매입 N 이면서  P 매입확정, A 일괄인 경우 매입확정
-		if("P".equals(paramMap.get("comfirmType"))|| "A".equals(paramMap.get("comfirmType"))) {
-				//마감 체크
-				if(ar02Svc.checkPchsClose(paramMap)) {
-					return 500;
-				}	
+		if("P".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
+			// 마감 체크
+//			if(ar02Svc.checkPchsClose(paramMap)) {
+//				return 500;
+//			}	
 		}		
-		   // 직송이면서 매출여부 N인경우 매출확정 시작
-        if("Y".equals(paramMap.get("dirtrsYn"))) {		
+		
+		// 직송이면서 매출여부 N인경우 매출확정 시작
+         if("Y".equals(paramMap.get("dirtrsYn"))) {		
 		       // 전체 확정인 경우는 진행
-		       // 매출확정이면서 매입이 확정이 된경우   P 매입확정, S 매출확정, A 일괄
-		      if ( "A".equals(paramMap.get("comfirmType")) ||  "S".equals(paramMap.get("comfirmType"))) {
-				// 마감 체크....매출
-				if(ar02Svc.checkSellClose(paramMap)) {
-					return 501;
-				}		
-		      }
+		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
+        	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
+				// 마감 체크 (매출)
+//        		if(ar02Svc.checkSellClose(paramMap)) {
+//        			return 501;
+//				}
+        		
+        		// 여신 체크 (매출)
+        		// 1. 매출금액합계 계산
+        		long totShipAmt = 0;
+        		for(Map<String, String> detailMap : detailList) {
+        			if("N".equals(detailMap.get("shipYn"))) {
+        				totShipAmt += Long.parseLong(detailMap.get("shipAmt"));
+        			}
+        		}
+        		
+        		// 2. 부가세율 조회해서 계산후 플러스
+        		Map<String, String> vatPerMap = new HashMap<String, String>();
+        		vatPerMap.put("selpchCd", "SELPCH2");
+        		vatPerMap.put("clntCd", paramMap.get("sellClntCd"));
+        		
+        		int bilgVatPer = ar02Mapper.selectBilgVatPer(vatPerMap);
+        		totShipAmt += Math.floor(totShipAmt * bilgVatPer / 100);
+        		
+        		// 3. 여신체크
+        		Map<String, String> loanMap = new HashMap<String, String>();
+        		loanMap.put("clntCd", paramMap.get("sellClntCd"));
+        		loanMap.put("coCd", paramMap.get("coCd"));
+        		loanMap.put("dlvrDttm", paramMap.get("dlvrDttm"));
+        		loanMap.put("realTotTrstAmt", String.valueOf(totShipAmt));
+        		if (ar02Svc.checkLoan(loanMap)) {
+					return 0;
+				}
+        	}
         }
 //-----------------------------------------------------------------------------------------------------------------------------------------------		
-		int result = 0;
-		int realTotTrstAmt1 = 0; // 매입
-		int realTotTrstAmt2 = 0; // 매출
-		boolean creditFlag = false;
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
-		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		result = detailList.size();
 		String clntCd = paramMap.get("clntCd");
 		String clntNm = paramMap.get("clntNm");
 		String sellClntCd = paramMap.get("sellClntCd");
@@ -259,12 +284,10 @@ public class OD01SvcImpl implements OD01Svc {
 			//매출매입 데이터 세팅
 			Map<String, String> detailMap2 = od01Mapper.selectOrderDetailInfo(detailMap);
 
-			
 			paramMap.put("prdtSpec",    "");
 			paramMap.put("prdtSize",    "");
 			paramMap.put("prdtLen",    "");
 			
-
 			paramMap.putAll(detailMap2);
 			detailMap.putAll(detailMap2);
 			
@@ -352,88 +375,72 @@ public class OD01SvcImpl implements OD01Svc {
 			// 매출만 확정인 경우에는 매입이 Y인 경우에만 가능함. 즉 매입확정 없이 매출만 단독으로 확정은 없음
 			
 	        // 매출확정 시작
-	        if("Y".equals(paramMap.get("dirtrsYn"))    && "N".equals(paramMap.get("shipYn"))) {		
-		       // 전체 확정인 경우는 진행
-		       // 매출확정이면서 매입이 확정이 된경우
-		      if ( "A".equals(paramMap.get("comfirmType")) || ( "S".equals(paramMap.get("comfirmType"))  && "Y".equals(paramMap.get("ordrgYn")))) {
-				creditFlag = true;
-				paramMap.put("selpchCd", "SELPCH2");
-				paramMap.put("stockChgCd", "STOCKCHG02");
-				paramMap.put("clntCd", sellClntCd);
-				paramMap.put("clntNm", sellClntNm);
-				paramMap.put("sellUpr", detailMap.get("shipUpr"));
-				
-			// 매출자료를 세팅한다... 매출단가를 기준으로 모든 금액을 재계산한다.
-				
-				paramMap.put("trstUpr", detailMap.get("shipUpr"));
-				paramMap.put("realTrstUpr", detailMap.get("shipUpr"));
-				paramMap.put("bilgUpr", detailMap.get("shipUpr"));
+			if ("Y".equals(paramMap.get("dirtrsYn")) && "N".equals(paramMap.get("shipYn"))) {
+				// 전체 확정인 경우는 진행
+				// 매출확정이면서 매입이 확정이 된경우
+				if ("A".equals(paramMap.get("comfirmType")) || ("S".equals(paramMap.get("comfirmType")) && "Y".equals(paramMap.get("ordrgYn")))) {
+					paramMap.put("selpchCd", "SELPCH2");
+					paramMap.put("stockChgCd", "STOCKCHG02");
+					paramMap.put("clntCd", sellClntCd);
+					paramMap.put("clntNm", sellClntNm);
+					paramMap.put("sellUpr", detailMap.get("shipUpr"));
 
-				//재고돤리 대상이 아닌 매출의 경우 물량 부문이 0으로 정리됨.
-				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
-				{
-					double trstQty     =  Double.parseDouble(detailMap.get("ordrgQty"));
-					double realDlvrQty =  Double.parseDouble(detailMap.get("realDlvrQty"));
-					double shipUpr     =  Double.parseDouble(detailMap.get("shipUpr"));
-            
-					int trstAmt     = (int)Math.floor(shipUpr * trstQty);
-					int realTrstAmt = (int)Math.floor(shipUpr * realDlvrQty);
-					int bilgAmt     = (int)Math.floor(shipUpr * realDlvrQty);
-					paramMap.put("trstAmt",    String.valueOf(trstAmt));
-					paramMap.put("realTrstAmt",String.valueOf(realTrstAmt));
-					paramMap.put("bilgAmt",    String.valueOf(bilgAmt));	
-					realTotTrstAmt2 += bilgAmt;
-				}else {					
-					paramMap.put("trstAmt",    detailMap.get("shipAmt"));
-					paramMap.put("realTrstAmt",detailMap.get("shipAmt"));
-					paramMap.put("bilgAmt",    detailMap.get("shipAmt"));
-					realTotTrstAmt2 += Integer.parseInt(detailMap.get("shipAmt"));
-				}
-					
-				
-				long bilgVatAmt2 = ar02Mapper.selectBilgVatAmt(paramMap);
-				paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
-				realTotTrstAmt2 += bilgVatAmt2;
-				
-				od01Mapper.updateConfirmDetailS(detailMap);
-				ar02Mapper.insertPchsSell(paramMap);
-				
-				if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
-				{
-					// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
-					if("OWNER1".equals(paramMap.get("ownerCd").toString())) {
-						paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+					// 매출자료를 세팅한다... 매출단가를 기준으로 모든 금액을 재계산한다.
+					paramMap.put("trstUpr", detailMap.get("shipUpr"));
+					paramMap.put("realTrstUpr", detailMap.get("shipUpr"));
+					paramMap.put("bilgUpr", detailMap.get("shipUpr"));
+
+					// 재고돤리 대상이 아닌 매출의 경우 물량 부문이 0으로 정리됨.
+					if (detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) {
+						double trstQty = Double.parseDouble(detailMap.get("ordrgQty"));
+						double realDlvrQty = Double.parseDouble(detailMap.get("realDlvrQty"));
+						double shipUpr = Double.parseDouble(detailMap.get("shipUpr"));
+
+						int trstAmt = (int) Math.floor(shipUpr * trstQty);
+						int realTrstAmt = (int) Math.floor(shipUpr * realDlvrQty);
+						int bilgAmt = (int) Math.floor(shipUpr * realDlvrQty);
+						paramMap.put("trstAmt", String.valueOf(trstAmt));
+						paramMap.put("realTrstAmt", String.valueOf(realTrstAmt));
+						paramMap.put("bilgAmt", String.valueOf(bilgAmt));
+					} else {
+						paramMap.put("trstAmt", detailMap.get("shipAmt"));
+						paramMap.put("realTrstAmt", detailMap.get("shipAmt"));
+						paramMap.put("bilgAmt", detailMap.get("shipAmt"));
 					}
-					Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+
+					long bilgVatAmt2 = ar02Mapper.selectBilgVatAmt(paramMap);
+					paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
+
+					od01Mapper.updateConfirmDetailS(detailMap);
+					ar02Mapper.insertPchsSell(paramMap);
+
+					if (detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) {
+						// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+						if ("OWNER1".equals(paramMap.get("ownerCd").toString())) {
+							paramMap.put("clntCd", paramMap.get("whClntCd"));
+						}
+						Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 //					if(stockInfo == null) {
 //					paramMap.put("stockQty", detailMap.get("realDlvrQty"));
 //					paramMap.put("stockWt",  detailMap.get("realDlvrWt"));
 //					
 //					} else {
 						int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
-						int stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(detailMap.get("realDlvrWt"));
+						int stockWt = Integer.parseInt(stockInfo.get("stockWt")) - Integer.parseInt(detailMap.get("realDlvrWt"));
 						paramMap.put("stockQty", String.valueOf(stockQty));
-						paramMap.put("stockWt",  String.valueOf(stockWt));
-						paramMap.put("sellUpr",  detailMap.get("shipUpr"));
+						paramMap.put("stockWt", String.valueOf(stockWt));
+						paramMap.put("sellUpr", detailMap.get("shipUpr"));
 //					}			
-					sm01Mapper.updateStockSell(paramMap);
+						sm01Mapper.updateStockSell(paramMap);
+					}
 				}
 			}
-			//직송(매출)일 경우 여신체크
-			if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType")))) {
-				paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt2));
-				paramMap.put("clntCd",  sellClntCd);
-				if(creditFlag && ar02Svc.checkLoan(paramMap)) {
-					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-					return 0;
-				}
-			}
-	     } //매출확정 체크 종료
 		} // for문 종료
 		
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirm(paramMap);
 		}
+		
 		if(selectConfirmCountS(paramMap) == selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirmS(paramMap);
 		}
@@ -470,11 +477,7 @@ public class OD01SvcImpl implements OD01Svc {
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
 		String clntCd = paramMap.get("clntCd");
-
-		// 매출만 있는 경우에 매입을 취소하기 위
-		for(Map<String, String> detailMap : detailList) {
-
-		}		
+		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
