@@ -212,9 +212,9 @@ public class OD01SvcImpl implements OD01Svc {
 		// 매입 N 이면서  P 매입확정, A 일괄인 경우 매입확정
 		if("P".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
 			// 마감 체크
-//			if(ar02Svc.checkPchsClose(paramMap)) {
-//				return 500;
-//			}	
+			if(ar02Svc.checkPchsClose(paramMap)) {
+				return 500;
+			}	
 		}		
 		
 		// 직송이면서 매출여부 N인경우 매출확정 시작
@@ -223,9 +223,9 @@ public class OD01SvcImpl implements OD01Svc {
 		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
         	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
 				// 마감 체크 (매출)
-//        		if(ar02Svc.checkSellClose(paramMap)) {
-//        			return 501;
-//				}
+        		if(ar02Svc.checkSellClose(paramMap)) {
+        			return 501;
+				}
         		
         		// 여신 체크 (매출)
         		// 1. 매출금액합계 계산
