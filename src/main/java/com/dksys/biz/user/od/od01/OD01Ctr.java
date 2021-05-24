@@ -81,7 +81,7 @@ public class OD01Ctr {
     }
     
     @PutMapping(value = "/updateConfirm")
-    public String updateConfirm(@RequestParam Map<String, String> paramMap, ModelMap model) {
+    public String updateConfirm(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int result = od01Svc.updateConfirm(paramMap);
     	if(result == 0) {
 			model.addAttribute("resultCode", 500);

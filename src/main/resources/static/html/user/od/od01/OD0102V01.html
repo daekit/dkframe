@@ -292,13 +292,23 @@
 				</colgroup>
 				<tr>
 					<th class="tc" colspan="8">합계</th>
-					<td class="tr" id="totQtyDp" comma></td>
-					<td class="tr" id="totWtDp" comma></td>
+					<td>
+						<input class="tr" type="text" id="totQty" name="totQty" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="totWt" name="totWt" comma readonly>
+					</td>
 					<td>-</td>
 					<td>-</td>
-					<td class="tr" id="totAmtDp" comma></td>
-					<td class="tr" id="totShipAmt" comma></td>
-					<td class="tr" id="totEpctPalDp" comma></td>
+					<td>
+						<input class="tr" type="text" id="totAmt" name="totAmt" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="totShipAmt" name="totShipAmt" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="totEpctPal" name="totEpctPal" comma readonly>
+					</td>
 					<td></td>
 					<td></td>
 				</tr>
@@ -489,7 +499,6 @@
 		if(orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N') {
 			$("#ordrgYnBtnS").hide();
 		}
-
 		
 		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
 		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N')) {
@@ -553,11 +562,11 @@
 			totEpctPal  += epctPal; 
 		});
 		
-		$('#totQtyDp').text(addCommaStr(totOrdrgQty));
-		$('#totWtDp').text(addCommaStr(totOrdrgWt));
-		$('#totAmtDp').text(addCommaStr(totOrdrgAmt));
-		$('#totShipAmt').text(addCommaStr(totShipAmt));
-		$('#totEpctPalDp').text(addCommaStr(totEpctPal));
+		$('#totQty').val(addCommaStr(totOrdrgQty));
+		$('#totWt').val(addCommaStr(totOrdrgWt));
+		$('#totAmt').val(addCommaStr(totOrdrgAmt));
+		$('#totShipAmt').val(addCommaStr(totShipAmt));
+		$('#totEpctPal').val(addCommaStr(totEpctPal));
 	}
 	
 	function downloadFile(idx) {
@@ -573,8 +582,7 @@
 		var checkCountP = 0;
 		var checkCountS = 0;
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && ( $(elem).find("input[name='ordrgYn']").val() == "N"
-					                                                       || $(elem).find("input[name='shipYn']").val() == "N")) {
+			if($(elem).find("input[name='detailChkBox']").is(":checked") && ($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "N")) {
 				checkCount++;
 			}
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
@@ -583,8 +591,8 @@
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "Y") {
 				checkCountS++;
 			}
-			
 		});
+			
 		if(checkCount == 0){
 			alert("발주내역을 선택해주세요");
 			return;
@@ -596,17 +604,14 @@
 		}
 		
 		var formData = makeFormData('CONFIRM');
-		formData.append("comfirmType", type); // P 매입확정, S 매출확정, A 일괄
+		formData.comfirmType = type; // P 매입확정, S 매출확정, A 일괄
 		
-// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
-//		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
 		var mngPrdtLen = ''; 
 		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
-		formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
-//--------------------------------------------------------------------------------------------------------------
+		formData.mngPrdtLen = mngPrdtLen;
 
-
-		filePutAjax("/user/od/od01/updateConfirm", formData, function(data){
+		putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
 			alert(data.resultMessage);           
 			if(data.resultCode == 200){
 				gridView.setData(0);
@@ -660,17 +665,14 @@
 		}
 		
 		var formData = makeFormData('CANCEL');
-		formData.append("cancelType", type); // P 매입취소, S 매출취소, A 일괄 취소
-		
+		formData.cancelType = type; // P 매입취소, S 매출취소, A 일괄 취소
 
-// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
-//				$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
-				var mngPrdtLen = ''; 
-				if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
-				formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
-//--------------------------------------------------------------------------------------------------------------
+		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+		var mngPrdtLen = ''; 
+		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		formData.mngPrdtLen = mngPrdtLen
 		
-		filePutAjax("/user/od/od01/updateCancel", formData, function(data){
+		putAjax("/user/od/od01/updateCancel", formData, null, function(data){
 			alert(data.resultMessage);
 			if(data.resultCode == 200) {
 				gridView.setData(0);
@@ -686,10 +688,10 @@
 		});
 		
 		// 폼데이터 생성
-		var formData = new FormData($("#popForm")[0]);
+		var formData = $("#popForm").serializeObject();
 		
 		// 유저아이디 추가
-		formData.append("userId", jwt.userId);
+		formData.userId = jwt.userId;
 		
 		// 상세내역 추가
 		var detailArr = [];
@@ -714,7 +716,7 @@
 				}
 			}
 		});
-		formData.append("detailArr", JSON.stringify(detailArr));
+		formData.detailArr = JSON.stringify(detailArr);
 		
 		return formData;
 	}
