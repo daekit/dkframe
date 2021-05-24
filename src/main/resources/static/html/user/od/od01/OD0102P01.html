@@ -25,12 +25,17 @@
 					<td>
 						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setCodeSelectByCocd(this.value);" required></select>
 					</td>
-					<th class="hit">판매유형</th>
+					<th>현장명</th>
 					<td>
-						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value);" required>
-							<option value="">선택</option>
-						</select>
-					</td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd"> 
+							<input type="hidden" id="siteCd" name="siteCd">
+							<input type="text" id="siteNm" name="siteNm" readonly> 
+							<a onclick="openOdSiteSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>	
 					<th class="hit">직송여부</th>
 					<td>
 						<select id="dirtrsYn" name="dirtrsYn" onchange="ctrlDirtrs();" msg="직송여부" required>
@@ -49,10 +54,10 @@
 								<i class="i_search_w"></i>
 							</a>
 						</div>
-					</td>
-					<th class="hit">재고주체</th>
+					</td>				
+					<th class="hit">판매유형</th>
 					<td>
-						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value);" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -75,9 +80,9 @@
 							<option value="Y">Y</option>
 						</select>
 					</td>
-					<th class="hit">입고창고</th>
+					<th class="hit">재고주체</th>
 					<td>
-						<select id="whCd" name="whCd" data-kind="WH" onchange="setTaxivcCoprt();" msg="입고창고" required>
+						<select id="ownerCd" name="ownerCd" data-kind="OWNER" msg="재고주체" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -93,16 +98,12 @@
 					<td>
 						<select id="makrCd" name="makrCd" data-kind="MAKR" msg="Maker" required></select>
 					</td>
-					<th>현장명</th>
+
+					<th class="hit">입고창고</th>
 					<td>
-						<div class="search_form">
-							<input type="hidden" id="prjctCd" name="prjctCd"> 
-							<input type="hidden" id="siteCd" name="siteCd">
-							<input type="text" id="siteNm" name="siteNm" readonly> 
-							<a onclick="openOdSiteSearch();">
-								<i class="i_search_w"></i>
-							</a>
-						</div>
+						<select id="whCd" name="whCd" data-kind="WH" onchange="setTaxivcCoprt();" msg="입고창고" required>
+							<option value="">선택</option>
+						</select>
 					</td>
 					<th>판매지역</th>
 					<td class="drctArea">
@@ -827,13 +828,18 @@
 			$('#sellClntNm').val(row.clntNm);
 			$('#salesMng').val(row.salesEmpId);
 			$('#salesMngNm').val(row.salesEmpNm);
-			$("#whCd").val(row.whCd);
-			$("#taxivcCoprt").val(row.taxivcCoprt);
+			
+			var whCd = $("#whCd").val();
+			if(whCd ==""){
+				$("#whCd").val(row.whCd); 
+			}
+			var taxivcCoprt = $("#taxivcCoprt").val();
+			if(taxivcCoprt ==""){
+				$("#taxivcCoprt").val(row.taxivcCoprt);
+			}
 		  if(row.ordTyp) {
-
 				$("#typCd").val('SELLTYPE2'); // 가공
 		  } else{
-
 				$("#typCd").val('SELLTYPE1'); // 유통
 		  }
 		});
