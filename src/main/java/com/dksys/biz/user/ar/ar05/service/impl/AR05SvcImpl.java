@@ -66,7 +66,7 @@ public class AR05SvcImpl implements AR05Svc {
 		Map<String, Object> cdtlnData = new HashMap<String, Object>();
 		cdtlnData.putAll(etrdpsData);
 		int clntCd = Integer.parseInt(etrdpsData.get("clntCd"));
-		int etrdpsAmt = Integer.parseInt(etrdpsData.get("etrdpsAmt"));
+		long etrdpsAmt = Long.parseLong(etrdpsData.get("etrdpsAmt"));
 		cdtlnData.put("clntCd", clntCd);
 		cdtlnData.put("etrdpsAmt", etrdpsAmt);
 		ar05Mapper.callCreditLoan(cdtlnData);
