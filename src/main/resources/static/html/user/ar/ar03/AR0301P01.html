@@ -22,7 +22,7 @@
                 </td>
                 <th class="">회사</th>
                 <td>                                
-                    <select id="coCd" name="coCd" data-kind="CO">
+                    <select id="coCd" name="coCd" data-kind="CO" onchange="setByCoCd(this.value);">
                     </select>
                 </td>
             </tr>
@@ -270,14 +270,14 @@
 			autoclose : true
 		});
 		setInit();
-		if(openFrom == "AR0102P01" || openFrom == "OD0102P01") {
+		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01") {
 			$("#transViewDiv #coCd").val($("#arViewDiv #coCd").val());
 			$("#transViewDiv #transSeq").val($("#arViewDiv #transSeq").val());
 		}
 	});
 	
 	function setInit() {
-		debugger;
+
 		if(actionType == "C") {
 			$('#coCd').val(commonModal.paramObj.coCd);
 			$('#actionBtn').on("click", function(){insertCaryng();});
@@ -294,6 +294,8 @@
 		//	}
 		}
 		changePayCo();
+		// 판매법인, 창고 set
+		setByCoCd($('#coCd').val());
 	}
 	
 	function changePayCo(){
@@ -389,6 +391,8 @@
 				alert(data.resultMessage);           
 				gridView.setData(0);
 				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
+					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
+					onlyNumber($("#arViewDiv #transAmt"));
 					secondModal.close();
 				}else{
 					modal.close();
@@ -491,6 +495,12 @@
 		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 1200, 780, "", paramObj);
 	}
 	
+	function setByCoCd(value){
+		// 창고 set
+		$('#transViewDiv #whCd').data("desc", value);
+		$('#transViewDiv #whCd option:not([value=""])').remove();
+		setCommonSelect($('#transViewDiv #whCd'));
+	}
 		
 </script>
 </html>
