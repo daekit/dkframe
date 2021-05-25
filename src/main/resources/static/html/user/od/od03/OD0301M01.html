@@ -85,7 +85,7 @@ th {
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required">
+	                 	<select id="coCd_S" data-kind="CO" required="required" onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -99,7 +99,7 @@ th {
 	                </td>
 	                <th>매입매출구분</th>
 	                <td>
-	                    <select id="selpch_S" required="required">
+	                    <select id="selpch_S" required="required"  onchange="gridView.initView().setData(0);">
 	                    	<option value="SELPCH1">매입</option>
 	                    	<option value="SELPCH2">매출</option>
 	                 	</select>
@@ -116,7 +116,7 @@ th {
 	                </td>
 	              	<th>제품유형</th>
 	                <td>
-	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required">
+	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" required="required" onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -124,7 +124,7 @@ th {
 	                <td>
 	                    <div class="search_form" style="width: 50%;">
 			              <input type="hidden" id="siteCd_S">
-			              <input type="text" id="siteNm_S">
+			              <input type="text" id="siteNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 			              <a onclick="openSecondSiteSearch();"><i class="i_search_w"></i></a>
 			            </div>
 	                </td>
@@ -132,7 +132,7 @@ th {
 	              <tr>
 	              	<th>판매유형</th>
 	                <td>
-	                 	<select id="typCd_S" data-kind="SELLTYPE">
+	                 	<select id="typCd_S" data-kind="SELLTYPE"  onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -249,14 +249,27 @@ th {
 		}, 
 		setData: function(_pageNo) {
 			firstGrid = this.target;
+debugger;			
+			var paramObj = {"selpchCd": "SELPCH1", "pageNo": _pageNo + 1};
+			
+			$.each($('#main_area [data-search]'), function(idx, elem){
+				var searchValue = elem.value;
+				if($(elem).is('[date]')){
+					searchValue = deleteHyphenStr(searchValue);
+				}
+				paramObj[$(elem).data('search')] = searchValue;
+			});
+						
 			var formData = {
 				"coCd" : $("#coCd_S").val(),
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
 				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
 				"selpchCd" : $("#selpch_S").val(),
 				"clntCd" : $("#clntCd_S").val(),
+				"clntNm" : $("#clntNm_S").val(),
 				"prdtDiv" : $("#prdtDiv_S").val(),
-				"prjctCd" : $("#prjctCd_S").val(),
+				"siteCd" : $("#siteCd_S").val(),
+				"siteNm" : $("#siteNm_S").val(),
 				"bilgYn" : $("#bilgYn_S").val(),
 				"typCd" : $("#typCd_S").val()
 			}

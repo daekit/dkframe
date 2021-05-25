@@ -955,30 +955,38 @@
 		    SUM(BILG_AMT) BILG_AMT,
 		    SUM(BILG_VAT_AMT) TAX_AMT
 		FROM TB_AR02M01 A INNER JOIN TB_BM01M01 B ON A.TRST_PRDT_CD = B.PRDT_CD
+		                  INNER JOIN TB_BM02M01 C ON A.TRST_CLNT_CD = C.CLNT_CD
+		                  LEFT OUTER JOIN TB_SD09M01 D ON A.CO_CD = D.CO_CD AND A.SITE_CD = D.SITE_CD
 		WHERE SELPCH_CD = #{selpchCd}
 		<if test="coCd != null and !coCd.equals('')">
-			AND CO_CD = #{coCd}				
+			AND A.CO_CD = #{coCd}				
 		</if>
 		<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-			AND TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+			AND A.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
 		</if>
 		<if test="prdtDiv != null and !prdtDiv.equals('')">
 			AND B.PRDT_DIV = #{prdtDiv}				
 		</if>
 		<if test="clntCd != null and !clntCd.equals('')">
-			AND TRST_CLNT_CD = #{clntCd}				
+			AND A.TRST_CLNT_CD = #{clntCd}				
 		</if>
-		<if test="prjctCd != null and !prjctCd.equals('')">
-			AND PRJCT_CD = #{prjctCd}
+		<if test="clntNm != null and !clntNm.equals('')">
+			AND C.CLNT_NM LIKE '%${clntNm}%'			
+		</if>
+		<if test="siteCd != null and !siteCd.equals('')">
+			AND A.SITE_CD = #{siteCd}
+		</if>
+		<if test="siteNm != null and !siteNm.equals('')">
+			AND D.SITE_NM LIKE '%${siteNm}%'			
 		</if>
 		<if test='bilgYn == "Y"'>
-			AND BILG_CERT_NO IS NOT NULL 		
+			AND A.BILG_CERT_NO IS NOT NULL 		
 		</if>
 		<if test='bilgYn == "N"'>
-			AND BILG_CERT_NO IS NULL 		
+			AND A.BILG_CERT_NO IS NULL 		
 		</if>
 		<if test="typCd != null and !typCd.equals('')">
-			AND TYP_CD = #{typCd}
+			AND A.TYP_CD = #{typCd}
 		</if>
 		GROUP BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
 		ORDER BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
