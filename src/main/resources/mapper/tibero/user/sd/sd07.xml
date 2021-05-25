@@ -489,4 +489,24 @@
 			CLOSE_YM,
 			CLNT_CD
 	</insert>
+	
+	<select id="chkBilgFlagYn"  parameterType="Map" resultType="int">
+		SELECT 	COUNT(*) 
+		  FROM 	TB_AR02M01
+		 WHERE
+			CO_CD = #{coCd}
+		   AND NVL(BILG_CERT_NO,0) = 0
+			<if test="selpchCd == 'SELPCH1'">			
+			AND	SELPCH_CD IN ('SELPCH1','SELPCH3') 
+			</if>
+			<if test="selpchCd == 'SELPCH2'">		
+			AND	SELPCH_CD IN ('SELPCH2','SELPCH4') 
+			</if>
+			<![CDATA[
+					AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+				    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+			]]>
+	</select>
+	
+	
 </mapper>

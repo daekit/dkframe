@@ -32,22 +32,44 @@ public class SD07SvcImpl implements SD07Svc {
 
 	@Override
 	public void excuteStockClose(Map<String, String> paramMap) {
-		sd7Mapper.deleteStockClose(paramMap);
-		sd7Mapper.insertStockClose(paramMap);
-		sm01Mapper.updateStockUpr(paramMap);
+		int chkCount = sd7Mapper.chkBilgFlagYn(paramMap);
+		if (chkCount > 0) {
+			paramMap.put("chkCount", String.valueOf(chkCount));			
+		}else {
+			paramMap.put("errCode", "200");	
+			paramMap.put("Message", "");		
+			sd7Mapper.deleteStockClose(paramMap);
+			sd7Mapper.insertStockClose(paramMap);
+			sm01Mapper.updateStockUpr(paramMap);
+		}
 	}
 
 	@Override
 	public void excuteCreditClose(Map<String, String> paramMap) {
-		sd7Mapper.deleteCreditClose(paramMap);
-		sd7Mapper.insertCreditClose(paramMap);
+		int chkCount = sd7Mapper.chkBilgFlagYn(paramMap);
+		if (chkCount > 0) {
+			paramMap.put("chkCount", String.valueOf(chkCount));			
+		}else {
+			paramMap.put("errCode", "200");	
+			paramMap.put("Message", "");		
+			sd7Mapper.chkBilgFlagYn(paramMap);
+			sd7Mapper.deleteCreditClose(paramMap);
+			sd7Mapper.insertCreditClose(paramMap);
+		}
 	}
 
 	@Override
 	public void excuteCreditClosePur(Map<String, String> paramMap) {
-		sd7Mapper.deleteCreditClose(paramMap);
-		sd7Mapper.insertCreditClosePur(paramMap);
-		
+		int chkCount = sd7Mapper.chkBilgFlagYn(paramMap);
+		if (chkCount > 0) {
+			paramMap.put("chkCount", String.valueOf(chkCount));		
+		}else {
+			paramMap.put("errCode", "200");	
+			paramMap.put("Message", "");		
+			sd7Mapper.chkBilgFlagYn(paramMap);
+			sd7Mapper.deleteCreditClose(paramMap);
+			sd7Mapper.insertCreditClosePur(paramMap);
+		}
 	}
 
 }

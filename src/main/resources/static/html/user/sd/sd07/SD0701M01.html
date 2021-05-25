@@ -433,16 +433,24 @@
 			"coCd": $('#coCd').val(),
 			"closeYm": deleteHyphenStr($('#closeYm').val()),
 			"userId": jwt.userId,
-			"pgmId": "SD0701M01"
+			"pgmId": "SD0701M01",
+			'selpchCd' : ''
 		}
 		
 		postAjaxSync("/user/sd/sd07/excuteStockClose", paramObj, null, function(data){
-			if(data.resultCode == 200){
-				$('span[name="stockStatus"]').text("완료");
-				$('span[name="stockStatus"]').addClass("complete");
-			}else{
-				$('span[name="stockStatus"]').text("실패");
-				$('span[name="stockStatus"]').addClass("fail");
+
+			if(data.chkCount != '0'){				
+				alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+				return;
+			}else{				
+				if(data.resultCode == 200){
+					$('span[name="stockStatus"]').text("완료");
+					$('span[name="stockStatus"]').addClass("complete");
+				}else{
+					$('span[name="stockStatus"]').text("실패");
+					$('span[name="stockStatus"]').addClass("fail");
+				}
+				
 			}
 		});		
 	}
@@ -457,12 +465,17 @@
 		}
 
 		postAjaxSync("/user/sd/sd07/excuteCreditClose", paramObj, null, function(data){
-			if(data.resultCode == 200){
-				$('span[name="salesStatus"]').text("완료");
-				$('span[name="salesStatus"]').addClass("complete");
-			}else{
-				$('span[name="salesStatus"]').text("실패");
-				$('span[name="salesStatus"]').addClass("fail");
+			if(data.chkCount != '0'){				
+				alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+				return;
+			}else{				
+				if(data.resultCode == 200){
+					$('span[name="salesStatus"]').text("완료");
+					$('span[name="salesStatus"]').addClass("complete");
+				}else{
+					$('span[name="salesStatus"]').text("실패");
+					$('span[name="salesStatus"]').addClass("fail");
+				}
 			}
 		});
 		
@@ -478,12 +491,17 @@
 		}
 
 		postAjaxSync("/user/sd/sd07/excuteCreditClosePur", paramObj, null, function(data){
-			if(data.resultCode == 200){
-				$('span[name="purchsStatus"]').text("완료");
-				$('span[name="purchsStatus"]').addClass("complete");
-			}else{
-				$('span[name="purchsStatus"]').text("실패");
-				$('span[name="purchsStatus"]').addClass("fail");
+			if(data.chkCount != '0'){				
+				alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+				return;
+			}else{				
+				if(data.resultCode == 200){
+					$('span[name="purchsStatus"]').text("완료");
+					$('span[name="purchsStatus"]').addClass("complete");
+				}else{
+					$('span[name="purchsStatus"]').text("실패");
+					$('span[name="purchsStatus"]').addClass("fail");
+				}
 			}
 		});
 		

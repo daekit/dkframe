@@ -21,4 +21,6 @@ public interface SD07Mapper {
 
 	int insertCreditClosePur(Map<String, String> paramMap);
 
+	int chkBilgFlagYn(Map<String, String> paramMap);
+
 }

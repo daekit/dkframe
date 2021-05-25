@@ -48,6 +48,7 @@ public class SD07Ctr {
 	public String excuteStockClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
     		sd07Svc.excuteStockClose(paramMap);
+        	model.addAttribute("chkCount", paramMap.get("chkCount"));
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
     	}catch (Exception e){
@@ -61,6 +62,7 @@ public class SD07Ctr {
 	public String excuteCreditClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
     		sd07Svc.excuteCreditClose(paramMap);
+        	model.addAttribute("chkCount", paramMap.get("chkCount"));
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
     	}catch (Exception e){
@@ -74,6 +76,7 @@ public class SD07Ctr {
 	public String excuteCreditClosePur(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
     		sd07Svc.excuteCreditClosePur(paramMap);
+        	model.addAttribute("chkCount", paramMap.get("chkCount"));
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
     	}catch (Exception e){
