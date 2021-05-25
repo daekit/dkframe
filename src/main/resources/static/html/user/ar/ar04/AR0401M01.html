@@ -276,7 +276,7 @@
 			          	{key: "bilgCertNo",     label: "청구서번호",   	 align: "center",  width: 95},
 			          	{key: "sellDt",         label: "매출일자",   	     align: "center",  width: 90},
 			          	{key: "clntNm",         label: "거래처명",   	     align: "left",    width: 160},
-			          	{key: "selpchCd",       label: "매입/매출",     	 align: "center",  width: 80},
+			          	{key: "selpchNm",       label: "매입/매출",     	 align: "center",  width: 80},
 			          	{key: "rffGn1",         label: "종류",        align: "center",  width: 100},
 			          	{key: "bgm1225",        label: "전송구분",      align: "center",  width: 80},
 			          	{key: "taxDms57240",    label: "품목수",   	     align: "right",   width: 60, formatter: "money"},
@@ -347,7 +347,7 @@
 			setData : function(_pageNo) {
 				var targetObj = this.target;
 				var paramObj = {"pageNo" : _pageNo + 1};
-				if(inputValidation($('[required]'))){
+				if(inputValidation($('#searchDiv [required]'))){
 					for(var i=0;i<$('[data-search]').length;i++){
 						var tempElem = $('[data-search]')[i];
 						paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -562,6 +562,7 @@
 		var bilgCertNoArr = [];
 		var coCdArr = [];
 		var emailChk = true;
+		var selpchChk = true;
 		var emailIdx;
 		$.each(list, function(idx, obj){
 			if(!obj.taxBilgNo) {
@@ -574,6 +575,13 @@
 				emailChk = false;
 				alert("수신자 Email 입력 후 발행해 주세요.");
 				emailIdx = obj.__index;
+				return false;
+			}
+
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				selpchChk = false;
+				alert("매입 매출 구분을 확인 해 주세요.");
 				return false;
 			}
 		});
@@ -593,6 +601,11 @@
 			viewTaxBilgDetailModal("U");
 			return false;
 		}
+		
+		if(!selpchChk){
+			return false;
+		}
+		
 		if(!confirm(rowLength + "건을 재전송 하시겠습니까?")){
 			return;
 		}
@@ -638,6 +651,7 @@
 		var emailIdx;
 		var arrGnChk = true;
 		var rvrsChk = true;
+		var selpchChk = true;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) {
 				flag = true;
@@ -664,6 +678,13 @@
 				emailIdx = obj.__index;
 				return false;
 			}
+			
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				selpchChk = false;
+				alert("매입 매출 구분을 확인 해 주세요.");
+				return false;
+			}
 			//coCdArr.push(obj.coCd);
 		});
 		if(!arrGnChk){
@@ -686,6 +707,10 @@
 			alert("세금계산서 발행된 건이 있습니다.");
 			return;
 		}; 
+		
+		if(!selpchChk){
+			return false;
+		}
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("정발행 세금계산서 대상자료를 선택해 주세요.");
@@ -720,6 +745,7 @@
 		var arrGnChk = true;
 		var taxBilgChk = true;
 		var eFlag = true;
+		var selpchChk = true;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) flag = true;
 			if((obj.taxAdmsYn =="Y") || (obj.rcvYn == "Y" )) {
@@ -755,6 +781,13 @@
 				emailIdx = obj.__index;
 				return false;
 			}
+			
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				selpchChk = false;
+				alert("매입 매출 구분을 확인 해 주세요.");
+				return false;
+			}
 		});
 		if(!eFlag){
 			return false;
@@ -771,6 +804,9 @@
 			});
 			gridView.target.select(emailIdx);
 			viewTaxBilgDetailModal("U");
+			return false;
+		}
+		if(!selpchChk){
 			return false;
 		}
 		/* if(flag) {
