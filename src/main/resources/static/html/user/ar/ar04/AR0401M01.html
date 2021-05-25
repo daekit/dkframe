@@ -271,25 +271,32 @@
 			          	{key: "cseqRcvYn",      label: "결과",   	     align: "center",  width: 45},
 			          	{key: "taxAdmsYn",      label: "승인",   	 	 align: "center",  width: 45},
 			          	{key: "rcvYn",          label: "접수",   	     align: "center",  width: 45, 	formatter: "bilgYn"},
-			          	{key: "taxDt",          label: "발행일",   	     align: "center",  width: 80},
+			          	{key: "taxDt",          label: "발행일", 	     align: "center",  width: 80},
 			          	{key: "taxBilgNo",      label: "계산서번호",   	 align: "center",  width: 150, formatter: "bttonOn"},
-			          	{key: "bilgCertNo",     label: "청구서번호",   	 align: "center",  width: 95},
-			          	{key: "sellDt",         label: "매출일자",   	     align: "center",  width: 90},
-			          	{key: "clntNm",         label: "거래처명",   	     align: "left",    width: 160},
-			          	{key: "selpchNm",       label: "매입/매출",     	 align: "center",  width: 80},
-			          	{key: "rffGn1",         label: "종류",        align: "center",  width: 100},
-			          	{key: "bgm1225",        label: "전송구분",      align: "center",  width: 80},
-			          	{key: "taxDms57240",    label: "품목수",   	     align: "right",   width: 60, formatter: "money"},
-			          	{key: "taxMoa523",      label: "공급가액합계",   	 align: "right",   width: 95, formatter: "money", styleClass: function () {
+			          	{key: "bilgCertNo",     label: "청구서번호",   	 align: "center",  width: 95, styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "sellDt",         label: "매출일자",	     align: "center",  width: 90, styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "clntNm",         label: "거래처명",	     align: "left",    width: 160, styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "selpchNm",       label: "매입/매출",   	 align: "center",  width: 80, styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "rffGn1",         label: "종류",		 align: "center",  width: 100, styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "bgm1225",        label: "전송구분",		 align: "center",  width: 80, styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "taxDms57240",    label: "품목수",		 align: "right",   width: 60, formatter: "money", styleClass: function () {
+		                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+			          	{key: "taxMoa523",      label: "공급가액합계",   align: "right",   width: 95, formatter: "money", styleClass: function () {
                      return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
-			          	{key: "taxMoa5124",     label: "부가세액합계",   	 align: "right",   width: 95, formatter: "money", styleClass: function () {
+			          	{key: "taxMoa5124",     label: "부가세액합계",   align: "right",   width: 95, formatter: "money", styleClass: function () {
                      return (this.item.taxMoa5124 < 0) ? "grid-font-red":"";}},
-			          	{key: "taxMoa5388",     label: "총금액",   	     align: "right",   width: 95, formatter: "money", styleClass: function () {
+			          	{key: "taxMoa5388",     label: "총금액",   	 align: "right",   width: 95, formatter: "money", styleClass: function () {
                      return (this.item.taxMoa5388 < 0) ? "grid-font-red":"";}},
-			          	{key: "rcvProcId",      label: "국세청접수번호",     align: "left",    width: 120},
-			          	{key: "rffAea",         label: "계산서수정사유",     align: "left",   width: 120},
-			          	{key: "orgnTaxBilgNo",  label: "원본계산서번호",     align: "left",   width: 150},
-			          	{key: "bgm4343",        label: "전송회차",   	     align: "center",  width: 80},
+			          	{key: "rcvProcId",      label: "국세청접수번호",  align: "left",    width: 120},
+			          	{key: "rffAea",         label: "계산서수정사유",  align: "left",   width: 120},
+			          	{key: "orgnTaxBilgNo",  label: "원본계산서번호",  align: "left",   width: 150},
+			          	{key: "bgm4343",        label: "전송회차",   	 align: "center",  width: 80},
 			          	{key: "rffCno",         label: "영수/청구",   	     align: "center",  width: 80},
 			          	{key: "rffVa",          label: "부가세",           align: "center",  width: 80},
 			          	{key: "taxDivNm",       label: "계산서발행종류",   	 align: "center",  width: 110},
@@ -565,6 +572,13 @@
 		var selpchChk = true;
 		var emailIdx;
 		$.each(list, function(idx, obj){
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				selpchChk = false;
+				alert("매출계산서만 전송 가능합니다!");
+				return false;
+			}
+
 			if(!obj.taxBilgNo) {
 				flag = true;
 				alert("세금계산서 발행된 건이 아닙니다.");
@@ -578,12 +592,6 @@
 				return false;
 			}
 
-			// 매입매출 체크
-			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
-				selpchChk = false;
-				alert("매입 매출 구분을 확인 해 주세요.");
-				return false;
-			}
 		});
 		if(flag) {
 			return;
@@ -661,6 +669,13 @@
 				return false;
 			}
 			
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				selpchChk = false;
+				alert("매출계산서만 정발행 가능합니다!");
+				return false;
+			}
+
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 정발행의 경우 rffgn1 : 01, rffAea : null 인 건만 가능
 			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225Cd != 'BGM12259'){
@@ -679,12 +694,6 @@
 				return false;
 			}
 			
-			// 매입매출 체크
-			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
-				selpchChk = false;
-				alert("매입 매출 구분을 확인 해 주세요.");
-				return false;
-			}
 			//coCdArr.push(obj.coCd);
 		});
 		if(!arrGnChk){
@@ -851,6 +860,13 @@
 			if(obj.taxBilgNo) flag = true;
 			//gridView.target.select(obj.__index);
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				arrGnChk = false;
+				alert("매출계산서 정발행 계산서만 수정가능합니다!");
+				return false;
+			}
 
 			//역발행 체크			
 			if(obj.taxBilgNo == "역발행"){
