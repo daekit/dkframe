@@ -554,11 +554,36 @@
 
 	function sellCal() {
 		if(checkGridRow(subGridView.target, "multi")){
+			var bilgYn = null;
+			var clntCd = null;
+			var returnYn = null;
+			
 			var selectedRows = subGridView.target.getList("selected");
-			$.each(selectedRows, function(idx, obj){
+			for(var i=0;i<selectedRows.length;i++){
+				var	obj = selectedRows[i];
+				if(bilgYn != null && bilgYn != obj.bilgYn){
+					alert("발행유무가 동일한 건끼리 가능합니다.");
+					return false;
+				}
+				
+				if(clntCd != null && clntCd != obj.clntCd){
+					alert("동일한 거래처끼리만 가능합니다.");
+					return false;
+				}
+				
+				if(returnYn != null && returnYn != obj.returnYn){
+					alert("반품은 반품끼리만 가능합니다.");
+					return false;
+				}
+				
+				bilgYn = obj.bilgYn;
+				clntCd = obj.clntCd;
+				returnYn = obj.returnYn;
+				
 				obj.__selected__ = false;
-			})
-			openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, "매출실적 정산", {"selectedRows": selectedRows});
+			}
+			
+			openModal("/static/html/user/ar/ar02/AR0201P01.html", 1100, 650, "매출실적 정산", {"bilgYn": bilgYn, "selectedRows": selectedRows});
 		}
 	}
 	
