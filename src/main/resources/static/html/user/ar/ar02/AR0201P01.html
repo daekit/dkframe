@@ -31,7 +31,7 @@
 	<div class="contents no_bg">
 		<!-- 콘텐츠 타이틀 -->
 		<div class="contents_tit">
-			<div class="add_btn_small pdl10">
+			<div class="add_btn_small pdl10" id="actionDiv">
 				할인: 
 				<input type="text" class="tr" id="allAmt" onkeyup="onlyNumber(this);"> 
 				<a onclick="setDcAmt('bilgUpr');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
@@ -102,18 +102,18 @@
 		        	{key: "prdtNm",    	 	label: "제품", 		     align: "left", 	width: 160},
 		        	{key: "realTrstQty", 	label: "수량", 		     align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "prdtUpr",        label: "기준단가", 	     align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "bilgQty",        label: "청구수량", 	     align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgQty",        label: "청구수량", 	     align: "right", 	width: 80, 	formatter: "money", editor: {type:"text", disabled: function(){return this.item.bilgYn == "Y"}}, styleClass: function(){return this.item.bilgYn == "N" ? "grid-cell-blue" : ""}},
 		        	{key: "bilgUprOrg",     label: "청구단가(원본)", hidden: true},
-		        	{key: "bilgUpr",        label: "청구단가", 	     align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
-		        	{key: "bilgWt",         label: "청구중량", 	     align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgUpr",        label: "청구단가", 	     align: "right", 	width: 80, 	formatter: "money", editor: {type:"text", disabled: function(){return this.item.bilgYn == "Y"}}, styleClass: function(){return this.item.bilgYn == "N" ? "grid-cell-blue" : ""}},
+		        	{key: "bilgWt",         label: "청구중량", 	     align: "right", 	width: 80, 	formatter: "money", editor: {type:"text", disabled: function(){return this.item.bilgYn == "Y"}}, styleClass: function(){return this.item.bilgYn == "N" ? "grid-cell-blue" : ""}},
 		        	{key: "realTrstAmt",    label: "물품금액",		 align: "right",  	width: 80, 	formatter: "money"},
-		        	{key: "trstDcAmt", 	    label: "할인금액",  	 align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "trstDcAmt", 	    label: "할인금액",  	 align: "right", 	width: 80, 	formatter: "money", editor: {type:"text", disabled: function(){return this.item.bilgYn == "Y"}}, styleClass: function(){return this.item.bilgYn == "N" ? "grid-cell-blue" : ""}},
 		        	{key: "lossRate", 	    label: "할인율",  	     align: "right", 	width: 80, 	formatter: "money"},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	 align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "trspRmk", 	    label: "비고",  		 align: "left", 	width: 100, editor: {type:"text"}, styleClass:"grid-cell-blue"},
-		        	{key: "bilgVatAmt",	    label: "부가세",  	     align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		        	{key: "bilgVatAmt",	    label: "부가세",  	     align: "right", 	width: 80,	formatter: "money", editor: {type:"text", disabled: function(){return this.item.bilgYn == "Y"}}, styleClass: function(){return this.item.bilgYn == "N" ? "grid-cell-blue" : ""}},
 		        	{key: "totAmt",	    	label: "합계",  		 align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "shipVehNo",     	label: "차량번호",  	 align: "center", 	width: 100, editor: {type:"text"}},
+		        	{key: "shipVehNo",     	label: "차량번호",  	 align: "left", 	width: 100, editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        	{key: "makrNm",			label: "제조사", 		 align: "left", 	width: 100},
 		        	{key: "bilgCertNo",     label: "청구서번호", 	 align: "center", 	width: 100},
 		        	{key: "prdtStknNm",     label: "강종",  		 align: "center", 	width: 100},
@@ -166,6 +166,11 @@
 		$('#reqDtFromTo').val($("#reqDtFrom").val() + " ~ " + $("#reqDtTo").val());
 		$("#clntCd_P").val(row.clntCd);
 		$("#clntNm_P").val(row.clntNm);
+		
+		// 전표유무에 따른 액션영역 숨김처리
+		if(commonModal.paramObj.bilgYn == "Y"){
+			$('#actionDiv').closest('div.contents').hide();
+		}
 		
 		adjustGridView.initView().setData();
 		
