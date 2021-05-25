@@ -547,8 +547,8 @@
 				}
 			});
 			
-			// 재고관리에 따른 dom 변경
 			if(obj.prdtStockCd == "N"){
+			// 재고관리 대상이 아니면 dom 변경
 				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
 				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
 				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
@@ -561,29 +561,32 @@
 				$addedRow.find('input[name="ordrgQty"]').prop("required", false);
 				$addedRow.find('input[name="ordrgWt"]').prop("required", false);
 			}
-			// 둘다 Y 이거나... 직송이 아니면서 매입 Y 이면 종료된 건임.
-			if( ( obj.ordrgYn == "Y" && obj.shipYn =="Y") || (orderInfo.dirtrsYn == "N" && obj.ordrgYn == "Y") ) {
-				// 매입매출이 모두 확정되었으면
-					$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-					$addedRow.find('input').prop("readonly", true);
-					$addedRow.find('a').remove();
-			}else { //    CASE: (1) 직송(Y) : NN, YN   (2)  직송(N):NN
-				// 확정여부에 따른 dom 변경
-                 // 직송이 아니면 매출단가/금액은 수정대상이 아님.
-				if(orderInfo.dirtrsYn == "N"){  
-						$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
-						$addedRow.find('input[name="shipAmt"]').prop("readonly", true);
-				} 
-			    //CASE : YN , NN
-			    if(obj.ordrgYn == "Y"){ 
-				// 매입만 확정되었으면
-					// 매출단가만 수정가능
-					$addedRow.find('a').remove();
-					$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
-					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
-				}
+			
+			if(obj.ordrgYn == "Y"){
+			// 매입이 확정되었으면 dom 변경
+				$addedRow.find('a').remove();
+				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
 			}
 			
+			if((obj.ordrgYn == "Y" && obj.shipYn =="Y") || (orderInfo.dirtrsYn == "N" && obj.ordrgYn == "Y")) {
+			// 매입매출이 모두 확정되었거나 || 직송이 아니면서 매입이 확정되었으면 종료된건임
+				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+				$addedRow.find('input').prop("readonly", true);
+				$addedRow.find('a').remove();
+			}else {
+			// CASE1: 직송Y(YN, NN) CASE2: 직송N(NN)
+                // 직송이 아니면 매출단가/금액은 수정대상이 아님.
+				if(orderInfo.dirtrsYn == "N"){  
+					$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
+					$addedRow.find('input[name="shipAmt"]').prop("readonly", true);
+				}
+			}
 		});
 		countTot();
 		
