@@ -191,7 +191,7 @@ public class AR01SvcImpl implements AR01Svc {
 			return 500;
 		}
 		int result = 0;
-		int realTotTrstAmt = 0;
+		long realTotTrstAmt = 0;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
@@ -229,7 +229,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("realTrstWt",  detailMap.get("realShipWt"));
 			paramMap.put("realTrstUpr", detailMap.get("realShipUpr"));
 			paramMap.put("realTrstAmt", detailMap.get("realShipAmt"));
-			realTotTrstAmt += Integer.parseInt(detailMap.get("realShipAmt"));
+			realTotTrstAmt += Long.parseLong(detailMap.get("realShipAmt"));
 			paramMap.put("bilgQty",     detailMap.get("realShipQty"));
 			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
