@@ -89,11 +89,12 @@
                   </select>
                 </td>
                 <th>기준 년도</th>
-						<td>
-							<div class="date_input">
-								<input type="text" class="input_calendar" autocomplete="off" id="salesYy" name="salesYy" data-search="salesYy" date onchange="initYy();gridView.initView().setData(0);">> 
-							</div>
-						</td>						
+					<td>
+						<div class="date_input">
+							<input type="text" class="input_calendar" autocomplete="off" id="salesYy" name="salesYy" data-search="salesYy" date onchange="initYy();gridView.initView().setData(0);"
+							    style="width: 100% !important;"> 
+						</div>
+					</td>						
                 <th>계산서</th>
                 <td>
               	  <select id="bill" name="bill" data-search="bill" style="width:100%;" onchange="gridView.setData(0);">
@@ -118,19 +119,21 @@
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
-<!--                 <th>담당자</th> -->
-<!-- 	            <td>                                 -->
-<!-- 	              <input type="hidden" id="salesMng" name="salesMng" data-search="salesMng"> -->
-<!-- 	              <div class="search_form" style="width: 62%;"> -->
-<!-- 	                <input type="text" id="salesMngNm" name="salesMngNm" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> -->
-<!-- 	                <a onclick="openUserTree();"><i class="i_search_w"></i></a> -->
-<!-- 	              </div> -->
-<!-- 	            </td> -->
+		        <th >현장명</th>
+		        <td>
+		          <input type="hidden" id="siteCd" name="siteCd" data-search="siteCd">
+		          <div class="search_form" style="width: 62%;">
+		            <input type="text" id="siteNm" name="siteNm" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+		            <a onclick="openSiteSearch('S');"><i class="i_search_w"></i></a>
+		          </div>
+		        </td>
+		                        
+
               </tr>
               <tr>
                 <th>제품유형</th>
                 <td>
-                  <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="prdtStknChange(this);gridView.setData(0);">
+                  <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="prdtDivCombo();gridView.setData(0);">
                     <option value="">전체</option>
                   </select>
                 </td>
@@ -148,15 +151,14 @@
 <!-- 		            <a onclick="prjctSearch();"><i class="i_search_w"></i></a> -->
 <!-- 		          </div> -->
 <!-- 		        </td> -->
-		        <th >현장명</th>
-		        <td>
-		          <input type="hidden" id="siteCd" name="siteCd" data-search="siteCd">
-		          <div class="search_form" style="width: 62%;">
-		            <input type="text" id="siteNm" name="siteNm" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
-		            <a onclick="openSiteSearch('S');"><i class="i_search_w"></i></a>
-		          </div>
-		        </td>
-		        
+<!--                 <th>담당자</th> -->
+<!-- 	            <td>                                 -->
+<!-- 	              <input type="hidden" id="salesMng" name="salesMng" data-search="salesMng"> -->
+<!-- 	              <div class="search_form" style="width: 62%;"> -->
+<!-- 	                <input type="text" id="salesMngNm" name="salesMngNm" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> -->
+<!-- 	                <a onclick="openUserTree();"><i class="i_search_w"></i></a> -->
+<!-- 	              </div> -->
+<!-- 	            </td> -->
 		        
               </tr>
             </table>
@@ -429,6 +431,19 @@
 			}
 		});
 	}	
+	//제품유형에 따른 강종
+	
+	function prdtDivCombo(){
+		var formData = {"prdtDivCd" : $("#prdtDiv").val()};
+		postAjax("/user/sd/sd05/prdtDivCombo", formData, null, function (data){
+			var codeList = data.codeInfoList; 
+			var optionHtml = '<option value="">선택</option>';
+			for (var i = 0; i < codeList.length; i++) {
+				optionHtml += '<option value=\"' + codeList[i].prdtStkn + '\">' + codeList[i].prdtStknNm + '</option>';
+			}
+			$("#prdtStkn").html(optionHtml);
+		})
+ 	}
 
 	function excelDown() {
 		var paramObj = {"pageNo" : 1,"recordCnt"   : 9999999};
