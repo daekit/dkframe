@@ -547,88 +547,43 @@
 				}
 			});
 			
-			// 확정여부에 따른 dom 변경
-			if(orderInfo.dirtrsYn == "Y"){
-			// 직송이면
-				if(obj.ordrgYn == "Y" && obj.shipYn =="Y" ) {
+			// 재고관리에 따른 dom 변경
+			if(obj.prdtStockCd == "N"){
+				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
+				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
+				// 재고관리 대상이 아닐경우 금액 수정 가능
+				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+				$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+				$addedRow.find('input[name="ordrgQty"]').prop("required", false);
+				$addedRow.find('input[name="ordrgWt"]').prop("required", false);
+			}
+			// 둘다 Y 이거나... 직송이 아니면서 매입 Y 이면 종료된 건임.
+			if( ( obj.ordrgYn == "Y" && obj.shipYn =="Y") || (orderInfo.dirtrsYn == "N" && obj.ordrgYn == "Y") ) {
 				// 매입매출이 모두 확정되었으면
 					$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
 					$addedRow.find('input').prop("readonly", true);
 					$addedRow.find('a').remove();
-				}else if(obj.ordrgYn == "N" && obj.shipYn =="N"){
-				// 매입매출이 모두 확정되지 않았으면
-					// shipUpr 입력 가능
-					$addedRow.find('input[name="shipUpr"]').prop("readonly", false);
-					
-					// 재고관리에 따른 dom 변경
-					if(obj.prdtStockCd == "N"){
-						$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
-						$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
-						$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
-						$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
-						$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
-						// 재고관리 대상이 아닐경우 금액 수정 가능
-						$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-						$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
-						// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-						$addedRow.find('input[name="ordrgQty"]').prop("required", false);
-						$addedRow.find('input[name="ordrgWt"]').prop("required", false);
-					}
-				}else{
-				// 매입 또는 매출만 확정되었으면
-					// 제품 변경 불가능
+			}else { //    CASE: (1) 직송(Y) : NN, YN   (2)  직송(N):NN
+				// 확정여부에 따른 dom 변경
+                 // 직송이 아니면 매출단가/금액은 수정대상이 아님.
+				if(orderInfo.dirtrsYn == "N"){  
+						$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
+						$addedRow.find('input[name="shipAmt"]').prop("readonly", true);
+				} 
+			    //CASE : YN , NN
+			    if(obj.ordrgYn == "Y"){ 
+				// 매입만 확정되었으면
+					// 매출단가만 수정가능
 					$addedRow.find('a').remove();
-					if(obj.ordrgYn == "Y" && obj.shipYn =="N"){
-					// 매입만 확정되었으면
-						// 매출단가만 수정가능
-						$addedRow.find('input:not([name="shipUpr"])').prop("readonly", true);
-						if(obj.prdtStockCd == "N"){
-							// 재고관리 대상이 아닐경우 매출금액도 수정 가능
-							$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
-							// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-							$addedRow.find('input[name="ordrgQty"]').prop("required", false);
-							$addedRow.find('input[name="ordrgWt"]').prop("required", false);
-						}
-					}else if(obj.ordrgYn == "N" && obj.shipYn =="Y"){
-					// 매출만 확정되었으면
-						// 발주단가만 수정가능
-						$addedRow.find('input:not([name="ordrgUpr"])').prop("readonly", true);
-						if(obj.prdtStockCd == "N"){
-							// 재고관리 대상이 아닐경우 발주금액도 수정 가능
-							$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-							// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-							$addedRow.find('input[name="ordrgQty"]').prop("required", false);
-							$addedRow.find('input[name="ordrgWt"]').prop("required", false);
-						}
-					}
-				}
-			} else {
-			// 직송이 아니면
-				if(obj.ordrgYn == "Y") {
-				// 매입이 확정되었으면
-					$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-					$addedRow.find('input').prop("readonly", true);
-					$addedRow.find('a').remove();
-				} else{
-				// 매입이 확정되지 않았으면
-					// shipUpr 입력 불가능
-					$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
-					
-					// 재고관리에 따른 dom 변경
-					if(obj.prdtStockCd == "N"){
-						$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
-						$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
-						$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
-						$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
-						$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
-						// 직송이 아니면서 재고관리 대상이 아닐경우 발주금액만 수정 가능
-						$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-						// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-						$addedRow.find('input[name="ordrgQty"]').prop("required", false);
-						$addedRow.find('input[name="ordrgWt"]').prop("required", false);
-					}
+					$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
 				}
 			}
+			
 		});
 		countTot();
 		

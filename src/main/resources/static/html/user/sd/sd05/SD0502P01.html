@@ -23,7 +23,7 @@
 					</td>
 					<th class="hit">수주형태</th>
 					<td>
-						<select id="ordTyp" name="ordTyp" data-kind="ORDTYP" required="required" msg="수주형태">
+						<select id="ordTyp" name="ordTyp" data-kind="ORDTYP" required="required" msg="수주형태" onchange="setByOrdTyp(this.value);">
 <!-- 							<option value="">전체</option> -->
 						</select>
 					</td>
@@ -73,8 +73,10 @@
 						</div>
 					</td>
 					<th class="">제강사</th>
-					<td>
-						<select id="makrCd" name="makrCd" data-kind="MAKR"></select>
+					<td class="tl">
+						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%"></select>
+  						<label for="tnkeyYn">제강사턴키여부</label>
+						<input type="checkbox" id="tnkeyYn" name="tnkeyYn">
 					</td>
 				</tr>
 				<tr>
@@ -83,7 +85,7 @@
 						<input id="prjctNm" name="prjctNm" type="text" style="width: 100%;" required="required" msg="프로젝트명" maxlength="50">
 					</td>
 					<th>매입계약기간</th>
-					<td class="drctArea">
+					<td class="drctArea tl">
 						<div class="date_input">
 							<input id="pchsStrtDt2" name="pchsStrtDt" class="input_calendar" autocomplete="off" msg="제강사 구매시작일자">
 							<span>~</span>
@@ -156,7 +158,7 @@
 						<th rowspan="4">계<br>약<br>사<br>항</th>
 						<th class="hit">계약물량</th>
 						<td>
-							<input id="totWt" name="totWt" type="text" required="required" msg="계약물량" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="9" comma>
+							<input id="totWt" name="totWt" type="text" required="required" msg="계약물량" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="12" comma>
 						</td>
 						<th>가공단가(원/톤)</th>
 						<td>
@@ -788,10 +790,20 @@
 		//메인정보 세팅
 		$.each(prjInfo, function(key, value){
 			$('#'+key).val(value);
+			
+			// 턴키여부 set
+			if(key == "tnkeyYn" && value == "Y"){
+				$('#'+key).prop("checked", true);
+			}
 
 			// 창고 set
 			if(key == "coCd"){
 				setByCoCd(value);
+			}
+
+			// 수주형태에 따른 턴키 활성화 체크
+			if(key == "ordTyp"){
+				setByOrdTyp(value);
 			}
 		});
 		//발주서 세팅
@@ -959,7 +971,7 @@
 	} */
 	
 	function insertOrder() {
-		if(inputValidation($('[required]'))) {
+		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/sd/sd05/insertProject", formData, function(data){
 				alert(data.resultMessage);
@@ -972,9 +984,8 @@
 	}
 	
 	function updateOrder() {
-		if(inputValidation($('[required]'))) {
+		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
-			
 			filePostAjax("/user/sd/sd05/updateProject", formData, function(data){
 				alert(data.resultMessage);            
 				gridView.setData(0);
@@ -992,6 +1003,14 @@
 			deleteComma(elem);
 		});
 		var formData = new FormData($("#popForm")[0]);
+		
+		// 턴키여부 set
+		if($('#tnkeyYn').is(":checked")){
+			formData.set("tnkeyYn", "Y");
+		}else{
+			formData.set("tnkeyYn", "N");
+		}
+		
 		// 첨부파일 추가
 		$.each(fileArr, function(idx, obj){
 			// 신규파일만 추가
@@ -1201,7 +1220,6 @@
 	
 	function setByCoCd(value){
 		
-		debugger;
 		// 창고 set
 		$('#whCd').data("desc", value);
 		$('#whCd option:not([value=""])').remove();
@@ -1241,4 +1259,15 @@
 				excelView.target.exportExcel("프로젝트제품상세목록"+todayDate+".xls");
 			});	
 	}	
+	
+	// 수주형태에 따른 제강사턴키 구분 
+	function setByOrdTyp(ordType){
+		if(ordType =="ORDTYP02"){ //가공(턴키)
+			$("#tnkeyYn").prop("disabled",false);		
+		}else{
+			$("#tnkeyYn").prop("checked", false);
+			$("#tnkeyYn").prop("disabled", true);			
+			$("#tnkeyYn").val("N");		
+		}
+	};
 </script>
