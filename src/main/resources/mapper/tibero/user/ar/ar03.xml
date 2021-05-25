@@ -79,13 +79,13 @@
 						,A.SITE_CD
 						, (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
 						<!-- 실제 발생한 운반비는 발주서에서 온거, 출하요청서에서 온거가 구분이 안된다.. 둘다 더하면 된다.. 한곳에만 존재함으로 -->
-						, NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
+						, NVL( (SELECT SUM(H.BILG_AMT) FROM TB_AR02M01 H 
 						         INNER JOIN TB_AR01M01 AR01 ON H.TRST_RPRC_SEQ = AR01.SHIP_SEQ 
 						                AND  SUBSTR(H.CREAT_PGM,1,6) =  SUBSTR(AR01.CREAT_PGM,1,6)
 						                AND  AR01.TRANS_SEQ = A.TRANS_SEQ
 						        INNER JOIN TB_BM01M01 BM01	ON H.TRST_PRDT_CD = BM01.PRDT_CD 	
 	                                    AND PRDT_NM LIKE '%운반비%'), 0)
-						+  NVL( (SELECT SUM(H.TRANS_AMT) FROM TB_AR02M01 H 
+						+  NVL( (SELECT SUM(H.BILG_AMT) FROM TB_AR02M01 H 
 						         INNER JOIN TB_OD01M01 OD01 ON H.TRST_RPRC_SEQ = OD01.ORDRG_SEQ 
 						                AND  SUBSTR(H.CREAT_PGM,1,6) =  SUBSTR(OD01.CREAT_PGM,1,6)
 						                AND  OD01.TRANS_SEQ = A.TRANS_SEQ
@@ -148,8 +148,8 @@
 		SELECT 
 	 		COUNT(*) 
 	 	FROM TB_AR01M01 A, TB_AR03M01 B
-	 	WHERE 1=1
-	 		AND A.SHIP_SEQ = B.SHIP_SEQ
+	 	WHERE A.TRANS_SEQ = B.TRANS_SEQ
+		  AND A.TRANS_SEQ = #{transSeq}
 	</select>
 	
 	<select id="selectShipList" parameterType="Map" resultType="camelMap">
@@ -205,8 +205,7 @@
 			FROM 
 			(
 			 	SELECT A.* FROM TB_AR01M01 A, TB_AR03M01 B
-			 	WHERE 1=1
-			 	  AND A.TRANS_SEQ = B.TRANS_SEQ
+			 	WHERE A.TRANS_SEQ = B.TRANS_SEQ
 			 	  AND A.TRANS_SEQ = #{transSeq}
 				ORDER BY UDT_DTTM DESC
 			) T
