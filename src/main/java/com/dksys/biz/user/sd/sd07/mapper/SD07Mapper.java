@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface SD07Mapper {
 
 	Map<String, String> selectClose(Map<String, String> paramMap);
+	Map<String, String> selectMaxCloseDay(Map<String, String> paramMap);
 
 	int saveClose(Map<String, String> paramMap);
 
@@ -22,5 +23,6 @@ public interface SD07Mapper {
 	int insertCreditClosePur(Map<String, String> paramMap);
 
 	int chkBilgFlagYn(Map<String, String> paramMap);
+
 
 }
