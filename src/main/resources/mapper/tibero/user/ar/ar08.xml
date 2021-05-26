@@ -32,11 +32,12 @@
 						, DECODE(A.SELPCH_CD, 'SELPCH2', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 'SELPCH4', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS SELL_AMT
 						, 0 AS BASIS_AMT
 				FROM TB_AR02M01 A
-				 LEFT OUTER  JOIN TB_BM02M01 B
+				 LEFT JOIN TB_BM02M01 B
 			             ON A.TRST_CLNT_CD = B.CLNT_CD
-			     LEFT OUTER JOIN TB_SD05M01 SD05
+			     LEFT JOIN TB_SD05M01 SD05
 			                  ON SD05.PRJCT_CD = A.PRJCT_CD
-			    WHERE BILG_CERT_NO IS NULL
+			    WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+			      AND BILG_CERT_NO IS NULL
 			     <if test= "selpchCd != null and !selpchCd.equals('')">
 					 <choose>	
 					     <when test="selpchCd == 'SELPCH1'">
@@ -63,7 +64,7 @@
 						, SUM(DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH4', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0)) AS SELL_AMT
 						, 0 AS BASIS_AMT
 				  FROM  TB_AR04M01 AR04
-				  <where>
+			     WHERE  AR04.SELL_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
 					  <if test= "selpchCd != null and !selpchCd.equals('')">
 						 <choose>	
 						     <when test="selpchCd == 'SELPCH1'">
@@ -74,7 +75,6 @@
 		 			         </otherwise>
 					     </choose>
 				     </if>
-				  </where>
 				  GROUP BY AR04.SELL_DT
 						, AR04.CO_CD
 						, AR04.CLNT_CD
@@ -97,7 +97,8 @@
 						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
 						, 0
 						FROM TB_AR05M01 A, TB_BM02M01 B
-						WHERE A.CLNT_CD = B.CLNT_CD(+)				
+						WHERE A.CLNT_CD = B.CLNT_CD(+)		
+			              AND A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
 					     <if test= "selpchCd != null and !selpchCd.equals('')">
  					      <choose>	
 							     <when test="selpchCd == 'SELPCH1'">
@@ -140,7 +141,8 @@
 			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ) AS BASIS_AMT
 			       FROM DUAL
 			) A
-			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+<!-- 			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '') -->
+           <where>
 			<if test= "clntCd != null and !clntCd.equals('')">
  			AND A.CLNT_CD = #{clntCd}
 			</if>
@@ -150,6 +152,7 @@
 			 <if test= "clntNm != null and !clntNm.equals('')">
 		 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 			</if>
+			</where>
 			ORDER BY A.TRST_DT, DECODE(RN,0,0,1),TYPE, A.CLNT_NM
 		  ) B
 
