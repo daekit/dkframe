@@ -179,6 +179,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
 		String deptId = String.valueOf(paramMap.get("deptId"));
+		String selectDt = String.valueOf(paramMap.get("selectDt"));  /* 세금계산서 발행일자 */
 		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
 		//List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
 		Map<String, Object> param = new HashMap<String, Object>();
@@ -195,6 +196,7 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("userNm", userNm);
 			taxHdParam.put("deptId", deptId);
 			taxHdParam.put("pgmId", pgmId);
+			taxHdParam.put("selectDt", selectDt);  /* 세금계산서 발행일자 */
 			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
 			taxHdParam.put("coCd", list.get(i).split(",")[1]);
 			Map<String, String> bilgInfo = new HashMap<String, String>();
