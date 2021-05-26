@@ -62,6 +62,10 @@
 					 , FN_CM05M01_CD_TO_NM(SD05.MAKR_CD) MAKR_NM
 					 , T.WH_CD
 					 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM
+					 , T.SCND_WH_CD
+					 , FN_CM05M01_CD_TO_NM(T.SCND_WH_CD) SCND_WH_NM
+					 , T.THRD_WH_CD
+					 , FN_CM05M01_CD_TO_NM(T.THRD_WH_CD) THRD_WH_NM
 					 , (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS TAXIVC_COPRT
 					 , SD05.ORD_TYP
 					 , T.MNG_ID
@@ -124,6 +128,10 @@
 			 , FN_BM02_MNG_ID( CO_CD, CLNT_CD)  SALES_EMP_ID
 			 , T.WH_CD
 			 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM	
+			 , T.SCND_WH_CD
+			 , FN_CM05M01_CD_TO_NM(T.SCND_WH_CD) SCND_WH_NM
+			 , T.THRD_WH_CD
+			 , FN_CM05M01_CD_TO_NM(T.THRD_WH_CD) THRD_WH_NM
 			 , T.MNG_ID
 			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM	
 		  FROM TB_SD09M01 T
@@ -137,45 +145,65 @@
 	</select>
 	
 	<insert id="insertSite" parameterType="Map">
-	INSERT INTO TB_SD09M01
-	(CO_CD
-	 , SITE_CD
-	 , CLNT_CD
-	 , PRJCT_CD
-	 , SITE_NM
-	 , SITE_ADDR_ZIP
-	 , SITE_ADDR
-	 , SITE_ADDR_SUB
-	 , SITE_MNG_NM
-	 , TEL_NO
-	 , USE_YN
-	 , RMK
-	 , SALES_AREA_CD
-	 , CREAT_ID
-	 , CREAT_PGM
-	 , CREAT_DTTM
-	 , WH_CD
-	 , MNG_ID
-	 ) VALUES (
-	 #{coCd}
-	 , #{siteCd}
-	 , #{clntCd}
-	 , #{prjctCd}
-	 , #{siteNm}
-	 , #{siteAddrZip}
-	 , #{siteAddr}
-	 , #{siteAddrSub}
-	 , #{siteMngNm}
-	 , #{telNo}
-	 , NVL(#{useYn}, 'Y')
-	 , #{rmk}
-	 , #{salesAreaCd}
-	 , #{userId}
-	 , #{pgmId} 
-	 , SYSDATE
-	 , #{whCd} 
-	 , #{mngId}
-	 )
+		INSERT INTO TB_SD09M01
+		(CO_CD
+		 , SITE_CD
+		 , CLNT_CD
+		 , PRJCT_CD
+		 , SITE_NM
+		 , SITE_ADDR_ZIP
+		 , SITE_ADDR
+		 , SITE_ADDR_SUB
+		 , SITE_MNG_NM
+		 , TEL_NO
+		 , USE_YN
+		 , RMK
+		 , SALES_AREA_CD
+		 , CREAT_ID
+		 , CREAT_PGM
+		 , CREAT_DTTM
+		 , WH_CD
+		 , SCND_WH_CD
+		 , THRD_WH_CD
+		 , MNG_ID
+		 , SITE_MES_CD
+		 , ORD_TYP
+         , TNKEY_YN
+         , MAKR_CD
+         , CLNT_EMAIL
+         , CLNT_FAX_NO
+         , OUTORD_UPR
+         , OUTORD_LOSS_RATE
+		 ) VALUES (
+		 #{coCd}
+		 , #{siteCd}
+		 , #{clntCd}
+		 , #{prjctCd}
+		 , #{siteNm}
+		 , #{siteAddrZip}
+		 , #{siteAddr}
+		 , #{siteAddrSub}
+		 , #{siteMngNm}
+		 , #{telNo}
+		 , NVL(#{useYn}, 'Y')
+		 , #{rmk}
+		 , #{salesAreaCd}
+		 , #{userId}
+		 , #{pgmId} 
+		 , SYSDATE
+		 , #{whCd} 
+		 , #{scndWhCd} 
+		 , #{thrdWhCd} 
+		 , #{mngId}
+		 ,NVL((SELECT MAX(SITE_MES_CD) FROM TB_SD09M01 B WHERE WH_CD = #{whCd}),0) + 1
+		 , #{ordTyp}
+         , #{tnkeyYn}
+         , #{makrCd}
+         , #{clntEmail}
+         , #{clntFaxNo}
+         , #{outordUpr}
+         , #{outordLossRate}
+		 )
 	</insert>
 	
 	<update id="updateSite" parameterType="Map">
@@ -192,11 +220,20 @@
 	  , RMK           = #{rmk}
 	  , SALES_AREA_CD = #{salesAreaCd}
 	  , WH_CD         = #{whCd}
+	  , SCND_WH_CD    = #{scndWhCd}
+	  , THRD_WH_CD    = #{thrdWhCd}
 	  , MNG_ID        = #{mngId}
+	  , ORD_TYP       = #{ordTyp}
+      , TNKEY_YN      = #{tnkeyYn}
+      , MAKR_CD          = #{makrCd}
+      , CLNT_EMAIL       = #{clntEmail}
+      , CLNT_FAX_NO      = #{clntFaxNo}
+      , OUTORD_UPR       = #{outordUpr}
+      , OUTORD_LOSS_RATE = #{outordLossRate}
 	  , UDT_ID        = #{userId}
 	  , UDT_PGM       = #{pgmId}
 	  , UDT_DTTM      = SYSDATE
-	WHERE CO_CD     = #{coCd}
+	WHERE CO_CD       = #{coCd}
 	<choose>
 	   <when test="siteCd != null and siteCd != ''">	   
 	    AND SITE_CD   = #{siteCd}

@@ -72,22 +72,22 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public Map<String, Object> selectPrjInfo(Map<String, String> paramMap) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("prjctCd")));
-		returnMap.put("prjInfo", sd05Mapper.selectPrjInfo(paramMap));
-		returnMap.put("ordDetail", sd05Mapper.selectOrdDetail(paramMap));
+		returnMap.put("fileList",       cm08Svc.selectFileList(paramMap.get("prjctCd")));
+		returnMap.put("prjInfo",        sd05Mapper.selectPrjInfo(paramMap));
+		returnMap.put("ordDetail",      sd05Mapper.selectOrdDetail(paramMap));
 		returnMap.put("shipmentDetail", sd05Mapper.selectShipmentDetail(paramMap));
-		returnMap.put("prjctDtl", sd05Mapper.selectProjectDtl(paramMap));
+		returnMap.put("prjctDtl",       sd05Mapper.selectProjectDtl(paramMap));
 		return returnMap;
 	}
 	
 	@Override
 	public int insertProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		int result = sd05Mapper.insertProject(paramMap);
-		paramMap.put("siteNm", paramMap.get("prjctNm"));
+		paramMap.put("siteNm",      paramMap.get("prjctNm"));
 		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
-		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
+		paramMap.put("siteAddr",    paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
-		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));
+		paramMap.put("siteMngNm",   paramMap.get("prjctMngNm"));
 		sd09Svc.insertSite(paramMap);
 		
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -95,10 +95,10 @@ public class SD05SvcImpl implements SD05Svc {
 		List<Map<String, String>> dtlParam = gson.fromJson(paramMap.get("detailArr"), dtlMap);
 		
 		for(Map<String, String> dtl : dtlParam) {
-			dtl.put("coCd", paramMap.get("coCd"));
+			dtl.put("coCd",    paramMap.get("coCd"));
 			dtl.put("prjctCd", paramMap.get("prjctCd"));
-			dtl.put("userId", paramMap.get("userId"));
-			dtl.put("pgmId", paramMap.get("pgmId"));
+			dtl.put("userId",  paramMap.get("userId"));
+			dtl.put("pgmId",   paramMap.get("pgmId"));
 			sd05Mapper.insertProjectDtl(dtl);
 		}
 		
@@ -123,18 +123,18 @@ public class SD05SvcImpl implements SD05Svc {
 		List<Map<String, String>> dtlParam = gsonDtl.fromJson(paramMap.get("detailArr"), dtlMap);
 		sd05Mapper.deleteProjectDtl(paramMap);
 		for(Map<String, String> dtl : dtlParam) {
-			dtl.put("coCd", paramMap.get("coCd"));
+			dtl.put("coCd",    paramMap.get("coCd"));
 			dtl.put("prjctCd", paramMap.get("prjctCd"));
-			dtl.put("userId", paramMap.get("userId"));
-			dtl.put("pgmId", paramMap.get("pgmId"));
+			dtl.put("userId",  paramMap.get("userId"));
+			dtl.put("pgmId",   paramMap.get("pgmId"));
 			sd05Mapper.insertProjectDtl(dtl);
 		}
 		
-		paramMap.put("siteNm", paramMap.get("prjctNm"));
+		paramMap.put("siteNm",      paramMap.get("prjctNm"));
 		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
-		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
+		paramMap.put("siteAddr",    paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
-		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));	
+		paramMap.put("siteMngNm",   paramMap.get("prjctMngNm"));	
 		sd09Svc.updateSite(paramMap);
 		
 		return result;
