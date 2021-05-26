@@ -37,7 +37,8 @@ public class SD07SvcImpl implements SD07Svc {
 			paramMap.put("chkCount", String.valueOf(chkCount));			
 		}else {
 			paramMap.put("errCode", "200");	
-			paramMap.put("Message", "");		
+			paramMap.put("Message", "");	
+			paramMap.put("chkCount", "0");		
 			sd7Mapper.deleteStockClose(paramMap);
 			sd7Mapper.insertStockClose(paramMap);
 			sm01Mapper.updateStockUpr(paramMap);
@@ -51,8 +52,8 @@ public class SD07SvcImpl implements SD07Svc {
 			paramMap.put("chkCount", String.valueOf(chkCount));			
 		}else {
 			paramMap.put("errCode", "200");	
-			paramMap.put("Message", "");		
-			sd7Mapper.chkBilgFlagYn(paramMap);
+			paramMap.put("Message", "");	
+			paramMap.put("chkCount", "0");	
 			sd7Mapper.deleteCreditClose(paramMap);
 			sd7Mapper.insertCreditClose(paramMap);
 		}
@@ -65,8 +66,8 @@ public class SD07SvcImpl implements SD07Svc {
 			paramMap.put("chkCount", String.valueOf(chkCount));		
 		}else {
 			paramMap.put("errCode", "200");	
-			paramMap.put("Message", "");		
-			sd7Mapper.chkBilgFlagYn(paramMap);
+			paramMap.put("Message", "");	
+			paramMap.put("chkCount", "0");		
 			sd7Mapper.deleteCreditClose(paramMap);
 			sd7Mapper.insertCreditClosePur(paramMap);
 		}
