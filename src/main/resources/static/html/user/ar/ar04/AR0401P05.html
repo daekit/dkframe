@@ -39,31 +39,27 @@
 		</div>
 	</div>
 	<div>
-	    <button type="button" class="btn btn-default btn-sm" onclick="setSelectDt();">세금계산서정발행</button>
+	    <button type="button" class="btn btn-default btn-sm" onclick="setSelectDt();">세금계산서 발행/전송처리</button>
 	    <button type="button" class="close_btn"  onclick="commonModal.closeTarget.close();">닫기</button>
     </div>
 </div>
 <script type="text/javascript">	
-	function setSelectDt(){
-		commonModal.callBack($("#selectDt").val().replace(/\-/g,''));
-		commonModal.closeTarget.close();
-	}
-
 	$(document).ready(function() {
 		
-		if(!commonModal.paramObj.selectDt){
-			alert("날자를 확인 해 주세요.");
-			commonModal.closeTarget.close();
-		}
-
 		// 시작일 (현재날짜의 월 첫일)
 		$('#selectDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-			autoclose : true
+			autoclose : true,
+			startDate: moment(commonModal.paramObj.selectDt).startOf("month").toDate(),
+			endDate: moment(commonModal.paramObj.selectDt).endOf("month").toDate()
 		})
- 		.datepicker("setDate", commonModal.paramObj.selectDt);
-		
+			.datepicker("setDate", commonModal.paramObj.selectDt);
 	})
+
+	function setSelectDt(){
+		commonModal.callBack($("#selectDt").val().replace(/\-/g,''));
+		commonModal.closeTarget.close();
+	}
 
 </script>
