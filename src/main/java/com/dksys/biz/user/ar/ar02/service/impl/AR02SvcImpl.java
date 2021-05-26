@@ -362,6 +362,7 @@ public class AR02SvcImpl implements AR02Svc {
 		String trstDt = paramMap.get("dlvrDttm").replace("-", "");
 		paramMap.put("closeYm", trstDt.substring(0,6));
 		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
+		Map<String, String> sd07resultMax = sd07Mapper.selectMaxCloseDay(paramMap);
 		if(sd07result != null) {
 			int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
 			int closeDay = Integer.parseInt(sd07result.get("sellCloseDttm").replace("-", ""));
@@ -369,20 +370,33 @@ public class AR02SvcImpl implements AR02Svc {
 				return true;
 			}
 		}
+		int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
+		if(sd07resultMax != null &&  maxSellCloseDay > Integer.parseInt(trstDt)) {
+			return true;
+		}
 		return false;
 	}
 	
 	@Override
 	public boolean checkPchsClose(Map<String, String> paramMap) {
+		/*
+		 * 1. 기준월에 대한 수정 가능 여부 확인 
+		 * 2. 수정하고자 하는 자료의 일자가 마감이 된 MAX월 이전인지 확인 
+		 */
 		String trstDt = paramMap.get("dlvrDttm").replace("-", "");
 		paramMap.put("closeYm", trstDt.substring(0,6));
 		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
+		Map<String, String> sd07resultMax = sd07Mapper.selectMaxCloseDay(paramMap);
 		if(sd07result != null) {
-			int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
-			int closeDay = Integer.parseInt(sd07result.get("pchsCloseDttm").replace("-", ""));
+			int today       = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
+			int closeDay    = Integer.parseInt(sd07result.get("pchsCloseDttm").replace("-", ""));
 			if("Y".equals(sd07result.get("pchsCloseYn")) && today > closeDay) {
 				return true;
 			}
+		}
+		int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
+		if(maxPchsCloseDay > Integer.parseInt(trstDt)) {
+			return true;
 		}
 		return false;
 	}
