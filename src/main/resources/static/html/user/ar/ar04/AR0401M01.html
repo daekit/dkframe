@@ -660,6 +660,7 @@
 		var arrGnChk = true;
 		var rvrsChk = true;
 		var selpchChk = true;
+		var selectDt;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) {
 				flag = true;
@@ -668,7 +669,10 @@
 				}
 				return false;
 			}
-			
+
+			//세금계산서 발행일자 초기값 설정
+			selectDt = obj.sellDt;
+
 			// 매입매출 체크
 			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
 				selpchChk = false;
@@ -725,21 +729,31 @@
 			alert("정발행 세금계산서 대상자료를 선택해 주세요.");
 			return;
 		}
-		
+
 		if(!confirm(rowLength + "건을 발행하시겠습니까?")){
 			return;
 		}
-		var formData = {
-			"bilgCertNoArr" : bilgCertNoArr,
-			"userId" : jwt.userId,
-			"userNm" : jwt.userNm,
-			"deptId" : jwt.deptId,
-			"pgmId" : "AR0401M01"
-		}
-		postAjax("/user/ar/ar04/insertTaxHd", formData, null, function(data){
-			alert(data.resultMessage);
-			gridView.setData(0);
+
+		var paramObj = {
+				"selectDt": selectDt
+			}
+		openSecondModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 260, "세금계산서 발행일자 선택", paramObj, function (selectDt) {
+			
+			var formData = {
+					"bilgCertNoArr" : bilgCertNoArr,
+					"userId" : jwt.userId,
+					"userNm" : jwt.userNm,
+					"deptId" : jwt.deptId,
+					"pgmId" : "AR0401M01",
+					"selectDt" : selectDt
+				}
+				postAjax("/user/ar/ar04/insertTaxHd", formData, null, function(data){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				});
+		
 		});
+		
 	}
 
 	//세금계산서발행취소
@@ -857,7 +871,11 @@
 		var arrGnChk = true;
 		var taxBilgChk = true;
 		$.each(list, function(idx, obj){
-			if(obj.taxBilgNo) flag = true;
+			if(!obj.taxBilgNo){
+				flag = true;
+				alert("정발행 계산서만 수정가능합니다!");
+				return false;
+			}
 			//gridView.target.select(obj.__index);
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 
@@ -897,6 +915,9 @@
 		if(!arrGnChk){
 			return false;
 		}
+		if(flag) {
+				return;
+		}
 		if(!emailChk){
 			$.each(list, function(idx, obj){
 				gridView.target.select(obj.__index);
@@ -905,10 +926,6 @@
 			viewTaxBilgDetailModal("U");
 			return false;
 		}
-		/* if(flag) {
-			alert("이미 발행된 건이 있습니다.");
-			return;
-		}; */
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");

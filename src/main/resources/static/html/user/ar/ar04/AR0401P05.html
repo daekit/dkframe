@@ -1,0 +1,69 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">세금 계산서 발행일자 선택</h4>
+    </div>
+
+	<div class="popup_table">
+		<div class="form-group">
+			<form id="selectForm">
+				<input type="hidden" id="pgmId" name="pgmId" value="AR0401P05">
+				<!-- 기본정보 테이블 -->
+				<table class="popup_table">
+					<colgroup>
+						<col width="25%">
+						<col width="75%">
+					</colgroup>
+					<tbody>
+						<tr >
+							<th rowspan="6" class="hit">발행 일자</th>
+							<td >
+								<div  style="width: 50%; margin-left:20px; text-align: left; ">
+									<input type="text" class="input_calendar" autocomplete="off" id="selectDt" data-search="selectDt" required="required" msg="계산서 발행일자"> 
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<div  style="width: 90%; margin-left:20px; text-align: left; color:red ;">
+									<a> 1.세금계산서 발행 후 자동 전송처리되며 수정할 수 없습니다.<br>2.수정 사항 발생시 수정세금계산서 처리하여야 합니다.</a>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<br>
+		</div>
+	</div>
+	<div>
+	    <button type="button" class="btn btn-default btn-sm" onclick="setSelectDt();">세금계산서정발행</button>
+	    <button type="button" class="close_btn"  onclick="commonModal.closeTarget.close();">닫기</button>
+    </div>
+</div>
+<script type="text/javascript">	
+	function setSelectDt(){
+		commonModal.callBack($("#selectDt").val().replace(/\-/g,''));
+		commonModal.closeTarget.close();
+	}
+
+	$(document).ready(function() {
+		
+		if(!commonModal.paramObj.selectDt){
+			alert("날자를 확인 해 주세요.");
+			commonModal.closeTarget.close();
+		}
+
+		// 시작일 (현재날짜의 월 첫일)
+		$('#selectDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+ 		.datepicker("setDate", commonModal.paramObj.selectDt);
+		
+	})
+
+</script>
