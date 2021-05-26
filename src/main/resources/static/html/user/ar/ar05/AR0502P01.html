@@ -19,6 +19,17 @@
 					<col width="">
 				</colgroup>
 				<tr>
+					<th class="hit">회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO"  required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th> </th>
+					<td> </td>
+				</tr>
+				
+				<tr>
 					<th class="hit">거래처</th>
 					<td>
 						<div class="search_form">
@@ -185,13 +196,18 @@
 			
 			$('#actionBtn').on("click", function() {insertEtrdps();});
 			$('.tit_contents .tit').text("수금 등록");
-			$('#actionBtn').text("등록");
+			$('#actionBtn').text("등록");			
+			$('#coCd').val($('[data-search="coCd"]').val());			
 		} else if (actionType == "U") {
 			// 입금정보 set
 			selectEtrdpsInfo();
 			// 거래처 변경 disable
+				
+			$('#coCd').prop("readonly", true);
+			$('#coCd').prop("disabled", true);
+			$('#clntCd').prop("readonly", true);
 			$('#clntCd').prop("disabled", true);
-			$('#btnClntSearch').prop("disabled", true);
+			$('#btnClntSearch').remove();
 			// 금액 변경 disable
 			$('#etrdpsAmt').prop("disabled", true);
 			// 결제방법 변경 disable
@@ -270,7 +286,7 @@
 	function setEtrdpsInfo(etrdpsInfo){
 		var etrdpsData = etrdpsInfo.etrdpsData;
 		var billData = etrdpsInfo.billData;
-		
+	
 		$.each(etrdpsData, function(key, value){
 			if($('#etrdpsData').find('#'+key)[0]){
 				$('#etrdpsData').find('#'+key).val(value);
@@ -298,6 +314,8 @@
 					if($('#billData').find('#'+key).is("[date]")){
 						$('#billData').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 					}
+					
+					
 				}
 			});
 		}
@@ -318,6 +336,7 @@
 
 	function updateEtrdps() {
 		if (inputValidation($('.popup_table table:visible [required]'))) {
+		debugger;
 			var formData = makeFormData();
 			putAjax("/user/ar/ar05/updateEtrdps", formData, null, function(data){
 				alert(data.resultMessage);
@@ -346,7 +365,7 @@
 			
 			// 객체 생성
 			var tempObj = $(tempForm).serializeObject();
-			tempObj.coCd = jwt.coCd;
+			tempObj.coCd = $('#coCd').val();
 			tempObj.userId = jwt.userId;
 			formData[tempForm.id] = tempObj;
 		}

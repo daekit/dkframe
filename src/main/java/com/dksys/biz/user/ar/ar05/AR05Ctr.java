@@ -49,10 +49,17 @@ public class AR05Ctr {
     // 입금 등록
 	@PostMapping("/insertEtrdps")
     public String insertEtrdps(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+
     	try {
-    		ar05Svc.insertEtrdps(paramMap);
-    		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		int result = ar05Svc.insertEtrdps(paramMap);
+			if(result == 500){
+				model.addAttribute("resultCode", 500);
+		    	model.addAttribute("resultMessage", messageUtils.getMessage("etrdpsClose"));
+			}else {
+		    		
+		    		model.addAttribute("resultCode", 200);
+		    		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		    }
     	}catch(Exception e){
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
@@ -63,11 +70,17 @@ public class AR05Ctr {
 	// 입금 수정
 	@PutMapping("/updateEtrdps")
     public String updateEtrdps(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+
 		try {
-			ar05Svc.updateEtrdps(paramMap);
-    		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
-    	}catch(Exception e){
+			int result =ar05Svc.updateEtrdps(paramMap);
+			if(result == 500){
+				model.addAttribute("resultCode", 500);
+		    	model.addAttribute("resultMessage", messageUtils.getMessage("etrdpsClose"));
+			}else {
+		    		model.addAttribute("resultCode", 200);
+		    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+			}
+		}catch(Exception e){
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
     	}
@@ -77,14 +90,20 @@ public class AR05Ctr {
 	// 입금 삭제
 	@DeleteMapping("/deleteEtrdps")
     public String deleteEtrdps(@RequestBody Map<String, String> paramMap, ModelMap model) {
+
 		try {
-			ar05Svc.deleteEtrdps(paramMap);
-    		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
-    	}catch(Exception e){
-    		model.addAttribute("resultCode", 500);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
-    	}
+			int result = ar05Svc.deleteEtrdps(paramMap);
+			if(result == 500){
+				model.addAttribute("resultCode", 500);
+		    	model.addAttribute("resultMessage", messageUtils.getMessage("etrdpsClose"));
+			}else {
+		    		model.addAttribute("resultCode", 200);
+		    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+	    	}
+		}catch(Exception e){
+	    		model.addAttribute("resultCode", 500);
+	    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
     	return "jsonView";
     }
 }
