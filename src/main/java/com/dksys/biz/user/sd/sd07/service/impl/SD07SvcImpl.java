@@ -1,5 +1,6 @@
 package com.dksys.biz.user.sd.sd07.service.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,4 +74,9 @@ public class SD07SvcImpl implements SD07Svc {
 		}
 	}
 
+	@Override
+	public List<Map<String, String>> selectCloseYmList(Map<String, String> paramMap) {
+		return sd7Mapper.selectCloseYmList(paramMap);
+	}
+	
 }

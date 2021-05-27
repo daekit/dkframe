@@ -1,5 +1,6 @@
 package com.dksys.biz.user.sd.sd07.mapper;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -24,5 +25,6 @@ public interface SD07Mapper {
 
 	int chkBilgFlagYn(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectCloseYmList(Map<String, String> paramMap);
 
 }

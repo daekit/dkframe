@@ -1,5 +1,6 @@
 package com.dksys.biz.user.sd.sd07;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,5 +86,13 @@ public class SD07Ctr {
     	}
     	return "jsonView";
 	}
-       
+
+    @PostMapping(value = "/selectCloseYmList")
+	public String selectCloseYmList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	
+    	List<Map<String, String>> resultList = sd07Svc.selectCloseYmList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
 }
