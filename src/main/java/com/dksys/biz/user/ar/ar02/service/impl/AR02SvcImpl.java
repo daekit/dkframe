@@ -370,9 +370,11 @@ public class AR02SvcImpl implements AR02Svc {
 				return true;
 			}
 		}
-		int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
-		if(sd07resultMax != null &&  maxSellCloseDay > Integer.parseInt(trstDt)) {
-			return true;
+		if(sd07resultMax != null) {
+			int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
+			if(maxSellCloseDay > Integer.parseInt(trstDt)) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -394,9 +396,11 @@ public class AR02SvcImpl implements AR02Svc {
 				return true;
 			}
 		}
-		int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
-		if(maxPchsCloseDay > Integer.parseInt(trstDt)) {
-			return true;
+		if(sd07resultMax != null) {
+			int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
+			if(maxPchsCloseDay > Integer.parseInt(trstDt)) {
+				return true;
+			}
 		}
 		return false;
 	}
