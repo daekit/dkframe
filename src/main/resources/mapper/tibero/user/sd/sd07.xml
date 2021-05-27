@@ -39,7 +39,17 @@
 			CO_CD = #{coCd}
 			AND CLOSE_YM = #{closeYm}
 	</select>
-	
+		<select id="selectMaxCloseDay" resultType="CamelMap">
+		SELECT 
+			TO_CHAR(LAST_DAY(TO_DATE(MAX(DECODE(SELL_CLOSE_YN,'Y',CLOSE_YM,'')),'YYYYMM')),'YYYYMMDD')   AS MAX_SELL_CLOSE_DAY,
+			TO_CHAR(LAST_DAY(TO_DATE(MAX(DECODE(PCHS_CLOSE_YN,'Y',CLOSE_YM,'')),'YYYYMM')),'YYYYMMDD')   AS MAX_PCHS_CLOSE_DAY,
+			TO_CHAR(LAST_DAY(TO_DATE(MAX(DECODE(STOCK_CLOSE_YN,'Y',CLOSE_YM,'')),'YYYYMM')),'YYYYMMDD')  AS MAX_STOCK_CLOSE_DAY,
+			TO_CHAR(LAST_DAY(TO_DATE(MAX(DECODE(ETRDPS_CLOSE_YN,'Y',CLOSE_YM,'')),'YYYYMM')),'YYYYMMDD') AS MAX_ETRDPS_CLOSE_DAY
+		FROM
+			TB_SD07M01
+		WHERE
+			CO_CD = #{coCd}
+	</select>
 	<update id="saveClose">
 		MERGE INTO TB_SD07M01 A
 			USING DUAL
@@ -494,7 +504,7 @@
 		SELECT 	COUNT(*) 
 		  FROM 	TB_AR02M01
 		 WHERE
-			CO_CD = #{coCd}
+			   CO_CD = #{coCd}
 		   AND NVL(BILG_CERT_NO,0) = 0
 			<if test="selpchCd == 'SELPCH1'">			
 			AND	SELPCH_CD IN ('SELPCH1','SELPCH3') 
@@ -508,5 +518,15 @@
 			]]>
 	</select>
 	
+	<select id="selectCloseYmList" parameterType="Map" resultType="camelMap">
+		SELECT * 
+		  FROM TB_SD07M01 
+	     WHERE 1=1
+	 	<if test="coCd != null and !coCd.equals('')">
+		   AND CO_CD = #{coCd}				
+		</if>
+		   AND CLOSE_YM BETWEEN SUBSTRING(#{closeYm},0,4)||'01' AND SUBSTRING(#{closeYm},0,4)||'12'
+		ORDER BY CLOSE_YM
+	</select>
 	
 </mapper>

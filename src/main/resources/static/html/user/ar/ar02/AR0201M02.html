@@ -111,7 +111,7 @@
 						</td>
 						<th>판매법인</th>
 						<td>
-							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="estCoprt" onchange="subGridView.setData(0);">
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="subGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -619,10 +619,17 @@
 		var list = subGridView.target.getList("selected");
 		var trstCertiNoArr = [];
 		var bilgCertNo = null;
+		var coFlag = false;
 		$.each(list, function(idx, obj) {
 			if (idx > 0) {
 				if(list[idx].bilgYn != list[idx-1].bilgYn) {
 					flag = true;
+					return false;
+				}
+			}
+			if (idx > 0) {
+				if(list[idx].taxivcCoprtNm != list[idx-1].taxivcCoprtNm) {
+					coFlag = true;
 					return false;
 				}
 			}
@@ -638,10 +645,20 @@
 					return false;
 				}
 			}
+			if (idx > 0) {
+				if(list[idx].clntCd != list[idx-1].clntCd) {
+					clntFlag = true;
+					return false;
+				}
+			}
 			trstCertiNoArr.push(obj.trstCertiNo);
 		});
 		if (flag) {
 			alert("발행유무가 동일한 건끼리 가능합니다.");
+			return;
+		}
+		if (coFlag) {
+			alert("동일 매출법인만 발행이 가능합니다.");
 			return;
 		}
 		if (clntFlag) {

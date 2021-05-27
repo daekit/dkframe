@@ -1105,13 +1105,26 @@
 		});
 		return $("tr[name='tableCd']:last")[0];
 	}
-	//list 행삭제	
+	//list 행삭제	+ DB 삭제
 	function removeDetailRow(){
+		var detailArr = [];
 		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			var detailObj = {};
 			if($(elem).is(":checked")){
-				$(elem).closest('.detailRow').remove();
+				var $closestRow = $(elem).closest('.detailRow');
+				detailObj["coCd"]     = $('#coCd').val();
+				detailObj["prjctCd"]  = $('#prjctCd').val();
+				detailObj["prjctSeq"] = $closestRow.find('[name="prjctSeq"]').val();
+				
+				if(detailObj.prjctSeq){
+					detailArr.push(detailObj);
+				}				
+ 				$(elem).closest('.detailRow').remove();
 			}
-		});
+		});		
+		deleteAjax("/user/sd/sd05/deleteProjectDtl", detailArr, null, function (data){
+			alert(data.resultMessage);
+		})
 	}
 	
 	function prdtDivCombo(elem){

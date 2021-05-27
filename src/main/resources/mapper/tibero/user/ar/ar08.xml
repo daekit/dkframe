@@ -31,13 +31,24 @@
 						, DECODE(A.SELPCH_CD, 'SELPCH1', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 'SELPCH3', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS PCHS_AMT
 						, DECODE(A.SELPCH_CD, 'SELPCH2', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 'SELPCH4', NVL(A.BILG_AMT,0) + NVL(A.BILG_VAT_AMT,0), 0) AS SELL_AMT
 						, 0 AS BASIS_AMT
+						, '미확정' AS RMK
 				FROM TB_AR02M01 A
-				 LEFT OUTER  JOIN TB_BM02M01 B
+				 LEFT JOIN TB_BM02M01 B
 			             ON A.TRST_CLNT_CD = B.CLNT_CD
-			     LEFT OUTER JOIN TB_SD05M01 SD05
+			     LEFT JOIN TB_SD05M01 SD05
 			                  ON SD05.PRJCT_CD = A.PRJCT_CD
-			    WHERE BILG_CERT_NO IS NULL
-			     <if test= "selpchCd != null and !selpchCd.equals('')">
+			    WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+			      AND BILG_CERT_NO IS NULL
+				  <if test= "clntCd != null and !clntCd.equals('')">
+	 			  AND A.TRST_CLNT_CD = #{clntCd}
+				  </if>
+				  <if test= "coCd != null and !coCd.equals('')">
+			 	  AND A.CO_CD = #{coCd}
+				  </if>
+				  <if test= "clntNm != null and !clntNm.equals('')">
+			 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+				  </if>
+			      <if test= "selpchCd != null and !selpchCd.equals('')">
 					 <choose>	
 					     <when test="selpchCd == 'SELPCH1'">
 					      AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH3')
@@ -46,7 +57,7 @@
 	 			          AND ( A.SELPCH_CD = #{selpchCd} OR A.SELPCH_CD ='SELPCH4')
 	 			         </otherwise>
 				     </choose>
-			     </if>
+			      </if>
 			    UNION ALL
 			    SELECT  2 AS TYPE
 			   	        , 1 AS RN
@@ -62,9 +73,19 @@
 						, SUM(DECODE(AR04.SELPCH_CD, 'SELPCH1', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH3', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0)) AS PCHS_AMT
 						, SUM(DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH4', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0)) AS SELL_AMT
 						, 0 AS BASIS_AMT
+						, MAX(NVL2(TAX_BILG_NO,'완료','계산서미처리')) AS RMK
 				  FROM  TB_AR04M01 AR04
-				  <where>
-					  <if test= "selpchCd != null and !selpchCd.equals('')">
+			     WHERE  AR04.SELL_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+						<if test= "clntCd != null and !clntCd.equals('')">
+			 			AND AR04.CLNT_CD = #{clntCd}
+						</if>
+						<if test= "coCd != null and !coCd.equals('')">
+					 	AND AR04.CO_CD = #{coCd}
+						</if>
+						 <if test= "clntNm != null and !clntNm.equals('')">
+					 	AND	AR04.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+						</if>
+					    <if test= "selpchCd != null and !selpchCd.equals('')">
 						 <choose>	
 						     <when test="selpchCd == 'SELPCH1'">
 						      AND ( AR04.SELPCH_CD = #{selpchCd} OR AR04.SELPCH_CD ='SELPCH3')
@@ -73,8 +94,7 @@
 		 			          AND ( AR04.SELPCH_CD = #{selpchCd} OR AR04.SELPCH_CD ='SELPCH4')
 		 			         </otherwise>
 					     </choose>
-				     </if>
-				  </where>
+				       </if>
 				  GROUP BY AR04.SELL_DT
 						, AR04.CO_CD
 						, AR04.CLNT_CD
@@ -82,6 +102,7 @@
 						, AR04.SELPCH_CD
 						, (SELECT ARD_5006 FROM TB_AR04D01 D WHERE D.BILG_CERT_NO = AR04.BILG_CERT_NO AND  ARD_5006 IS NOT NULL AND BILG_CERT_NO_SEQ = 1) || ' '||
 						   FTXAC1_1 ||' '||FTXAC2_1||' '||FTXAC3_1
+						, TAX_BILG_NO
 				UNION ALL 
 				SELECT  3 AS TYPE
 			   	        , ROWNUM AS RN
@@ -96,10 +117,21 @@
 						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
 						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
 						, 0
+			          	, '' AS rmk
 						FROM TB_AR05M01 A, TB_BM02M01 B
-						WHERE A.CLNT_CD = B.CLNT_CD(+)				
-					     <if test= "selpchCd != null and !selpchCd.equals('')">
- 					      <choose>	
+						WHERE A.CLNT_CD = B.CLNT_CD(+)		
+			              AND A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+						  <if test= "clntCd != null and !clntCd.equals('')">
+			 			  AND A.CLNT_CD = #{clntCd}
+						  </if>
+						  <if test= "coCd != null and !coCd.equals('')">
+					 	  AND A.CO_CD = #{coCd}
+						  </if>
+						  <if test= "clntNm != null and !clntNm.equals('')">
+					 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+						  </if>
+					      <if test= "selpchCd != null and !selpchCd.equals('')">
+ 					         <choose>	
 							     <when test="selpchCd == 'SELPCH1'">
 							      AND ( A.ETRDPS_TYP IN ('ETRDPS02','ETRDPS03'))
 							     </when>			 	
@@ -107,7 +139,7 @@
 			 			          AND ( A.ETRDPS_TYP IN ('ETRDPS01','ETRDPS03'))
 			 			         </otherwise>
 						     </choose>
-					     </if>
+					      </if>
 			     UNION
 			     SELECT  
 			           0 AS TYPE
@@ -138,9 +170,11 @@
 			          , 0 AS PCHS_AMT
 			          , 0 AS SELL_AMT
 			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ) AS BASIS_AMT
+			          , '' AS rmk
 			       FROM DUAL
 			) A
-			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
+<!-- 			WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '') -->
+<!--           <where>
 			<if test= "clntCd != null and !clntCd.equals('')">
  			AND A.CLNT_CD = #{clntCd}
 			</if>
@@ -150,6 +184,7 @@
 			 <if test= "clntNm != null and !clntNm.equals('')">
 		 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 			</if>
+			</where> -->
 			ORDER BY A.TRST_DT, DECODE(RN,0,0,1),TYPE, A.CLNT_NM
 		  ) B
 

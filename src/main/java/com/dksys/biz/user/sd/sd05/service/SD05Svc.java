@@ -28,11 +28,13 @@ public interface SD05Svc {
 	int selectConfirmCount(Map<String, String> paramMap);
 	
 	int deleteProject(Map<String, String> param);
+	
+	void deleteProjectDtl(List<Map<String, String>> paramList);
 
 	public List<Map<String, String>> selectPrdtDivCd(Map<String, String> param);
 
 	public List<Map<String, String>> prdtDivCombo(Map<String, String> param);
 
 	public List<Map<String, String>> prdtSpecCombo(Map<String, String> param);
-	
+
 }

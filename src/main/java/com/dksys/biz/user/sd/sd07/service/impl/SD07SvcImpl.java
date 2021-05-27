@@ -1,5 +1,6 @@
 package com.dksys.biz.user.sd.sd07.service.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,8 @@ public class SD07SvcImpl implements SD07Svc {
 			paramMap.put("chkCount", String.valueOf(chkCount));			
 		}else {
 			paramMap.put("errCode", "200");	
-			paramMap.put("Message", "");		
+			paramMap.put("Message", "");	
+			paramMap.put("chkCount", "0");		
 			sd7Mapper.deleteStockClose(paramMap);
 			sd7Mapper.insertStockClose(paramMap);
 			sm01Mapper.updateStockUpr(paramMap);
@@ -51,8 +53,8 @@ public class SD07SvcImpl implements SD07Svc {
 			paramMap.put("chkCount", String.valueOf(chkCount));			
 		}else {
 			paramMap.put("errCode", "200");	
-			paramMap.put("Message", "");		
-			sd7Mapper.chkBilgFlagYn(paramMap);
+			paramMap.put("Message", "");	
+			paramMap.put("chkCount", "0");	
 			sd7Mapper.deleteCreditClose(paramMap);
 			sd7Mapper.insertCreditClose(paramMap);
 		}
@@ -65,11 +67,16 @@ public class SD07SvcImpl implements SD07Svc {
 			paramMap.put("chkCount", String.valueOf(chkCount));		
 		}else {
 			paramMap.put("errCode", "200");	
-			paramMap.put("Message", "");		
-			sd7Mapper.chkBilgFlagYn(paramMap);
+			paramMap.put("Message", "");	
+			paramMap.put("chkCount", "0");		
 			sd7Mapper.deleteCreditClose(paramMap);
 			sd7Mapper.insertCreditClosePur(paramMap);
 		}
 	}
 
+	@Override
+	public List<Map<String, String>> selectCloseYmList(Map<String, String> paramMap) {
+		return sd7Mapper.selectCloseYmList(paramMap);
+	}
+	
 }

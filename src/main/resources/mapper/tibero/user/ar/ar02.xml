@@ -400,8 +400,8 @@
 			<if test="prdtDiv != null and !prdtDiv.equals('')">
 				AND T.PRDT_DIV = #{prdtDiv}				
 			</if>
-			<if test="estCoprt != null and !estCoprt.equals('')">
-				AND T.TAXIVC_COPRT = #{estCoprt}				
+			<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				AND T.TAXIVC_COPRT = #{taxivcCoprt}				
 			</if>
 			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 				AND T.DIRTRS_YN = #{dirtrsYn}				
@@ -579,8 +579,8 @@
 					<if test="prdtDiv != null and !prdtDiv.equals('')">
 						AND T.PRDT_DIV = #{prdtDiv}				
 					</if>
-					<if test="estCoprt != null and !estCoprt.equals('')">
-						AND T.TAXIVC_COPRT = #{estCoprt}				
+					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						AND T.TAXIVC_COPRT = #{taxivcCoprt}				
 					</if>
 					<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 						AND T.DIRTRS_YN = #{dirtrsYn}				
@@ -820,7 +820,8 @@
 		        (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.TAXIVC_COPRT) AS TAXIVC_COPRT,
 		        T.TRST_CLNT_CD AS CLNT_CD,
 		        T.CLNT_NM,
-		        T.SELPCH_CD,	        
+		        T.SELPCH_CD,
+		        MAX(T.TRST_DT) AS TRST_DT,	        
 		        SUM(T.TRST_QTY) AS TRST_QTY,
 		        NVL(SUM(T.TRST_WT), 0) AS TRST_WT,
 		        SUM(T.TRST_UPR) AS TRST_UPR,
@@ -946,7 +947,7 @@
 			A.TRST_PRDT_CD,
 			B.PRDT_NM,
 			CASE WHEN IMP_YN = 'Y' THEN '수입' ELSE '국산' END IMP_YN,
-			FN_CM05M01_CD_TO_NM(MAKR_CD) AS MAKR_NM,
+			FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM,
 			B.PRDT_SPEC,
 			A.PRDT_LEN,
 			SUM(BILG_QTY) BILG_QTY,
@@ -988,8 +989,8 @@
 		<if test="typCd != null and !typCd.equals('')">
 			AND A.TYP_CD = #{typCd}
 		</if>
-		GROUP BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
-		ORDER BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
+		GROUP BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, A.MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
+		ORDER BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, A.MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
     </select>
 	
 	<select id="selectOwner1ClntCd" parameterType="Map" resultType="String">

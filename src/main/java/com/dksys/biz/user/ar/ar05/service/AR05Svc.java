@@ -11,10 +11,12 @@ public interface AR05Svc {
 
 	Map<String, Object> selectEtrdpsInfo(Map<String, String> paramMap);
 	
-	void insertEtrdps(Map<String, Object> paramMap);
+	int insertEtrdps(Map<String, Object> paramMap);
 	
-	void updateEtrdps(Map<String, Object> paramMap);
+	int updateEtrdps(Map<String, Object> paramMap);
 
-	void deleteEtrdps(Map<String, String> paramMap);
+	int deleteEtrdps(Map<String, String> paramMap);
+
+	boolean checkEtrdpsClose(Map<String, String> paramMap);
 	
 }

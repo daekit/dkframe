@@ -10,14 +10,15 @@
 	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
 	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
 	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
-	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
-	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
-	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
-	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
-	<link rel="stylesheet" href="/static/css/gnb.css" />
-	<link rel="stylesheet" href="/static/css/main.css" />
-	<link rel="stylesheet" href="/static/css/sub.css" />
-	<link rel="stylesheet" href="/static/css/common.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css">
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css">
+	<link rel="stylesheet" href="/static/css/gnb.css">
+	<link rel="stylesheet" href="/static/css/main.css">
+	<link rel="stylesheet" href="/static/css/sub.css">
+	<link rel="stylesheet" href="/static/css/common.css">
 	
 	<script src="/static/js/jquery-latest.min.js"></script>
 	<script src="/static/js/jquery.serializeObject.js"></script>
@@ -26,6 +27,7 @@
 	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
 	<script src="/static/js/moment/moment-with-locales.js"></script>
 	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
 	<script src="/static/js/ax5/ax5mask.min.js"></script>
 	<script src="/static/js/ax5/ax5modal.min.js"></script>
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
@@ -68,7 +70,7 @@
 						<th>회사</th>
 						<td>
 							<select id="coCd" name="coCd" data-kind="CO" data-search="coCd">
-								<option value="">전체</option>
+<!-- 								<option value="">전체</option> -->
 							</select>
 						</td>
 						<th>마감대상년월</th>
@@ -77,15 +79,6 @@
 								<input type="text" class="input_calendar" autocomplete="off" id="closeYm" name="closeYm" data-search="closeYm" date> 
 							</div>
 						</td>
-						<input type="hidden"  id="selpchCd" name="selpchCd" > 
-						
-<!-- 						<th>매입/매출</th>
-						<td>
-							<select  id="selpchCd" name="selpchCd"  data-kind="SELPCH" data-search="selpchCd">
-								<option value="">전체</option>
-							</select>
-						</td>
- -->						
 					</tr>
 				</table>
 			</div>
@@ -101,190 +94,259 @@
 					<a style="width:80px;" onclick="excuteClosePurch();">매입마감실행</a>
 				</div>
 			</div>
-			<!-- 콘텐츠 -->
-			<div class="contents">
-				<div class="popup_area">
-					<div class="popup_table">
-						<table>
-							<colgroup>
-								<col width="15%">
-								<col width="">
-								<col width="15%">
-								<col width="">
-							</colgroup>
-							<tr>
-								<th>매입마감일자</th>
-								<td>
-									<input type="text" class="input_calendar" autocomplete="off" id="pchsCloseDttm" name="pchsCloseDttm" date> 
-								</td>
-								<th>매입마감여부</th>
-								<td>
-									<ul class="dp_ib">
-										<li class="pdr10">
-											<input type="radio" id="pchsCloseY" name="pchsCloseYn" value="Y">
-											<label for="pchsCloseY">예</label>
-										</li>
-										<li>
-											<input type="radio" id="pchsCloseN" name="pchsCloseYn" value="N">
-											<label for="pchsCloseN">아니오</label>
-										</li>
-									</ul>
-								</td>
-							</tr>
-							<tr>
-								<th>매출마감일자</th>
-								<td>
-									<input type="text" class="input_calendar" autocomplete="off" id="sellCloseDttm" name="sellCloseDttm" date>
-								</td>
-								<th>매출마감여부</th>
-								<td>
-									<ul class="dp_ib">
-										<li class="pdr10">
-											<input type="radio" id="sellCloseY" name="sellCloseYn" value="Y">
-											<label for="sellCloseY">예</label>
-										</li>
-										<li>
-											<input type="radio" id="sellCloseN" name="sellCloseYn" value="N">
-											<label for="sellCloseN">아니오</label>
-										</li>
-									</ul>
-								</td>
-							</tr>
-							<tr>
-								<th>재고마감일자</th>
-								<td>
-									<input type="text" class="input_calendar" autocomplete="off" id="stockCloseDttm" name="stockCloseDttm" date>
-								</td>
-								<th>재고마감여부</th>
-								<td>
-									<ul class="dp_ib">
-										<li class="pdr10">
-											<input type="radio" id="stockCloseY" name="stockCloseYn" value="Y">
-											<label for="stockCloseY">예</label>
-										</li>
-										<li>
-											<input type="radio" id="stockCloseN" name="stockCloseYn" value="N">
-											<label for="stockCloseN">아니오</label>
-										</li>
-									</ul>
-								</td>
-							</tr>
-							<tr>
-								<th>입금마감일자</th>
-								<td>
-									<input type="text" class="input_calendar" autocomplete="off" id="etrdpsCloseDttm" name="etrdpsCloseDttm" date>
-								</td>
-								<th>입금마감여부</th>
-								<td>
-									<ul class="dp_ib">
-										<li class="pdr10">
-											<input type="radio" id="etrdpsCloseY" name="etrdpsCloseYn" value="Y">
-											<label for="etrdpsCloseY">예</label>
-										</li>
-										<li>
-											<input type="radio" id="etrdpsCloseN" name="etrdpsCloseYn" value="N">
-											<label for="etrdpsCloseN">아니오</label>
-										</li>
-									</ul>
-								</td>
-							</tr>
-						</table>
-					</div>
-					<br>
-					<div class="popup_table">
-						<table>
-							<colgroup>
-								<col width="15%">
-								<col width="">
-								<col width="15%">
-								<col width="">
-							</colgroup>
-							<tr>
-								<th>재고마감여부</th>
-								<td>
-									<ul class="dp_ib">
-										<li class="pdr10">
-											<input type="radio" name="stockCloseYnDp" value="Y" disabled>
-											<label>예</label>
-										</li>
-										<li>
-											<input type="radio" name="stockCloseYnDp" value="N" disabled>
-											<label>아니오</label>
-										</li>
-									</ul>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-							</tr>
-							<tr>
-								<th>입금마감여부</th>
-								<td>
-									<ul class="dp_ib">
-										<li class="pdr10">
-											<input type="radio" name="creditCloseYnDp" value="Y" disabled>
-											<label>예</label>
-										</li>
-										<li>
-											<input type="radio" name="creditCloseYnDp" value="N" disabled>
-											<label>아니오</label>
-										</li>
-									</ul>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-							</tr>
-						</table>
-					</div>
-					<br>
-					<div class="popup_table">
-						<table>
-							<colgroup>
-								<col width="15%">
-								<col width="">
-							</colgroup>
-							<tr>
-								<th rowspan="6">마감실행결과</th>
-							</tr>
-							<tr>
-								<td class="tl">
-									입고자료취합 --> <span name="stockStatus">작업전</span>
-								</td>
-							</tr>
-							<tr>
-								<td class="tl">
-									출고자료취합 --> <span name="stockStatus">작업전</span>
-								</td>
-							</tr>
-							<tr>
-								<td class="tl">
-									재고마감 --> <span name="stockStatus">작업전</span>
-								</td>
-							</tr>
-							<tr>
-								<td class="tl">
-									매출/수금 : 매출채권 자료취합 --> <span name="salesStatus">작업전</span>
-								</td>
-							</tr>
-							<tr>
-								<td class="tl">
-									매입/수금 : 매입채권 자료취합 --> <span name="purchsStatus">작업전</span>
-								</td>
-							</tr>
+		  <!-- 콘텐츠 -->
+		    <div class="contents">
+		      <!-- 리스트 -->
+		        <ul class="ul_list type03">
+		            <li>
+		                <div class="table_list_tit">
+		                    <h5 class="tit">마감현황</h5>
+		                </div>
+		                <div>
+		                	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height:600px; width: 100%" ></div>
+		                </div>
+		            </li>
+		            <li>
+						<!-- 콘텐츠 -->
+						<div class="contents">
+							<div class="popup_table">
+								<table>
+									<colgroup>
+										<col width="15%">
+										<col width="20%">
+										<col width="15%">
+										<col width="">
+									</colgroup>
+									<tr>
+										<th>매입마감일자</th>
+										<td>
+											<input type="text" class="input_calendar" autocomplete="off" id="pchsCloseDttm" name="pchsCloseDttm" date> 
+										</td>
+										<th>매입마감여부</th>
+										<td>
+											<ul class="dp_ib">
+												<li class="pdr10">
+													<input type="radio" id="pchsCloseY" name="pchsCloseYn" value="Y">
+													<label for="pchsCloseY">예</label>
+												</li>
+												<li>
+													<input type="radio" id="pchsCloseN" name="pchsCloseYn" value="N">
+													<label for="pchsCloseN">아니오</label>
+												</li>
+											</ul>
+										</td>
+									</tr>
+									<tr>
+										<th>매출마감일자</th>
+										<td>
+											<input type="text" class="input_calendar" autocomplete="off" id="sellCloseDttm" name="sellCloseDttm" date>
+										</td>
+										<th>매출마감여부</th>
+										<td>
+											<ul class="dp_ib">
+												<li class="pdr10">
+													<input type="radio" id="sellCloseY" name="sellCloseYn" value="Y">
+													<label for="sellCloseY">예</label>
+												</li>
+												<li>
+													<input type="radio" id="sellCloseN" name="sellCloseYn" value="N">
+													<label for="sellCloseN">아니오</label>
+												</li>
+											</ul>
+										</td>
+									</tr>
+									<tr>
+										<th>재고마감일자</th>
+										<td>
+											<input type="text" class="input_calendar" autocomplete="off" id="stockCloseDttm" name="stockCloseDttm" date>
+										</td>
+										<th>재고마감여부</th>
+										<td>
+											<ul class="dp_ib">
+												<li class="pdr10">
+													<input type="radio" id="stockCloseY" name="stockCloseYn" value="Y">
+													<label for="stockCloseY">예</label>
+												</li>
+												<li>
+													<input type="radio" id="stockCloseN" name="stockCloseYn" value="N">
+													<label for="stockCloseN">아니오</label>
+												</li>
+											</ul>
+										</td>
+									</tr>
+									<tr>
+										<th>입금마감일자</th>
+										<td>
+											<input type="text" class="input_calendar" autocomplete="off" id="etrdpsCloseDttm" name="etrdpsCloseDttm" date>
+										</td>
+										<th>입금마감여부</th>
+										<td>
+											<ul class="dp_ib">
+												<li class="pdr10">
+													<input type="radio" id="etrdpsCloseY" name="etrdpsCloseYn" value="Y">
+													<label for="etrdpsCloseY">예</label>
+												</li>
+												<li>
+													<input type="radio" id="etrdpsCloseN" name="etrdpsCloseYn" value="N">
+													<label for="etrdpsCloseN">아니오</label>
+												</li>
+											</ul>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<br>
+							<div class="popup_table">
+								<table>
+									<colgroup>
+										<col width="15%">
+										<col width="">
+										<col width="15%">
+										<col width="">
+									</colgroup>
+									<tr>
+										<th>재고마감여부</th>
+										<td>
+											<ul class="dp_ib">
+												<li class="pdr10">
+													<input type="radio" name="stockCloseYnDp" value="Y" disabled>
+													<label>예</label>
+												</li>
+												<li>
+													<input type="radio" name="stockCloseYnDp" value="N" disabled>
+													<label>아니오</label>
+												</li>
+											</ul>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+									</tr>
+									<tr>
+										<th>입금마감여부</th>
+										<td>
+											<ul class="dp_ib">
+												<li class="pdr02">
+													<input type="radio" name="creditCloseYnDp" value="Y" disabled>
+													<label>예</label>
+												</li>
+												<li>
+													<input type="radio" name="creditCloseYnDp" value="N" disabled>
+													<label>아니오</label>
+												</li>
+											</ul>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<br>
+							<div class="popup_table">
+								<table>
+									<colgroup>
+										<col width="15%">
+										<col width="">
+									</colgroup>
+									<tr>
+										<th rowspan="6">마감실행결과</th>
+									</tr>
+									<tr>
+										<td class="tl">
+											입고자료취합 --> <span name="stockStatus">작업전</span>
+										</td>
+									</tr>
+									<tr>
+										<td class="tl">
+											출고자료취합 --> <span name="stockStatus">작업전</span>
+										</td>
+									</tr>
+									<tr>
+										<td class="tl">
+											재고마감 --> <span name="stockStatus">작업전</span>
+										</td>
+									</tr>
+									<tr>
+										<td class="tl">
+											매출/수금 : 매출채권 자료취합 --> <span name="salesStatus">작업전</span>
+										</td>
+									</tr>
+									<tr>
+										<td class="tl">
+											매입/수금 : 매입채권 자료취합 --> <span name="purchsStatus">작업전</span>
+										</td>
+									</tr>
+		
+								</table>
+							</div>
+						</div>
+		            </li>
+		        </ul>	
+		    </div>
 
-						</table>
-					</div>
-				</div>
-			</div>
 		</form>
 	</div>
 </body>
 </html>
 
 <script type="text/javascript">
+debugger;
+	var gridView = {
+		initView: function(){		
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		                
+		            },
+		            onDBLClick: function () {
+		            
+		            },
+		        },
+		        page: {
+		        	display: false,
+		        },
+		        columns: [
+		          	{key: "closeYm", 		label: "년월", align: "center", width: "25%"},
+		            {key: "pchsCloseYn", 	label: "매입", align: "center", width: "10%"},
+		         	{key: "sellCloseYn", 	label: "매출", align: "center", width: "10%"},
+		         	{key: "etrdpsCloseYn",  label: "입금", align: "center", width: "10%"},
+		         	{key: "stockCloseYn", 	label: "재고", align: "center", width: "10%"},
+		        	{key: "etcCloseYn", 	label: "기타", align: "center", width: "10%"}
+		         	   
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function() {
+			var targetObj = this.target;
+			var formData = {
+				"coCd": $('#coCd').val(),
+				"closeYm" : $("#closeYm").val(),
+				"closeYy" : $("#closeYm").val().slice(0,4),
+				"pageNo"  : 1,
+				"recordCnt" : 9999999
+			}
+			
+			postAjax("/user/sd/sd07/selectCloseYmList", formData, null, function(data){
+				var list = data.resultList;
+				targetObj.setData(list);
+			});
+		}
+	}
+
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("영업관리", "월마감관리");
@@ -306,6 +368,9 @@
 		$('[data-search]').on("change", function(){
 			selectClose();
 		});
+		
+		// grid init
+		gridView.initView().setData();
 		
 		// 매입마감일 datepicker bind
 		$('#pchsCloseDttm').datepicker({
@@ -356,9 +421,6 @@
 			paramObj[$tempElem.data("search")] = tempValue;
 		}
 
-		$("#selpchCd option[value='SELPCH3']").remove();
-		$("#selpchCd option[value='SELPCH4']").remove();
-		
 		postAjax("/user/sd/sd07/selectClose", paramObj, null, function(data){
 			setCloseInfo(data.closeInfo);
 		});

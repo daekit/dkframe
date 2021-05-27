@@ -260,21 +260,27 @@
 	</update>
 	
 	<update id="updatePrjctDtl" parameterType="Map">
-	UPDATE TB_SD05D01
-	   SET PRDT_DIV = #{prdtDivCd}
-		 , PRDT_STKN = #{prdtStknCd}
-		 , SIZE_LIST = #{prdtSizeNm}
-		 , LOSS_RATE = #{lossRate}
-		 , CPLR_UPR  = #{cplrUpr}
-	 WHERE CO_CD     = #{coCd}
-	   AND PRJCT_CD  = #{prjctCd}
-	   AND PRJCT_SEQ = #{prjctSeq}
+		UPDATE TB_SD05D01
+		   SET PRDT_DIV  = #{prdtDivCd}
+			 , PRDT_STKN = #{prdtStknCd}
+			 , SIZE_LIST = #{prdtSizeNm}
+			 , LOSS_RATE = #{lossRate}
+			 , CPLR_UPR  = #{cplrUpr} 
+			 , UDT_ID    = #{userId}		 
+			 , UDT_PGM   = #{pgmId}							
+			 , UDT_DTTM  = SYSDATE	
+		 WHERE CO_CD     = #{coCd}
+		   AND PRJCT_CD  = #{prjctCd}
+		   AND PRJCT_SEQ = #{prjctSeq}
 	</update>
 	
 	<delete id="deleteProjectDtl" parameterType="Map">
-	DELETE FROM TB_SD05D01
-	 WHERE CO_CD = #{coCd}
-	   AND PRJCT_CD = #{prjctCd}
+		DELETE FROM TB_SD05D01
+		 WHERE CO_CD     = #{coCd}
+		   AND PRJCT_CD  = #{prjctCd}
+		   <if test= "prjctSeq != null and !prjctSeq.equals('')">
+		   AND PRJCT_SEQ = #{prjctSeq}
+		   </if>
 	</delete>
 	
 	<insert id="insertProject" parameterType="Map">
@@ -390,7 +396,7 @@
 		</selectKey>
 		INSERT INTO TB_SD05D01
 		(
-			CO_CD
+			  CO_CD
 			, PRJCT_CD
 			, PRJCT_SEQ
 			, PRDT_DIV
@@ -404,7 +410,7 @@
 		)
 		VALUES
 		(
-			#{coCd}
+			  #{coCd}
 			, #{prjctCd}
 			, #{prjctSeq}
 			, #{prdtDivCd}

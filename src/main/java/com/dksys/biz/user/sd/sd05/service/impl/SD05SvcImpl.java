@@ -17,6 +17,7 @@ import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.admin.cm.cm09.service.CM09Svc;
 import com.dksys.biz.user.sd.sd05.mapper.SD05Mapper;
 import com.dksys.biz.user.sd.sd05.service.SD05Svc;
+import com.dksys.biz.user.sd.sd09.mapper.SD09Mapper;
 import com.dksys.biz.user.sd.sd09.service.SD09Svc;
 import com.dksys.biz.util.DateUtil;
 import com.google.gson.Gson;
@@ -35,9 +36,12 @@ public class SD05SvcImpl implements SD05Svc {
 	
 	@Autowired
     SD09Svc sd09Svc;
-	 
+
     @Autowired
     SD05Mapper sd05Mapper;
+    
+    @Autowired
+    SD09Mapper sd09Mapper;
 	
 	@Override
 	public List<Map<String, String>> selectProjectList(Map<String, String> param) {
@@ -72,34 +76,39 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public Map<String, Object> selectPrjInfo(Map<String, String> paramMap) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("prjctCd")));
-		returnMap.put("prjInfo", sd05Mapper.selectPrjInfo(paramMap));
-		returnMap.put("ordDetail", sd05Mapper.selectOrdDetail(paramMap));
+		returnMap.put("fileList",       cm08Svc.selectFileList(paramMap.get("prjctCd")));
+		returnMap.put("prjInfo",        sd05Mapper.selectPrjInfo(paramMap));
+		returnMap.put("ordDetail",      sd05Mapper.selectOrdDetail(paramMap));
 		returnMap.put("shipmentDetail", sd05Mapper.selectShipmentDetail(paramMap));
-		returnMap.put("prjctDtl", sd05Mapper.selectProjectDtl(paramMap));
+		returnMap.put("prjctDtl",       sd05Mapper.selectProjectDtl(paramMap));
 		return returnMap;
 	}
 	
 	@Override
 	public int insertProject(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		int result = sd05Mapper.insertProject(paramMap);
-		paramMap.put("siteNm", paramMap.get("prjctNm"));
+		paramMap.put("siteNm",      paramMap.get("prjctNm"));
 		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
-		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
+		paramMap.put("siteAddr",    paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
-		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));
-		sd09Svc.insertSite(paramMap);
+		paramMap.put("siteMngNm",   paramMap.get("prjctMngNm"));
+//		String siteCd = sd09Svc.insertSite(paramMap);
+		String siteCd = sd09Mapper.selectSiteCd(paramMap); 
+		paramMap.put("siteCd", siteCd);
+		sd09Mapper.insertSite(paramMap);		
 		
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> dtlParam = gson.fromJson(paramMap.get("detailArr"), dtlMap);
 		
 		for(Map<String, String> dtl : dtlParam) {
-			dtl.put("coCd", paramMap.get("coCd"));
+			dtl.put("coCd",    paramMap.get("coCd"));
 			dtl.put("prjctCd", paramMap.get("prjctCd"));
-			dtl.put("userId", paramMap.get("userId"));
-			dtl.put("pgmId", paramMap.get("pgmId"));
-			sd05Mapper.insertProjectDtl(dtl);
+			dtl.put("siteCd",  siteCd);
+			dtl.put("userId",  paramMap.get("userId"));
+			dtl.put("pgmId",   paramMap.get("pgmId"));
+			sd05Mapper.insertProjectDtl(dtl);	
+			sd09Mapper.insertSitePrdt(dtl);		
 		}
 		
 		cm08Svc.uploadFile("TB_SD05M01", paramMap.get("prjctCd"), mRequest);
@@ -121,21 +130,33 @@ public class SD05SvcImpl implements SD05Svc {
 		Gson gsonDtl = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> dtlParam = gsonDtl.fromJson(paramMap.get("detailArr"), dtlMap);
-		sd05Mapper.deleteProjectDtl(paramMap);
+//		sd05Mapper.deleteProjectDtl(paramMap);
 		for(Map<String, String> dtl : dtlParam) {
-			dtl.put("coCd", paramMap.get("coCd"));
+			dtl.put("coCd",    paramMap.get("coCd"));
 			dtl.put("prjctCd", paramMap.get("prjctCd"));
-			dtl.put("userId", paramMap.get("userId"));
-			dtl.put("pgmId", paramMap.get("pgmId"));
-			sd05Mapper.insertProjectDtl(dtl);
+			dtl.put("userId",  paramMap.get("userId"));
+			dtl.put("pgmId",   paramMap.get("pgmId"));
+			
+			String prjctSeq = dtl.get("prjctSeq").toString();
+			if("".equals(prjctSeq) || "0".equals(prjctSeq)) {
+				
+				sd05Mapper.insertProjectDtl(dtl);
+				String siteCd = sd09Mapper.selectSiteCdFind(paramMap);
+				dtl.put("siteCd",  siteCd);
+				sd09Mapper.insertSitePrdt(dtl);
+				
+			}else {
+				sd05Mapper.updatePrjctDtl(dtl);
+				sd09Mapper.updateSitePrdt(dtl);
+			}
 		}
 		
-		paramMap.put("siteNm", paramMap.get("prjctNm"));
+		paramMap.put("siteNm",      paramMap.get("prjctNm"));
 		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
-		paramMap.put("siteAddr", paramMap.get("prjctAddr"));
+		paramMap.put("siteAddr",    paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
-		paramMap.put("siteMngNm", paramMap.get("prjctMngNm"));	
-		sd09Svc.updateSite(paramMap);
+		paramMap.put("siteMngNm",   paramMap.get("prjctMngNm"));
+		sd09Mapper.updateSite(paramMap);
 		
 		return result;
 	}
@@ -143,7 +164,18 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public int deleteProject(Map<String, String> param) {
 		//sd05Mapper.deleteProjectDtl(param); 마스터테이블 사용여부만 n으로
+		
+		sd09Mapper.updateSiteYn(param); 
+		
 		return sd05Mapper.deleteProject(param);
+	}
+	
+	@Override
+	public void deleteProjectDtl(List<Map<String, String>> paramList) {
+		for(Map<String, String> param : paramList) {							
+			sd05Mapper.deleteProjectDtl(param);
+			sd09Mapper.deleteSitePrdt(param);
+		}		
 	}
 	
 	@Override
