@@ -519,14 +519,42 @@
 	</select>
 	
 	<select id="selectCloseYmList" parameterType="Map" resultType="camelMap">
-		SELECT * 
-		  FROM TB_SD07M01 
+		SELECT 
+				A.CO_CD,
+				TO_CHAR(TO_DATE(A.CLOSE_YM||'01'), 'YYYY-MM') AS CLOSE_YM,
+				A.PCHS_CLOSE_YN,
+				A.PCHS_CLOSE_ID,
+				TO_CHAR(A.PCHS_CLOSE_DTTM, 'YYYY-MM-DD') AS PCHS_CLOSE_DTTM,
+				A.SELL_CLOSE_YN,
+				A.SELL_CLOSE_ID,
+				TO_CHAR(A.SELL_CLOSE_DTTM, 'YYYY-MM-DD') AS SELL_CLOSE_DTTM,
+				A.SELL_CLOSE_DTTM,
+				A.ETRDPS_CLOSE_YN,
+				A.ETRDPS_CLOSE_ID,
+				TO_CHAR(A.ETRDPS_CLOSE_DTTM, 'YYYY-MM-DD') AS ETRDPS_CLOSE_DTTM,
+				A.STOCK_CLOSE_YN,
+				A.STOCK_CLOSE_ID,
+				TO_CHAR(A.STOCK_CLOSE_DTTM, 'YYYY-MM-DD') AS STOCK_CLOSE_DTTM,
+				A.ETC_CLOSE_YN,
+				A.ETC_CLOSE_ID,
+				TO_CHAR(A.ETC_CLOSE_DTTM, 'YYYY-MM-DD') AS ETC_CLOSE_DTTM,
+				CLOSE_CNT
+		  FROM TB_SD07M01 A 
+		  		LEFT OUTER JOIN (
+								 SELECT CLOSE_YM, count(*) AS CLOSE_CNT FROM GOLDMOON.TB_AR07M01 
+								  WHERE CLOSE_YM BETWEEN SUBSTRING(#{closeYm},0,4)||'01' AND SUBSTRING(#{closeYm},0,4)||'12'
+								<if test="coCd != null and !coCd.equals('')">
+								    AND CO_CD = #{coCd}				
+								</if>
+								  GROUP BY CLOSE_YM
+								) AS B
+							ON A.CLOSE_YM = B.CLOSE_YM
 	     WHERE 1=1
 	 	<if test="coCd != null and !coCd.equals('')">
-		   AND CO_CD = #{coCd}				
+		   AND A.CO_CD = #{coCd}				
 		</if>
-		   AND CLOSE_YM BETWEEN SUBSTRING(#{closeYm},0,4)||'01' AND SUBSTRING(#{closeYm},0,4)||'12'
-		ORDER BY CLOSE_YM
+		   AND A.CLOSE_YM BETWEEN SUBSTRING(#{closeYm},0,4)||'01' AND SUBSTRING(#{closeYm},0,4)||'12'
+		ORDER BY A.CLOSE_YM
 	</select>
 	
 </mapper>
