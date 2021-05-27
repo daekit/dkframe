@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +39,7 @@ public class SD09Ctr {
 	}
     @PostMapping(value = "/selectSiteDetail")
 	public String selectSiteDetail(@RequestBody Map<String, String> paramMap, ModelMap model) {    	
-    	Map<String, String> result = sd09Svc.selectSiteDetail(paramMap);
+    	Map<String, Object> result = sd09Svc.selectSiteDetail(paramMap);
     	model.addAttribute("result", result);
     	return "jsonView";
 	}
@@ -71,7 +72,7 @@ public class SD09Ctr {
     }
     
     @PutMapping(value = "/deleteSite")
-    public String deleteCplrUntpc(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String deleteSite(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
     		sd09Svc.deleteSite(paramMap);
         	model.addAttribute("resultCode", 200);
@@ -83,7 +84,18 @@ public class SD09Ctr {
     	return "jsonView";
     }
   
-    
+	@DeleteMapping(value = "/deleteSitePrdt")
+	public String deleteSitePrdt(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+		try {
+			sd09Svc.deleteSitePrdt(paramList);
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));	
+		}catch(Exception e){
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}    	
+    	return "jsonView";
+    }   
     @PutMapping(value = "/updateSiteYn")
     public String updateSiteYn(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	try {

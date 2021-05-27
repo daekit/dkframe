@@ -70,6 +70,15 @@
 					 , SD05.ORD_TYP
 					 , T.MNG_ID
 					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM
+					 , T.ORD_TYP
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORD_TYP) AS ORD_TYP_NM
+					 , T.TNKEY_YN
+					 , T.MAKR_CD
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MAKR_CD) AS MAKR_NM
+					 , T.CLNT_EMAIL
+					 , T.CLNT_FAX_NO
+					 , T.OUTORD_UPR
+					 , T.OUTORD_LOSS_RATE
 				  FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -133,7 +142,16 @@
 			 , T.THRD_WH_CD
 			 , FN_CM05M01_CD_TO_NM(T.THRD_WH_CD) THRD_WH_NM
 			 , T.MNG_ID
-			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM	
+			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM
+			 , T.ORD_TYP
+			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORD_TYP) AS ORD_TYP_NM
+			 , T.TNKEY_YN
+			 , T.MAKR_CD
+			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MAKR_CD) AS MAKR_NM
+			 , T.CLNT_EMAIL
+			 , T.CLNT_FAX_NO
+			 , T.OUTORD_UPR
+			 , T.OUTORD_LOSS_RATE
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -259,8 +277,150 @@
 	</update>	
 	
 	<delete id="deleteSite" parameterType="Map">
-	DELETE FROM TB_SD09M01 
-	 WHERE CO_CD = #{coCd}
-	   AND SITE_CD = #{siteCd}
+		DELETE FROM TB_SD09M01 
+		 WHERE CO_CD = #{coCd}
+		   <if test= "siteCd != null and !siteCd.equals('')">
+		   AND SITE_CD = #{siteCd}
+		   </if>
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+		   AND PRJCT_CD = #{prjctCd}
+		   </if>
 	</delete>
+	
+	<select id="selectSitePrdtList" resultType="CamelMap">
+		SELECT A.CO_CD
+		     , A.SITE_CD
+		     , A.SITE_SEQ
+		     , A.PRJCT_CD
+		     , A.PRJCT_SEQ
+		     , A.PRDT_DIV AS PRDT_DIV_CD
+			 , FN_CM05M01_CD_TO_NM(A.PRDT_DIV) AS PRDT_DIV_NM
+		     , A.PRDT_STKN AS PRDT_STKN_CD
+			 , FN_CM05M01_CD_TO_NM(A.PRDT_STKN) AS PRDT_STKN_NM
+		     , A.SIZE_LIST AS PRDT_SIZE_NM
+		     , A.LOSS_RATE
+		     , A.CPLR_UPR
+		     , A.CREAT_ID
+		     , A.CREAT_PGM
+		     , A.CREAT_DTTM
+		     , A.UDT_ID
+		     , A.UDT_PGM
+		     , A.UDT_DTTM
+		  FROM TB_SD09D01 A 
+		 WHERE 1 = 1
+			<if test= "coCd != null and !coCd.equals('')">
+		   AND A.CO_CD = #{coCd}
+		   </if>
+		   <if test= "siteCd != null and !siteCd.equals('')">
+		   AND A.SITE_CD = #{siteCd}
+		   </if>
+		   <if test= "siteSeq != null and !siteSeq.equals('')">
+		   AND A.SITE_SEQ = #{siteSeq}
+		   </if>
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+		   AND A.PRJCT_CD = #{prjctCd}
+		   </if>
+		   <if test= "prjctSeq != null and !prjctSeq.equals('')">
+		   AND A.PRJCT_SEQ = #{prjctSeq}
+		   </if>
+		   <if test= "prdtDiv != null and !prdtDiv.equals('')">
+		   AND A.PRDT_DIV = #{prdtDiv}
+		   </if>
+		   <if test= "prdtStkn != null and !prdtStkn.equals('')">
+		   AND A.PRDT_STKN = #{prdtStkn}
+		   </if>
+		  <if test= "sizeList != null and !sizeList.equals('')">
+		   AND A.SIZE_LIST = #{sizeList}
+		   </if> 
+	</select>
+	
+	<insert id="insertSitePrdt" parameterType="Map">
+		INSERT INTO TB_SD09D01
+	          ( CO_CD
+	          , SITE_CD
+	          , SITE_SEQ
+	          , PRJCT_CD
+	          , PRJCT_SEQ
+	          , PRDT_DIV
+	          , PRDT_STKN
+	          , SIZE_LIST
+	          , LOSS_RATE
+	          , CPLR_UPR
+	          , CREAT_ID
+	          , CREAT_PGM
+	          , CREAT_DTTM
+	 ) VALUES ( #{coCd}
+	          , #{siteCd}
+	          , (SELECT NVL(MAX(SITE_SEQ), 0) + 1 FROM TB_SD09D01 WHERE  SITE_CD = #{siteCd})
+	          , #{prjctCd}
+	          , #{prjctSeq}
+	          , #{prdtDivCd}
+	          , #{prdtStknCd}
+	          , #{prdtSizeNm}
+	          , #{lossRate}
+	          , #{cplrUpr}
+			  , #{userId}
+			  , #{pgmId}
+	          , SYSDATE
+	          )
+	</insert>
+	
+	<update id="updateSitePrdt" parameterType="Map">
+		UPDATE TB_SD09D01 
+		   SET PRJCT_CD   = #{prjctCd}
+		     , PRJCT_SEQ  = #{prjctSeq}
+		     , PRDT_DIV   = #{prdtDivCd}
+		     , PRDT_STKN  = #{prdtStknCd}
+		     , SIZE_LIST  = #{prdtSizeNm}
+		     , LOSS_RATE  = #{lossRate}
+		     , CPLR_UPR   = #{cplrUpr}
+		     , UDT_ID     = #{userId}
+		     , UDT_PGM    = #{pgmId}
+		     , UDT_DTTM   = SYSDATE
+		 WHERE CO_CD      = #{coCd}
+		 <if test= "siteCd != null and !siteCd.equals('')">
+		   AND SITE_CD = #{siteCd}
+		   </if>
+		   <if test= "siteSeq != null and !siteSeq.equals('')">
+		   AND SITE_SEQ = #{siteSeq}
+		   </if>
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+           AND PRJCT_CD = #{prjctCd}
+           </if>
+		   <if test= "prjctSeq != null and !prjctSeq.equals('')">
+		   AND PRJCT_SEQ = #{prjctSeq}
+		   </if>
+	</update>
+	
+	<delete id="deleteSitePrdt" parameterType="Map">
+		DELETE FROM TB_SD09D01 
+		 WHERE CO_CD    = #{coCd}
+		 <if test= "siteCd != null and !siteCd.equals('')">
+		   AND SITE_CD = #{siteCd}
+		   </if>
+		   <if test= "siteSeq != null and !siteSeq.equals('')">
+		   AND SITE_SEQ = #{siteSeq}
+		   </if>
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+           AND PRJCT_CD = #{prjctCd}
+           </if>
+		   <if test= "prjctSeq != null and !prjctSeq.equals('')">
+		   AND PRJCT_SEQ = #{prjctSeq}
+		   </if>
+	</delete>
+	
+	<select id="selectSiteCdFind" parameterType="Map" resultType="String">
+		SELECT MIN(SITE_CD) AS SITE_CD
+		  FROM TB_SD09M01 A 
+		 WHERE 1 = 1
+			<if test= "coCd != null and !coCd.equals('')">
+		   AND A.CO_CD = #{coCd}
+		   </if>
+		   <if test= "siteCd != null and !siteCd.equals('')">
+		   AND A.SITE_CD = #{siteCd}
+		   </if>
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+		   AND A.PRJCT_CD = #{prjctCd}
+		   </if>
+	</select>	
 </mapper>

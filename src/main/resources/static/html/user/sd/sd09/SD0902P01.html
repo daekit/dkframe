@@ -64,14 +64,9 @@
 	                    <input id="telNo" name="telNo" type="text" style="width: 100%;" onKeyUp="telNumberFormatter(this);" maxLength="50">
 	                </td>
 	            </tr>
-	            <tr>
-	            	<th>가공공장</th>
-	            	<td>
-	            		<select id="whCd" name="whCd" data-kind="WH">
-	                    	<option value="">선택</option>
-	                    </select>
-	            	</td>
-	            	<th>담당자</th>
+            
+	            <tr>	
+	            	<th>영업담당자</th>
 					<td>
 							<input type="hidden" id="mngId" name="mngId" style="width: 76%;" maxlength="20">
 							<div class="search_form">
@@ -86,8 +81,9 @@
 	                    	<option value="">선택</option>
 	                    </select>
 	            	</td>
-	            </tr>	            
-	            <tr>
+	            </tr>	 
+	                       
+	            <tr>		            
 	            	<th rowspan="1">주소</th>
 	            	<td colspan="1">
 	            		<div class="search_form">
@@ -103,25 +99,164 @@
 	            		<input type="text" id="siteAddrSub" name="siteAddrSub" placeholder="상세 주소 입력" maxLength="50"/>
 	            	</td>
 	            </tr>
+ 
+	        </table>
+	        <table>
+				<tr>
+					<td colspan="2" style="text-align: LEFT; border-right: 0;">가공관련</td>
+					<td colspan="9">
+					</td>
+				</tr>
+			</table>
+	        <table>
+	            <colgroup>
+	                <col width="12%">
+	                <col width="">
+	                <col width="12%">
+	                <col width="">
+	                <col width="12%">
+	                <col width="">
+	            </colgroup>
+
 	            <tr>
+	            	<th>가공공장</th>
+	            	<td>
+	            		<select id="whCd" name="whCd" data-kind="WH">
+	                    	<option value="">선택</option>
+	                    </select>
+	            	</td>
+	            	<th>외주가공장1</th>
+						<td>
+							<select id="scndWhCd" name="scndWhCd" data-kind="WH">
+								<option value="">전체</option>
+							</select>
+						</td>	
+						<th>외주가공장2</th>
+						<td>
+							<select id="thrdWhCd" name="thrdWhCd" data-kind="WH">
+								<option value="">전체</option>
+							</select>
+						</td>	
+				
+	            </tr>	            
+	            <tr>	
+	            	<th>수주형태</th>
+					<td>
+						<select id="ordTyp" name="ordTyp" data-kind="ORDTYP" msg="수주형태" onchange="setByOrdTyp(this.value);">
+							<option value="">전체</option>
+						</select>
+					</td>
+					<th class="">Loss율(%)</th>
+						<td>
+							<input id="outordLossRate" name="outordLossRate" type="text" onkeyup="onlyNumber(this)">
+						</td>
+					<th>단가</th>
+						<td>
+							<input id="outordUpr" name="outordUpr" type="text" maxlength="13" onkeyup="onlyNumber(this); onlyNumber(this);" comma>
+						</td>	
+	            </tr>	 
+	            <tr>
+	            	<th class="">제강사</th>
+					<td class="tl">
+						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%"></select>
+  						<label for="tnkeyYn">제강사턴키여부</label>
+						<input type="checkbox" id="tnkeyYn" name="tnkeyYn">
+					</td>
+					<th class="">E-Mail</th>
+					<td>
+						<input id="clntEmail" name="clntEmail" type="text" onkeyup="exceptKorean(this);" maxlength="50">
+					</td>
+					<th class="">Fax</th>
+					<td>
+						<input id="clntFaxNo" name="clntFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
+					</td>
+	            </tr>
+   
+	        </table>	        
+	        <input type="hidden" id="userId" name="userId">
+	        <input type="hidden" id="pgmId" name="pgmId" value="SD0902P01">
+	        <!-- 계약상세 프로젝트관리와 같은 방식 -->
+			<table>
+				<tr>
+					<td colspan="2" style="text-align: LEFT; border-right: 0;">제품상세</td>
+					<td colspan="9">
+						<div class="add_btn">
+							<a onclick="addNewRow();">+</a> 
+							<a onclick="removeDetailRow();">-</a>
+						</div>
+					</td>
+				</tr>
+			</table>
+			<table id="detailTb">
+				<colgroup>
+					<col width="3%">
+					<col width="20%">
+					<col width="30%">
+					<col width="50%">
+					<col width="20%">
+					<col width="30%">
+				</colgroup>
+				<tr>
+					<th></th>
+					<th class="tc hit">제품구분</th>
+					<th class="tc">제품강종</th>
+					<th class="tc">SPEC</th>
+					<th class="tc">Loss율(%)</th>
+					<th class="tc" title="철근:가공단가, 기타:판매단가">단가</th>
+				</tr>
+				<!-- // -->
+				<tr class="detailRow" name="tableCd">
+					<td>
+						<input type="checkbox" name="detailChkBox">
+						<input type="hidden" name="siteSeq"></td>
+						<input type="hidden" name="prjctSeq"></td>
+					<td>
+						<div class="search_form">
+							<select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV" onchange="prdtDivCombo(this);" required="required" msg="제품구분">
+								<option value="">선택</option>
+							</select>
+						</div>
+					</td>
+					<td>
+						<div class="search_form">
+							<select id="prdtStknCd" name="prdtStknCd" onchange="prdtStknCombo(this);"  msg="제품강종">
+								<option value="">선택</option>
+							</select>
+						</div>
+					</td>
+					<td class="drctArea">
+						<div class="search_form">
+							<input type="hidden" id="prdtSpecCd" name="prdtSpecCd" readonly="readonly"> 
+							<input type="text" id="prdtSizeNm" name="prdtSizeNm" style="text-align: left" maxlength="100" onkeyup="exceptKorean(this)">
+							<a onclick="prdtSpecSearch(this);"><i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td>
+						<input class="tc" name="lossRate" type="text" onkeyup="onlyNumber(this)" comma>
+					</td>
+					<td>
+						<input class="tc" name="cplrUpr" type="text" onkeyup="onlyNumber(this)" comma title="철근:가공단가, 기타:판매단가">
+					</td>
+				</tr>
+			</table>
+            <table>
+            	<tr>
 	            	<th>비고</th>
 	                <td colspan="5">     
 	                	<textarea class="form-control" id="rmk" name="rmk" style="height: 120px;" maxlength="500"></textarea>
 	                </td>
-	            </tr>     
-	        </table>
-	        <input type="hidden" id="userId" name="userId">
-	        <input type="hidden" id="pgmId" name="pgmId" value="SD0902P01">
-	    </form>
-    </div>
+	            </tr> 
+            </table>
 
-    <br>
-    <!-- 하단 버튼 -->
-    <div class="popup_bottom_btn">
-      <button id="actionBtn"></button>
-      <button class="close_btn" onclick="modalClose();">닫기</button>
-    </div>
-</div>
+		    <br>
+		    <!-- 하단 버튼 -->
+		    <div>  <!--  class="popup_bottom_btn" -->
+		      <button id="actionBtn"></button>
+			  <button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+		    </div>
+	  </form>
+ </div>
 <link rel="stylesheet" href="/static/css/jstree/style.min.css" />
 <script src="/static/js/jstree/jstree.min.js"></script>
 <script type="text/javascript">
@@ -135,7 +270,6 @@
 	
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
-
 		setInit();
 		//$(".popup_area input").prop("readonly", true);
 		//$(".popup_area select").prop("disabled", true);
@@ -155,6 +289,11 @@
 			$("#creatDttm").val(year + "-" + month + "-" + date);
 			$("#popForm #coCd").val(jwt.coCd);
 			$("#popForm #useYn").val("Y");
+
+			$(".detailRow [name='prdtDivCd']").eq(0).val("PRDTDIV11");
+			prdtDivCombo($(".detailRow [name='prdtDivCd']"));
+			
+			setWareHouse($("#popForm #coCd").val());
 		} else if(actionType == "U"){
 			$('#actionBtn').on("click", function(){updateSite();});
 			$('#actionBtn').text("저장");
@@ -162,10 +301,10 @@
 		}
 	}
 	
-	function makeFormData(){
+	function makeFormData(){		
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
-		$("#userId").val(jwt.userId);
+		$("#popForm #userId").val(jwt.userId);
 		
 		//콤마 제거
 		$.each($('input[comma]'), function(idx, elem){
@@ -173,6 +312,24 @@
 		});
 		
 		var formData = new FormData($("#popForm")[0]);
+		
+		// 턴키여부 set
+		if($('#popForm #tnkeyYn').is(":checked")){
+			formData.set("tnkeyYn", "Y");
+		}else{
+			formData.set("tnkeyYn", "N");
+		}
+		// 프로젝트Dtl 추가
+		var detailArr = [];
+		$.each($("#detailTb tr[name='tableCd']"), function(idx, elem){
+			var detailObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				detailObj[elem.name] = elem.value;
+			});
+			detailArr.push(detailObj);
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
 		return formData;
 	}
 	
@@ -187,25 +344,51 @@
 			setSiteDetail(data.result);
 		});
 	}
-	
+
 	function setSiteDetail(obj){
+		var siteInfo = obj.siteInfo;
+		var siteDtl = obj.siteDtl;
 		
 		//메인정보 세팅
-		$.each(obj, function(key, value){
-			console.log(key + " : " + value)
-			$('#popForm #'+key).val(value);
+		$.each(siteInfo, function(key, value){
+			var itemValue = value;
+			if($('#popForm #'+key)[0]){
+				if($('#popForm #'+key).is('[comma]')){
+					itemValue = addCommaStr(itemValue);
+				}
+				
+				// 창고 Set
+				if(key == "coCd"){
+					setWareHouse(value);
+				}
+				
+				// 턴키여부 set
+				if(key == "tnkeyYn" && value == "Y"){
+					$('#popForm #'+key).prop("checked", true);
+				}	
+				
+				$('#popForm #'+key).val(itemValue);
+			}
 		});
 		
-		$.each($('input[comma]'), function(idx, elem){
-			onlyNumber(elem);
-		});
-		
-
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
 		$('#popForm #coCd').prop("disabled", true);
-		$('#popForm #clntNm').prop("disabled", true);
-		$('#popForm #prjctNm').prop("disabled", true);
+// 		$('#popForm #clntNm').prop("disabled", true);
+// 		$('#popForm #prjctNm').prop("disabled", true);
+		$('#popForm #clntNm').prop("readonly", true);
+		$('#popForm #prjctNm').prop("readonly", true);
+		
+		//상세정보 세팅
+		$.each(siteDtl, function(idx, item){
+			if(idx != 0) addRow();
+			$('#detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", false);			
+			setSitePrdtDtail(idx, item);
+			//프로젝트에서 생선된 항목은 여기서는 지울수 없다.
+			if($('#detailTb tr.detailRow').eq(idx).find('[name="prjctSeq"]').val()){				
+				$('#detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", true)
+			}
+		});
 	}
 	
 	function insertSite() {
@@ -229,7 +412,40 @@
 			});
 		}
 	}
+	function setSitePrdtDtail(idx, item){
 
+		$.each(item, function(key, value){
+			if($(".detailRow").find("[name="+key+"]")[idx] != undefined) {
+				var itemValue = value;
+				if($(".detailRow").find("[name="+key+"]").eq(idx).is('[comma]')){
+					itemValue = addCommaStr(itemValue);
+				}
+				$(".detailRow").find("[name="+key+"]")[idx].value = itemValue;
+				
+				if(key == "prdtDivCd"){
+					var formData = {"prdtDivCd" : value};
+					postAjaxSync("/user/sd/sd05/prdtDivCombo", formData, null, function(stknData){
+						var prdtStknData = stknData.codeInfoList;
+						var stknOptionHtml = '<option value="">선택</option>';
+						for (var i = 0; i < prdtStknData.length; i++) {
+							stknOptionHtml += '<option value=\"' +  prdtStknData[i].prdtStkn + '\">'
+							+ prdtStknData[i].prdtStknNm + '</option>';
+						}
+						$(".detailRow [name='prdtStknCd']").eq(idx).html(stknOptionHtml);
+					});
+				}
+				
+// 				if(key == "prdtDivCd"){
+// 					if(value == "PRDTDIV11"){
+// 						$('.detailRow a').eq(idx).prop("disabled",false);
+// 			 	 		$('.detailRow [name=prdtSizeNm]').eq(idx).prop("disabled",false);
+// 					} else {
+// 						$('.detailRow a').eq(idx).prop("disabled",true);
+// 					}
+// 				}
+			}
+		});
+	}
 	// 거래처 검색
 	function openSecondClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -283,11 +499,143 @@
 	
 	// 창고 set
 	function setWareHouse(value){
-	
+		// 창고 set	
 		$('#whCd').data("desc", value);
 	//	$('#whCd_S').empty();
 		$('#whCd option:not([value=""])').remove()
 		setCommonSelect($('#whCd'));
+
+		$('#scndWhCd').data("desc", value);
+		$('#scndWhCd option:not([value=""])').remove();
+		setCommonSelect($('#scndWhCd'));
+		
+		$('#thrdWhCd').data("desc", value);
+		$('#thrdWhCd option:not([value=""])').remove();
+		setCommonSelect($('#thrdWhCd'));
 	}
 	
+	//list 행추가
+	function addNewRow() {
+		var row = $("#detailTb > tbody:last > tr:last").clone();
+		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+			if($(this).attr("name") == "prdtDivCd"){
+				this.value = 'PRDTDIV11';
+ 				prdtDivCombo(this);
+			} else {
+				this.value = '';
+				this.checked = '';
+			}
+			
+			$(this).prop("disabled", false);
+		});
+		return $("tr[name='tableCd']:last")[0];
+	}
+	
+	//list 행추가
+	function addRow() {
+		var row = $("#detailTb > tbody:last > tr:last").clone();
+		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+				this.value = '';
+				this.checked = '';
+		});
+		return $("tr[name='tableCd']:last")[0];
+	}
+	
+	//list 행삭제	+ DB 삭제
+	function removeDetailRow(){
+		var detailArr = [];
+		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			var detailObj = {};
+			if($(elem).is(":checked")){
+				var $closestRow = $(elem).closest('.detailRow');
+				detailObj["coCd"]     = $('#coCd').val();
+				detailObj["siteCd"] = $('#siteCd').val();
+				detailObj["siteSeq"] = $closestRow.find('[name="siteSeq"]').val();
+				
+				if(detailObj.prjctSeq){
+					detailArr.push(detailObj);
+				}				
+ 				$(elem).closest('.detailRow').remove();
+			}
+		});		
+		deleteAjax("/user/sd/sd09/deleteSitePrdt", detailArr, null, function (data){
+			alert(data.resultMessage);
+		})
+	}
+	//제품
+	function prdtDivCombo(elem){
+		
+	 	$targetRow = $(elem).closest('tr[name="tableCd"]');
+		if($('#prdtDivCd').val() != "PRDTDIV11"){
+			$(".drctArea button").prop("disabled", true);
+		}else{
+			$(".drctArea button").prop("disabled", false);
+		}
+		if($targetRow.find('select[name="prdtDivCd"]').val()){
+			var formData = {"prdtDivCd" : $targetRow.find('select[name="prdtDivCd"]').val()};
+			postAjaxSync("/user/sd/sd05/prdtDivCombo", formData, null, function (data){
+				var codeList = data.codeInfoList; 
+				var optionHtml = '<option value="">선택</option>';
+				for (var i = 0; i < codeList.length; i++) {
+					optionHtml += '<option value=\"' +  codeList[i].prdtStkn + '\">'
+						+ codeList[i].prdtStknNm + '</option>';
+					}
+				$targetRow.find('select[name="prdtStknCd"]').html(optionHtml);
+			})
+			if($targetRow.find('select[name="prdtDivCd"]').val() != "PRDTDIV11"){
+				$targetRow.find('button').prop("disabled",true);
+	 	 		//$targetRow.find('[name=prdtSizeNm]').prop("disabled",true);
+			} else {
+				$targetRow.find('button').prop("disabled",false);
+	 	 		$targetRow.find('[name=prdtSizeNm]').prop("disabled",false);
+			}
+		}else{
+			$targetRow.find('select[name="prdtStknCd"]').val("");
+ 			$targetRow.find('input[name="prdtSizeNm"]').val("");
+		}
+ 	}	
+	//강종
+ 	function prdtStknCombo(elem){
+ 		$targetRow = $(elem).closest('tr[name="tableCd"]');
+ 		if(!$targetRow.find('select[name="prdtDivCd"]').val()){ 
+ 			alert("제품구분을 선택하세요.");
+//  			$('#prdtStknCd').val("");
+ 			$targetRow.find('select[name="prdtStknCd"]').val("");
+ 			$targetRow.find('input[name="prdtSizeNm"]').val("");
+ 			return;
+ 		} 
+ 		if(!$targetRow.find('select[name="prdtStknCd"]').val()){ 
+ 			$targetRow.find('input[name="prdtSizeNm"]').val("");
+ 			return;
+ 		} 		
+ 	}	
+	// SPEC
+ 	function prdtSpecSearch(elem){
+ 		if($(elem).closest('tr[name="tableCd"]').find('#prdtDivCd').val() == ""){
+ 			alert("제품구분을 선택하세요.");
+ 			$(elem).closest('tr[name="tableCd"]').find('#prdtStknCd').val("");
+ 			return;
+ 		}else if($(elem).closest('tr[name="tableCd"]').find('#prdtStknCd').val() == ""){
+ 			alert("제품강종을 선택하세요.");
+ 			return;
+		}else if(!$(elem).closest('tr[name="tableCd"]').find('#prjctSeq').val()){
+			$targetRow = $(elem).closest('tr[name="tableCd"]');
+			// selpchCd - SELPCH2: 매출
+			var paramObj = {
+				"prdtStkn" : $targetRow.find('#prdtStknCd').val(),
+				"useYn": "Y"
+			};
+			openSecondModal("/static/html/user/sd/sd05/SD0502P02.html", 300, 580, "SPEC 검색", paramObj, function (grid) {
+				var size = ""
+				var row = grid.target.getList("selected");
+				for(var i=0; i<row.length; i++){
+					 size += row[i].prdtSpec + ",";
+				}
+				szie1 = size.substr(0, size.length-1)
+				$targetRow.find('input[name="prdtSizeNm"]').val(szie1);
+			});
+ 		}
+ 	}
 </script>

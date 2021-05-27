@@ -9,7 +9,7 @@ public interface SD09Svc {
 	
 	public int selectSiteCount(Map<String, String> param);
 	
-	public Map<String, String> selectSiteDetail(Map<String, String> param);
+	public Map<String, Object> selectSiteDetail(Map<String, String> param);
 	
 	public String insertSite(Map<String, String> param);
 
@@ -18,5 +18,13 @@ public interface SD09Svc {
 	public int deleteSite(Map<String, String> param);
 	
 	public int updateSiteYn(Map<String, Object> param); // 현장 종료여부
+
+	public List<Map<String, String>> selectSitePrdtList(Map<String, String> param);
+
+	public int insertSitePrdt(Map<String, String> param);
+
+	public int updateSitePrdt(Map<String, String> param);
+
+	void deleteSitePrdt(List<Map<String, String>> paramList);
 	
 }
