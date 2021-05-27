@@ -403,6 +403,12 @@ function onlyInteger(elem){
 	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2")));
 }
 
+//양수 원단위 포맷 적용
+function onlyPositive(elem){
+	var regExp = /^([0-9]*)([^0-9]*)/g;
+	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1")));
+}
+
 //0-9(십진수)만 허용
 function onlyDecimal(elem){
 	$(elem).val($(elem).val().replace(/[^0-9]/g,""));
