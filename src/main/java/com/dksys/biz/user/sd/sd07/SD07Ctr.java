@@ -89,7 +89,6 @@ public class SD07Ctr {
 
     @PostMapping(value = "/selectCloseYmList")
 	public String selectCloseYmList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	
     	List<Map<String, String>> resultList = sd07Svc.selectCloseYmList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
