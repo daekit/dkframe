@@ -76,7 +76,8 @@
 						<th>마감대상년월</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" autocomplete="off" id="closeYm" name="closeYm" data-search="closeYm" date> 
+								<input type="text" class="input_calendar" autocomplete="off" id="closeYm" name="closeYm" data-search="closeYm" date
+								onchange="gridView.setData();"> 
 							</div>
 						</td>
 					</tr>
@@ -86,12 +87,12 @@
 			<div class="contents no_bg">
 				<!-- 콘텐츠 타이틀 -->
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="saveClose();">저장</a>
+					<a style="width:80px;" onclick="saveClose(); gridView.setData();">저장</a>
 				</div>
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="excuteCloseStock();">재고마감실행</a>
-					<a style="width:80px;" onclick="excuteCloseCreate();">매출마감실행</a>
-					<a style="width:80px;" onclick="excuteClosePurch();">매입마감실행</a>
+					<a style="width:80px;" onclick="excuteCloseStock(); gridView.setData();">재고마감실행</a>
+					<a style="width:80px;" onclick="excuteCloseCreate(); gridView.setData();">매출마감실행</a>
+					<a style="width:80px;" onclick="excuteClosePurch(); gridView.setData();">매입마감실행</a>
 				</div>
 			</div>
 		  <!-- 콘텐츠 -->
@@ -357,6 +358,9 @@
 		// 접속자 회사 set
 		$('#coCd').val(jwt.coCd);
 		
+		// grid init
+		gridView.initView();
+		
 		// 마감년월 set
 		$('#closeYm').datepicker({
 			format : "yyyy-mm",
@@ -370,9 +374,6 @@
 		$('[data-search]').on("change", function(){
 			selectClose();
 		});
-		
-		// grid init
-		gridView.initView().setData();
 		
 		// 매입마감일 datepicker bind
 		$('#pchsCloseDttm').datepicker({
