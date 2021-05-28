@@ -69,7 +69,7 @@
 					<tr>
 						<th>회사</th>
 						<td>
-							<select id="coCd" name="coCd" data-kind="CO" data-search="coCd">
+							<select id="coCd" name="coCd" data-kind="CO" data-search="coCd" onchange="gridView.setData();">
 <!-- 								<option value="">전체</option> -->
 							</select>
 						</td>
@@ -87,12 +87,12 @@
 			<div class="contents no_bg">
 				<!-- 콘텐츠 타이틀 -->
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="saveClose(); gridView.setData();">저장</a>
+					<a style="width:80px;" onclick="saveClose();">저장</a>
 				</div>
 				<div class="add_btn_small pdl10">
-					<a style="width:80px;" onclick="excuteCloseStock(); gridView.setData();">재고마감실행</a>
-					<a style="width:80px;" onclick="excuteCloseCreate(); gridView.setData();">매출마감실행</a>
-					<a style="width:80px;" onclick="excuteClosePurch(); gridView.setData();">매입마감실행</a>
+					<a style="width:80px;" onclick="excuteCloseStock();">재고마감실행</a>
+					<a style="width:80px;" onclick="excuteCloseCreate();">매출마감실행</a>
+					<a style="width:80px;" onclick="excuteClosePurch();">매입마감실행</a>
 				</div>
 			</div>
 		  <!-- 콘텐츠 -->
@@ -338,9 +338,7 @@
 			var targetObj = this.target;
 			var formData = {
 				"coCd": $('#coCd').val(),
-				"closeYm" : $("#closeYm").val(),
-				"pageNo"  : 1,
-				"recordCnt" : 9999999
+				"closeYm" : $("#closeYm").val()
 			}
 			
 			postAjax("/user/sd/sd07/selectCloseYmList", formData, null, function(data){
@@ -489,6 +487,9 @@
 		
 		putAjax("/user/sd/sd07/saveClose", formData, null, function(data){
 			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				gridView.setData();
+			}
 		});
 	}
 	
@@ -509,6 +510,7 @@
 				return;
 			}else{				
 				if(data.resultCode == 200){
+					gridView.setData();
 					$('span[name="stockStatus"]').text("완료");
 					$('span[name="stockStatus"]').addClass("complete");
 				}else{
@@ -535,6 +537,7 @@
 				return;
 			}else{				
 				if(data.resultCode == 200){
+					gridView.setData();
 					$('span[name="salesStatus"]').text("완료");
 					$('span[name="salesStatus"]').addClass("complete");
 				}else{
@@ -561,6 +564,7 @@
 				return;
 			}else{				
 				if(data.resultCode == 200){
+					gridView.setData();
 					$('span[name="purchsStatus"]').text("완료");
 					$('span[name="purchsStatus"]').addClass("complete");
 				}else{
@@ -571,5 +575,4 @@
 		});
 		
 	}
-	
 </script>
