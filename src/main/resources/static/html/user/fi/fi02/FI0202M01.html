@@ -50,7 +50,14 @@
 			<table class="form-group popup_table" id="scndTable">
 				<thead>
 					<tr>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">영업이익</span></h3>(단위:백만원) <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">
+						<select id="searchItem" name="searchItem" data-search="searchItem" onchange="gridView2.setData();">
+							<option value="S1">영업이익</option>
+							<option value="S2">매출액</option>
+							<option value="S3">매출이익</option>
+							<option value="S4">판매관리비</option>
+						</select></span>
+						</h3>(단위:원) <!-- <span id="ordrgTotCnt"></span> --></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -69,7 +76,7 @@
 			<table class="form-group popup_table" id="scndTable">
 				<thead>
 					<tr>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">세전이익</span></h3>(단위:백만원) <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">세전이익</span></h3>(단위:원) <!-- <span id="ordrgTotCnt"></span> --></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -199,7 +206,10 @@ var gridView2 = {
 			return this;
 		},
 		setData : function() {
-			var paramObj = {};
+			var paramObj = {
+				"searchItem": $('#searchItem').val(),
+			}			
+
 			postAjax("/user/fi/fi02/selectPalBillStat", paramObj, null, function(data) {
 				gridView.target.setData({
 					list : data.resultList1,
