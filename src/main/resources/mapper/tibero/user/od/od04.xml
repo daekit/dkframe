@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.od.od04.mapper.OD04Mapper">
+	
+	<select id="selectReqListCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM TB_OD02M01 A
+		   , TB_SD09M01 B
+	   WHERE A.SITE_CD = B.SITE_CD(+)
+ 			 <if test="prdtDiv != null and !prdtDiv.equals('')">
+	   		 AND A.REQ_SEQ IN (SELECT REQ_SEQ FROM TB_OD02D01 
+						   		 WHERE PRDT_DIV = #{prdtDiv}
+						     	 GROUP BY REQ_SEQ)
+   	  		 </if>
+			   <if test="coCd != null and !coCd.equals('')">
+			   AND A.CO_CD = #{coCd}
+			   </if>
+			   <if test="startDt != null and !startDt.equals('')">
+			   AND A.REQ_DT BETWEEN #{startDt} AND #{endDt}
+			   </if>
+			   <if test="whCd != null and !whCd.equals('')">
+			   AND A.WH_CD = #{whCd}
+			   </if>
+			   <if test="typCd != null and !typCd.equals('')">
+			   AND A.TYP_CD = #{typCd}
+			   </if>
+			   <if test="siteNm != null and !siteNm.equals('')">
+			   AND B.SITE_NM LIKE '%' || #{siteNm} || '%'
+			   </if>
+			   <if test="siteCd != null and !siteCd.equals('')">
+			   AND A.SITE_CD = #{siteCd}
+			   </if>
+			   <if test="impYn != null and !impYn.equals('')">
+			   AND A.IMP_YN = #{impYn}
+			   </if>
+	</select>
+	
+	<select id="selectReqList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+					SELECT A.CO_CD
+						 , FN_CM05M01_CD_TO_NM(A.CO_CD) CO_NM
+						 , A.REQ_DT
+						 , A.REQ_SEQ
+						 , A.PRJCT_CD
+						 , FN_CM05M01_CD_TO_NM(A.PRJCT_CD) PRJCT_NM
+						 , A.SITE_CD
+						 , B.SITE_NM
+						 , A.WH_CD
+						 , FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+						 , A.TYP_CD
+						 , FN_CM05M01_CD_TO_NM(A.TYP_CD) TYP_NM
+						 , A.IMP_YN
+						 , A.DLVR_DTTM
+						 , A.REQ_RMK
+						 , A.TOT_QTY
+						 , A.TOT_WT
+						 , A.REQ_MNG_ID
+						 , A.RECPT_YN
+						 , A.ORDRG_YN
+						 , A.REQ_CREAT_DIV
+						 , A.CREAT_ID
+						 , A.CREAT_PGM
+						 , A.CREAT_DTTM
+						 , A.UDT_ID
+						 , A.UDT_PGM
+						 , A.UDT_DTTM
+					  FROM TB_OD02M01 A
+						 , TB_SD09M01 B
+				     WHERE A.SITE_CD = B.SITE_CD(+)
+				 		   <if test="prdtDiv != null and !prdtDiv.equals('')">
+					   		AND A.REQ_SEQ IN (SELECT REQ_SEQ FROM TB_OD02D01 
+									   	  		WHERE PRDT_DIV = #{prdtDiv}
+									     		GROUP BY REQ_SEQ)
+					   	   </if>
+						   <if test="coCd != null and !coCd.equals('')">
+						   AND A.CO_CD = #{coCd}
+						   </if>
+						   <if test="startDt != null and !startDt.equals('')">
+						   AND A.REQ_DT BETWEEN #{startDt} AND #{endDt}
+						   </if>
+						   <if test="whCd != null and !whCd.equals('')">
+						   AND A.WH_CD = #{whCd}
+						   </if>
+						   <if test="typCd != null and !typCd.equals('')">
+						   AND A.TYP_CD = #{typCd}
+						   </if>
+						   <if test="siteNm != null and !siteNm.equals('')">
+						   AND B.SITE_NM LIKE '%' || #{siteNm} || '%'
+						   </if>
+						   <if test="siteCd != null and !siteCd.equals('')">
+						   AND A.SITE_CD = #{siteCd}
+						   </if>
+						   <if test="impYn != null and !impYn.equals('')">
+						   AND A.IMP_YN = #{impYn}
+						   </if>
+			) D
+		)
+		WHERE
+			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectReq" parameterType="Map" resultType="CamelMap">
+	SELECT A.CO_CD
+		 , A.REQ_DT
+		 , A.REQ_SEQ
+		 , A.PRJCT_CD
+		 , A.SITE_CD
+		 , (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) SITE_NM
+		 , A.WH_CD
+		 , A.TYP_CD
+		 , A.IMP_YN
+		 , TO_CHAR(A.DLVR_DTTM, 'YYYYMMDD') DLVR_DTTM
+		 , A.REQ_RMK
+		 , A.TOT_QTY
+		 , A.TOT_WT
+		 , REQ_MNG_ID
+		 , (SELECT NAME FROM TB_CM06M01 WHERE ID = REQ_MNG_ID) REQ_MNG_NM
+		 , A.RECPT_YN
+		 , A.ORDRG_YN
+		 , A.REQ_CREAT_DIV
+		 , A.CREAT_ID
+		 , A.CREAT_PGM
+		 , A.CREAT_DTTM
+		 , A.UDT_ID
+		 , A.UDT_PGM
+		 , A.UDT_DTTM
+	  FROM TB_OD02M01 A
+	 WHERE A.REQ_SEQ = #{reqSeq}
+	</select>
+	
+	<select id="selectReqOrder" parameterType="Map" resultType="CamelMap">
+	SELECT A.CO_CD
+		 , A.REQ_DT
+		 , A.REQ_SEQ
+		 , A.PRJCT_CD
+		 , A.SITE_CD
+		 , (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) SITE_NM
+		 , A.WH_CD
+		 , A.TYP_CD
+		 , A.IMP_YN
+		 , TO_CHAR(A.DLVR_DTTM, 'YYYYMMDD') DLVR_DTTM
+		 , A.REQ_RMK ORDRG_RMK
+		 , A.TOT_QTY
+		 , A.TOT_WT
+		 , REQ_MNG_ID SALES_MNG
+		 , (SELECT NAME FROM TB_CM06M01 WHERE ID = REQ_MNG_ID) SALES_MNG_NM
+		 , A.RECPT_YN
+		 , A.ORDRG_YN
+		 , A.REQ_CREAT_DIV
+		 , A.CREAT_ID
+		 , A.CREAT_PGM
+		 , A.CREAT_DTTM
+		 , A.UDT_ID
+		 , A.UDT_PGM
+		 , A.UDT_DTTM
+	  FROM TB_OD02M01 A
+	 WHERE A.REQ_SEQ = #{reqSeq}
+	</select>
+	
+	<select id="selectReqDetail" parameterType="Map" resultType="CamelMap">
+	SELECT REQ_SEQ
+		 , REQ_DTL_SEQ
+		 , A.PRDT_CD
+		 , (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) PRDT_NM
+		 , A.PRDT_DIV
+		 , A.PRDT_STKN
+		 , FN_CM05M01_CD_TO_NM(PRDT_STKN) PRDT_STKN_NM
+		 , A.PRDT_ERQK_YN
+		 , A.PRDT_SIZE
+		 , A.PRDT_SPEC
+		 , A.PRDT_COIL_YN
+		 , A.PRDT_LEN
+		 , A.PRDT_UNIT
+		 , FN_CM05M01_CD_TO_NM(PRDT_UNIT) PRDT_UNIT_NM
+		 , (SELECT PRDT_CNVRSN_WT FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) PRDT_CNVRSN_WT
+		 , REQ_QTY
+		 , REQ_WT
+		 , ORDRG_SEQ
+		 , ORDRG_DTL_SEQ
+		 , ORDRG_QTY
+		 , ORDRG_WT
+		 , ORDRG_YN
+		 , ORDRG_PROC_ID
+		 , ORDRG_PROC_DTTM
+		 , ETC_FIELD1
+		 , ETC_FIELD2
+		 , ETC_FIELD3
+		 , CREAT_ID
+		 , CREAT_PGM
+		 , CREAT_DTTM
+		 , UDT_ID
+		 , UDT_PGM
+		 , UDT_DTTM
+	  FROM TB_OD02D01 A
+	 WHERE REQ_SEQ = #{reqSeq}
+	</select>
+	
+	<select id="selectReqOrderDetail" parameterType="Map" resultType="CamelMap">
+	SELECT REQ_SEQ
+		 , REQ_DTL_SEQ
+		 , A.PRDT_CD
+		 , (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) PRDT_NM
+		 , A.PRDT_DIV
+		 , A.PRDT_STKN
+		 , FN_CM05M01_CD_TO_NM(PRDT_STKN) PRDT_STKN_NM
+		 , A.PRDT_ERQK_YN
+		 , A.PRDT_SIZE
+		 , A.PRDT_SPEC
+		 , A.PRDT_COIL_YN
+		 , A.PRDT_LEN
+		 , A.PRDT_UNIT
+		 , FN_CM05M01_CD_TO_NM(PRDT_UNIT) PRDT_UNIT_NM
+		 , (SELECT PRDT_CNVRSN_WT FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) PRDT_CNVRSN_WT
+		 , REQ_QTY ORDRG_QTY
+		 , REQ_WT ORDRG_WT
+		 , ORDRG_SEQ
+		 , ORDRG_DTL_SEQ
+		 , ORDRG_YN
+		 , ORDRG_PROC_ID
+		 , ORDRG_PROC_DTTM
+		 , ETC_FIELD1
+		 , ETC_FIELD2
+		 , ETC_FIELD3
+		 , CREAT_ID
+		 , CREAT_PGM
+		 , CREAT_DTTM
+		 , UDT_ID
+		 , UDT_PGM
+		 , UDT_DTTM
+	  FROM TB_OD02D01 A
+	 WHERE REQ_SEQ = #{reqSeq}
+	<if test="reqDtlSeqArr != null and reqDtlSeqArr.size != 0">
+		AND A.REQ_DTL_SEQ IN
+		<foreach item="reqDtlSeq" collection="reqDtlSeqArr" open="(" close=")" separator="," >
+			#{reqDtlSeq}
+		</foreach>
+	</if>
+	</select>
+	
+	<insert id="insertReq" parameterType="Map">
+		<selectKey keyProperty="reqSeq" resultType="String" order="BEFORE">
+			SELECT TB_OD02D01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+	INSERT INTO TB_OD02M01
+	(
+		CO_CD
+		,REQ_DT
+		,REQ_SEQ
+		,PRJCT_CD
+		,SITE_CD
+		,WH_CD
+		,TYP_CD
+		,IMP_YN
+		,DLVR_DTTM
+		,REQ_RMK
+		,TOT_QTY
+		,TOT_WT
+		,REQ_MNG_ID
+		,RECPT_YN
+		,ORDRG_YN
+		,REQ_CREAT_DIV
+		,CREAT_ID
+		,CREAT_PGM
+		,CREAT_DTTM
+	) VALUES (
+		#{coCd}
+		,#{reqDt}
+		,#{reqSeq}
+		,#{prjctCd}
+		,#{siteCd}
+		,#{whCd}
+		,#{typCd}
+		,#{impYn}
+		,TO_DATE(REPLACE(#{dlvrDttm}, '-', ''), 'YYYYMMDD')
+		,#{reqRmk}
+		,#{totQty}
+		,#{totWt}
+		,#{reqMngId}
+		,#{recptYn}
+		,#{ordrgYn}
+		,'ERP'
+		,#{userId}
+		,#{pgmId}
+		,SYSDATE
+	)
+	</insert>
+	
+	<insert id="insertReqDetail" parameterType="Map">
+	INSERT INTO TB_OD02D01
+	(
+		REQ_SEQ
+		, REQ_DTL_SEQ
+		, PRDT_CD
+		, PRDT_DIV
+		, PRDT_STKN
+		, PRDT_ERQK_YN
+		, PRDT_SIZE
+		, PRDT_SPEC
+		, PRDT_COIL_YN
+		, PRDT_LEN
+		, PRDT_UNIT
+		, REQ_QTY
+		, REQ_WT
+		, ORDRG_SEQ
+		, ORDRG_DTL_SEQ
+		, ORDRG_QTY
+		, ORDRG_WT
+		, ORDRG_YN
+		, ORDRG_PROC_ID
+		, ORDRG_PROC_DTTM
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+	) VALUES (
+		#{reqSeq}
+		, TB_OD02D01_SQ01.NEXTVAL
+		, #{prdtCd, jdbcType=VARCHAR}
+		, #{prdtDiv, jdbcType=VARCHAR}
+		, #{prdtStkn, jdbcType=VARCHAR}
+		, #{prdtErqkYn, jdbcType=VARCHAR}
+		, #{prdtSize, jdbcType=VARCHAR}
+		, #{prdtSpec, jdbcType=VARCHAR}
+		, #{prdtCoilYn, jdbcType=VARCHAR}
+		, #{prdtLen, jdbcType=VARCHAR}
+		, #{prdtUnit, jdbcType=VARCHAR}
+		, #{reqQty, jdbcType=VARCHAR}
+		, #{reqWt, jdbcType=VARCHAR}
+		, #{ordrgSeq, jdbcType=VARCHAR}
+		, #{ordrgDtlSeq, jdbcType=VARCHAR}
+		, #{ordrgQty, jdbcType=VARCHAR}
+		, #{ordrgWt, jdbcType=VARCHAR}
+		, NVL(#{ordrgYn, jdbcType=VARCHAR},'N')
+		, #{ordrgProcId, jdbcType=VARCHAR}
+		, #{ordrgProcDttm, jdbcType=VARCHAR}
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+	)	
+	</insert>
+	
+	<update id="updateReq" parameterType="Map">
+	UPDATE TB_OD02M01
+	   SET PRJCT_CD = #{prjctCd}
+		 , SITE_CD = #{siteCd}
+		 , WH_CD = #{whCd}
+		 , TYP_CD = #{typCd}
+		 , IMP_YN = #{impYn}
+		 , DLVR_DTTM = #{dlvrDttm}
+		 , REQ_RMK = #{reqRmk}
+		 , TOT_QTY = #{totQty}
+		 , TOT_WT = #{totWt}
+		 , REQ_MNG_ID = #{reqMngId}
+		 , RECPT_YN = #{recptYn}
+		 , ORDRG_YN = #{ordrgYn}
+		 , UDT_ID = #{userId}
+		 , UDT_PGM = #{pgmId}
+		 , UDT_DTTM = SYSDATE
+	WHERE REQ_SEQ = #{reqSeq}
+	</update>
+	
+	<delete id="deleteReq" parameterType="Map">
+	DELETE FROM TB_OD02M01
+	 WHERE REQ_SEQ = #{reqSeq}
+	</delete>
+	
+	<delete id="deleteReqDetail" parameterType="Map">
+	DELETE FROM TB_OD02D01
+	 WHERE REQ_SEQ = #{reqSeq}
+	</delete>
+	
+	<update id="updateRecpt" parameterType="Map">
+	UPDATE TB_OD02M01
+	   SET RECPT_YN = 'Y'
+	 WHERE REQ_SEQ = #{reqSeq}
+	</update>
+	
+	<update id="updateReqOrder" parameterType="Map">
+	UPDATE TB_OD02D01
+	   SET ORDRG_SEQ = #{ordrgSeq}     
+		 , ORDRG_DTL_SEQ    = #{ordrgDtlSeq}   
+		 , ORDRG_QTY        = #{ordrgQty}       
+		 , ORDRG_WT         = #{ordrgWt}        
+		 , ORDRG_YN         = 'Y'    
+		 , ORDRG_PROC_ID    = #{userId}   
+		 , ORDRG_PROC_DTTM  = SYSDATE
+	 WHERE REQ_SEQ = #{reqSeq}
+	   AND REQ_DTL_SEQ = #{reqDtlSeq}
+	</update>
+	
+	<select id="selectOrdrgNCnt" parameterType="Map" resultType="int">
+	SELECT COUNT(*) CNT
+	  FROM TB_OD02D01
+	 WHERE REQ_SEQ=#{reqSeq}
+	   AND ORDRG_YN = 'N'
+	</select>
+	
+	<update id="updateReqOrdrgY" parameterType="Map">
+	UPDATE TB_OD02M01
+	   SET ORDRG_YN = 'Y'
+	 WHERE REQ_SEQ = #{reqSeq}
+	</update>
+	
+</mapper>
