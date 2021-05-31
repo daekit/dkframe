@@ -471,6 +471,11 @@
 			$('#actionOdBtn').on("click", function(){insertOrder();});
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
+		}else if (actionType == "R"){ // 구매요청에서 발주서 호춣할때 사용한다.
+			getReqInfo();
+			$('#actionOdBtn').on("click", function(){insertOrder();});
+			$('.tit_contents .tit').text("발주서 등록");
+			$('#actionOdBtn').text("등록");
 		}
 		
 		ctrlDirtrsMaster();
@@ -654,6 +659,70 @@
 				$("#actionOdBtn").hide();
 			}
 		}
+	}
+	
+	function getReqInfo(){
+		console.log("getReqInfogetReqInfogetReqInfogetReqInfo");
+		var formData = {
+			"reqSeq": reqSeq,
+			"reqDtlSeqArr" : reqDtlSeqArr,
+			"reqDt" : $("#reqDt").val()
+		};
+		console.log(formData);
+		postAjaxSync("/user/od/od04/selectReqOrder", formData, null, function(data){
+			console.log(data);
+			setReqInfo(data.result);
+		});
+	}
+	
+	function setReqInfo(obj) {
+		console.log(obj);
+		var fileInfo = obj.fileList;
+		var reqInfo = obj.reqInfo;
+		var reqDetail = obj.reqDetail;
+		
+		// 메인정보 세팅
+		$.each(reqInfo, function(key, value){
+			if($('#popForm #'+key)[0]){
+				if($('#popForm #'+key).is('[date]')){
+					$('#popForm #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}else{
+					if($('#popForm #'+key).is('[comma]')){
+						value = addCommaStr(value);
+					}
+					$('#popForm #'+key).val(value);
+				}
+			}
+		});
+		
+		// 상세정보 세팅
+		$.each(reqDetail, function(idx, obj){
+			var $addedRow = addDetailRow();
+			$.each($addedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
+				if(itemValue){
+					if($(elem).is("[comma]")){
+						itemValue = addCommaStr(itemValue);
+					}
+					$(elem).val(itemValue);
+				}
+			});
+		});
+		countTot();
+		
+		/* if(actionType != "R"){
+			$.each(fileInfo, function(idx, obj){
+				fileArr.push({
+					'fileKey' : obj.fileKey,
+			      	'fileName' : obj.fileName,
+			      	'fileType' : obj.fileType,
+			      	'fileSize' : obj.fileSize,
+			      	'file' : obj
+				});
+			});
+			// 첨부파일 그리드 set
+			fileGridView.setData();
+		} */
 	}
 	
 	// 창고 set

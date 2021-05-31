@@ -18,6 +18,7 @@ import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.od.od01.mapper.OD01Mapper;
 import com.dksys.biz.user.od.od01.service.OD01Svc;
+import com.dksys.biz.user.od.od04.mapper.OD04Mapper;
 import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
 import com.dksys.biz.user.sd.sd08.mapper.SD08Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
@@ -31,6 +32,9 @@ public class OD01SvcImpl implements OD01Svc {
 	
     @Autowired
     OD01Mapper od01Mapper;
+    
+    @Autowired
+    OD04Mapper od04Mapper;
     
     @Autowired
     AR02Mapper ar02Mapper;
@@ -53,6 +57,7 @@ public class OD01SvcImpl implements OD01Svc {
 	@Override
 	public int insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		boolean isOdr = false;
+		boolean isReq = false;
 		if("".equals(paramMap.get("odrSeq"))) {
 			isOdr = true;
 			paramMap.put("totQty", paramMap.get("totQty"));
@@ -60,6 +65,9 @@ public class OD01SvcImpl implements OD01Svc {
 			paramMap.put("totAmt", paramMap.get("totAmt"));
 			paramMap.put("odrRmk", paramMap.get("ordrgRmk"));
 			sd04Mapper.insertOrder(paramMap);
+		}
+		if(!"".equals(paramMap.get("reqSeq"))) {
+			isReq = true;
 		}
 		int result = od01Mapper.insertOrder(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -96,9 +104,17 @@ public class OD01SvcImpl implements OD01Svc {
 				sd04Mapper.insertOrderDetail(detailMap);
 			}
 			od01Mapper.insertOrderDetail(detailMap);
+			if(isReq) {
+				od04Mapper.updateReqOrder(detailMap);
+			}
 		}
 		if(isOdr) {
 			cm08Svc.uploadFile("TB_SD04M01", paramMap.get("odrSeq"), mRequest);
+		}
+		if(isReq) {
+			if(od04Mapper.selectOrdrgNCnt(paramMap) < 1) {
+				od04Mapper.updateReqOrdrgY(paramMap);
+			}
 		}
 		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("reqDt")+paramMap.get("ordrgSeq"), mRequest);
 		return result;

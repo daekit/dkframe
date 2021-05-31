@@ -29,10 +29,11 @@ public class SD05Ctr {
 	
 	@PostMapping(value = "/selectProjectList")
     public String selectProjectList(@RequestBody Map<String, String> param, ModelMap model) {
+		System.out.println(param);
 		int totalCnt = sd05Svc.selectProjectCount(param);
 		PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
-    	
+    	System.out.println(param);
 		List<Map<String, String>> sd0501m01 = sd05Svc.selectProjectList(param);
 		model.addAttribute("sd0501m01", sd0501m01);
         return "jsonView";

@@ -59,6 +59,8 @@ public class OD01Ctr {
     
     @PostMapping(value = "/getOrderInfo")
     public String getOrderInfo(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	System.out.println("ctr");
+    	System.out.println(paramMap);
     	Map<String, Object> result = od01Svc.getOrderInfo(paramMap);
     	model.addAttribute("result", result);
     	return "jsonView";
