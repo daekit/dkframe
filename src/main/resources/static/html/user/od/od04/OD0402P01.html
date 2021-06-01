@@ -158,10 +158,10 @@
 					<input type="hidden" name="prdtStkn">
 					<input type="hidden" name="prdtUnit">
 					<input type="hidden" name="reqDtlSeq">
-					<td>
+					<td id="tdChk">
 						<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
 					</td>
-					<td>
+					<td id="tdOrdrgYn">
 						<input type="text" class="tc" name="ordrgYn" readonly>
 					</td>
 					<td>
@@ -480,7 +480,11 @@
 		var $checkedDetails = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		if($checkedDetails.length > 0){
 			$.each($checkedDetails, function(idx, elem){
-				$(elem).closest('tr[name="detailRow"]').remove();
+				if($(elem).closest('td').siblings("#tdOrdrgYn").children('input[name="ordrgYn"]').val() == 'N'){
+					$(elem).closest('tr[name="detailRow"]').remove();
+				} else {
+					$(elem).prop("checked", false);
+				};
 			});
 			countTot();
 			ctrlAllChkBox();
