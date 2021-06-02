@@ -319,18 +319,38 @@
 			$('#actionArBtn').on("click", function(){updateReq();});
 			$('.tit_contents .tit').text("구매요청서 수정");
 			$('#actionArBtn').text("저장");
-			if(gridView.target.getList("selected")[0].ordrgYn == "Y"){
-				$("#btnOdrg").hide();
-				$("#btnOpenOdrg").hide();
+debugger;
+			if(openFrom == "CM1001M01"){
+				if(reqGridView.target.getList("selected")[0].ordrgYn == "Y"){
+					$("#btnOdrg").hide();
+					$("#btnOpenOdrg").hide();
+				}	
+			}else{
+				if(gridView.target.getList("selected")[0].ordrgYn == "Y"){
+					$("#btnOdrg").hide();
+					$("#btnOpenOdrg").hide();
+				}				
 			}
+
 		}
 	});
 	
 	function selectReqInfo() {
-		var row = gridView.target.getList("selected")[0];
+		debugger;		
+		var row    = gridView.target.getList("selected")[0];
+		var reqSeq = null;
+		var reqDt  = null;
+		if(openFrom == "CM1001M01"){
+			reqSeq = commonModal.paramObj.reqSeq;
+			reqDt  = commonModal.paramObj.reqDt;
+		}else {
+			reqSeq = row.reqSeq;
+			reqDt  = row.reqDt;
+		} 
+		
 		var formData = {
-			"reqSeq" : row.reqSeq,
-			"reqDt" : row.reqDt
+			"reqSeq" : reqSeq,
+			"reqDt" :  reqDt
 		}
 		postAjax("/user/od/od04/selectReq", formData, null, function(data){
 			setReqInfo(data.result);
