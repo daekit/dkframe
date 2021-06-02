@@ -267,6 +267,7 @@
 			CLNT_CD,
 			CO_CD,
 			PLDG_DIV_CD,
+			FN_CM05M01_CD_TO_NM(PLDG_DIV_CD) AS PLDG_DIV_NM,
 			PLDG_AMT,
 			PLDG_RCOGN_RATE,
 			PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT,
@@ -282,7 +283,10 @@
 			UDT_PGM,
 			TO_CHAR(UDT_DTTM ,'YYYY-MM-DD') AS UDT_DTTM,
 			SELPCH_CD,
-			FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM
+			FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
+			PLDG_CHG_CD,
+			FN_CM05M01_CD_TO_NM(PLDG_CHG_CD) AS PLDG_CHG_NM,
+			PTON_NM
 		FROM 
 			TB_BM02D02 
 		WHERE 
@@ -427,18 +431,18 @@
 		     , UDT_ID          = #{udtId}
 		     , UDT_PGM         = #{udtPgm}
 		     , UDT_DTTM        = SYSDATE
-		 WHERE BIZDEPT_SN       = #{bizdeptSn}
-		   AND (BIZDEPT_NM     != #{bizdeptNm}
-		    OR BIZDEPT_DIV_CD  != #{bizdeptDivCd}
-		    OR MNG_NM          != #{mngNm}
-		    OR MNG_DEPT_NM     != #{mngDeptNm}
-		    OR MNG_PST_CD      != #{mngPstCd}
-		    OR MNG_TEL_NO      != #{mngTelNo}
-		    OR MNG_MOBLPHON_NO != #{mngMoblphonNo}
-		    OR MNG_EMAIL       != #{mngEmail}
-		    OR SALES_CO_CD     != #{salesCoCd}
-		    OR SALES_EMP_ID    != #{salesEmpId}
-		    OR USE_YN          != #{useYn}
+		 WHERE BIZDEPT_SN      = #{bizdeptSn}
+		   AND (BIZDEPT_NM    != #{bizdeptNm}
+		    OR NVL(BIZDEPT_DIV_CD,'@')  != NVL(#{bizdeptDivCd},'@')
+		    OR NVL(MNG_NM,'@')          != NVL(#{mngNm},'@')
+		    OR NVL(MNG_DEPT_NM,'@')     != NVL(#{mngDeptNm},'@')
+		    OR NVL(MNG_PST_CD,'@')      != NVL(#{mngPstCd},'@')
+		    OR NVL(MNG_TEL_NO,'@')      != NVL(#{mngTelNo},'@')
+		    OR NVL(MNG_MOBLPHON_NO,'@') != NVL(#{mngMoblphonNo},'@')
+		    OR NVL(MNG_EMAIL,'@')       != NVL(#{mngEmail},'@')
+		    OR NVL(SALES_CO_CD,'@')     != NVL(#{salesCoCd},'@')
+		    OR NVL(SALES_EMP_ID,'@')    != NVL(#{salesEmpId},'@')
+		    OR USE_YN        		    != #{useYn}
 		   	)
 	</update>
 	
@@ -509,27 +513,31 @@
 	<update id="updatePldg">
 		UPDATE TB_BM02D02
 		   SET 
-		       CO_CD           = #{coCd}
-		     , SELPCH_CD       = #{selpchCd}
-		     , PLDG_DIV_CD     = #{pldgDivCd}
-		     , PLDG_AMT        = #{pldgAmt}
-		     , PLDG_RCOGN_RATE = #{pldgRcognRate}
-		     , EXPRTN_DT       = #{exprtnDt}
-		     , SETUP_DT        = #{setupDt}
-		     , PLDG_RMK        = #{pldgRmk}
-		     , USE_YN          = #{useYn}
-		     , UDT_ID          = #{udtId}
-		     , UDT_PGM         = #{udtPgm}
-		     , UDT_DTTM        = SYSDATE
-		 WHERE PLDG_SN         = #{pldgSn}
-		   AND (PLDG_AMT       != #{pldgAmt}
-		    OR PLDG_RCOGN_RATE != #{pldgRcognRate}
-		    OR EXPRTN_DT       != #{exprtnDt}
-		    OR SETUP_DT        != #{setupDt}
-		    OR PLDG_RMK        != #{pldgRmk}
-		    OR USE_YN          != #{useYn}
-		    OR SELPCH_CD       != #{selpchCd}
-		    OR CO_CD           != #{coCd}
+		       CO_CD           	   = #{coCd}
+		     , SELPCH_CD           = #{selpchCd}
+		     , PLDG_DIV_CD         = #{pldgDivCd}
+		     , PLDG_CHG_CD     	   = #{pldgChgCd}
+		     , PLDG_AMT        	   = #{pldgAmt}
+		     , PLDG_RCOGN_RATE 	   = #{pldgRcognRate}
+		     , EXPRTN_DT		   = #{exprtnDt}
+		     , SETUP_DT    		   = #{setupDt}
+		     , PLDG_RMK     	   = #{pldgRmk}
+		     , USE_YN       	   = #{useYn}
+			 , PTON_NM       	   = #{ptonNm}
+		     , UDT_ID        	   = #{udtId}
+		     , UDT_PGM       	   = #{udtPgm}
+		     , UDT_DTTM      	   = SYSDATE
+		 WHERE PLDG_SN        	   = #{pldgSn}
+		   AND (PLDG_AMT      	  != #{pldgAmt}
+		    OR PLDG_RCOGN_RATE 	  != #{pldgRcognRate}
+		    OR NVL(EXPRTN_DT,'X') != NVL(#{exprtnDt},'X')
+		    OR SETUP_DT    	   	  != #{setupDt}
+		    OR NVL(PLDG_RMK,'X')  != NVL(#{pldgRmk},'X')
+		    OR USE_YN        	  != #{useYn}
+		    OR SELPCH_CD    	  != #{selpchCd}
+		    OR CO_CD         	  != #{coCd}
+		    OR PLDG_CHG_CD    	  != #{pldgChgCd}
+			OR NVL(PTON_NM ,'X')  != NVL(#{ptonNm},'X')
 		    )
 	</update>
 	
@@ -541,6 +549,7 @@
 			CLNT_CD,
 			CO_CD,
 			PLDG_DIV_CD,
+			PLDG_CHG_CD,
 			PLDG_AMT,
 			PLDG_RCOGN_RATE,
 			EXPRTN_DT,
@@ -553,13 +562,15 @@
 			UDT_ID,
 			UDT_PGM,
 			UDT_DTTM,
-			SELPCH_CD
+			SELPCH_CD,
+			PTON_NM
 		)
 		VALUES(
 			TB_BM02D02_SQ01.NEXTVAL,
 			#{clntCd},
 			#{coCd},
 			#{pldgDivCd},
+			#{pldgChgCd},
 			#{pldgAmt},
 			#{pldgRcognRate},
 			#{exprtnDt},
@@ -572,7 +583,8 @@
 			#{userId},
 			#{pgmId},
 			SYSDATE,
-			#{selpchCd}
+			#{selpchCd},
+			#{ptonNm}
 		)
 	</insert>
 	

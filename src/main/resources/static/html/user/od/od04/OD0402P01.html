@@ -1,0 +1,787 @@
+<div id="arViewDiv" class="popup_area of_a"
+	style="width: 100%; height: 100%;">
+	<div class="tit_contents">
+		<h4 class="tit"></h4>
+	</div>
+	<div class="popup_table">
+		<input type="file" id="file" style="display: none" multiple="multiple" onchange="setFile(this);" />
+		<form id="popForm">
+			<input type="hidden" id="pgmId" name="pgmId" value="OD0402P01"> 
+			<input type="hidden" id="reqSeq" name="reqSeq" value=""> 
+			<input type="hidden" id="reqDt" name="reqDt" value=""> 
+			<table>
+				<colgroup>
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th class="hit">회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
+					</td>
+					<th class="hit">판매유형</th>
+					<td>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>접수여부</th>
+					<td>
+						<select id="recptYn" name="recptYn"disabled>
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">입고창고</th>
+					<td>
+						<select id="whCd" name="whCd" data-kind="WH" msg="입고창고" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th class="hit">요쳥담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="reqMngId" name="reqMngId">
+							<input type="text" id="reqMngNm" name="reqMngNm" msg="요쳥담당자" readonly required>
+							<a onclick="openSecondUserSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>발주처리여부</th>
+					<td>
+						<select id="ordrgYn" name="ordrgYn" disabled>
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">수입여부</th>
+					<td>
+						<select id="impYn" name="impYn" msg="수입여부" required>
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+					<th class="hit">납기일자</th>
+					<td>
+						<input id="dlvrDttm" name="dlvrDttm" class="input_calendar" autocomplete="off" msg="납기일자" required>
+					</td>
+					<th>총수량</th>
+					<td>
+						<input type="text" id="totQty" name="totQty" readOnly comma>
+					</td>
+				</tr>
+				<tr>
+					<th>현장명</th>
+					<td colspan="3">
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd">
+							<input type="hidden" id="siteCd" name="siteCd">
+							<input type="text" id="siteNm" name="siteNm" readonly>
+							<a onclick="openArSiteSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>총중량</th>
+					<td>
+						<input type="text" id="totWt" name="totWt" readOnly comma>
+					</td>
+				</tr>
+				<tr>
+					<th>비고</th>
+					<td colspan="5">
+						<textarea class="form-control" id="reqRmk" name="reqRmk" style="height: 60px;" maxlength="500"></textarea>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 테이블 -->
+	<div class="popup_table">
+		<table>
+			<tr>
+				<td colspan="2" style="text-align: LEFT; border-right: 0;">※상세내역</td>
+				<td colspan="14">
+					<div class="add_btn">
+						<a onclick="cloneDetailRow();" style="width: 50px">복사</a>
+						<a onclick="openSecondMultiPrdtSearch();">+</a>
+						<a onclick="removeDetailRow();">-</a>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+		<div class="ofx_s" style="width: 100%;">
+			<table id="detailTable" style="width: 990px;">
+				<colgroup>
+					<col width="2%">
+					<col width="6%"> <!-- 발주여부 -->
+					<col width="25%">  <!-- 제품 -->
+					<col width="12%">  <!-- 제품강종-->
+					<col width="11%">  <!-- 사이즈 -->
+					<col width="11%">  <!-- 길이 -->
+					<col width="11%">  <!-- 단위 -->
+					<col width="11%">  <!-- 수량 -->
+					<col width="11%">  <!-- 중량 -->
+				</colgroup>
+				<tr>
+					<th class="tc" style="padding: 3px;"> 
+						<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+					</th>
+					<th class="tc">발주여부</th>
+					<th class="tc hit">제품</th>
+					<th class="tc">제품강종</th>
+					<th class="tc">사이즈(스펙)</th>
+					<th class="tc">길이</th>
+					<th class="tc">단위</th>
+					<th class="tc">수량</th>
+					<th class="tc">중량</th>
+				</tr>
+			</table>
+			<table id="frameTable" style="display: none;">
+				<tr name="detailRow">
+					<input type="hidden" name="prdtDiv"> 
+					<input type="hidden" name="prdtErqkYn"> 
+					<input type="hidden" name="prdtSize"> 
+					<input type="hidden" name="prdtCoilYn">
+					<input type="hidden" name="prdtCnvrsnWt">
+					<input type="hidden" name="prdtStkn">
+					<input type="hidden" name="prdtUnit">
+					<input type="hidden" name="reqDtlSeq">
+					<td id="tdChk">
+						<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
+					</td>
+					<td id="tdOrdrgYn">
+						<input type="text" class="tc" name="ordrgYn" readonly>
+					</td>
+					<td>
+						<div class="search_form">
+							<input type="hidden" name="prdtCd">
+							<input type="text" name="prdtNm" msg="제품명" readonly required>
+							<a onclick="openSecondPrdtSearch(this);">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td>
+						<input type="text" class="tc" name="prdtStknNm" readonly>
+					</td>
+					<td>
+						<input type="text" class="tc" name="prdtSpec" maxlength="25">
+					</td>
+					<td>
+						<input type="text" class="tc" name="prdtLen">
+					</td>
+					<td>
+						<input type="text" class="tc" name="prdtUnitNm" readonly>
+					</td>
+					<td>
+						<input type="text" class="tr" name="reqQty" onkeyup="onlyNumber(this); countAmt(this);" msg="수량" comma required maxlength="9">
+					</td>
+					<td>
+						<input type="text" class="tr" name="reqWt" onkeyup="onlyNumber(this); countAmt(this);" msg="중량" comma required readOnly maxlength="12">
+					</td>
+				</tr>
+			</table>
+			<table style="width: 990px;">
+				<colgroup>
+					<col width="2%">
+					<col width="6%"> <!-- 발주여부 -->
+					<col width="25%">  <!-- 제품 -->
+					<col width="12%">  <!-- 제품강종-->
+					<col width="11%">  <!-- 사이즈 -->
+					<col width="11%">  <!-- 길이 -->
+					<col width="11%">  <!-- 단위 -->
+					<col width="11%">  <!-- 수량 -->
+					<col width="11%">  <!-- 중량 -->
+				</colgroup>
+				<tr>
+					<th class="tc" colspan="7">합계</th>
+					<td>
+						<input class="tr" type="text" id="reqTotQty" name="reqTotQty" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="reqTotWt" name="reqTotWt" comma readonly>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<br>
+	<div class="popup_table">
+		<table>
+			<colgroup>
+				<col width="12%">
+			</colgroup>
+			<tr>
+				<th>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+				</th>
+				<td>
+					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="actionArBtn">등록</button>
+		<button id="btnOdrg" onclick="updateRecpt();">접수</button>
+		<button id="btnOpenOdrg" onclick="openInsertOrdrg();">발주서</button>
+		<button class="close_btn" onclick="modal.close();">닫기</button>
+	</div>
+</div>
+<script type="text/javascript">
+	var targetRow = null;
+	var fileArr = [];
+	var deleteFileArr = [];
+	var fileGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showLineNumber: true,
+				showRowSelector: false,
+	        	multipleSelect: false,
+				header: {selector: false},
+				body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	downloadFile(this.dindex);
+		            }
+		        },
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 405},
+	                {key: "fileType", label: "파일타입", width: 140},
+	                {key: "fileSize", label: "파일크기", width: 140},
+	                {
+						key:"fileDelete", label: "삭제", width: 55,
+						formatter:function() {
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
+						}
+					}
+	            ]
+			});
+		},
+		setData : function() {
+			var targetObj = this.target;
+			targetObj.setData({
+				list: fileArr,
+				page : {
+					totalElements : fileArr.length
+				}
+			});
+		}
+	}
+	
+	$(document).ready(function() {
+		
+		// 공통코드 selectBox set
+		setCommonSelect($(".popup_area select[data-kind]"));
+		
+		// 납기일자 datepicker bind
+		$('#recptYn').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		$('#dlvrDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 파일 그리드 초기화
+		fileGridView.initView();
+		console.log(actionType);
+		if(actionType == "C"){
+			$("#popForm #coCd").val(jwt.coCd);
+			$("#popForm #reqDt").val(moment(new Date()).format("YYYYMMDD"));
+			$('#actionArBtn').on("click", function(){insertReq();});
+			$('.tit_contents .tit').text("구매요청서 등록");
+			$('#actionArBtn').text("등록");
+			$("#btnOdrg").hide();
+			$("#btnOpenOdrg").hide();
+		} else if(actionType == "U"){
+			selectReqInfo();
+			$('#actionArBtn').on("click", function(){updateReq();});
+			$('.tit_contents .tit').text("구매요청서 수정");
+			$('#actionArBtn').text("저장");
+			if(gridView.target.getList("selected")[0].ordrgYn == "Y"){
+				$("#btnOdrg").hide();
+				$("#btnOpenOdrg").hide();
+			}
+		}
+	});
+	
+	function selectReqInfo() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"reqSeq" : row.reqSeq,
+			"reqDt" : row.reqDt
+		}
+		postAjax("/user/od/od04/selectReq", formData, null, function(data){
+			setReqInfo(data.result);
+		});
+	}
+	
+	function setReqInfo(obj) {
+		var fileInfo = obj.fileList;
+		var reqInfo = obj.reqInfo;
+		var reqDetail = obj.reqDetail;
+		
+		// 메인정보 세팅
+		$.each(reqInfo, function(key, value){
+			if($('#popForm #'+key)[0]){
+				if($('#popForm #'+key).is('[date]')){
+					$('#popForm #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}else{
+					if($('#popForm #'+key).is('[comma]')){
+						value = addCommaStr(value);
+					}
+					console.log(key + " : " + value);
+					$('#popForm #'+key).val(value);
+				}
+			}
+		});
+		
+		// 상세정보 세팅
+		$.each(reqDetail, function(idx, obj){
+			var $addedRow = addDetailRow();
+			$.each($addedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
+				if(itemValue){
+					if($(elem).is("[comma]")){
+						itemValue = addCommaStr(itemValue);
+					}
+					$(elem).val(itemValue);
+				}
+			});
+		});
+		countTot();
+		
+		if(actionType != "O"){
+			$.each(fileInfo, function(idx, obj){
+				fileArr.push({
+					'fileKey' : obj.fileKey,
+			      	'fileName' : obj.fileName,
+			      	'fileType' : obj.fileType,
+			      	'fileSize' : obj.fileSize,
+			      	'file' : obj
+				});
+			});
+			// 첨부파일 그리드 set
+			fileGridView.setData();
+		}
+	}
+
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM", // $('#coCd').val(),
+			"userId": $('#salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#reqMngId').val(checkedNode.id);
+			$('#reqMngNm').val(checkedNode.text);
+		});
+	}
+	
+	// 현장 검색
+	function openArSiteSearch() {
+		var paramObj = {
+			"coCd": $('#popForm #coCd').val(), 
+			"clntCd": $("#popForm #clntCd").val(), 
+			"clntNm": $("#popForm #clntNm").val()
+		}
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			$("#siteCd").val(row.siteCd);
+			$("#siteNm").val(row.siteNm);
+			$("#prjctCd").val(row.prjctCd);			  
+		});
+	}
+	
+	function openSecondOrderSearch(){
+		openSecondModal("/static/html/cmn/modal/orderSearch.html", 700, 420, "주문서 검색", {}, function(grid){
+			var row = grid.target.getList("selected")[0];
+			$("#odrSeq").val(row.odrSeq);
+		});
+	}
+	
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#addrZip').val(data.zonecode);
+				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+			}
+		}).open();
+	}
+	
+	function transAmtModal() {
+		openFrom = "AR0102P01";
+		var paramObj ={
+				transSeq :$('#transSeq').val(),
+				coCd :$('#coCd').val()
+			}
+			if(!$('#transSeq').val()) {actionType = 'C';} 
+		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
+	}
+	
+	function cloneDetailRow(){
+		var checkedRows = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		
+		if(checkedRows.length == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		
+		if(checkedRows.length > 1){
+			alert("한 건만 선택해주세요.");
+			return false;
+		}
+		
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
+				var $clonedRow = $(elem).clone();
+				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
+				$('#detailTable tbody:last').append($clonedRow[0]);
+			}
+		})
+		
+		ctrlAllChkBox();
+	}
+	
+	function addDetailRow() {
+		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
+		$('#detailTable tbody').append($detailRow[0]);
+		ctrlAllChkBox();
+		return $detailRow;
+	}
+	
+	function removeDetailRow(){
+		var $checkedDetails = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		if($checkedDetails.length > 0){
+			$.each($checkedDetails, function(idx, elem){
+				if($(elem).closest('td').siblings("#tdOrdrgYn").children('input[name="ordrgYn"]').val() == 'N'){
+					$(elem).closest('tr[name="detailRow"]').remove();
+				} else {
+					$(elem).prop("checked", false);
+				};
+			});
+			countTot();
+			ctrlAllChkBox();
+		}else{
+			alert("삭제할 상세내역을 선택해주세요.");
+		}
+	}
+	
+	function ctrlAllChkBox(){
+		var isAllChk = true;
+		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
+		if($detailChkBoxes.length > 0){
+			$.each($detailChkBoxes, function(idx, elem){
+				if(!$(elem).is(':checked')){
+					isAllChk = false;
+				}
+			});
+			if(isAllChk){
+				$('#allChkBox').prop("checked", true);
+			}else{
+				$('#allChkBox').prop("checked", false);
+			}
+		}else{
+			$('#allChkBox').prop("checked", false);
+		}
+	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
+		}else{
+			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+		}
+	}
+	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd": $("#coCd").val(),
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(),
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			// 값 초기화
+			$targetRow.find('input[name]').val("");
+
+			$.each(row, function(key, value){
+				if($targetRow.find('[name="'+key+'"]')[0]){
+					$targetRow.find('[name="'+key+'"]').val(value);
+				}
+			});
+			$targetRow.find('input[name=prdtUpr]').val(row.ordrgUpr);
+			
+			countTot();
+		});
+	}
+	
+	// 제품 검색(다중)
+	function openSecondMultiPrdtSearch() {
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd": $("#coCd").val(),
+			"selpchCd": "SELPCH2",
+			"impYn": $("#impYn").val(), 
+			"clntCd" : $("#clntCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/multiPrdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var selectedRows = grid.target.getList("selected");
+			$.each(selectedRows, function(idx, obj){
+				// 행 추가
+				var $addedRow = addDetailRow();
+				// 값 set
+				$.each($addedRow.find('[name]'), function(idx, elem){
+					var itemValue = obj[elem.name];
+					if(itemValue){
+						$(elem).val(itemValue);
+					}
+				});
+			});
+		});
+	}
+
+	function countTot() {
+		var reqTotQty = 0;
+		var reqTotWt = 0;
+		
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+			var reqQty = Number(deleteCommaStr($(elem).find('input[name="reqQty"]').val())) || 0;
+			var reqWt = Number(deleteCommaStr($(elem).find('input[name="reqWt"]').val())) || 0;
+			
+			reqTotQty += reqQty;
+			reqTotWt += reqWt;
+		});
+		
+		$('#reqTotQty').val(addCommaStr(reqTotQty));
+		$('#reqTotWt').val(addCommaStr(reqTotWt));
+		$("#totQty").val(addCommaStr(reqTotQty));
+		$("#totWt").val(addCommaStr(reqTotWt));
+
+	}
+	
+	function countAmt(elem) {
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		var reqQty = Number(deleteCommaStr($targetRow.find('input[name="reqQty"]').val())) || 0;
+		var reqWt = reqQty * Number(deleteCommaStr($targetRow.find('input[name="prdtCnvrsnWt"]').val())) || 0;
+		
+		$targetRow.find('input[name="reqWt"]').val(reqWt);
+		
+		countTot();
+	}
+	
+	function setFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var tempArr = obj.name.split(".");
+			fileArr.push({
+				'fileKey' : 0,
+		      	'fileName' : obj.name,
+		      	'fileType' : tempArr[tempArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		fileGridView.setData();
+		$(elem).val("");
+	}
+	
+	function deleteFile(rowIndex) {
+		fileGridView.target.removeRow(rowIndex);
+		
+		if(fileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(fileArr[rowIndex].fileKey);
+		}
+		
+		fileArr.splice(rowIndex, 1);
+		
+		fileGridView.setData();
+	}
+	
+	function downloadFile(idx) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+	
+	function insertReq() {
+		if(!lengthValidation()) return false;
+		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
+			//$("#popForm #reqDt").val(dateToStr(new Date()));
+			var formData = makeFormData();
+
+			formData.append("prdtStkn", $('#popForm #prdtStknNm').val());
+			formData.append("prdtUnit", $('#popForm #prdtUnitNm').val());
+			formData.append("prdtSize", $('#popForm #prdtSizeNm').val());
+			if(formData){
+				filePostAjax("/user/od/od04/insertReq", formData, function(data){
+					alert(data.resultMessage);
+					if(data.resultCode == 200){
+						gridView.setData(0);
+						modal.close();
+					}
+				});
+			}
+		}
+	}
+	
+	function updateReq() {
+		if(!lengthValidation()) return false;
+		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
+			var formData = makeFormData();
+			filePutAjax("/user/od/od04/updateReq", formData, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modal.close();
+				}
+			});
+		}
+	}
+	
+	function updateRecpt() {
+		if(!lengthValidation()) return false;
+		var formData = {"reqSeq" : $('#popForm #reqSeq').val()}
+		console.log(formData);
+		if(confirm("접수하시겠습니까?")){
+			postAjax("/user/od/od04/updateRecpt", formData, null, function(data){
+				console.log(data);
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+					modal.close();
+				}
+			});
+		}
+	}
+	
+	function lengthValidation() {
+		var isValid = true;
+		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+			var prdtDiv = $(elem).find('input[name="prdtDiv"]').val();
+			var prdtCoilYn = $(elem).find('input[name="prdtCoilYn"]').val();
+			var prdtStockCd = $(elem).find('input[name="prdtStockCd"]').val();
+			var prdtLen = $(elem).find('input[name="prdtLen"]').val();
+			
+			// 철근이면서 코일여부가 N이고 재고관리 대상이면 길이가 있어야 한다.
+			if(prdtDiv == "PRDTDIV11" && prdtCoilYn == "N" && prdtStockCd == "Y" && (prdtLen == 0 || prdtLen == "")){
+				isValid = false;
+				alert("길이가 0인 제품이 존재합니다.");
+				return false;
+			}
+		});
+		return isValid;
+	}
+	
+	function makeFormData() {
+		$("#popForm input").prop("disabled", false);
+		$("#popForm select").prop("disabled", false);
+		if($("#prjctCd").val() == "") $("#prjctCd").val("0");
+		
+		//콤마 제거
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		var formData = new FormData($("#popForm")[0]);
+
+		// 유저아이디 추가
+		formData.append("userId", jwt.userId);
+		
+		// 상세내역 추가
+		var detailArr = [];
+		$.each($('#detailTable tr[name="detailRow"]'), function(midx, elem){
+			var detailObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				detailObj[elem.name] = elem.value;
+			});
+			detailArr.push(detailObj);
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		// 첨부파일 추가
+		$.each(fileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		
+		return formData;
+	}
+	var reqSeq;
+	var reqDtlSeqArr;
+	function openInsertOrdrg(){
+		if(orderSequenceSet()){
+			actionType = 'R';
+			modal.close();
+	
+			var paramObj = {
+					'reqSeq' : ""
+			};	
+			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 800, "",paramObj);
+		}
+	}
+	
+
+	
+	// reqSeq, reqDtlSeq set
+	function orderSequenceSet(){
+		var tempArr = [];
+		$.each($('tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="detailChkBox"]').is(':checked') && $(elem).find('input[name="ordrgYn"]').val() == "N") {
+				tempArr.push($(elem).find('input[name="reqDtlSeq"]').val());
+			}
+		});
+		
+		if(tempArr.length > 0){
+			actionType = 'R';
+			reqSeq = $('#popForm #reqSeq').val();
+			reqDtlSeqArr = tempArr;
+			return true;
+		}else{
+			alert("주문내역을 선택하세요.");
+			return false;
+		}
+	}
+</script>

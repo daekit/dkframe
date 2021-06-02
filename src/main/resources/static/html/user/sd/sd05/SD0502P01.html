@@ -1183,6 +1183,7 @@
  			return;
 		}else{
 			$targetRow = $(elem).closest('tr[name="tableCd"]');
+			var eq = $targetRow.index() - 1;
 			// selpchCd - SELPCH2: 매출
 			var paramObj = {
 				"prdtStkn" : $targetRow.find('#prdtStknCd').val(),
@@ -1191,8 +1192,30 @@
 			openSecondModal("/static/html/user/sd/sd05/SD0502P02.html", 300, 580, "SPEC 검색", paramObj, function (grid) {
 				var size = ""
 				var row = grid.target.getList("selected");
+				var isDup = false;
+				var isMsg = false;
 				for(var i=0; i<row.length; i++){
-					 size += row[i].prdtSpec + ",";
+					isDup = false;
+					$.each($('input[name="prdtSizeNm"]'), function(idx, elem){
+						console.log(eq + " : " + idx);
+						if(eq != idx){
+							var dupArr = elem.value.split(",");
+							for(var j = 0; j < dupArr.length; j++){
+								if(dupArr[j] == row[i].prdtSpec){
+									isDup = true;
+									isMsg = true;
+								}
+							}
+						}
+					});
+					if(isDup == true){
+						
+					} else {
+						size += row[i].prdtSpec + ",";
+					}
+				}
+				if(isMsg == true){
+					alert("중복된 제품SPEC이 제외되었습니다.");
 				}
 				szie1 = size.substr(0, size.length-1)
 				$targetRow.find('input[name="prdtSizeNm"]').val(szie1);

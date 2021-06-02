@@ -144,6 +144,7 @@
             PRDT_SPEC,
             PRDT_LEN ,
 			IMP_YN, 
+			STOCK_WT,
 			STOCK_QTY,
 			STOCK_AMT,
 			CREAT_ID, 
@@ -174,8 +175,9 @@
                 PRDT_SPEC,
                 PRDT_LEN ,
 			    IMP_YN,
-			    SUM(STOCK_QTY) + SUM(REAL_TRST_QTY1) - SUM(REAL_TRST_QTY2) AS STOCK_QTY,
-		        SUM(STOCK_AMT) + SUM(REAL_TRST_AMT1) - SUM(REAL_TRST_AMT2) AS STOCK_AMT,
+			    SUM(STOCK_WT)  + SUM(REAL_TRST_WT_IN)  - SUM(REAL_TRST_WT_OUT)  AS STOCK_WT,
+			    SUM(STOCK_QTY) + SUM(REAL_TRST_QTY_IN) - SUM(REAL_TRST_QTY_OUT) AS STOCK_QTY,
+		        SUM(STOCK_AMT) + SUM(REAL_TRST_AMT_IN) - SUM(REAL_TRST_AMT_OUT) AS STOCK_AMT,
 			    #{userId},
 			    #{pgmId},
 			    SYSDATE,
@@ -185,6 +187,7 @@
 			FROM 
 			(
 				SELECT
+				    1 AS TYPE1,
 			 		TO_CHAR(ADD_MONTHS(TO_DATE(CLOSE_YM, 'YYYYMM'), 1), 'YYYYMM') AS CLOSE_YM,
 			  		CO_CD,
 			  		WH_CD,
@@ -199,11 +202,14 @@
                     PRDT_LEN ,
 			  		IMP_YN,
 			  		STOCK_QTY,
-			  		0 AS REAL_TRST_QTY1,
-			  		0 AS REAL_TRST_QTY2,
+			  		STOCK_WT,
+			  		0 AS REAL_TRST_QTY_IN,
+			  		0 AS REAL_TRST_QTY_OUT,
+			  		0 AS REAL_TRST_WT_IN,
+			  		0 AS REAL_TRST_WT_OUT,
 		            STOCK_AMT,
-		            0 AS REAL_TRST_AMT1,
-		            0 AS REAL_TRST_AMT2
+		            0 AS REAL_TRST_AMT_IN,
+		            0 AS REAL_TRST_AMT_OUT
 			 	FROM
 			  		TB_SM01D01
 			 	WHERE
@@ -213,6 +219,7 @@
 			 	UNION ALL	
 			 	
 				SELECT  
+				    2 AS TYPE1,
 			   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
 			    	CO_CD,
 			    	WH_CD,
@@ -227,11 +234,14 @@
                     PRDT_LEN ,
 			    	IMP_YN,
 			    	0 AS STOCK_QTY,
-			    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY1,
-			    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY2,		
+			    	0 AS STOCK_WT,
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY, 'SELPCH3', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY_IN,
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_QTY, 'SELPCH4', REAL_TRST_QTY, 0)) AS REAL_TRST_QTY_OUT,
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_WT,  'SELPCH3', REAL_TRST_WT, 0))  AS REAL_TRST_WT_IN,
+			    	SUM(DECODE(SELPCH_CD, 'SELPCH2', REAL_TRST_WT,  'SELPCH4', REAL_TRST_WT, 0))  AS REAL_TRST_WT_OUT,		
 		    	    0 AS STOCK_AMT,
-		    	    SUM(DECODE(SELPCH_CD, 'SELPCH1', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 0)) AS REAL_TRST_AMT1,
-		    	    SUM(DECODE(SELPCH_CD, 'SELPCH2', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 0)) AS REAL_TRST_AMT2
+		    	    SUM(DECODE(SELPCH_CD, 'SELPCH1', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 'SELPCH3', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 0)) AS REAL_TRST_AMT1,
+		    	    SUM(DECODE(SELPCH_CD, 'SELPCH2', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 'SELPCH4', DECODE(NVL(REAL_TRST_QTY,0),0,0,REAL_TRST_AMT), 0)) AS REAL_TRST_AMT2
 				FROM 
 					TB_AR02M01
 				WHERE
@@ -254,6 +264,98 @@
                     PRDT_SPEC,
                     PRDT_LEN ,
 			    	IMP_YN
+			   UNION 	    	
+			    SELECT
+			    	3 AS TYPE1,
+			   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
+			    	OUT_CO_CD,
+			    	OUT_WH_CD,
+			    	PRDT_CD,
+			    	OWNER_CD,
+			    	CLNT_CD,
+			    	TYP_CD,
+			    	MAKR_CD,
+			    	PRJCT_CD,
+			        PRDT_SIZE,
+                    PRDT_SPEC,
+                    PRDT_LEN ,
+			    	IMP_YN,
+			    	0 AS STOCK_QTY,
+			    	0 AS STOCK_WT,
+			    	0,
+			    	SUM(MOVE_QTY),	
+			    	0,
+			    	SUM(MOVE_WT),	
+		    	    0 AS STOCK_AMT,  
+			    	0,
+			    	SUM(NVL(MOVE_QTY,0) * NVL(STOCK_UPR,0))  	
+			    FROM TB_SM02M01
+				WHERE
+					OUT_CO_CD = #{coCd}
+					<![CDATA[
+						AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+					    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+					]]>
+			    GROUP BY
+			    	SUBSTRING(TRST_DT,1,6),
+			    	OUT_CO_CD,
+			    	OUT_WH_CD,
+			    	PRDT_CD,
+			    	OWNER_CD,
+			    	CLNT_CD,
+			    	TYP_CD,
+			    	MAKR_CD,
+			    	PRJCT_CD,
+			        PRDT_SIZE,
+                    PRDT_SPEC,
+                    PRDT_LEN ,
+			    	IMP_YN
+			 UNION
+				SELECT
+			    	4 AS TYPE1,
+			   		SUBSTRING(TRST_DT,1,6) AS CLOSE_YM,
+			    	IN_CO_CD,
+			    	IN_WH_CD,
+			    	IN_PRDT_CD,
+			    	OWNER_CD,
+			    	CLNT_CD,
+			    	IN_TYP_CD,
+			    	MAKR_CD,
+			    	IN_PRJCT_CD,
+			        IN_PRDT_SIZE,
+                    IN_PRDT_SPEC,
+                    IN_PRDT_LEN ,
+			    	IMP_YN,
+			    	0 AS STOCK_QTY,
+			    	0 AS STOCK_WT,
+			    	SUM(MOVE_QTY),
+			    	0,
+			    	SUM(MOVE_WT),
+			    	0,			
+		    	    0 AS STOCK_AMT,  
+			    	SUM(NVL(MOVE_QTY,0)  * NVL(STOCK_UPR,0)),
+			    	0  	
+			    FROM TB_SM02M01	
+				WHERE
+					IN_CO_CD = #{coCd}
+					<![CDATA[
+						AND TO_DATE(TRST_DT, 'YYYYMMDD') >= TO_DATE(#{closeYm}, 'YYYYMM')
+					    AND TO_DATE(TRST_DT, 'YYYYMMDD') < ADD_MONTHS(TO_DATE(#{closeYm}, 'YYYYMM'), 1)
+					]]>
+			    GROUP BY
+			    	SUBSTRING(TRST_DT,1,6),
+			    	IN_CO_CD,
+			    	IN_WH_CD,
+			    	IN_PRDT_CD,
+			    	OWNER_CD,
+			    	CLNT_CD,
+			    	IN_TYP_CD,
+			    	MAKR_CD,
+			    	IN_PRJCT_CD,
+			        IN_PRDT_SIZE,
+                    IN_PRDT_SPEC,
+                    IN_PRDT_LEN ,
+			    	IMP_YN	
 			)
 			GROUP BY 
 				CLOSE_YM,
