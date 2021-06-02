@@ -642,12 +642,34 @@
 	// 매출분할 모달 오픈
 	function openSalesDivision(){
 		if(checkGridRow(subGridView.target, "multi")){
+			var isValid = true;
+			var clntCd = null;
+			
 			var selectedRows = subGridView.target.getList("selected");
-			selectedRows[0].__selected__ = false;
-			if(selectedRows[0].bilgYn == "N"){
-				openModal("/static/html/user/ar/ar02/AR0203P01.html", 1200, 500, "매출분할", {"selectedRows": selectedRows});
-			}else{
-				alert("분할이 불가능한 데이터입니다.");
+			$.each(selectedRows, function(idx, obj){
+				if(obj.bilgYn == "Y"){
+					alert("매출이 확정되지 않은건만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(clntCd != null && clntCd != obj.clntCd){
+					alert("동일한 거래처끼리만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				clntCd = obj.clntCd;
+				
+				if(obj.returnYn == "Y"){
+					alert("반품건은 분할이 불가능합니다.");
+					isValid = false;
+					return false;
+				}
+				obj.__selected__ = false;
+			});
+			
+			if(isValid){
+				openModal("/static/html/user/ar/ar02/AR0203P01.html", 1600, 880, "매출분할", {"selectedRows": selectedRows});
 			}
 		}
 	}
