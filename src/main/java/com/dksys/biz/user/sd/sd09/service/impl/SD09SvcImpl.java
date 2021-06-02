@@ -90,14 +90,16 @@ public class SD09SvcImpl implements SD09Svc {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), dtlMap);
-		for(Map<String, String> detailMap : detailList) {
+		if(detailList != null) {
+			for(Map<String, String> detailMap : detailList) {
 
-			detailMap.put("coCd",    paramMap.get("coCd"));
-			detailMap.put("siteCd",  paramMap.get("siteCd"));
-			detailMap.put("prjctCd", paramMap.get("prjctCd"));
-			detailMap.put("userId",  paramMap.get("userId"));
-			detailMap.put("pgmId",   paramMap.get("pgmId"));
-			result += sd09Mapper.insertSitePrdt(detailMap);
+				detailMap.put("coCd",    paramMap.get("coCd"));
+				detailMap.put("siteCd",  paramMap.get("siteCd"));
+				detailMap.put("prjctCd", paramMap.get("prjctCd"));
+				detailMap.put("userId",  paramMap.get("userId"));
+				detailMap.put("pgmId",   paramMap.get("pgmId"));
+				result += sd09Mapper.insertSitePrdt(detailMap);
+			}
 		}
 		return result;
 	}
