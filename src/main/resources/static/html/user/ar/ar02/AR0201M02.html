@@ -501,13 +501,33 @@
 	// 거래처변경 모달 오픈
 	function openClntChange(){
 		if(checkGridRow(subGridView.target, "multi")){
-			var selectedRows = subGridView.target.getList("selected");
+			
 			var isValid = true;
+			var clntCd = null;
+			var clntNm = null;
+			
+			var selectedRows = subGridView.target.getList("selected");
 			$.each(selectedRows, function(idx, obj){
 				if(obj.bilgYn == "Y"){
+					alert("매출이 확정되지 않은건만 가능합니다.");
 					isValid = false;
 					return false;
 				}
+				
+				if(obj.returnYn == "Y"){
+					alert("반품건은 변경이 불가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(clntCd != null && clntCd != obj.clntCd){
+					alert("동일한 거래처끼리만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				clntCd = obj.clntCd;
+				clntNm = obj.clntNm;
 			});
 			
 			if(isValid){
@@ -515,27 +535,28 @@
 					var salesArr = [];
 					var selectedRows = subGridView.target.getList("selected");
 					var selectedClnt = grid.target.getList("selected")[0];
-					for(var i=0;i<selectedRows.length;i++){
-						var selectedRow = selectedRows[i];
-						var salesObj = {
-							"trstCertiNo": selectedRow.trstCertiNo,
-							"clntCd": selectedClnt.clntCd,
-							"clntNm": selectedClnt.clntNm,
-							"userId": jwt.userId,
-							"updatePgmId": "AR0201M02"
-						}
-						salesArr.push(salesObj);
-					}
 					
-	 				putAjax("/user/ar/ar02/updateSalesClnt", salesArr, null, function(data){
-	 					alert(data.resultMessage);
-	 					if(data.resultCode == 200) {
-	 						subGridView.setData(0);
-	 					}
-	 				});
+					if(confirm(clntNm +" 거래처를" + selectedClnt.clntNm + " 거래처로 변경하시겠습니까?")){
+						for(var i=0;i<selectedRows.length;i++){
+							var selectedRow = selectedRows[i];
+							var salesObj = {
+								"trstCertiNo": selectedRow.trstCertiNo,
+								"clntCd": selectedClnt.clntCd,
+								"clntNm": selectedClnt.clntNm,
+								"userId": jwt.userId,
+								"updatePgmId": "AR0201M02"
+							}
+							salesArr.push(salesObj);
+						}
+						
+						putAjax("/user/ar/ar02/updateSalesClnt", salesArr, null, function(data){
+		 					alert(data.resultMessage);
+		 					if(data.resultCode == 200) {
+		 						subGridView.setData(0);
+		 					}
+		 				});
+					}
 				});
-			}else{
-				alert("변경이 불가능한 데이터가 포함되어 있습니다.");
 			}
 		}
 	}	
