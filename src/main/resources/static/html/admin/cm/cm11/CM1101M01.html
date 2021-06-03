@@ -43,7 +43,19 @@
 		<!-- 콘텐츠 -->
 		<div class="contents">
 			<div style="text-align:right">
-				<h3 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h3>
+						(단위:
+						<h3 class="location"><span class="page_tit">
+						<select id="searchUnit" name="searchUnit" data-search="searchItem" onchange="gridView4.setData();">
+							<option value="100" selected>100Ton</option>
+							<option value="1">Ton</option>
+						</select></span>
+						</h3>
+						<h3 class="location"><span class="page_tit">조회 일자 : </span>
+							<select id="searchYear" name="searchYear" data-search="searchYear" onchange="gridView4.setData();">
+							</select>
+							<select id="searchMonth" name="searchMonth" data-search="searchMonth" onchange="gridView4.setData();">
+							</select>
+						</h3>
 			</div>
 			<!-- 리스트 -->
 			<table class="form-group popup_table" id="scndTable">
@@ -55,10 +67,14 @@
 				</colgroup>
 				<thead>
 					<tr>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매출실적(제품)</span></h3>(단위:톤) <!-- <span id="ordrgTotCnt"></span> --></td>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매출실적(판매법인)</span></h3>(단위:톤) <!-- <span id="ordrgTotCnt"></span> --></td>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매입실적(판매법인)</span></h3>(단위:톤) <!-- <span id="ordrgTotCnt"></span> --></td>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">생산실적(제품)</span></h3>(단위:톤) <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매출실적(제품)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">매출실적(판매법인)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;">
+							<h3 class="location"><span class="page_tit">매입실적</span></h3>
+							<input type=radio id="co" name="option" value="co" onchange="gridView4.setData(0)" checked><label for="co">법인</label>
+							<input type=radio id="clnt" name="option" value="clnt" onchange="gridView4.setData(0)"><label for="clnt">제강사</label>
+						</td>
+						<td style="text-align: left;"><h3 class="location"><span class="page_tit">생산실적(제품)</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
 					</tr>
 				</thead>
 				<tbody>
@@ -295,6 +311,68 @@
 				});				
 			}
 		}
+	var gridView3_2 = {
+			initView : function() {
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+					showRowSelector : false,
+					multipleSelect : false,
+					sortable : true,
+					target : $('[data-ax5grid="grid03"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
+					page : {
+						display : false,
+					},
+					footSum: [
+				    	[
+				    		{label: "합계", align:"center"},
+		                    {key: "realTrstQty", collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+			          	{key: "clntNm",      label: "제강사",   	align: "center",  width: "52%"},
+			          	{key: "realTrstQty", label: "실적",   	align: "right",  width: "50%", formatter:"money"}
+			        ]
+				});
+				return this;
+			},
+			setData : function() {
+				var targetObj = this.target;
+				var paramObj = {};
+				postAjax("/user/cm/cm11/selectClntSelpch1List", paramObj, null, function(data) {
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							totalElements : data.paginationInfo.totalRecordCount
+						}
+					});
+					google.charts.setOnLoadCallback(function drawChart(){
+						var chartData = new google.visualization.DataTable(data.chartData);
+						
+						var chart = new google.visualization.LineChart(document.getElementById("chart_div3"));
+						
+						var options = {
+								height : 300,
+							    fontSize: '10',
+							    animation: { //차트가 뿌려질때 실행될 애니메이션 효과
+					                 startup: true,
+					                 duration: 1000,
+					                 easing: 'linear' }				                 
+						}
+						chart.draw(chartData, options);
+					});
+				});				
+			}
+		}
 	var gridView4 = {
 			initView : function() {
 				this.target = new ax5.ui.grid();
@@ -331,7 +409,11 @@
 				return this;
 			},
 			setData : function() {
-				var paramObj = {};
+				var paramObj = {
+						option : $("[name=option]:checked").val(),
+						searchUnit : $("#searchUnit").val(),
+						searchYm : $("#searchYear").val() + $("#searchMonth").val()
+				};
 				postAjax("/user/cm/cm11/selectDashBoardList", paramObj, null, function(data) {
 					$("#searchDttm").html("조회 일시 : " + data.searchDttm);
 					gridView.target.setData({
@@ -348,13 +430,24 @@
 						}
 					
 					});
-					gridView3.target.setData({
-						list : data.resultList3,
-						page : {
-							totalElements : data.paginationInfo3.totalRecordCount
-						}
+					if($("[name=option]:checked").val() == "co"){
+						gridView3.initView().target.setData({
+							list : data.resultList3,
+							page : {
+								totalElements : data.paginationInfo3.totalRecordCount
+							}
+						
+						});
+					} else {
+						gridView3_2.initView().target.setData({
+							list : data.resultList3,
+							page : {
+								totalElements : data.paginationInfo3.totalRecordCount
+							}
+						
+						});
+					}
 					
-					});
 					gridView4.target.setData({
 						list : data.resultList4,
 						page : {
@@ -412,18 +505,37 @@
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("대시보드", "임원진 현황");
+		$("#searchDttm").val(dateToStr(new Date()));
+		
+		// 년월 select 세팅
+		SetYm();
+		
 		// grid init
 		gridView.initView();
 		gridView2.initView();
-		gridView3.initView();
 		gridView4.initView().setData();
 		var setDataInterval = setInterval(function() {
 			gridView4.initView().setData();
 		}, 600000);
-		
-
-		
 	});
+	
+	function SetYm(){
+		var now = new Date();
+		var nyear = now.getFullYear();
+		var nmon =  (now.getMonth()+1) > 9 ? ''+(now.getMonth()+1) : '0'+(now.getMonth()+1);
+		
+		for(var sy = 1900; sy <= nyear; sy++){
+			$("#searchYear").append("<option value='" + sy + "'>" + sy + "년</option>");
+		}
+		
+		for(var i=1; i <= 12; i++){
+			var sm = i > 9 ? i : "0" + i;
+			$("#searchMonth").append("<option value='" + sm + "'>" + i + "월</option>");
+		}
+
+		$("#searchYear option[value=" + nyear +"]").attr("selected", true);
+		$("#searchMonth option[value=" + nmon +"]").attr("selected", true);
+	}
 	
 	google.charts.load('current', {'packages':['corechart']});
 

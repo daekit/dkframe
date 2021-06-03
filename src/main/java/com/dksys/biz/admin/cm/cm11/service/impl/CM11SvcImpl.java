@@ -53,6 +53,11 @@ public class CM11SvcImpl implements CM11Svc {
 	}
 
 	@Override
+	public List<Map<String, String>> selectClntSelpch1List2(Map<String, String> paramMap) {
+		return cm11Mapper.selectClntSelpch1List2(paramMap);
+	}
+
+	@Override
 	public List<Map<String, String>> selectFacList(Map<String, String> paramMap) {
 		return cm11Mapper.selectFacList(paramMap);
 	}
