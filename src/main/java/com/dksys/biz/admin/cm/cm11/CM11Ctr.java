@@ -136,8 +136,13 @@ public class CM11Ctr {
     	int totalCnt3 = cm11Svc.selectClntSelpch1Count(paramMap);
 		PaginationInfo paginationInfo3 = new PaginationInfo(paramMap, totalCnt3);
     	model.addAttribute("paginationInfo3", paginationInfo3);
-    	
-    	List<Map<String, String>> resultList3 = cm11Svc.selectClntSelpch1List(paramMap);
+    	List<Map<String, String>> resultList3 = new ArrayList<Map<String, String>>();
+    	if(paramMap.get("option").equals("co")) {
+    		resultList3 = cm11Svc.selectClntSelpch1List(paramMap);
+    	} else {
+    		resultList3 = cm11Svc.selectClntSelpch1List2(paramMap);
+
+    	}
     	model.addAttribute("resultList3", resultList3);
     	data = new JSONObject();
     	objCols1 = new JSONObject();

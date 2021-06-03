@@ -22,6 +22,8 @@ public interface CM11Mapper {
 
 	List<Map<String, String>> selectClntSelpch1List(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectClntSelpch1List2(Map<String, String> paramMap);
+
 	List<Map<String, String>> selectFacList(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectMonthlyStat(Map<String, String> paramMap);
