@@ -505,12 +505,17 @@
 			var isValid = true;
 			var clntCd = null;
 			var clntNm = null;
-			var returnYn = null;
 			
 			var selectedRows = subGridView.target.getList("selected");
 			$.each(selectedRows, function(idx, obj){
 				if(obj.bilgYn == "Y"){
 					alert("매출이 확정되지 않은건만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(obj.returnYn == "Y"){
+					alert("반품건은 변경이 불가능합니다.");
 					isValid = false;
 					return false;
 				}
@@ -521,15 +526,8 @@
 					return false;
 				}
 				
-				if(returnYn != null && returnYn != obj.returnYn){
-					alert("반품은 반품끼리만 가능합니다.");
-					isValid = false;
-					return false;
-				}
-				
 				clntCd = obj.clntCd;
 				clntNm = obj.clntNm;
-				returnYn = obj.returnYn;
 			});
 			
 			if(isValid){
