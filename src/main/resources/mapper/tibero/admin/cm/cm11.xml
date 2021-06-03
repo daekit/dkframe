@@ -18,8 +18,8 @@
 		SELECT CODE_NM AS PRDT_DIV_NM
 		     , CODE_ID 
 		     , SORT_NO
-		     , ROUND(SUM(TRST_QTY)      /1000, 0)    TRST_QTY
-			 , ROUND(SUM(REAL_TRST_QTY) /1000, 0)    REAL_TRST_QTY
+		     , ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY
+			 , ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY
 			 , ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT
 			 , ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			 , ROUND(max(PLAN_WT) /1000, 0) PLAN_WT
@@ -30,7 +30,7 @@
 				WHERE  CODE_KIND = 'PRDTDIV'
 				  AND  USE_YN  = 'Y') C
 			   LEFT OUTER JOIN (SELECT PRDT_DIV, sum(plan_wt) plan_wt FROM  TB_SD01M01 B 
-		                  WHERE B.PLAN_YM = TO_CHAR(SYSDATE, 'YYYYMM') AND SELPCH_CD = 'SELPCH2'
+		                  WHERE B.PLAN_YM = #{searchYm} AND SELPCH_CD = 'SELPCH2'
 		                  GROUP BY PRDT_DIV) ON CODE_ID = PRDT_DIV 
 				LEFT OUTER JOIN (SELECT
 						B.PRDT_DIV
@@ -41,13 +41,13 @@
 						  FROM TB_AR02M01 A
 						  	 , TB_BM01M01 B
 						 WHERE A.TRST_PRDT_CD = B.PRDT_CD
-						   AND TRST_DT BETWEEN  TO_CHAR(SYSDATE, 'YYYYMM') || '01' AND TO_CHAR(SYSDATE, 'YYYYMM') || '31'
+						   AND TRST_DT BETWEEN  #{searchYm} || '01' AND #{searchYm} || '31'
 						   AND A.SELPCH_CD  = 'SELPCH2') T
 						   ON T.PRDT_DIV = C.CODE_ID 
+		WHERE TRST_QTY != 0 OR  REAL_TRST_QTY != 0
 		 GROUP BY CODE_ID, CODE_NM, SORT_NO
 		 ORDER BY SORT_NO 
 		)
-		WHERE TRST_QTY != 0 OR  REAL_TRST_QTY != 0
 	</select>
 	
 	<select id="selectClntSelpch2Count" resultType="int">
@@ -72,21 +72,51 @@
 			WHERE  CODE_KIND = 'CO'
 			  AND  USE_YN  = 'Y') C	  
 	 LEFT OUTER JOIN (SELECT CO_CD,
-				   ROUND(SUM(TRST_QTY)      /1000, 0)    TRST_QTY,
-				   ROUND(SUM(REAL_TRST_QTY) /1000, 0)    REAL_TRST_QTY,
+				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
+				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
 				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
 				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			  FROM TB_AR02M01 
-			 WHERE TRST_DT BETWEEN TO_CHAR(SYSDATE, 'YYYYMM') || '01' AND  TO_CHAR(SYSDATE, 'YYYYMM') || '31' 
+			 WHERE TRST_DT BETWEEN #{searchYm} || '01' AND  #{searchYm} || '31' 
 			   AND SELPCH_CD = 'SELPCH2'
 			 GROUP BY CO_CD ) T
 			ON C.CODE_ID = T.CO_CD
 	 LEFT OUTER JOIN (SELECT CO_CD, ROUND(SUM(PLAN_WT) /1000, 0) PLAN_WT FROM  TB_SD01M01 B 
-	                  WHERE B.PLAN_YM = TO_CHAR(SYSDATE, 'YYYYMM')
+	                  WHERE B.PLAN_YM = #{searchYm}
 	                   AND SELPCH_CD = 'SELPCH2'
 	                  GROUP BY CO_CD) B 
 	         ON C.CODE_ID = B.CO_CD
 	ORDER BY C.SORT_NO
+	</select>
+	
+	<select id="selectClntSelpch2List2" resultType="CamelMap">
+	SELECT TRST_CLNT_CD,
+		   CLNT_NM CLNT_NM,
+		   nvl(TRST_QTY,0) TRST_QTY,
+		   nvl(REAL_TRST_QTY,0) REAL_TRST_QTY,
+		   nvl(TRST_AMT,0) TRST_AMT,
+		   nvl(REAL_TRST_AMT,0) REAL_TRST_AMT,
+	 	   nvl(PLAN_WT,0) PLAN_WT
+	  FROM (SELECT CLNT_CD
+			     , CLNT_NM 
+		     FROM  TB_BM02M01
+			WHERE  USE_YN  = 'Y') C	  
+	 INNER JOIN (SELECT TRST_CLNT_CD,
+				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
+				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
+				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
+				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
+			  FROM TB_AR02M01 
+			 WHERE TRST_DT BETWEEN #{searchYm} || '01' AND  #{searchYm} || '31' 
+			   AND SELPCH_CD = 'SELPCH2'
+			 GROUP BY TRST_CLNT_CD ) T
+			ON C.CLNT_CD = T.TRST_CLNT_CD
+	 LEFT OUTER JOIN (SELECT CLNT_CD, ROUND(SUM(PLAN_WT) /1000, 0) PLAN_WT FROM  TB_SD01M01 B 
+	                  WHERE B.PLAN_YM = #{searchYm}
+	                   AND SELPCH_CD = 'SELPCH2'
+	                  GROUP BY CLNT_CD) B 
+	         ON C.CLNT_CD = B.CLNT_CD
+	ORDER BY C.CLNT_CD
 	</select>
 	
 	<select id="selectClntSelpch1Count" resultType="int">
@@ -111,43 +141,73 @@
 			WHERE  CODE_KIND = 'CO'
 			  AND  USE_YN  = 'Y') C	  
 	 LEFT OUTER JOIN (SELECT CO_CD,
-				   ROUND(SUM(TRST_QTY)      /1000, 0)    TRST_QTY,
-				   ROUND(SUM(REAL_TRST_QTY) /1000, 0)    REAL_TRST_QTY,
+				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
+				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
 				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
 				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			  FROM TB_AR02M01 
-			 WHERE TRST_DT BETWEEN TO_CHAR(SYSDATE, 'YYYYMM') || '01' AND  TO_CHAR(SYSDATE, 'YYYYMM') || '31' 
+			 WHERE TRST_DT BETWEEN #{searchYm} || '01' AND  #{searchYm} || '31' 
 			   AND SELPCH_CD = 'SELPCH1'
 			 GROUP BY CO_CD ) T
 			ON C.CODE_ID = T.CO_CD
 	 LEFT OUTER JOIN (SELECT CO_CD, ROUND(SUM(PLAN_WT) /1000, 0) PLAN_WT FROM  TB_SD01M01 B 
-	                  WHERE B.PLAN_YM = TO_CHAR(SYSDATE, 'YYYYMM')
+	                  WHERE B.PLAN_YM = #{searchYm}
 	                   AND SELPCH_CD = 'SELPCH1'
 	                  GROUP BY CO_CD) B 
 	         ON C.CODE_ID = B.CO_CD
 	ORDER BY C.SORT_NO
 	</select>
 	
+	<select id="selectClntSelpch1List2" resultType="CamelMap">
+	SELECT TRST_CLNT_CD,
+		   CLNT_NM CLNT_NM,
+		   nvl(TRST_QTY,0) TRST_QTY,
+		   nvl(REAL_TRST_QTY,0) REAL_TRST_QTY,
+		   nvl(TRST_AMT,0) TRST_AMT,
+		   nvl(REAL_TRST_AMT,0) REAL_TRST_AMT,
+	 	   nvl(PLAN_WT,0) PLAN_WT
+	  FROM (SELECT CLNT_CD
+			     , CLNT_NM 
+		     FROM  TB_BM02M01
+			WHERE  USE_YN  = 'Y') C	  
+	 INNER JOIN (SELECT TRST_CLNT_CD,
+				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
+				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
+				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
+				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
+			  FROM TB_AR02M01 
+			 WHERE TRST_DT BETWEEN #{searchYm} || '01' AND  #{searchYm} || '31' 
+			   AND SELPCH_CD = 'SELPCH1'
+			 GROUP BY TRST_CLNT_CD ) T
+			ON C.CLNT_CD = T.TRST_CLNT_CD
+	 LEFT OUTER JOIN (SELECT CLNT_CD, ROUND(SUM(PLAN_WT) /1000, 0) PLAN_WT FROM  TB_SD01M01 B 
+	                  WHERE B.PLAN_YM = #{searchYm}
+	                   AND SELPCH_CD = 'SELPCH1'
+	                  GROUP BY CLNT_CD) B 
+	         ON C.CLNT_CD = B.CLNT_CD
+	ORDER BY C.CLNT_CD
+	</select>
+	
 	<select id="selectFacList" resultType="CamelMap">
 	SELECT '인천공장' FAC_NM 
 	, C.DD_WGT --일생산량
 	, C.MM_WGT --월생산량 
-	, CASE  WHEN TO_CHAR(SYSDATE,'MM') = '01' THEN nvl(D.PLAN_WGT_01,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '02' THEN nvl(D.PLAN_WGT_02,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '03' THEN nvl(D.PLAN_WGT_03,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '04' THEN nvl(D.PLAN_WGT_04,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '05' THEN nvl(D.PLAN_WGT_05,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '06' THEN nvl(D.PLAN_WGT_06,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '07' THEN nvl(D.PLAN_WGT_07,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '08' THEN nvl(D.PLAN_WGT_08,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '09' THEN nvl(D.PLAN_WGT_09,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '10' THEN nvl(D.PLAN_WGT_10,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '11' THEN nvl(D.PLAN_WGT_11,0)
-            WHEN TO_CHAR(SYSDATE,'MM') = '12' THEN nvl(D.PLAN_WGT_12,0)
+	, CASE  WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
+            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
        END MM_PLAN --계획목표량 
 	FROM (
-		SELECT  ROUND(  SUM(CASE WHEN RCPT_DD = TO_CHAR(SYSDATE,'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) DD_WGT --일생산량 
-	         , ROUND(SUM(ORD_PACK_WGT)/1000,3) AS MM_WGT --월생산량 
+		SELECT  ROUND(ROUND(  SUM(CASE WHEN RCPT_DD = TO_CHAR(SYSDATE,'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT --일생산량 
+	         , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT --월생산량 
 	         , MAX(WORKS_CD) AS WORKS_CD, MAX(FAC_CD) AS FAC_CD
 	    FROM (   
 				   SELECT B.WORKS_CD, B.FAC_CD, B.RCPT_DD, B.ORD_PACK_WGT- NVL(A.WEIGHT,0) AS ORD_PACK_WGT
@@ -161,28 +221,28 @@
 	          )
 	)C, KUMMUN.TB_MES_MMAIM_MGNT D
 	      WHERE D.WORKS_CD  = 'N'  AND D.FAC_CD = '1180'
-  	        AND D.PLAN_YYYY = TO_CHAR(SYSDATE, 'YYYY') 
+  	        AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) 
   	        AND D.MMAIM_GBN = '2'
 	UNION ALL
 	SELECT '진천2공장' FAC_NM
 	  , C.DD_WGT --일생산량
 	  ,  C.MM_WGT --월생산량 
-	  , CASE    WHEN TO_CHAR(SYSDATE,'MM') = '01' THEN nvl(D.PLAN_WGT_01,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '02' THEN nvl(D.PLAN_WGT_02,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '03' THEN nvl(D.PLAN_WGT_03,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '04' THEN nvl(D.PLAN_WGT_04,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '05' THEN nvl(D.PLAN_WGT_05,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '06' THEN nvl(D.PLAN_WGT_06,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '07' THEN nvl(D.PLAN_WGT_07,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '08' THEN nvl(D.PLAN_WGT_08,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '09' THEN nvl(D.PLAN_WGT_09,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '10' THEN nvl(D.PLAN_WGT_10,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '11' THEN nvl(D.PLAN_WGT_11,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '12' THEN nvl(D.PLAN_WGT_12,0)
+	  , CASE    WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
 	       END MM_PLAN --계획목표량 
 	FROM (
-	  SELECT  ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) DD_WGT
-	      , ROUND(SUM(ORD_PACK_WGT)/1000,3) AS MM_WGT
+	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT
+	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT
 	      , MAX(WORKS_CD) AS WORKS_CD
 	      , MAX(FAC_CD) AS FAC_CD
 	    FROM (   
@@ -199,30 +259,30 @@
 	         AND B.RCPT_DD LIKE TO_CHAR(SYSDATE,'YYYYMM')||'%'
 	          )
 	  ) C , KUMMUN.TB_MES_MMAIM_MGNT D 
-	        WHERE D.WORKS_CD = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = TO_CHAR(SYSDATE, 'YYYY')
-	          AND D.PLAN_YYYY = TO_CHAR(SYSDATE, 'YYYY') 
+	        WHERE D.WORKS_CD = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
+	          AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) 
 	          AND D.MMAIM_GBN = '2'
 	     AND D.FAC_GUBUN = 'B0002' --B0001: 1공장, B0002: 2공장 
 	UNION ALL
 	SELECT '진천1공장' FAC_NM
 	  , C.DD_WGT --일생산량
 	  ,  C.MM_WGT --월생산량 
-	  , CASE WHEN TO_CHAR(SYSDATE,'MM') = '01' THEN nvl(D.PLAN_WGT_01,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '02' THEN nvl(D.PLAN_WGT_02,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '03' THEN nvl(D.PLAN_WGT_03,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '04' THEN nvl(D.PLAN_WGT_04,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '05' THEN nvl(D.PLAN_WGT_05,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '06' THEN nvl(D.PLAN_WGT_06,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '07' THEN nvl(D.PLAN_WGT_07,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '08' THEN nvl(D.PLAN_WGT_08,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '09' THEN nvl(D.PLAN_WGT_09,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '10' THEN nvl(D.PLAN_WGT_10,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '11' THEN nvl(D.PLAN_WGT_11,0)
-	            WHEN TO_CHAR(SYSDATE,'MM') = '12' THEN nvl(D.PLAN_WGT_12,0)
+	  , CASE WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0)    / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
+	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
 	       END MM_PLAN --계획목표량 
 	FROM (
-	  SELECT  ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) DD_WGT
-	      , ROUND(SUM(ORD_PACK_WGT)/1000,3) AS MM_WGT
+	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT
+	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT
 	      , MAX(WORKS_CD) AS WORKS_CD
 	      , MAX(FAC_CD) AS FAC_CD
 	    FROM (   
@@ -236,18 +296,18 @@
 	         AND B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD AND B.TAG_NO = A.TAG_NO 
 	         AND C.WORKS_CD = B.WORKS_CD AND C.FAC_CD = B.FAC_CD AND C.ORD_NO =B.ORD_NO AND C.ORD_LINE_NO = B.ORD_LINE_NO
 	         AND A.EQP_CD LIKE 'K1MC' || '%' --진천 2공장 설비조회, --진천 1공장 설비 조회시 'K1MC'
-	         AND B.RCPT_DD LIKE TO_CHAR(SYSDATE,'YYYYMM')||'%'
+	         AND B.RCPT_DD LIKE SUBSTRING(#{searchYm}, 0, 6)||'%'
 	          )
 	  ) C , KUMMUN.TB_MES_MMAIM_MGNT D 
-	         WHERE D.WORKS_CD  = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = TO_CHAR(SYSDATE, 'YYYY') 
-	           AND D.PLAN_YYYY = TO_CHAR(SYSDATE, 'YYYY') 
+	         WHERE D.WORKS_CD  = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
+	           AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
 	           AND D.MMAIM_GBN = '2' AND D.FAC_GUBUN = 'B0001' --B0001: 1공장, B0002: 2공장
 		
 	</select>
 	
 	<select id="selectMonthlyStat" resultType="CamelMap">
-	SELECT SUM(SELPCH1_QTY) SELPCH1_QTY
-	     , SUM(SELPCH2_QTY) SELPCH2_QTY
+	SELECT ROUND(SUM(SELPCH1_QTY) / #{searchUnit}, 0) SELPCH1_QTY
+	     , ROUND(SUM(SELPCH2_QTY) / #{searchUnit}, 0) SELPCH2_QTY
 	     , TRST_DT
 	 FROM (
 		SELECT NVL(SUM(DECODE(SELPCH_CD, 'SELPCH1', REAL_TRST_QTY)), 0) SELPCH1_QTY
@@ -255,32 +315,32 @@
 			 , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5, 2) TRST_DT
 			  FROM TB_AR02M01
 			 WHERE TRST_DT IS NOT NULL
-			   AND SUBSTRING(TRST_DT, 0, 4) = TO_CHAR(SYSDATE, 'YYYY')
+			   AND SUBSTRING(TRST_DT, 0, 4) = SUBSTRING(#{searchYm}, 0, 4)
 			  GROUP BY SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5, 2)
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-01' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-01' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-02' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-02' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-03' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-03' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-04' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-04' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-05' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-05' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-06' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-06' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-07' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-07' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-08' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-08' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-09' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-09' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-10' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-10' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-11' FROM DUAL
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-11' FROM DUAL
 		UNION ALL
-		SELECT 0, 0, TO_CHAR(SYSDATE, 'YYYY') || '-12' FROM DUAL)
+		SELECT 0, 0, SUBSTRING(#{searchYm}, 0, 4) || '-12' FROM DUAL)
 	GROUP BY TRST_DT
 	ORDER BY TRST_DT
 	</select>
