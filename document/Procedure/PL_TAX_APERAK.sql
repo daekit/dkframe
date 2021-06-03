@@ -108,6 +108,9 @@ BEGIN
 						UPDATE goldmoon.TB_AR04M01
 						SET  CSEQ_RCV_YN	= 'Y'	-- 계산서 처리결과
 							,CSEQ_RCV_DTTM	= sysdate	-- 처리결과회신일자
+							,ERR_CD 	= ''
+							,ERR_CNTS	= ''
+							
 						WHERE TAX_BILG_NO = CUR1.RFFACE1154;		--계산서발행번호
 					END IF;
 						
@@ -116,6 +119,8 @@ BEGIN
 						UPDATE goldmoon.TB_AR04M01
 						SET  TAX_ADMS_YN	= 'Y'	--승인여부 RFFZZZ1154  = 1:시스템 응답, 2:담당자응답,  3:국세청응답
 							,TAX_ADMS_DTTM	= sysdate	-- 처리결과회신일자
+							,ERR_CD 	= ''
+							,ERR_CNTS	= ''
 						WHERE TAX_BILG_NO = CUR1.RFFACE1154;	--계산서발행번호
 					END IF;
 
@@ -125,6 +130,8 @@ BEGIN
 						SET  RCV_YN			= 'Y'	-- 국세청수신여부
 							,RCV_DTTM		= sysdate	-- 처리결과회신일자
 							,RCV_PROC_ID	= CUR1.RFFSZ_1154	-- 국세청승인번호
+							,ERR_CD 	= ''
+							,ERR_CNTS	= ''
 						WHERE TAX_BILG_NO   = CUR1.RFFACE1154;	--계산서발행번호
 					END IF;	
 				END IF;
