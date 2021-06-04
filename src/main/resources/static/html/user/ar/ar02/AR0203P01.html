@@ -35,7 +35,7 @@
 		</ul>
 	</div>
 	<div>
-		<div class="ax5_grid" data-ax5grid="sales-div-grid" data-ax5grid-config="{}" style="height: 750px; width: 100%"></div>
+		<div class="ax5_grid" data-ax5grid="sales-div-grid" data-ax5grid-config="{}" style="height: 680px; width: 100%"></div>
 	</div>
 	<br>
 	<div class="popup_bottom_btn">
@@ -49,14 +49,14 @@
 	
 	// 원본데이터 합
 	var orgTotData = {
-		orgRealTrstQty : 0,
-		orgRealTrstWt : 0,
-		orgRealTrstAmt : 0,
-		orgBilgQty : 0,
-		orgBilgWt : 0,
-		orgBilgAmt : 0,
-		orgBilgVatAmt : 0,
-		orgTrstDcAmt : 0
+		realTrstQty : 0,
+		realTrstWt : 0,
+		realTrstAmt : 0,
+		bilgQty : 0,
+		bilgWt : 0,
+		bilgAmt : 0,
+		bilgVatAmt : 0,
+		trstDcAmt : 0
 	}
 	
 	// 매출분할 그리드
@@ -78,17 +78,47 @@
 		        		if(this.item.__selected__){
 		        		// 로우가 선택되었으면(즉, 특정 로우에 특정 컬럼을 찍고 수정하는 케이스만 허용)
 		        			var itemKey = this.key;
-		        			if(itemKey.indexOf("divBilgAmt") != -1){
-		        				salesDivGridView.target.setValue(this.dindex, "bilgAmt", Number(orgRows[this.dindex].bilgAmt) - Number(this.item.divBilgAmt));
+		        		
+		        			if(itemKey == "divRealTrstQty"){
+		        			// 분할 수량 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffRealTrstQty", Number(orgRows[this.dindex].realTrstQty) - (Number(this.item.realTrstQty) + Number(this.item.divRealTrstQty)));	
+		        			}else if(itemKey == "divRealTrstWt"){
+		        			// 분할 중량 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffRealTrstWt", Number(orgRows[this.dindex].realTrstWt) - (Number(this.item.realTrstWt) + Number(this.item.divRealTrstWt)));	
+		        			}else if(itemKey == "divRealTrstAmt"){
+		        			// 분할 금액 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffRealTrstAmt", Number(orgRows[this.dindex].realTrstAmt) - (Number(this.item.realTrstAmt) + Number(this.item.divRealTrstAmt)));	
+		        			}else if(itemKey == "divBilgQty"){
+		        			// 분할 청구수량 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffBilgQty", Number(orgRows[this.dindex].bilgQty) - (Number(this.item.bilgQty) + Number(this.item.divBilgQty)));	
+		        			}else if(itemKey == "divBilgWt"){
+		        			// 분할 청구중량 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffBilgWt", Number(orgRows[this.dindex].bilgWt) - (Number(this.item.bilgWt) + Number(this.item.divBilgWt)));	
+		        			}else if(itemKey == "divBilgAmt"){
+		        			// 분할 청구금액 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffBilgAmt", Number(orgRows[this.dindex].bilgAmt) - (Number(this.item.bilgAmt) + Number(this.item.divBilgAmt)));
+		        				// 분할 합계 재계산
+		        				salesDivGridView.target.setValue(this.dindex, "divTotAmt", Number(this.item.divBilgAmt) + Number(this.item.divBilgVatAmt));
+		        			}else if(itemKey == "bilgVatAmt" || itemKey == "divBilgVatAmt"){
+		        			// 매출/분할 부가세 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffBilgVatAmt", Number(orgRows[this.dindex].bilgVatAmt) - (Number(this.item.bilgVatAmt) + Number(this.item.divBilgVatAmt)));
+		        				if(itemKey == "bilgVatAmt"){
+		        					// 매출 합계 재계산
+		        					salesDivGridView.target.setValue(this.dindex, "totAmt", Number(this.item.bilgAmt) + Number(this.item.bilgVatAmt));
+		        				}else{
+		        					// 분할 합계 재계산
+		        					salesDivGridView.target.setValue(this.dindex, "divTotAmt", Number(this.item.divBilgAmt) + Number(this.item.divBilgVatAmt));
+		        				}
+		        			}else if(itemKey == "divTrstDcAmt"){
+		        			// 분할 할인금액 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffTrstDcAmt", Number(orgRows[this.dindex].trstDcAmt) - (Number(this.item.trstDcAmt) + Number(this.item.divTrstDcAmt)));
 		        			}
 		        			
-		        			// 매출 합계 계산
-							salesDivGridView.target.setValue(this.dindex, "totAmt", Number(this.item.bilgAmt) + Number(this.item.bilgVatAmt));	        			
-		        			// 분할 합계 계산
-		        			salesDivGridView.target.setValue(this.dindex, "divTotAmt", Number(this.item.divBilgAmt) + Number(this.item.divBilgVatAmt));
+		        			// grid 폰트 색 적용
+		        			salesDivGridView.target.repaint();
 		        			
-		        			// 차이 계산
-		        			calDiff();
+		        			// 총 차이 계산
+		        			calTotDiff();
 		        		}
 		        	}
 		        },
@@ -119,15 +149,27 @@
 		        	{
 		        		label: "분할", columns: [
 		        			{key: "divClntNm",    	   label: "거래처명",		align: "left", 		width: 120},
-		        			{key: "divRealTrstQty",    label: "수량", 		    align: "right", 	width: 80, 	formatter: "money"},
-				        	{key: "divRealTrstWt", 	   label: "중량", 		    align: "right", 	width: 80, 	formatter: "money"},
-				        	{key: "divRealTrstAmt",    label: "금액",		    align: "right", 	width: 80, 	formatter: "money"},
-		  		        	{key: "divBilgQty",        label: "청구수량", 	    align: "right", 	width: 80,  formatter: "money"},
-		  		        	{key: "divBilgWt",         label: "청구중량",   	align: "right", 	width: 80,  formatter: "money"},
+		        			{key: "divRealTrstQty",    label: "수량", 		    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+				        	{key: "divRealTrstWt", 	   label: "중량", 		    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+				        	{key: "divRealTrstAmt",    label: "금액",		    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		  		        	{key: "divBilgQty",        label: "청구수량", 	    align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+		  		        	{key: "divBilgWt",         label: "청구중량",   	align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divBilgAmt", 	   label: "청구금액",  	    align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divBilgVatAmt", 	   label: "부가세",  	    align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divTotAmt", 	       label: "합계",  			align: "right", 	width: 80,  formatter: "money"},
-				        	{key: "divTrstDcAmt", 	   label: "할인금액",  		align: "right", 	width: 80,  formatter: "money"}
+				        	{key: "divTrstDcAmt", 	   label: "할인금액",  		align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"}
+		        		]
+		        	},
+		        	{
+		        		label: "차이", columns: [
+		        			{key: "diffRealTrstQty",    label: "수량", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstQty > 0 ? "grid-font-blue" : this.item.diffRealTrstQty < 0 ? "grid-font-red" : ""}},
+				        	{key: "diffRealTrstWt", 	label: "중량", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstWt > 0 ? "grid-font-blue" : this.item.diffRealTrstWt < 0 ? "grid-font-red" : ""}},
+				        	{key: "diffRealTrstAmt",    label: "금액",		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstAmt > 0 ? "grid-font-blue" : this.item.diffRealTrstAmt < 0 ? "grid-font-red" : ""}},
+		  		        	{key: "diffBilgQty",        label: "청구수량", 	    align: "right", 	width: 80,  formatter: "money", styleClass: function(){return this.item.diffBilgQty > 0 ? "grid-font-blue" : this.item.diffBilgQty < 0 ? "grid-font-red" : ""}},
+		  		        	{key: "diffBilgWt",         label: "청구중량",   	align: "right", 	width: 80,  formatter: "money", styleClass: function(){return this.item.diffBilgWt > 0 ? "grid-font-blue" : this.item.diffBilgWt < 0 ? "grid-font-red" : ""}},
+				        	{key: "diffBilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,  formatter: "money", styleClass: function(){return this.item.diffBilgAmt > 0 ? "grid-font-blue" : this.item.diffBilgAmt < 0 ? "grid-font-red" : ""}},
+				        	{key: "diffBilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,  formatter: "money", styleClass: function(){return this.item.diffBilgVatAmt > 0 ? "grid-font-blue" : this.item.diffBilgVatAmt < 0 ? "grid-font-red" : ""}},
+				        	{key: "diffTrstDcAmt", 	    label: "할인금액", 		align: "right", 	width: 80,  formatter: "money", styleClass: function(){return this.item.diffTrstDcAmt > 0 ? "grid-font-blue" : this.item.diffTrstDcAmt < 0 ? "grid-font-red" : ""}}
 		        		]
 		        	}
 		        ],
@@ -143,6 +185,7 @@
 	                    {key: "bilgVatAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "totAmt", 			collector: "sum", formatter:"money", align: "right"},
 	                    {key: "trstDcAmt", 			collector: "sum", formatter:"money", align: "right"},
+	                    
 	                    {key: "clntNm"																   },
 	                    {key: "divRealTrstQty", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divRealTrstWt", 		collector: "sum", formatter:"money", align: "right"},
@@ -152,7 +195,16 @@
 	                    {key: "divBilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divBilgVatAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divTotAmt", 			collector: "sum", formatter:"money", align: "right"},
-	                    {key: "divTrstDcAmt", 		collector: "sum", formatter:"money", align: "right"}
+	                    {key: "divTrstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    
+	                    {key: "diffRealTrstQty", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffRealTrstWt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffRealTrstAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffBilgQty", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffBilgWt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffBilgAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffBilgVatAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "diffTrstDcAmt", 		collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ]
 		    });
@@ -174,6 +226,15 @@
 				obj.divBilgVatAmt = 0;
 				obj.divTotAmt = 0;
 				obj.divTrstDcAmt = 0;
+				
+				obj.diffRealTrstQty = 0;
+				obj.diffRealTrstWt = 0;
+				obj.diffRealTrstAmt = 0;
+				obj.diffBilgQty = 0;
+				obj.diffBilgWt = 0;
+				obj.diffBilgAmt = 0;
+				obj.diffBilgVatAmt = 0;
+				obj.diffTrstDcAmt = 0;
 			});
 			
 			targetObj.setData(commonModal.paramObj.selectedRows);
@@ -195,14 +256,14 @@
 		        	display: false,
 		        },
 		        columns: [
-		        	{key: "diffRealTrstQty",    label: "수량차이", 		    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "diffRealTrstWt", 	label: "중량차이", 		    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "diffRealTrstAmt",    label: "금액차이",		    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "diffBilgQty",        label: "청구수량차이", 	    align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "diffBilgWt",         label: "청구중량차이",   	align: "right", 	width: 80, 	formatter: "money"},
-		        	{key: "diffBilgAmt", 	    label: "청구금액차이",  	align: "right", 	width: 80,	formatter: "money"},
-		        	{key: "diffBilgVatAmt", 	label: "부가세차이",  	    align: "right", 	width: 80,	formatter: "money", styleClass: function(){return this.item.diffBilgVatAmt > 0 ? "grid-font-blue" : this.item.diffBilgVatAmt < 0 ? "grid-font-red" : ""}},
-		        	{key: "diffTrstDcAmt", 	    label: "할인금액차이",  	align: "right", 	width: 80, 	formatter: "money"}
+		        	{key: "diffRealTrstQty",    label: "수량차이", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstQty != 0 ? "grid-font-red" : ""}},
+		        	{key: "diffRealTrstWt", 	label: "중량차이", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstWt != 0 ? "grid-font-red" : ""}},
+		        	{key: "diffRealTrstAmt",    label: "금액차이",		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstAmt != 0 ? "grid-font-red" : ""}},
+		        	{key: "diffBilgQty",        label: "청구수량차이", 	    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffBilgQty != 0 ? "grid-font-red" : ""}},
+		        	{key: "diffBilgWt",         label: "청구중량차이",   	align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffBilgWt != 0 ? "grid-font-red" : ""}},
+		        	{key: "diffBilgAmt", 	    label: "청구금액차이",  	align: "right", 	width: 80,	formatter: "money", styleClass: function(){return this.item.diffBilgAmt != 0 ? "grid-font-red" : ""}},
+		        	{key: "diffBilgVatAmt", 	label: "부가세차이",  	    align: "right", 	width: 80,	formatter: "money", styleClass: "grid-font-blue"},
+		        	{key: "diffTrstDcAmt", 	    label: "할인금액차이",  	align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffTrstDcAmt != 0 ? "grid-font-red" : ""}}
 	        	]
 		    });
 			return this;
@@ -228,14 +289,14 @@
 		diffGridView.initView().setData();
 		// 원본데이터 sum
 		$.each(orgRows, function(idx, obj){
-			orgTotData.orgRealTrstQty += Number(obj.realTrstQty); // 수량
-			orgTotData.orgRealTrstWt += Number(obj.realTrstWt); // 중량
-			orgTotData.orgRealTrstAmt += Number(obj.realTrstAmt); // 금액
-			orgTotData.orgBilgQty += Number(obj.bilgQty); // 청구수량
-			orgTotData.orgBilgWt += Number(obj.bilgWt); // 청구중량
-			orgTotData.orgBilgAmt += Number(obj.bilgAmt); // 청구금액
-			orgTotData.orgBilgVatAmt += Number(obj.bilgVatAmt); // 부가세
-			orgTotData.orgTrstDcAmt += Number(obj.trstDcAmt); // 할인금액
+			orgTotData.realTrstQty += Number(obj.realTrstQty); // 수량
+			orgTotData.realTrstWt += Number(obj.realTrstWt); // 중량
+			orgTotData.realTrstAmt += Number(obj.realTrstAmt); // 금액
+			orgTotData.bilgQty += Number(obj.bilgQty); // 청구수량
+			orgTotData.bilgWt += Number(obj.bilgWt); // 청구중량
+			orgTotData.bilgAmt += Number(obj.bilgAmt); // 청구금액
+			orgTotData.bilgVatAmt += Number(obj.bilgVatAmt); // 부가세
+			orgTotData.trstDcAmt += Number(obj.trstDcAmt); // 할인금액
 		});
 	});
 	
@@ -273,6 +334,8 @@
 		// 거래처유효성 체크
 		if(!$('#clntCd').val()){alert("거래처를 선택해주세요."); return false;}
 		
+		// 좌측비율 계산
+		var leftRatio = Number($('#leftPer').data('percent')) / 100;
 		// 우측비율 계산
 		var rightRatio = Number($('#rightPer').data('percent')) / 100;
 		
@@ -314,41 +377,48 @@
 			var orgTotAmt = Number(obj.totAmt);
 			var orgTrstDcAmt = Number(obj.trstDcAmt);
 			
-			// 분할데이터
-			var divRealTrstQty = 0;
-			var divRealTrstWt = 0;
-			var divRealTrstAmt = 0;
-			var divBilgQty = 0;
-			var divBilgWt = 0;
-			var divBilgAmt = 0;
-			var divBilgVatAmt = 0;
-			var divTotAmt = 0;
-			var divTrstDcAmt = 0;
+			// 매출데이터
+			var realTrstQty = Math.round(orgRealTrstQty * leftRatio);
+			var realTrstWt = Math.round(orgRealTrstWt * leftRatio);
+			var realTrstAmt = Math.round(orgRealTrstAmt * leftRatio);
+			var bilgQty = Math.round(orgBilgQty * leftRatio);
+			var bilgWt = Math.round(orgBilgWt * leftRatio);
+			var bilgAmt = Math.round(orgBilgAmt * leftRatio);
+			var bilgVatAmt = Math.floor(bilgAmt * salesDivGridView.target.getList()[idx].sellVat / 100);
+			var totAmt = bilgAmt + bilgVatAmt;
+			var trstDcAmt = Math.round(orgTrstDcAmt * leftRatio);
 			
-			// 분할데이터 계산
-			if(idx < orgRowsLen){
-			// 마지막행이 아니면 
-				divRealTrstQty = Math.round(orgRealTrstQty * rightRatio);
-				divRealTrstWt = Math.round(orgRealTrstWt * rightRatio);
-				divRealTrstAmt = Math.round(orgRealTrstAmt * rightRatio);
-				divBilgQty = Math.round(orgBilgQty * rightRatio);
-				divBilgWt = Math.round(orgBilgWt * rightRatio);
-				divBilgAmt = Math.round(orgBilgAmt * rightRatio);
-				divBilgVatAmt = Math.floor(divBilgAmt * salesDivGridView.target.getList()[idx].divSellVat / 100);
-				divTotAmt = divBilgAmt + divBilgVatAmt;
-				divTrstDcAmt = Math.round(orgTrstDcAmt * rightRatio);
-			}else{
-			// 마지막행이면 비율을 바로 적용하지 않고 (원본합 * 비율) - (분할된 금액 합) 적용
-				divRealTrstQty = Math.round(orgTotData.orgRealTrstQty * rightRatio - divSumData.divRealTrstQty);
-				divRealTrstWt = Math.round(orgTotData.orgRealTrstWt * rightRatio - divSumData.divRealTrstWt);
-				divRealTrstAmt = Math.round(orgTotData.orgRealTrstAmt * rightRatio - divSumData.divRealTrstAmt);
-				divBilgQty = Math.round(orgTotData.orgBilgQty * rightRatio - divSumData.divBilgQty);
-				divBilgWt = Math.round(orgTotData.orgBilgWt * rightRatio - divSumData.divBilgWt);
-				divBilgAmt = Math.round(orgTotData.orgBilgAmt * rightRatio - divSumData.divBilgAmt);
-				divBilgVatAmt = Math.floor(divBilgAmt * salesDivGridView.target.getList()[idx].divSellVat / 100);				
-				divTotAmt = divBilgAmt + divBilgVatAmt;
-				divTrstDcAmt = Math.round(orgTotData.orgTrstDcAmt * rightRatio - divSumData.divTrstDcAmt);
-			}
+			// 매출데이터 set
+			salesDivGridView.target.setValue(idx, "realTrstQty", realTrstQty);
+			salesDivGridView.target.setValue(idx, "realTrstWt", realTrstWt);
+			salesDivGridView.target.setValue(idx, "realTrstAmt", realTrstAmt);
+			salesDivGridView.target.setValue(idx, "bilgQty", bilgQty);
+			salesDivGridView.target.setValue(idx, "bilgWt", bilgWt);
+			salesDivGridView.target.setValue(idx, "bilgAmt", bilgAmt);
+			salesDivGridView.target.setValue(idx, "bilgVatAmt", bilgVatAmt);
+			salesDivGridView.target.setValue(idx, "totAmt", totAmt);
+			salesDivGridView.target.setValue(idx, "trstDcAmt", trstDcAmt);
+			
+			// 매출데이터 sum
+			salesSumData.realTrstQty += realTrstQty;
+			salesSumData.realTrstWt += realTrstWt;
+			salesSumData.realTrstAmt += realTrstAmt;
+			salesSumData.bilgQty += bilgQty;
+			salesSumData.bilgWt += bilgWt;
+			salesSumData.bilgAmt += bilgAmt;
+			salesSumData.bilgVatAmt += bilgVatAmt;
+			salesSumData.trstDcAmt += trstDcAmt;
+			
+			// 분할데이터
+			var divRealTrstQty = Math.round(orgRealTrstQty * rightRatio);
+			var divRealTrstWt = Math.round(orgRealTrstWt * rightRatio);
+			var divRealTrstAmt = Math.round(orgRealTrstAmt * rightRatio);
+			var divBilgQty = Math.round(orgBilgQty * rightRatio);
+			var divBilgWt = Math.round(orgBilgWt * rightRatio);
+			var divBilgAmt = Math.round(orgBilgAmt * rightRatio);
+			var divBilgVatAmt = Math.floor(divBilgAmt * salesDivGridView.target.getList()[idx].divSellVat / 100);
+			var divTotAmt = divBilgAmt + divBilgVatAmt;
+			var divTrstDcAmt = Math.round(orgTrstDcAmt * rightRatio);
 			
 			// 분할데이터 set
 			salesDivGridView.target.setValue(idx, "divRealTrstQty", divRealTrstQty);
@@ -371,48 +441,38 @@
 			divSumData.divBilgVatAmt += divBilgVatAmt;
 			divSumData.divTrstDcAmt += divTrstDcAmt;
 			
-			// 매출데이터
-			var realTrstQty = orgRealTrstQty - divRealTrstQty;
-			var realTrstWt = orgRealTrstWt - divRealTrstWt;
-			var realTrstAmt = orgRealTrstAmt - divRealTrstAmt;
-			var bilgQty = orgBilgQty - divBilgQty;
-			var bilgWt = orgBilgWt - divBilgWt;
-			var bilgAmt = orgBilgAmt - divBilgAmt;
-			var bilgVatAmt = Math.floor(bilgAmt * salesDivGridView.target.getList()[idx].sellVat / 100);
-			var totAmt = bilgAmt + bilgVatAmt;
-			var trstDcAmt = orgTrstDcAmt - divTrstDcAmt
+			// 차이데이터
+			var diffRealTrstQty = orgRealTrstQty - (realTrstQty + divRealTrstQty);
+			var diffRealTrstWt = orgRealTrstWt - (realTrstWt + divRealTrstWt);
+			var diffRealTrstAmt = orgRealTrstAmt - (realTrstAmt + divRealTrstAmt);
+			var diffBilgQty = orgBilgQty - (bilgQty + divBilgQty);
+			var diffBilgWt = orgBilgWt - (bilgWt + divBilgWt);
+			var diffBilgAmt = orgBilgAmt - (bilgAmt + divBilgAmt);
+			var diffBilgVatAmt = orgBilgVatAmt - (bilgVatAmt + divBilgVatAmt);
+			var diffTrstDcAmt = orgTrstDcAmt - (trstDcAmt + divTrstDcAmt);
 			
-			// 매출데이터 set
-			salesDivGridView.target.setValue(idx, "realTrstQty", realTrstQty);
-			salesDivGridView.target.setValue(idx, "realTrstWt", realTrstWt);
-			salesDivGridView.target.setValue(idx, "realTrstAmt", realTrstAmt);
-			salesDivGridView.target.setValue(idx, "bilgQty", bilgQty);
-			salesDivGridView.target.setValue(idx, "bilgWt", bilgWt);
-			salesDivGridView.target.setValue(idx, "bilgAmt", bilgAmt);
-			salesDivGridView.target.setValue(idx, "bilgVatAmt", bilgVatAmt);
-			salesDivGridView.target.setValue(idx, "totAmt", totAmt);
-			salesDivGridView.target.setValue(idx, "trstDcAmt", trstDcAmt);
-			
-			// 매출데이터 sum
-			salesSumData.realTrstQty += realTrstQty;
-			salesSumData.realTrstWt += realTrstWt;
-			salesSumData.realTrstAmt += realTrstAmt;
-			salesSumData.bilgQty += bilgQty;
-			salesSumData.bilgWt += bilgWt;
-			salesSumData.bilgAmt += bilgAmt;
-			salesSumData.bilgVatAmt += bilgVatAmt;
-			salesSumData.trstDcAmt += trstDcAmt;
+			// 차이데이터 set
+			salesDivGridView.target.setValue(idx, "diffRealTrstQty", diffRealTrstQty);
+			salesDivGridView.target.setValue(idx, "diffRealTrstWt", diffRealTrstWt);
+			salesDivGridView.target.setValue(idx, "diffRealTrstAmt", diffRealTrstAmt);
+			salesDivGridView.target.setValue(idx, "diffBilgQty", diffBilgQty);
+			salesDivGridView.target.setValue(idx, "diffBilgWt", diffBilgWt);
+			salesDivGridView.target.setValue(idx, "diffBilgAmt", diffBilgAmt);
+			salesDivGridView.target.setValue(idx, "diffBilgVatAmt", diffBilgVatAmt);
+			salesDivGridView.target.setValue(idx, "diffTrstDcAmt", diffTrstDcAmt);
 		});
 		
+		salesDivGridView.target.repaint();
+		
 		var diffData = {
-			"diffRealTrstQty": orgTotData.orgRealTrstQty - (divSumData.divRealTrstQty + salesSumData.realTrstQty),
-			"diffRealTrstWt": orgTotData.orgRealTrstWt - (divSumData.divRealTrstWt + salesSumData.realTrstWt),
-			"diffRealTrstAmt": orgTotData.orgRealTrstAmt - (divSumData.divRealTrstAmt + salesSumData.realTrstAmt),
-			"diffBilgQty": orgTotData.orgBilgQty - (divSumData.divBilgQty + salesSumData.bilgQty),
-			"diffBilgWt": orgTotData.orgBilgWt - (divSumData.divBilgWt + salesSumData.bilgWt),
-			"diffBilgAmt": orgTotData.orgBilgAmt - (divSumData.divBilgAmt + salesSumData.bilgAmt),
-			"diffBilgVatAmt": orgTotData.orgBilgVatAmt - (divSumData.divBilgVatAmt + salesSumData.bilgVatAmt),
-			"diffTrstDcAmt": orgTotData.orgTrstDcAmt - (divSumData.divTrstDcAmt + salesSumData.trstDcAmt)
+			"diffRealTrstQty": orgTotData.realTrstQty - (salesSumData.realTrstQty + divSumData.divRealTrstQty),
+			"diffRealTrstWt": orgTotData.realTrstWt - (salesSumData.realTrstWt + divSumData.divRealTrstWt),
+			"diffRealTrstAmt": orgTotData.realTrstAmt - (salesSumData.realTrstAmt + divSumData.divRealTrstAmt),
+			"diffBilgQty": orgTotData.bilgQty - (salesSumData.bilgQty + divSumData.divBilgQty),
+			"diffBilgWt": orgTotData.bilgWt - (salesSumData.bilgWt + divSumData.divBilgWt),
+			"diffBilgAmt": orgTotData.bilgAmt - (salesSumData.bilgAmt + divSumData.divBilgAmt),
+			"diffBilgVatAmt": orgTotData.bilgVatAmt - (salesSumData.bilgVatAmt + divSumData.divBilgVatAmt),
+			"diffTrstDcAmt": orgTotData.trstDcAmt - (salesSumData.trstDcAmt + divSumData.divTrstDcAmt)
 		};
 		
 		diffGridView.target.setData([diffData]);
@@ -424,46 +484,75 @@
 		if(!$('#clntCd').val()){alert("거래처를 선택해주세요."); return false;}
 		
 		var divisionAmt = Number(deleteCommaStr($('#divisionAmt').val()));
-		var percent = (divisionAmt / orgTotData.orgBilgAmt) * 100;
-		var roundPercent = Math.round(percent);
-		$('#rightPer').data("percent", percent);
-		$('#rightPer').val(roundPercent);
-		$('#leftPer').val(100 - roundPercent);
+		var leftPercent = (orgTotData.bilgAmt - divisionAmt) / orgTotData.bilgAmt * 100;
+		var leftRoundPercent = Math.round(leftPercent);
+		var rightPercent = divisionAmt / orgTotData.bilgAmt * 100;
+		var rightRoundPercent = Math.round(rightPercent);
+		
+		$('#leftPer').data("percent", leftPercent);
+		$('#leftPer').val(leftRoundPercent);
+		$('#rightPer').data("percent", rightPercent);
+		$('#rightPer').val(rightRoundPercent);
 		applyPercent();
 	}
 	
 	// 차이 계산
-	function calDiff(){
+	function calTotDiff(){
 		var totData = {
+			realTrstQty : 0,
+			realTrstWt : 0,
+			realTrstAmt : 0,
+			bilgQty : 0,
+			bilgWt : 0,
 			bilgAmt : 0,
-			bilgVatAmt : 0
+			bilgVatAmt : 0,
+			trstDcAmt : 0
 		}
 		
 		var salesDivList = salesDivGridView.target.getList();
 		$.each(salesDivList, function(idx, obj){
+			totData.realTrstQty += Number(obj.realTrstQty) + Number(obj.divRealTrstQty);
+			totData.realTrstWt += Number(obj.realTrstWt) + Number(obj.divRealTrstWt);
+			totData.realTrstAmt += Number(obj.realTrstAmt) + Number(obj.divRealTrstAmt);
+			totData.bilgQty += Number(obj.bilgQty) + Number(obj.divBilgQty);
+			totData.bilgWt += Number(obj.bilgWt) + Number(obj.divBilgWt);
 			totData.bilgAmt += Number(obj.bilgAmt) + Number(obj.divBilgAmt);
 			totData.bilgVatAmt += Number(obj.bilgVatAmt) + Number(obj.divBilgVatAmt);
+			totData.trstDcAmt += Number(obj.trstDcAmt) + Number(obj.divTrstDcAmt);
 		});
 		
-		var diffBilgAmt = orgTotData.orgBilgAmt - totData.bilgAmt; // 청구금액 차이
-		var diffBilgVatAmt = orgTotData.orgBilgVatAmt - totData.bilgVatAmt; // 수수료 차이
+		var diffRealTrstQty = orgTotData.realTrstQty - totData.realTrstQty;
+		var diffRealTrstWt = orgTotData.realTrstWt - totData.realTrstWt;
+		var diffRealTrstAmt = orgTotData.realTrstAmt - totData.realTrstAmt;
+		var diffBilgQty = orgTotData.bilgQty - totData.bilgQty;
+		var diffBilgWt = orgTotData.bilgQty - totData.bilgQty;
+		var diffBilgAmt = orgTotData.bilgWt - totData.bilgWt;
+		var diffBilgVatAmt = orgTotData.bilgVatAmt - totData.bilgVatAmt;
+		var diffTrstDcAmt = orgTotData.trstDcAmt - totData.trstDcAmt;
 		
+		diffGridView.target.setValue(0, "diffRealTrstQty", diffRealTrstQty);
+		diffGridView.target.setValue(0, "diffRealTrstWt", diffRealTrstWt);
+		diffGridView.target.setValue(0, "diffRealTrstAmt", diffRealTrstAmt);
+		diffGridView.target.setValue(0, "diffBilgQty", diffBilgQty);
+		diffGridView.target.setValue(0, "diffBilgWt", diffBilgWt);
 		diffGridView.target.setValue(0, "diffBilgAmt", diffBilgAmt);
 		diffGridView.target.setValue(0, "diffBilgVatAmt", diffBilgVatAmt);
+		diffGridView.target.setValue(0, "diffTrstDcAmt", diffTrstDcAmt);
+		
 		diffGridView.target.repaint();
 	}
 	
 	// 분할 저장
 	function insertSalesDivision(){
-		var salesDivList = salesDivGridView.target.getList();
-		postAjax("/user/ar/ar02/insertSalesDivision", salesDivList, null, function(data){
-			alert(data.resultMessage);
-			if(data.resultCode == 200) {
-				// subGrid set
-				subGridView.setData(0);
-				// modal close
-				modal.close();
-			}
-		});
+// 		var salesDivList = salesDivGridView.target.getList();
+// 		postAjax("/user/ar/ar02/insertSalesDivision", salesDivList, null, function(data){
+// 			alert(data.resultMessage);
+// 			if(data.resultCode == 200) {
+// 				// subGrid set
+// 				subGridView.setData(0);
+// 				// modal close
+// 				modal.close();
+// 			}
+// 		});
 	}
 </script>
