@@ -1,0 +1,121 @@
+<style>
+	#deptTree .jstree-open > .jstree-anchor > .jstree-checkbox,
+	#deptTree .jstree-closed > .jstree-anchor > .jstree-checkbox { display:none; }
+</style>
+
+<div id="commonPopup">
+	<div class="popup_table" style="padding: 10px 10px 0 10px;">
+		<div class="search_form">
+			<input type="text" id="nodeName" onkeypress="if(event.keyCode == 13){searchDept();}"> 
+			<a onclick="searchDept();">
+				<i class="i_search_w"></i>
+			</a>
+		</div>
+	</div>
+	<div style="text-align: left;">
+		<div id="deptTree" style="overflow: auto; height: 410px; padding: 0 10px;"></div>
+	</div>
+	<div style="padding: 5px 0px;">
+		<button type="button" class="btn btn-default btn-sm" onclick="executeCallBack();">선택</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="commonModal.closeTarget.close();">닫기</button>	
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#nodeName').focus();
+		initDeptTree();
+	});
+	
+	// 트리 초기화
+	function initDeptTree(deptTree) {
+		debugger;
+		$("#deptTree").jstree(
+		{
+			"plugins": ['types', 'checkbox', 'search', 'sort'],
+			"core": {
+				"multiple": false,
+				"data": setDeptTree(),
+				"dblclick_toggle2": false
+			},
+			"types": {
+				"person": {"icon" : "glyphicon glyphicon-user"},
+				"unit": {
+					"icon": "glyphicon glyphicon-folder-close"
+				},
+				"unit-open": {
+					"icon": "glyphicon glyphicon-folder-open"
+				}
+			},
+			"checkbox": {
+		    	"keep_selected_style": false,
+		    	"three_state": false
+		    },
+		    "search": {
+		      	show_only_matches: false
+		    },
+		    "sort": function(a, b){
+		    	var nodeA = this.get_node(a);
+		    	var nodeB = this.get_node(b);
+		    	if(nodeA.original.type=="person" && nodeB.original.type=="unit"){
+		    		return -1;
+		    	}
+		    }
+		}).on("loaded.jstree", function() {
+		// 루트 노드 로드 완료 시
+			selectNode();
+		}).on("select_node.jstree", function(e, data) {
+		// 노드 선택 시
+		}).on('dblclick.jstree', function(e, data) {
+		// 노드 더블클릭 시
+			var $node = $(event.target).closest("li");
+			var deptId = $node.attr("id");
+			
+			if(!$('#deptTree').jstree(true).is_checked(deptId)){
+				$('#deptTree').jstree(true).check_node(deptId);
+			}
+			
+			executeCallBack();
+		}).on('open_node.jstree', function(e, data) {
+		// 노드 열릴 때
+			data.instance.set_type(data.node, 'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+		// 노드 닫힐 때
+			data.instance.set_type(data.node, 'unit');
+		});
+	}
+	
+	// 트리 데이터 set
+	function setDeptTree() {
+		var deptTree = null;
+		postAjaxSync("/admin/cm/cm04/selectDeptTree", commonModal.paramObj, null, function(data){
+			deptTree = data.deptTree;
+		});
+		return deptTree;
+	}
+	
+	// 트리 노드 select
+	function selectNode() {
+		var deptId = commonModal.paramObj.deptId;
+		if(deptId){
+			$('#deptTree').jstree(true).select_node(deptId);
+		}else{
+			// 루트노드 펼침
+			$('#deptTree').jstree(true).open_node($('#deptTree li[aria-level=1]').eq(0).attr('id'));
+		}
+	}
+	
+	// 트리 노드 검색
+	function searchDept(){
+		var nodeName = $('#nodeName').val();
+		$('#deptTree').jstree(true).search(nodeName);
+	}
+	
+	function executeCallBack(){
+		if($('#deptTree').jstree(true).get_checked() == 0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+		commonModal.callBack($('#deptTree').jstree(true));
+		commonModal.closeTarget.close();
+	}
+</script>
