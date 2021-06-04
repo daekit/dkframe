@@ -193,12 +193,22 @@
 		var allAmt = Number(deleteCommaStr($("#allAmt").val()));		
 		var list = adjustGridView.target.getList();
 		var setValue = 0;
-		var totAmt = 0;
+		var totAmt   = 0;      // 배부 누적금액
+		var totRealTrstAmt = 0; // 총금액
+		
+		// 배부금액 = 금액 * 할인금액 / 총금액
+		
+		$.each(list, function(idx, item) {
+			totRealTrstAmt +=  Number(item.realTrstAmt);
+		});	
+		
 		$.each(list, function(idx, item) {
 			if(targetName == "bilgUpr") {
 				setValue = item.bilgUprOrg - Number(allAmt);
 			} else {
-				setValue = Math.round(allAmt / list.length);
+				// setValue = Math.round(allAmt / list.length);
+				setValue = Math.round(item.realTrstAmt * allAmt / totRealTrstAmt );		
+				
 				idx == list.length-1 ? setValue = allAmt - totAmt : totAmt += setValue;
 				var lossRate = Math.round(setValue / Number(item.realTrstAmt) * 100);
 				adjustGridView.target.setValue(idx, "lossRate", lossRate);

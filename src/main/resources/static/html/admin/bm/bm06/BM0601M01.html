@@ -62,7 +62,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd" required onchange="gridView.setData(0);">
+							<select  id="coCd_S" data-kind="CO" data-search="coCd" required onchange="gridView.setData(0);">
 							<option value="">전체</option>
 							</select>
 						</td>
@@ -283,6 +283,7 @@
 		//	$('[data-search="coCd"]').val(jwt.coCd);
 		$('[data-search="useYn"]').val("Y");
 		gridView.initView().setData(0);
+		excelView.initView();
 	});
 	
 	function initSearch() {
@@ -302,7 +303,23 @@
 	}
 
 	function openReportDetail() {
-		openModal("/static/html/admin/bm/bm06/BM0602P02.html", 600, 200, "");
+
+		var row = gridView.target.getList("selected")[0];
+		if(row == undefined) {
+			return;
+		}
+		
+		openSecondModal("/static/html/admin/bm/bm06/BM0602P02.html", 600, 200, "품의서 종류", {}, function (iChk) {
+			var fileName = "BM0201R01.jrf";
+			var arg = "i_chk#"      + iChk
+			        + "#i_co_cd#"   + $('#coCd_S').val()
+			        + "#i_clnt_cd#" + row.clntCd
+			        + "#";
+			
+			callReport(fileName, arg, 1040, 720);
+		});
+		
+		
 	}
 
 	function unuseClnt() {
@@ -334,16 +351,6 @@
 		});
 	}
 
-	function setReport() {
-		var row = gridView.target.getList("selected")[0];
-		if(row == undefined) {
-			return;
-		}
-		
-		var fileName = "BM0201R01.jrf";
-		var arg = "i_chk#"+"감액"+"#i_co_cd#"+$('[data-search="coCd"]').val()+"#i_clnt_cd#"+row.clntCd+"#";
-		callReport(fileName, arg);
-	}	
 	
 	function excelDown() {
 		var paramObj = {"pageNo": 1};
@@ -353,7 +360,7 @@
 		paramObj.recordCnt = 99999999;
 		
 		postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
-			var list = data.clntList; 
+ 			var list = data.clntList; 	
 			excelView.target.setData({
 				list : list,
 				page : {

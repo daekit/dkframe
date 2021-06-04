@@ -450,7 +450,7 @@
 		fileGridView.initView();
 
 		var ordrgSeq = commonModal.paramObj.ordrgSeq;
-		
+
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
@@ -527,6 +527,10 @@
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
+				}
+				// 판매유형, 재고주체 set
+				if(key == "typCd"){
+					setBySellType(value);  
 				}
 			}
 		});
@@ -722,6 +726,7 @@
 		// SELLTYPE1: 유통
 		// SELLTYPE2: 가공
 		// SELLTYPE4: 임가공
+		// SELLTYPE5: 관수
 		
 		// 재고주체
 		// OWNER1: 자사
@@ -759,6 +764,15 @@
 			// 직송여부 N set
 			$('#dirtrsYn').val("N");
 			$('#dirtrsYn').prop("disabled", true);
+			ctrlDirtrs();
+		}else{
+			// 재고주체 초기화
+			$('#ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ownerCd'));
+			$('#ownerCd').prop("disabled", false);
+			// 직송여부 Y set
+			$('#dirtrsYn').val("Y");
+			$('#dirtrsYn').prop("disabled", false);
 			ctrlDirtrs();
 		}
 	}

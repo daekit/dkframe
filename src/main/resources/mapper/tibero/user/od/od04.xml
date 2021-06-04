@@ -50,13 +50,15 @@
 						 , A.PRJCT_CD
 						 , FN_CM05M01_CD_TO_NM(A.PRJCT_CD) PRJCT_NM
 						 , A.SITE_CD
+						 , A.PCHS_CLNT_CD
+						 , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = A.PCHS_CLNT_CD) AS PCHS_CLNT_NM
 						 , B.SITE_NM
 						 , A.WH_CD
 						 , FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
 						 , A.TYP_CD
 						 , FN_CM05M01_CD_TO_NM(A.TYP_CD) TYP_NM
 						 , A.IMP_YN
-						 , A.DLVR_DTTM
+						 , TO_CHAR(A.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM
 						 , A.REQ_RMK
 						 , A.TOT_QTY
 						 , A.TOT_WT
@@ -72,8 +74,9 @@
 						 , A.UDT_PGM
 						 , A.UDT_DTTM
 					  FROM TB_OD02M01 A
-						 , TB_SD09M01 B
-				     WHERE A.SITE_CD = B.SITE_CD(+)
+					  LEFT JOIN TB_SD09M01 B
+				        ON  A.SITE_CD = B.SITE_CD
+				        <where>
 				 		   <if test="prdtDiv != null and !prdtDiv.equals('')">
 					   		AND A.REQ_SEQ IN (SELECT REQ_SEQ FROM TB_OD02D01 
 									   	  		WHERE PRDT_DIV = #{prdtDiv}
@@ -100,6 +103,7 @@
 						   <if test="impYn != null and !impYn.equals('')">
 						   AND A.IMP_YN = #{impYn}
 						   </if>
+					   </where>
 			) D
 		)
 		WHERE
@@ -116,6 +120,8 @@
 		 , A.WH_CD
 		 , A.TYP_CD
 		 , A.IMP_YN
+		 , A.PCHS_CLNT_CD
+		 , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = A.PCHS_CLNT_CD) AS PCHS_CLNT_NM
 		 , TO_CHAR(A.DLVR_DTTM, 'YYYYMMDD') DLVR_DTTM
 		 , A.REQ_RMK
 		 , A.TOT_QTY
@@ -145,6 +151,8 @@
 		 , A.WH_CD
 		 , A.TYP_CD
 		 , A.IMP_YN
+		 , A.PCHS_CLNT_CD AS CLNT_CD
+		 , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = A.PCHS_CLNT_CD) AS CLNT_NM
 		 , TO_CHAR(A.DLVR_DTTM, 'YYYYMMDD') DLVR_DTTM
 		 , A.REQ_RMK ORDRG_RMK
 		 , A.TOT_QTY
@@ -261,6 +269,7 @@
 		,WH_CD
 		,TYP_CD
 		,IMP_YN
+		,PCHS_CLNT_CD
 		,DLVR_DTTM
 		,REQ_RMK
 		,TOT_QTY
@@ -281,6 +290,7 @@
 		,#{whCd}
 		,#{typCd}
 		,#{impYn}
+		,#{pchsClntCd , jdbcType=VARCHAR}
 		,TO_DATE(REPLACE(#{dlvrDttm}, '-', ''), 'YYYYMMDD')
 		,#{reqRmk}
 		,#{totQty}
