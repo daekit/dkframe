@@ -16,9 +16,9 @@
 					</div>
 					<div class="form-group mgl10">
 						<label>분할비율</label>
-						<input type="text" class="tc" id="leftPer" value="100" style="width: 40px;" onkeyup="onlyDecimal(this); calPercent(this, 'rightPer'); if(event.keyCode == 13){applyPercent();}" maxlength="2">
+						<input type="text" class="tc" id="leftPer" value="100" data-percent="100" style="width: 40px;" onkeyup="onlyDecimal(this); calPercent(this, 'rightPer'); if(event.keyCode == 13){applyPercent();}" maxlength="2">
 						: 
-						<input type="text" class="tc" id="rightPer" value="0" style="width: 40px;" onkeyup="onlyDecimal(this); calPercent(this, 'leftPer'); if(event.keyCode == 13){applyPercent();}" maxlength="2">
+						<input type="text" class="tc" id="rightPer" value="0" data-percent="0" style="width: 40px;" onkeyup="onlyDecimal(this); calPercent(this, 'leftPer'); if(event.keyCode == 13){applyPercent();}" maxlength="2">
 					</div>
 					<div class="add_btn_small pdl10" style="float: none !important;">
 						<a style="height: 27px; line-height: 25px; width: 60px;" onclick="applyPercent();">비율적용</a>
@@ -44,6 +44,9 @@
 	</div>
 </div>
 <script type="text/javascript">
+	// 분할적용 flag
+	var isApplied = false;
+
 	// 원본데이터 배열
 	var orgRows = JSON.parse(JSON.stringify(commonModal.paramObj.selectedRows));
 	
@@ -141,7 +144,8 @@
 				        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money"},
 				        	{key: "bilgVatAmt", 	label: "부가세",  	    align: "right", 	width: 80,	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "totAmt", 	    label: "합계",  		align: "right", 	width: 80,	formatter: "money"},
-				        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"}
+				        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money"},
+				        	{key: "trspRmk", 	    label: "비고",  		align: "left", 	    width: 200, editor: {type:"textarea"}, styleClass:"grid-cell-blue"}
 		        		]
 		        	},
 		        	{key: "divClntCd",    	  label: "거래처",		hidden: true},
@@ -157,7 +161,8 @@
 				        	{key: "divBilgAmt", 	   label: "청구금액",  	    align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divBilgVatAmt", 	   label: "부가세",  	    align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divTotAmt", 	       label: "합계",  			align: "right", 	width: 80,  formatter: "money"},
-				        	{key: "divTrstDcAmt", 	   label: "할인금액",  		align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"}
+				        	{key: "divTrstDcAmt", 	   label: "할인금액",  		align: "right", 	width: 80,  formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
+				        	{key: "divTrspRmk", 	   label: "비고",  		    align: "left", 	    width: 200, editor: {type:"textarea"}, styleClass:"grid-cell-blue"}
 		        		]
 		        	},
 		        	{
@@ -185,6 +190,7 @@
 	                    {key: "bilgVatAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "totAmt", 			collector: "sum", formatter:"money", align: "right"},
 	                    {key: "trstDcAmt", 			collector: "sum", formatter:"money", align: "right"},
+	                    {key: "trspRmk"																   },
 	                    
 	                    {key: "clntNm"																   },
 	                    {key: "divRealTrstQty", 	collector: "sum", formatter:"money", align: "right"},
@@ -196,6 +202,7 @@
 	                    {key: "divBilgVatAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divTotAmt", 			collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divTrstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "divTrspRmk"															   },
 	                    
 	                    {key: "diffRealTrstQty", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "diffRealTrstWt", 	collector: "sum", formatter:"money", align: "right"},
@@ -476,6 +483,8 @@
 		};
 		
 		diffGridView.target.setData([diffData]);
+		
+		isApplied = true;
 	}
 	
 	// 금액 적용
@@ -555,19 +564,33 @@
 			}
 		});
 		
-		if(isValid){
-			var salesDivList = salesDivGridView.target.getList();
-			postAjax("/user/ar/ar02/insertSalesDivision", salesDivList, null, function(data){
-				alert(data.resultMessage);
-				if(data.resultCode == 200) {
-					// subGrid set
-					subGridView.setData(0);
-					// modal close
-					modal.close();
-				}
-			});
+		if(isApplied){
+			if(isValid){
+				var salesDivList = salesDivGridView.target.getList();
+				
+				$.each(salesDivList, function(idx, obj){
+					// userId 추가
+					obj.userId = jwt.userId;
+					// pgmId 추가
+					obj.updatePgmId = "AR0203P01";
+				});
+				
+				debugger;
+				
+				postAjax("/user/ar/ar02/insertSalesDivision", salesDivList, null, function(data){
+					alert(data.resultMessage);
+					if(data.resultCode == 200) {
+						// subGrid set
+						subGridView.setData(0);
+						// modal close
+						modal.close();
+					}
+				});
+			}else{
+				alert("부가세를 제외한 모든 차이값은 0이되어야 합니다.");
+			}
 		}else{
-			alert("부가세를 제외한 모든 차이값은 0이되어야 합니다.");
+			alert("분할이 적용되지 않았습니다.");
 		}
 	}
 </script>
