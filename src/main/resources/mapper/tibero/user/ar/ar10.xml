@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar10.mapper.AR10Mapper">
+	<select id="selectPchsSellCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_AR10M01 T
+		WHERE
+			T.CO_CD = #{coCd}	
+			<if test="selpchCd != null and !selpchCd.equals('')">
+				AND T.SELPCH_CD = #{selpchCd}				
+			</if>	
+			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+				AND T.TRST_DT >= #{trstDtFrom}
+			</if>
+			<if test="trstDtTo != null and !trstDtTo.equals('')">
+				<![CDATA[ AND T.TRST_DT <= #{trstDtTo} ]]>
+			</if>
+			<if test="rmk != null and !rmk.equals('')">
+				AND T.RMK LIKE '%'|| #{rmk} || '%'
+			</if>
+			<if test="siteNm != null and !siteNm.equals('')">
+				AND T.SITE_NM LIKE '%'|| #{siteNm} || '%'
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
+			</if>
+			<if test="prdtNm != null and !prdtNm.equals('')">
+				AND T.PRDT_NM LIKE '%'|| #{prdtNm} || '%'
+			</if>
+			<if test="prdtSize != null and !prdtSize.equals('')">
+				AND T.PRDT_SIZE LIKE '%'|| #{prdtSize} || '%'
+			</if>
+			<if test="prdtLen != null and !prdtLen.equals('')">
+				AND T.PRDT_LEN LIKE '%'|| #{prdtLen} || '%'
+			</if>
+	</select>
+
+	<select id="selectPchsSellList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				A.*,
+				ROWNUM AS RNUM
+				
+			FROM
+			(
+				SELECT 
+					T.SELPCH_CD,
+					FN_CM05M01_CD_TO_NM(T.SELPCH_CD) AS SELPCH_NM,
+					T.TRST_DT,
+					T.CLNT_NM,
+					T.PRDT_NM,
+					T.PRDT_SIZE,
+					T.PRDT_LEN,
+					T.SITE_NM,
+					T.RMK,
+					T.BILG_QTY,
+					T.BILG_WT,
+					T.BILG_UPR,
+					T.BILG_AMT,
+					T.BILG_VAT_AMT,
+					T.BILG_TOT_AMT,
+					T.MAKR_NM
+				FROM
+					TB_AR10M01 T
+				WHERE
+					T.CO_CD = #{coCd}	
+					<if test="selpchCd != null and !selpchCd.equals('')">
+						AND T.SELPCH_CD = #{selpchCd}				
+					</if>	
+					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+						AND T.TRST_DT >= #{trstDtFrom}
+					</if>
+					<if test="trstDtTo != null and !trstDtTo.equals('')">
+						<![CDATA[ AND T.TRST_DT <= #{trstDtTo} ]]>
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>
+					<if test="siteNm != null and !siteNm.equals('')">
+						AND T.SITE_NM LIKE '%'|| #{siteNm} || '%'
+					</if>
+					<if test="rmk != null and !rmk.equals('')">
+						AND T.RMK LIKE '%'|| #{rmk} || '%'
+					</if>
+					<if test="prdtNm != null and !prdtNm.equals('')">
+						AND T.PRDT_NM LIKE '%'|| #{prdtNm} || '%'
+					</if>
+					<if test="prdtSize != null and !prdtSize.equals('')">
+						AND T.PRDT_SIZE LIKE '%'|| #{prdtSize} || '%'
+					</if>
+					<if test="prdtLen != null and !prdtLen.equals('')">
+						AND T.PRDT_LEN LIKE '%'|| #{prdtLen} || '%'
+					</if>
+			) A
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+</mapper>
