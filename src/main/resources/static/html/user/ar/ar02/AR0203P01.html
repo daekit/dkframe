@@ -262,7 +262,7 @@
 		        	{key: "diffBilgQty",        label: "청구수량차이", 	    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffBilgQty != 0 ? "grid-font-red" : ""}},
 		        	{key: "diffBilgWt",         label: "청구중량차이",   	align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffBilgWt != 0 ? "grid-font-red" : ""}},
 		        	{key: "diffBilgAmt", 	    label: "청구금액차이",  	align: "right", 	width: 80,	formatter: "money", styleClass: function(){return this.item.diffBilgAmt != 0 ? "grid-font-red" : ""}},
-		        	{key: "diffBilgVatAmt", 	label: "부가세차이",  	    align: "right", 	width: 80,	formatter: "money", styleClass: function(){return this.item.diffBilgAmt != 0 ? "grid-font-blue" : ""}},
+		        	{key: "diffBilgVatAmt", 	label: "부가세차이",  	    align: "right", 	width: 80,	formatter: "money", styleClass: function(){return this.item.diffBilgVatAmt != 0 ? "grid-font-blue" : ""}},
 		        	{key: "diffTrstDcAmt", 	    label: "할인금액차이",  	align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffTrstDcAmt != 0 ? "grid-font-red" : ""}}
 	        	]
 		    });
@@ -544,15 +544,30 @@
 	
 	// 분할 저장
 	function insertSalesDivision(){
-// 		var salesDivList = salesDivGridView.target.getList();
-// 		postAjax("/user/ar/ar02/insertSalesDivision", salesDivList, null, function(data){
-// 			alert(data.resultMessage);
-// 			if(data.resultCode == 200) {
-// 				// subGrid set
-// 				subGridView.setData(0);
-// 				// modal close
-// 				modal.close();
-// 			}
-// 		});
+		var diffData = diffGridView.target.getList()[0];
+		var isValid = true;
+		$.each(diffData, function(key, value){
+			if(key != "diffBilgVatAmt" && key.indexOf("__") == -1){
+				if(value != 0){
+					isValid = false;
+					return false;
+				}
+			}
+		});
+		
+		if(isValid){
+			var salesDivList = salesDivGridView.target.getList();
+			postAjax("/user/ar/ar02/insertSalesDivision", salesDivList, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200) {
+					// subGrid set
+					subGridView.setData(0);
+					// modal close
+					modal.close();
+				}
+			});
+		}else{
+			alert("부가세를 제외한 모든 차이값은 0이되어야 합니다.");
+		}
 	}
 </script>
