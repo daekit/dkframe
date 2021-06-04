@@ -59,8 +59,9 @@
 					A.PRJCT_NM,
 					TO_CHAR(TO_DATE(EST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS EST_DT,
 					A.RMK,
-					SUM(B.EST_QTY) as EST_QTY,
-					SUM(B.EST_AMT) as EST_AMT,
+					SUM(B.EST_QTY) AS EST_QTY,
+					SUM(B.EST_WT)  AS EST_WT,
+					SUM(B.EST_AMT) AS EST_AMT,
 					A.SALES_EMP_ID,
 					A.CREAT_PGM,
 					A.WINBD_YN,
@@ -126,26 +127,34 @@
 	
 	<select id="selectEstDetailList" resultType="CamelMap">
 		SELECT
-			EST_NO,
-			EST_PRDT_SEQ,
-			PRDT_DIV,
-			PRDT_STKN,
+			T.EST_NO,
+			T.EST_PRDT_SEQ,
+			T.PRDT_DIV,
+			T.PRDT_STKN,
 			FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM,
-			PRDT_SIZE,
-			PRDT_SPEC,
-			PRDT_CD,
-			(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_NM,
-			PRDT_UNIT,
+			T.PRDT_SIZE,
+			T.PRDT_SPEC,
+			T.PRDT_CD,
+			B.PRDT_NM,
+			T.PRDT_UNIT,
 			FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) AS PRDT_UNIT_NM,
-			(SELECT PRDT_STOCK_CD FROM TB_BM01M01 WHERE PRDT_CD = T.PRDT_CD) AS PRDT_STOCK_CD,
-			EST_QTY,
-			EST_UPR,
-			EST_AMT,
-			(EST_AMT - EST_QTY * STOCK_UPR) AS EXP_AMT,
-			STOCK_UPR,
-			RMK
+			T.EST_QTY,
+			T.EST_WT,
+			T.EST_UPR,
+			T.EST_AMT,
+			(T.EST_AMT - T.EST_QTY * T.STOCK_UPR) AS EXP_AMT,
+			T.STOCK_UPR,
+			T.RMK,
+	        B.PRDT_DIV,
+	        B.PRDT_STKN,
+	        B.PRDT_STOCK_CD,
+	        B.PRDT_COIL_YN,
+	        B.PRDT_CNVRSN_WT,
+	        B.PRDT_DT
 		FROM
 			TB_SD03D01 T
+		LEFT JOIN TB_BM01M01 B
+		   ON B.PRDT_CD = T.PRDT_CD
 		WHERE
 			T.EST_NO = #{estNo}	
 	</select>
@@ -220,6 +229,7 @@
 			PRDT_CD,
 			PRDT_UNIT,
 			EST_QTY,
+			EST_WT,
 			EST_UPR,
 			EST_AMT,
 			STOCK_UPR,
@@ -240,6 +250,7 @@
 			#{prdtCd},
 			#{prdtUnit},
 			#{estQty},
+			#{estWt},
 			#{estUpr},
 			#{estAmt},
 			#{stockUpr},
