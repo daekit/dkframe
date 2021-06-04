@@ -21,7 +21,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setCodeSelectByCocd(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -309,6 +309,7 @@
 		if(actionType == "C"){
 			$("#popForm #coCd").val(jwt.coCd);
 			$("#popForm #reqDt").val(moment(new Date()).format("YYYYMMDD"));
+			setCodeSelectByCocd($('#coCd').val());
 			$('#actionArBtn').on("click", function(){insertReq();});
 			$('.tit_contents .tit').text("구매요청서 등록");
 			$('#actionArBtn').text("등록");
@@ -373,6 +374,11 @@ debugger;
 					}
 					console.log(key + " : " + value);
 					$('#popForm #'+key).val(value);
+				}
+				
+				// 창고, 판매법인 set
+				if(key == "coCd"){
+					setCodeSelectByCocd(value);  
 				}
 			}
 		});
@@ -803,5 +809,17 @@ debugger;
 			alert("주문내역을 선택하세요.");
 			return false;
 		}
+	}
+	
+	// 창고 set
+	function setCodeSelectByCocd(value){
+		$('#whCd').data("desc", value);
+		$('#whCd option:not([value=""])').remove()
+		setCommonSelect($('#whCd'));
+		
+  		// 창고와 판매법인은 같이 바귐.		
+		//$('#taxivcCoprt').data("rprc", value);
+		//$('#taxivcCoprt option:not([value=""])').remove()
+		//setCommonSelect($('#taxivcCoprt'));  
 	}
 </script>
