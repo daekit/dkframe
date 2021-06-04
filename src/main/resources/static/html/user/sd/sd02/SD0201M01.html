@@ -92,7 +92,10 @@
 	              <th>부서</th>
 	              <td>
 	              	<input type="hidden" id="deptId_S" name="deptId" style="width: 73%;">
-	                <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" readonly="readonly">
+	                  <div class="search_form">
+	                  <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" onkeyup="event.keyCode == 8 ? deptId_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+	                  	<a onclick="openDeptTree();"><i class="i_search_w"></i></a>
+	                  </div>
 	              </td>
 	              <th>제품그룹</th>
 	              <td>
@@ -111,6 +114,7 @@
 	                <a onclick="copyPlan();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;">전월복사</a>
 	                <a onclick="insertUpdatePlan('C');" style="height: 30px; line-height: 28px;">+</a>
 	                <a onclick="deletePlan();" style="height: 30px; line-height: 28px;">-</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 <!-- 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
 					<option value="10">10</option>
@@ -127,6 +131,7 @@
 		</div>
     	<div class="contents">
 			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 640px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
 		
@@ -218,7 +223,7 @@
 					"planSalesId"  : $("#salesMng_S").val(),
 					"prdtGrp"  : $("#prdtGrp_S").val(),
 				//	"pageNo" : _pageNo + 1,
-					"recordCnt" : $("#recordCnt").val() 
+				//	"recordCnt" : $("#recordCnt").val() 
 				}
 				postAjax("/user/sd/sd02/selectSellList", formData, null, function(data){
 					var list = data.sellList;
@@ -238,6 +243,29 @@
 			}
 		} 
 	}
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+					        	{key: "planSeq",   label: "계획번호",    align: "center",  hidden:true},
+					        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
+					            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
+					            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
+					            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
+					            {key: "planWt",      label: "계획",   align: "right", width: "9%", formatter: "money"},
+					            {label: "실적",  columns:[
+						            {key: "trstN", label: "국산",     align: "right", width: "9%", formatter: "money"},
+					            	{key: "trstY", label: "수입",     align: "right", width: "9%", formatter: "money"}
+						        ]},
+					            {key: "trstAvg", label: "달성율", align: "right", width: "9%"},
+					            {key: "rmk", label: "비고", align: "center", width: "22%"}
+		            ]
+			    });
+				return this;
+			}
+	}
 	
 	//화면로드시
 	$(document).ready(function() {
@@ -246,13 +274,14 @@
 		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd").val(jwt.coCd);
-	    gridView.initView().setData(0);
 		$("#selpchCd").val("SELPCH2");
 		/* $('#planYm').datepicker({
 			format : "yyyy-mm",
 			language : "ko",
 			autoclose : true
 		}); */
+	    gridView.initView().setData(0);
+		excelView.initView();
 	})	
 	
 	//사용자 검색
@@ -272,7 +301,21 @@
 		});
 	}
 	
-	
+	//부서 검색
+	function openDeptTree() {
+		var paramObj = {
+			"coCd" : "GUM", //$('#coCd').val(),
+			"userId": $('#salesMng_S').val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/deptSearch.html", 300, 500, "부서 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#deptId_S').val(checkedNode.id);
+			$('#deptNm_S').val(checkedNode.text);
+		});
+	}
+		
 	function insertUpdatePlan(type){
 		actionType = type;
 		if ( actionType == 'U' && selectGridValidation(firstGrid)){
@@ -330,4 +373,27 @@
 			});
 		}
 	}
+	
+	function excelDown() {
+		firstGrid = this.target;
+		if(inputValidation($('input[required]'))){
+			var formData = {
+				"coCd" : $("#coCd").val(),
+				"selpchCd" : $("#selpchCd_S").val(),
+				"planYm"  : $("#planYm").val(),
+				"planSalesId"  : $("#salesMng_S").val(),
+				"prdtGrp"  : $("#prdtGrp_S").val(),
+			//	"pageNo" : _pageNo + 1,
+			//	"recordCnt" : $("#recordCnt").val() 
+			}
+			postAjax("/user/sd/sd02/selectSellList", formData, null, function(data){
+				var list = data.sellList;
+				excelView.target.setData(list);
+			
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("판매계획_"+todayDate+".xls");
+			});	
+		}
+	}
+	
 </script>
