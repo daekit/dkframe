@@ -61,10 +61,17 @@
                 </td>
 			</tr>
  -->
+            <th class="hit">제품그룹</th>
+            <td>                                
+                <select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" onchange="prdtGrpChange(this);"  required="required" msg="제품그룹">
+                <option value="">전체</option>
+                </select>
+
+            </td>
 			<tr>
                 <th class="">제품구분</th>
                 <td>                                
-                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" onchange="prdtStknChange(this);">
+                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" data-search="prdtDiv" onchange="prdtStknChange(this);">
                     <option value="">전체</option>
                     </select>
 
@@ -257,6 +264,7 @@
 					"planYm" : $('#detailTb input[name="planYm"]').val(),
 					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
 					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
+					"prdtGrp" : $('#detailTb select[name="prdtGrp"]').val(),
 					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
 					"planWt" : deleteCommaStr($('#detailTb input[name="planWt"]').val()),
 					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
@@ -283,6 +291,7 @@
 					"planSeq" : $('#planSeq').val(),
 					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
 					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
+					"prdtGrp" : $('#detailTb select[name="prdtGrp"]').val(),
 					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
 					"planWt" : $('#detailTb input[name="planWt"]').val(),
 					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
@@ -297,7 +306,8 @@
 			});
 		}
 	}
-	
+
+	// 제품강종 Set
 	function prdtStknChange(elem) {
 		var paramObj = {"codeKind" : $(elem).val()};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
@@ -309,6 +319,21 @@
 				optionHtml += '</option>';
 			});
 			$('.popup_area [data-search="prdtStkn"]').html(optionHtml);
+		});
+	}
+	// 제품그룹 Set
+	function prdtGrpChange(elem) {
+		debugger;
+		var paramObj = {"codeKind" : 'PRDTDIV', "codeRprc" : $(elem).val()};
+		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
+			var optionHtml = '<option value="">전체</option>';
+			var childCodeList = data.childCodeList;
+			$.each(childCodeList, function(index, obj){
+				optionHtml += '<option value='+obj.codeId+'>';
+				optionHtml += obj.codeNm;
+				optionHtml += '</option>';
+			});
+			$('.popup_area [data-search="prdtDiv"]').html(optionHtml);
 		});
 	}
 </script>

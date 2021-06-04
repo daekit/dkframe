@@ -17,6 +17,9 @@
 		<if test="planSalesId != null and !planSalesId.equals('')">
 			AND PLAN_SALES_ID = #{planSalesId}
 		</if>
+		<if test="prdtGrp != null and !prdtGrp.equals('')">
+			AND PRDT_GRP = #{prdtGrp}
+		</if>
 		ORDER BY PLAN_SEQ
 	</select>
 	
@@ -47,6 +50,9 @@
 			          <if test="planSalesId != null and !planSalesId.equals('')">
 					    AND PLAN_SALES_ID = #{planSalesId}
 					  </if>
+					  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND PRDT_GRP = #{prdtGrp}
+					  </if>
 			          <if test="selpchCd != null and !selpchCd.equals('')">
 			             <choose>
 				            <when test="selpchCd.equals('SELPCH1')">
@@ -65,35 +71,41 @@
 				       , PLAN_YM
 				), AR02 AS (
 				   SELECT '' AS PLAN_SEQ 
-				       , CO_CD
-				       , TRST_CLNT_CD
-				       , TRIM(PRDT_DIV) PRDT_DIV 
-				       , NVL(SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD 
-				       , SUBSTRING(TRST_DT, 0, 6) TRST_DT
-				       , SUM(DECODE(IMP_YN, 'Y', REAL_TRST_QTY)) TRST_Y
-				       , SUM(DECODE(IMP_YN, 'N', REAL_TRST_QTY)) TRST_N
-				     FROM TB_AR02M01
+				       , AR02.CO_CD
+				       , AR02.TRST_CLNT_CD
+				       , TRIM(AR02.PRDT_DIV) PRDT_DIV 
+				       , NVL(AR02.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD 
+				       , SUBSTRING(AR02.TRST_DT, 0, 6) TRST_DT
+				       , SUM(DECODE(AR02.IMP_YN, 'Y', AR02.REAL_TRST_QTY)) TRST_Y
+				       , SUM(DECODE(AR02.IMP_YN, 'N', AR02.REAL_TRST_QTY)) TRST_N
+				     FROM TB_AR02M01 AR02
+				     INNER JOIN TB_BM01M01 BM01 ON BM01.PRDT_CD = AR02.TRST_PRDT_CD
 				    WHERE 1=1
 				      <if test="coCd != null and !coCd.equals('')">
-				        AND CO_CD = #{coCd}
+				        AND AR02.CO_CD = #{coCd}
 				      </if>
 				      <if test="planYm != null and !planYm.equals('')">  
-			            AND SUBSTRING(TRST_DT, 0, 6) = TO_CHAR(TO_DATE(#{planYm},'YYYY-MM'),'YYYYMM')
+			            AND SUBSTRING(AR02.TRST_DT, 0, 6) = TO_CHAR(TO_DATE(#{planYm},'YYYY-MM'),'YYYYMM')
 			          </if>
 			          <if test="selpchCd != null and !selpchCd.equals('')">
 			             <choose>
 				            <when test="selpchCd.equals('SELPCH1')">
-			      	            AND ( SELPCH_CD = #{selpchCd}  OR SELPCH_CD = 'SELPCH3' )
+			      	            AND ( AR02.SELPCH_CD = #{selpchCd}  OR AR02.SELPCH_CD = 'SELPCH3' )
 				            </when>
 				            <otherwise>
-					            AND ( SELPCH_CD = #{selpchCd}  OR SELPCH_CD = 'SELPCH4' )
+					            AND ( AR02.SELPCH_CD = #{selpchCd}  OR AR02.SELPCH_CD = 'SELPCH4' )
 				            </otherwise>
 			             </choose>
 			      	  </if>	
 			      	   <if test="planSalesId != null and !planSalesId.equals('')">
-					    AND SALES_MNG = #{planSalesId}
+					    AND AR02.SALES_MNG = #{planSalesId}
 					  </if>
-				   GROUP BY CO_CD, TRST_CLNT_CD, TRIM(PRDT_DIV) ,NVL(SALES_AREA_CD, 'SALESAREA99') , SUBSTRING(TRST_DT, 0, 6)
+					  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND BM01.PRDT_GRP = #{prdtGrp}
+					  </if>
+
+				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV) ,
+				         NVL(AR02.SALES_AREA_CD, 'SALESAREA99') , SUBSTRING(AR02.TRST_DT, 0, 6)
 				)
 				SELECT T1.PLAN_SEQ
 				     , T1.CO_CD
@@ -178,6 +190,7 @@
 			,PLAN_SALES_ID
 			,CLNT_CD
 			,SALES_AREA_CD
+			,PRDT_GRP
 			,PRDT_DIV
 			,PRDT_STKN
 			,PLAN_WT
@@ -195,6 +208,7 @@
 			,#{planSalesId}
 			,#{clntCd}
 			,#{selesAreaCd}
+			,#{prdtGrp}
 			,#{prdtDiv}
 			,#{prdtStkn}
 			,#{planWt}
@@ -208,15 +222,16 @@
 	
 	<update id="updatePlan">
 		UPDATE TB_SD01M01 SET
-			CLNT_CD = #{clntCd},
+			CLNT_CD   = #{clntCd},
 			SALES_AREA_CD = #{selesAreaCd},
-			PRDT_DIV = #{prdtDiv},
+			PRDT_GRP  = #{prdtGrp},
+			PRDT_DIV  = #{prdtDiv},
 			PRDT_STKN = #{prdtStkn},
-			PLAN_WT = #{planWt},
-			RMK = #{rmk},
-			UDT_ID = #{userId},
-			UDT_PGM = #{pgmId},
-			UDT_DTTM = SYSDATE
+			PLAN_WT   = #{planWt},
+			RMK       = #{rmk},
+			UDT_ID    = #{userId},
+			UDT_PGM   = #{pgmId},
+			UDT_DTTM  = SYSDATE
 		WHERE		
 			 PLAN_SEQ = #{planSeq}
 	</update>
@@ -227,6 +242,7 @@
 			PLAN_SEQ,
 			CO_CD,
 			SELPCH_CD,
+			PRDT_GRP,
 			PRDT_DIV,
 			ETC_FIELD1,
 			UDT_DTTM,
@@ -252,6 +268,7 @@
 			TB_SD01M01_SQ01.NEXTVAL,
 			CO_CD,
 			SELPCH_CD,
+			PRDT_GRP,
 			PRDT_DIV,
 			ETC_FIELD1,
 			UDT_DTTM,
