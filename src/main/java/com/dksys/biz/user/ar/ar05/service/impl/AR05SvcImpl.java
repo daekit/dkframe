@@ -109,14 +109,14 @@ public class AR05SvcImpl implements AR05Svc {
 		douzoneParam.put("DRCR_FG","3");   //	차대구분	3.차변 4.대변
 		douzoneParam.put("ACCT_CD","11000");   //	계정코드	계정코드VIEW 참조
 		douzoneParam.put("REG_NB","");   //	거래처 사업자번호	거래처등록 VIEW 참조
-		douzoneParam.put("ACCT_AM",etrdpsAmt); //	금액	
-		douzoneParam.put("RMK_DC",etrdpsData.get("sumry"));  //	적요	
+		douzoneParam.put("ACCT_AM",etrdpsData.get("etrdpsAmt")); //	금액	
+		douzoneParam.put("RMK_DC", etrdpsData.get("sumry"));  //	적요	
 		douzoneParam.put("RMK_DCK","");  //	적요(보조어)	
 		douzoneParam.put("CCODE_TY","C1"); //	C관리항목 타입	"C1.사용부서만 지원 함.		계정과목등록 VIEW의 DEPTCD_TY 값을		조회하여 넣습니다."
 		douzoneParam.put("CT_DEPT","");	 // 사용부서코드	사용부서코드
 		douzoneParam.put("DCODE_TY","D1"); //	D관리항목 타입	"D1.프로젝트, D4.사원, D5사업장만 지원 함	계정과목등록VIEW의 PJTCD_TY 값을	조회하여 넣습니다."
 		douzoneParam.put("PJT_CD", "");  //	프로젝트코드	"프로젝트 VIEW,	사원 VIEW,	사업장 VIEW 참조"
-		douzoneParam.put("CT_AM",   etrdpsAmt);  //공급가액
+		douzoneParam.put("CT_AM",  etrdpsData.get("etrdpsAmt"));  //공급가액
 		
 		douzoneParam.put("CT_DEAL",  "");//	세무구분	"-부가세계정일 경우 : 세무구분코드 관리내역등록 VIEW 참조	-받을어음 계정일 경우 : '1' 로 등록		-지급어음 계정일 경우 : '2' 로 등록"
 		if(billData != null) {
@@ -183,6 +183,9 @@ public class AR05SvcImpl implements AR05Svc {
 	public int updateEtrdps(Map<String, Object> paramMap) {
 		Map<String, String> etrdpsData = (Map<String, String>) paramMap.get("etrdpsData");
 		Map<String, String> billData = (Map<String, String>) paramMap.get("billData");
+		// 원래 금액을 가져온다.
+		Map<String, String> etrdpsInfo = ar05Mapper.selectEtrdpsInfo(etrdpsData);
+		
 
 		int result = 0;
 		//마감 체크
@@ -195,6 +198,9 @@ public class AR05SvcImpl implements AR05Svc {
 			ar05Mapper.updateBill(billData);
 		}
 		result = ar05Mapper.updateEtrdps(etrdpsData);
+		
+		//  입금은 금액수정이 없음으로 한도에 반영안함.
+
 		return result;
 	}
 
