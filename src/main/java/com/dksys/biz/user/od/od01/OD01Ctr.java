@@ -87,7 +87,7 @@ public class OD01Ctr {
     	int result = od01Svc.updateConfirm(paramMap);
     	if(result == 0) {
 			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+			model.addAttribute("resultMessage", paramMap.get("diffLoan")+"만큼 여신이 부족합니다.");
 		} else if(result == 500) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
