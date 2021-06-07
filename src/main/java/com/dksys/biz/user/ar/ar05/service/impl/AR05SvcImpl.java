@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dksys.biz.admin.bm.bm02.mapper.BM02Mapper;
 import com.dksys.biz.user.ar.ar05.mapper.AR05Mapper;
 import com.dksys.biz.user.ar.ar05.service.AR05Svc;
+import com.dksys.biz.user.fi.douzone.mapper.DouzoneMapper;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.util.DateUtil;
 
@@ -24,6 +26,12 @@ public class AR05SvcImpl implements AR05Svc {
 	@Autowired
 	SD07Mapper sd07Mapper;
 	
+    @Autowired
+    DouzoneMapper douzoneMapper;
+    
+	@Autowired
+	BM02Mapper bm02Mapper;
+    
     
 	@Override
 	public int selectEtrdpsCount(Map<String, String> paramMap) {
@@ -83,8 +91,90 @@ public class AR05SvcImpl implements AR05Svc {
 		cdtlnData.put("clntCd", clntCd);
 		cdtlnData.put("etrdpsAmt", etrdpsAmt);
 		ar05Mapper.callCreditLoan(cdtlnData);
+/*------------------------------------------------------------------------------*/		
+		// 더존 I/F 시작
+		Map<String, Object> douzoneParam = new HashMap<String, Object>();
+		Map<String, String> clntData = bm02Mapper.selectClntInfo(etrdpsData);
+// 차변정리		
+		douzoneParam.put("CO_CD","");   //	회사코드	
+		douzoneParam.put("IN_DT", cdtlnData.get("etrdpsDt")); //거래일자	
+		douzoneParam.put("IN_SQ","");  //	거래순번	
+		douzoneParam.put("LN_SQ","");   //	분개라인순번	
+		douzoneParam.put("ISU_DT","00000000"); //	결의일자	더존에서 사용
+		douzoneParam.put("ISU_SQ","0");   //	결의번호	더존에서 사용
+		douzoneParam.put("DIV_CD","");   //	회계단위	
+		douzoneParam.put("DEPT_CD","");  //	결의부서	더존에서 사용
+		douzoneParam.put("EMP_CD","");   //	작성자	더존에서 사용
 		
+		douzoneParam.put("DRCR_FG","3");   //	차대구분	3.차변 4.대변
+		douzoneParam.put("ACCT_CD","11000");   //	계정코드	계정코드VIEW 참조
+		douzoneParam.put("REG_NB","");   //	거래처 사업자번호	거래처등록 VIEW 참조
+		douzoneParam.put("ACCT_AM",etrdpsAmt); //	금액	
+		douzoneParam.put("RMK_DC",etrdpsData.get("sumry"));  //	적요	
+		douzoneParam.put("RMK_DCK","");  //	적요(보조어)	
+		douzoneParam.put("CCODE_TY","C1"); //	C관리항목 타입	"C1.사용부서만 지원 함.		계정과목등록 VIEW의 DEPTCD_TY 값을		조회하여 넣습니다."
+		douzoneParam.put("CT_DEPT","");	 // 사용부서코드	사용부서코드
+		douzoneParam.put("DCODE_TY","D1"); //	D관리항목 타입	"D1.프로젝트, D4.사원, D5사업장만 지원 함	계정과목등록VIEW의 PJTCD_TY 값을	조회하여 넣습니다."
+		douzoneParam.put("PJT_CD", "");  //	프로젝트코드	"프로젝트 VIEW,	사원 VIEW,	사업장 VIEW 참조"
+		douzoneParam.put("CT_AM",   etrdpsAmt);  //공급가액
+		
+		douzoneParam.put("CT_DEAL",  "");//	세무구분	"-부가세계정일 경우 : 세무구분코드 관리내역등록 VIEW 참조	-받을어음 계정일 경우 : '1' 로 등록		-지급어음 계정일 경우 : '2' 로 등록"
+		if(billData != null) {
+			if("ETRDPS01".equals(etrdpsData.get("etrdpsTyp"))) {
+				douzoneParam.put("CT_DEAL",  "1");
+			}else {
+				douzoneParam.put("CT_DEAL",  "2");				
+			}
+		}
+		douzoneParam.put("NONSUB_TY",""); //	사유구분	"-세무구분이 23.면세매입, 24.매입불공제		  26.의제매입일 경우 필수입력		  관리내역등록 VIEW참조"
+		douzoneParam.put("FR_DT",""); //	시작일	"-부가세계정일 경우 : 신고기준일		-어음계정일 경우 : 발행일"
+		douzoneParam.put("TO_DT", "");//	종료일	어음계정일 경우 : 만기일
+		if(billData != null) {
+			douzoneParam.put("FR_DT",billData.get("bilPblsDt"));
+			douzoneParam.put("TO_DT",billData.get("exprntDt")); //	종료일	어음계정일 경우 : 만기일
+		}
+		douzoneParam.put("TO_DT", "");//	종료일	어음계정일 경우 : 만기일
+		douzoneParam.put("ISU_DOC", "");//	품의내역	
+		douzoneParam.put("ISU_DOCK", "");//	품의내역(보조어)	
+		douzoneParam.put("JEONJA_YN",""); //	전자세금계산서여부	0.부 1.여
+		douzoneParam.put("CT_NB", ""); //	관리번호	"-부가세계정이고 세무구분이 12.영세 16.수출일 경우 : 수출신고번호 -어음계정일 경우 : 어음번호"
+		if(billData != null) {
+		douzoneParam.put("CT_NB", etrdpsData.get("bilNo"));
+		}		
+		douzoneParam.put("CT_QT", "");//	환율	12.영세 16.수출일 경우에만 등록
+		douzoneParam.put("DUMMY1", "");//	환종	12.영세 16.수출일 경우에만 등록
+		douzoneParam.put("DUMMY2","");//	외화금액	12.영세 16.수출일 경우에만 등록
+		
+		douzoneParam.put("EMPTY1","");      //	여유1	
+		douzoneParam.put("INSERT_ID","");   //	입력자ID	
+	//  douzoneParam.put("INSERT_DT","");   //		입력일	
+		douzoneParam.put("INSERT_IP","");   //	입력자IP	
+	//	douzoneParam.put("MODIFY_ID", "");  //  수정자ID	전표발행 시 더존에서 UPDATE
+	//	douzoneParam.put("MODIFY_DT","")	//  수정일	전표발행 시 더존에서 UPDATE
+	//	douzoneParam.put("MODIFY_IP","");   //  수정자IP	전표발행 시 더존에서 UPDATE
+		douzoneParam.put("CEO_NM",   clntData.get("repstNm"));  //	대표자명	
+		douzoneParam.put("TR_NM",    clntData.get("clntNm"));   //	거래처명	
+		douzoneParam.put("TR_NMK",""); //	거래처명(보조어)	
+		douzoneParam.put("BUSINESS", clntData.get("bizconNm")); //	업태	
+		douzoneParam.put("JONGMOK",  clntData.get("bstyNm")); //	종목	
+		douzoneParam.put("ADDR1",    clntData.get("bizAddr")); //	주소	
+		douzoneParam.put("ADDR2",    clntData.get("bizAddrDtl")); //	주소상세	
+		douzoneParam.put("TR_CD",    clntData.get("crn"));//	거래처코드	"ICUBE 거래처코드를 알고 있을		경우 등록 (거래처등록 VIEW참조)		모를 경우 REG_NB 를 등록"
+		douzoneParam.put("CT_USER1",""); //	사용자정의관리항목	L코드 관리항목 코드를 등록
+		douzoneParam.put("CT_USER2",""); //	사용자정의관리항목	M코드 관리항목 코드를 등록
 
+		//douzoneMapper.insertAutodocuSimple(douzoneParam);
+//  대변 정리.
+		douzoneParam.put("DRCR_FG","4");   //	차대구분	3.차변 4.대변
+		douzoneParam.put("ACCT_CD","40101");   //	계정코드	계정코드VIEW 참조
+		douzoneParam.put("FR_DT","");    //	시작일	"-부가세계정일 경우 : 신고기준일		-어음계정일 경우 : 발행일"
+		douzoneParam.put("TO_DT", "");   //	종료일	어음계정일 경우 : 만기일
+		douzoneParam.put("CT_DEPT","");	 // 사용부서코드	사용부서코드
+		douzoneParam.put("PJT_CD", "");  //	프로젝트코드	"프로젝트 VIEW,	사원 VIEW,	사업장 VIEW 참조"
+		douzoneParam.put("CT_NB", "");   //	관리번호	"-부가세계정이고 세무구분이 12.영세 16.수출일 경우 : 수출신고번호 -어음계정일 경우 : 어음번호"
+
+		//douzoneMapper.insertAutodocuSimple(douzoneParam);
+		
 		return result;
 		
 	}
@@ -158,9 +248,11 @@ public class AR05SvcImpl implements AR05Svc {
 			}
 		}
 		// 마지막 마감일체츠하여 그 이전이면 수정불가
-		int maxEtrdpsCloseDay = Integer.parseInt(sd07resultMax.get("maxEtrdpsCloseDay").replace("-", ""));
-		if(sd07resultMax != null && maxEtrdpsCloseDay > Integer.parseInt(etrdpsDt)) {
-			return true;
+		if(sd07resultMax != null) {
+			int maxEtrdpsCloseDay = Integer.parseInt(sd07resultMax.get("maxEtrdpsCloseDay").replace("-", ""));		
+			if( maxEtrdpsCloseDay > Integer.parseInt(etrdpsDt)) {
+				return true;
+			}
 		}
 		return false;
 	}
