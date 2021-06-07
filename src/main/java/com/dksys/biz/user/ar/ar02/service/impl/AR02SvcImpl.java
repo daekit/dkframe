@@ -343,6 +343,7 @@ public class AR02SvcImpl implements AR02Svc {
 		map.put("amt", paramMap.get("realTotTrstAmt"));
 		long result = ar02Mapper.callCreditLoan(map);
 		if(result < Long.parseLong(paramMap.get("realTotTrstAmt"))) {
+			paramMap.put("diffLoan", String.valueOf(result - Long.parseLong(paramMap.get("realTotTrstAmt"))));
 			return true;
 		} else {
 			map.put("loanCd", 'P');

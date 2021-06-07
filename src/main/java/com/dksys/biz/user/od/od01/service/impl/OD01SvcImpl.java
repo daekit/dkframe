@@ -267,6 +267,7 @@ public class OD01SvcImpl implements OD01Svc {
         		loanMap.put("dlvrDttm", paramMap.get("dlvrDttm"));
         		loanMap.put("realTotTrstAmt", String.valueOf(totShipAmt));
         		if (ar02Svc.checkLoan(loanMap)) {
+        			paramMap.put("diffLoan", loanMap.get("diffLoan"));
 					return 0;
 				}
         	}
@@ -486,13 +487,13 @@ public class OD01SvcImpl implements OD01Svc {
 		}
 		
 		int result = 0;
-		int realTotTrstAmt = 0;
+		long totShipAmt = 0;
 		boolean bilgFlag = false;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		result = detailList.size();
-		String clntCd = paramMap.get("clntCd");
+		String sellClntCd = paramMap.get("sellClntCd");
 		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
@@ -500,7 +501,7 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
-			realTotTrstAmt += Integer.parseInt(detailMap.get("realDlvrAmt"));
+			totShipAmt += Integer.parseInt(detailMap.get("shipAmt"));
 
 			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 				
@@ -590,9 +591,16 @@ public class OD01SvcImpl implements OD01Svc {
 		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 			od01Mapper.updateCancelS(paramMap);
 			
+			// 2. 부가세율 조회해서 계산후 플러스
+    		Map<String, String> vatPerMap = new HashMap<String, String>();
+    		vatPerMap.put("selpchCd", "SELPCH2");
+    		vatPerMap.put("clntCd", sellClntCd);
+    		int bilgVatPer = ar02Mapper.selectBilgVatPer(vatPerMap);
+    		totShipAmt += Math.floor(totShipAmt * bilgVatPer / 100);
+			
 			// 여신 원복
-			paramMap.put("clntCd",  clntCd);
-			paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
+			paramMap.put("clntCd",  sellClntCd);
+			paramMap.put("creditAmt", String.valueOf(totShipAmt));
 			Map<String, Object> paramMapObj = new HashMap<>(paramMap);
 			ar02Svc.creditDeposit(paramMapObj);
 			
