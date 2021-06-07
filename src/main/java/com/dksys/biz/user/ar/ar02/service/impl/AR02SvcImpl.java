@@ -251,58 +251,45 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Override
 	public void insertSalesDivision(List<Map<String, String>> paramList) {
-		Map<String, String> originSales = ar02Mapper.selectSellInfo(paramList.get(0));
-		// 거래일자 하이픈 제거
-		originSales.put("TRST_DT", originSales.get("trstDt").toString().replaceAll("-", ""));
+		// 여신체크
+		long divTotAmt = 0;
+		for(Map<String, String> paramMap : paramList) {
+			divTotAmt += Long.parseLong(paramMap.get("divTotAmt"));
+		}
 		
-		for(int i=0;i<paramList.size();i++) {
-			Map<String, String> salesMap = paramList.get(i);
-			Map<String, String> paramMap = new HashMap<String, String>();
-			paramMap.putAll(originSales);
+		for(Map<String, String> paramMap : paramList) {
+			// paramList 순회하며 넘어온값 그대로 update
+//			ar02Mapper.updatePchsSell(paramMap);
+			// paramList 순회하며 분할된 데이터를 map에 update후 insert
+			Map<String, String> divMap = new HashMap<String, String>();
+			divMap.putAll(paramMap);
 			// 거래처
-			paramMap.put("clntCd", salesMap.get("clntCd"));
-			paramMap.put("clntNm", salesMap.get("clntNm"));
+			divMap.put("clntCd", paramMap.get("divClntCd"));
+			divMap.put("clntNm", paramMap.get("divClntNm"));
 			// 수량
-			paramMap.put("realTrstQty", salesMap.get("realTrstQty"));
+			divMap.put("realTrstQty", paramMap.get("divRealTrstQty"));
 			// 중량
-			paramMap.put("realTrstWt", salesMap.get("realTrstWt"));
+			divMap.put("realTrstWt", paramMap.get("divRealTrstWt"));
 			// 금액
-			paramMap.put("realTrstAmt", salesMap.get("realTrstAmt"));
+			divMap.put("realTrstAmt", paramMap.get("divRealTrstAmt"));
 			// 청구수량
-			paramMap.put("bilgQty", salesMap.get("bilgQty"));
+			divMap.put("bilgQty", paramMap.get("divBilgQty"));
 			// 청구중량
-			paramMap.put("bilgWt", salesMap.get("bilgWt"));
+			divMap.put("bilgWt", paramMap.get("divBilgWt"));
 			// 청구금액
-			paramMap.put("bilgAmt", salesMap.get("bilgAmt"));
+			divMap.put("bilgAmt", paramMap.get("divBilgAmt"));
 			// 부가세
-			paramMap.put("bilgVatAmt", salesMap.get("bilgVatAmt"));
+			divMap.put("bilgVatAmt", paramMap.get("divBilgVatAmt"));
 			// 할인금액
-			paramMap.put("trstDcAmt", salesMap.get("trstDcAmt"));
+			divMap.put("trstDcAmt", paramMap.get("divTrstDcAmt"));
 			// 사용자 아이디
-			paramMap.put("userId", salesMap.get("userId"));
+			divMap.put("userId", paramMap.get("userId"));
+			// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
+			divMap.put("pgmId", paramMap.get("creatPgm"));
 			// 수정 프로그램 아이디: 분할 화면ID
-			paramMap.put("updatePgmId", salesMap.get("updatePgmId"));
-			if(i == 0) {
-			// 원본 update
-				// 거래처가 변경되었을경우
-				if(!originSales.get("clntCd").toString().equals(salesMap.get("clntCd"))) {
-					// 원본계산서번호 제거
-					paramMap.put("orgnTaxBilgNo", "");
-					// 세금계산서 수정사유 제거
-					paramMap.put("rffAea", "");
-				}
-				ar02Mapper.updatePchsSell(paramMap);
-			} else {
-			// 신규 insert
-				// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
-				paramMap.put("pgmId", originSales.get("creatPgm"));
-				// 원본계산서번호 제거
-				paramMap.put("orgnTaxBilgNo", "");
-				// 세금계산서 수정사유 제거
-				paramMap.put("rffAea", "");
-				// insert
- 				ar02Mapper.insertPchsSell(paramMap);
-			}
+			divMap.put("updatePgmId", paramMap.get("updatePgmId"));
+			// insert
+//			ar02Mapper.insertPchsSell(divMap);
 		}
 	}
 	
