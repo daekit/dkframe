@@ -4,7 +4,7 @@
 <mapper namespace="com.dksys.biz.user.ar.ar08.mapper.AR08Mapper">
 	
 	<select id="selectBasisAmt" parameterType="Map" resultType="long">
-	  SELECT NVL(FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ),0) AS BASIS_AMT FROM DUAL;
+	  SELECT NVL(FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd}  ,#{bilgYn}),0) AS BASIS_AMT FROM DUAL;
 	</select>
 		
 	<select id="selectCreditList" parameterType="Map" resultType="CamelMap">
@@ -39,6 +39,9 @@
 			                  ON SD05.PRJCT_CD = A.PRJCT_CD
 			    WHERE REPLACE(A.TRST_DT, '-', '')  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
 			      AND BILG_CERT_NO IS NULL
+				  <if test= "bilgYn != null and !bilgYn.equals('')"> <!-- 계산서가 발행되었으면 제외하고 미발행 혹은 전체 일경우에 실행함. -->
+	 			  AND 'N' = #{bilgYn}
+				  </if>
 				  <if test= "clntCd != null and !clntCd.equals('')">
 	 			  AND A.TRST_CLNT_CD = #{clntCd}
 				  </if>
@@ -114,8 +117,8 @@
 						, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) ||':'|| FN_CM05M01_CD_TO_NM(A.SETLE_TYP_CD)  AS GUBUN_NM
 						, A.ETRDPS_TYP AS GUBUN_CD
 						, A.SUMRY AS BIGO
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
+						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
+						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
 						, 0
 			          	, '' AS rmk
 						FROM TB_AR05M01 A, TB_BM02M01 B
@@ -130,16 +133,41 @@
 						  <if test= "clntNm != null and !clntNm.equals('')">
 					 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						  </if>
-					      <if test= "selpchCd != null and !selpchCd.equals('')">
- 					         <choose>	
-							     <when test="selpchCd == 'SELPCH1'">
-							      AND ( A.ETRDPS_TYP IN ('ETRDPS02','ETRDPS03'))
-							     </when>			 	
-			 			         <otherwise>
-			 			          AND ( A.ETRDPS_TYP IN ('ETRDPS01','ETRDPS03'))
-			 			         </otherwise>
-						     </choose>
+					      <if test= "selpchCd != null and !selpchCd.equals('')"> <!-- 대변 매입 , 지급,상계, 지급보증-->
+						      AND #{selpchCd} = 'SELPCH1'
+						      AND (A.ETRDPS_TYP IN ('ETRDPS02','ETRDPS03','ETRDPS04'))
 					      </if>
+				UNION ALL 
+				SELECT  4 AS TYPE
+			   	        , ROWNUM AS RN
+				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM') AS TRST_YM
+				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+				        , A.CO_CD
+			        	, A.CLNT_CD
+						, B.CLNT_NM
+						, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) ||':'|| FN_CM05M01_CD_TO_NM(A.SETLE_TYP_CD)  AS GUBUN_NM
+						, A.ETRDPS_TYP AS GUBUN_CD
+						, A.SUMRY AS BIGO
+						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
+						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
+						, 0
+			          	, '' AS rmk
+						FROM TB_AR05M01 A, TB_BM02M01 B
+						WHERE A.CLNT_CD = B.CLNT_CD(+)		
+			              AND A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+						  <if test= "clntCd != null and !clntCd.equals('')">
+			 			  AND A.CLNT_CD = #{clntCd}
+						  </if>
+						  <if test= "coCd != null and !coCd.equals('')">
+					 	  AND A.CO_CD = #{coCd}
+						  </if>
+						  <if test= "clntNm != null and !clntNm.equals('')">
+					 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+						  </if>
+					      <if test= "selpchCd != null and !selpchCd.equals('')"> <!-- 차변 : 매출 , 지급,상계, 지급보증 보전-->
+						      AND #{selpchCd} = 'SELPCH2' 
+		 			          AND ( A.ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05'))
+					      </if>					      
 			     UNION
 			     SELECT  
 			           0 AS TYPE
@@ -169,7 +197,7 @@
 			          ,'전기 이월' AS BIGO
 			          , 0 AS PCHS_AMT
 			          , 0 AS SELL_AMT
-			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ) AS BASIS_AMT
+			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ,#{bilgYn}) AS BASIS_AMT
 			          , '' AS rmk
 			       FROM DUAL
 			) A
