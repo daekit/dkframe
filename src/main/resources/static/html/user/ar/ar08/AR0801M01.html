@@ -80,8 +80,8 @@
               <tr>
                 <th>매입매출구분</th>
                 <td>
-                    <select id="selpch_S" required="required">
-                    	<option value="">전체</option>
+                    <select id="selpch_S" required="required" onchange="gridView.setData(0);">
+<!--                     	<option value="">전체</option> -->
                     	<option value="SELPCH2">매출</option>
                     	<option value="SELPCH1">매입</option>
                  	</select>
@@ -98,6 +98,16 @@
 				<td>
 					<input type="checkbox" id="monthlySumYn"   name="monthlySumYn" value="Y">
 				</td>        
+             </tr>
+             <tr>
+                <th>게산서구분</th>
+                <td>
+                    <select id="bilgYn" required="required" onchange="gridView.setData(0);">
+                    	<option value="">전체</option>
+                    	<option value="Y">발행</option>
+<!--                     	<option value="N">미발행</option> -->
+                 	</select>
+                </td>    
              </tr>
             </table>
           </div>
@@ -163,14 +173,14 @@
 		            , mergeCells : ["trstDt"]
 		            , grouping: grouping
 		        },
-		        footSum: [
-			    	[
-			    		{label: "총계", colspan:4, align:"center"},
-			    		{key:"sellAmt", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "pchsAmt", collector: "sum", formatter:"money", align: "right"},
-			    		{key: "", collector: "sum", formatter:"money", align: "right"}
-			    	]
-			    ],
+// 		        footSum: [
+// 			    	[
+// 			    		{label: "총계", colspan:4, align:"center"},
+// 			    		{key:"sellAmt", collector: "sum", formatter:"money", align: "right"},
+// 	                    {key: "pchsAmt", collector: "sum", formatter:"money", align: "right"},
+// 			    		{key: "", collector: "sum", formatter:"money", align: "right"}
+// 			    	]
+// 			    ],
 // 		        page: {
 // 		            navigationItemCount: 9,
 // 		            height: 30,
@@ -233,6 +243,7 @@
 				"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
 				"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
 				"selpchCd"     : $("#selpch_S").val(),
+				"bilgYn"       : $("#bilgYn").val(),
 				"dailySumYn"   : dailySumYn,
 				"monthlySumYn" : monthlySumYn,
 				"pageNo"       : 1, //_pageNo + 1,
@@ -330,10 +341,11 @@
 		var formData = {
 				"coCd"      : $("#coCd_S").val(),
 				"clntCd"    : $("#clntCd_S").val(),
-				"clntNm" : $("#clntNm_S").val(),
+				"clntNm"    : $("#clntNm_S").val(),
 				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
 				"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
 				"selpchCd"  : $("#selpch_S").val(),
+				"bilgYn"    : $("#bilgYn").val(),
 				"pageNo"    : 1,
 				"recordCnt" : 9999999
 			}
@@ -359,6 +371,7 @@
 		var strtDt   = $("#strtDt_S").val(); //.replace(/\-/g,'');
 		var endDt    = $("#endDt_S").val();  //.replace(/\-/g,'');
 		var selpchCd = $("#selpch_S").val();
+		var bilgYn   = $("#bilgYn").val();
 		var dailyYn  = "N";
 		var monthYn  = "N";
 		var clntList = 0;
@@ -385,7 +398,7 @@
  				}
 			});	
 		}
-	debugger;	
+	
 		var fileName = "AR0801R01.jrf";
 		if ( dailyYn != "Y"){
 			fileName = "AR0801R02.jrf";  // 일계 제외
@@ -398,6 +411,7 @@
                 + "#selpchCd#"		+ selpchCd
                 + "#dailyYn#"		+ dailyYn
                 + "#monthYn#"		+ monthYn
+                + "#bilgYn#"		+ bilgYn
 		         + "#";
 
 //	alert(arg);
