@@ -392,11 +392,12 @@ public class AR02SvcImpl implements AR02Svc {
 			if("Y".equals(sd07result.get("sellCloseYn")) && closeDay < today) {
 				return false;
 			}
-		}
-		if(sd07resultMax != null) {
-			int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
-			if(Integer.parseInt(trstDt) < maxSellCloseDay) {
-				return false;
+		}else {
+			if(sd07resultMax != null) {
+				int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
+				if(Integer.parseInt(trstDt) < maxSellCloseDay) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -418,11 +419,12 @@ public class AR02SvcImpl implements AR02Svc {
 			if("Y".equals(sd07result.get("pchsCloseYn")) && closeDay < today) {
 				return false;
 			}
-		}
-		if(sd07resultMax != null) {
-			int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
-			if(Integer.parseInt(trstDt) < maxPchsCloseDay) {
-				return false;
+		}else {
+			if(sd07resultMax != null) {
+				int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
+				if(Integer.parseInt(trstDt) < maxPchsCloseDay) {
+					return false;
+				}
 			}
 		}
 		return true;
