@@ -187,7 +187,7 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateConfirm(Map<String, String> paramMap) {
 		// 마감 체크
 //		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
-		if(ar02Svc.checkSellClose(paramMap)) {
+		if(!ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
 		int result = 0;
@@ -427,7 +427,7 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateCancel(Map<String, String> paramMap) {
 		
 		// 마감 체크
-		if(ar02Svc.checkSellClose(paramMap)) {
+		if(!ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
 		
