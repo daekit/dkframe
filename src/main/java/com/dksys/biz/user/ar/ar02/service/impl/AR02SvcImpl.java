@@ -71,12 +71,12 @@ public class AR02SvcImpl implements AR02Svc {
 			closeChkMap.put("dlvrDttm",detailMap.get("trstDt").toString());
 			closeChkMap.put("coCd",detailMap.get("coCd").toString());
 	        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
-				if(ar02Svc.checkPchsClose(closeChkMap)) {
+				if(!ar02Svc.checkPchsClose(closeChkMap)) {
 					return 500;				
 				}
 	        }
 	        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
-				if(ar02Svc.checkSellClose(closeChkMap)) {
+				if(!ar02Svc.checkSellClose(closeChkMap)) {
 					return 501;
 				}	
 	        }
@@ -112,13 +112,13 @@ public class AR02SvcImpl implements AR02Svc {
 		//마감 체크
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkPchsClose(paramMap)) {
+			if(!ar02Svc.checkPchsClose(paramMap)) {
 				return 500;				
 			}
         }
         if("SELPCH2".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkSellClose(paramMap)) {
+			if(!ar02Svc.checkSellClose(paramMap)) {
 				return 501;
 			}	
         }
@@ -163,13 +163,13 @@ public class AR02SvcImpl implements AR02Svc {
 		//마감 체크
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkPchsClose(paramMap)) {
+			if(!ar02Svc.checkPchsClose(paramMap)) {
 				return 500;				
 			}
         }
         if("SELPCH2".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkSellClose(paramMap)) {
+			if(!ar02Svc.checkSellClose(paramMap)) {
 				return 501;
 			}	
         }
@@ -389,17 +389,17 @@ public class AR02SvcImpl implements AR02Svc {
 		if(sd07result != null) {
 			int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
 			int closeDay = Integer.parseInt(sd07result.get("sellCloseDttm").replace("-", ""));
-			if("Y".equals(sd07result.get("sellCloseYn")) && today > closeDay) {
-				return true;
+			if("Y".equals(sd07result.get("sellCloseYn")) && closeDay < today) {
+				return false;
 			}
 		}
 		if(sd07resultMax != null) {
 			int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
 			if(maxSellCloseDay > Integer.parseInt(trstDt)) {
-				return true;
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -415,17 +415,17 @@ public class AR02SvcImpl implements AR02Svc {
 		if(sd07result != null) {
 			int today       = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
 			int closeDay    = Integer.parseInt(sd07result.get("pchsCloseDttm").replace("-", ""));
-			if("Y".equals(sd07result.get("pchsCloseYn")) && today > closeDay) {
-				return true;
+			if("Y".equals(sd07result.get("pchsCloseYn")) && closeDay < today) {
+				return false;
 			}
 		}
 		if(sd07resultMax != null) {
 			int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
 			if(maxPchsCloseDay > Integer.parseInt(trstDt)) {
-				return true;
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 }
