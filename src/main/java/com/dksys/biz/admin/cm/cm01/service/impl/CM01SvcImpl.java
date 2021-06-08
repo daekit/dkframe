@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.admin.cm.cm01.mapper.CM01Mapper;
 import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
+import com.tmax.tibero.Debug;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -47,18 +48,28 @@ public class CM01SvcImpl implements CM01Svc {
 	public List<Map<String, Object>> selectMenuAuth(String[] authArray) {
 		String roleStr = "";
 		String menuStr = "";
+		String saveYnStr = "";
 		List<String> roleList = cm01Mapper.selectRoleFromAuth(authArray);
 		for (int i = 0; i < roleList.size(); i++) {
 			roleStr += roleList.get(i) + ",";
 		}
 		String[] roleArray = roleStr.split(",");
 		roleArray = Arrays.stream(roleArray).distinct().toArray(String[]::new);
-		List<String> menuList = cm01Mapper.selectMenuFromRole(roleArray);
+		List<Map<String, String>> menuList = cm01Mapper.selectMenuFromRole(roleArray);
 		for (int i = 0; i < menuList.size(); i++) {
-			menuStr += menuList.get(i) + ",";
+			menuStr += menuList.get(i).get("roleMenu") + ",";
+			saveYnStr += menuList.get(i).get("saveYn") + ",";
 		}
 		String[] menuArray = menuStr.split(",");
 		List<Map<String, Object>> result = cm01Mapper.selectMenuAuth(menuArray);
+		for(Map<String, Object> map : result) {
+			for(Map<String, String> menuMap : menuList) {
+				if(map.get("menuId").toString().equals((menuMap.get("roleMenu")))){
+					map.put("save_Yn", menuMap.get("saveYn"));
+				}
+			}
+		}
+		System.out.println(result);
 		return result;
 	}
 
@@ -74,9 +85,9 @@ public class CM01SvcImpl implements CM01Svc {
 		}
 		String[] roleArray = roleStr.split(",");
 		roleArray = Arrays.stream(roleArray).distinct().toArray(String[]::new);
-		List<String> menuList = cm01Mapper.selectMenuFromRole(roleArray);
+		List<Map<String, String>> menuList = cm01Mapper.selectMenuFromRole(roleArray);
 		for (int i = 0; i < menuList.size(); i++) {
-			menuStr += menuList.get(i) + ",";
+			menuStr += menuList.get(i).get("roleMenu") + ",";
 		}
 		
 		String[] menuArray = menuStr.split(",");
