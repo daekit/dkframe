@@ -490,7 +490,8 @@ function checkMenuAuth(accessList) {
 		
 		$.each(accessList, function(idx, item){
 			if(item.menuType == "HTML" && item.useYn == 'Y') { 
-				html = '<dl><dd><a href="'+item.menuUrl+'" onclick="insertPgmHistory(\''+item.menuUrl+'\');">'+item.menuNm+'</a></dd></dl>';
+				html = '<dl><dd><a href="'+item.menuUrl+'" onclick="setCookie(\'menuSaveYn\', \''+item.saveYn+'\', 1); insertPgmHistory(\''+item.menuUrl+'\');">'+item.menuNm+'</a></dd></dl>';
+				//html = '<dl><dd><a href="'+item.menuUrl+'" onclick="insertPgmHistory(\''+item.menuUrl+'\');">'+item.menuNm+'</a></dd></dl>';
 				$("#"+item.upMenuId).append(html);
 			}
 		});
@@ -772,4 +773,14 @@ $.urlParam = function(name){
     } else {
      return null;
     }
+}
+
+function authChk(){
+	$.each($("[authchk]"), function(idx, elem){
+		if(getCookie("menuSaveYn") == "Y"){
+			$(elem).show();
+		} else {
+			$(elem).hide();
+		}
+	});
 }

@@ -31,6 +31,7 @@ public class AR08Svcmpl implements AR08Svc {
 		List<Map<String, String>> result = new ArrayList<Map<String, String>>();
 		Map<String, String> lastResultD = new HashMap<String, String>();
 		Map<String, String> lastResultM = new HashMap<String, String>();
+		Map<String, String> lastResult  = new HashMap<String, String>();
 		
 		String gubunCd  = "";
 		String selpchCd = "";
@@ -118,6 +119,8 @@ public class AR08Svcmpl implements AR08Svc {
 			dDailyAmt   += Long.parseLong(String.valueOf(detailMap.get("sellAmt")));
 			cMonthAmt   += Long.parseLong(String.valueOf(detailMap.get("pchsAmt")));
 			dMonthAmt   += Long.parseLong(String.valueOf(detailMap.get("sellAmt")));
+			cAmt        += Long.parseLong(String.valueOf(detailMap.get("pchsAmt")));
+			dAmt        += Long.parseLong(String.valueOf(detailMap.get("sellAmt")));
 			/* 당월 기초 +매출 +지급  -매입 -수금 : 잔액  
 			   매입 채권 조회시 : 당월기초 + 매입-지급
 			   매출 채권 조회 시 : 당월기초 + 매출 - 수금
@@ -152,7 +155,12 @@ public class AR08Svcmpl implements AR08Svc {
 	    	lastResultM.put("remaindAmt",String.valueOf(remaindAmt));
 			result.add(lastResultM);			
 		}
-		
+		//누계생성
+	    	lastResult.put("trstDt","누  계");	
+	    	lastResult.put("pchsAmt",String.valueOf(cAmt));	
+	    	lastResult.put("sellAmt",String.valueOf(dAmt));
+	    	lastResult.put("remaindAmt",String.valueOf(remaindAmt));
+			result.add(lastResult);	
 		return result;
 	}
 }
