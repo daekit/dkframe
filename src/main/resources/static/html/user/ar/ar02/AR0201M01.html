@@ -946,15 +946,13 @@
 		var modalTitle = "";
 		actionType = type;
 		if (type == "U") {
-			var rowLength = subGridView.target.getList("selected").length;
-			if (rowLength == 0) {
-				alert("반품 건을 선택해 주세요.");
-				return;
-			} else if (rowLength > 1) {
-				alert("반품은 한건 씩 가능합니다.");
-				return;
-			}
 			modalTitle = "반품";
+			if(!checkGridRow(subGridView.target, "single")) return false;
+			var obj = subGridView.target.getList("selected")[0];
+			if(obj.bilgYn == "N"){
+				alert("매출이 확정된 건만 가능합니다.");
+				return false;
+			}
 		} else {
 			modalTitle = "매출등록";
 		}
