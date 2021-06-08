@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.dksys.biz.exc.CreditLoanException;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
@@ -222,7 +223,6 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockWt",  String.valueOf(stockWt));
 		}
 		
-		paramMap.put("taxivcCoprt", paramMap.get("estCoprt"));
 		long bilgAmt    = Long.parseLong(paramMap.get("bilgAmt"));
 		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
@@ -250,16 +250,29 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 	
 	@Override
-	public void insertSalesDivision(List<Map<String, String>> paramList) {
+	public void insertSalesDivision(List<Map<String, String>> paramList) throws Exception{
 		// 여신체크
-		long divTotAmt = 0;
-		for(Map<String, String> paramMap : paramList) {
-			divTotAmt += Long.parseLong(paramMap.get("divTotAmt"));
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		long totAmt = 0;
+		for(int i=0;i<paramList.size();i++) {
+			Map<String, String> paramMap = paramList.get(i);
+			if(i==0) {
+				loanMap.put("coCd", paramMap.get("coCd"));
+				loanMap.put("clntCd", paramMap.get("divClntCd"));
+				loanMap.put("trstDt", paramMap.get("trstDt"));
+			}
+			totAmt += Long.parseLong(paramMap.get("divTotAmt"));
+		}
+		loanMap.put("totAmt", totAmt);
+		
+		Long diffLoan =  checkLoan2(loanMap);
+		if(diffLoan < 0) {
+			throw new CreditLoanException(diffLoan);
 		}
 		
 		for(Map<String, String> paramMap : paramList) {
 			// paramList 순회하며 넘어온값 그대로 update
-//			ar02Mapper.updatePchsSell(paramMap);
+			ar02Mapper.updatePchsSell(paramMap);
 			// paramList 순회하며 분할된 데이터를 map에 update후 insert
 			Map<String, String> divMap = new HashMap<String, String>();
 			divMap.putAll(paramMap);
@@ -282,6 +295,8 @@ public class AR02SvcImpl implements AR02Svc {
 			divMap.put("bilgVatAmt", paramMap.get("divBilgVatAmt"));
 			// 할인금액
 			divMap.put("trstDcAmt", paramMap.get("divTrstDcAmt"));
+			// 비고
+			divMap.put("trspRmk", paramMap.get("divTrspRmk"));
 			// 사용자 아이디
 			divMap.put("userId", paramMap.get("userId"));
 			// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
@@ -289,7 +304,7 @@ public class AR02SvcImpl implements AR02Svc {
 			// 수정 프로그램 아이디: 분할 화면ID
 			divMap.put("updatePgmId", paramMap.get("updatePgmId"));
 			// insert
-//			ar02Mapper.insertPchsSell(divMap);
+			ar02Mapper.insertPchsSell(divMap);
 		}
 	}
 	
@@ -321,6 +336,7 @@ public class AR02SvcImpl implements AR02Svc {
 		return false;
 	}
 	
+	@Override
 	public boolean checkLoan(Map<String, String> paramMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("loanCd", 'C');
@@ -338,6 +354,25 @@ public class AR02SvcImpl implements AR02Svc {
 			ar02Mapper.callCreditLoan(map);
 		}
 		return false;
+	}
+	
+	@Override
+	public long checkLoan2(Map<String, Object> paramMap) {
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("loanCd", 'C');
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
+		loanMap.put("amt", paramMap.get("totAmt"));
+		long creditLoan  = ar02Mapper.callCreditLoan(loanMap);
+		long diffLoan = creditLoan - (Long)paramMap.get("totAmt");
+		
+		if(diffLoan >= 0){
+			loanMap.put("loanCd", 'P');
+			ar02Mapper.callCreditLoan(loanMap);
+		}
+		
+		return diffLoan;
 	}
 	
 	@Override
