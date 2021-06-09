@@ -505,8 +505,8 @@ function logoutClick(){
 }
 
 //공통코드 검색 함수 
-function setCommonSelect(el){
-	$.each(el, function(idx, elem){
+function setCommonSelect(selectArr){
+	$.each(selectArr, function(idx, elem){
 		var param = {
 			"codeKind" : $(elem).data('kind'),
 			"codeRprc" : $(elem).data('rprc'),
