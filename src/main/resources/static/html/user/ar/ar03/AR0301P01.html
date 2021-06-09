@@ -324,8 +324,6 @@
 	}
 	
 	function selectCaryngInfo(){
-		
-		debugger;
 		postAjax("/user/ar/ar03/selectCaryngInfo", commonModal.paramObj, null, function(data){
 			setCaryngInfo(data.result);
 		});
@@ -336,12 +334,15 @@
 		//메인정보 세팅
 		$.each(transInfo, function(key, value){
 			$('#transViewDiv #'+key).val(value);
+			if(key=="transDt"){
+				$('#'+key).datepicker("setDate", moment(value, 'YYYYMMDD').toDate());
+			}
 		});
 		//콤마세팅
 		$.each($('#transViewDiv input[comma]'), function(idx, elem){
 			onlyNumber(elem);
 		});
-		//출하요청서
+		//출하요청서		
 		AR01GridView.setData(0);
 	}
 	
@@ -364,9 +365,7 @@
 		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
 	} */
 	
-	function insertCaryng() {
-		debugger;
-		
+	function insertCaryng() {		
 		if(inputValidation($('#transViewDiv [required]'))) {
 			var formData = makeCaryngData();
 			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
