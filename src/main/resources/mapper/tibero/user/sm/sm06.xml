@@ -21,9 +21,8 @@
 					 , OWNER_NM
 					 , CLNT_CD
 					 , CLNT_NM
+					 , PRJCT_CD
 					 , PRJCT_NM
-					 , MAKR_CD
-					 , MAKR_NM
 					 , SUM(STOCK_QTY) STOCK_QTY
 	 				 , SUM(STOCK_AMT) STOCK_AMT
 					 FROM
@@ -42,9 +41,8 @@
 							 , FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
 							 , A.CLNT_CD
 						     , E.CLNT_NM
+						     , A.PRJCT_CD
 							 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
-							 , A.MAKR_CD
-							 , FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
 							 , A.STOCK_QTY STOCK_QTY
 							 , A.STOCK_WT  STOCK_WT
 							 , A.STOCK_QTY * A.STOCK_UPR STOCK_AMT
@@ -100,9 +98,8 @@
 					 , OWNER_NM
 					 , CLNT_CD
 					 , CLNT_NM
-					 , PRJCT_NM
-					 , MAKR_CD
-					 , MAKR_NM)
+					 , PRJCT_CD
+					 , PRJCT_NM)
 			<where>
 			<if test="prjctNm != null and !prjctNm.equals('')">
 				 PRJCT_NM  LIKE '%'||#{prjctNm}||'%'
@@ -131,9 +128,8 @@
 					 , OWNER_NM
 					 , CLNT_CD
 					 , CLNT_NM
+					 , PRJCT_CD
 					 , PRJCT_NM
-					 , MAKR_CD
-					 , MAKR_NM
 					 , SUM(STOCK_QTY) STOCK_QTY
 					 , SUM(STOCK_WT)  STOCK_WT
 	 				 , SUM(STOCK_AMT) STOCK_AMT
@@ -153,9 +149,8 @@
 							 , FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
 							 , A.CLNT_CD
 						     , E.CLNT_NM
+						     , A.PRJCT_CD
 							 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
-							 , A.MAKR_CD
-							 , FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
 							 , A.STOCK_QTY STOCK_QTY
 							 , A.STOCK_WT  STOCK_WT
 							 , A.STOCK_QTY * A.STOCK_UPR STOCK_AMT
@@ -211,9 +206,8 @@
 					 , OWNER_NM
 					 , CLNT_CD
 					 , CLNT_NM
+					 , PRJCT_CD
 					 , PRJCT_NM
-					 , MAKR_CD
-					 , MAKR_NM
 			) D
 			<where>
 			<if test="prjctNm != null and !prjctNm.equals('')">
@@ -255,6 +249,9 @@
 				<if test="impYn != null and impYn.equals('')">
 					AND A.IMP_YN = #{impYn}
 				</if>
+				<if test="prjctCd != null and !prjctCd.equals('')">
+					AND A.PRJCT_CD = #{prjctCd}
+				</if>	 
 				
 	</select>
 	
@@ -323,9 +320,12 @@
 				<if test='prdtCd != null and prdtCd != ""'>
 					AND A.PRDT_CD = #{prdtCd}
 				</if>
-				<if test="impYn != null and impYn.equals('')">
+				<if test='impYn != null and impYn != ""'>
 					AND A.IMP_YN = #{impYn}
 				</if>
+				<if test='prjctCd != null and prjctCd != ""'>
+					AND A.PRJCT_CD = #{prjctCd}
+				</if>	 
 				ORDER BY A.CO_CD, A.PRDT_CD, A.TYP_CD, A.IMP_YN, A.WH_CD, A.OWNER_CD, A.CLNT_CD
 			)D
 		)
