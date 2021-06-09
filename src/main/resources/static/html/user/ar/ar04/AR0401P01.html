@@ -205,12 +205,12 @@
 	            </colgroup>
 				<tr>
 					<th class="tc"></th>
-					<th class="hit">순번</th>
+					<th class="tc hit">순번</th>
 					<th class="tc">구입일자</th>
-					<th class="tc">품목명</th>
+					<th class="tc hit">품목명</th>
 					<th class="tc">코드</th>
 					<th class="tc">규격</th>
-					<th class="tc">수량</th>
+					<th class="tc hit">수량</th>
 					<th class="tc">단가</th>
 					<th class="tc">공급가액</th>
 					<th class="tc">세액</th>
@@ -221,12 +221,12 @@
 					<td><input type="checkbox" name="detailChkBox"></td>
 					<td><input type="text" id="ard113a" name="ard113a" style="text-align:center" comma onkeyup="onlyNumber(this);" readonly></td>
 					<td><input type="text" class="input_calendar" id="moa95004" name="moa95004" style="text-align:center"></td>
-					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left" maxLength="50"></td>
+					<td><input type="text" id="ard5006" name="ard5006" style="text-align:left" maxLength="50" required msg="품목명"></td>
 					<td><input type="text" id="mea106154" name="mea106154" style="text-align:center" maxLength="25"></td>
 					<td><input type="text" id="dms1056" name="dms1056" style="text-align:center" maxLength="30"></td>
-					<td><input type="text" id="mea106314" name="mea106314" style="text-align:right" comma onkeyup="onlyNumber(this);" maxLength="9"></td>
+					<td><input type="text" id="mea106314" name="mea106314" style="text-align:right" comma onkeyup="onlyNumber(this);" maxLength="9" required msg="수량"></td>
 					<td><input type="text" id="moa10146" name="moa10146" style="text-align:right" comma onkeyup="onlyNumber(this);" maxLength="13"></td>
-					<td><input type="text" id="moa1023" name="moa1023" style="text-align:right" comma onkeyup="onlyNumber(this);" maxLength="13"></td>
+					<td><input type="text" id="moa1023" name="moa1023" style="text-align:right" comma onkeyup="onlyNumber(this); calMoa10124(this);" maxLength="13"></td>
 					<td><input type="text" id="moa10124" name="moa10124" style="text-align:right" comma onkeyup="onlyNumber(this);" maxLength="13"></td>
 					<td><input type="text" id="dms1000" name="dms1000" style="text-align:left" maxLength="50"></td>
 					<td><div><a name="copyRow" onclick="copyRow(this);">복사</a></div> </td>
@@ -530,5 +530,13 @@
 		$.each($('input[name="ard113a"]'), function(idx, elem){
 			$(elem).val(idx+1);
 		});
+	}
+	
+	//세액 계산
+	function  calMoa10124(elem){
+		console.log("calMoa10146");
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		var moa1023 = Number(deleteCommaStr($targetRow.find('input[name="moa1023"]').val())) || 0;
+		$targetRow.find('input[name="moa10124"]').val(addCommaStr(Math.floor(moa1023 * 0.1)));
 	}
 </script>
