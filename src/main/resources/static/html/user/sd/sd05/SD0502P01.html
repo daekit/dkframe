@@ -72,24 +72,26 @@
 							</a>
 						</div>
 					</td>
-					<th class="">제강사</th>
-					<td class="tl">
-						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%"></select>
-  						<label for="tnkeyYn">제강사턴키여부</label>
-						<input type="checkbox" id="tnkeyYn" name="tnkeyYn">
+					<th>판매지역</th>
+					<td>
+						<select data-kind="SALESAREA" id="salesAreaCd" name="salesAreaCd">
+<!-- 							<option value="">전체</option> -->
+						</select>
 					</td>
+
 				</tr>
 				<tr>
 					<th class="hit">프로젝트명</th>
 					<td colspan="3">
 						<input id="prjctNm" name="prjctNm" type="text" style="width: 100%;" required="required" msg="프로젝트명" maxlength="50">
 					</td>
-					<th>매입계약기간</th>
-					<td class="drctArea tl">
-						<div class="date_input">
-							<input id="pchsStrtDt2" name="pchsStrtDt" class="input_calendar" autocomplete="off" msg="제강사 구매시작일자">
-							<span>~</span>
-							<input id="pchsEndDt2" name="pchsEndDt" class="input_calendar" autocomplete="off"  msg="제강사 구매종료일자">
+					<th>매입처</th>
+					<td class="drctArea">
+						<input type="hidden" id="pchsClntCd" name="pchsClntCd" style="width: 76%;">
+						<div class="search_form">
+							<input type="text" id="pchsClntNm" name="pchsClntNm" readonly="readonly">
+							<a onclick="clntSearch('PCHS');"><i class="i_search_w"></i>
+							</a>
 						</div>
 					</td>
 				</tr>
@@ -117,9 +119,11 @@
 					<td>
 						<input id="telNo" name="telNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
 					</td>
-					<th class="">담당자(제강사)</th>
-					<td>
-						<input id="makrMngNm" name="makrMngNm" type="text" maxlength="25">
+					<th class="">제강사</th>
+					<td class="tl">
+						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%" onchange="getPchsClnt(this.value)"></select>
+  						<label for="tnkeyYn">제강사턴키여부</label>
+						<input type="checkbox" id="tnkeyYn" name="tnkeyYn" onchange="getPchsClnt('TNKEY')">
 					</td>
 				</tr>
 				<tr>
@@ -130,18 +134,57 @@
 					<th class="">Fax</th>
 					<td>
 						<input id="clntFaxNo" name="clntFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
-					</td>	
-					<th>판매지역</th>
-					<td>
-						<select data-kind="SALESAREA" id="salesAreaCd" name="salesAreaCd">
-<!-- 							<option value="">전체</option> -->
-						</select>
 					</td>
+					
+					<th>매입계약기간</th>
+					<td class="drctArea tl">
+						<div class="date_input">
+							<input id="pchsStrtDt2" name="pchsStrtDt" class="input_calendar" autocomplete="off" msg="제강사 구매시작일자">
+							<span>~</span>
+							<input id="pchsEndDt2" name="pchsEndDt" class="input_calendar" autocomplete="off"  msg="제강사 구매종료일자">
+						</div>
+					</td>
+	
+
 				</tr>
 			</table>
-			<input type="hidden" id="userId" name="userId"> 
-			<input type="hidden" id="pgmId" name="pgmId" value="SD0501M01">
-			<input type="hidden" id="prjctCd" name="prjctCd">
+			<input type="hidden" id="userId"    name="userId"> 
+			<input type="hidden" id="pgmId"     name="pgmId" value="SD0501M01">
+			<input type="hidden" id="prjctCd"   name="prjctCd">
+			<input type="hidden" id="prcsnUpr"  name="prcsnUpr">
+			<input type="hidden" id="lossRate"  name="lossRate">
+			<input type="hidden" id="outordLossRate" name="outordLossRate">
+			<input type="hidden" id="outordUpr" name="outordUpr">
+			<input type="hidden" id="scndWhCd"  name="scndWhCd">
+			<input type="hidden" id="thrdWhCd"  name="thrdWhCd">
+<!-- 						<th>가공단가(원/톤)</th> -->
+<!-- 						<td> -->
+<!-- 							<input id="prcsnUpr" name="prcsnUpr" type="text" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="13" comma> -->
+<!-- 						</td> -->
+<!-- 						<th class="">Loss율(%)</th> -->
+<!-- 						<td> -->
+<!-- 							<input id="lossRate" name="lossRate" type="text" onkeyup="onlyNumber(this)"> -->
+<!-- 						</td> -->
+<!-- 						<th class="">Loss율(%)</th> -->
+<!-- 						<td> -->
+<!-- 							<input id="outordLossRate" name="outordLossRate" type="text" onkeyup="onlyNumber(this)"> -->
+<!-- 						</td>										 -->
+<!-- 						<th>단가</th> -->
+<!-- 						<td> -->
+<!-- 							<input id="outordUpr" name="outordUpr" type="text" maxlength="13" onkeyup="onlyNumber(this); onlyNumber(this);" comma> -->
+<!-- 						</td>						 -->
+<!-- 						<th>외주가공장1</th> -->
+<!-- 						<td> -->
+<!-- 							<select id="scndWhCd" name="scndWhCd" data-kind="WH"> -->
+<!-- 								<option value="">전체</option> -->
+<!-- 							</select> -->
+<!-- 						</td>	 -->
+<!-- 						<th>외주가공장2</th> -->
+<!-- 						<td> -->
+<!-- 							<select id="thrdWhCd" name="thrdWhCd" data-kind="WH"> -->
+<!-- 								<option value="">전체</option> -->
+<!-- 							</select> -->
+<!-- 						</td> -->
 			<!-- 계약사항 -->
 			<div class="form-group popup_table">
 				<table>
@@ -184,6 +227,8 @@
 						<td>
 							<input id="prdtUpr" name="prdtUpr" type="text" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="13" comma>
 						</td>
+						<th></th>
+					    <td></td>
 					</tr>
 					<tr>
 						<th>결재조건</th>
@@ -197,7 +242,7 @@
 							<input type="text"  id="clmnDay" name="clmnDay" maxlength="20" style="width: 30% !important;">
 							<input type="hidden" id="clmnRmk" name="clmnRmk" style="width: 76%;" maxlength="20">
 						</td>
-						<th>담당자</th>
+						<th>영업담당자</th>
 						<td>
 							<input type="hidden" id="mngId" name="mngId" style="width: 76%;" maxlength="20">
 							<div class="search_form">
@@ -305,7 +350,7 @@
 						<col>
 					</colgroup>
 					<tr>
-						<th rowspan="3">턴키<br>외주<br>진행
+						<th rowspan="4">턴키<br>외주<br>진행
 						</th>
 						<th>외주가공장</th>
 						<td>
@@ -313,35 +358,30 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>외주가공장1</th>
-						<td>
-							<select id="scndWhCd" name="scndWhCd" data-kind="WH">
-								<option value="">전체</option>
-							</select>
-						</td>	
-						<th>외주가공장2</th>
-						<td>
-							<select id="thrdWhCd" name="thrdWhCd" data-kind="WH">
-								<option value="">전체</option>
-							</select>
-						</td>	
-
+						<th rowspan="4">외주 비고</th>
+						<td rowspan="4" colspan="3">
+							<textarea class="form-control" id="rmk" name="rmk" style="width: 100%; height: 100px;" maxlength="500"></textarea>
+						</td>
 					</tr>
 					<tr>
 
 						<th>외주담당자</th>
 						<td>
-							<input type="hidden" id="outordMngCd" name="outordMngCd" style="width: 76%;">
+							<input type="hidden" id="outordMngId" name="outordMngId" style="width: 76%;">
 							<div class="search_form">
 								<input type="text" id="outordMngNm" name="outordMngNm" readonly="readonly"> 
 								<a onclick="openUserTree2();"><i class="i_search_w"></i>
 								</a>
 							</div>
-						</td>	
+					</tr>
+					<tr>
 						<th>연락처</th>
 						<td>
 							<input id="outordTelNo" name="outordTelNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
 						</td>
+						
+					</tr>
+					<tr>
 						<th>Fax</th>
 						<td>
 							<input id="outordFaxNo" name="outordFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
@@ -911,28 +951,33 @@
 		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
 			var checkedId = tree.get_checked()[0];
 			var checkedNode = tree.get_node(checkedId);
-			$('#outordMngCd').val(checkedNode.id);
+			$('#outordMngId').val(checkedNode.id);
 			$('#outordMngNm').val(checkedNode.text);
 		});
 	}
 	//거래처
-	function clntSearch() {
+	function clntSearch(type) {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd').val(row.clntCd);
-			$('#clntNm').val(row.clntNm);
+			if(type=='PCHS'){
+				$('#pchsClntCd').val(row.clntCd);
+				$('#pchsClntNm').val(row.clntNm);				
+			}else{
+				$('#clntCd').val(row.clntCd);
+				$('#clntNm').val(row.clntNm);	
 			
-			var paramObj = {
-					"coCd": $('#coCd').val(),
-					"clntCd": row.clntCd
-				}
-				
-			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {	
-				if(data.mngInfo){
-					$('#mngId').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-					$('#mngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"
-				}
-			});
+				var paramObj = {
+						"coCd": $('#coCd').val(),
+						"clntCd": row.clntCd
+					}
+					
+				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {	
+					if(data.mngInfo){
+						$('#mngId').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+						$('#mngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"
+					}
+				});
+			}
 		});
 		
 		
@@ -1289,4 +1334,24 @@
 			$("#tnkeyYn").val("N");		
 		}
 	};
+	
+	//Maker에 맞는 거래처 
+	function getPchsClnt(){
+				
+		if($('#tnkeyYn').is(":checked")){
+			var formData = {
+					"makrCd" : $("#makrCd").val()
+				}
+			postAjax("/user/sd/sd05/selectMakerPchsClntCd", formData, null, function(data){
+				if(data.result){
+					$("#pchsClntCd").val( data.result.clntCd);
+					$("#pchsClntNm").val( data.result.clntNm);	
+				}else{
+
+					$("#pchsClntCd").val("");
+					$("#pchsClntNm").val("");	
+				}
+			});	
+		}
+	}
 </script>

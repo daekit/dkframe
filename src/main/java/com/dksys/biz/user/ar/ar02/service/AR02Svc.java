@@ -19,13 +19,15 @@ public interface AR02Svc {
 
 	int insertPchsSell(Map<String, String> paramMap);
 	
-	void insertSalesDivision(List<Map<String, String>> paramList);
+	void insertSalesDivision(List<Map<String, String>> paramList) throws Exception;
 	
 	void updateSalesClnt(List<Map<String, String>> paramList);
 
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 	
 	boolean checkLoan(Map<String, String> paramMap);
+	
+	long checkLoan2(Map<String, Object> paramMap);
 
 	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
 

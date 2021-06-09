@@ -80,7 +80,7 @@
 			#{coCd},
 			#{trstCertiNo},
 			#{selpchCd},
-			#{estCoprt, jdbcType=VARCHAR},
+			#{taxivcCoprt, jdbcType=VARCHAR},
 			#{trstDt,   jdbcType=VARCHAR},
 			#{clntCd,   jdbcType=VARCHAR},
 			#{prdtCd,   jdbcType=VARCHAR},
@@ -95,8 +95,8 @@
 			#{salesMng,    jdbcType=VARCHAR},
 			#{prjctCd},
 			#{makrCd},
-			#{whCd, jdbcType=VARCHAR},
-			#{mngTel, jdbcType=VARCHAR},
+			#{whCd,     jdbcType=VARCHAR},
+			#{mngTel,   jdbcType=VARCHAR},
 			#{dlvrDttm, jdbcType=VARCHAR},
 			#{dirtrsYn, jdbcType=VARCHAR},
 			#{prdtDiv,  jdbcType=VARCHAR},
@@ -126,7 +126,7 @@
 			#{shipVehNo, jdbcType=VARCHAR},
 			#{clntNm,    jdbcType=VARCHAR},
 			NULL,
-			NULL,
+			#{lossRate,    jdbcType=VARCHAR},
 			'ERP',
 			NULL,
 			NULL,
@@ -148,7 +148,7 @@
 	        NVL(#{siteCd,  jdbcType=VARCHAR},0),
 	        #{bilgVatAmt,  jdbcType=VARCHAR},
 	        #{prdtSpec,    jdbcType=VARCHAR},
-	        #{shipCnt,    jdbcType=VARCHAR}
+	        #{shipCnt,     jdbcType=VARCHAR}
 		)
 	</insert>
 	
@@ -477,6 +477,7 @@
 				 	T.TRST_CLNT_CD,
 				    T.TRST_CLNT_CD AS CLNT_CD,
 				    T.TRST_PRDT_CD,
+				    T.TRST_PRDT_CD AS PRDT_CD,
 				    BM01M01.PRDT_NM,
 				    T.OWNER_CD,
 				    FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
@@ -552,7 +553,8 @@
 				    T.PRDT_SPEC,
 				    T.RFF_AEA,
 				    T.ORGN_TAX_BILG_NO,
-				    T.RFF_APG
+				    T.RFF_APG,
+				    T.SHIP_CNT
 				    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
 						, OD01M01.SELL_CLNT_CD AS SELL_CLNT_CD
 						, (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE OD01M01.SELL_CLNT_CD = BM02.CLNT_CD) AS SELL_CLNT_NM
@@ -630,7 +632,7 @@
 					<if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND BM01M01.PRDT_GRP = #{prdtGrp}
 					</if>
-					ORDER BY TRST_DT, CLNT_NM, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
+					ORDER BY TRST_DT DESC, CLNT_NM, TYP_CD, TRST_PRDT_CD, PRDT_STKN, PRDT_SIZE, PRDT_LEN
 			) A
 		)
 		<if test='pageYn != null and pageYn.equals("Y")'>

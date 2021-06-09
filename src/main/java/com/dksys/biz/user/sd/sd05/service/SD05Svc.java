@@ -37,4 +37,6 @@ public interface SD05Svc {
 
 	public List<Map<String, String>> prdtSpecCombo(Map<String, String> param);
 
+	public  Map<String, String> selectMakerPchsClntCd(Map<String, String> paramMap);
+
 }

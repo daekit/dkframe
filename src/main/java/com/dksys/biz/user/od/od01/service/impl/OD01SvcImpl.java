@@ -228,7 +228,7 @@ public class OD01SvcImpl implements OD01Svc {
 		// 매입 N 이면서  P 매입확정, A 일괄인 경우 매입확정
 		if("P".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
 			// 마감 체크
-			if(ar02Svc.checkPchsClose(paramMap)) {
+			if(!ar02Svc.checkPchsClose(paramMap)) {
 				return 500;
 			}	
 		}		
@@ -239,7 +239,7 @@ public class OD01SvcImpl implements OD01Svc {
 		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
         	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
 				// 마감 체크 (매출)
-        		if(ar02Svc.checkSellClose(paramMap)) {
+        		if(!ar02Svc.checkSellClose(paramMap)) {
         			return 501;
 				}
         		
@@ -310,7 +310,6 @@ public class OD01SvcImpl implements OD01Svc {
 			
 			paramMap.put("selpchCd",    "SELPCH1");
 			paramMap.put("trstDt",      paramMap.get("dlvrDttm").replace("-", ""));
-			paramMap.put("estCoprt",    paramMap.get("taxivcCoprt"));
 			paramMap.put("pchsUpr",     detailMap2.get("realDlvrUpr"));
 			paramMap.put("stockUpr",    detailMap2.get("stockUpr"));
 			paramMap.put("trstQty",     detailMap2.get("ordrgQty"));
@@ -481,7 +480,7 @@ public class OD01SvcImpl implements OD01Svc {
 		// 작업 시작전에 매입은 체크 매출은 건별로 체크
 		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			// 마감 체크....매입
-			if(ar02Svc.checkPchsClose(paramMap)) {
+			if(!ar02Svc.checkPchsClose(paramMap)) {
 				return 500;
 			}				
 		}
@@ -507,7 +506,7 @@ public class OD01SvcImpl implements OD01Svc {
 				
 				if("Y".equals(detailMap.get("shipYn"))){
 					//마감 체크 .. 매출   ,   매출없이 매입만 있는 경우 매출에 대한 마감이 진행 중이면.. 매입도 마감이 아니어도 취소가 안됨.해서 매출 건별로 먼저 체크함.
-					if(ar02Svc.checkSellClose(paramMap)) {
+					if(!ar02Svc.checkSellClose(paramMap)) {
 						return 501;
 					}				
 				}
