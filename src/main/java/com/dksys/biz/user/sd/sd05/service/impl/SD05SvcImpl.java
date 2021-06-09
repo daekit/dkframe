@@ -164,7 +164,7 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public int deleteProject(Map<String, String> param) {
 		//sd05Mapper.deleteProjectDtl(param); 마스터테이블 사용여부만 n으로
-		
+		param.put("useYn", "N");
 		sd09Mapper.updateSiteYn(param); 
 		
 		return sd05Mapper.deleteProject(param);

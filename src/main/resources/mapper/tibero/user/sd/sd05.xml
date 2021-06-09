@@ -48,7 +48,7 @@
 					,C.NAME AS MNG_NM
 					,TO_CHAR(TO_DATE(A.STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS STRT_DT
 					,TO_CHAR(TO_DATE(A.END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS END_DT
-					,A.TOT_WT
+					,TO_NUMBER(A.TOT_WT) / 1000 AS TOT_WT
 					,A.ODR_NO
 					,A.ODR_DT
 					,A.USE_YN
@@ -125,7 +125,67 @@
 	</select>
 	
 	<select id="selectPrjInfo" parameterType="Map" resultType="camelMap">
-		SELECT T.*,
+		SELECT T.CO_CD
+			, T.PRJCT_CD
+			, T.COPRT_CD
+			, T.TNKEY_YN
+			, T.CLNT_CD
+			, T.MAKR_CD
+			, T.PRJCT_NM
+			, T.PRJCT_ADDR_ZIP
+			, T.PRJCT_ADDR
+			, T.PRJCT_ADDR_SUB
+			, T.PRJCT_MNG_NM
+			, T.TEL_NO
+			, T.LOSS_RATE
+			, T.STRT_DT
+			, T.END_DT
+			, TO_NUMBER(T.TOT_WT) / 1000 AS TOT_WT
+			, T.MNG_ID
+			, T.ODR_NO
+			, T.ODR_DT
+			, T.USE_YN
+			, T.RMK
+			, T.PRJCT_MES_CD
+			, T.ETC_FIELD1
+			, T.ETC_FIELD2
+			, T.ETC_FIELD3
+			, T.CREAT_ID
+			, T.CREAT_PGM
+			, T.CREAT_DTTM
+			, T.UDT_ID
+			, T.UDT_PGM
+			, T.UDT_DTTM
+			, T.ORD_TYP
+			, T.BILDNG_TYP
+			, T.ENGRK_TYP
+			, T.MAKR_MNG_NM
+			, T.CLNT_EMAIL
+			, T.CLNT_FAX_NO
+			, T.PRCSN_UPR
+			, T.DC_DIV
+			, T.PRDT_UPR
+			, T.CPLR_YN
+			, T.PMNT_MTD_CD
+			, T.SHOP_CLNT_CD
+			, T.SHOP_UPR
+			, T.CTRT_RMK
+			, T.OUTORD_UPR
+			, T.OUTORD_LOSS_RATE
+			, T.OUTORD_MNG_NM
+			, T.OUTORD_TEL_NO
+			, T.OUTORD_FAX_NO
+			, T.WH_CD
+			, T.SALES_AREA_CD
+			, T.PCHS_STRT_DT
+			, T.PCHS_END_DT
+			, T.CLMN_DAY
+			, T.CLMN_RMK
+			, T.CLMN_DIV_CD
+			, T.SCND_WH_CD
+			, T.THRD_WH_CD
+			, T.PCHS_CLNT_CD
+			, T.OUTORD_MNG_ID,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.MAKR_CD) AS MAKR_NM,
 			(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = T.CO_CD) AS CO_NM,		
 			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
@@ -220,10 +280,10 @@
 			, PRJCT_ADDR_SUB   = #{prjctAddrSub}
 			, PRJCT_MNG_NM     = #{prjctMngNm}
 			, TEL_NO           = #{telNo}
-			, LOSS_RATE        = #{lossRate}
+			, LOSS_RATE        = #{lossRate, jdbcType=VARCHAR}
 			, STRT_DT          = REPLACE(#{strtDt}, '-', '')
 			, END_DT           = REPLACE(#{endDt}, '-', '')
-			, TOT_WT           = #{totWt}
+			, TOT_WT           = TO_NUMBER(#{totWt}) * 1000
 			, MNG_ID           = #{mngId}
 			, USE_YN           = #{useYn}
 			, RMK              = #{rmk}
@@ -233,16 +293,16 @@
 			, MAKR_MNG_NM      = #{makrMngNm}             
 			, CLNT_EMAIL       = #{clntEmail}             
 			, CLNT_FAX_NO      = #{clntFaxNo}             
-			, PRCSN_UPR        = #{prcsnUpr}              
+			, PRCSN_UPR        = #{prcsnUpr, jdbcType=VARCHAR}              
 			, DC_DIV           = #{dcDiv}                 
 			, PRDT_UPR         = #{prdtUpr}               
 			, CPLR_YN          = #{cplrYn}                
 			, PMNT_MTD_CD      = #{pmntMtdCd}             
 			, SHOP_CLNT_CD     = #{shopClntCd}            
 			, SHOP_UPR         = #{shopUpr}               
-			, CTRT_RMK         = #{ctrtRmk}               
-			, OUTORD_UPR       = #{outordUpr}             
-			, OUTORD_LOSS_RATE = #{outordLossRate}        
+			, CTRT_RMK         = #{ctrtRmk}            
+			, OUTORD_UPR       = #{outordUpr, jdbcType=VARCHAR}             
+			, OUTORD_LOSS_RATE = #{outordLossRate, jdbcType=VARCHAR}       
 			, OUTORD_MNG_ID    = #{outordMngId}           
 			, OUTORD_MNG_NM    = #{outordMngNm}           
 			, OUTORD_TEL_NO    = #{outordTelNo} 
@@ -358,10 +418,10 @@
 			, #{prjctAddrSub}
 			, #{prjctMngNm}
 			, #{telNo}
-			, #{lossRate}
+		  , #{lossRate, jdbcType=VARCHAR}
 			, REPLACE(#{strtDt}, '-', '')
 			, REPLACE(#{endDt}, '-', '')
-			, #{totWt}
+		  , TO_NUMBER(#{totWt}) * 1000
 			, #{mngId}
 			, #{useYn}
 			, #{rmk}
@@ -374,7 +434,7 @@
 			, #{makrMngNm}
 			, #{clntEmail}
 			, #{clntFaxNo}
-			, #{prcsnUpr}
+			, #{prcsnUpr, jdbcType=VARCHAR}
 			, #{dcDiv}
 			, #{prdtUpr}
 			, #{cplrYn}
@@ -382,8 +442,8 @@
 			, #{shopClntCd}
 			, #{shopUpr}
 			, #{ctrtRmk}
-			, #{outordUpr}
-			, #{outordLossRate}
+		  , #{outordUpr, jdbcType=VARCHAR}
+		  , #{outordLossRate, jdbcType=VARCHAR}
 			, #{outordMngId}
 			, #{outordMngNm}
 			, #{outordTelNo}
