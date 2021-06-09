@@ -187,7 +187,7 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateConfirm(Map<String, String> paramMap) {
 		// 마감 체크
 //		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
-		if(ar02Svc.checkSellClose(paramMap)) {
+		if(!ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
 		int result = 0;
@@ -217,7 +217,6 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("trstDt", 		paramMap.get("dlvrDttm").replace("-", ""));
-			paramMap.put("estCoprt", 	paramMap.get("taxivcCoprt"));
 			paramMap.put("pchsUpr", 	"0");
 			paramMap.put("sellUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("stockUpr",    detailMap.get("stockUpr"));
@@ -329,7 +328,6 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("trstDt", 		paramMap.get("dlvrDttm").replace("-", "").substring(0,8));
-			paramMap.put("estCoprt", 	paramMap.get("taxivcCoprt"));
 			paramMap.put("pchsUpr", 	"0");
 			paramMap.put("sellUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("stockUpr",    detailMap.get("stockUpr"));
@@ -429,7 +427,7 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateCancel(Map<String, String> paramMap) {
 		
 		// 마감 체크
-		if(ar02Svc.checkSellClose(paramMap)) {
+		if(!ar02Svc.checkSellClose(paramMap)) {
 			return 500;
 		}
 		

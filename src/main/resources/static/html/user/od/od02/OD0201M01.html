@@ -583,14 +583,16 @@
 		});
 	}
 	
-	function insertSellModal(type){
+	function insertSellModal(type) {
 		var modalTitle = "";
 		actionType = type;
-		if(type == "U") {
+		if (type == "U") {
 			modalTitle = "반입";
-			if(subGridView.target.getList("selected").length == 0) {
-				alert("반입 건을 선택해 주세요.");
-				return;
+			if(!checkGridRow(subGridView.target, "single")) return false;
+			var obj = subGridView.target.getList("selected")[0];
+			if(obj.bilgYn == "N"){
+				alert("매입이 확정된 건만 가능합니다.");
+				return false;
 			}
 		} else {
 			modalTitle = "매입등록";

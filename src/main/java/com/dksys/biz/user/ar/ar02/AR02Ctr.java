@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.cmn.vo.PaginationInfo;
+import com.dksys.biz.exc.CreditLoanException;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.util.MessageUtils;
 
@@ -130,6 +131,9 @@ public class AR02Ctr {
 			ar02Svc.insertSalesDivision(paramList);
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		}catch(CreditLoanException cle) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", cle.getMessage());
 		}catch(Exception e) {
 			model.addAttribute("resultCode", 500);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

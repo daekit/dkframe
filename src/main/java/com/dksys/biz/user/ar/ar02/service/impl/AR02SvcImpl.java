@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.dksys.biz.exc.CreditLoanException;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
@@ -70,12 +71,12 @@ public class AR02SvcImpl implements AR02Svc {
 			closeChkMap.put("dlvrDttm",detailMap.get("trstDt").toString());
 			closeChkMap.put("coCd",detailMap.get("coCd").toString());
 	        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
-				if(ar02Svc.checkPchsClose(closeChkMap)) {
+				if(!ar02Svc.checkPchsClose(closeChkMap)) {
 					return 500;				
 				}
 	        }
 	        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
-				if(ar02Svc.checkSellClose(closeChkMap)) {
+				if(!ar02Svc.checkSellClose(closeChkMap)) {
 					return 501;
 				}	
 	        }
@@ -111,13 +112,13 @@ public class AR02SvcImpl implements AR02Svc {
 		//마감 체크
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkPchsClose(paramMap)) {
+			if(!ar02Svc.checkPchsClose(paramMap)) {
 				return 500;				
 			}
         }
         if("SELPCH2".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkSellClose(paramMap)) {
+			if(!ar02Svc.checkSellClose(paramMap)) {
 				return 501;
 			}	
         }
@@ -162,13 +163,13 @@ public class AR02SvcImpl implements AR02Svc {
 		//마감 체크
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkPchsClose(paramMap)) {
+			if(!ar02Svc.checkPchsClose(paramMap)) {
 				return 500;				
 			}
         }
         if("SELPCH2".equals(paramMap.get("selpchCd"))) {
         	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(ar02Svc.checkSellClose(paramMap)) {
+			if(!ar02Svc.checkSellClose(paramMap)) {
 				return 501;
 			}	
         }
@@ -222,7 +223,6 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockWt",  String.valueOf(stockWt));
 		}
 		
-		paramMap.put("taxivcCoprt", paramMap.get("estCoprt"));
 		long bilgAmt    = Long.parseLong(paramMap.get("bilgAmt"));
 		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
 		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
@@ -250,59 +250,61 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 	
 	@Override
-	public void insertSalesDivision(List<Map<String, String>> paramList) {
-		Map<String, String> originSales = ar02Mapper.selectSellInfo(paramList.get(0));
-		// 거래일자 하이픈 제거
-		originSales.put("TRST_DT", originSales.get("trstDt").toString().replaceAll("-", ""));
-		
+	public void insertSalesDivision(List<Map<String, String>> paramList) throws Exception{
+		// 여신체크
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		long totAmt = 0;
 		for(int i=0;i<paramList.size();i++) {
-			Map<String, String> salesMap = paramList.get(i);
-			Map<String, String> paramMap = new HashMap<String, String>();
-			paramMap.putAll(originSales);
-			// 거래처
-			paramMap.put("clntCd", salesMap.get("clntCd"));
-			paramMap.put("clntNm", salesMap.get("clntNm"));
-			// 수량
-			paramMap.put("realTrstQty", salesMap.get("realTrstQty"));
-			// 중량
-			paramMap.put("realTrstWt", salesMap.get("realTrstWt"));
-			// 금액
-			paramMap.put("realTrstAmt", salesMap.get("realTrstAmt"));
-			// 청구수량
-			paramMap.put("bilgQty", salesMap.get("bilgQty"));
-			// 청구중량
-			paramMap.put("bilgWt", salesMap.get("bilgWt"));
-			// 청구금액
-			paramMap.put("bilgAmt", salesMap.get("bilgAmt"));
-			// 부가세
-			paramMap.put("bilgVatAmt", salesMap.get("bilgVatAmt"));
-			// 할인금액
-			paramMap.put("trstDcAmt", salesMap.get("trstDcAmt"));
-			// 사용자 아이디
-			paramMap.put("userId", salesMap.get("userId"));
-			// 수정 프로그램 아이디: 분할 화면ID
-			paramMap.put("updatePgmId", salesMap.get("updatePgmId"));
-			if(i == 0) {
-			// 원본 update
-				// 거래처가 변경되었을경우
-				if(!originSales.get("clntCd").toString().equals(salesMap.get("clntCd"))) {
-					// 원본계산서번호 제거
-					paramMap.put("orgnTaxBilgNo", "");
-					// 세금계산서 수정사유 제거
-					paramMap.put("rffAea", "");
-				}
-				ar02Mapper.updatePchsSell(paramMap);
-			} else {
-			// 신규 insert
-				// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
-				paramMap.put("pgmId", originSales.get("creatPgm"));
-				// 원본계산서번호 제거
-				paramMap.put("orgnTaxBilgNo", "");
-				// 세금계산서 수정사유 제거
-				paramMap.put("rffAea", "");
-				// insert
- 				ar02Mapper.insertPchsSell(paramMap);
+			Map<String, String> paramMap = paramList.get(i);
+			if(i==0) {
+				loanMap.put("coCd", paramMap.get("coCd"));
+				loanMap.put("clntCd", paramMap.get("divClntCd"));
+				loanMap.put("trstDt", paramMap.get("trstDt"));
 			}
+			totAmt += Long.parseLong(paramMap.get("divTotAmt"));
+		}
+		loanMap.put("totAmt", totAmt);
+		
+		Long diffLoan =  checkLoan2(loanMap);
+		if(diffLoan < 0) {
+			throw new CreditLoanException(diffLoan);
+		}
+		
+		for(Map<String, String> paramMap : paramList) {
+			// paramList 순회하며 넘어온값 그대로 update
+			ar02Mapper.updatePchsSell(paramMap);
+			// paramList 순회하며 분할된 데이터를 map에 update후 insert
+			Map<String, String> divMap = new HashMap<String, String>();
+			divMap.putAll(paramMap);
+			// 거래처
+			divMap.put("clntCd", paramMap.get("divClntCd"));
+			divMap.put("clntNm", paramMap.get("divClntNm"));
+			// 수량
+			divMap.put("realTrstQty", paramMap.get("divRealTrstQty"));
+			// 중량
+			divMap.put("realTrstWt", paramMap.get("divRealTrstWt"));
+			// 금액
+			divMap.put("realTrstAmt", paramMap.get("divRealTrstAmt"));
+			// 청구수량
+			divMap.put("bilgQty", paramMap.get("divBilgQty"));
+			// 청구중량
+			divMap.put("bilgWt", paramMap.get("divBilgWt"));
+			// 청구금액
+			divMap.put("bilgAmt", paramMap.get("divBilgAmt"));
+			// 부가세
+			divMap.put("bilgVatAmt", paramMap.get("divBilgVatAmt"));
+			// 할인금액
+			divMap.put("trstDcAmt", paramMap.get("divTrstDcAmt"));
+			// 비고
+			divMap.put("trspRmk", paramMap.get("divTrspRmk"));
+			// 사용자 아이디
+			divMap.put("userId", paramMap.get("userId"));
+			// 생성 프로그램 아이디: 분할 매출 생성시 기존데이터와 동일하게 유지
+			divMap.put("pgmId", paramMap.get("creatPgm"));
+			// 수정 프로그램 아이디: 분할 화면ID
+			divMap.put("updatePgmId", paramMap.get("updatePgmId"));
+			// insert
+			ar02Mapper.insertPchsSell(divMap);
 		}
 	}
 	
@@ -334,6 +336,7 @@ public class AR02SvcImpl implements AR02Svc {
 		return false;
 	}
 	
+	@Override
 	public boolean checkLoan(Map<String, String> paramMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("loanCd", 'C');
@@ -354,6 +357,25 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 	
 	@Override
+	public long checkLoan2(Map<String, Object> paramMap) {
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("loanCd", 'C');
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
+		loanMap.put("amt", paramMap.get("totAmt"));
+		long creditLoan  = ar02Mapper.callCreditLoan(loanMap);
+		long diffLoan = creditLoan - (Long)paramMap.get("totAmt");
+		
+		if(diffLoan >= 0){
+			loanMap.put("loanCd", 'P');
+			ar02Mapper.callCreditLoan(loanMap);
+		}
+		
+		return diffLoan;
+	}
+	
+	@Override
 	public List<Map<String, String>> selectSellSumList(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellSumList(paramMap);
 	}
@@ -367,17 +389,19 @@ public class AR02SvcImpl implements AR02Svc {
 		if(sd07result != null) {
 			int today = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
 			int closeDay = Integer.parseInt(sd07result.get("sellCloseDttm").replace("-", ""));
-			if("Y".equals(sd07result.get("sellCloseYn")) && today > closeDay) {
-				return true;
+			if("Y".equals(sd07result.get("sellCloseYn")) && closeDay < today) {
+				return false;
 			}
 		}
 		if(sd07resultMax != null) {
-			int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
-			if(maxSellCloseDay > Integer.parseInt(trstDt)) {
-				return true;
+			if(sd07resultMax.containsKey("maxSellCloseDay")){
+				int maxSellCloseDay = Integer.parseInt(sd07resultMax.get("maxSellCloseDay").replace("-", ""));
+				if(Integer.parseInt(trstDt) < maxSellCloseDay) {
+					return false;
+				}
 			}
 		}
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -393,17 +417,19 @@ public class AR02SvcImpl implements AR02Svc {
 		if(sd07result != null) {
 			int today       = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
 			int closeDay    = Integer.parseInt(sd07result.get("pchsCloseDttm").replace("-", ""));
-			if("Y".equals(sd07result.get("pchsCloseYn")) && today > closeDay) {
-				return true;
+			if("Y".equals(sd07result.get("pchsCloseYn")) && closeDay < today) {
+				return false;
 			}
 		}
 		if(sd07resultMax != null) {
-			int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
-			if(maxPchsCloseDay > Integer.parseInt(trstDt)) {
-				return true;
+			if(sd07resultMax.containsKey("maxPchsCloseDay")){
+				int maxPchsCloseDay = Integer.parseInt(sd07resultMax.get("maxPchsCloseDay").replace("-", ""));
+				if(Integer.parseInt(trstDt) < maxPchsCloseDay) {
+					return false;
+				}
 			}
 		}
-		return false;
+		return true;
 	}
 
 }

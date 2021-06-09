@@ -20,7 +20,7 @@ public interface CM01Mapper {
 
 	List<String> selectRoleFromAuth(String[] authArray);
 
-	List<String> selectMenuFromRole(String[] roleArray);
+	List<Map<String, String>> selectMenuFromRole(String[] roleArray);
 
 	List<Map<String, Object>> selectMenuAuth(String[] menuArray);
 
