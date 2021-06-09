@@ -189,8 +189,8 @@
 			<div class="form-group popup_table">
 				<table>
 					<colgroup>
-						<col width="6%">
-						<col width="10%">
+						<col width="4%">
+						<col width="12%">
 						<col width="26%">
 				    	<col width="16%">
 						<col width="26%">
@@ -199,9 +199,9 @@
 					</colgroup>
 					<tr>
 						<th rowspan="4">계<br>약<br>사<br>항</th>
-						<th class="hit">계약물량</th>
+						<th class="hit">계약물량(TON)</th>
 						<td>
-							<input id="totWt" name="totWt" type="text" required="required" msg="계약물량" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="12" comma>
+							<input id="totWt" name="totWt" type="text" required="required" msg="계약물량" onkeyup="onlyNumber(this);" maxlength="12" comma>
 						</td>
 						<th>철근할인구분</th>
 						<td>
@@ -209,15 +209,12 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						
-						<th class="">담당자(제강사)</th>
-					<td>
-						<input id="makrMngNm" name="makrMngNm" type="text" maxlength="25">
-					</td>
-
+						<th>담당자(제강사)</th>
+						<td>
+							<input id="makrMngNm" name="makrMngNm" type="text" maxlength="12">
+						</td>
 					</tr>
 					<tr>
-
 						<th>커플러사용여부
 						</th>
 						<td>
@@ -230,8 +227,10 @@
 						<td>
 							<input id="prdtUpr" name="prdtUpr" type="text" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="13" comma>
 						</td>
-						<th></th>
-					    <td></td>
+						<th rowspan="3">계약 비고</th>
+						<td rowspan="3">
+							<textarea class="form-control" id="ctrtRmk" name="ctrtRmk" style="width: 100%; height: 80px" maxlength="500"></textarea>
+						</td>
 					</tr>
 					<tr>
 						<th>결재조건</th>
@@ -245,7 +244,7 @@
 							<input type="text"  id="clmnDay" name="clmnDay" maxlength="20" style="width: 30% !important;">
 							<input type="hidden" id="clmnRmk" name="clmnRmk" style="width: 76%;" maxlength="20">
 						</td>
-						<th>담당자</th>
+						<th>영업담당자</th>
 						<td>
 							<input type="hidden" id="mngId" name="mngId" style="width: 76%;" maxlength="20">
 							<div class="search_form">
@@ -253,10 +252,6 @@
 								<a onclick="openUserTree();"><i class="i_search_w"></i>
 								</a>
 							</div>
-						</td>
-						<th rowspan="2">계약 비고</th>
-						<td rowspan="2">
-							<textarea class="form-control" id="ctrtRmk" name="ctrtRmk" style="width: 100%; height: 50px" maxlength="500"></textarea>
 						</td>
 					</tr>
 					<tr>
@@ -338,6 +333,7 @@
 							<input class="tc" name="lossRate" type="text" onkeyup="onlyNumber(this)" comma>
 						</td>
 						<td>
+							<input type="hidden" id="pchsCplrUpr" name="pchsCplrUpr" >
 							<input class="tc" name="cplrUpr" type="text" onkeyup="onlyNumber(this)" comma title="철근:가공단가, 기타:판매단가">
 						</td>
 					</tr>
@@ -374,14 +370,12 @@
 
 						<th>외주담당자</th>
 						<td>
-							<input type="hidden" id="outordMngCd" name="outordMngCd" style="width: 76%;">
+							<input type="hidden" id="outordMngId" name="outordMngId" style="width: 76%;">
 							<div class="search_form">
 								<input type="text" id="outordMngNm" name="outordMngNm" readonly="readonly"> 
 								<a onclick="openUserTree2();"><i class="i_search_w"></i>
 								</a>
 							</div>
-						</td>
-
 					</tr>
 					<tr>
 						<th>연락처</th>
@@ -394,8 +388,8 @@
 						<th>Fax</th>
 						<td>
 							<input id="outordFaxNo" name="outordFaxNo" type="text" onkeyup="telNumberFormatter(this);" maxlength="13">
-						</td>
-					</tr>		
+						</td>			
+					</tr>			
 				</table>
 			</div>
 		</div>
@@ -813,6 +807,7 @@
 		var ordDtl = obj.ordDetail;
 		prjctDtl = obj.prjctDtl;
 		//메인정보 세팅
+		console.log(prjInfo);
 		$.each(prjInfo, function(key, value){
 			$('#'+key).val(value);
 			
@@ -953,7 +948,7 @@
 		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
 			var checkedId = tree.get_checked()[0];
 			var checkedNode = tree.get_node(checkedId);
-			$('#outordMngCd').val(checkedNode.id);
+			$('#outordMngId').val(checkedNode.id);
 			$('#outordMngNm').val(checkedNode.text);
 		});
 	}

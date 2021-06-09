@@ -204,6 +204,9 @@
 		            }
 		        },
 		        columns: [
+		        	{key: "coCd", 		label: "회사",  			hidden: true},
+		        	{key: "shipSeq", 	label: "출하지시번호", 		hidden: true},
+		        	{key: "d01Cnt", 	label: "출하지시상세번호",  	hidden: true},
 		        	{key: "dlvrDttm", label: "납기일시", align: "center", width: 80},
 		        	{key: "shipYn",   label: "출하",   align: "center", width: 50, styleClass: function () {
 	                     return (this.item.shipYn == "N") ? "grid-font-red-bold":"";}},
@@ -462,14 +465,15 @@
 
 	function setReport(type) {
 	
-	
       if(type == 'SHIP'){
-
   		    var row = gridView.target.getList("selected");
   		    if(row.length > 1){
   		    	alert("납품서는 첫번째만 출력됩니다.");
   		    }
 			var fileName = "AR0101R02.jrf";
+			if (row[0].d01cnt > 6) {
+				fileName = "AR0101R03.jrf";
+			}
 			var arg = "coCd#"		+ row[0].coCd
 		         + "#clntCd#"		+  row[0].clntCd
 		         + "#shipSeq#"		+  row[0].shipSeq

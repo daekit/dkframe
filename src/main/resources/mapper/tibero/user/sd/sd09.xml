@@ -79,6 +79,21 @@
 					 , T.CLNT_FAX_NO
 					 , T.OUTORD_UPR
 					 , T.OUTORD_LOSS_RATE
+                     , T.PCHS_CLNT_CD
+                     , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.PCHS_CLNT_CD) AS PCHS_CLNT_NM
+                     , T.OUTORD_MNG_ID
+                     , T.OUTORD_MNG_NM
+                     , T.SCND_WH_MNG_ID
+                     , T.SCND_WH_MNG_NM
+                     , T.THRD_WH_MNG_ID
+                     , T.THRD_WH_MNG_NM
+                     , T.CPLR_PCHS_CLNT_CD
+                     , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.CPLR_PCHS_CLNT_CD) AS CPLR_PCHS_CLNT_NM
+                     , T.CPLR_SELL_CLNT_CD
+                     , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.CPLR_SELL_CLNT_CD) AS CPLR_SELL_CLNT_NM
+			         , T.OUTORD_TEL_NO
+			         , T.SCND_WH_TEL_NO
+			         , T.THRD_WH_TEL_NO
 				  FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -152,6 +167,21 @@
 			 , T.CLNT_FAX_NO
 			 , T.OUTORD_UPR
 			 , T.OUTORD_LOSS_RATE
+             , T.PCHS_CLNT_CD
+             , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.PCHS_CLNT_CD) AS PCHS_CLNT_NM
+             , T.OUTORD_MNG_ID
+             , T.OUTORD_MNG_NM
+             , T.SCND_WH_MNG_ID
+             , T.SCND_WH_MNG_NM
+             , T.THRD_WH_MNG_ID
+             , T.THRD_WH_MNG_NM
+             , T.CPLR_PCHS_CLNT_CD
+             , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.CPLR_PCHS_CLNT_CD) AS CPLR_PCHS_CLNT_NM
+             , T.CPLR_SELL_CLNT_CD
+             , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.CPLR_SELL_CLNT_CD) AS CPLR_SELL_CLNT_NM             
+	         , T.OUTORD_TEL_NO
+	         , T.SCND_WH_TEL_NO
+	         , T.THRD_WH_TEL_NO
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -192,6 +222,18 @@
          , CLNT_FAX_NO
          , OUTORD_UPR
          , OUTORD_LOSS_RATE
+         , PCHS_CLNT_CD
+         , OUTORD_MNG_ID
+         , OUTORD_MNG_NM
+         , SCND_WH_MNG_ID
+         , SCND_WH_MNG_NM
+         , THRD_WH_MNG_ID
+         , THRD_WH_MNG_NM
+         , CPLR_PCHS_CLNT_CD
+         , CPLR_SELL_CLNT_CD
+         , OUTORD_TEL_NO
+         , SCND_WH_TEL_NO
+         , THRD_WH_TEL_NO
 		 ) VALUES (
 		 #{coCd}
 		 , #{siteCd}
@@ -210,48 +252,72 @@
 		 , #{pgmId} 
 		 , SYSDATE
 		 , #{whCd} 
-		 , #{scndWhCd, jdbcType=VARCHAR} 
-		 , #{thrdWhCd, jdbcType=VARCHAR} 
+		 , #{scndWhCd,   jdbcType=VARCHAR} 
+		 , #{thrdWhCd,   jdbcType=VARCHAR} 
 		 , #{mngId}
 		 ,NVL((SELECT MAX(SITE_MES_CD) FROM TB_SD09M01 B WHERE WH_CD = #{whCd}),0) + 1
-		 , #{ordTyp, jdbcType=VARCHAR}
-         , #{tnkeyYn, jdbcType=VARCHAR}
-         , #{makrCd, jdbcType=VARCHAR}
-         , #{clntEmail, jdbcType=VARCHAR}
-         , #{clntFaxNo, jdbcType=VARCHAR}
-         , #{outordUpr, jdbcType=VARCHAR}
+		 , #{ordTyp,     jdbcType=VARCHAR}
+         , #{tnkeyYn,    jdbcType=VARCHAR}
+         , #{makrCd,     jdbcType=VARCHAR}
+         , #{clntEmail,  jdbcType=VARCHAR}
+         , #{clntFaxNo,  jdbcType=VARCHAR}
+         , #{outordUpr,  jdbcType=VARCHAR}
          , #{outordLossRate, jdbcType=VARCHAR}
+         , #{pchsClntCd,     jdbcType=VARCHAR}
+         , #{outordMngId,    jdbcType=VARCHAR}
+         , #{outordMngNm,    jdbcType=VARCHAR}
+         , #{scndWhMngId,    jdbcType=VARCHAR}
+         , #{scndWhMngNm,    jdbcType=VARCHAR}
+         , #{thrdWhMngId,    jdbcType=VARCHAR}
+         , #{thrdWhMngNm,    jdbcType=VARCHAR}
+         , #{cplrPchsClntCd, jdbcType=VARCHAR}
+         , #{cplrSellClntCd, jdbcType=VARCHAR}
+	 	 , #{outordTelNo,    jdbcType=VARCHAR}
+  		 , #{scndWhTelNo,    jdbcType=VARCHAR}
+		 , #{thrdWhTelNo,    jdbcType=VARCHAR}
 		 )
 	</insert>
 	
 	<update id="updateSite" parameterType="Map">
 	UPDATE TB_SD09M01
-	SET CLNT_CD       = #{clntCd}
-	  , PRJCT_CD      = #{prjctCd}
-	  , SITE_NM       = #{siteNm}
-	  , SITE_ADDR_ZIP = #{siteAddrZip}
-	  , SITE_ADDR     = #{siteAddr}
-	  , SITE_ADDR_SUB = #{siteAddrSub}
-	  , SITE_MNG_NM   = #{siteMngNm}
-	  , TEL_NO        = #{telNo}
-	  , USE_YN        = #{useYn}
-	  , RMK           = #{rmk}
-	  , SALES_AREA_CD = #{salesAreaCd}
-	  , WH_CD         = #{whCd}
-	  , SCND_WH_CD    = #{scndWhCd}
-	  , THRD_WH_CD    = #{thrdWhCd}
-	  , MNG_ID        = #{mngId}
-	  , ORD_TYP       = #{ordTyp}
-      , TNKEY_YN      = #{tnkeyYn}
-      , MAKR_CD          = #{makrCd}
-      , CLNT_EMAIL       = #{clntEmail}
-      , CLNT_FAX_NO      = #{clntFaxNo}
-      , OUTORD_UPR       = #{outordUpr}
-      , OUTORD_LOSS_RATE = #{outordLossRate}
-	  , UDT_ID        = #{userId}
-	  , UDT_PGM       = #{pgmId}
-	  , UDT_DTTM      = SYSDATE
-	WHERE CO_CD       = #{coCd}
+	SET CLNT_CD           = #{clntCd}
+	  , PRJCT_CD          = #{prjctCd}
+	  , SITE_NM           = #{siteNm}
+	  , SITE_ADDR_ZIP     = #{siteAddrZip}
+	  , SITE_ADDR         = #{siteAddr}
+	  , SITE_ADDR_SUB     = #{siteAddrSub}
+	  , SITE_MNG_NM       = #{siteMngNm}
+	  , TEL_NO            = #{telNo}
+	  , USE_YN            = #{useYn}
+	  , RMK               = #{rmk}
+	  , SALES_AREA_CD     = #{salesAreaCd}
+	  , WH_CD             = #{whCd}
+	  , SCND_WH_CD        = #{scndWhCd}
+	  , THRD_WH_CD        = #{thrdWhCd}
+	  , MNG_ID            = #{mngId}
+	  , ORD_TYP           = #{ordTyp}
+      , TNKEY_YN      	  = #{tnkeyYn}
+      , MAKR_CD           = #{makrCd}
+      , CLNT_EMAIL        = #{clntEmail}
+      , CLNT_FAX_NO       = #{clntFaxNo}
+      , OUTORD_UPR       = #{outordUpr, jdbcType=VARCHAR}
+      , OUTORD_LOSS_RATE = #{outordLossRate, jdbcType=VARCHAR}
+      , PCHS_CLNT_CD      = #{pchsClntCd}
+      , OUTORD_MNG_ID     = #{outordMngId,    jdbcType=VARCHAR}
+	  , OUTORD_MNG_NM     = #{outordMngNm,    jdbcType=VARCHAR}
+	  , SCND_WH_MNG_ID    = #{scndWhMngId,    jdbcType=VARCHAR}
+	  , SCND_WH_MNG_NM    = #{scndWhMngNm,    jdbcType=VARCHAR}
+	  , THRD_WH_MNG_ID    = #{thrdWhMngId,    jdbcType=VARCHAR}
+	  , THRD_WH_MNG_NM    = #{thrdWhMngNm,    jdbcType=VARCHAR}
+  	  , CPLR_PCHS_CLNT_CD = #{cplrPchsClntCd, jdbcType=VARCHAR}
+	  , CPLR_SELL_CLNT_CD = #{cplrSellClntCd, jdbcType=VARCHAR}
+	  , OUTORD_TEL_NO     = #{outordTelNo,    jdbcType=VARCHAR}
+  	  , SCND_WH_TEL_NO    = #{scndWhTelNo,    jdbcType=VARCHAR}
+	  , THRD_WH_TEL_NO    = #{thrdWhTelNo,    jdbcType=VARCHAR}
+	  , UDT_ID            = #{userId}
+	  , UDT_PGM           = #{pgmId}
+	  , UDT_DTTM          = SYSDATE
+	WHERE CO_CD           = #{coCd}
 	<choose>
 	   <when test="siteCd != null and siteCd != ''">	   
 	    AND SITE_CD   = #{siteCd}
@@ -273,7 +339,12 @@
 		  , UDT_PGM       = #{pgmId}
 		  , UDT_DTTM      = SYSDATE
 		WHERE CO_CD     = #{coCd} 
+		   <if test= "siteCd != null and !siteCd.equals('')">
 		    AND SITE_CD   = #{siteCd}
+		    </if> 
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+		    AND PRJCT_CD   = #{prjctCd}
+		    </if>
 	</update>	
 	
 	<delete id="deleteSite" parameterType="Map">
@@ -300,6 +371,7 @@
 		     , A.SIZE_LIST AS PRDT_SIZE_NM
 		     , A.LOSS_RATE
 		     , A.CPLR_UPR
+		     , A.PCHS_CPLR_UPR
 		     , A.CREAT_ID
 		     , A.CREAT_PGM
 		     , A.CREAT_DTTM
@@ -346,6 +418,7 @@
 	          , SIZE_LIST
 	          , LOSS_RATE
 	          , CPLR_UPR
+	          , PCHS_CPLR_UPR
 	          , CREAT_ID
 	          , CREAT_PGM
 	          , CREAT_DTTM
@@ -359,6 +432,7 @@
 	          , #{prdtSizeNm}
 	          , #{lossRate}
 	          , #{cplrUpr}
+	          , #{pchsCplrUpr, jdbcType=VARCHAR}
 			  , #{userId}
 			  , #{pgmId}
 	          , SYSDATE
@@ -374,6 +448,7 @@
 		     , SIZE_LIST  = #{prdtSizeNm}
 		     , LOSS_RATE  = #{lossRate}
 		     , CPLR_UPR   = #{cplrUpr}
+		     , PCHS_CPLR_UPR   = #{pchsCplrUpr}
 		     , UDT_ID     = #{userId}
 		     , UDT_PGM    = #{pgmId}
 		     , UDT_DTTM   = SYSDATE

@@ -107,6 +107,7 @@ public class SD05Ctr {
 	
 	@PutMapping(value = "/deleteProject")
 	public String deleteProject(@RequestBody Map<String, String> param, ModelMap model) {
+		System.out.println(param);
 		sd05Svc.deleteProject(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
