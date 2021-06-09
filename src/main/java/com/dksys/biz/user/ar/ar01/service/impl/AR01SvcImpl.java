@@ -299,7 +299,7 @@ public class AR01SvcImpl implements AR01Svc {
 	public int updateConfirmToMes(Map<String, String> paramMap, List<Map<String, String>> detailList) {
 		//마감 체크
 		int result = 0;
-		int realTotTrstAmt = 0;
+		long realTotTrstAmt = 0;
 		result = detailList.size();
 		String clntCd = paramMap.get("clntCd");
 		String clntNm = paramMap.get("clntNm");
@@ -339,7 +339,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("realTrstWt",  detailMap.get("realShipWt"));
 			paramMap.put("realTrstUpr", detailMap.get("realShipUpr"));
 			paramMap.put("realTrstAmt", detailMap.get("realShipAmt"));
-			realTotTrstAmt += Integer.parseInt(detailMap.get("realShipAmt"));
+			realTotTrstAmt += Long.parseLong(detailMap.get("realShipAmt"));
 			paramMap.put("bilgQty",     detailMap.get("realShipQty"));
 			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
@@ -432,7 +432,7 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		
 		int result = 0;
-		int realTotTrstAmt = 0;
+		long realTotTrstAmt = 0;
 		boolean bilgFlag = false;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
@@ -445,7 +445,7 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			detailMap.put("trstRprcSeq", paramMap.get("shipSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));
-			realTotTrstAmt += Integer.parseInt(detailMap.get("realShipAmt"));
+			realTotTrstAmt += Long.parseLong(detailMap.get("realShipAmt"));
 			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
 			for (Map<String, String> map : bilgList) {
 				if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
@@ -453,6 +453,12 @@ public class AR01SvcImpl implements AR01Svc {
 					break;
 				}
 			}
+			paramMap.put("selpchCd", "SELPCH2"); // 매출데이터 
+			paramMap.put("realTrstAmt", detailMap.get("realShipAmt")); // 매출금액
+			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
+			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
+			realTotTrstAmt += bilgVatAmt;
+
 			ar01Mapper.updateCancelDetail(detailMap);
 			ar02Mapper.deletePchsSell(detailMap);
 			//재고원복
