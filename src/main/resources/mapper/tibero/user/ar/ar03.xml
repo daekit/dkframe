@@ -76,6 +76,8 @@
 						,A.UDT_ID
 						,A.UDT_PGM
 						,A.UDT_DTTM
+						,A.TAXIVC_COPRT
+						,FN_CM05M01_CD_TO_NM(A.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
 						,A.SITE_CD
 						, (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD) AS SITE_NM
 						<!-- 실제 발생한 운반비는 발주서에서 온거, 출하요청서에서 온거가 구분이 안된다.. 둘다 더하면 된다.. 한곳에만 존재함으로 -->
@@ -137,7 +139,8 @@
 			(SELECT CLNT_NM  FROM TB_BM02M01 WHERE CLNT_CD      = T.TRANS_CO) AS TRANS_NM,
 			(SELECT CLNT_NM  FROM TB_BM02M01 C WHERE T.CLNT_CD  = C.CLNT_CD) AS CLNT_NM,
 			(SELECT PRJCT_NM FROM TB_SD05M01 P WHERE P.PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,			
-			(SELECT SITE_NM  FROM TB_SD09M01 S WHERE S.SITE_CD  = T.SITE_CD) AS SITE_NM
+			(SELECT SITE_NM  FROM TB_SD09M01 S WHERE S.SITE_CD  = T.SITE_CD) AS SITE_NM,
+			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
 		FROM TB_AR03M01 T, TB_BM02M01 B
 		WHERE 1=1
 		  AND T.CLNT_CD = B.CLNT_CD
@@ -159,6 +162,8 @@
 				T.CO_CD,
 				FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
 		        TO_CHAR(TO_DATE(T.REQ_DT), 'YYYY-MM-DD') AS REQ_DT,
+				T.TAXIVC_COPRT,
+			    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
 		        T.CLNT_CD,
 		        (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 		        T.SHIP_SEQ,
@@ -237,7 +242,8 @@
 			CREAT_PGM,
 			CREAT_ID,
 			CREAT_DTTM,
-			SITE_CD
+			SITE_CD,
+			TAXIVC_COPRT
 		)VALUES(
 			#{transSeq},
 			#{coCd},
@@ -258,7 +264,8 @@
 			#{pgmId},
 			#{userId},
 			SYSDATE,
-			#{siteCd}
+			#{siteCd},
+			#{taxivcCoprt, jdbcType=VARCHAR}
 		)
 	</insert>
 	
@@ -284,6 +291,7 @@
 			,UDT_PGM   = #{pgmId}
 			,UDT_ID    = #{userId}
 			,UDT_DTTM  = SYSDATE
+			,TAXIVC_COPRT = #{taxivcCoprt, jdbcType=VARCHAR}
 		WHERE
 			TRANS_SEQ = #{transSeq}
 	</update>

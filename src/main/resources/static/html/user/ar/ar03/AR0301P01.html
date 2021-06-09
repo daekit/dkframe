@@ -92,6 +92,18 @@
                 <td>   
                 	<input id="drivrNm" name="drivrNm" type="text">
                 </td>
+                <th class="hit">매입법인</th>
+					<td>
+						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" msg="계산서발행법인" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+            </tr>
+            <tr>
+                <th class="hit">운송단가</th>
+                <td>                                
+                    <input id="transUpr" name="transUpr" type="text" onkeyup="onlyNumber(this);transPrc();" comma required msg="운송단가">
+                </td>
                 <th class="">지불처리 완료여부</th>
                 <td>                                
                     <select id="procYn" name="procYn" data-kind="YN">
@@ -99,10 +111,6 @@
                 </td>
             </tr>
             <tr>
-                <th class="hit">운송단가</th>
-                <td>                                
-                    <input id="transUpr" name="transUpr" type="text" onkeyup="onlyNumber(this);transPrc();" comma required msg="운송단가">
-                </td>
                 <th class="hit">운송비</th>
                 <td>   
                 	<input id="transAmt" name="transAmt" type="text" onkeyup="onlyNumber(this);" comma required msg="운송비">
@@ -294,18 +302,19 @@
 		//	}
 		}
 		changePayCo();
-		// 판매법인, 창고 set
-		setByCoCd($('#coCd').val());
 	}
 	
 	function changePayCo(){
 		var prvpayYn =  $("#arvpayYn").val();
 		if(prvpayYn == "N"){
 			$("#payCo").val($('#coCd option:selected').text());
-	//		$("#payCo").prop("readonly", true);
+			$("#taxivcCoprt").prop("required", true);
+			$("#taxivcCoprt").prop("disabled", false);
 		}else{
 			$("#payCo").val("착불");
-	//		$("#payCo").prop("readonly", false);
+			$("#taxivcCoprt").val("");
+			$("#taxivcCoprt").prop("required", false);
+			$("#taxivcCoprt").prop("disabled", true);
 		}
 		if(openFrom == "AR0102P01" || openFrom == "OD0102P01") {
 			if(openFrom == "AR0102P01") {
@@ -320,6 +329,7 @@
 			$("#transViewDiv #siteCd").val($("#arViewDiv #siteCd").val());
 			$("#transViewDiv #siteNm").val($("#arViewDiv #siteNm").val());
 			$("#transViewDiv #whCd").val($("#arViewDiv #whCd").val());
+			$("#transViewDiv #taxivcCoprt").val($("#arViewDiv #taxivcCoprt").val());
 		}
 	}
 	
@@ -336,6 +346,9 @@
 			$('#transViewDiv #'+key).val(value);
 			if(key=="transDt"){
 				$('#'+key).datepicker("setDate", moment(value, 'YYYYMMDD').toDate());
+			}else if(key=="coCd"){
+             // 판매법인, 창고 set
+				setByCoCd(value);
 			}
 		});
 		//콤마세팅
@@ -499,6 +512,10 @@
 		$('#transViewDiv #whCd').data("desc", value);
 		$('#transViewDiv #whCd option:not([value=""])').remove();
 		setCommonSelect($('#transViewDiv #whCd'));
+		// 판매법인 set
+		$('#transViewDiv #taxivcCoprt').data("rprc", value);
+		$('#transViewDiv #taxivcCoprt option:not([value=""])').remove();
+		setCommonSelect($('#transViewDiv #taxivcCoprt'));
 	}
 		
 </script>
