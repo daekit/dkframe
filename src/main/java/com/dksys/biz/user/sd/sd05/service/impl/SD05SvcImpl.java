@@ -212,4 +212,10 @@ public class SD05SvcImpl implements SD05Svc {
 		cm09Svc.insertNoti(paramMap, mRequest);
 		return paramMap;
 	}
+
+	@Override
+	public  Map<String, String> selectMakerPchsClntCd(Map<String, String> paramMap) {
+		// TODO Auto-generated method stub
+		return sd05Mapper.selectMakerPchsClntCd(paramMap);
+	}
 }

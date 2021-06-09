@@ -48,4 +48,6 @@ public interface SD05Mapper {
 	List<Map<String, String>> prdtDivCombo(Map<String, String> param);
 	
 	List<Map<String, String>> prdtSpecCombo(Map<String, String> param);
+
+	Map<String, String> selectMakerPchsClntCd(Map<String, String> paramMap);
 }

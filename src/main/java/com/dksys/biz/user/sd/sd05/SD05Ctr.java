@@ -46,6 +46,13 @@ public class SD05Ctr {
     	model.addAttribute("result", result);
     	return "jsonView";
     }
+
+	@PostMapping(value = "/selectMakerPchsClntCd")
+    public String selectMakerPchsClntCd(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		 Map<String, String> pchsClnt = sd05Svc.selectMakerPchsClntCd(paramMap);
+    	model.addAttribute("result", pchsClnt);
+    	return "jsonView";
+    }
 	
 	@PostMapping(value = "/selectProjectcoCdList")
     public String selectProjectcoCdList(@RequestBody Map<String, String> param, ModelMap model) {

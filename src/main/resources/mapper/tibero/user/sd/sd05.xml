@@ -101,6 +101,8 @@
 					,A.CLMN_RMK
                     ,A.CLMN_DIV_CD
                     ,FN_CM05M01_CD_TO_NM(A.CLMN_DIV_CD) AS CLMN_DIV_NM
+                    ,A.PCHS_CLNT_CD
+                    ,(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = A.PCHS_CLNT_CD) AS PCHS_CLNT_NM
 				FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C
 				WHERE A.CLNT_CD = B.CLNT_CD(+)
 				 AND  A.MNG_ID = C.ID(+)
@@ -135,7 +137,8 @@
 			TO_CHAR(TO_DATE(T.PCHS_STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_STRT_DT2,
 			TO_CHAR(TO_DATE(T.PCHS_END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PCHS_END_DT2,
             FN_CM05M01_CD_TO_NM(T.CLMN_DIV_CD) AS CLMN_DIV_NM,
-            FN_CM05M01_CD_TO_NM(T.CLMN_DIV_CD) AS CLMN_DIV_NM
+            FN_CM05M01_CD_TO_NM(T.CLMN_DIV_CD) AS CLMN_DIV_NM,
+            (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.PCHS_CLNT_CD) AS PCHS_CLNT_NM
 		FROM TB_SD05M01 T
 		WHERE PRJCT_CD = #{prjctCd}
 	</select>
@@ -254,9 +257,9 @@
 			, CLMN_DAY         = #{clmnDay}
 			, CLMN_RMK         = #{clmnRmk}
 			, CLMN_DIV_CD      = #{clmnDivCd}
-		WHERE 
-			PRJCT_CD = #{prjctCd}
-			AND CO_CD            = #{coCd}
+			, PCHS_CLNT_CD     = #{pchsClntCd}
+		WHERE PRJCT_CD         = #{prjctCd}
+		  AND CO_CD            = #{coCd}
 	</update>
 	
 	<update id="updatePrjctDtl" parameterType="Map">
@@ -288,105 +291,107 @@
 			SELECT TO_CHAR(SYSDATE, 'YYYYMM')||LPAD(TB_SD05M01_SQ01.NEXTVAL,3,0) FROM DUAL
 		</selectKey>
 		INSERT INTO TB_SD05M01
-		(CO_CD
-		, PRJCT_CD
-		, COPRT_CD
-		, TNKEY_YN
-		, CLNT_CD
-		, MAKR_CD
-		, PRJCT_NM
-		, PRJCT_ADDR_ZIP
-		, PRJCT_ADDR
-		, PRJCT_ADDR_SUB
-		, PRJCT_MNG_NM
-		, TEL_NO
-		, LOSS_RATE
-		, STRT_DT
-		, END_DT
-		, TOT_WT
-		, MNG_ID
-		, USE_YN
-		, RMK
-		, CREAT_ID
-		, CREAT_PGM
-		, CREAT_DTTM
-		, ORD_TYP
-		, BILDNG_TYP
-		, ENGRK_TYP
-		, MAKR_MNG_NM
-		, CLNT_EMAIL
-		, CLNT_FAX_NO
-		, PRCSN_UPR
-		, DC_DIV
-		, PRDT_UPR
-		, CPLR_YN
-		, PMNT_MTD_CD
-		, SHOP_CLNT_CD
-		, SHOP_UPR
-		, CTRT_RMK
-		, OUTORD_UPR
-		, OUTORD_LOSS_RATE
-		, OUTORD_MNG_NM
-		, OUTORD_TEL_NO
-		, OUTORD_FAX_NO
-		, WH_CD
-		, SCND_WH_CD
-		, THRD_WH_CD
-		, SALES_AREA_CD
-		, CLMN_DAY
-		, CLMN_RMK
-		, CLMN_DIV_CD
+			(CO_CD
+			, PRJCT_CD
+			, COPRT_CD
+			, TNKEY_YN
+			, CLNT_CD
+			, MAKR_CD
+			, PRJCT_NM
+			, PRJCT_ADDR_ZIP
+			, PRJCT_ADDR
+			, PRJCT_ADDR_SUB
+			, PRJCT_MNG_NM
+			, TEL_NO
+			, LOSS_RATE
+			, STRT_DT
+			, END_DT
+			, TOT_WT
+			, MNG_ID
+			, USE_YN
+			, RMK
+			, CREAT_ID
+			, CREAT_PGM
+			, CREAT_DTTM
+			, ORD_TYP
+			, BILDNG_TYP
+			, ENGRK_TYP
+			, MAKR_MNG_NM
+			, CLNT_EMAIL
+			, CLNT_FAX_NO
+			, PRCSN_UPR
+			, DC_DIV
+			, PRDT_UPR
+			, CPLR_YN
+			, PMNT_MTD_CD
+			, SHOP_CLNT_CD
+			, SHOP_UPR
+			, CTRT_RMK
+			, OUTORD_UPR
+			, OUTORD_LOSS_RATE
+			, OUTORD_MNG_NM
+			, OUTORD_TEL_NO
+			, OUTORD_FAX_NO
+			, WH_CD
+			, SCND_WH_CD
+			, THRD_WH_CD
+			, SALES_AREA_CD
+			, CLMN_DAY
+			, CLMN_RMK
+			, CLMN_DIV_CD
+			, PCHS_CLNT_CD
 			)
 		VALUES 
 		(
-		#{coCd}
-		, #{prjctCd}
-		, (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_KIND = 'WH' AND CODE_ID = #{whCd} )
-		, 'N'
-		, #{clntCd}
-		, #{makrCd}
-		, #{prjctNm}
-		, #{prjctAddrZip}
-		, #{prjctAddr}
-		, #{prjctAddrSub}
-		, #{prjctMngNm}
-		, #{telNo}
-		, #{lossRate}
-		, REPLACE(#{strtDt}, '-', '')
-		, REPLACE(#{endDt}, '-', '')
-		, #{totWt}
-		, #{mngId}
-		, #{useYn}
-		, #{rmk}
-		, #{userId}
-		, #{pgmId}
-		, SYSDATE
-		, #{ordTyp}
-		, #{bildngTyp}
-		, #{engrkTyp}
-		, #{makrMngNm}
-		, #{clntEmail}
-		, #{clntFaxNo}
-		, #{prcsnUpr}
-		, #{dcDiv}
-		, #{prdtUpr}
-		, #{cplrYn}
-		, #{pmntMtdCd}
-		, #{shopClntCd}
-		, #{shopUpr}
-		, #{ctrtRmk}
-		, #{outordUpr}
-		, #{outordLossRate}
-		, #{outordMngNm}
-		, #{outordTelNo}
-		, #{outordFaxNo}
-		, #{whCd}
-		, #{scndWhCd}
-		, #{thrdWhCd}
-		, #{salesAreaCd}
-		, #{clmnDay}
-		, #{clmnRmk}
-		, #{clmnDivCd}
+			  #{coCd}
+			, #{prjctCd}
+			, (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_KIND = 'WH' AND CODE_ID = #{whCd} )
+			, 'N'
+			, #{clntCd}
+			, #{makrCd}
+			, #{prjctNm}
+			, #{prjctAddrZip}
+			, #{prjctAddr}
+			, #{prjctAddrSub}
+			, #{prjctMngNm}
+			, #{telNo}
+			, #{lossRate}
+			, REPLACE(#{strtDt}, '-', '')
+			, REPLACE(#{endDt}, '-', '')
+			, #{totWt}
+			, #{mngId}
+			, #{useYn}
+			, #{rmk}
+			, #{userId}
+			, #{pgmId}
+			, SYSDATE
+			, #{ordTyp}
+			, #{bildngTyp}
+			, #{engrkTyp}
+			, #{makrMngNm}
+			, #{clntEmail}
+			, #{clntFaxNo}
+			, #{prcsnUpr}
+			, #{dcDiv}
+			, #{prdtUpr}
+			, #{cplrYn}
+			, #{pmntMtdCd}
+			, #{shopClntCd}
+			, #{shopUpr}
+			, #{ctrtRmk}
+			, #{outordUpr}
+			, #{outordLossRate}
+			, #{outordMngNm}
+			, #{outordTelNo}
+			, #{outordFaxNo}
+			, #{whCd}
+			, #{scndWhCd}
+			, #{thrdWhCd}
+			, #{salesAreaCd}
+			, #{clmnDay}
+			, #{clmnRmk}
+			, #{clmnDivCd}
+			, #{pchsClntCd}
 		)
 	</insert>
 	
@@ -445,34 +450,42 @@
 	</update>
 	
 	<select id="selectPrdtDivCd" parameterType="Map" resultType="camelMap">
-	SELECT CODE_ID PRDT_DIV_CD, CODE_NM PRDT_DIV_NM
-	  FROM TB_CM05M01
-	 WHERE CODE_KIND = 'PRDTDIV'
-	   AND USE_YN = 'Y'
-	ORDER BY CODE_ID
+		SELECT CODE_ID PRDT_DIV_CD, CODE_NM PRDT_DIV_NM
+		  FROM TB_CM05M01
+		 WHERE CODE_KIND = 'PRDTDIV'
+		   AND USE_YN = 'Y'
+		ORDER BY CODE_ID
 	</select>
 	
 	<select id="prdtDivCombo" parameterType="Map" resultType="camelMap">
-	SELECT FN_CM05M01_CD_TO_NM(PRDT_STKN) PRDT_STKN_NM , PRDT_STKN
-	  FROM TB_BM01M01
-	 WHERE PRDT_DIV = #{prdtDivCd}
-	   AND PRDT_STKN IS NOT NULL
-	   AND FN_CM05M01_CD_TO_NM(PRDT_STKN) IS NOT NULL
-	GROUP BY PRDT_STKN
+		SELECT FN_CM05M01_CD_TO_NM(PRDT_STKN) PRDT_STKN_NM , PRDT_STKN
+		  FROM TB_BM01M01
+		 WHERE PRDT_DIV = #{prdtDivCd}
+		   AND PRDT_STKN IS NOT NULL
+		   AND FN_CM05M01_CD_TO_NM(PRDT_STKN) IS NOT NULL
+		GROUP BY PRDT_STKN
 	</select>
 	
 	<select id="prdtSpecCombo" parameterType="Map" resultType="camelMap">
-	SELECT PRDT_SPEC
-	  FROM TB_BM01M01
-	 WHERE PRDT_DIV = 'PRDTDIV11'
-	 <if test= "prdtDivCd != null and !prdtDivCd.equals('')">
-	 AND PRDT_DIV = #{prdtDivCd}
-	 </if>
-	 <if test= "prdtStkn != null and !prdtStkn.equals('')">
-     AND PRDT_STKN = #{prdtStkn} 
-	 </if>
-	 AND PRDT_SIZE IS NOT NULL
-	GROUP BY PRDT_SPEC
-	ORDER BY PRDT_SPEC
+		SELECT PRDT_SPEC
+		  FROM TB_BM01M01
+		 WHERE PRDT_DIV = 'PRDTDIV11'
+		 <if test= "prdtDivCd != null and !prdtDivCd.equals('')">
+		 AND PRDT_DIV = #{prdtDivCd}
+		 </if>
+		 <if test= "prdtStkn != null and !prdtStkn.equals('')">
+	     AND PRDT_STKN = #{prdtStkn} 
+		 </if>
+		 AND PRDT_SIZE IS NOT NULL
+		GROUP BY PRDT_SPEC
+		ORDER BY PRDT_SPEC
+	</select>
+	
+	<select id="selectMakerPchsClntCd" parameterType="Map" resultType="camelMap">
+		SELECT CM05.CODE_ETC AS CLNT_CD 
+		     , BM02.CLNT_NM
+		  FROM TB_CM05M01 CM05
+		  INNER JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = CM05.CODE_ETC
+		 WHERE CM05.CODE_ID = #{makrCd}
 	</select>
 </mapper>
