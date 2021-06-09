@@ -23,7 +23,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" required onchange="setCodeSelectByCocd(this.value);"></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" required onchange="setByCoCd(this.value);"></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
@@ -483,7 +483,7 @@
 			addDetailRow();
 			countTot();
 			$('#coCd').val(jwt.coCd);
-			setCodeSelectByCocd($('#coCd').val());
+			setByCoCd($('#coCd').val());
 			$('#reqDt').datepicker("setDate", new Date());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
@@ -517,14 +517,18 @@
 					}
 					$('#'+key).val(value);
 				}
-				// 제조사 set
+				
+				// 창고, 판매법인 option set
+				if(key == "coCd"){
+					setByCoCd(value);
+				}
+				
+				// 제조사 option set
 				if(key == "impYn"){
 					setMaker(value);
 				}
 			}
 		});
-		
-		setCodeSelectByCocd($('#coCd').val());
 		
 		//상세정보 세팅
 		$.each(orderInfo.detailList, function(idx, obj) {
@@ -934,18 +938,15 @@
 	}
 	
 	// 코드 set
-	function setCodeSelectByCocd(value){
-//    if(type == "WH"){
-			$('#whCd').data("desc", value);
-			$('#whCd option:not([value=""])').remove()
-			setCommonSelect($('#whCd'));  
-//	  }else{  //ESTCOPRT
-			$('#taxivcCoprt').data("rprc", value);
-			$('#taxivcCoprt option:not([value=""])').remove()
-			setCommonSelect($('#taxivcCoprt'));  
-//	  }
+	function setByCoCd(value){
+		// 창고 set
+		$('#whCd').data("desc", value);
+		$('#whCd option:not([value=""])').remove();
+		setCommonSelect($('#whCd')); 
+		
+		// 판매법인 set
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove();
+		setCommonSelect($('#taxivcCoprt'));
 	}
-	
-	
-	
 </script>
