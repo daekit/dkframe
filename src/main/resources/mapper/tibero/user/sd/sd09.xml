@@ -246,8 +246,8 @@
       , MAKR_CD          = #{makrCd}
       , CLNT_EMAIL       = #{clntEmail}
       , CLNT_FAX_NO      = #{clntFaxNo}
-      , OUTORD_UPR       = #{outordUpr}
-      , OUTORD_LOSS_RATE = #{outordLossRate}
+      , OUTORD_UPR       = #{outordUpr, jdbcType=VARCHAR}
+      , OUTORD_LOSS_RATE = #{outordLossRate, jdbcType=VARCHAR}
 	  , UDT_ID        = #{userId}
 	  , UDT_PGM       = #{pgmId}
 	  , UDT_DTTM      = SYSDATE
@@ -273,7 +273,12 @@
 		  , UDT_PGM       = #{pgmId}
 		  , UDT_DTTM      = SYSDATE
 		WHERE CO_CD     = #{coCd} 
+		   <if test= "siteCd != null and !siteCd.equals('')">
 		    AND SITE_CD   = #{siteCd}
+		    </if> 
+		   <if test= "prjctCd != null and !prjctCd.equals('')">
+		    AND PRJCT_CD   = #{prjctCd}
+		    </if>
 	</update>	
 	
 	<delete id="deleteSite" parameterType="Map">
