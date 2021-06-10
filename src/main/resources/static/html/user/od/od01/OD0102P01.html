@@ -10,6 +10,7 @@
 			<input type="hidden" id="ordrgSeq" name="ordrgSeq"> 
 			<input type="hidden" id="reqSeq"   name="reqSeq">  <!-- 구매요청번호 -->
 			<input type="hidden" id="whClntCd" name="whClntCd">
+			<input type="hidden" id="odrCreatDiv" name="odrCreatDiv">
 			<!--재고주체가 자사인경우 거래처 창고의 거래처-->
 			<table>
 				<colgroup>
@@ -73,12 +74,9 @@
 					</td>
 				</tr>
 				<tr>
-					<th class="hit">수입여부</th>
+					<th class="hit">거래유형</th>
 					<td>
-						<select id="impYn" name="impYn" onchange="setMaker(this.value);" msg="수입여부" required>
-							<option value="N" selected>N</option>
-							<option value="Y">Y</option>
-						</select>
+						<select id="trspTypCd" name="trspTypCd" data-kind="TRSPTYP" msg="거래유형" required></select>
 					</td>
 					<th class="hit">재고주체</th>
 					<td>
@@ -94,11 +92,13 @@
 					</td>
 				</tr>
 				<tr>
-					<th class="hit">Maker</th>
+					<th class="hit">수입여부</th>
 					<td>
-						<select id="makrCd" name="makrCd" data-kind="MAKR" msg="Maker" required></select>
+						<select id="impYn" name="impYn" onchange="setMaker(this.value);" msg="수입여부" required>
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
 					</td>
-
 					<th class="hit">입고창고</th>
 					<td>
 						<select id="whCd" name="whCd" data-kind="WH" onchange="setTaxivcCoprt();" msg="입고창고" required>
@@ -113,15 +113,11 @@
 					</td>
 				</tr>
 				<tr>
-					<th>주문번호</th>
+					<th class="hit">Maker</th>
 					<td>
-						<div class="search_form">
-							<input type="text" id="odrSeq" name="odrSeq" readonly> 
-							<a onclick="openSecondOrderSearch();">
-								<i class="i_search_w"></i>
-							</a>
-						</div>
+						<select id="makrCd" name="makrCd" data-kind="MAKR" msg="Maker" required></select>
 					</td>
+
 					<th>착지연락처</th>
 					<td>
 						<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);" maxlength=13>
@@ -132,15 +128,15 @@
 					</td>
 				</tr>
 				<tr>
-					<th rowspan="2">착지 주소</th>
+					<th>주문번호</th>
 					<td>
 						<div class="search_form">
-							<input type="text" id="addrZip" name="addrZip" readonly>
-							<a onclick="openDaumPostcode();">
+							<input type="text" id="odrSeq" name="odrSeq" readonly> 
+							<a onclick="openSecondOrderSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
-					</td>
+					</td>	
 					<th>운송비</th>
 					<td>
 						<div class="search_form">
@@ -163,7 +159,16 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="border-left: 0px !important;">
+					<th rowspan="1">착지 주소</th>
+					<td>
+						<div class="search_form">
+							<input type="text" id="addrZip" name="addrZip" readonly>
+							<a onclick="openDaumPostcode();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td colspan="2" style="border-left: 0px !important;">
 						<input type="text" id="addrMain" name="addrMain" placeholder="선택 주소지" readonly>
 					</td>
 					<td colspan="2">
@@ -385,7 +390,7 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button id="actionOdBtn"></button>
+		<button id="actionOdBtn" authchk></button>
 		<button class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
@@ -453,11 +458,13 @@
 
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
+			$('#odrCreatDiv').val("ERP");
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
 			setCodeSelectByCocd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$("#dirtrsYn").val("Y"); 
+			$('#trspTypCd').val("TRSPTYP1");
 			$('#actionOdBtn').on("click", function(){insertOrder();});
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
@@ -472,11 +479,13 @@
 			$('#actionOdBtn').on("click", function(){insertOrder();});
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
+			$('#trspTypCd').val("TRSPTYP1");
 		}else if (actionType == "R"){ // 구매요청에서 발주서 호춣할때 사용한다.
 			getReqInfo();
 			$('#actionOdBtn').on("click", function(){insertOrder();});
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
+			$('#trspTypCd').val("TRSPTYP1");
 		}
 		
 		ctrlDirtrsMaster();
@@ -675,6 +684,10 @@
 				
 				if(key == "whCd"){
 					setTaxivcCoprt();
+				}
+				// 생성구분이 다름으로 추가한다.
+				if(key == "reqCreatDiv"){
+					$('#popForm #odrCreatDiv').val(value); 
 				}
 			}
 		});
