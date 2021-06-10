@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface AR11Svc {
-	int kweonCount(Map<String, String> paramMap);
+	int EtrdpsPayCount(Map<String, String> paramMap);
 	
-	List<Map<String, Object>> kweonList(Map<String, String> param);
+	List<Map<String, Object>> EtrdpsPayList(Map<String, String> param);
 }

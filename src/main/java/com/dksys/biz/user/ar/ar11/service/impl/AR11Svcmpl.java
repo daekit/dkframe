@@ -18,12 +18,12 @@ public class AR11Svcmpl implements AR11Svc {
     AR11Mapper ar11Mapper;
     
     @Override
-	public int kweonCount(Map<String, String> paramMap) {
-    	return ar11Mapper.kweonCount(paramMap);
+	public int EtrdpsPayCount(Map<String, String> paramMap) {
+    	return ar11Mapper.EtrdpsPayCount(paramMap);
 	}
 
 	@Override
-	public List<Map<String, Object>> kweonList(Map<String, String> paramMap) {
-		return ar11Mapper.kweonList(paramMap);
+	public List<Map<String, Object>> EtrdpsPayList(Map<String, String> paramMap) {
+		return ar11Mapper.EtrdpsPayList(paramMap);
 	}
 }
