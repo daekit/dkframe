@@ -60,7 +60,7 @@
 					<tr>
 						<th>회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd"> 
+							<select data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value);"> 
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -80,6 +80,12 @@
 						</td>
 					</tr>
 					<tr>
+						<th>판매법인</th>
+						<td>
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprt">
+								<option value="">전체</option>
+							</select>
+						</td>
 						<th>현금/어음구분</th>
 						<td>
 							<select data-kind="PMNTMTD" data-search="setleTypCd">
@@ -92,7 +98,8 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						
+				   </tr>
+				   <tr>		
 						<th>수금/지급구분</th>
 						<td>
 							<select data-kind=ETRDPS data-search="etrdpsTyp">
@@ -239,7 +246,8 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
-		
+		// 판매법인, 창고 set
+		setByCoCd(jwt.coCd)
 		// 시작일 (시작일 기준 -3개월)
 		$('#startDt').datepicker({
 			format : "yyyy-mm-dd",
@@ -288,7 +296,10 @@
 
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
-		
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		// 판매법인, 창고 set
+		setByCoCd(jwt.coCd)
 		// 재검색
 		gridView.setData(0);
 	}
@@ -332,5 +343,13 @@
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("수금(입금)목록_"+todayDate+".xls");
 			});	
-	}	
+	}
+	
+	function setByCoCd(value){		
+		// 판매법인 set
+		$('#estCoprt_S').data("rprc", value);
+		$('#estCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#estCoprt_S'));  
+	}
+	
 </script>
