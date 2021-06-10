@@ -412,7 +412,7 @@ public class AR02SvcImpl implements AR02Svc {
 		loanMap.put("clntCd", paramMap.get("clntCd"));
 		loanMap.put("coCd", paramMap.get("coCd"));
 		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
-		loanMap.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
+		loanMap.put("amt", paramMap.get("totAmt"));
 		return ar02Mapper.callCreditLoan(loanMap);
 	}
 	
