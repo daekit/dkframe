@@ -35,8 +35,10 @@ public interface AR02Svc {
 	
 	long checkLoan2(Map<String, Object> paramMap);
 	
+	long deductLoan(Map<String, Object> paramMap);
+	
+	long depositLoan(Map<String, Object> paramMap);
+	
 	boolean creditDeposit(Map<String, Object> paramMap);
 	
-	boolean creditDeposit2(Map<String, Object> paramMap);
-
 }

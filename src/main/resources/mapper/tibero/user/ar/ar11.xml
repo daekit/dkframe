@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar11.mapper.AR11Mapper">
+	<select id="EtrdpsPayCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_AR11M01 T
+		WHERE
+			T.CO_CD = #{coCd}	
+			<if test="etrdpsFrom != null and !etrdpsDtFrom.equals('')">
+				AND T.ETRDPS_DT >= #{etrdpsDtFrom}
+			</if>
+			<if test="etrdpsDtTo != null and !etrdpsDtTo.equals('')">
+				<![CDATA[ AND T.ETRDPS_DT <= #{etrdpsDtTo} ]]>
+			</if>
+			<if test="etrdpsTyp != null and !etrdpsTyp.equals('')">
+				AND T.ETRDPS_TYP = #{etrdpsTyp}
+			</if>
+			<if test="sumry != null and !sumry.equals('')">
+				AND T.SUMRY LIKE '%'|| #{sumry} || '%'
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
+			</if>
+			<if test="pymntBankCd != null and !pymntBankCd.equals('')">
+				AND T.PYMNT_BANK_CD LIKE '%'|| #{pymntBankCd} || '%'
+			</if>
+	</select>
+
+	<select id="EtrdpsPayList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				A.*,
+				ROWNUM AS RNUM
+				
+			FROM
+			(
+				SELECT 
+					T.CLNT_NM,
+					TO_CHAR(TO_DATE(T.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS ETRDPS_DT,
+					T.ETRDPS_TYP,
+					FN_CM05M01_CD_TO_NM(T.ETRDPS_TYP) AS ETRDPS_NM,
+					T.ACC_NM,
+					T.SUMRY,
+					T.ETRDPS_AMT,
+					T.BIL_NO,
+					T.PYMNT_BANK_CD
+				FROM
+					TB_AR11M01 T
+				WHERE
+					T.CO_CD = #{coCd}	
+			<if test="etrdpsFrom != null and !etrdpsDtFrom.equals('')">
+				AND T.ETRDPS_DT >= #{etrdpsDtFrom}
+			</if>
+			<if test="etrdpsDtTo != null and !etrdpsDtTo.equals('')">
+				<![CDATA[ AND T.ETRDPS_DT <= #{etrdpsDtTo} ]]>
+			</if>
+			<if test="etrdpsTyp != null and !etrdpsTyp.equals('')">
+				AND T.ETRDPS_TYP = #{etrdpsTyp}
+			</if>
+			<if test="sumry != null and !sumry.equals('')">
+				AND T.SUMRY LIKE '%'|| #{sumry} || '%'
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
+			</if>
+			<if test="pymntBankCd != null and !pymntBankCd.equals('')">
+				AND T.PYMNT_BANK_CD LIKE '%'|| #{pymntBankCd} || '%'
+			</if>
+			) A
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+</mapper>
