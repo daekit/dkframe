@@ -91,7 +91,7 @@ public class AR02Ctr {
 		try {
 			ar02Svc.deleteSell(paramMap);
 			model.addAttribute("resultCode", 200);
-			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+			model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
 		}catch(LogicException le) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", le.getMessage());
