@@ -23,10 +23,10 @@
 					</tr>
 					<tr>
 						<th class="hit">코드명</th>
-						<td><input type="text" class="form-control" id="codeNm" name="codeNm" required></td>
+						<td><input type="text" class="form-control" id="codeNm" name="codeNm" required ></td>
 						<th class="hit">회사구분</th>
 						<td>
-						<select class="form-control input-sm" id="codeDesc" name="codeDesc" data-kind="CO" required>
+						<select class="form-control input-sm" id="codeDesc" name="codeDesc" data-kind="CO" onchange="setCodeSelectByCocd(this.value)" required>
 							     <option value="">선택</option>
 						</select>							
 						</td>
@@ -71,18 +71,22 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
+
+		// 공통코드 set
+		setCommonSelect($('#popup_area [data-kind]'));
+		
 		if(actionType == "C"){
 			$('#codeKind').val(getCodeKind());
-			$('#codeKind').prop("readOnly", true);
+			$('#codeKind').prop("disabled", true);
 			$('#actionBtn').text("등록");
+			$('#codeId').val("WH__");
 			
 		}else if(actionType == "U"){
 			selectCodeInfo();
 			$('#codeId').prop("readOnly", true);
+			$('#codeKind').prop("disabled", true);
 			$('#actionBtn').text("저장");
 		}
-		// 공통코드 set
-		setCommonSelect($('#popup_area [data-kind]'));
 	});
 	
 	function selectCodeInfo(){
@@ -95,6 +99,10 @@
 	
 	function setCodeInfo(codeInfo){
 		$.each(codeInfo, function(key, value){
+			if(key=="codeDesc"){
+				// 법인 세팅
+				setCodeSelectByCocd(value);				
+			}
 			$('#'+key).val(value);
 		});
 	}
@@ -114,4 +122,12 @@
 			});
 		}
 	}
+	
+	// 창고 set
+	function setCodeSelectByCocd(value){
+		$('#codeEtc').data("rprc", value);
+		$('#codeEtc option:not([value=""])').remove()
+		setCommonSelect($('#popup_area #codeEtc'));		
+	}
+	
 </script>
