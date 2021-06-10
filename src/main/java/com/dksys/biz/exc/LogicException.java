@@ -1,11 +1,11 @@
 package com.dksys.biz.exc;
 
 @SuppressWarnings("serial")
-public class CommonException extends Exception{
+public class LogicException extends Exception{
 	
 	String message = null;
 	
-	public CommonException(String message) {
+	public LogicException(String message) {
 		super();
 		this.message = message;
 	}
