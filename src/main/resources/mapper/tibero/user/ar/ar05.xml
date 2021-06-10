@@ -60,7 +60,10 @@
 					FN_CM05M01_CD_TO_NM(B.PYMNT_BANK_CD) AS PYMNT_BANK_NM,
 					B.ENDRS_PSN,
 					ETRDPS_TYP,
-					FN_CM05M01_CD_TO_NM(D.ETRDPS_TYP) AS ETRDPS_TYP_NM
+					FN_CM05M01_CD_TO_NM(D.ETRDPS_TYP) AS ETRDPS_TYP_NM,
+					D.TAXIVC_COPRT,
+					FN_CM05M01_CD_TO_NM(D.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
+					D.MSCL_PRFT_YN
 				FROM
 					TB_AR05M01 D
 					LEFT JOIN TB_AR05D01 B ON D.BIL_NO = B.BIL_NO
@@ -103,11 +106,13 @@
 			C.CLNT_NM,
 			TO_CHAR(TO_DATE(D.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') ETRDPS_DT,
 			D.SETLE_TYP_CD,
+			D.TAXIVC_COPRT,
+			D.MSCL_PRFT_YN,
 			D.ETRDPS_AMT,
 			D.ETRDPS_BKAC_CD,
 			D.BIL_NO,
 			D.SUMRY,
-			D.ETRDPS_TYP
+			D.ETRDPS_TYP		
 		FROM
 			TB_AR05M01 D
 			INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
@@ -148,7 +153,9 @@
 			SUMRY,
 			CREAT_ID, CREAT_PGM, CREAT_DTTM,
 			UDT_ID, UDT_PGM, UDT_DTTM,
-			ETRDPS_TYP
+			ETRDPS_TYP,
+			TAXIVC_COPRT,
+			MSCL_PRFT_YN		
 	 	) VALUES (
 	 		#{coCd},
 			#{etrdpsDt},
@@ -163,7 +170,9 @@
 			#{sumry},
 			#{userId}, #{pgmId}, SYSDATE,
 			#{userId}, #{pgmId}, SYSDATE,
-			#{etrdpsTyp}
+			#{etrdpsTyp},
+			#{taxivcCoprt},
+			#{msclPrftYn}
 	 	)
 	</insert>
 	
@@ -216,32 +225,34 @@
 	<update id="updateEtrdps">
 		UPDATE TB_AR05M01
 		SET
-			ETRDPS_DT = #{etrdpsDt},
+			ETRDPS_DT      = #{etrdpsDt},
 			ETRDPS_BKAC_CD = #{etrdpsBkacCd},
-			SUMRY = #{sumry},
-			UDT_ID = #{userId},
-			UDT_PGM = #{pgmId}, 
-			UDT_DTTM = SYSDATE,
-			ETRDPS_TYP =#{etrdpsTyp}
+			SUMRY          = #{sumry},
+			UDT_ID         = #{userId},
+			UDT_PGM        = #{pgmId}, 
+			UDT_DTTM       = SYSDATE,
+			ETRDPS_TYP     = #{etrdpsTyp},
+			TAXIVC_COPRT   = #{taxivcCoprt},
+			MSCL_PRFT_YN   = #{msclPrftYn}
 		WHERE
-			ETRDPS_SEQ = #{etrdpsSeq}
+			ETRDPS_SEQ     = #{etrdpsSeq}
 	</update>
 	
 	<update id="updateBill">
 		UPDATE TB_AR05D01
 		SET
-			BIL_TYP_CD = #{bilTypCd},
-			EXPRTN_DT = #{exprtnDt},
+			BIL_TYP_CD    = #{bilTypCd},
+			EXPRTN_DT     = #{exprtnDt},
 			PYMNT_BANK_CD = #{pymntBankCd},
-			BIL_PBLS_PSN = #{bilPblsPsn},
+			BIL_PBLS_PSN  = #{bilPblsPsn},
 			ENDRS_PSN_CNT = #{endrsPsnCnt},
-			BIL_AMT = #{bilAmt},
-			BIL_PBLS_DT = #{bilPblsDt},
-			ENDRS_PSN = #{endrsPsn},
-			SUMRY = #{sumry},
-			UDT_ID = #{userId},
-			UDT_PGM = #{pgmId},
-			UDT_DTTM = SYSDATE
+			BIL_AMT       = #{bilAmt},
+			BIL_PBLS_DT   = #{bilPblsDt},
+			ENDRS_PSN     = #{endrsPsn},
+			SUMRY         = #{sumry},
+			UDT_ID        = #{userId},
+			UDT_PGM       = #{pgmId},
+			UDT_DTTM      = SYSDATE
 		WHERE
 			BIL_NO = #{bilNo}
 	</update>
