@@ -12,29 +12,31 @@ public interface AR02Svc {
 	int selectSellCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
+	
+	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 
 	int updatePchsSell(Map<String, Object> paramMap);
 
 	int deleteSell(Map<String, String> paramMap);
 
-	int insertPchsSell(Map<String, String> paramMap);
+	void insertPchsSell(Map<String, String> paramMap) throws Exception;
 	
 	void insertSalesDivision(List<Map<String, String>> paramList) throws Exception;
 	
 	void updateSalesClnt(List<Map<String, String>> paramList);
 
-	Map<String, String> selectSellInfo(Map<String, String> paramMap);
+	boolean checkSellClose(Map<String, String> paramMap);
+	
+	boolean checkPchsClose(Map<String, String> paramMap);
 	
 	boolean checkLoan(Map<String, String> paramMap);
 	
 	long checkLoan2(Map<String, Object> paramMap);
-
-	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
-
+	
 	boolean creditDeposit(Map<String, Object> paramMap);
 	
-	boolean checkSellClose(Map<String, String> paramMap);
-	
-	boolean checkPchsClose(Map<String, String> paramMap);
+	boolean creditDeposit2(Map<String, Object> paramMap);
 
 }

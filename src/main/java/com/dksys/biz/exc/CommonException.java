@@ -1,11 +1,11 @@
 package com.dksys.biz.exc;
 
 @SuppressWarnings("serial")
-public class CreditLoanException extends Exception{
+public class CommonException extends Exception{
 	
 	String message = null;
 	
-	public CreditLoanException(String message) {
+	public CommonException(String message) {
 		super();
 		this.message = message;
 	}
