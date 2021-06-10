@@ -31,11 +31,13 @@
 			<a class="btn btn-default btn-sm" onclick="detailCode('C');">등록</a>
 			<a class="btn btn-default btn-sm" onclick="detailCode('U');">수정</a>
 			<a class="btn btn-default btn-sm" onclick="deleteCode();">삭제</a>
+            <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 		</div>
 	</div>
 </div>
 <div class="row">
 	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 500px; width: 100%"></div>
+    <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 </div>
 <script type="text/javascript">
 	var actionType = null;
@@ -113,9 +115,33 @@
 			});
 		}
 	}
-	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+					columns: [
+		                {key: "codeId",     label: "코드ID",    align: "center", width: 100},
+		                {key: "codeNm",     label: "코드명",     align: "left",   width: 150},
+		                {key: "codeKind",   label: "상위코드ID",  align: "center", width: 150, hidden:true},
+		                {key: "codeKindNm", label: "분류명",     align: "center", width: 100},
+		                {key: "codeRprc",   label: "부모코드ID",  align: "center", width: 150 , hidden:true},
+		                {key: "codeRprcNm", label: "은행구분",    align: "left",  width: 150},
+		                {key: "codeEtc",    label: "법인",      align: "center", width: 150 , hidden:true},
+		                {key: "codeEtcNm",  label: "법인",      align: "left",   width: 150 },
+		                {key: "codeDesc",   label: "계좌번호",    align: "left",   width: 160},
+		                {key: "sortNo",     label: "정렬값",     align: "center", width: 50},
+		                {key: "useYn",      label: "사용",      align: "center", width: 50},
+		                {key: "creatDttm",  label: "등록일",     align: "center", width: 100}
+			        ]
+			    });
+				return this;
+			}
+		}
+		
 	$(document).ready(function() {
 		gridView.initView();
+		excelView.initView();
 		$('#rootDiv').val("ROOT").trigger('change');
 	});
 	
@@ -186,4 +212,33 @@
 			}
 		});
 	}
+	function excelDown() {
+		var targetObj = this.target;
+		var paramObj = {"pageNo": 1, "recordCnt": 99999};
+		
+		// 분류값 set
+		paramObj.codeKind = getCodeKind();
+		
+		// 사용여부 set
+		paramObj.useYn = $('#useType').val();
+		
+		// 검색구분 set
+		paramObj.searchType = $('#searchType').val();
+		
+		// 검색어 set
+		paramObj.searchValue = $('#searchValue').val();
+		
+		postAjax("/admin/cm/cm05/selectCodeList", paramObj, null, function(data){
+				
+			excelView.target.setData({
+				list: data.codeList,
+				page : {
+					totalElements : data.paginationInfo.totalRecordCount					
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("은행계좌목록_"+todayDate+".xls");
+		});	
+	}
+	
 </script>
