@@ -878,33 +878,27 @@
 	}
 	
 	function deleteSell() {
-		var row = subGridView.target.getList("selected")[0];
-		var formData = {
-			"trstCertiNo" : row.trstCertiNo,
-			"userId" : jwt.userId,
-			"pgmId" : "AR0201M02",
-			"ownerCd" : row.ownerCd,
-			"whCd" : row.whCd,
-			"coCd" : row.coCd,
-			"trstDt" : row.trstDt,
-			"selpchCd"  : "SELPCH2"
-		}
-		if (subGridView.target.getList("selected").length > 1) {
-			return;
-			alert("삭제는 한건씩 진행해주세요");
-		}
-		//전표 미발행, 매출화면에서 직접 등록한 데이터만 삭제 가능
-		if (row.bilgCertNo == undefined && row.trstDtlSeq == undefined) {
-			if (confirm("삭제하시겠습니까?")) {
-				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {
-					alert(data.resultMessage);
-					if (data.resultCode == 200) {
-						subGridView.setData(0);
-					}
-				});
+		if(checkGridRow(subGridView.target, "single")) {
+			var row = subGridView.target.getList("selected")[0];
+			var paramObj = {
+				"trstCertiNo" : row.trstCertiNo,
+				"userId" : jwt.userId,
+				"pgmId" : "AR0201M02"
 			}
-		} else {
-			alert("삭제할 수 없는 데이터 입니다.");
+			
+			if (row.bilgCertNo == undefined && row.trstDtlSeq == undefined) {
+			//전표 미발행, 매출화면에서 직접 등록한 데이터만 삭제 가능
+				if (confirm("삭제하시겠습니까?")) {
+					deleteAjax("/user/ar/ar02/deleteSell", paramObj, null, function(data) {
+						alert(data.resultMessage);
+						if (data.resultCode == 200) {
+							subGridView.setData(0);
+						}
+					});
+				}
+			} else {
+				alert("삭제할 수 없는 데이터 입니다.");
+			}
 		}
 	}
 	
