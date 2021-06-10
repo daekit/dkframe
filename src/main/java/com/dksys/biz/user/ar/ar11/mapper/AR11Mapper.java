@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface AR11Mapper {
-	int kweonCount(Map<String, String> paramMap);
+	int EtrdpsPayCount(Map<String, String> paramMap);
 	
-	List<Map<String, Object>> kweonList(Map<String, String> paramMap);
+	List<Map<String, Object>> EtrdpsPayList(Map<String, String> paramMap);
 }

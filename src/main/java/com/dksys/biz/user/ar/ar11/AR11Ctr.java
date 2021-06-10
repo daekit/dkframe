@@ -20,13 +20,13 @@ public class AR11Ctr {
     @Autowired
     AR11Svc ar11Svc;
 	
-    @PostMapping(value = "/kweonList")
-	public String kweonList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int totalCnt = ar11Svc.kweonCount(paramMap);
+    @PostMapping(value = "/EtrdpsPayList")
+	public String EtrdpsPayList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar11Svc.EtrdpsPayCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, Object>> resultList = ar11Svc.kweonList(paramMap);
+    	List<Map<String, Object>> resultList = ar11Svc.EtrdpsPayList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
