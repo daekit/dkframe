@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.cmn.vo.PaginationInfo;
+import com.dksys.biz.exc.CommonException;
 import com.dksys.biz.exc.CreditLoanException;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.util.MessageUtils;
@@ -108,19 +109,19 @@ public class AR02Ctr {
 
 	@PostMapping(value = "/insertPchsSell")
     public String insertPchsSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		int result = ar02Svc.insertPchsSell(paramMap);
-    	if(result == 0) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
-		} else if (result == 500){
-			model.addAttribute("resultCode", 500);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
-		} else if (result == 501){
-			model.addAttribute("resultCode", 500);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
-		} else {
+		try {
+			ar02Svc.insertPchsSell(paramMap);
 			model.addAttribute("resultCode", 200);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}catch(CommonException ce) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", ce.getMessage());
+		}catch(CreditLoanException ce) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", ce.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
     	return "jsonView";
     }

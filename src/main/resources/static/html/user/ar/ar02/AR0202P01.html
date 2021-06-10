@@ -11,15 +11,15 @@
 				<tr>
 					<th class="hit">거래처</th>
 					<td>
-						<input type="hidden" id="clntCd" name="clntCd">
 						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd" msg="거래처" required>
 							<input type="text" id="clntNm" name="clntNm">
 							<a onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
 						</div>
 					</td>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" onchange="setCodeSelectByCocd(this.value);"></select>
+						<select id="coCd" name="coCd" data-kind="CO" onchange="setCodeSelectByCocd(this.value);" msg="회사" required></select>
 					</td>
 				</tr>
 				<tr>
@@ -60,9 +60,13 @@
 					<td>
 						<select id="ownerCd" name="ownerCd" data-kind="OWNER"></select>
 					</td>
-					<th>담당자연락처</th>
+					<th class="hit">영업담당</th>
 					<td>
-						<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);" maxlength="13">
+						<input type="hidden" id="salesMng" name="salesMng">
+						<div class="search_form">
+							<input type="text" class="tc" id="salesMngNm" name="salesMngNm" msg="영업담당" readonly required>
+							<a onclick="openSecondUserSearch();"><i class="i_search_w"></i></a>
+						</div>
 					</td>
 				</tr>
 				<tr>
@@ -72,7 +76,7 @@
 							<option value="">선택</option>
 						</select>
 					</td>
-					<th>현장명</th>
+					<th>현장</th>
 					<td>
 						<div class="search_form">
 							<input type="hidden" id="prjctCd" name="prjctCd" value="0">
@@ -80,6 +84,19 @@
 							<input type="text" id="siteNm" name="siteNm" readonly> 
 							<a onclick="openSecondSiteSearch();"><i class="i_search_w"></i></a>
 						</div>
+					</td>
+				</tr>
+				<tr>
+					<!-- 판매지역, 담당자연락처 -->
+					<th>판매지역</th>
+					<td>
+						<select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th>담당자연락처</th>
+					<td>
+						<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);" maxlength="13">
 					</td>
 				</tr>
 				<tr>
@@ -112,13 +129,13 @@
 					</td>
 					<th>길이</th>
 					<td>
-						<input type="text" class="tr" name="prdtLen" value="0" onkeyup="onlyNumber(this);" comma>
+						<input type="text" class="tr" name="prdtLen" value="0" onkeyup="onlyPositive(this);" comma>
 					</td>
 				</tr>
 				<tr>
 					<th class="hit" name="toggleReq">매출수량</th>
 					<td>
-						<input type="hidden" name="realTrstQty" readonly>
+						<input type="hidden" name="realTrstQty">
 						<input type="text" class="tr" name="bilgQty" value="0" msg="매출수량" onkeyup="onlyNumber(this); countAmt(this);" required comma minus>
 					</td>
 					<th class="hit" name="toggleReq">매출중량</th>
@@ -130,12 +147,12 @@
 				<tr>
 					<th class="hit" name="toggleReq">매출단가</th>
 					<td>
-						<input type="hidden" name="realTrstUpr" readonly>
+						<input type="hidden" name="realTrstUpr">
 						<input type="text" class="tr" name="bilgUpr" value="0" msg="매출단가" onkeyup="onlyNumber(this); countAmt(this);" required comma>
 					</td>
 					<th>제품기준단가</th>
 					<td>
-						<input type="text" class="tr" name="prdtUpr" value="0" msg="제품기준단가" onkeyup="onlyNumber(this);" readonly comma>
+						<input type="text" class="tr" name="prdtUpr" value="0" readonly comma>
 					</td>
 				</tr>
 				<tr>
@@ -157,24 +174,10 @@
 					<td>
 						<input type="text" class="tr" name="etcAmt" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma minus>
 					</td>
-					<th class="hit">영업담당</th>
-					<td>
-						<input type="hidden" id="salesMng" name="salesMng">
-						<div class="search_form">
-							<input type="text" class="tc" id="salesMngNm" name="salesMngNm" readonly>
-							<a onclick="openSecondUserSearch();"><i class="i_search_w"></i></a>
-						</div>
-					</td>
-				</tr>
-				<tr>
 					<th>매출금액</th>
 					<td>
 						<input type="hidden" name="realTrstAmt" minus>
-						<input type="text" class="tr" name="bilgAmt" value="0" msg="매출금액" onkeyup="onlyNumber(this);" readonly required comma minus>
-					</td>
-					<th>전표발행여부</th>
-					<td>
-						<input type="text" class="tc" name="bilgYn" value="N" readonly>
+						<input type="text" class="tr" name="bilgAmt" value="0" onkeyup="onlyNumber(this);" readonly comma minus>
 					</td>
 				</tr>
 				<tr>
@@ -221,9 +224,9 @@
 		if(actionType == "C"){
 			$('#actionArBtn').on("click", function(){insertPchsSell();});
 			$('#actionArBtn').text("등록");
-			$("input[name='rjctTransAmt']").prop("disabled", true);
 			$("#ownerCd").val("OWNER1");
 			$("#makrCd").val("MAKR09");
+			// 거래유형 (절감량입고, 기타입고) 제거
 			$("#trspTypCd option[value='TRSPTYP2']").remove();
 			$("#trspTypCd option[value='TRSPTYP3']").remove();
 			selectSellInfoBase();
@@ -281,19 +284,28 @@
 	}
 	
 	function selectSellInfoBase() {
-		
-     	var row = subGridView.target.getList("selected");
+    	var row = subGridView.target.getList("selected");
 		if(row.length == 0){
 			row = subGridView.target.getList();
 		}
-		$("#coCd").val(row[0].coCd); 
-		$("#clntCd").val(row[0].trstClntCd); 
-		$("#clntNm").val(row[0].clntNm); 
-		$("#taxivcCoprt").val(row[0].taxivcCoprt); 
-		$("#trstDt").val(dateToStr(new Date()));
-		$("#siteCd").val(row[0].siteCd);
-		$("#siteNm").val(row[0].siteNm);
-		$("#prjctCd").val(row[0].prjctCd);
+		
+		// 검색조건의 회사 set
+ 		$("#coCd").val($('#coCd_S').val()); 
+		// 매출일자 set
+		$('#trstDt').datepicker("setDate", new Date())
+		
+		if(row.length > 0){
+			// 거래처
+			$("#clntCd").val(row[0].clntCd); 
+			$("#clntNm").val(row[0].clntNm); 
+			// 판매법인
+			$("#taxivcCoprt").val(row[0].taxivcCoprt); 
+			// 현장
+			$("#siteCd").val(row[0].siteCd);
+			$("#siteNm").val(row[0].siteNm);
+			// 프로젝트
+			$("#prjctCd").val(row[0].prjctCd);
+		}
 	}
 	
 	// 거래처 검색
@@ -394,19 +406,6 @@
 		}
 	}
 	
-	function updateShip() {
-		if(inputValidation($('.popup_area [required]'))) {
-			var formData = makeFormData();
-			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
-				alert(data.resultMessage); 
-				if (data.resultCode == 200) {         
-					subGridView.setData(0);
-					modal.close();
-				}
-			});
-		}
-	}
-	
 	// 사용자 검색
 	function openSecondUserSearch() {
 		var paramObj = {
@@ -422,6 +421,7 @@
 			$('#salesMngNm').val(checkedNode.text);
 		});
 	}
+	
 	// 현장 검색
 	function openSecondSiteSearch(type) {
 		var paramObj = {
