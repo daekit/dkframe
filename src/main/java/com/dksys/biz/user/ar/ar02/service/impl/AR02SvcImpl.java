@@ -172,23 +172,24 @@ public class AR02SvcImpl implements AR02Svc {
     	long bilgVatAmt = (long) Math.floor(bilgAmt * bilgVatPer / 100);
     	totAmt = bilgAmt + bilgVatAmt;
     	
-		// 마감 체크
+    	// 여신맵 초기화
+    	Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("trstDt", paramMap.get("trstDt"));
+    	
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
         // 매입/반입
 			if(!ar02Svc.checkPchsClose(paramMap)) {
+			// 마감 체크
 				thrower.throwCommonException("pchsClose");
 			}
         }else if("SELPCH2".equals(paramMap.get("selpchCd"))){
         // 매출/반품
         	if(!ar02Svc.checkSellClose(paramMap)) {
+    		// 마감 체크
         		thrower.throwCommonException("sellClose");
 			}
-        	
-        	Map<String, Object> loanMap = new HashMap<String, Object>();
-    		loanMap.put("coCd", paramMap.get("coCd"));
-    		loanMap.put("clntCd", paramMap.get("clntCd"));
-    		loanMap.put("trstDt", paramMap.get("trstDt"));
-    		
         	if(bilgAmt > 0) {
     		// 여신체크 : 매출이면서 양수인 케이스
         		loanMap.put("totAmt", totAmt);
@@ -196,10 +197,6 @@ public class AR02SvcImpl implements AR02Svc {
         		if(diffLoan < 0) {
                 	thrower.throwCreditLoanException(diffLoan);
                 }
-        	}else if(bilgAmt < 0){
-        	// 반품
-        		loanMap.put("totAmt", -1 * totAmt);
-        		ar02Svc.creditDeposit2(loanMap);
         	}
         }
         
@@ -263,6 +260,31 @@ public class AR02SvcImpl implements AR02Svc {
 		paramMap.put("clntCd", clntCd);
 		// insert
 		ar02Mapper.insertPchsSell(paramMap);
+		
+		// 여신 체크후 차감, 여신 증가
+		long loanPrcResult = 0;
+		if("SELPCH2".equals(paramMap.get("selpchCd"))){
+        // 매출/반품
+        	if(bilgAmt > 0) {
+    		// 여신 체크 : 매출, 반품의 반품
+        		loanMap.put("totAmt", totAmt);
+        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		if(diffLoan < 0) {
+                	thrower.throwCreditLoanException(diffLoan);
+                }else {
+                	loanPrcResult = ar02Svc.deductLoan(loanMap);
+                }
+        	}else if(bilgAmt < 0){
+        	// 반품
+        		loanMap.put("totAmt", -1 * totAmt);
+        		loanPrcResult = ar02Svc.depositLoan(loanMap);
+        	}
+        }
+		
+		// 여신 차감, 여신 증가후 음수 return시 롤백
+		if(loanPrcResult < 0) {
+			throw new Exception();
+		}
 	}
 	
 	@Override
@@ -356,6 +378,7 @@ public class AR02SvcImpl implements AR02Svc {
 		return false;
 	}
 	
+	// 여신체크
 	@Override
 	public long checkLoan2(Map<String, Object> paramMap) {
 		Map<String, Object> loanMap = new HashMap<String, Object>();
@@ -366,13 +389,31 @@ public class AR02SvcImpl implements AR02Svc {
 		loanMap.put("amt", paramMap.get("totAmt"));
 		long creditLoan  = ar02Mapper.callCreditLoan(loanMap);
 		long diffLoan = creditLoan - (Long)paramMap.get("totAmt");
-		
-		if(diffLoan >= 0){
-			loanMap.put("loanCd", 'P');
-			ar02Mapper.callCreditLoan(loanMap);
-		}
-		
 		return diffLoan;
+	}
+	
+	// 여신차감
+	@Override
+	public long deductLoan(Map<String, Object> paramMap) {
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("loanCd", 'P');
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
+		loanMap.put("amt", paramMap.get("totAmt"));
+		return ar02Mapper.callCreditLoan(loanMap);
+	}
+	
+	// 여신증가
+	@Override
+	public long depositLoan(Map<String, Object> paramMap) {
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("loanCd", 'M');
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
+		loanMap.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
+		return ar02Mapper.callCreditLoan(loanMap);
 	}
 	
 	@Override
@@ -383,23 +424,6 @@ public class AR02SvcImpl implements AR02Svc {
 			map.put("clntCd", paramMap.get("clntCd"));
 			map.put("coCd", paramMap.get("coCd"));
 			map.put("iTrDt", paramMap.get("dlvrDttm").toString().replace("-", ""));
-			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
-			ar02Mapper.callCreditLoan(map);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean creditDeposit2(Map<String, Object> paramMap) {
-		try {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("loanCd", 'M');
-			map.put("clntCd", paramMap.get("clntCd"));
-			map.put("coCd", paramMap.get("coCd"));
-			map.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
 			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
 			ar02Mapper.callCreditLoan(map);
 		} catch (NumberFormatException e) {
