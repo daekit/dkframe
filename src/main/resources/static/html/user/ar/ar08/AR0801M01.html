@@ -60,7 +60,7 @@
               <tr>
                 <th>회사</th>
                 <td>
-                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO" onchange="gridView.setData(0);">
+                  <select id="coCd_S" name="coCd_S" style="width:100%;" data-kind="CO" onchange="setByCoCd(this.value);gridView.setData(0);">
 <!--                   	<option value="">전체</option> -->
                   </select>
                 </td>
@@ -78,14 +78,12 @@
 				</td> 
               </tr>
               <tr>
-                <th>매입매출구분</th>
-                <td>
-                    <select id="selpch_S" required="required" onchange="gridView.setData(0);">
-<!--                     	<option value="">전체</option> -->
-                    	<option value="SELPCH2">매출</option>
-                    	<option value="SELPCH1">매입</option>
-                 	</select>
-                </td>    
+                <th>판매법인</th>
+				<td>
+					<select id="taxivcCoprt_S" name="taxivcCoprt_S"  data-kind="ESTCOPRT" onchange="gridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
                 <th>거래처</th>
                 <td>
                   <input type="hidden" id="clntCd_S" name="clntCd_S">
@@ -100,6 +98,14 @@
 				</td>        
              </tr>
              <tr>
+                <th>매입매출구분</th>
+                <td>
+                    <select id="selpch_S" required="required" onchange="gridView.setData(0);">
+<!--                     	<option value="">전체</option> -->
+                    	<option value="SELPCH2">매출</option>
+                    	<option value="SELPCH1">매입</option>
+                 	</select>
+                </td>    
                 <th>게산서구분</th>
                 <td>
                     <select id="bilgYn" required="required" onchange="gridView.setData(0);">
@@ -194,14 +200,15 @@
 // 		            }
 //		        },
 		        columns: [
-		            {key: "trstDt", label: "날짜", align: "center", width: "8%"},
-		            {key: "clntNm", label: "거래처명", align: "left", width: "16%"},
-			        {key: "gubunNm", label: "구분", align: "left", width: "8%"},
-		            {key: "bigo", label: "적요", align: "left", width: "30%"},
-		            {key: "sellAmt", label: "차변", align: "right", formatter: "money", width: "11%"},
-		            {key: "pchsAmt", label: "대변", align: "right", formatter: "money", width: "10%"},
-		            {key: "remaindAmt", label: "잔액", align: "right", formatter: "money",width: "10%"},
-		            {key: "rmk", label: "확정구분", align: "center", width: "7%"},
+		            {key: "trstDt",       label: "날짜", align: "center", width: "8%"},
+		            {key: "taxivcCoprtNm",label: "법인명", align: "left", width: "16%"},
+		            {key: "clntNm",       label: "거래처명", align: "left", width: "16%"},
+			        {key: "gubunNm",      label: "구분", align: "left", width: "8%"},
+		            {key: "bigo",         label: "적요", align: "left", width: "30%"},
+		            {key: "sellAmt",      label: "차변", align: "right", formatter: "money", width: "11%"},
+		            {key: "pchsAmt",      label: "대변", align: "right", formatter: "money", width: "10%"},
+		            {key: "remaindAmt",   label: "잔액", align: "right", formatter: "money",width: "10%"},
+		            {key: "rmk",          label: "확정구분", align: "center", width: "7%"},
 		         ]
 		    
 			});
@@ -237,7 +244,8 @@
 				});	
 			}
 			var formData = {
-				"coCd"         : $("#coCd_S").val(),
+				"coCd"         : $("#coCd_S").val(), 
+				"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
 				"clntCd"       : $("#clntCd_S").val(),
 				"clntNm"       : $("#clntNm_S").val(),
 				"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
@@ -289,6 +297,8 @@
 		mainDefaultLoad("기준관리", "거래처 원장");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
+		// 판매법인, 창고 set
+		setByCoCd(jwt.coCd)
 		if($.urlParam('clntCd')){
 			$("#clntCd_S").val($.urlParam('clntCd'));
 			$("#clntNm_S").val(decodeURI($.urlParam('clntNm')));
@@ -340,6 +350,8 @@
 	function excelDown() {
 		var formData = {
 				"coCd"      : $("#coCd_S").val(),
+				"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
+				"clntCd"    : $("#clntCd_S").val(),
 				"clntCd"    : $("#clntCd_S").val(),
 				"clntNm"    : $("#clntNm_S").val(),
 				"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
@@ -361,6 +373,13 @@
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("거래처 외상매입/매출_"+todayDate+".xls");
 			});	
+	}
+	
+	function setByCoCd(value){		
+		// 판매법인 set
+		$('#taxivcCoprt_S').data("rprc", value);
+		$('#taxivcCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt_S'));  
 	}
 	
 	function setReport() {

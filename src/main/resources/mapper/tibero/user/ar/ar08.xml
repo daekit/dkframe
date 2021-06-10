@@ -4,17 +4,25 @@
 <mapper namespace="com.dksys.biz.user.ar.ar08.mapper.AR08Mapper">
 	
 	<select id="selectBasisAmt" parameterType="Map" resultType="long">
-	  SELECT NVL(FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd}  ,#{bilgYn}),0) AS BASIS_AMT FROM DUAL;
+	  SELECT NVL(FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd}  ,#{bilgYn},#{taxivcCoprt}),0) AS BASIS_AMT FROM DUAL;
 	</select>
 		
+		<!-- 차변 : 외상매출금, 지급, 상계, 상계 지급보증   sellAmt  -->
+		<!-- 대변 : 외상매입금, 수금, 상계, 상계 지급보증 보전 pchaAmt-->
 	<select id="selectCreditList" parameterType="Map" resultType="CamelMap">
 <!-- 		SELECT * -->
 <!-- 		FROM ( -->
 			SELECT ROWNUM AS RNUM, B.*
+			      <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			      ,FN_CM05M01_CD_TO_NM(B.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
+			      </if>
 			FROM (
 			  SELECT * FROM (
 			   	SELECT   1 AS TYPE
 			   	        ,  ROWNUM AS RN
+			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			 			, A.TAXIVC_COPRT
+						 </if>
 				        , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM')   AS TRST_YM
 				        , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 						, A.CO_CD
@@ -51,6 +59,9 @@
 				  <if test= "clntNm != null and !clntNm.equals('')">
 			 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 				  </if>
+	   	          <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+	 			  AND A.TAXIVC_COPRT = #{taxivcCoprt}
+				  </if>
 			      <if test= "selpchCd != null and !selpchCd.equals('')">
 					 <choose>	
 					     <when test="selpchCd == 'SELPCH1'">
@@ -64,6 +75,9 @@
 			    UNION ALL
 			    SELECT  2 AS TYPE
 			   	        , 1 AS RN
+			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			 			,  #{taxivcCoprt}
+						 </if>
 			            ,TO_CHAR(TO_DATE(AR04.SELL_DT, 'YYYYMMDD'), 'YYYY-MM') AS TRST_YM
 			            ,TO_CHAR(TO_DATE(AR04.SELL_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 						, AR04.CO_CD
@@ -88,6 +102,9 @@
 						 <if test= "clntNm != null and !clntNm.equals('')">
 					 	AND	AR04.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						</if>
+		   	            <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+		 			    AND AR04.TAXIVC_COPRT = (SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CM05.CODE_ID =  #{taxivcCoprt} )
+					    </if>
 					    <if test= "selpchCd != null and !selpchCd.equals('')">
 						 <choose>	
 						     <when test="selpchCd == 'SELPCH1'">
@@ -100,6 +117,9 @@
 				       </if>
 				  GROUP BY AR04.SELL_DT
 						, AR04.CO_CD
+			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			 			, AR04.TAXIVC_COPRT
+						 </if>
 						, AR04.CLNT_CD
 						, AR04.CLNT_NM
 						, AR04.SELPCH_CD
@@ -109,6 +129,9 @@
 				UNION ALL 
 				SELECT  3 AS TYPE
 			   	        , ROWNUM AS RN
+			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			 			, A.TAXIVC_COPRT
+						 </if>
 				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM') AS TRST_YM
 				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 				        , A.CO_CD
@@ -117,13 +140,17 @@
 						, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) ||':'|| FN_CM05M01_CD_TO_NM(A.SETLE_TYP_CD)  AS GUBUN_NM
 						, A.ETRDPS_TYP AS GUBUN_CD
 						, A.SUMRY AS BIGO
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
+						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH1', 0,NVL(A.ETRDPS_AMT,0))  AS PCHS_AMT   <!-- 수급,     상계 지급보증 보전 -->
+						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH1', NVL(A.ETRDPS_AMT,0))    AS SELL_AMT   <!-- 지급, 상계, 상계 지급보증 -->
+<!-- 						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT -->
+<!-- 						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT -->
 						, 0
 			          	, '' AS rmk
-						FROM TB_AR05M01 A, TB_BM02M01 B
-						WHERE A.CLNT_CD = B.CLNT_CD(+)		
-			              AND A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+						FROM TB_AR05M01 A
+						 LEFT JOIN TB_BM02M01 B ON A.CLNT_CD = B.CLNT_CD
+						 LEFT JOIN TB_CM05M01 CM05 ON CM05.CODE_ID = A.ETRDPS_TYP
+						WHERE 		
+			                A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
 						  <if test= "clntCd != null and !clntCd.equals('')">
 			 			  AND A.CLNT_CD = #{clntCd}
 						  </if>
@@ -133,13 +160,20 @@
 						  <if test= "clntNm != null and !clntNm.equals('')">
 					 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						  </if>
+		   	              <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+		 			      AND A.TAXIVC_COPRT = #{taxivcCoprt}
+					      </if>
 					      <if test= "selpchCd != null and !selpchCd.equals('')"> <!-- 대변 매입 , 지급,상계, 지급보증-->
 						      AND #{selpchCd} = 'SELPCH1'
-						      AND (A.ETRDPS_TYP IN ('ETRDPS02','ETRDPS03','ETRDPS04'))
+						      AND (CM05.CODE_RPRC = #{selpchCd} OR  CM05.CODE_RPRC IS NULL )
+<!-- 						      AND (A.ETRDPS_TYP IN ('ETRDPS02','ETRDPS03','ETRDPS04')) -->
 					      </if>
 				UNION ALL 
 				SELECT  4 AS TYPE
 			   	        , ROWNUM AS RN
+			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			 			, A.TAXIVC_COPRT
+						 </if>
 				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM') AS TRST_YM
 				        , TO_CHAR(TO_DATE(A.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 				        , A.CO_CD
@@ -148,13 +182,17 @@
 						, FN_CM05M01_CD_TO_NM(A.ETRDPS_TYP) ||':'|| FN_CM05M01_CD_TO_NM(A.SETLE_TYP_CD)  AS GUBUN_NM
 						, A.ETRDPS_TYP AS GUBUN_CD
 						, A.SUMRY AS BIGO
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT
-						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT
+						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH2', NVL(A.ETRDPS_AMT,0),0)  AS PCHS_AMT   <!-- 수급, 상계, 상계 지급보증 보전 -->
+						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH2', 0,NVL(A.ETRDPS_AMT,0))  AS SELL_AMT   <!-- 지급,      상계 지급보증 -->
+<!-- 						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT -->
+<!-- 						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT -->
 						, 0
 			          	, '' AS rmk
-						FROM TB_AR05M01 A, TB_BM02M01 B
-						WHERE A.CLNT_CD = B.CLNT_CD(+)		
-			              AND A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
+						FROM TB_AR05M01 A
+						 LEFT JOIN TB_BM02M01 B ON A.CLNT_CD = B.CLNT_CD
+						 LEFT JOIN TB_CM05M01 CM05 ON CM05.CODE_ID = A.ETRDPS_TYP
+						WHERE
+						      A.ETRDPS_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')		
 						  <if test= "clntCd != null and !clntCd.equals('')">
 			 			  AND A.CLNT_CD = #{clntCd}
 						  </if>
@@ -164,14 +202,21 @@
 						  <if test= "clntNm != null and !clntNm.equals('')">
 					 	  AND B.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						  </if>
+		   	              <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+		 			      AND A.TAXIVC_COPRT = #{taxivcCoprt}
+					      </if>
 					      <if test= "selpchCd != null and !selpchCd.equals('')"> <!-- 차변 : 매출 , 지급,상계, 지급보증 보전-->
 						      AND #{selpchCd} = 'SELPCH2' 
-		 			          AND ( A.ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05'))
+						      AND (CM05.CODE_RPRC = #{selpchCd} OR  CM05.CODE_RPRC IS NULL )
+<!-- 		 			          AND ( A.ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')) -->
 					      </if>					      
 			     UNION
 			     SELECT  
 			           0 AS TYPE
 			   	      ,0 
+			   	      <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+		 			  ,#{taxivcCoprt}
+					  </if>
 			          ,TO_CHAR(TO_DATE(REPLACE(#{strtDt}, '-', ''),'YYYYMMDD'),'YYYY-MM')   
 			          ,TO_CHAR(TO_DATE(REPLACE(#{strtDt}, '-', ''),'YYYYMMDD'),'YYYY-MM-DD')          
 			          <if test= "coCd != null and !coCd.equals('')">
@@ -197,7 +242,8 @@
 			          ,'전기 이월' AS BIGO
 			          , 0 AS PCHS_AMT
 			          , 0 AS SELL_AMT
-			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ,#{bilgYn}) AS BASIS_AMT
+			          , 0 AS BASIS_AMT
+<!-- 			          , FN_BASIS_AMT(#{coCd},#{clntCd}, #{strtDt}, #{selpchCd} ,#{bilgYn},#{taxivcCoprt}) AS BASIS_AMT  ,#{taxivcCoprt} -->
 			          , '' AS rmk
 			       FROM DUAL
 			) A
