@@ -510,6 +510,7 @@ function setCommonSelect(selectArr){
 		var param = {
 			"codeKind" : $(elem).data('kind'),
 			"codeRprc" : $(elem).data('rprc'),
+			"codeEtc"  : $(elem).data('etc'),
 			"codeDesc" : $(elem).data('desc')
 		};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", param , null,  function(data){
