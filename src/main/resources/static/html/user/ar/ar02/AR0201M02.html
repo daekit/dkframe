@@ -228,6 +228,7 @@
 	</div>
 </body>
 <script type="text/javascript">
+	var openFrom = "AR0201M02";
 	var actionType = null;
 	ax5.ui.grid.formatter["bilgYn"] = function () {
 		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
@@ -247,7 +248,17 @@
 		        	selector: true
 		        },
 		        body: {
-		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"]
+		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"],
+		            onDBLClick : function() {
+		            	var item = this.item;
+		            	if(item.creatPgm == "OD0102V01"){
+			            	var paramObj = {"ordrgSeq": item.trstRprcSeq}
+		            		openModal("/static/html/user/od/od01/OD0102V01.html", 1300, 780, " ", paramObj);
+		            	}else if(item.creatPgm == "AR0102V01"){
+			            	var paramObj = {"shipSeq": item.trstRprcSeq}
+		            		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1300, 780, " ", paramObj);
+		            	}
+		        	}
 		        },
 		        page: {
 		            navigationItemCount: 10,
