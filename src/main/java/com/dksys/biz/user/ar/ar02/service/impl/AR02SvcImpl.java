@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import com.dksys.biz.exc.CreditLoanException;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.dksys.biz.util.DateUtil;
+import com.dksys.biz.util.ExceptionThrower;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -31,6 +31,9 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Autowired
     AR02Svc ar02Svc;
+	
+    @Autowired
+    ExceptionThrower thrower;
 	
 	@Override
 	public int selectSellMainCount(Map<String, String> paramMap) {
@@ -107,76 +110,152 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 
 	@Override
-	public int deleteSell(Map<String, String> paramMap) {
+	// 매입 / 매출 삭제
+	public void deleteSell(Map<String, String> paramMap) throws Exception{
+		Map<String, String> sellInfoMap = ar02Mapper.selectSellInfo(paramMap);
+		paramMap.putAll(sellInfoMap);
 		
-		//마감 체크
-        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
-        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+		long totAmt = 0;
+    	long bilgAmt = Long.parseLong(paramMap.get("bilgAmt"));
+    	int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+    	long bilgVatAmt = (long) Math.floor(bilgAmt * bilgVatPer / 100);
+    	totAmt = bilgAmt + bilgVatAmt;
+    	
+    	// 여신맵 초기화
+    	Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("trstDt", paramMap.get("trstDt"));
+		
+		if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+        // 매입
 			if(!ar02Svc.checkPchsClose(paramMap)) {
-				return 500;				
+			// 마감 체크
+				thrower.throwCommonException("pchsClose");
 			}
-        }
-        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
-        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(!ar02Svc.checkSellClose(paramMap)) {
-				return 501;
-			}	
+        }else if("SELPCH2".equals(paramMap.get("selpchCd"))){
+        // 매출
+        	if(!ar02Svc.checkSellClose(paramMap)) {
+    		// 마감 체크
+        		thrower.throwCommonException("sellClose");
+			}
+        	if(bilgAmt < 0) {
+    		// 매출리스트에서 반품건 삭제
+        		// 여신 체크
+        		loanMap.put("totAmt", -1 * totAmt);
+        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		if(diffLoan < 0) {
+                	thrower.throwCreditLoanException(diffLoan);
+                }
+        	}
         }
         
-		Map<String, String> resultMap = ar02Mapper.selectSellInfo(paramMap);
 		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
-		if("OWNER1".equals(resultMap.get("ownerCd").toString())) {		
-			resultMap.put("CLNT_CD",  ar02Mapper.selectOwner1ClntCd(paramMap));		
-		}		
+		if("OWNER1".equals(paramMap.get("ownerCd").toString())) {		
+			paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
+		}
 		
-		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(resultMap);
+		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 		if(stockInfo != null) {
 			int stockQty = 0;
 			int stockWt = 0;
 			String stockChgCd = "STOCKCHG09";
-			if("SELPCH2".equals(resultMap.get("selpchCd"))) 
+			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
 			{
 				stockChgCd = "STOCKCHG09";
-				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(resultMap.get("realTrstQty"));
-				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(resultMap.get("realTrstWt"));
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(paramMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(paramMap.get("realTrstWt"));
 			} else 
 			{
 				stockChgCd = "STOCKCHG08";
-				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(resultMap.get("realTrstQty"));
-				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(resultMap.get("realTrstWt"));
+				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(paramMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(paramMap.get("realTrstWt"));
 			}
-			resultMap.put("STOCK_QTY", String.valueOf(stockQty));
-			resultMap.put("STOCK_WT",  String.valueOf(stockWt));
-			resultMap.put("STOCK_UPR", stockInfo.get("stockUpr"));
-			resultMap.put("STD_UPR", stockInfo.get("stdUpr"));
-			resultMap.put("STOCK_CHG_CD", stockChgCd);
-			resultMap.put("USER_ID", paramMap.get("userId"));
-			resultMap.put("PGM_ID", paramMap.get("pgmId"));
-			sm01Mapper.updateStockSell(resultMap);						
+			paramMap.put("stockQty", String.valueOf(stockQty));
+			paramMap.put("stockWt",  String.valueOf(stockWt));
+			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
+			paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+			paramMap.put("sellUpr", paramMap.get("bilgUpr"));
+			paramMap.put("stockChgCd", stockChgCd);
+			paramMap.put("userId", paramMap.get("userId"));
+			paramMap.put("pgmId", paramMap.get("pgmId"));
+			sm01Mapper.updateStockSell(paramMap);						
 		}
 		
-		return ar02Mapper.deleteSell(paramMap);
+		ar02Mapper.deleteSell(paramMap);
+		
+		// 여신 체크후 차감 / 여신 증가
+		long loanPrcsResult = 0;
+		if("SELPCH2".equals(paramMap.get("selpchCd"))){
+        // 매출
+        	if(bilgAmt < 0) {
+    		// 매출리스트에서 반품건 삭제
+        		// 여신 체크
+        		loanMap.put("totAmt", -1 * totAmt);
+        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		if(diffLoan < 0) {
+                	thrower.throwCreditLoanException(diffLoan);
+                }else {
+                	// 여신 차감
+                	loanPrcsResult = ar02Svc.deductLoan(loanMap);
+                }
+        	}else if(bilgAmt > 0){
+        	// 매출리스트에서 매출건 삭제
+        		loanMap.put("totAmt", totAmt);
+        		// 여신 누적
+        		loanPrcsResult = ar02Svc.depositLoan(loanMap);
+        	}
+        }
+		
+		// 여신 차감 / 여신 증가후 음수 return시 롤백
+		if(loanPrcsResult < 0) {
+			throw new Exception();
+		}
 	}
 
 	@Override
-	public int insertPchsSell(Map<String, String> paramMap) {
-		//마감 체크
+	// 매입 / 반입 / 매출 / 반품
+	public void insertPchsSell(Map<String, String> paramMap) throws Exception{
+		
+		long totAmt = 0;
+    	long bilgAmt = Long.parseLong(paramMap.get("bilgAmt"));
+    	int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+    	long bilgVatAmt = (long) Math.floor(bilgAmt * bilgVatPer / 100);
+    	totAmt = bilgAmt + bilgVatAmt;
+    	
+    	// 여신맵 초기화
+    	Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("trstDt", paramMap.get("trstDt"));
+    	
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
-        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
+        // 매입 / 반입
 			if(!ar02Svc.checkPchsClose(paramMap)) {
-				return 500;				
+			// 마감 체크
+				thrower.throwCommonException("pchsClose");
 			}
+        }else if("SELPCH2".equals(paramMap.get("selpchCd"))){
+        // 매출 / 반품
+        	if(!ar02Svc.checkSellClose(paramMap)) {
+    		// 마감 체크
+        		thrower.throwCommonException("sellClose");
+			}
+        	if(bilgAmt > 0) {
+    		// 매출 / 반품의 반품
+        		loanMap.put("totAmt", totAmt);
+        		// 여신 체크
+        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		if(diffLoan < 0) {
+                	thrower.throwCreditLoanException(diffLoan);
+                }
+        	}
         }
-        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
-        	paramMap.put("dlvrDttm",paramMap.get("trstDt").toString());
-			if(!ar02Svc.checkSellClose(paramMap)) {
-				return 501;
-			}	
-        }
-		int result = 0;
-		long realTotTrstAmt = 0;
+        
 		int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
 		int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
+		// 파라미터로부터 전달받은 거래처 backup
 		String clntCd = paramMap.get("clntCd");
 		
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
@@ -186,10 +265,7 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
 			}
 		}
-		// 재고정보 update
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-		// 거래처 원복
-		paramMap.put("clntCd", clntCd);
 		
 		if(stockInfo == null) {
 			paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
@@ -201,7 +277,7 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockQty", String.valueOf(stockQty));
 			paramMap.put("stockWt", String.valueOf(stockWt));
 		} else {
-			//매출일 떄 
+			//매출일때
 			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
 			{
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
@@ -209,7 +285,7 @@ public class AR02SvcImpl implements AR02Svc {
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
 				stockWt  = Integer.parseInt(stockInfo.get("stockWt")) - stockWt;
 			}
-			//매입일 떄
+			//매입일때
 			else 
 			{
 				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
@@ -223,30 +299,48 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockWt",  String.valueOf(stockWt));
 		}
 		
-		long bilgAmt    = Long.parseLong(paramMap.get("bilgAmt"));
-		long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
-		paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
-		realTotTrstAmt = realTotTrstAmt + bilgAmt + bilgVatAmt;
-		result = ar02Mapper.insertPchsSell(paramMap);
 		if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
 		{
-			// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
-			if("OWNER1".equals(paramMap.get("ownerCd").toString())) {		
-				paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
-			}
+			// 재고정보 update
 			sm01Mapper.updateStockSell(paramMap);
 		}
-		// 여신 체크
-		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
+		
+		// 부가세 put
+        paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
+        // 납품일자 put
+        paramMap.put("dlvrDttm", paramMap.get("trstDt"));
+		// 거래처 원복
 		paramMap.put("clntCd", clntCd);
-		paramMap.put("dlvrDttm", paramMap.get("trstDt"));
-		if("SELPCH2".equals(paramMap.get("selpchCd"))) {
-			if(ar02Svc.checkLoan(paramMap)) {
-				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-				return 0;
-			}	
+		// insert
+		ar02Mapper.insertPchsSell(paramMap);
+		
+		// 여신 체크후 차감 / 여신 증가
+		long loanPrcsResult = 0;
+		if("SELPCH2".equals(paramMap.get("selpchCd"))){
+        // 매출 / 반품
+        	if(bilgAmt > 0) {
+    		// 매출 / 반품의 반품
+        		loanMap.put("totAmt", totAmt);
+        		// 여신 체크
+        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		if(diffLoan < 0) {
+                	thrower.throwCreditLoanException(diffLoan);
+                }else {
+                	// 여신 차감
+                	loanPrcsResult = ar02Svc.deductLoan(loanMap);
+                }
+        	}else if(bilgAmt < 0){
+        	// 반품
+        		loanMap.put("totAmt", -1 * totAmt);
+        		// 여신 누적
+        		loanPrcsResult = ar02Svc.depositLoan(loanMap);
+        	}
+        }
+		
+		// 여신 차감 / 여신 증가후 음수 return시 롤백
+		if(loanPrcsResult < 0) {
+			throw new Exception();
 		}
-		return result;
 	}
 	
 	@Override
@@ -267,7 +361,7 @@ public class AR02SvcImpl implements AR02Svc {
 		
 		Long diffLoan =  checkLoan2(loanMap);
 		if(diffLoan < 0) {
-			throw new CreditLoanException(diffLoan);
+			thrower.throwCreditLoanException(diffLoan);
 		}
 		
 		for(Map<String, String> paramMap : paramList) {
@@ -320,22 +414,6 @@ public class AR02SvcImpl implements AR02Svc {
 		return ar02Mapper.selectSellInfo(paramMap);
 	}
 
-	public boolean creditDeposit(Map<String, Object> paramMap) {
-		try {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("loanCd", 'M');
-			map.put("clntCd", paramMap.get("clntCd"));
-			map.put("coCd", paramMap.get("coCd"));
-			map.put("iTrDt", paramMap.get("dlvrDttm").toString().replace("-", ""));
-			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
-			ar02Mapper.callCreditLoan(map);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			return true;
-		}
-		return false;
-	}
-	
 	@Override
 	public boolean checkLoan(Map<String, String> paramMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -356,6 +434,7 @@ public class AR02SvcImpl implements AR02Svc {
 		return false;
 	}
 	
+	// 여신체크
 	@Override
 	public long checkLoan2(Map<String, Object> paramMap) {
 		Map<String, Object> loanMap = new HashMap<String, Object>();
@@ -366,13 +445,48 @@ public class AR02SvcImpl implements AR02Svc {
 		loanMap.put("amt", paramMap.get("totAmt"));
 		long creditLoan  = ar02Mapper.callCreditLoan(loanMap);
 		long diffLoan = creditLoan - (Long)paramMap.get("totAmt");
-		
-		if(diffLoan >= 0){
-			loanMap.put("loanCd", 'P');
-			ar02Mapper.callCreditLoan(loanMap);
-		}
-		
 		return diffLoan;
+	}
+	
+	// 여신차감
+	@Override
+	public long deductLoan(Map<String, Object> paramMap) {
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("loanCd", 'P');
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
+		loanMap.put("amt", paramMap.get("totAmt"));
+		return ar02Mapper.callCreditLoan(loanMap);
+	}
+	
+	// 여신증가
+	@Override
+	public long depositLoan(Map<String, Object> paramMap) {
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("loanCd", 'M');
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
+		loanMap.put("amt", paramMap.get("totAmt"));
+		return ar02Mapper.callCreditLoan(loanMap);
+	}
+	
+	@Override
+	public boolean creditDeposit(Map<String, Object> paramMap) {
+		try {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("loanCd", 'M');
+			map.put("clntCd", paramMap.get("clntCd"));
+			map.put("coCd", paramMap.get("coCd"));
+			map.put("iTrDt", paramMap.get("dlvrDttm").toString().replace("-", ""));
+			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
+			ar02Mapper.callCreditLoan(map);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -382,7 +496,12 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Override
 	public boolean checkSellClose(Map<String, String> paramMap) {
-		String trstDt = paramMap.get("dlvrDttm").replace("-", "");
+		String trstDt = null;
+		if(paramMap.containsKey("dlvrDttm")) {
+			trstDt = paramMap.get("dlvrDttm").replace("-", "");
+		}else if(paramMap.containsKey("trstDt")) {
+			trstDt = paramMap.get("trstDt").replace("-", "");
+		}
 		paramMap.put("closeYm", trstDt.substring(0,6));
 		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
 		Map<String, String> sd07resultMax = sd07Mapper.selectMaxCloseDay(paramMap);
@@ -410,7 +529,13 @@ public class AR02SvcImpl implements AR02Svc {
 		 * 1. 기준월에 대한 수정 가능 여부 확인 
 		 * 2. 수정하고자 하는 자료의 일자가 마감이 된 MAX월 이전인지 확인 
 		 */
-		String trstDt = paramMap.get("dlvrDttm").replace("-", "");
+		String trstDt = null;
+		if(paramMap.containsKey("dlvrDttm")) {
+			trstDt = paramMap.get("dlvrDttm").replace("-", "");
+		}else if(paramMap.containsKey("dlvrDttm")) {
+			trstDt = paramMap.get("trstDt").replace("-", "");
+		}
+		
 		paramMap.put("closeYm", trstDt.substring(0,6));
 		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
 		Map<String, String> sd07resultMax = sd07Mapper.selectMaxCloseDay(paramMap);

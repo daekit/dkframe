@@ -21,40 +21,45 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO"  required>
+						<select id="coCd" name="coCd" data-kind="CO"  onchange="setTaxivcCoprt(this.value)"  msg="회사" required>
 							<option value="">선택</option>
 						</select>
 					</td>
-					<th> </th>
-					<td> </td>
+					<th class="hit">법인</th>
+					<td>
+						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT"  onchange="setEtrdpsBkac(this.value)"  msg="계산서발행법인" required>
+<!-- 							<option value="">선택</option> -->
+						</select>
+					</td>
 				</tr>
 				
 				<tr>
 					<th class="hit">거래처</th>
 					<td>
 						<div class="search_form">
-							<input type="hidden" id="clntCd" name="clntCd" required>
+							<input type="hidden" id="clntCd" name="clntCd"  msg="거래처" required>
 							<input type="text" id="clntNm" disabled> 
 							<a id="btnClntSearch" onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
 						</div> 
 					</td>
 					<th class="hit">일자</th>
 					<td>
-						<input type="text" class="input_calendar" autocomplete="off" id="etrdpsDt" name="etrdpsDt" date required>
+						<input type="text" class="input_calendar" autocomplete="off" id="etrdpsDt" name="etrdpsDt"  msg="일자" date required>
 					</td>
 				</tr>
 				<tr>
 					<th class="hit">구분</th>
 					<td>
-						<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable()" required>
+						<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable()"  msg="구분" required>
 							<option value="">선택</option>
 						</select>
 					</td>
-				
-					<th class="hit">결제방법</th>
+					<th>잡이익여부</th>
 					<td>
-						<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);" required>
+						<select id="msclPrftYn" name="msclPrftYn" msg="잡이익 여부" >
 							<option value="">선택</option>
+							<option value="Y">잡이익</option>
+							<option value="N">잡손실</option>
 						</select>
 					</td>
 
@@ -62,14 +67,25 @@
 				<tr>
 					<th class="hit">입금계좌</th>
 					<td>
-						<select id="etrdpsBkacCd" name="etrdpsBkacCd" data-kind="BKAC" required>
+						<select id="etrdpsBkacCd" name="etrdpsBkacCd" data-kind="BKAC"  msg="입금계좌" required>
 							<option value="">선택</option>
 						</select>
 					</td>
+				
+					<th class="hit">결제방법</th>
+					<td>
+						<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);"  msg="결제방법"required>
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>	
 					<th class="hit">금액</th>
 					<td>
-						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this);" comma required>
+						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this);" msg="금액"  comma required>
 					</td>
+					<th></th>
+					<td></td>
 				</tr>
 				<tr>
 					<th>적요</th>
@@ -131,9 +147,9 @@
 					<td>
 						<input type="text" id="bilAmt" name="bilAmt" onkeyup="onlyNumber(this);" comma>
 					</td>
-					<th class="hit">발행일</th>
+					<th>발행일</th>
 					<td>
-						<input type="text" class="input_calendar" autocomplete="off" id="bilPblsDt" name="bilPblsDt" date required>
+						<input type="text" class="input_calendar" autocomplete="off" id="bilPblsDt" name="bilPblsDt" date>
 					</td>
 				</tr>
 				<tr>
@@ -157,8 +173,8 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button id="actionBtn"></button>
-		<button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();">확정</button>
+		<button id="actionBtn" authchk></button>
+		<button id="ordrgYnBtn" style="display: none;" onclick="updateConfirm();" authchk>확정</button>
 		<button class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
@@ -197,12 +213,12 @@
 			$('#actionBtn').on("click", function() {insertEtrdps();});
 			$('.tit_contents .tit').text("입/출금 등록");
 			$('#actionBtn').text("등록");			
-			$('#coCd').val($('[data-search="coCd"]').val());			
+			$('#coCd').val($('[data-search="coCd"]').val());	
+			setTaxivcCoprt($('[data-search="coCd"]').val());
 		} else if (actionType == "U") {
 			// 입금정보 set
 			selectEtrdpsInfo();
-			// 거래처 변경 disable
-				
+			// 거래처 변경 disable				
 			$('#coCd').prop("readonly", true);
 			$('#coCd').prop("disabled", true);
 			$('#clntCd').prop("readonly", true);
@@ -219,6 +235,7 @@
 			$('.tit_contents .tit').text("입/출금 수정");
 			$('#actionBtn').text("수정");
 		}
+		authChk();
 	});
 	
 	// 거래처 검색
@@ -239,12 +256,12 @@
 		var etrdpsTyp = $("#etrdpsTyp").val();
 		
 		if(!pmntMtd || pmntMtd == "CASH"){
-		//	$('#etrdpsBkacCd').attr("required");
-		//	$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
+			$('#etrdpsBkacCd').attr("required");
+			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
 			$('#billTableDiv').hide();
 		}else{
-		//	$('#etrdpsBkacCd').removeAttr("required");
-		//	$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
+			$('#etrdpsBkacCd').removeAttr("required");
+			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
 			$('#billTableDiv').show();
 		}
 		
@@ -261,16 +278,23 @@
 	function etrdpsTypTable() {
 		var pmntMtd   = $("#setleTypCd").find('option:selected').data("etc");
 		var etrdpsTyp = $("#etrdpsTyp").val();
-		
+
 		//  지급/상계일 경우 혹은 현금이 아닐결우 입금계좌 필수 제거
-		
 		if((!pmntMtd || pmntMtd == "CASH") && ( !etrdpsTyp || etrdpsTyp =="ETRDPS01" )){
 			$('#etrdpsBkacCd').attr("required");
 			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
 		}else{
 			$('#etrdpsBkacCd').removeAttr("required");
 			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
-		}		
+		}
+		//  상계일 경우 지급방법이 필수가 아님. 수금/지급은 필수 나머지는 아님.
+		if((etrdpsTyp =="ETRDPS01" || etrdpsTyp =="ETRDPS02" )){
+			$('#setleTypCd').attr("required");
+			$('#setleTypCd').closest('td').prev().addClass("hit");
+		}else{
+			$('#setleTypCd').removeAttr("required");
+			$('#setleTypCd').closest('td').prev().removeClass("hit");
+		}				
 	}
 	
 	
@@ -289,6 +313,11 @@
 	
 		$.each(etrdpsData, function(key, value){
 			if($('#etrdpsData').find('#'+key)[0]){
+				
+				// 판매법인 Set
+				if(key == 'coCd'){
+					setTaxivcCoprt(value);
+				}
 				$('#etrdpsData').find('#'+key).val(value);
 				
 				if($('#etrdpsData').find('#'+key).is("[comma]")){
@@ -298,8 +327,12 @@
 				if($('#etrdpsData').find('#'+key).is("[date]")){
 					$('#etrdpsData').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}
+
 			}
 		});
+
+		// 구분에 따른 필수지정 관리
+		etrdpsTypTable();
 		
 		if(billData){
 			$('#billTableDiv').show();
@@ -371,4 +404,19 @@
 		}
 		return formData;
 	}
+	// 판매법인 set
+	function setTaxivcCoprt(value){
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+		// 은행계좌 Set
+		setEtrdpsBkac($('#taxivcCoprt').val());
+
+	}
+	// 은행계좌 Set
+	function setEtrdpsBkac(value){
+		$('#etrdpsBkacCd').data("etc", value);
+		$('#etrdpsBkacCd option:not([value=""])').remove()
+		setCommonSelect($('#etrdpsBkacCd'));  		
+	}	
 </script>

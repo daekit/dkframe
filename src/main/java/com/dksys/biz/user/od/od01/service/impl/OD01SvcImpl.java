@@ -387,14 +387,13 @@ public class OD01SvcImpl implements OD01Svc {
 			}	
 
 			// S 매출확정, A 일괄
-			// 직송일 이면서 매출이 N, 매출확정 혹은 일괄확정일 경우 매출 생성 및 재고차감.
-			// 매출만 확정인 경우에는 매입이 Y인 경우에만 가능함. 즉 매입확정 없이 매출만 단독으로 확정은 없음
+			// 직송일 이면서 매출확정 혹은 일괄확정일 경우 매출 생성 및 재고차감.
+			// 매출만 단독으로 확정가능함. - 20210611
 			
 	        // 매출확정 시작
 			if ("Y".equals(paramMap.get("dirtrsYn")) && "N".equals(paramMap.get("shipYn"))) {
-				// 전체 확정인 경우는 진행
-				// 매출확정이면서 매입이 확정이 된경우
-				if ("A".equals(paramMap.get("comfirmType")) || ("S".equals(paramMap.get("comfirmType")) && "Y".equals(paramMap.get("ordrgYn")))) {
+				if ("A".equals(paramMap.get("comfirmType")) || ("S".equals(paramMap.get("comfirmType")))) {
+				// 전체 확정, 매출확정
 					paramMap.put("selpchCd", "SELPCH2");
 					paramMap.put("stockChgCd", "STOCKCHG02");
 					paramMap.put("clntCd", sellClntCd);
@@ -436,17 +435,16 @@ public class OD01SvcImpl implements OD01Svc {
 							paramMap.put("clntCd", paramMap.get("whClntCd"));
 						}
 						Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-//					if(stockInfo == null) {
-//					paramMap.put("stockQty", detailMap.get("realDlvrQty"));
-//					paramMap.put("stockWt",  detailMap.get("realDlvrWt"));
-//					
-//					} else {
+					if(stockInfo == null) {
+						paramMap.put("stockQty", "-"+detailMap.get("realDlvrQty"));
+						paramMap.put("stockWt",  "-"+detailMap.get("realDlvrWt"));
+					} else {
 						int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
 						int stockWt = Integer.parseInt(stockInfo.get("stockWt")) - Integer.parseInt(detailMap.get("realDlvrWt"));
 						paramMap.put("stockQty", String.valueOf(stockQty));
 						paramMap.put("stockWt", String.valueOf(stockWt));
 						paramMap.put("sellUpr", detailMap.get("shipUpr"));
-//					}			
+					}			
 						sm01Mapper.updateStockSell(paramMap);
 					}
 				}

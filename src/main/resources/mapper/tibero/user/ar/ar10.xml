@@ -8,7 +8,7 @@
 		FROM
 			TB_AR10M01 T
 		WHERE
-			T.CO_CD = #{coCd}	
+				T.CO_CD = #{coCd}	
 			<if test="selpchCd != null and !selpchCd.equals('')">
 				AND T.SELPCH_CD = #{selpchCd}				
 			</if>	
@@ -18,14 +18,14 @@
 			<if test="trstDtTo != null and !trstDtTo.equals('')">
 				<![CDATA[ AND T.TRST_DT <= #{trstDtTo} ]]>
 			</if>
-			<if test="rmk != null and !rmk.equals('')">
-				AND T.RMK LIKE '%'|| #{rmk} || '%'
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
+			</if>
+			<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+				AND T.TAXIVC_COPRT_CD = #{taxivcCoprtCd}
 			</if>
 			<if test="siteNm != null and !siteNm.equals('')">
 				AND T.SITE_NM LIKE '%'|| #{siteNm} || '%'
-			</if>
-			<if test="clntNm != null and !clntNm.equals('')">
-				AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>
 			<if test="prdtNm != null and !prdtNm.equals('')">
 				AND T.PRDT_NM LIKE '%'|| #{prdtNm} || '%'
@@ -35,6 +35,9 @@
 			</if>
 			<if test="prdtLen != null and !prdtLen.equals('')">
 				AND T.PRDT_LEN LIKE '%'|| #{prdtLen} || '%'
+			</if>
+			<if test="rmk != null and !rmk.equals('')">
+				AND T.RMK LIKE '%'|| #{rmk} || '%'
 			</if>
 	</select>
 
@@ -50,22 +53,43 @@
 			FROM
 			(
 				SELECT 
-					T.SELPCH_CD,
+					T.CO_CD,
 					FN_CM05M01_CD_TO_NM(T.SELPCH_CD) AS SELPCH_NM,
+					T.TRST_SEQ,
+					T.SELPCH_CD,
+					TO_CHAR(TO_DATE(T.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
 					T.TRST_DT,
+					T.CLNT_CD,
 					T.CLNT_NM,
+					T.SITE_CD,
+					T.SITE_NM,
+					T.PRDT_CD,
 					T.PRDT_NM,
+					T.PRDT_SPEC,
 					T.PRDT_SIZE,
 					T.PRDT_LEN,
-					T.SITE_NM,
-					T.RMK,
+					T.MAKR_CD,
+					T.MAKR_NM,
+					T.SELL_CLNT_NM,
 					T.BILG_QTY,
 					T.BILG_WT,
 					T.BILG_UPR,
 					T.BILG_AMT,
 					T.BILG_VAT_AMT,
 					T.BILG_TOT_AMT,
-					T.MAKR_NM
+					T.RMK,
+					T.USE_YN,
+					T.ETC_FIELD1,
+					T.ETC_FIELD2,
+					T.ETC_FIELD3,
+					T.CREAT_ID,
+					T.CREAT_PGM,
+					T.CREAT_DTTM,
+					T.UDT_ID,
+					T.UPD_PGM,
+					T.UDT_DTTM,
+					FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+					T.TAXIVC_COPRT_CD
 				FROM
 					TB_AR10M01 T
 				WHERE
@@ -82,11 +106,11 @@
 					<if test="clntNm != null and !clntNm.equals('')">
 						AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
 					</if>
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND T.TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
 					<if test="siteNm != null and !siteNm.equals('')">
 						AND T.SITE_NM LIKE '%'|| #{siteNm} || '%'
-					</if>
-					<if test="rmk != null and !rmk.equals('')">
-						AND T.RMK LIKE '%'|| #{rmk} || '%'
 					</if>
 					<if test="prdtNm != null and !prdtNm.equals('')">
 						AND T.PRDT_NM LIKE '%'|| #{prdtNm} || '%'
@@ -96,6 +120,9 @@
 					</if>
 					<if test="prdtLen != null and !prdtLen.equals('')">
 						AND T.PRDT_LEN LIKE '%'|| #{prdtLen} || '%'
+					</if>
+					<if test="rmk != null and !rmk.equals('')">
+						AND T.RMK LIKE '%'|| #{rmk} || '%'
 					</if>
 			) A
 		)

@@ -7,8 +7,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface AR02Mapper {
-
-	int insertPchsSell(Map<String, String> paramMap);
 	
 	int selectSellMainCount(Map<String, String> paramMap);
 
@@ -17,14 +15,28 @@ public interface AR02Mapper {
 	int selectSellCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
-
-	int updatePchsSell(Map<String, String> detailMap);
-
-	int deleteSell(Map<String, String> paramMap);
-
+	
+	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
+	
+	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
+	
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 
 	Map<String, String> selectBilgInfo(Map<String, Object> param);
+	
+	Map<String, String> selectBilgInfoUpdate(Map<String, String> paramMap);
+	
+	String selectOwner1ClntCd(Map<String, String> paramMap);
+	
+	long callCreditLoan(Map<String, Object> map);
+	
+	long selectBilgVatAmt(Map<String, String> paramMap);
+	
+	int selectBilgVatPer(Map<String, String> paramMap);
+	
+	int insertPchsSell(Map<String, String> paramMap);
+
+	int updatePchsSell(Map<String, String> detailMap);
 
 	int updatePchsSellBilg(Map<String, String> sellParam);
 	
@@ -32,20 +44,8 @@ public interface AR02Mapper {
 	
 	int updateSalesClnt(Map<String, String> paramMap);
 
-	long callCreditLoan(Map<String, Object> map);
-
-	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
-
-	int deletePchsSell(Map<String, String> detailMap);
-
-	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
-
-	String selectOwner1ClntCd(Map<String, String> paramMap);
+	int deleteSell(Map<String, String> paramMap);
 	
-	int selectBilgVatPer(Map<String, String> paramMap);
-
-	long selectBilgVatAmt(Map<String, String> paramMap);
-
-	Map<String, String> selectBilgInfoUpdate(Map<String, String> paramMap);
+	int deletePchsSell(Map<String, String> detailMap);
 
 }

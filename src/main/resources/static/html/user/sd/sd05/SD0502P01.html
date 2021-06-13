@@ -189,8 +189,8 @@
 			<div class="form-group popup_table">
 				<table>
 					<colgroup>
-						<col width="6%">
-						<col width="10%">
+						<col width="4%">
+						<col width="12%">
 						<col width="26%">
 				    	<col width="16%">
 						<col width="26%">
@@ -209,9 +209,9 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th rowspan="4">비고</th>
-						<td rowspan="4">
-							<textarea class="form-control" id="ctrtRmk" name="ctrtRmk" style="width: 100%; height: 80px" maxlength="500"></textarea>
+						<th>담당자(제강사)</th>
+						<td>
+							<input id="makrMngNm" name="makrMngNm" type="text" maxlength="12">
 						</td>
 					</tr>
 					<tr>
@@ -227,8 +227,10 @@
 						<td>
 							<input id="prdtUpr" name="prdtUpr" type="text" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="13" comma>
 						</td>
-						<th></th>
-					    <td></td>
+						<th rowspan="3">계약 비고</th>
+						<td rowspan="3">
+							<textarea class="form-control" id="ctrtRmk" name="ctrtRmk" style="width: 100%; height: 80px" maxlength="500"></textarea>
+						</td>
 					</tr>
 					<tr>
 						<th>결재조건</th>
@@ -276,8 +278,8 @@
 						<td colspan="2" style="text-align: LEFT; border-right: 0;">계약상세</td>
 						<td colspan="9">
 							<div class="add_btn">
-								<a onclick="addRow();">+</a> 
-								<a onclick="removeDetailRow();">-</a>
+								<a onclick="addRow();" authchk>+</a> 
+								<a onclick="removeDetailRow();" authchk>-</a>
 	                            <a onclick="excelDown();" style="height: 22px; line-height: 20px; width: 120px;"><i class="fas fa-file-excel"></i> 계약상세엑셀다운</a>
 							</div>
 						</td>
@@ -331,6 +333,7 @@
 							<input class="tc" name="lossRate" type="text" onkeyup="onlyNumber(this)" comma>
 						</td>
 						<td>
+							<input type="hidden" id="pchsCplrUpr" name="pchsCplrUpr" >
 							<input class="tc" name="cplrUpr" type="text" onkeyup="onlyNumber(this)" comma title="철근:가공단가, 기타:판매단가">
 						</td>
 					</tr>
@@ -462,7 +465,7 @@
 			</colgroup>
 			<tr>
 				<th>
-					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();" authchk>첨부파일</button>
 				</th>
 				<td>
 					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
@@ -473,7 +476,7 @@
 			<button type="button" id="printBtn" class="btn btn-default btn-sm" onclick="setReport();">
 				<i class="fas fa-print"></i>출력
 			</button>
-			<button type="button" id="prjctActionBtn">등록</button>
+			<button type="button" id="prjctActionBtn" authchk>등록</button>
 			<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 		</div>
 		<div class="contents">
@@ -786,6 +789,9 @@
 		});
 	    
 		$("#prjctCd").val();
+		
+		//권한관리
+		authChk();
 	});
 	
 	/* function initData(){

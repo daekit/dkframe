@@ -92,6 +92,18 @@
                 <td>   
                 	<input id="drivrNm" name="drivrNm" type="text">
                 </td>
+                <th class="hit">매입법인</th>
+					<td>
+						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" msg="계산서발행법인" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+            </tr>
+            <tr>
+                <th class="hit">운송단가</th>
+                <td>                                
+                    <input id="transUpr" name="transUpr" type="text" onkeyup="onlyNumber(this);transPrc();" comma required msg="운송단가">
+                </td>
                 <th class="">지불처리 완료여부</th>
                 <td>                                
                     <select id="procYn" name="procYn" data-kind="YN">
@@ -99,10 +111,6 @@
                 </td>
             </tr>
             <tr>
-                <th class="hit">운송단가</th>
-                <td>                                
-                    <input id="transUpr" name="transUpr" type="text" onkeyup="onlyNumber(this);transPrc();" comma required msg="운송단가">
-                </td>
                 <th class="hit">운송비</th>
                 <td>   
                 	<input id="transAmt" name="transAmt" type="text" onkeyup="onlyNumber(this);" comma required msg="운송비">
@@ -152,7 +160,7 @@
 		</tbody>
 	</table>
   	<div class="popup_bottom_btn">
-		<button id="actionBtn">등록</button>
+		<button id="actionBtn" authchk>등록</button>
 		<button type="button" class="close_btn" onclick="closeModal();">닫기</button>
 	</div> 
   </div>
@@ -270,14 +278,15 @@
 			autoclose : true
 		});
 		setInit();
-		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01") {
+		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
 			$("#transViewDiv #coCd").val($("#arViewDiv #coCd").val());
 			$("#transViewDiv #transSeq").val($("#arViewDiv #transSeq").val());
 		}
+		//권한관리
+		authChk();
 	});
 	
 	function setInit() {
-
 		if(actionType == "C") {
 			$('#coCd').val(commonModal.paramObj.coCd);
 			$('#actionBtn').on("click", function(){insertCaryng();});
@@ -294,18 +303,19 @@
 		//	}
 		}
 		changePayCo();
-		// 판매법인, 창고 set
-		setByCoCd($('#coCd').val());
 	}
 	
 	function changePayCo(){
 		var prvpayYn =  $("#arvpayYn").val();
 		if(prvpayYn == "N"){
 			$("#payCo").val($('#coCd option:selected').text());
-	//		$("#payCo").prop("readonly", true);
+			$("#taxivcCoprt").prop("required", true);
+			$("#taxivcCoprt").prop("disabled", false);
 		}else{
 			$("#payCo").val("착불");
-	//		$("#payCo").prop("readonly", false);
+			$("#taxivcCoprt").val("");
+			$("#taxivcCoprt").prop("required", false);
+			$("#taxivcCoprt").prop("disabled", true);
 		}
 		if(openFrom == "AR0102P01" || openFrom == "OD0102P01") {
 			if(openFrom == "AR0102P01") {
@@ -320,12 +330,11 @@
 			$("#transViewDiv #siteCd").val($("#arViewDiv #siteCd").val());
 			$("#transViewDiv #siteNm").val($("#arViewDiv #siteNm").val());
 			$("#transViewDiv #whCd").val($("#arViewDiv #whCd").val());
+			$("#transViewDiv #taxivcCoprt").val($("#arViewDiv #taxivcCoprt").val());
 		}
 	}
 	
 	function selectCaryngInfo(){
-		
-		debugger;
 		postAjax("/user/ar/ar03/selectCaryngInfo", commonModal.paramObj, null, function(data){
 			setCaryngInfo(data.result);
 		});
@@ -336,12 +345,18 @@
 		//메인정보 세팅
 		$.each(transInfo, function(key, value){
 			$('#transViewDiv #'+key).val(value);
+			if(key=="transDt"){
+				$('#'+key).datepicker("setDate", moment(value, 'YYYYMMDD').toDate());
+			}else if(key=="coCd"){
+             // 판매법인, 창고 set
+				setByCoCd(value);
+			}
 		});
 		//콤마세팅
 		$.each($('#transViewDiv input[comma]'), function(idx, elem){
 			onlyNumber(elem);
 		});
-		//출하요청서
+		//출하요청서		
 		AR01GridView.setData(0);
 	}
 	
@@ -364,9 +379,7 @@
 		var codeId = codeSelect.options[codeSelect.selectedIndex].value;
 	} */
 	
-	function insertCaryng() {
-		debugger;
-		
+	function insertCaryng() {		
 		if(inputValidation($('#transViewDiv [required]'))) {
 			var formData = makeCaryngData();
 			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
@@ -500,6 +513,10 @@
 		$('#transViewDiv #whCd').data("desc", value);
 		$('#transViewDiv #whCd option:not([value=""])').remove();
 		setCommonSelect($('#transViewDiv #whCd'));
+		// 판매법인 set
+		$('#transViewDiv #taxivcCoprt').data("rprc", value);
+		$('#transViewDiv #taxivcCoprt option:not([value=""])').remove();
+		setCommonSelect($('#transViewDiv #taxivcCoprt'));
 	}
 		
 </script>

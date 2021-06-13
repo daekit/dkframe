@@ -156,18 +156,28 @@
 								<option value="Y">Y</option>
 							</select>
 						</td>
+						<th>영업담당자</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="salesMng_S" data-search="salesMng">
+								<input type="text" id="salesMngNm_S" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng_S.value = '' : event.keyCode == 13 ? subGridView.setData(0) : ''">
+								<a onclick="openUserSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
 						<th>창고</th>
 						<td>
 		                 	<select id="whCd_S" data-kind="WH" data-search="whCd" onchange="subGridView.setData(0);">
 		                 		<option value="">전체</option>
 		                 	</select>
 		                </td>
-		                <th>비고</th>
+					</tr>
+					<tr>
+						<th>비고</th>
 						<td>
 							<input type="text" id="trspRmk_S" data-search="trspRmk" onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
 		                </td>
-					</tr>
-					<tr>
 						<th>제품그룹</th>
 						<td>
 		                 	<select id="prdtGrp" data-kind="PRDTGRP" data-search="prdtGrp" onchange="subGridView.setData(0);">
@@ -210,6 +220,7 @@
 </body>
 </html>
 <script type="text/javascript">
+	var openFrom = "OD0201M02";
 	var actionType = null;
 	ax5.ui.grid.formatter["bilgYn"] = function () {
 		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
@@ -230,10 +241,13 @@
 		        },
 		        body: {
 		            mergeCells : ["clntNm","trstDt","typNm","trspTypNm","taxivcCoprtNm"],
-		            
-			        onClick: function () {
-							this.self.select(this.dindex);
-			        	}
+		            onDBLClick : function() {
+		            	var item = this.item;
+		            	if(item.creatPgm == "OD0102V01"){
+		            		var paramObj = {"ordrgSeq": item.trstRprcSeq}
+		            		openModal("/static/html/user/od/od01/OD0102V01.html", 1300, 780, " ", paramObj);
+		            	}
+		        	}
 		        },
 		        page: {
 		            navigationItemCount: 10,
@@ -280,14 +294,16 @@
 		        //	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
-		        	{key: "trspTypNm",	    label: "입고",   	    align: "center", 	width: 60}
+		        	{key: "trspTypNm",	    label: "입고",   	    align: "center", 	width: 60},
+		        	{key: "deptNm",	   		label: "부서",   	    align: "left", 		width: 100},
+		        	{key: "salesMngNm",	    label: "담당자",   		align: "center", 	width: 80}
 		        ],
 		        footSum: [
 			    	[
 			    		{label: "총계", 	    align:"center",	  colspan:13},
 	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
-	                    {key: "bilgUpr", 														   },
+	                    {key: "bilgUpr" 														   },
 			    		{key: "bilgAmt", 		collector: "sum", formatter:"money", align: "right"},
 			    		{key: "bilgVatAmt", 	collector: "sum", formatter:"money", align: "right"},
 			    		{key: "totAmt", 		collector: "sum", formatter:"money", align: "right"},
@@ -365,7 +381,9 @@
 		        //	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
-		        	{key: "trspTypNm",	    label: "입고",        align: "center", 	width: 60}
+		        	{key: "trspTypNm",	    label: "입고",        align: "center", 	width: 60},
+		        	{key: "deptNm",	   		label: "부서",   	    align: "left", 		width: 100},
+		        	{key: "salesMngNm",	    label: "담당자",   		align: "center", 	width: 80}
 		        ]
 		    });
 			return this;
@@ -464,6 +482,22 @@
 			var row = grid.target.getList("selected")[0];
 			$("#siteCd_S").val(row.siteCd);
 			$("#siteNm_S").val(row.siteNm);
+		});
+	}
+	
+	// 영업담당자 검색
+	function openUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM", // $('#coCd_S').val(),
+			"userId": $('#salesMng_S').val(),
+			"useYn": "Y"
+		};
+		
+		openModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng_S').val(checkedNode.id);
+			$('#salesMngNm_S').val(checkedNode.text);
 		});
 	}
 	

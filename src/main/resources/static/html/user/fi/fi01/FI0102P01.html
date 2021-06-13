@@ -1,4 +1,4 @@
-<div id="cplrUntpcDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
     <div class="tit_contents">
         <h4 class="tit">이익 조직 등록</h4>
     </div>
@@ -62,7 +62,7 @@
     <br>
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
-      <button id="actionBtn"></button>
+      <button id="actionBtn" authchk></button>
       <button class="close_btn" onclick="modalClose();">닫기</button>
     </div>
 </div>
@@ -77,6 +77,8 @@
 
 		//$(".popup_area input").prop("readonly", true);
 		//$(".popup_area select").prop("disabled", true);
+		
+		authChk();
 	});
 	
 	function setDeptList(){
@@ -106,11 +108,11 @@
 			$('#actionBtn').text("등록");
 			$("#popForm #useYn").val("Y");
 		} else if(actionType == "U"){
+			$('.popup_area #coCd').prop("disabled", true);
 			$('#actionBtn').on("click", function(){updatePrftDept();});
 			$('#actionBtn').text("저장");
 			selectPrftDeptDetail();
 		}
-		
 	}
 	
 	function makeFormData(){
@@ -142,6 +144,9 @@
 		
 		//메인정보 세팅
 		$.each(obj, function(key, value){
+			if(key == "baseDept"){
+				$('#'+key).data("org", value);
+			}
 			$('#popForm #'+key).val(value);
 		});
 		
@@ -166,6 +171,7 @@
 	function updatePrftDept() {
 		if(inputValidation($('[required]'))) {
 			var formData = makeFormData();
+			formData.append("baseDeptOrg", $('#baseDept').data("org"));
 			filePostAjax("/user/fi/fi01/updatePrftDept", formData, function(data){
 				alert(data.resultMessage);        
 				if(data.resultCode == 200){

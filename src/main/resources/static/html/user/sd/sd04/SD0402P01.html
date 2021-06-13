@@ -11,6 +11,7 @@
 			<input type="hidden" id="pgmId" name="pgmId" value="SD0402P01">
 			<input type="hidden" id="pgmNm" name="pgmNm" value="주문관리 등록">
 			<input type="hidden" id="odrSeq" name="odrSeq">
+			<input type="hidden" id="odrCreatDiv" name="odrCreatDiv"> <!-- 오더생성 구분 -->
 			<table>
 				<colgroup>
 					<col width="12%">
@@ -179,8 +180,8 @@
 				<td colspan="2" class="tl" style="border-right: 0;">※상세내역</td>
 				<td colspan="10">
 					<div class="add_btn">
-						<a onclick="addDetailRow();">+</a> 
-						<a onclick="removeDetailRow();">-</a>
+						<a onclick="addDetailRow();" authchk>+</a> 
+						<a onclick="removeDetailRow();" authchk>-</a>
 					</div>
 				</td>
 			</tr>
@@ -395,7 +396,7 @@
 			</colgroup>
 			<tr>
 				<th>
-					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();" authchk>첨부파일</button>
 				</th>
 				<td>
 					<div class="ax5_grid" data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 130px; width: 100%"></div>
@@ -405,7 +406,7 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button type="button" id="odrActionBtn"></button>
+		<button type="button" id="odrActionBtn" authchk></button>
 		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
 	</div>
 </div>
@@ -490,6 +491,7 @@
 			$('#odrActionBtn').on("click", function() {insertOrder();});
 			$('.tit_contents .tit').text("주문 등록");
 			$('#odrActionBtn').text("등록");
+			$("#odrCreatDiv").val("ERP");
 		} else if (actionType == "U") {
 			selectOrderInfo();
 			$('#odrActionBtn').on("click", function() {updateOrder();});
@@ -497,6 +499,7 @@
 			$('#odrActionBtn').text("저장");
 		}
 		
+		authChk();
 	});
 	
 	function selectOrderInfo() {

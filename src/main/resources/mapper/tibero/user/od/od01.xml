@@ -46,7 +46,8 @@
 		    UDT_DTTM,
 		    SITE_CD,
 		    TAXIVC_COPRT,
-		    REQ_SEQ
+		    REQ_SEQ,
+		    TRSP_TYP_CD
 	    ) 
 	    VALUES
 	    (
@@ -75,7 +76,7 @@
 		    #{transAmt},
 		    #{transSeq},
 		    #{odrSeq},
-		    'ERP',
+		    NVL(#{odrCreatDiv},'ERP'),
 		    #{salesMng},
 		    'N',
 		    'N',
@@ -87,7 +88,8 @@
 		    SYSDATE,
 		    NVL(#{siteCd,  	jdbcType=VARCHAR},0),
 		    #{taxivcCoprt,  jdbcType=VARCHAR},
-		    #{reqSeq,       jdbcType=VARCHAR}
+		    #{reqSeq,       jdbcType=VARCHAR},
+		    #{trspTypCd,    jdbcType=VARCHAR}
 	    )
 	</insert>
 	
@@ -218,6 +220,10 @@
 			    ,(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD
 			    ,(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE
 			    ,T.REQ_SEQ
+		        ,T.TRSP_TYP_CD
+	            ,FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM
+	            ,T.ODR_CREAT_DIV
+	            ,FN_CM05M01_CD_TO_NM(T.ODR_CREAT_DIV) AS ODR_CREAT_DIV_NM
 			FROM 
 			(
 			 	SELECT OD01.* FROM TB_OD01M01 OD01
@@ -432,13 +438,15 @@
 			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
 			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
 			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM ,
-			SITE_CD,		        
-			TAXIVC_COPRT,
+			T.SITE_CD,		        
+			T.TAXIVC_COPRT,
 			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,		        
 	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
 			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE,
-	        REQ_SEQ
+	        T.REQ_SEQ,
+		    T.TRSP_TYP_CD,
+	        FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM
 		FROM TB_OD01M01 T
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</select>
@@ -619,7 +627,8 @@
 		    UDT_ID                 = #{userId},                      
 		    UDT_PGM                = #{pgmId},                       
 		    UDT_DTTM               = SYSDATE,
-		    TAXIVC_COPRT           = #{taxivcCoprt}                         
+		    TAXIVC_COPRT           = #{taxivcCoprt},
+		    TRSP_TYP_CD            = #{trspTypCd}                        
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
 		<update id="updateOrderDetail" parameterType="Map">
