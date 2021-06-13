@@ -51,9 +51,27 @@
 				</colgroup>
 				<thead>
 					<tr>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">구매요청 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">발주 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
-						<td style="text-align: left;"><h3 class="location"><span class="page_tit">출하 미확정 현황</span></h3> <!-- <span id="ordrgTotCnt"></span> --></td>
+						<td style="text-align: left;">
+							<h3 class="location"><span class="page_tit">구매요청 미확정 현황</span>
+								<select id="coCd1" data-kind="CO" onchange="reqGridView.initView().setData();">
+									<option value="">전체</option>
+								</select>
+							</h3> <!-- <span id="ordrgTotCnt"></span> -->
+						</td>
+						<td style="text-align: left;">
+							<h3 class="location"><span class="page_tit">발주 미확정 현황</span>
+								<select id="coCd2" data-kind="CO" onchange="gridView.initView().setData();">
+									<option value="">전체</option>
+								</select>
+							</h3> <!-- <span id="ordrgTotCnt"></span> -->
+						</td>
+						<td style="text-align: left;">
+							<h3 class="location"><span class="page_tit">출하 미확정 현황</span>
+								<select id="coCd3" data-kind="CO" onchange="shipGridView.initView().setData();">
+									<option value="">전체</option>
+								</select>
+							</h3> <!-- <span id="ordrgTotCnt"></span> -->
+						</td>
 					</tr>
 				</thead>
 				<tbody>
@@ -138,7 +156,9 @@
 			},
 			setData : function() {
 				var targetObj = this.target;
-				var paramObj = {};
+				var paramObj = {
+						coCd2 : $("#coCd2").val()
+						};
 				postAjax("/user/cm/cm10/selectOrdrgNList", paramObj, null, function(data) {
 					var list = data.resultList;
 					targetObj.setData({
@@ -208,7 +228,9 @@
 			},
 			setData : function(_pageNo) {
 				var targetObj = this.target;
-				var paramObj = {};
+				var paramObj = {
+						coCd3 : $("#coCd3").val()
+						};
 				postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
 					var list = data.resultList;
 					targetObj.setData({
@@ -277,7 +299,9 @@
 			},
 			setData : function() {
 				var targetObj = this.target;
-				var paramObj = {};
+				var paramObj = {
+						coCd1 : $("#coCd1").val()
+				};
 				postAjax("/user/cm/cm10/selectReqNList", paramObj, null, function(data) {
 					var list = data.resultList;
 					targetObj.setData({
@@ -294,7 +318,11 @@
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("대시보드", "실무자 현황");
-		
+		setCommonSelect($("#main_area select[data-kind]"));
+
+		$("#coCd1").val(jwt.coCd);
+		$("#coCd2").val(jwt.coCd);
+		$("#coCd3").val(jwt.coCd);
 		gridView.initView().setData();
 		shipGridView.initView().setData();
 		reqGridView.initView().setData();
