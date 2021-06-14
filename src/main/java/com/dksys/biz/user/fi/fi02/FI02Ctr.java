@@ -156,10 +156,10 @@ public class FI02Ctr {
     	objCols1.put("type", "string");
     	objCols2.put("type", "number");
     	objCols2.put("label", "금문철강(주)");
-    	objCols4.put("type", "number");
-    	objCols4.put("label", "지지엠");
     	objCols3.put("type", "number");
-    	objCols3.put("label", "지지스틸");
+    	objCols3.put("label", "지지엠");
+    	objCols4.put("type", "number");
+    	objCols4.put("label", "지지스틸");
 
     	arryCols.add(objCols1);
     	arryCols.add(objCols2);
@@ -212,10 +212,10 @@ public class FI02Ctr {
     	objCols1.put("type", "string");
     	objCols2.put("type", "number");
     	objCols2.put("label", "금문철강(주)");
-    	objCols4.put("type", "number");
-    	objCols4.put("label", "지지엠");
     	objCols3.put("type", "number");
-    	objCols3.put("label", "지지스틸");
+    	objCols3.put("label", "지지엠");
+    	objCols4.put("type", "number");
+    	objCols4.put("label", "지지스틸");
 
     	arryCols.add(objCols1);
     	arryCols.add(objCols2);
