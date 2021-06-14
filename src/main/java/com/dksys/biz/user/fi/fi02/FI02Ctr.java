@@ -197,7 +197,7 @@ public class FI02Ctr {
     	
 
     	List<Map<String, String>> selectPalBillBfrxPrft = fi02Svc.selectPalBillBfrxPrft(paramMap);
-		PaginationInfo paginationInfo2 = new PaginationInfo(paramMap, selectPalBillBfrxPrft.size());
+//		PaginationInfo paginationInfo2 = new PaginationInfo(paramMap, selectPalBillBfrxPrft.size());
     	model.addAttribute("resultList2", selectPalBillBfrxPrft);
 
     	List<Map<String, String>> selectPalBillBfrxPrftChart = fi02Svc.selectPalBillBfrxPrftChart(paramMap);
