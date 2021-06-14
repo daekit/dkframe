@@ -26,5 +26,11 @@ public interface SD09Svc {
 	public int updateSitePrdt(Map<String, String> param);
 
 	void deleteSitePrdt(List<Map<String, String>> paramList);
+
+	public int insertSiteTrans(Map<String, String> param);
+
+	public int updateSiteTrans(Map<String, String> param);
+
+	void deleteSiteTrans(List<Map<String, String>> paramList);
 	
 }

@@ -188,6 +188,26 @@
 	  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID	   
 	</select>
 	
+	<select id="selectSiteTransList" parameterType="Map" resultType="CamelMap">
+	SELECT CO_CD
+		 , SITE_CD
+		 , SITE_TRANS_SEQ
+		 , TRUCK_WT
+		 , TRANS_UPR_UNIT
+		 , TRANS_UPR
+		 , ETC_FIELD1
+		 , ETC_FIELD2
+		 , ETC_FIELD3
+		 , CREAT_ID
+		 , CREAT_PGM
+		 , CREAT_DTTM
+		 , UDT_ID
+		 , UDT_PGM
+		 , UDT_DTTM
+	  FROM TB_SD09D02
+	 WHERE SITE_CD = #{siteCd}
+	</select>
+	
 	<select id="selectSiteCd" parameterType="Map" resultType="String">
 	SELECT NVL(MAX(SITE_CD), 0) + 1 FROM TB_SD09M01
 	</select>
@@ -498,4 +518,48 @@
 		   AND A.PRJCT_CD = #{prjctCd}
 		   </if>
 	</select>	
+	
+	<insert id="insertSiteTrans" parameterType="Map">
+	INSERT INTO TB_SD09D02
+	(
+		CO_CD
+		, SITE_CD
+		, SITE_TRANS_SEQ
+		, TRUCK_WT
+		, TRANS_UPR_UNIT
+		, TRANS_UPR
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+	)
+	VALUES
+	(
+		#{coCd}
+		, #{siteCd}
+		, (SELECT NVL(MAX(SITE_TRANS_SEQ), 0) + 1 FROM TB_SD09D02 WHERE  SITE_CD = #{siteCd})
+		, #{truckWt}
+		, #{transUprUnit}
+		, #{transUpr}
+	    , #{userId}
+	    , #{pgmId}
+        , SYSDATE
+	)
+	</insert>
+	
+	<update id="updateSiteTrans" parameterType="Map">
+	UPDATE TB_SD09D02
+	   SET TRUCK_WT = #{truckWt}
+		 , TRANS_UPR_UNIT = #{transUprUnit}
+		 , TRANS_UPR = #{transUpr}
+	 WHERE CO_CD = #{coCd}
+	   AND SITE_CD = #{siteCd}
+	   AND SITE_TRANS_SEQ = #{siteTransSeq}
+	</update>
+	
+	<delete id="deleteSiteTrans" parameterType="Map">
+	DELETE FROM TB_SD09D02
+	 WHERE CO_CD = #{coCd}
+	   AND SITE_CD = #{siteCd}
+	   AND SITE_TRANS_SEQ = #{siteTransSeq}
+	</delete>
 </mapper>

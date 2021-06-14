@@ -40,6 +40,7 @@ public class SD09SvcImpl implements SD09Svc {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 		returnMap.put("siteInfo",        sd09Mapper.selectSiteDetail(paramMap));
 		returnMap.put("siteDtl",         sd09Mapper.selectSitePrdtList(paramMap));
+		returnMap.put("siteTrans", 		 sd09Mapper.selectSiteTransList(paramMap));
 		
 		return returnMap;
 		
@@ -50,13 +51,40 @@ public class SD09SvcImpl implements SD09Svc {
 		String siteCd = sd09Mapper.selectSiteCd(paramMap); 
 		paramMap.put("siteCd", siteCd);
 		sd09Mapper.insertSite(paramMap);
-		insertSitePrdt(paramMap);
+
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> dtlParam = gson.fromJson(paramMap.get("detailArr"), dtlMap);
+
+		for(Map<String, String> dtl : dtlParam) {
+			dtl.put("coCd",    paramMap.get("coCd"));
+			dtl.put("prjctCd", paramMap.get("prjctCd"));
+			dtl.put("siteCd",  siteCd);
+			dtl.put("userId",  paramMap.get("userId"));
+			dtl.put("pgmId",   paramMap.get("pgmId"));
+			sd09Mapper.insertSitePrdt(dtl);		
+		}
+
+		gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type transMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> transParam = gson.fromJson(paramMap.get("transArr"), transMap);
+
+		for(Map<String, String> trans : transParam) {
+			trans.put("coCd",    paramMap.get("coCd"));
+			trans.put("prjctCd", paramMap.get("prjctCd"));
+			trans.put("siteCd",  siteCd);
+			trans.put("userId",  paramMap.get("userId"));
+			trans.put("pgmId",   paramMap.get("pgmId"));
+			sd09Mapper.insertSiteTrans(trans);		
+		}
 		return siteCd;
 	}
 
 	@Override
 	public int updateSite(Map<String, String> paramMap) {
 		updateSitePrdt(paramMap);
+		updateSiteTrans(paramMap);
+
 		return sd09Mapper.updateSite(paramMap);
 	}
 
@@ -105,6 +133,26 @@ public class SD09SvcImpl implements SD09Svc {
 	}
 
 	@Override
+	public int insertSiteTrans(Map<String, String> paramMap) {
+		int result = 0;
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("transArr"), dtlMap);
+		if(detailList != null) {
+			for(Map<String, String> detailMap : detailList) {
+
+				detailMap.put("coCd",    paramMap.get("coCd"));
+				detailMap.put("siteCd",  paramMap.get("siteCd"));
+				detailMap.put("prjctCd", paramMap.get("prjctCd"));
+				detailMap.put("userId",  paramMap.get("userId"));
+				detailMap.put("pgmId",   paramMap.get("pgmId"));
+				result += sd09Mapper.insertSiteTrans(detailMap);
+			}
+		}
+		return result;
+	}
+
+	@Override
 	public int updateSitePrdt(Map<String, String> paramMap) {
 		int result = 0;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -128,9 +176,39 @@ public class SD09SvcImpl implements SD09Svc {
 	}
 
 	@Override
+	public int updateSiteTrans(Map<String, String> paramMap) {
+		int result = 0;
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("transArr"), dtlMap);
+		for(Map<String, String> detailMap : detailList) {
+
+			detailMap.put("coCd",    paramMap.get("coCd"));
+			detailMap.put("siteCd",  paramMap.get("siteCd"));
+			detailMap.put("prjctCd", paramMap.get("prjctCd"));
+			detailMap.put("userId",  paramMap.get("userId"));
+			detailMap.put("pgmId",   paramMap.get("pgmId"));
+			String siteTransSeq = detailMap.get("siteTransSeq").toString();
+			if("".equals(siteTransSeq) || "0".equals(siteTransSeq)) {
+				result += sd09Mapper.insertSiteTrans(detailMap);
+			}else {
+				result += sd09Mapper.updateSiteTrans(detailMap);	
+			}
+		}
+		return result;
+	}
+
+	@Override
 	public void deleteSitePrdt(List<Map<String, String>> paramList) {
 		for(Map<String, String> param : paramList) {
 			sd09Mapper.deleteSitePrdt(param);
+		}	
+	}
+
+	@Override
+	public void deleteSiteTrans(List<Map<String, String>> paramList) {
+		for(Map<String, String> param : paramList) {
+			sd09Mapper.deleteSiteTrans(param);
 		}	
 	}
 
