@@ -62,6 +62,65 @@
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
+	<select id="selectPdskCodeCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM 
+			TB_CM05M01 
+		WHERE
+			CODE_ID LIKE 'PDSK%'
+			AND USE_YN = #{useYn}
+			<if test="searchValue != null and !searchValue.equals('')">
+				AND ${searchType} LIKE '%${searchValue}%'
+			</if>
+		ORDER BY SORT_NO ASC
+	</select>
+
+	<select id="selectPdskCodeList" resultType="CamelMap">
+		SELECT 
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*,
+			        (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_KIND) AS CODE_KIND_NM,
+			        (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_RPRC) AS CODE_RPRC_NM,
+			        decode( A.CODE_KIND, 'ESTCOPRT',(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CODE_ETC),
+			                                        (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_ETC))  AS CODE_ETC_NM,
+			        decode( A.CODE_KIND, 'WH',      (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_DESC),
+			                                        A.CODE_DESC ) AS CODE_DESC_NM
+			FROM 
+			(
+				SELECT
+					CODE_ID,
+			        CODE_NM,
+			        CODE_KIND,
+			        CODE_DESC,
+			        CODE_RPRC,
+			        CODE_ETC,
+			        SORT_NO,
+			        USE_YN,
+			        CREAT_ID,
+			        TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') AS CREAT_DTTM,
+			        CREAT_PGM,
+			        UDT_ID,
+			        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
+			        UDT_PGM
+				FROM 
+					TB_CM05M01 
+				WHERE
+					CODE_ID LIKE 'PDSK%'
+					AND USE_YN = #{useYn}
+					<if test="searchValue != null and !searchValue.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'
+					</if>
+				ORDER BY SORT_NO ASC, CODE_NM
+			) A
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
 	<select id="selectChildCodeList" resultType="CamelMap">
 		SELECT
 			*
