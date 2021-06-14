@@ -3,7 +3,7 @@
         <h4 class="tit">현장 관리</h4>
     </div>
     <div class="popup_table">
-    	<form id="popForm">
+    	<form id="popForm" onSubmit="return false;">
 	        <table>
 	            <colgroup>
 	                <col width="12%">
@@ -291,8 +291,9 @@
 				<tr class="detailRow" name="tableCd">
 					<td>
 						<input type="checkbox" name="detailChkBox">
-						<input type="hidden" name="siteSeq"></td>
-						<input type="hidden" name="prjctSeq"></td>
+						<input type="hidden" name="siteSeq">
+						<input type="hidden" name="prjctSeq">
+					</td>
 					<td>
 						<div class="search_form">
 							<select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV" onchange="prdtDivCombo(this);" required="required" msg="제품구분">
@@ -357,17 +358,19 @@
 						<input type="checkbox" name="transChkBox">
 						<input type="hidden"   name="siteTransSeq"></td>
 					<td>
-							<input class="tc" id="truckWt" name="truckWt" type="text" required="required" msg="차량 중량">
+							<input class="tr" id="truckWt" name="truckWt" type="text" required="required" msg="차량 중량" onkeyup="onlyNumber(this)" comma>
 					</td>
 					<td>
 						<div class="search_form">
-							<select id="trnsUprUnitCd" name="trnsUprUnitCd"  data-kind="TRNSUPRUNIT"  msg="운송단가 단위">
+							<select id="transUprUnit" name="transUprUnit"    msg="운송단가 단위"><!-- data-kind="TRNSUPRUNIT" -->
 								<option value="">선택</option>
+								<option value="1">단위1</option>
+								<option value="2">단위2</option>
 							</select>
 						</div>
 					</td>
 					<td>
-						<input class="tc" name="transUpr" type="text" onkeyup="onlyNumber(this)" comma title="운송단가">
+						<input class="tr" name="transUpr" type="text" onkeyup="onlyNumber(this)" comma title="운송단가">
 					</td>
 				</tr>
 			</table>
@@ -464,6 +467,16 @@
 		});
 		formData.append("detailArr", JSON.stringify(detailArr));
 		
+		// 프로젝트 운반비Dtl 추가
+		var transArr = [];
+		$.each($("#trnsTb tr[name='transCd']"), function(idx, elem){
+			var transObj = {};
+			$.each($(elem).find('[name]'), function(idx, elem){
+				transObj[elem.name] = elem.value;
+			});
+			transArr.push(transObj);
+		});
+		formData.append("transArr", JSON.stringify(transArr));
 		return formData;
 	}
 	
@@ -474,7 +487,6 @@
 				"coCd" : row.coCd,
 		}
 		postAjax("/user/sd/sd09/selectSiteDetail", formData, null, function(data){
-			console.log(data);
 			setSiteDetail(data.result);
 		});
 	}
@@ -482,6 +494,7 @@
 	function setSiteDetail(obj){
 		var siteInfo = obj.siteInfo;
 		var siteDtl = obj.siteDtl;
+		var siteTrans = obj.siteTrans
 		
 		//메인정보 세팅
 		$.each(siteInfo, function(key, value){
@@ -515,7 +528,7 @@
 		
 		//상세정보 세팅
 		$.each(siteDtl, function(idx, item){
-			if(idx != 0) addRow();
+			if(idx != 0) addNewRow();
 			$('#detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", false);			
 			setSitePrdtDtail(idx, item);
 			//프로젝트에서 생선된 항목은 여기서는 지울수 없다.
@@ -524,6 +537,13 @@
 				$('#detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", true)
 				$('#detailTb tr.detailRow').eq(idx).find('[name="pchsCplrUpr"]').prop("disabled", false)
 			}
+		});;
+		
+		//상세정보 세팅
+		$.each(siteTrans, function(idx, item){
+			if(idx != 0) transAddNewRow();
+			$('#trnsTb tr.transRow').eq(idx).find('input, select').prop("disabled", false);			
+			setSiteTransDetail(idx, item);
 		});
 	}
 	
@@ -548,6 +568,7 @@
 			});
 		}
 	}
+	
 	function setSitePrdtDtail(idx, item){
 
 		$.each(item, function(key, value){
@@ -582,6 +603,21 @@
 			}
 		});
 	}
+
+	// 운반비 상세 세팅
+	function setSiteTransDetail(idx, item){
+
+		$.each(item, function(key, value){
+			if($(".transRow").find("[name="+key+"]")[idx] != undefined) {
+				var itemValue = value;
+				if($(".transRow").find("[name="+key+"]").eq(idx).is('[comma]')){
+					itemValue = addCommaStr(itemValue);
+				}
+				$(".transRow").find("[name="+key+"]")[idx].value = itemValue;
+			}
+		});
+	}
+	
 	// 거래처 검색
 	function openSecondClntSearch(type) {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -689,15 +725,19 @@
 		return $("tr[name='tableCd']:last")[0];
 	}
 	
-	//list 행추가
-	function addRow() {
-		var row = $("#detailTb > tbody:last > tr:last").clone();
-		$("#detailTb > tbody:last").append(row);
+
+	
+	// 운반비 list 행추가
+	function transAddNewRow() {
+		var row = $("#trnsTb > tbody:last > tr:last").clone();
+		$("#trnsTb > tbody:last").append(row);
 		$.each($(row).find(':input'), function(){
-				this.value = '';
-				this.checked = '';
+			
+			$(this).prop("disabled", false);
+			this.value = '';
+			this.checked = '';
 		});
-		return $("tr[name='tableCd']:last")[0];
+		return $("tr[name='trnsTb']:last")[0];
 	}
 	
 	//list 행삭제	+ DB 삭제
@@ -710,14 +750,35 @@
 				detailObj["coCd"]     = $('#coCd').val();
 				detailObj["siteCd"]   = $('#siteCd').val();
 				detailObj["siteSeq"]  = $closestRow.find('[name="siteSeq"]').val();
+				detailObj["prjctSeq"]  = $closestRow.find('[name="prjctSeq"]').val();
 				
-				if(detailObj.prjctSeq){
+				if(!detailObj.prjctSeq){
 					detailArr.push(detailObj);
 				}				
  				$(elem).closest('.detailRow').remove();
 			}
 		});		
 		deleteAjax("/user/sd/sd09/deleteSitePrdt", detailArr, null, function (data){
+			alert(data.resultMessage);
+		})
+	}
+	
+	//list 행삭제	+ DB 삭제
+	function transRemoveDetailRow(){
+		var transArr = [];
+		$.each($('input:checkbox[name="transChkBox"]'), function(idx, elem){
+			var transObj = {};
+			if($(elem).is(":checked")){
+				var $closestRow = $(elem).closest('.transRow');
+				transObj["coCd"]     = $('#coCd').val();
+				transObj["siteCd"]   = $('#siteCd').val();
+				transObj["siteTransSeq"]  = $closestRow.find('[name="siteTransSeq"]').val();
+				
+				transArr.push(transObj);
+ 				$(elem).closest('.transRow').remove();
+			}
+		});		
+		deleteAjax("/user/sd/sd09/deleteSiteTrans", transArr, null, function (data){
 			alert(data.resultMessage);
 		})
 	}
@@ -784,11 +845,34 @@
 				"prdtStkn" : $targetRow.find('#prdtStknCd').val(),
 				"useYn": "Y"
 			};
+			$targetRow = $(elem).closest('tr[name="tableCd"]');
+			var eq = $targetRow.index() - 1;
 			openSecondModal("/static/html/user/sd/sd05/SD0502P02.html", 300, 580, "SPEC 검색", paramObj, function (grid) {
 				var size = ""
 				var row = grid.target.getList("selected");
+				var isDup = false;
+				var isMsg = false;
 				for(var i=0; i<row.length; i++){
-					 size += row[i].prdtSpec + ",";
+					isDup = false;
+					$.each($('input[name="prdtSizeNm"]'), function(idx, elem){
+						if(eq != idx){
+							var dupArr = elem.value.split(",");
+							for(var j = 0; j < dupArr.length; j++){
+								if(dupArr[j] == row[i].prdtSpec){
+									isDup = true;
+									isMsg = true;
+								}
+							}
+						}
+					});
+					if(isDup == true){
+						
+					} else {
+						size += row[i].prdtSpec + ",";
+					}
+				}
+				if(isMsg == true){
+					alert("중복된 제품SPEC이 제외되었습니다.");
 				}
 				szie1 = size.substr(0, size.length-1)
 				$targetRow.find('input[name="prdtSizeNm"]').val(szie1);

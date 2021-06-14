@@ -83,19 +83,33 @@ public class SD09Ctr {
     	}
     	return "jsonView";
     }
-  
-	@DeleteMapping(value = "/deleteSitePrdt")
-	public String deleteSitePrdt(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
-		try {
-			sd09Svc.deleteSitePrdt(paramList);
-			model.addAttribute("resultCode", 200);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));	
-		}catch(Exception e){
-			model.addAttribute("resultCode", 500);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
-		}    	
-    	return "jsonView";
-    }   
+    
+  	@DeleteMapping(value = "/deleteSitePrdt")
+  	public String deleteSitePrdt(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+  		try {
+  			sd09Svc.deleteSitePrdt(paramList);
+  			model.addAttribute("resultCode", 200);
+  	    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));	
+  		}catch(Exception e){
+  			model.addAttribute("resultCode", 500);
+  	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+  		}    	
+      	return "jsonView";
+      } 
+    
+  	@DeleteMapping(value = "/deleteSiteTrans")
+  	public String deleteSiteTrans(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+  		try {
+  			sd09Svc.deleteSiteTrans(paramList);
+  			model.addAttribute("resultCode", 200);
+  	    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));	
+  		}catch(Exception e){
+  			model.addAttribute("resultCode", 500);
+  	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+  		}    	
+      	return "jsonView";
+      } 
+  	
     @PutMapping(value = "/updateSiteYn")
     public String updateSiteYn(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	try {
