@@ -6,46 +6,6 @@
 	<select id="selectPchsAggrCount" parameterType="Map" resultType="int">
 		SELECT
 			COUNT(*)
-		FROM TB_AR02M01 
-		WHERE 1=1
-		<if test= "coCd != null and !coCd.equals('')">
- 			AND CO_CD = #{coCd}
-		</if>
-		<if test="strtDt != null and !strtDt.equals('')">
- 			AND TRST_DT BETWEEN TO_CHAR(TO_DATE(#{strtDt}, 'YYYY-MM-DD'), 'YYYYMMDD') AND TO_CHAR(TO_DATE(#{endDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
-		</if>
-		<if test= "clntCd != null and !clntCd.equals('')">
- 			AND TRST_CLNT_CD = #{clntCd}
-		</if>
-		<if test= "clntNm != null and !clntNm.equals('')">
- 			AND CLNT_NM = #{clntNm}
-		</if>
-		<if test= "trspRmk != null and !trspRmk.equals('')">
- 			AND TRSP_RMK LIKE '%' || #{trspRmk} || '%'
-		</if>
-		<if test="salesMng != null and !salesMng.equals('')">
-			AND SALES_MNG = #{salesMng}
-		</if>
-		<if test="prdtDiv != null and !prdtDiv.equals('')">
-			AND PRDT_DIV = #{prdtDiv}
-		</if>
-		<if test="prdtStkn != null and !prdtStkn.equals('')">
-			AND PRDT_STKN = #{prdtStkn}
-		</if>
-		<if test= "prjctCd != null and !prjctCd.equals('')">
- 			AND PRJCT_CD = #{prjctCd}
-		</if>
-		<if test= "bilgCertNo_S != null and !bilgCertNo_S.equals('')">
- 			AND BILG_CERT_NO = #{bilgCertNo_S}
-		</if>
-		<if test= "selpch != null and !selpch.equals('')">
- 			AND SELPCH_CD = #{selpch}
-		</if>
-		
-	</select>
-	
-	<select id="selectPchsAggrList" parameterType="Map" resultType="CamelMap">
-		SELECT *
 			FROM(
 				SELECT
 						ROWNUM AS RNUM, D.*
@@ -63,6 +23,8 @@
 					,SUM(BILG_AMT + BILG_VAT_AMT) AS TOTAL_AMT
 					,T.BILG_CERT_NO
 				FROM TB_AR02M01 T
+				LEFT OUTER JOIN TB_BM01M01 BM01
+				             ON BM01.PRDT_CD = T.TRST_PRDT_CD
 				LEFT OUTER JOIN TB_SD09M01 SD09
 				             ON SD09.SITE_CD = T.SITE_CD
 				WHERE 1=1
@@ -110,6 +72,93 @@
 				</if>
 				<if test= 'bill == "N"'>
 		 			AND T.BILG_CERT_NO IS NULL
+				</if>
+				<if test="prdtGrp != null and !prdtGrp.equals('')">
+					AND BM01.PRDT_GRP = #{prdtGrp}
+				</if>
+				GROUP BY TRST_CLNT_CD, CLNT_NM, SALES_MNG, BILG_CERT_NO
+				ORDER BY TRST_CLNT_CD
+			) D
+			<where>
+			<if test= "salesMngNm != null and !salesMngNm.equals('')">
+			  D.SALES_MNG_NM LIKE '%' || #{salesMngNm} ||'%'
+			  </if>
+			</where>
+		)
+	
+	</select>
+	
+	<select id="selectPchsAggrList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+				SELECT
+					 T.TRST_CLNT_CD
+					--,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD) AS CLNT_NM
+					,FN_CM05M01_CD_TO_NM((SELECT CLNT_DIV_CD FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD)) AS CLNT_DIV_NM
+					,T.CLNT_NM
+					,T.SALES_MNG
+					,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
+					,SUM(BILG_WT) AS BILG_WT 
+					,SUM(BILG_AMT) AS BILG_AMT
+					,SUM(BILG_VAT_AMT) AS BILG_VAT_AMT 
+					,SUM(BILG_AMT + BILG_VAT_AMT) AS TOTAL_AMT
+					,T.BILG_CERT_NO
+				FROM TB_AR02M01 T
+				LEFT OUTER JOIN TB_BM01M01 BM01
+				             ON BM01.PRDT_CD = T.TRST_PRDT_CD
+				LEFT OUTER JOIN TB_SD09M01 SD09
+				             ON SD09.SITE_CD = T.SITE_CD
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND T.CO_CD = #{coCd}
+				</if>
+				<if test="strtDt != null and !strtDt.equals('')">
+		 			AND TRST_DT BETWEEN TO_CHAR(TO_DATE(#{strtDt}, 'YYYY-MM-DD'), 'YYYYMMDD') AND TO_CHAR(TO_DATE(#{endDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND TRST_CLNT_CD = #{clntCd}
+				</if>
+				<if test= "clntNm != null and !clntNm.equals('')">
+		 			AND CLNT_NM  LIKE '%' || #{clntNm} || '%'
+				</if>
+				<if test= "trspRmk != null and !trspRmk.equals('')">
+		 			AND TRSP_RMK LIKE '%' || #{trspRmk} || '%'
+				</if>
+				<if test="salesMng != null and !salesMng.equals('')">
+					AND T.SALES_MNG = #{salesMng}
+				</if>
+				<if test="prdtDiv != null and !prdtDiv.equals('')">
+					AND T.PRDT_DIV = #{prdtDiv}
+				</if>
+				<if test="prdtStkn != null and !prdtStkn.equals('')">
+					AND T.PRDT_STKN = #{prdtStkn}
+				</if>
+				<if test= "prjctCd != null and !prjctCd.equals('')">
+		 			AND T.PRJCT_CD = #{prjctCd}
+				</if>
+				<if test= "siteCd != null and !siteCd.equals('')">
+		 			AND T.SITE_CD = #{siteCd}
+				</if>
+				<if test= "siteNm != null and !siteNm.equals('')">
+		 			AND SD09.SITE_NM like '%'|| #{siteNm} || '%'
+				</if>
+				<if test= "selpch != null and !selpch.equals('')">
+		 			AND T.SELPCH_CD = #{selpch}
+				</if>
+				<if test= "bilgCertNo_S != null and !bilgCertNo_S.equals('')">
+		 			AND T.BILG_CERT_NO = #{bilgCertNo_S}
+				</if>
+				<if test= 'bill == "Y"'>
+		 			AND T.BILG_CERT_NO IS NOT NULL
+				</if>
+				<if test= 'bill == "N"'>
+		 			AND T.BILG_CERT_NO IS NULL
+				</if>
+				<if test="prdtGrp != null and !prdtGrp.equals('')">
+					AND BM01.PRDT_GRP = #{prdtGrp}
 				</if>
 				GROUP BY TRST_CLNT_CD, CLNT_NM, SALES_MNG, BILG_CERT_NO
 				ORDER BY TRST_CLNT_CD
