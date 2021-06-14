@@ -214,16 +214,17 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="openClntChange();"><i class="fas fa-exchange-alt"></i>거래처변경</a>
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="openSalesDivision();"><i class="fas fa-divide"></i>매출분할</a>
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="sellCal();"><i class="fas fa-calculator"></i>매출정산</a>
-					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertSellModal('U');"><i class="fas fa-window-close"></i>반품</a> 
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="insertBilg();"><i class="fas fa-file-signature"></i>매출확정</a>
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="updateBilgCancel();"><i class="fas fa-trash"></i>확정취소</a>
-					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail();" title="세부내역 선택자료만 출력합니다."><i class="fas fa-print"></i>거래명세서</a>
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="openClntChange();" authchk><i class="fas fa-exchange-alt"></i>거래처변경</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="openSalesDivision();" authchk><i class="fas fa-divide"></i>매출분할</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="sellCal();" authchk><i class="fas fa-calculator"></i>매출정산</a>
+					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertSellModal('U');" authchk><i class="fas fa-window-close"></i>반품</a> 
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="insertBilg();" authchk><i class="fas fa-file-signature"></i>매출확정</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="updateBilgCancel();" authchk><i class="fas fa-trash"></i>확정취소</a>
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail('Detail');" authchk><i class="fas fa-print"></i>거래명세서</a>
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail('Sumary');" authchk><i class="fas fa-print"></i>집계명세표</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReport();" title="검색조건으로 출력합니다."><i class="fas fa-print"></i>일보출력</a>
-					<a style="height: 30px; line-height: 28px;" onclick="insertSellModal('C');">+</a>
-					<a style="height: 30px; line-height: 28px;" onclick="deleteSell();">-</a>
+					<a style="height: 30px; line-height: 28px;" onclick="insertSellModal('C');" authchk>+</a>
+					<a style="height: 30px; line-height: 28px;" onclick="deleteSell();" authchk>-</a>
 					<a style="height: 30px; line-height: 28px; width: 90px;" onclick="excelDown();"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
 				</div>
 			</div>
@@ -543,6 +544,8 @@
  		subGridView.initView();
 		mainGridView.initView().setData(0);
 		excelView.initView();
+		
+		authChk();
 	})
 
 	function initSearch() {
@@ -845,7 +848,7 @@
 		}
 	}
 	
-	function setReportDetail() {
+	function setReportDetail(type) {
 		var flag = false;
 		var clntFlag = false;
 		var siteFlag = false;
@@ -921,7 +924,9 @@
 		         + "#trstNoArr#"	+ trstNoArr
 		         + "#";
 
-		if ($('#siteDivYn').is(':checked')) { 	 
+		if (type == 'Sumary') { 	 
+			callReport("AR0201R12.jrf", arg, "750", "1007");
+		} else if ($('#siteDivYn').is(':checked')) { 	 
 			callReport("AR0201R02.jrf", arg, "750", "1007");
 		} else if ($('#typCd_S').val() =="SELLTYPE1"){
 			callReport("AR0201R03.jrf", arg, "950", "690");
