@@ -27,12 +27,21 @@ public interface SD09Mapper {
 	
  // Site 상세 사항.
 	List<Map<String, String>> selectSitePrdtList(Map<String, String> paramMap);
-	
+
 	int insertSitePrdt(Map<String, String> paramMap);
 	
 	int updateSitePrdt(Map<String, String> paramMap);
 	
 	int deleteSitePrdt(Map<String, String> paramMap);
+	
+ // Site 운반비 상세 사항.
+	List<Map<String, String>> selectSiteTransList(Map<String, String> paramMap);
+	
+	int insertSiteTrans(Map<String, String> paramMap);
+	
+	int updateSiteTrans(Map<String, String> paramMap);
+	
+	int deleteSiteTrans(Map<String, String> paramMap);
 	
 	String selectSiteCdFind(Map<String, String> paramMap);
 
