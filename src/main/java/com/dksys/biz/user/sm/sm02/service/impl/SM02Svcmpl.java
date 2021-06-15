@@ -116,9 +116,14 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
 			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
 			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
-			
-			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가
+
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
+			
+			//  가공으로 이동 시에는 길이가 8M가 된다 -- 공장에서 길이 관리가 안됨
+			if("8".equals(param.get("mngPrdtLen"))) {
+				detailMap.put("sPrdtLen",  param.get("mngPrdtLen"));				
+			}			
+			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가			
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 		}
 		return 200;
@@ -155,9 +160,14 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
 			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
 			
-			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);
-			sm02Mapper.sm01UpdateStockMove(detailMap);
-			sm02Mapper.sm02InsertBarterStockMove(detailMap);
+			sm02Mapper.sm01UpdateStockMove(detailMap);      // 기존 차감.
+			
+			//  가공으로 이동 시에는 길이가 8M가 된다 -- 공장에서 길이 관리가 안됨
+			if("8".equals(param.get("mngPrdtLen"))) {
+				detailMap.put("sPrdtLen",  param.get("mngPrdtLen"));				
+			}			
+			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);  // 신규 추가
+			sm02Mapper.sm02InsertBarterStockMove(detailMap);        // 재고이동 이력
 		}
 		return 200;
 		

@@ -127,14 +127,14 @@
 						AND A.PRDT_CD = #{prdtCd}
 				</if>
 			     <if test="prdtNm != null and !prdtNm.equals('')">
-						AND C.PRDT_NM LIKE '%'|| #{prdtNm} ||'%'
+						AND C.PRDT_NM LIKE '%'||UPPER(#{prdtNm}) ||'%'
 				</if>
 				ORDER BY A.TRST_NO
 			) D
 			WHERE  1= 1 
 			     <if test="prjctNm != null and !prjctNm.equals('')">
 						AND ( D.PRJCT_NM    LIKE '%' || #{prjctNm} || '%'
-						  OR  D.IN_PRJCT_NM LIKE '%' || #{inPrjctNm} || '%' )
+						  OR  D.IN_PRJCT_NM LIKE '%' || #{prjctNm} || '%' )
 				</if>
 		)
 		WHERE
@@ -287,7 +287,7 @@
 			   PRDT_CD,
 			   PRDT_SIZE,
 			   PRDT_SPEC,
-			   PRDT_LEN,
+			   #{sPrdtLen} PRDT_LEN,
 			   OWNER_CD,
 			   CLNT_CD,
 			   #{sellType} AS TYP_CD,

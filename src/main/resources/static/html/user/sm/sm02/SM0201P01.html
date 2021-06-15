@@ -105,7 +105,8 @@
 			              <input type="hidden" id="sPrdtLen"  name="sPrdtLen" >
 			              <input type="hidden" id="sPrdtSpec" name="sPrdtSpec" >
 			              <input type="hidden" id="sPrdtSize" name="sPrdtSize" >
-          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" required></select>
+			              <input type="hidden" id="sWhType"   name="sWhType">
+          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" onChange="findWhType()" required></select>
           		</td> 
           		<th colspan="2">판매유형</th>
           		<td colspan="3"> 
@@ -288,6 +289,7 @@
 		$("#searchDtlType option[value='SELLTYPE3']").remove();
 		$("#searchDtlType option[value='SELLTYPE4']").remove();
 		
+		findWhType(); // 기본 창고 유형  Set
 		authChk();
 	    
 	})	
@@ -357,6 +359,12 @@
 	function insertUpdateMove(){
 		if(inputValidation($('input[required]'))) {		
 			var formData = makeFormData();
+			
+			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+			var mngPrdtLen = ''; 
+			if($('#sWhType').val() == "WHDIV01") {mngPrdtLen = 8;}
+			formData.mngPrdtLen = mngPrdtLen;
+			
 			putAjax("/user/sm/sm02/insertUpdateStockMove", formData, null, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
@@ -390,8 +398,6 @@
 		formData["detailArr2"] = JSON.stringify(formData2);
 		
 		var detailArr = searchGrid.getList("modified");
-		
-		debugger;
 		
 		/* formData.append("mWhCd", );
 		formData.append("sTransDt", );
@@ -451,8 +457,6 @@
 			"prjctNm": $("#popForm #prjctNm").val()
 		}
 		
-		debugger;
-		
 		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
 			var row = tree.target.getList("selected")[0];
 			if(type == 'S') {
@@ -464,8 +468,14 @@
 			}
 		});
 	}
-
-
+	
+	// 창고 유형  codeRprc
+	function findWhType(){
+		
+		$('#sWhType').val($('#searchDtlWhCd option:selected').data("rprc"));
+	//	$('#sWhType').val("WHDIV01");
+	}
+	
 	// 창고 set
 	function setWareHouse(value){
 		//출고고지 창고 법인별 설정

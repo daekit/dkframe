@@ -99,7 +99,8 @@
           		<td colspan="3"> 
 			      <input type="hidden" id="sCoCd"         name="sCoCd" >
                   <input type="hidden" id="searchPrjctCd" name="searchMovePrdtCd" style="width: 76%;">
-          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" required></select>
+                  <input type="hidden" id="sWhType"       name="sWhType">
+          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" onChange="findWhType()" required></select>
           		</td> 
           		<th colspan="2">판매유형</th>
           		<td colspan="3"> 
@@ -181,7 +182,6 @@
 		            	//updateProjectModal("U");
 		            }, 
 		            onDataChanged: function() {
-		            	debugger;
 		        		var idx = this.self.select(this.dindex);
 		        		idx.list[this.dindex].moveWt = idx.list[this.dindex].moveQty * idx.list[this.dindex].prdtCnvrsnWt
 		            	this.self.repaint();
@@ -288,7 +288,8 @@
 		$("#searchDtlTypCd option[value='SELLTYPE4']").remove();
 		$("#searchDtlType option[value='SELLTYPE3']").remove();
 		$("#searchDtlType option[value='SELLTYPE4']").remove();
-	    
+
+		findWhType(); // 기본 창고 유형  Set
 		authChk();
 	})	
 	
@@ -357,6 +358,12 @@
 	function insertUpdateMove(){
 		if(inputValidation($('input[required]'))) {		
 			var formData = makeFormData();
+			
+			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+			var mngPrdtLen = ''; 
+			if($('#sWhType').val() == "WHDIV01") {mngPrdtLen = 8;}
+			formData.mngPrdtLen = mngPrdtLen;
+			
 			putAjax("/user/sm/sm02/insertUpdateBarterStockMove", formData, null, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
@@ -469,6 +476,20 @@
 		$('#searchDtlWhCd').data("desc", value);
 		$('#searchDtlWhCd').empty();
 		setCommonSelect($('#searchDtlWhCd'));
-	}		
+	}	
+	// 창고 유형  codeRprc
+	function findWhType(){
 
+		$('#sWhType').val($('#searchDtlWhCd option:selected').data("rprc"));
+	
+		// 창고가 공장이면 길이는 8M 고정
+		if($('#sWhType').val() =="WHDIV01" ){
+			$('#searchMovePrdtLen').val("8");
+			$('#searchMovePrdtLen').prop("readonly",true);
+		}else{
+			$('#searchMovePrdtLen').val("");
+			$('#searchMovePrdtLen').prop("readonly",false);
+		}
+			
+	}
 </script>
