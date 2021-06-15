@@ -12,6 +12,10 @@ public interface CM05Mapper {
 	
 	List<Map<String, String>> selectCodeList(Map<String, String> param);
 
+	int selectPdskCodeCount(Map<String, String> param);
+	
+	List<Map<String, String>> selectPdskCodeList(Map<String, String> param);
+
 	List<Map<String, String>> selectChildCodeList(Map<String, String> param);
 
 	Map<String, String> selectCodeInfo(Map<String, String> param);

@@ -9,6 +9,10 @@ public interface CM05Svc {
 	
     public List<Map<String, String>> selectCodeList(Map<String, String> param);
     
+	public int selectPdskCodeCount(Map<String, String> param);
+	
+    public List<Map<String, String>> selectPdskCodeList(Map<String, String> param);
+    
     public List<Map<String, String>> selectChildCodeList(Map<String, String> param);
     
     public Map<String, String> selectCodeInfo(Map<String, String> param);
