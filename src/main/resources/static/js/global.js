@@ -517,7 +517,7 @@ function setCommonSelect(selectArr){
 			var optionHtml = '';
 			var codeList = data.childCodeList;
 			$.each(codeList, function (index, item){
-				optionHtml += '<option value='+item.codeId+' data-etc="'+item.codeEtc+'">';
+				optionHtml += '<option value="'+item.codeId+'" data-rprc="'+item.codeRprc+'" data-etc="'+item.codeEtc+'" data-desc="'+item.codeDesc+'">';
 				optionHtml += item.codeNm;
 				optionHtml += '</option>';
 			});
