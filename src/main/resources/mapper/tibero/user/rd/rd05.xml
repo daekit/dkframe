@@ -90,8 +90,9 @@
 						 , BM01.PRDT_DIV
 						 , AR02.OWNER_CD
 						 , AR02.TYP_CD
-						 , AR02.MAKR_CD
-						 , AR02.TRST_CLNT_CD AS CLNT_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                         TRST_CLNT_CD) AS CLNT_CD
 						 , AR02.IMP_YN
 						 , AR02.PRJCT_CD
 						 , AR02.PRDT_SIZE
@@ -126,8 +127,9 @@
 						 , BM01.PRDT_DIV
 						 , AR02.OWNER_CD
 						 , AR02.TYP_CD
-						 , AR02.MAKR_CD
-						 , AR02.TRST_CLNT_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        TRST_CLNT_CD) 
 						 , AR02.IMP_YN
 						 , AR02.PRJCT_CD
 						 , AR02.PRDT_SIZE
@@ -383,8 +385,9 @@
 						 , BM01.PRDT_DIV
 						 , AR02.OWNER_CD
 						 , AR02.TYP_CD
-						 , AR02.MAKR_CD
-						 , AR02.TRST_CLNT_CD AS CLNT_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        AR02.TRST_CLNT_CD)  AS CLNT_CD
 						 , AR02.IMP_YN
 						 , AR02.PRJCT_CD
 						 , AR02.PRDT_SIZE
@@ -419,8 +422,9 @@
 						 , BM01.PRDT_DIV
 						 , AR02.OWNER_CD
 						 , AR02.TYP_CD
-						 , AR02.MAKR_CD
-						 , AR02.TRST_CLNT_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        AR02.TRST_CLNT_CD)
 						 , AR02.IMP_YN
 						 , AR02.PRJCT_CD
 						 , AR02.PRDT_SIZE
@@ -599,9 +603,10 @@
 	  	   AND WH_CD = #{whCd}
 	  	   AND TRST_PRDT_CD = #{prdtCd}
 	  	   AND OWNER_CD = #{ownerCd}
-	  	   AND TRST_CLNT_CD = #{clntCd}
+	  	   AND DECODE(OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = TAXIVC_COPRT)),
+			    	                        TRST_CLNT_CD) = #{clntCd}
 	  	   AND TYP_CD = #{typCd}
-	  	   AND MAKR_CD = #{makrCd}
+<!-- 	  	   AND MAKR_CD = #{makrCd} -->
 	  	   AND PRJCT_CD = #{prjctCd}
 	  	   AND IMP_YN = #{impYn}
 	</select>
@@ -628,9 +633,10 @@
 	  	   AND AR02.WH_CD        = #{whCd}
 	  	   AND AR02.TRST_PRDT_CD = #{prdtCd}
 	  	   AND AR02.OWNER_CD     = #{ownerCd}
-	  	   AND AR02.TRST_CLNT_CD = #{clntCd}
+	  	   AND DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        TRST_CLNT_CD) = #{clntCd}
 	  	   AND AR02.TYP_CD       = #{typCd}
-	  	   AND AR02.MAKR_CD      = #{makrCd}
+<!-- 	 	   AND AR02.MAKR_CD      = #{makrCd} -->
 	  	   AND AR02.PRJCT_CD     = #{prjctCd}
 	  	   AND AR02.IMP_YN       = #{impYn}
 	  	 UNION
@@ -656,7 +662,7 @@
 	  	    AND SM02.OWNER_CD    = #{ownerCd}
 	  	    AND SM02.CLNT_CD     = #{clntCd}
 	  	    AND SM02.IN_TYP_CD   = #{typCd}
-	  	    AND SM02.MAKR_CD     = #{makrCd}
+<!-- 	  	    AND SM02.MAKR_CD     = #{makrCd} -->
 	  	    AND SM02.IN_PRJCT_CD = #{prjctCd}
 	  	    AND SM02.IMP_YN      = #{impYn}
 	  	 UNION
@@ -682,7 +688,7 @@
 	  	    AND SM02.OWNER_CD  = #{ownerCd}
 	  	    AND SM02.CLNT_CD   = #{clntCd}
 	  	    AND SM02.TYP_CD    = #{typCd}
-	  	    AND SM02.MAKR_CD   = #{makrCd}
+<!-- 	  	    AND SM02.MAKR_CD   = #{makrCd} -->
 	  	    AND SM02.PRJCT_CD  = #{prjctCd}
 	  	    AND SM02.IMP_YN    = #{impYn}  	
 	</select>
