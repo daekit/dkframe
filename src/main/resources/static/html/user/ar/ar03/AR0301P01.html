@@ -277,11 +277,11 @@
 			language : "ko",
 			autoclose : true
 		});
-		setInit();
 		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
 			$("#transViewDiv #coCd").val($("#arViewDiv #coCd").val());
 			$("#transViewDiv #transSeq").val($("#arViewDiv #transSeq").val());
 		}
+		setInit();
 		//권한관리
 		authChk();
 	});
@@ -289,6 +289,8 @@
 	function setInit() {
 		if(actionType == "C") {
 			$('#coCd').val(commonModal.paramObj.coCd);
+            // 판매법인, 창고 set
+			setByCoCd($('#coCd').val());			
 			$('#actionBtn').on("click", function(){insertCaryng();});
 			$("#actionBtn").text("등록");
 			$("#arvpayYn").val("N");
@@ -347,8 +349,8 @@
 			$('#transViewDiv #'+key).val(value);
 			if(key=="transDt"){
 				$('#'+key).datepicker("setDate", moment(value, 'YYYYMMDD').toDate());
-			}else if(key=="coCd"){
-             // 판매법인, 창고 set
+			}else if(key == "coCd"){
+	            // 판매법인, 창고 set
 				setByCoCd(value);
 			}
 		});
