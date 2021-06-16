@@ -382,7 +382,7 @@
 			$("#actionBtn").hide();
 			$("#shipYnBtn").hide();
 		}else{
-			$('#actionBtn').on("click", function(){updateShipModal();});
+			$('#actionBtn').on("click", function(){updateShipModal(commonModal.paramObj.shipSeq);});
 			$('#actionBtn').text("수정");
 			$("#shipYnBtn").show();
 		}
@@ -399,16 +399,12 @@
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = shipGridView.target.getList("selected")[0];
 			shipSeq = row.shipSeq
-// 		}else if(openFrom == "CM1001M01"){
-// 			row = shipGridView.target.getList()[selectedRowIdx];
-// 			shipSeq = row.shipSeq
 		}else{
 			shipSeq = commonModal.paramObj.shipSeq;
 		}
-		var formData = {
-			"shipSeq": shipSeq
-		}
-		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
+		
+		var paramObj = {"shipSeq": shipSeq}
+		postAjax("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
