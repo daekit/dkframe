@@ -48,28 +48,32 @@ public class CM01SvcImpl implements CM01Svc {
 	public List<Map<String, Object>> selectMenuAuth(String[] authArray) {
 		String roleStr = "";
 		String menuStr = "";
-		String saveYnStr = "";
+		
+		// auth에 해당하는 role 조회
 		List<String> roleList = cm01Mapper.selectRoleFromAuth(authArray);
 		for (int i = 0; i < roleList.size(); i++) {
 			roleStr += roleList.get(i) + ",";
 		}
 		String[] roleArray = roleStr.split(",");
 		roleArray = Arrays.stream(roleArray).distinct().toArray(String[]::new);
+		
+		// role에 해당하는 menuId, 저장권한 조회
 		List<Map<String, String>> menuList = cm01Mapper.selectMenuFromRole(roleArray);
 		for (int i = 0; i < menuList.size(); i++) {
 			menuStr += menuList.get(i).get("roleMenu") + ",";
-			saveYnStr += menuList.get(i).get("saveYn") + ",";
 		}
 		String[] menuArray = menuStr.split(",");
+		
+		// menuId에 해당하는 menu정보 조회
 		List<Map<String, Object>> result = cm01Mapper.selectMenuAuth(menuArray);
 		for(Map<String, Object> map : result) {
 			for(Map<String, String> menuMap : menuList) {
 				if(map.get("menuId").toString().equals((menuMap.get("roleMenu")))){
 					map.put("save_Yn", menuMap.get("saveYn"));
+					break;
 				}
 			}
 		}
-		System.out.println(result);
 		return result;
 	}
 
