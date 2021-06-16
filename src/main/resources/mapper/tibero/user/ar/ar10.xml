@@ -129,4 +129,157 @@
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
+	
+	<select id="selectPchsSellSumCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			(
+					WITH t AS 
+					(
+						SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6) YYMM, SUM(BILG_TOT_AMT) BILG_TOT_AMT, COUNT(*) CNT
+						  FROM TB_AR10M01
+						 WHERE CO_CD = #{coCd}
+						<if test="selpchCd != null and !selpchCd.equals('')">
+							AND SELPCH_CD = #{selpchCd}				
+						</if>	
+						<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+							AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+						</if>
+						   AND TRST_DT BETWEEN #{searchYear} || '0101' AND #{searchYear} || '1231'
+						<if test="clntNm != null and !clntNm.equals('')">
+							AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+						</if>
+						<if test="siteNm != null and !siteNm.equals('')">
+							AND SITE_NM LIKE '%'|| #{siteNm} || '%'
+						</if>
+						<if test="prdtNm != null and !prdtNm.equals('')">
+							AND PRDT_NM LIKE '%'|| #{prdtNm} || '%'
+						</if>
+						<if test="prdtSize != null and !prdtSize.equals('')">
+							AND PRDT_SIZE LIKE '%'|| #{prdtSize} || '%'
+						</if>
+						<if test="prdtLen != null and !prdtLen.equals('')">
+							AND PRDT_LEN LIKE '%'|| #{prdtLen} || '%'
+						</if>
+						<if test="rmk != null and !rmk.equals('')">
+							AND RMK LIKE '%'|| #{rmk} || '%'
+						</if>
+						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6)
+					)
+					SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUM(BILG_TOT_AMT) TOT_AMT, SUM(CNT) TOT_CNT,
+						sum(CASE WHEN substr(yymm,5,2) = 01 THEN  BILG_TOT_AMT ELSE 0 END) "01월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 02 THEN  BILG_TOT_AMT ELSE 0 END) "02월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 03 THEN  BILG_TOT_AMT ELSE 0 END) "03월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 04 THEN  BILG_TOT_AMT ELSE 0 END) "04월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 05 THEN  BILG_TOT_AMT ELSE 0 END) "05월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 06 THEN  BILG_TOT_AMT ELSE 0 END) "06월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 07 THEN  BILG_TOT_AMT ELSE 0 END) "07월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 08 THEN  BILG_TOT_AMT ELSE 0 END) "08월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 09 THEN  BILG_TOT_AMT ELSE 0 END) "09월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 10 THEN  BILG_TOT_AMT ELSE 0 END) "10월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 11 THEN  BILG_TOT_AMT ELSE 0 END) "11월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 12 THEN  BILG_TOT_AMT ELSE 0 END) "12월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 01 THEN  cnt ELSE 0 END) "01월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 02 THEN  cnt ELSE 0 END) "02월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 03 THEN  cnt ELSE 0 END) "03월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 04 THEN  cnt ELSE 0 END) "04월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 05 THEN  cnt ELSE 0 END) "05월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 06 THEN  cnt ELSE 0 END) "06월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 07 THEN  cnt ELSE 0 END) "07월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 08 THEN  cnt ELSE 0 END) "08월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 09 THEN  cnt ELSE 0 END) "09월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 10 THEN  cnt ELSE 0 END) "10월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 11 THEN  cnt ELSE 0 END) "11월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 12 THEN  cnt ELSE 0 END) "12월건수"	
+					FROM t
+					GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
+					ORDER BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
+			)
+	</select>
+
+	<select id="selectPchsSellSumList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				A.*,
+				ROWNUM AS RNUM
+				
+			FROM
+			(
+					WITH t AS 
+					(
+						SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6) YYMM, SUM(BILG_TOT_AMT) BILG_TOT_AMT, COUNT(*) CNT
+						  FROM TB_AR10M01
+						 WHERE CO_CD = #{coCd}
+						<if test="selpchCd != null and !selpchCd.equals('')">
+							AND SELPCH_CD = #{selpchCd}				
+						</if>	
+						<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+							AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+						</if>
+						   AND TRST_DT BETWEEN #{searchYear} || '0101' AND #{searchYear} || '1231'
+						<if test="clntNm != null and !clntNm.equals('')">
+							AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+						</if>
+						<if test="siteNm != null and !siteNm.equals('')">
+							AND SITE_NM LIKE '%'|| #{siteNm} || '%'
+						</if>
+						<if test="prdtNm != null and !prdtNm.equals('')">
+							AND PRDT_NM LIKE '%'|| #{prdtNm} || '%'
+						</if>
+						<if test="prdtSize != null and !prdtSize.equals('')">
+							AND PRDT_SIZE LIKE '%'|| #{prdtSize} || '%'
+						</if>
+						<if test="prdtLen != null and !prdtLen.equals('')">
+							AND PRDT_LEN LIKE '%'|| #{prdtLen} || '%'
+						</if>
+						<if test="rmk != null and !rmk.equals('')">
+							AND RMK LIKE '%'|| #{rmk} || '%'
+						</if>
+						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6)
+					)
+					SELECT 
+						CO_CD,
+						FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM, 
+						TAXIVC_COPRT_CD, 
+						FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+						SELPCH_CD,
+						FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM, 
+						CLNT_NM, 
+						sum(BILG_TOT_AMT) TOT_AMT, 
+						sum(CNT) TOT_CNT,
+						sum(CASE WHEN substr(yymm,5,2) = 01 THEN  BILG_TOT_AMT ELSE 0 END) "01월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 02 THEN  BILG_TOT_AMT ELSE 0 END) "02월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 03 THEN  BILG_TOT_AMT ELSE 0 END) "03월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 04 THEN  BILG_TOT_AMT ELSE 0 END) "04월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 05 THEN  BILG_TOT_AMT ELSE 0 END) "05월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 06 THEN  BILG_TOT_AMT ELSE 0 END) "06월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 07 THEN  BILG_TOT_AMT ELSE 0 END) "07월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 08 THEN  BILG_TOT_AMT ELSE 0 END) "08월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 09 THEN  BILG_TOT_AMT ELSE 0 END) "09월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 10 THEN  BILG_TOT_AMT ELSE 0 END) "10월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 11 THEN  BILG_TOT_AMT ELSE 0 END) "11월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 12 THEN  BILG_TOT_AMT ELSE 0 END) "12월합계", 
+						sum(CASE WHEN substr(yymm,5,2) = 01 THEN  cnt ELSE 0 END) "01월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 02 THEN  cnt ELSE 0 END) "02월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 03 THEN  cnt ELSE 0 END) "03월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 04 THEN  cnt ELSE 0 END) "04월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 05 THEN  cnt ELSE 0 END) "05월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 06 THEN  cnt ELSE 0 END) "06월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 07 THEN  cnt ELSE 0 END) "07월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 08 THEN  cnt ELSE 0 END) "08월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 09 THEN  cnt ELSE 0 END) "09월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 10 THEN  cnt ELSE 0 END) "10월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 11 THEN  cnt ELSE 0 END) "11월건수", 
+						sum(CASE WHEN substr(yymm,5,2) = 12 THEN  cnt ELSE 0 END) "12월건수"	
+					FROM t
+					GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
+					ORDER BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
+			) A
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
 </mapper>
