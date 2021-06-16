@@ -1247,9 +1247,6 @@
 			<if test="prdtDiv != null and !prdtDiv.equals('')">
 				AND A.PRDT_DIV = #{prdtDiv}
 			</if>
-			<if test="clntNm != null and !clntNm.equals('')">
-				AND B.CLNT_NM LIKE '%${clntNm}%'
-			</if>
 			<if test="taxBilgYn != null and !taxBilgYn.equals('')">
 				<choose>
 					<when test='taxBilgYn == "Y"'>
@@ -1271,6 +1268,10 @@
 		HAVING 1 = 1
 		<if test="clntCd != null and !clntCd.equals('')">
 			AND (MAX(PCH_CLNT) = #{clntCd} OR MAX(SEL_CLNT) = #{clntCd})
+		</if>
+		
+		<if test="clntNm != null and !clntNm.equals('')">
+			AND (MAX(PCH_CLNT_NM)  LIKE '%'|| #{clntNm} ||'%'  OR MAX(SEL_CLNT_NM) LIKE '%'|| #{clntNm} ||'%')
 		</if>
 		<if test="siteCd != null and !siteCd.equals('')">
 			AND MAX(SITE_CD) = #{siteCd}
