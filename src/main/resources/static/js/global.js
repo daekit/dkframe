@@ -27,7 +27,8 @@ function isMobile() {
 }
 
 if(isMobile()){
-	DOMAIN_URL = "http://localhost";
+	// DOMAIN_URL = "http://localhost";
+	DOMAIN_URL = "http://10.90.4.142";
 }
 
 var authorizationToken = getCookie("jwtToken");
