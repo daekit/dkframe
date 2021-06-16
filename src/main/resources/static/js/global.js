@@ -21,7 +21,6 @@ var deleteCookie = function (name) {
 	} 
 }
 
-
 var DOMAIN_URL = "";
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
