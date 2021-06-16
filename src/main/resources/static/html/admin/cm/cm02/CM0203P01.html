@@ -1,36 +1,29 @@
-<body>
-	<div class="row" style="margin-top: 15px; padding-left: 10px; height: 540px; overflow-y: scroll;">
-		<div class="col-xs-3">
-			<div id="menuTree"></div>
-		</div>
+<div class="row" style="margin-top: 15px; padding-left: 10px; height: 540px; overflow-y: scroll;">
+	<div class="col-xs-3">
+		<div id="menuTree"></div>
 	</div>
-	<div class="row" style="margin-top: 15px;">
-		<div style="position: fixed; bottom: 5px; left: 250px;">
-			<button type="button" class="btn btn-default btn-sm" onclick="updateRoleMenu();">저장</button>
-			<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
-		</div>
+</div>
+<div class="row" style="margin-top: 15px;">
+	<div style="position: fixed; bottom: 5px; left: 250px;">
+		<button type="button" class="btn btn-default btn-sm" onclick="updateRoleMenu();">저장</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
 	</div>
-</body>
+</div>
 <script type="text/javascript">
 	
 	$(document).ready(function() {
-        getTreeData();
+		initMenuTree();
 	})
 	
-	function getTreeData() {
-		postAjax("/admin/cm/cm03/selectMenuList", null, null, function(data){
-			initMenuTree(data.menuList);
-		});
-	}
-
-	function initMenuTree(menuList){
+	function initMenuTree(){
 		//checkbox plugin 속성
 		//three_state : 부모노드 클릭 시 하위노드 체크
 		//whole_node : 노드 클릭시 체크박스 컨트롤
-		$("#menuTree").jstree({
-			plugins: ['types', 'search', 'sort', 'checkbox'],
+		$("#menuTree").jstree(
+		{
+			plugins: ['types', 'checkbox'],
 		    core: {
-		    	data: menuList
+		    	data: getMenuTree()
 		    },
 		    types : {
 		        'unit': { 'icon': 'glyphicon glyphicon-folder-close'},
@@ -43,29 +36,33 @@
 		    },
 		    search: {
 		      	show_only_matches: false
-		    },
-		    sort: function(a, b){
-		    	
 		    }
-		  	}).on("ready.jstree", function() {
+	  	}).on("ready.jstree", function() {
 		  		
-		  	}).on("loaded.jstree", function() {
-		  		setTreeData();
-			}).on("refresh.jstree", function() {
+	  	}).on("loaded.jstree", function() {
+	  		setMenuTree();
+		}).on("refresh.jstree", function() {
+		
+		}).on("select_node.jstree", function (e, data) {
 			
-			}).on("select_node.jstree", function (e, data) {
-				
-			}).on("deselect_node.jstree", function(e, data){
-				// 노드가 선택해제 시 발생 이벤트
-				
-			}).on('open_node.jstree', function(e, data) {
-			    data.instance.set_type(data.node,'unit-open');
-			}).on('close_node.jstree', function(e, data) {
-			    data.instance.set_type(data.node,'unit');
-			});
+		}).on("deselect_node.jstree", function(e, data){
+			
+		}).on('open_node.jstree', function(e, data) {
+		    data.instance.set_type(data.node,'unit-open');
+		}).on('close_node.jstree', function(e, data) {
+		    data.instance.set_type(data.node,'unit');
+		});
 	}
 	
-	function setTreeData() {
+	function getMenuTree() {
+		var menuList = null;
+		postAjaxSync("/admin/cm/cm03/selectMenuList", null, null, function(data){
+			menuList = data.menuList;
+		});
+		return menuList;
+	}
+	
+	function setMenuTree() {
 		var menuList = roleMenu.split(",");
 		for(var i=0; i < menuList.length; i++) {
 			$("#menuTree").jstree("select_node", menuList[i]);
@@ -79,8 +76,8 @@
 			roleMenu += data[i].id + ","
 		}
 		var formData = {
-				"roleId" : roleId,
-				"roleMenu" : roleMenu.substring(0, roleMenu.length-1)
+			"roleId" : roleId,
+			"roleMenu" : roleMenu.substring(0, roleMenu.length-1)
 		}
 		putAjax("/admin/cm/cm02/updateRoleMenu", formData, null, function(data){
 			alert(data.resultMessage);

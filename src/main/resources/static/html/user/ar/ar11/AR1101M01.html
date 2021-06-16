@@ -80,7 +80,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="subGridView.setData(0);"></select>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); subGridView.setData(0);"></select>
 						</td>
 						
 						<th class="hit">입금일자</th>
@@ -101,16 +101,8 @@
 					<tr>
 						<th>법인</th>
 						<td>
-							<select data-search="taxivcCoprtCd" onchange="subGridView.setData(0);">
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprtCd" onchange="subGridView.setData(0);">
 							<option value="">전체</option>
-							<option value="ESTCOPRT1">금문철강(주)</option>
-							<option value="ESTCOPRT2">금문철강 인천공장</option>
-							<option value="ESTCOPRT3">금문철강 진천공장</option>
-							<option value="ESTCOPRT4">지지엠</option>
-							<option value="ESTCOPRT5">지지스틸</option>
-							<option value="ESTCOPRT6">지지스틸 창녕공장</option>
-							<option value="ESTCOPRT7">금문철강 대구지점</option>
-							<option value="ESTCOPRT8">지지엠 대구지점</option>
 							</select>
 						</td>
 						<th>입출구분</th>
@@ -121,13 +113,8 @@
 						</td>
 						<th>입금유형</th>
 						<td>
-							<select data-search="etrdpsTyp" onchange="subGridView.setData(0);">
+							<select data-kind="ETRDPS" data-search="etrdpsTyp" onchange="subGridView.setData(0);">
 								<option value="">전체</option>
-								<option value="ETRDPS01">수금</option>
-								<option value="ETRDPS02">지급</option>
-								<option value="ETRDPS03">상계(일반)</option>
-								<option value="ETRDPS04">상계(지급보증)</option>
-								<option value="ETRDPS05">상계(지급보증 보전)</option>
 							</select>
 						</td>
 					</tr>
@@ -179,7 +166,7 @@
 		        	selector: false
 		        },
 		        body: {
-		            mergeCells : ["etrdpsDt", "clntNm", "etrdpsn"],
+		            mergeCells : ["taxivcCoprtNm", "etrdpsDt", "clntNm", "etrdpsNm", "accNm"],
 			        onClick: function () {
 						this.self.select(this.dindex);
 		        	}
@@ -197,16 +184,24 @@
 		            }
 		        },
 		        columns: [ 
-		        	{key: "clntNm",    		label: "거래처명",		align: "center",	 width: 150},
-		        	{key: "etrdpsDt",    	label: "입금일자",		align: "center",	 width: 140},
 		        	{key: "taxivcCoprtNm",  label: "법인",  	 	align: "center",	 width: 150},
+		        	{key: "etrdpsDt",    	label: "입금일자",		align: "center",	 width: 90},
+		        	{key: "clntNm",    		label: "거래처명",		align: "left",	 	 width: 150},
 		        	{key: "etrdpsNm",    	label: "입금유형",   	align: "center",	 width: 100},
 		        	{key: "accNm",   		label: "입출구분",		align: "center",	 width: 80},
-		        	{key: "sumry",   	 	label: "적요",		align: "left",	 	 width: 200},
+		        	{key: "sumry",   	 	label: "적요",		align: "left",	 	 width: 300},
 		        	{key: "etrdpsAmt",   	label: "금액",		align: "right",		 width: 150, formatter: "money"},
-		        	{key: "bilNo",   	 	label: "계좌번호",		align: "center",	 width: 150},
-		        	{key: "pymntBankCd",   	label: "은행명",		align: "center",	 width: 80}
-		        ]
+		        	{key: "bilNo",   	 	label: "어음(계좌)번호",		align: "center",	 width: 150},
+		        	{key: "bilPblsPsn",   	label: "발행인",		align: "center",	 width: 80},
+		        	{key: "pymntBankCd",   	label: "은행명",		align: "center",	 width: 80},
+		        	{key: "exprtnDt",   	label: "만기일",		align: "center",	 width: 80}
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 	  align:"center",	  colspan:6},
+	                    {key: "etrdpsAmt",      collector: "sum",   formatter:"money",  align: "right"},
+			    	]
+			    ]
 		    });
 			return this;
 		}, 
@@ -244,6 +239,8 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$("#coCd_S").val(jwt.coCd);
+		// 판매법인 set
+		setByCoCd(jwt.coCd)
 		
 		// 시작일 (현재날짜의 월 첫일)
 		$('#etrdpsDtFrom').datepicker({
@@ -283,5 +280,12 @@
 		$("#coCd_S").val(jwt.coCd);
 		$("#etrdpsDtFrom").val(getMonth("S"));
 		$("#etrdpsDtTo").val(getMonth("E"));
+	}
+	
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#estCoprt_S').data("rprc", value);
+		$('#estCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#estCoprt_S'));  
 	}
 </script>

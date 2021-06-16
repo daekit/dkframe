@@ -53,7 +53,6 @@
 	<script src="/static/js/ax5/ax5modal.min.js"></script>
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
-	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
 	<script src="/static/js/global.js"></script>
 </head>
 <body>
@@ -185,6 +184,12 @@
 								<option value="Y">Y</option>
 							</select>
 						</td>
+						<th>거래유형</th>
+						<td>
+							<select id="trspTypCd_S" data-kind="TRSPTYP" data-search="trspTypCd" onchange="subGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -272,6 +277,7 @@
 		        	{key: "trstCertiNo",    label: "거래지시번호",  hidden: true},
 		        	{key: "clntCd",    	 	label: "거래처",		hidden: true},
 		        	{key: "returnYn",    	label: "반품여부",		hidden: true},
+		        	{key: "sellVat",    	label: "부가세율",		hidden: true},
 		          	{key: "bilgYn",      	label: "전표",	        align: "center",	width: 50,	formatter: "bilgYn"},
 		            {key: "trstDt",         label: "매출일자",  	align: "center",   	width: 80},
 		          	{key: "bilgCertNo",     label: "청구번호",	    align: "center", 	width: 70},
@@ -279,9 +285,9 @@
 		        	{key: "typNm", 		    label: "유형", 		    align: "center", 	width: 60},
 		        	{key: "taxivcCoprtNm",	label: "매출법인",	    align: "left", 		width: 120},
 		        	{key: "prdtNm",    	 	label: "제품",	        align: "left", 		width: 140, styleClass: function (){return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtSizeNm",     label: "사이즈",	    align: "center", 	width: 80, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtSizeNm",     label: "사이즈",	    align: "center", 	width: 80,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		          	{key: "siteNm",         label: "현장명",		align: "left",		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "realTrstQty", 	label: "수량",	        align: "right", 	width: 80,	formatter: "money", hidden: true},
@@ -300,7 +306,7 @@
 // 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
-		        	{key: "trspTypNm",	    label: "출고",   	    align: "center", 	width: 60},
+		        	{key: "trspTypNm",	    label: "출고",   	    align: "center", 	width: 80},
 		        	{key: "deptNm",	   		label: "부서",   	    align: "left", 		width: 100},
 		        	{key: "salesMngNm",	    label: "담당자",   		align: "center", 	width: 80},
 		        	{key: "pchsClmnDivNm",  label: "결제예상",  	align: "left",   	width: 130},
@@ -367,9 +373,9 @@
 		        	{key: "typNm", 		    label: "유형", 		    align: "center", 	width: 60},
 		        	{key: "taxivcCoprtNm",	label: "매출법인",	    align: "left", 		width: 120},
 		        	{key: "prdtNm",    	 	label: "제품",	        align: "left", 		width: 140, styleClass: function (){return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtSizeNm",     label: "사이즈",	    align: "center", 	width: 80, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtSizeNm",     label: "사이즈",	    align: "center", 	width: 80,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtLen",     	label: "길이",  		align: "center", 	width: 50,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		          	{key: "siteNm",         label: "현장명",		align: "left",		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "realTrstQty", 	label: "수량",	        align: "right", 	width: 80,	formatter: "money", hidden: true},
@@ -388,7 +394,7 @@
 // 		        	{key: "etcAmt", 	    label: "기타금액",  	align: "right", 	width: 80,	formatter: "money"},
 		        	{key: "shipVehNo",     	label: "차량번호",  	align: "center", 	width: 100},
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
-		        	{key: "trspTypNm",	    label: "출고",   	    align: "center", 	width: 60},
+		        	{key: "trspTypNm",	    label: "출고",   	    align: "center", 	width: 80},
 		        	{key: "deptNm",	   		label: "부서",   	    align: "left", 		width: 100},
 		        	{key: "salesMngNm",	    label: "담당자",   		align: "center", 	width: 80},
 		        	{key: "pchsClmnDivNm",  label: "결제예상",  	align: "left",   	width: 130},
@@ -404,6 +410,9 @@
 		mainDefaultLoad("매출관리", "매출리스트");
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
+		// 거래유형 (절감량입고, 기타입고) 제거
+		$("#trspTypCd_S option[value='TRSPTYP2']").remove();
+		$("#trspTypCd_S option[value='TRSPTYP3']").remove();
 		// 접속자 회사 set
 		$("#coCd_S").val(jwt.coCd);
 		// 판매법인, 창고 set

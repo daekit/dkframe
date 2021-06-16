@@ -72,7 +72,7 @@
 								<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt">
 							</div>
 						</td>
-						<th>거래처</th>
+						<th>거래처구분</th>
 						<td>
 							<select data-kind="CLNTDIV" data-search="clntDivCd"> 
 								<option value="">전체</option>
@@ -82,7 +82,7 @@
 					<tr>
 						<th>판매법인</th>
 						<td>
-							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprt">
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="setByCoprt(this.value);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -92,17 +92,27 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>입금계좌</th>
+						<th>거래처</th>
 						<td>
-							<select data-kind="BKAC" data-search="etrdpsBkacCd">
-								<option value="">전체</option>
-							</select>
-						</td>
+							<input type="hidden" id="clntCd_S" data-search="clntCd">
+							<div class="search_form">
+								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="openClntSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>						
 				   </tr>
 				   <tr>		
 						<th>수금/지급구분</th>
 						<td>
 							<select data-kind=ETRDPS data-search="etrdpsTyp">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>입금계좌</th>
+						<td>
+							<select id="etrdpsBkacCd_S"  data-kind="BKAC" data-search="etrdpsBkacCd">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -350,6 +360,15 @@
 		$('#estCoprt_S').data("rprc", value);
 		$('#estCoprt_S option:not([value=""])').remove()
 		setCommonSelect($('#estCoprt_S'));  
+		// 계좌 set
+		setByCoprt($('#etrdpsBkacCd_S').val());
+	}
+	
+	function setByCoprt(value){		
+		// 계좌 set
+		$('#etrdpsBkacCd_S').data("etc", value);
+		$('#etrdpsBkacCd_S option:not([value=""])').remove()
+		setCommonSelect($('#etrdpsBkacCd_S'));  
 	}
 	
 </script>

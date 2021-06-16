@@ -532,7 +532,7 @@ public class AR02SvcImpl implements AR02Svc {
 		String trstDt = null;
 		if(paramMap.containsKey("dlvrDttm")) {
 			trstDt = paramMap.get("dlvrDttm").replace("-", "");
-		}else if(paramMap.containsKey("dlvrDttm")) {
+		}else if(paramMap.containsKey("trstDt")) {
 			trstDt = paramMap.get("trstDt").replace("-", "");
 		}
 		

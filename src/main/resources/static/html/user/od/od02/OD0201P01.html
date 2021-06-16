@@ -39,8 +39,8 @@
 			<div class="add_btn_small pdl10" id="actionDiv">
 				할인: 
 				<input type="text" id="allAmt" style="text-align: right;" onkeyup="onlyNumber(this);">
-				<a onclick="setDcAmt('bilgUpr');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
-				<a onclick="setDcAmt('trstDcAmt');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
+				<a onclick="setPchsDcAmt('bilgUpr');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
+				<a onclick="setPchsDcAmt('trstDcAmt');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
 			</div>
 		</div>
 	</div>
@@ -76,18 +76,27 @@
 		        	onClick: function () {},
 		            onDBLClick: function () {},
 		            onDataChanged: function() {
-		            	var realTrstAmt = this.item.bilgQty * this.item.bilgUpr;
-		        		var bilgAmt = Number(this.item.realTrstAmt) - Number(this.item.trstDcAmt) + Number(this.item.transAmt) + Number(this.item.etcAmt);;
-		        		if(realTrstAmt != this.item.realTrstAmt) {
-		        			this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
+		            	var realTrstAmt = 0;
+		            	var bilgAmt     = 0;
+		            	if(this.key == "bilgQty" || this.key == "bilgUpr" ||this.key == "trstDcAmt"){
+			            	// 물품금액 = 청구수량 * 청구단가
+			            	if(this.item.bilgQty){
+			            		realTrstAmt = this.item.bilgQty * this.item.bilgUpr;
+			            	}else{
+			            		realTrstAmt = this.item.bilgUpr;
+			            	}
+			            	// 청구금액 = 물품금액 - 할인금액 + 기타금액  -- + 운반비는 제외함. 별도의 매출건으로 발생함.
+			        		bilgAmt = Number(realTrstAmt) - Number(this.item.trstDcAmt) + Number(this.item.etcAmt);  //+ Number(this.item.transAmt) 
+
+		            	    this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
+		        			this.self.setValue(this.dindex, "bilgAmt",     bilgAmt);
+// 		        			if(this.item.bilgVatAmt != 0) {
+		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt * 0.1)); // 매입부가세는 10% 고정
+// 		        			}
 		        		}
-		        		if(bilgAmt != this.item.bilgAmt) {
-		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
-		        			if(this.item.bilgVatAmt != 0) {
-		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt*0.1));
-		        				this.self.setValue(this.dindex, "totAmt", this.item.bilgVatAmt + this.item.bilgAmt);
-		        			}
-		        		}
+		            	if(this.key == "bilgVatAmt"){
+	        				this.self.setValue(this.dindex, "totAmt", Number(this.item.bilgVatAmt) + Number(this.item.bilgAmt));
+		            	}
 		            }
 		        },
 		        columns: [
@@ -175,10 +184,10 @@
 		
 		adjustGridView.initView().setData();
 		
-		authChhk();
+		authChk();
 	});
 
-	function setDcAmt(targetName) {
+	function setPchsDcAmt(targetName) {
 		if($("#allAmt").val() == "") {
 			alert("할인할증을 입력해주세요.");
 			return;
@@ -190,6 +199,8 @@
 		var totRealTrstAmt = 0; // 총금액
 		
 		// 배부금액 = 금액 * 할인금액 / 총금액
+		
+		debugger;
 		
 		$.each(list, function(idx, item) {
 			totRealTrstAmt +=  Number(item.realTrstAmt);

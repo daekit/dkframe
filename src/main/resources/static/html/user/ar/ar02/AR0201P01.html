@@ -72,28 +72,54 @@
 		        	onClick: function () {},
 		            onDBLClick: function () {},
 		            onDataChanged: function() {
-		            	// 물품금액 = 청구수량 * 청구단가
-		            	var realTrstAmt = Math.round(this.item.bilgQty * this.item.bilgUpr);
-		            	// 청구금액 = 물품금액 - 할인금액 + 운반비 + 기타금액
-		        		var bilgAmt = Number(this.item.realTrstAmt) - Number(this.item.trstDcAmt) + Number(this.item.transAmt) + Number(this.item.etcAmt);
+		            	var realTrstAmt = 0;
+		            	var bilgAmt     = 0;
+		            	if(this.key == "bilgQty" || this.key == "bilgUpr" ||this.key == "trstDcAmt"){
+		            		
+		            		debugger;
+		            		
+			            	// 물품금액 = 청구수량 * 청구단가
+			            	if(this.item.bilgQty){
+			            		realTrstAmt = this.item.bilgQty * this.item.bilgUpr;
+			            	}else{
+			            		realTrstAmt = this.item.bilgUpr;
+			            	}
+			            	// 청구금액 = 물품금액 - 할인금액+ 기타금액  -- + 운반비는 제외함. 별도의 매출건으로 발생함.
+			        		bilgAmt = Number(realTrstAmt) - Number(this.item.trstDcAmt) +  Number(this.item.etcAmt);  //Number(this.item.transAmt) +
+
+		            	    this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
+		        			this.self.setValue(this.dindex, "bilgAmt",     bilgAmt);
+// 		        			if(this.item.bilgVatAmt != 0) {
+		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt *  Number(this.item.sellVat) /100)); // 매입부가세는 10% 고정
+// 		        			}
+		        		}		            	
+		            	if(this.key == "bilgVatAmt"){
+	        				this.self.setValue(this.dindex, "totAmt", Number(this.item.bilgVatAmt) + Number(this.item.bilgAmt));
+		            	}
 		            	
-		        		if(realTrstAmt != this.item.realTrstAmt) {
-		        			this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
-		        		}
+// 		            	// 물품금액 = 청구수량 * 청구단가
+// 		            	var realTrstAmt = Math.round(this.item.bilgQty * this.item.bilgUpr);
+// 		            	// 청구금액 = 물품금액 - 할인금액 + 운반비 + 기타금액
+// 		        		var bilgAmt = Number(this.item.realTrstAmt) - Number(this.item.trstDcAmt) + Number(this.item.transAmt) + Number(this.item.etcAmt);
+		            	
+// 		        		if(realTrstAmt != this.item.realTrstAmt) {
+// 		        			this.self.setValue(this.dindex, "realTrstAmt", realTrstAmt);
+// 		        		}
 		        		
-		        		if(bilgAmt != this.item.bilgAmt) {
-		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
-		        			if(this.item.bilgVatAmt != 0) {
-		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt*0.1));
-		        				this.self.setValue(this.dindex, "totAmt", this.item.bilgVatAmt + this.item.bilgAmt);
-		        			}
-		        		}
+// 		        		if(bilgAmt != this.item.bilgAmt) {
+// 		        			this.self.setValue(this.dindex, "bilgAmt", bilgAmt);
+// 		        			if(this.item.bilgVatAmt != 0) {
+// 		        				this.self.setValue(this.dindex, "bilgVatAmt", Math.trunc(this.item.bilgAmt*this.sellVat /100));
+// 		        				this.self.setValue(this.dindex, "totAmt", this.item.bilgVatAmt + this.item.bilgAmt);
+// 		        			}
+// 		        		}
 		            }
 		        },
 		        columns: [
 		        	{key: "transAmt",    	label: "운반비",  	     hidden: true},
 		        	{key: "etcAmt", 	    label: "기타금액",  	 hidden: true},
 		        	{key: "coCd",           label: "회사",	         hidden:true},
+		        	{key: "sellVat",        label: "부가세율",	         hidden:true},
 		        	{key: "trstCertiNo",    label: "거래지시번호",	 align: "center",	width: 100},
 		          	{key: "bilgYn",         label: "전표발행여부",	 align: "center",	width: 100},
 		          	{key: "prjctNm",        label: "프로젝트",		 align: "left",		width: 140},
