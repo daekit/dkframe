@@ -444,9 +444,8 @@
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
 			$("#odrCreatDiv").val("ERP");
-			
 		} else if(actionType == "U"){
-			selectShipInfo();
+			selectShipInfo(commonModal.paramObj.shipSeq);
 			$('#actionArBtn').on("click", function(){updateShip();});
 			$('.tit_contents .tit').text("출하요청서 수정");
 			$('#actionArBtn').text("저장");
@@ -460,17 +459,10 @@
 		authChk();
 	});
 	
-	function selectShipInfo() {
-		var row;
-		if(openFrom == "CM1001M01"){
-			row = shipGridView.target.getList("selected")[0];
-		} else {
-			row = gridView.target.getList()[selectedRowIdx];
-		}
-		var formData = {
-			"shipSeq" : row.shipSeq
-		}
-		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
+	function selectShipInfo(shipSeq) {
+		debugger;
+		var paramObj = {"shipSeq" : shipSeq};
+		postAjax("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
