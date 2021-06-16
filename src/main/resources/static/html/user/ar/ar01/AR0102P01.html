@@ -444,9 +444,8 @@
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
 			$("#odrCreatDiv").val("ERP");
-			
 		} else if(actionType == "U"){
-			selectShipInfo();
+			selectShipInfo(commonModal.paramObj.shipSeq);
 			$('#actionArBtn').on("click", function(){updateShip();});
 			$('.tit_contents .tit').text("출하요청서 수정");
 			$('#actionArBtn').text("저장");
@@ -460,17 +459,10 @@
 		authChk();
 	});
 	
-	function selectShipInfo() {
-		var row;
-		if(openFrom == "CM1001M01"){
-			row = shipGridView.target.getList("selected")[0];
-		} else {
-			row = gridView.target.getList()[selectedRowIdx];
-		}
-		var formData = {
-			"shipSeq" : row.shipSeq
-		}
-		postAjax("/user/ar/ar01/selectShipInfo", formData, null, function(data){
+	function selectShipInfo(shipSeq) {
+		debugger;
+		var paramObj = {"shipSeq" : shipSeq};
+		postAjax("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
@@ -532,6 +524,9 @@
 				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
 				$addedRow.find('input').prop("readonly", true);
 				$addedRow.find('a').remove();
+				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+				$addedRow.find('input[name="shipQty"]').prop("required", false);
+				$addedRow.find('input[name="shipWt"]').prop("required", false);
 			}else{
 				// 재고관리에 따른 dom 변경
 				if(obj.prdtStockCd == "N"){

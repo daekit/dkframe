@@ -454,8 +454,6 @@
 		// 파일 그리드 초기화
 		fileGridView.initView();
 
-		var ordrgSeq = commonModal.paramObj.ordrgSeq;
-
 		if(actionType == "C"){
 			$('#coCd').val(jwt.coCd);
 			$('#odrCreatDiv').val("ERP");
@@ -469,7 +467,7 @@
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
 		}else if(actionType == "U"){
-			selectOrderInfo(ordrgSeq);
+			selectOrderInfo(commonModal.paramObj.ordrgSeq);
 			$('#actionOdBtn').on("click", function(){updateOrder();});
 			$('.tit_contents .tit').text("발주서 수정");
 			$('#actionOdBtn').text("저장");
@@ -492,11 +490,8 @@
 	});
 	
 	function selectOrderInfo(ordrgSeq) {
-		//var row = gridView.target.getList()[selectedRowIdx];
-		var formData = {
-			"ordrgSeq" : ordrgSeq
-		}
-		postAjaxSync("/user/od/od01/selectOrderInfo", formData, null, function(data){
+		var paramObj = {"ordrgSeq" : ordrgSeq};
+		postAjaxSync("/user/od/od01/selectOrderInfo", paramObj, null, function(data){
 			setOrderInfo(data.result);
 		});
 	}
@@ -1286,8 +1281,7 @@
 				alert(data.resultMessage);    
 				if(data.resultCode == 200){
 					gridView.setData(0);
-				//	viewOrderModal(selectedRowIdx);
-				   viewOrderModal($('#ordrgSeq').val());
+				    viewOrderModal($('#ordrgSeq').val());
 					modal.close();
 				}
 			});

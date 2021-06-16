@@ -72,7 +72,7 @@
 								<input type="text" class="input_calendar" autocomplete="off" id="endDt" data-search="endDt">
 							</div>
 						</td>
-						<th>거래처</th>
+						<th>거래처구분</th>
 						<td>
 							<select data-kind="CLNTDIV" data-search="clntDivCd"> 
 								<option value="">전체</option>
@@ -82,27 +82,37 @@
 					<tr>
 						<th>판매법인</th>
 						<td>
-							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprt">
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="setByCoprt(this.value);">
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>현금/어음구분</th>
+						<th>현금/어음</th>
 						<td>
 							<select data-kind="PMNTMTD" data-search="setleTypCd">
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th>입금계좌</th>
+						<th>거래처</th>
 						<td>
-							<select data-kind="BKAC" data-search="etrdpsBkacCd">
+							<input type="hidden" id="clntCd_S" data-search="clntCd">
+							<div class="search_form">
+								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="openClntSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>						
+				   </tr>
+				   <tr>		
+						<th>수금/지급</th>
+						<td>
+							<select data-kind=ETRDPS data-search="etrdpsTyp">
 								<option value="">전체</option>
 							</select>
 						</td>
-				   </tr>
-				   <tr>		
-						<th>수금/지급구분</th>
+						<th>입금계좌</th>
 						<td>
-							<select data-kind=ETRDPS data-search="etrdpsTyp">
+							<select id="etrdpsBkacCd_S"  data-kind="BKAC" data-search="etrdpsBkacCd">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -130,7 +140,7 @@
 		<!-- 콘텐츠 -->
 		<div class="contents">
 			<!-- 리스트 -->
-			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 650px; width: 100%"></div>
+			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 630px; width: 100%"></div>
             <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 		</div>
 	</div>
@@ -152,6 +162,7 @@
 					selector : false
 				},
 				body : {
+		            mergeCells : ["coNm","taxivcCoprtNm","etrdpsDt", "clntNm", "etrdpsTypNm", "setleTypNm"],
 					onClick : function() {
 						this.self.select(this.dindex);
 					},
@@ -172,21 +183,27 @@
 					}
 				},
 				columns : [
-					{key : "coNm",		    label : "회사", 	align : "center", width : "7%"},
-					{key : "taxivcCoprtNm", label : "법인", 	align : "center", width : "7%"},
-					{key : "etrdpsDt",      label : "입금일자", align : "center", width : "7%"},
-					{key : "clntNm",        label : "거래처",  align : "left", width : "9%"}, 
-					{key : "etrdpsTypNm",   label : "구분",   align : "center", width : "6%"},
-					{key : "setleTypNm",    label : "결제방법", align : "center", width : "9%"}, 
-					{key : "etrdpsAmt",     label : "금액",   align : "right", width : "9%", formatter: "money"}, 
-					{key : "etrdpsBkacNm",  label : "입금계좌", align : "center", width : "9%"}, 
-					{key : "sumry",         label : "적요",   align : "left", width : "15%"}, 
-					{key : "bilTypNm",      label : "어음종류", align : "center", width : "9%"}, 
-					{key : "bilNo",         label : "어음번호", align : "center", width : "9%"}, 
-					{key : "exprtnDt",      label : "만기일",  align : "center", width : "7%"}, 
-					{key : "pymntBankNm",   label : "지급은행", align : "center", width : "9%"}, 
-					{key : "endrsPsn",      label : "배서인",  align : "center", width : "9%"}
-				]
+					{key : "coNm",		    label : "회사", 		align : "center", width : 70},
+					{key : "taxivcCoprtNm", label : "판매법인", 	align : "center", width : 100},
+					{key : "etrdpsDt",      label : "입금일자", 	align : "center", width : 80},
+					{key : "clntNm",        label : "거래처",  	align : "left", width : 140}, 
+					{key : "etrdpsTypNm",   label : "구분",   	align : "center", width : 120},
+					{key : "setleTypNm",    label : "결제방법", 	align : "center", width : 80}, 
+					{key : "etrdpsAmt",     label : "금액",   	align : "right", width : 120, formatter: "money"}, 
+					{key : "etrdpsBkacNm",  label : "입금계좌", 	align : "center", width : 100}, 
+					{key : "sumry",         label : "적요",   	align : "left", width : 250}, 
+					{key : "bilTypNm",      label : "어음종류", 	align : "center", width : 120}, 
+					{key : "bilNo",         label : "어음번호", 	align : "center", width : 120}, 
+					{key : "exprtnDt",      label : "만기일",  	align : "center", width : 80}, 
+					{key : "pymntBankNm",   label : "지급은행", 	align : "center", width : 90}, 
+					{key : "endrsPsn",      label : "배서인",  	align : "center", width : 90}
+				],
+		        footSum: [
+			    	[
+			    		{label: "총계", 	  align:"center",	  colspan:6},
+	                    {key: "etrdpsAmt",      collector: "sum",   formatter:"money",  align: "right"},
+			    	]
+			    ]
 			});
 			return this;
 		},
@@ -219,19 +236,19 @@
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [
-						{key : "coNm",			label : "회사", 	align : "center", width : "7%"},
+						{key : "coNm",			label : "회사", 	align : "center", width : "4%"},
 						{key : "taxivcCoprtNm", label : "법인", 	align : "center", width : "7%"},
-						{key : "etrdpsDt",		label : "입금일자", align : "center", width : "7%"},
+						{key : "etrdpsDt",		label : "입금일자", align : "center", width : "3%"},
 						{key : "clntNm", 		label : "거래처", align : "center", width : "9%"}, 
 						{key : "etrdpsTypNm", 	label : "구분",   align : "center", width : "6%"},
-						{key : "setleTypNm",	label : "결제방법", align : "center", width : "9%"}, 
+						{key : "setleTypNm",	label : "결제방법", align : "center", width : "3%"}, 
 						{key : "etrdpsAmt", 	label : "금액",    align : "right", width : "9%", formatter: "money"}, 
 						{key : "etrdpsBkacNm",  label : "입금계좌", align : "center", width : "9%"}, 
 						{key : "sumry", 		label : "적요",	 align : "center", width : "15%"}, 
-						{key : "bilTypNm",		label : "어음종류", align : "center", width : "9%"}, 
+						{key : "bilTypNm",		label : "어음종류", align : "center", width : "2%"}, 
 						{key : "bilNo",			label : "어음번호", align : "center", width : "9%"}, 
-						{key : "exprtnDt", 		label : "만기일", align : "center", width : "7%"}, 
-						{key : "pymntBankNm",	label : "지급은행", align : "center", width : "9%"}, 
+						{key : "exprtnDt", 		label : "만기일", align : "center", width : "4%"}, 
+						{key : "pymntBankNm",	label : "지급은행", align : "center", width : "4%"}, 
 						{key : "endrsPsn", 		label : "배서인", align : "center", width : "9%"}
 					]
 			    });
@@ -350,6 +367,15 @@
 		$('#estCoprt_S').data("rprc", value);
 		$('#estCoprt_S option:not([value=""])').remove()
 		setCommonSelect($('#estCoprt_S'));  
+		// 계좌 set
+		setByCoprt($('#etrdpsBkacCd_S').val());
+	}
+	
+	function setByCoprt(value){		
+		// 계좌 set
+		$('#etrdpsBkacCd_S').data("etc", value);
+		$('#etrdpsBkacCd_S option:not([value=""])').remove()
+		setCommonSelect($('#etrdpsBkacCd_S'));  
 	}
 	
 </script>

@@ -69,12 +69,37 @@
 	</select>
 
 	<select id="selectMenuAuth" parameterType="ArrayList" resultType="CamelMap">
-		SELECT * FROM TB_CM03M01 
+		SELECT 
+			* 
+		FROM 
+			TB_CM03M01 
 		WHERE
 			MENU_ID IN
 			<foreach collection="menuArray" item="item" index="index" separator="," open="(" close=")">
     			 #{item}
 			</foreach>
+		
+		<!-- MENU_TYPE이 FOLDER인 부모메뉴를 조회하여 UNION -->	
+		UNION
+		
+		SELECT 
+			* 
+		FROM 
+			TB_CM03M01
+		WHERE
+			MENU_TYPE = 'FOLDER'
+			AND MENU_ID IN
+			(
+				SELECT 
+					DISTINCT UP_MENU_ID
+				FROM 
+					TB_CM03M01 
+				WHERE
+					MENU_ID IN
+					<foreach collection="menuArray" item="item" index="index" separator="," open="(" close=")">
+		    			 #{item}
+					</foreach>
+			) 
 		ORDER BY SORT_NO ASC
 	</select>
 

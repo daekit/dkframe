@@ -22,7 +22,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" onchange="setByCoCd(this.value)" required></select>
 					</td>
 					<th class="hit">수신 거래처</th>
 					<td>
@@ -317,6 +317,7 @@
 		if(actionType == "C") {
 			countTot();
 			$('#coCd').val(jwt.coCd);
+			setByCoCd($('#coCd').val());
 			$('#estDt').datepicker("setDate", new Date());
 			$('#actionBtn').on("click", function(){insertEst();});
 			$('.tit_contents .tit').text("견적서 등록");
@@ -349,6 +350,9 @@
 				}else{
 					if($('#'+key).is('[comma]')){
 						value = addCommaStr(value);
+					}
+					if(key=="coCd"){
+						setByCoCd(value)
 					}
 					$('#'+key).val(value);
 				}
@@ -702,4 +706,12 @@
 			$("[name='detailChkBox']").prop("checked", false);
 		}
 	}
+	
+	function setByCoCd(value){		
+		// 판매법인 set
+		$('#estCoprt').data("rprc", value);
+		$('#estCoprt option:not([value=""])').remove()
+		setCommonSelect($('#estCoprt'));  
+	}
+	
 </script>

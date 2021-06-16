@@ -80,7 +80,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="subGridView.setData(0);"></select>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); subGridView.setData(0);"></select>
 						</td>
 						
 						<th class="hit">일자</th>
@@ -95,31 +95,20 @@
 						<td>
 							<div class="search_form">
 								<input type="text" data-search="clntNm" onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
-								</a>
 							</div>
 						</td>
 					</tr>
 					<tr>
 						<th>법인</th>
 						<td>
-							<select data-search="taxivcCoprtCd" onchange="subGridView.setData(0);">
-							<option value="">전체</option>
-							<option value="ESTCOPRT1">금문철강(주)</option>
-							<option value="ESTCOPRT2">금문철강 인천공장</option>
-							<option value="ESTCOPRT3">금문철강 진천공장</option>
-							<option value="ESTCOPRT4">지지엠</option>
-							<option value="ESTCOPRT5">지지스틸</option>
-							<option value="ESTCOPRT6">지지스틸 창녕공장</option>
-							<option value="ESTCOPRT7">금문철강 대구지점</option>
-							<option value="ESTCOPRT8">지지엠 대구지점</option>
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprtCd" onchange="subGridView.setData(0);">
+								<option value="">전체</option>
 							</select>
 						</td>
 						<th>매입매출</th>
 						<td>
-							<select data-search="selpchCd" onchange="subGridView.setData(0);">
+							<select data-kind="SELPCH" data-search="selpchCd" onchange="subGridView.setData(0);">
 								<option value="">전체</option>
-								<option value="SELPCH1">매입</option>
-								<option value="SELPCH2">매출</option>
 							</select>
 						</td>
 						<th>현장명</th>
@@ -186,7 +175,7 @@
 		        	selector: false
 		        },
 		        body: {
-		            mergeCells : ["trstDt", "clntNm", "siteNm"],
+		            mergeCells : ["taxivcCoprtNm","selpchNm","trstDt", "clntNm", "siteNm"],
 			        onClick: function () {
 						this.self.select(this.dindex);
 		        	}
@@ -204,23 +193,35 @@
 		            }
 		        },
 		        columns: [ 
-		        	{key: "selpchNm",    	label: "매입매출",		align: "center",	 width: 70},
+		        	{key: "taxivcCoprtNm",  label: "법인",  	 	align: "center",	 width: 120},
 		        	{key: "trstDt",    		label: "거래일자",		align: "center",	 width: 80},
 		        	{key: "clntNm",    		label: "거래처명",		align: "left",	 	 width: 140},
-		        	{key: "taxivcCoprtNm",  label: "법인",  	 	align: "center",	 width: 150},
 		        	{key: "siteNm",    		label: "현장명",   	align: "left",	 	 width: 140, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
+		        	{key: "selpchNm",    	label: "매입매출",		align: "center",	 width: 70},
 		        	{key: "prdtNm",   	 	label: "제품",		align: "left",		 width: 140, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
-		        	{key: "prdtSize",   	label: "사이즈",		align: "center",	 width: 80, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
+		        	{key: "prdtSize",   	label: "사이즈",		align: "left",	 	 width: 100, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
 		        	{key: "prdtLen",   	 	label: "길이",		align: "center",	 width: 50, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
-		        	{key: "makrNm",   	 	label: "제조사",		align: "right",		 width: 80},
+		        	{key: "makrNm",   	 	label: "제조사",		align: "left",		 width: 80},
+		        	{key: "sellClntNm",   	label: "수요가",		align: "left",		 width: 80},
 		        	{key: "bilgQty",   	 	label: "수량",		align: "right",		 width: 80, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
 		        	{key: "bilgWt",   	 	label: "중량",		align: "right",		 width: 80, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
 		        	{key: "bilgUpr",   	 	label: "단가",		align: "right",		 width: 80, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
-		        	{key: "bilgAmt",   	 	label: "금액",		align: "right",		 width: 80, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
+		        	{key: "bilgAmt",   	 	label: "금액",		align: "right",		 width: 100, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
 		        	{key: "bilgVatAmt",   	label: "부가세",		align: "right",		 width: 80, formatter: "money", styleClass: function () {return (this.item.bilgVatAmt < 0) ? "grid-font-red":"";}},
-		        	{key: "bilgTotAmt",   	label: "합계",		align: "right",		 width: 80, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
-		        	{key: "rmk",    		label: "비고",  		align: "left",	 	 width: 400, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}}
-		        ]
+		        	{key: "bilgTotAmt",   	label: "합계",		align: "right",		 width: 100, formatter: "money", styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}},
+		        	{key: "rmk",    		label: "비고",  		align: "left",	 	 width: 300, styleClass: function () {return (this.item.bilgTotAmt < 0) ? "grid-font-red":"";}}
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 	  align:"center",	  colspan:10},
+	                    {key: "bilgQty",      collector: "sum",   formatter:"money",  align: "right"},
+	                    {key: "bilgWt",       collector: "sum",   formatter:"money",  align: "right"},
+	                    {key: "bilgUpr",      collector: "avg",   formatter:"money",  align: "right"},
+	                    {key: "bilgAmt",      collector: "sum",   formatter:"money",  align: "right"},
+	                    {key: "bilgVatAmt",   collector: "sum",   formatter:"money",  align: "right"},
+	                    {key: "bilgTotAmt",   collector: "sum",   formatter:"money",  align: "right"}
+			    	]
+			    ]
 		    });
 			return this;
 		}, 
@@ -235,7 +236,7 @@
 				}
 				paramObj[$(elem).data('search')] = searchValue;
 			});
-			
+
 			postAjax("/user/ar/ar10/selectPchsSellList", paramObj, null, function(data){
 				var list = data.resultList;
 				targetObj.setData({
@@ -258,6 +259,8 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$("#coCd_S").val(jwt.coCd);
+		// 판매법인 set
+		setByCoCd(jwt.coCd)
 		
 		// 시작일 (현재날짜의 월 첫일)
 		$('#trstDtFrom').datepicker({
@@ -297,5 +300,12 @@
 		$("#coCd_S").val(jwt.coCd);
 		$("#trstDtFrom").val(getMonth("S"));
 		$("#trstDtTo").val(getMonth("E"));
+	}
+
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#estCoprt_S').data("rprc", value);
+		$('#estCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#estCoprt_S'));  
 	}
 </script>
