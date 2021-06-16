@@ -19,7 +19,8 @@
     <link rel="stylesheet" href="/static/css/gnb.css" />
     <link rel="stylesheet" href="/static/css/main.css" />
     <link rel="stylesheet" href="/static/css/sub.css" />
-    <link rel="stylesheet" href="/static/css/common.css" />
+    <link rel="stylesheet" href="/static/css/m_common.css" />
+    <link rel="stylesheet" href="/static/css/mobile.css" />
 
     <script src="/static/js/jquery-latest.min.js"></script>
     <script src="/static/js/jquery.serializeObject.js"></script>
@@ -37,54 +38,83 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
-<body style="min-width: 300px;">
-	<div class="container-fluid">
-        <!-- 콘텐츠 -->
-        <div class="contents">
+<body>
+
+
+    <div id="head_area" class="off" >        
+        <div class="left_btn" onclick="history.back(-1)">
+      		<a class="back_btn"></a>
+    	</div>
+		<h1 class="logo">
+      		<img src="/static/img/Logo.png" alt="금문철강" /> 
+    	</h1>	
+	</div>
+
+
+    <div id="main_area">
+        <div>
             <div style="text-align:right">
-                <h3 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h3>
+						(단위:
+						<h3 class="location"><span class="page_tit">
+						<select id="searchUnit" name="searchUnit" data-search="searchItem" onchange="gridView3.reqSetData();">
+							<option value="100" selected>100Ton</option>
+							<option value="1">Ton</option>
+						</select></span>
+						</h3>
+						<h3 class="location"><span class="page_tit">조회 일자 : </span>
+							<select id="searchYear" name="searchYear" data-search="searchYear" onchange="gridView3.reqSetData();">
+							</select>
+							<select id="searchMonth" name="searchMonth" data-search="searchMonth" onchange="gridView3.reqSetData();">
+							</select>
+						</h3>
+			</div>
+            <div>
+                    <h3 class="location"><span class="page_tit">매입실적</span></h3>
+                    <input type=radio id="co" name="option" value="co" onchange="gridView3.reqSetData();" checked><label for="co">법인</label>
+                    <input type=radio id="clnt" name="option" value="clnt" onchange="gridView3.reqSetData()"><label for="clnt">제강사</label>
+						
             </div>
-            <!-- 리스트 -->
-            <table class="form-group popup_table" id="scndTable">
-                <colgroup>
-                    <col>
 
-                </colgroup>
-                <thead>
-                    <tr>
-                        <td style="text-align: left;">
-                            <h3 class="location"><span class="page_tit">매입실적(판매법인)</span></h3>(단위:톤)
-                            <!-- <span id="ordrgTotCnt"></span> -->
+        </div>
+
+		<div>
+			<div style="text-align:right">
+				<h3 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h3>
+			</div>
+			
+			<table class="form-group">
+				<thead>
+					<tr>
+						<td style="text-align: left;">
+                            <h3 class="location"><span class="page_tit">매입실적(판매법인)</span></h3>(단위:톤)                            
                         </td>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-
-                        <td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
                             <div class="" style="margin:0px;padding:0px;width:100%;">
                                 <div data-ax5grid="grid03" data-ax5grid-config="{}" style="height:250px; width: 340px">
                                 </div>
                             </div>
                         </td>
-
-                    </tr>
-                    <tr>
-                        <td>
+					</tr>
+					<tr>
+						<td>
                             <div id="chart_div3"></div>
                         </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 
 
     <script type="text/javascript">
     var actionType = null;
     var odrSeq = null;
     var odrDtlSeqArr = [];
+    var testData1 = "";
 
     var gridView3 = {
         initView: function () {
@@ -137,9 +167,14 @@
             return this;
         },
         reqSetData: function () {
-            var paramObj = {};
+            var paramObj = {
+						option : $("[name=option]:checked").val(),
+						searchUnit : $("#searchUnit").val(),
+						searchYm : $("#searchYear").val() + $("#searchMonth").val()
+				};
             postAjax(DOMAIN_URL + "/user/cm/cm11/selectDashBoardList", paramObj, null, function (data) {
                 $("#searchDttm").html("조회 일시 : " + data.searchDttm);
+                testData1 = data;
                 gridView3.target.setData({
                     list: data.resultList3,
                     page: {
@@ -172,8 +207,12 @@
     }
 
     $(document).ready(function () {
-        // 페이지 타이틀 set
-        mainDefaultLoad("대시보드", "임원진 현황");
+
+        $("#searchDttm").val(dateToStr(new Date()));
+        
+        // 년월 select 세팅
+		SetYm();
+        
         // grid init		
         gridView3.initView().reqSetData();
         var setDataInterval = setInterval(function () {
@@ -181,6 +220,23 @@
         }, 600000);
 
     });
+    function SetYm(){
+		var now = new Date();
+		var nyear = now.getFullYear();
+		var nmon =  (now.getMonth()+1) > 9 ? ''+(now.getMonth()+1) : '0'+(now.getMonth()+1);
+		
+		for(var sy = 1900; sy <= nyear; sy++){
+			$("#searchYear").append("<option value='" + sy + "'>" + sy + "년</option>");
+		}
+		
+		for(var i=1; i <= 12; i++){
+			var sm = i > 9 ? i : "0" + i;
+			$("#searchMonth").append("<option value='" + sm + "'>" + i + "월</option>");
+		}
+
+		$("#searchYear option[value=" + nyear +"]").attr("selected", true);
+		$("#searchMonth option[value=" + nmon +"]").attr("selected", true);
+	}
 
     google.charts.load('current', {
         'packages': ['corechart']
