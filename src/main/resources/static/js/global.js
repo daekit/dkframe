@@ -21,14 +21,14 @@ var deleteCookie = function (name) {
 	} 
 }
 
-
 var DOMAIN_URL = "";
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 if(isMobile()){
-	DOMAIN_URL = "http://localhost";
+	// DOMAIN_URL = "http://localhost";
+	DOMAIN_URL = "http://10.90.4.142";
 }
 
 var authorizationToken = getCookie("jwtToken");
