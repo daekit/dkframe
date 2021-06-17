@@ -34,7 +34,7 @@
 		          				<option value="">전체</option>
 		          				</select>
 		          			</td>
-		          			<th colspan= "2">거래처</th>
+		          			<th colspan= "2">재고주체</th>
 			                <td class="drctArea" colspan="3">
 			                	<input type="hidden" id="searchDtlClntCd" name="searchDtlClntNm" style="width: 76%;">                   
 			                	<div class="search_form">
@@ -76,11 +76,11 @@
 		          </table>
 	          </div>
 	        <div class="contents">
-			  <div data-ax5grid="search-grid" data-ax5grid-config="{}" style="height: 200px; width: 100%"></div>
+			  <div data-ax5grid="search-grid" data-ax5grid-config="{}" style="height: 400px; width: 100%"></div>
 		    </div>
         </div>
       </div>
-      <div class="popup_area">
+      <div class="popup_area"  style="min-height: 120px;">
       <div class="popup_table">
       	<div class="contents no_bg">
 	      <ul class="btn_ul">
@@ -95,39 +95,40 @@
           <table>
           	<tbody>
           	  <tr>
-          		<th colspan="2">입고지</th>
+          		<th colspan="2"  class="hit">입고지</th>
           		<td colspan="3"> 
 			      <input type="hidden" id="sCoCd"         name="sCoCd" >
                   <input type="hidden" id="searchPrjctCd" name="searchMovePrdtCd" style="width: 76%;">
                   <input type="hidden" id="sWhType"       name="sWhType">
-          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" onChange="findWhType()" required></select>
+          		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" onChange="findWhType()" required msg="입고지"></select>
           		</td> 
-          		<th colspan="2">판매유형</th>
+          		<th colspan="2"  class="hit">판매유형</th>
           		<td colspan="3"> 
-          		  <select id="searchDtlType" data-kind="SELLTYPE" required></select>
+          		  <select id="searchDtlType" data-kind="SELLTYPE" required  msg="판매유형"></select>
           		</td>
-			    <th colspan= "2">이동일자</th>
+			    <th colspan= "2"  class="hit">이동일자</th>
       		    <td colspan="3"> 
-      			  <input type="text" id="sTransDt" name="sTransDt" class="input_calendar">
+      			  <input type="text" id="sTransDt" name="sTransDt" class="input_calendar" required  msg="이동일자">
       		    </td>
-           	  	<th colspan= "2"  rowspan = "2">메모</th>
+           	  	<th colspan="2" rowspan = "2"  class="hit">메모</th>
       			<td colspan="3" rowspan = "2"> 
-      			  <input id="searchRmk" style="height: 65px;" required>
+      			  <input id="searchRmk" style="height: 65px;" required  msg="메모">
       		    </td>	  
           	  </tr>
           	  <tr  name="tableCd2">
-      		    <th colspan= "2">제품</th>
+      		    <th colspan= "2" class="hit">제품</th>
                 <td class="drctArea" colspan="3">
-                	<input type="hidden" id="searchMovePrdtCd" name="searchMovePrdtCd" style="width: 76%;">
+                	<input type="hidden" id="searchMovePrdtDiv"  name="searchMovePrdtDiv"  style="width: 76%;">
+                	<input type="hidden" id="searchMovePrdtCd"   name="searchMovePrdtCd"   style="width: 76%;">
                 	<input type="hidden" id="searchMovePrdtSize" name="searchMovePrdtSize" style="width: 76%;">
                 	<div class="search_form">
-	                    <input type="text" id="searchMovePrdtNm" name="searchMovePrdtNm" readonly="readonly">
+	                    <input type="text" id="searchMovePrdtNm" name="searchMovePrdtNm" readonly="readonly" required  msg="제품">
                     	<a onclick="prdtSearch2(this);"><i class="i_search_w"></i></a>
                     </div>
                 </td>              	  
           	  	<th colspan= "2" class = "hit">길이</th>
       		    <td colspan="3"> 
-      			  <input type="text" id="searchMovePrdtLen" name="searchMovePrdtLen" required>
+      			  <input type="text" id="searchMovePrdtLen" name="searchMovePrdtLen" required  msg="길이">
       		    </td>   
           	  	<th colspan= "2">SPEC</th>
       		    <td colspan="3"> 
@@ -358,7 +359,6 @@
 	function insertUpdateMove(){
 		if(inputValidation($('input[required]'))) {		
 			var formData = makeFormData();
-			
 			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
 			var mngPrdtLen = ''; 
 			if($('#sWhType').val() == "WHDIV01") {mngPrdtLen = 8;}
@@ -458,11 +458,13 @@
 		};
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
+			$targetRow.find('input[name="searchMovePrdtDiv"]').val(row.prdtDiv);
 			$targetRow.find('input[name="searchMovePrdtCd"]').val(row.prdtCd);
 			$targetRow.find('input[name="searchMovePrdtNm"]').val(row.prdtNm);
 			$targetRow.find('input[name="searchMovePrdtSize"]').val(row.prdtSize);
 			$targetRow.find('input[name="searchMovePrdtSpec"]').val(row.prdtSpec);
 			$targetRow.find('input[name="searchMovePrdtLen"]').val(row.prdtLen);
+			findWhType(); // 철근의 경우 길이가 8M로 고정됨.
 		});
 	}
 
@@ -483,7 +485,7 @@
 		$('#sWhType').val($('#searchDtlWhCd option:selected').data("rprc"));
 	
 		// 창고가 공장이면 길이는 8M 고정
-		if($('#sWhType').val() =="WHDIV01" ){
+		if($('#sWhType').val() =="WHDIV01" && $('#searchMovePrdtDiv').val() =="PRDTDIV11"){
 			$('#searchMovePrdtLen').val("8");
 			$('#searchMovePrdtLen').prop("readonly",true);
 		}else{
