@@ -115,15 +115,15 @@ th {
 		              	<a onclick="openSecondClntSearch('S');"><i class="i_search_w"></i></a>
 		              </div>
 	                </td>
-	              	<th>제품유형</th>
-	                <td>
-	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv" required="required" onchange="gridView.initView().setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
 	                <th>제품그룹</th>
 					<td>
 	                 	<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp"  onchange="gridView.initView().setData(0);">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
+	              	<th>제품유형</th>
+	                <td>
+	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv" required="required" onchange="gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -176,6 +176,10 @@ th {
 </html>
 
 <script type="text/javascript">
+	ax5.ui.grid.formatter["orgnTaxBilgNo"] = function () {
+		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
+		return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
+	};
 	var gridView = {
 		initView: function(_pageNo){
 			this.target = new ax5.ui.grid();
@@ -204,7 +208,11 @@ th {
 		            	gridView.setData(this.page.selectPage);
 		            }
 		        },
-		        columns: [ 
+		        columns: [
+		        	{key: "orgnTaxBilgNo",     label: "계산",		align: "center",	    width: 50,	formatter: "orgnTaxBilgNo"},
+		          	{key: "siteNm",     label: "현장명",		align: "left",	    width: 225},
+		          	{key: "prdtGrpNm",     label: "제품그룹",		align: "left",	    width: 100},
+		          	{key: "prdtDivNm",     label: "제품유형",		align: "left",	    width: 100},
 		          	{key: "prdtNm",     label: "품명",		align: "left",	    width: 140},
 		          	{label: "매입",  columns:[
 		          		{key: "pchClntNm",     label: "거래처",		align: "left",	    width: 225},
@@ -214,7 +222,6 @@ th {
 		        	]},
 		        	{label: "매출",  columns:[
 		        		{key: "selClntNm",     label: "거래처",		align: "left",	    width: 225},
-		        		{key: "siteNm",     label: "현장명",		align: "right",	    width: 225},
 			          	{key: "selUpr",     label: "단가",		align: "right",	width: 140,	formatter: "money"},
 			        	{key: "selQty",    	label: "수량", 		align: "right", 	width: 130},
 			        	{key: "selAmt",    	label: "금액", 		align: "right", 	width: 140,	formatter: "money"},
@@ -279,6 +286,10 @@ th {
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [ 
+			        	{key: "orgnTaxBilgNo",     label: "계산",		align: "center",	    width: 50,	formatter: "orgnTaxBilgNo"},
+			          	{key: "siteNm",     label: "현장명",		align: "left",	    width: 225},
+			          	{key: "prdtGrpNm",     label: "제품그룹",		align: "left",	    width: 100},
+			          	{key: "prdtDivNm",     label: "제품유형",		align: "left",	    width: 100},
 			          	{key: "prdtNm",     label: "품명",		align: "left",	    width: 140},
 			          	{label: "매입",  columns:[
 			          		{key: "pchClntNm",     label: "거래처",		align: "left",	    width: 225},
@@ -288,7 +299,6 @@ th {
 			        	]},
 			        	{label: "매출",  columns:[
 			        		{key: "selClntNm",     label: "거래처",		align: "left",	    width: 225},
-			        		{key: "siteNm",     label: "현장명",		align: "right",	    width: 225},
 				          	{key: "selUpr",     label: "단가",		align: "right",	width: 140,	formatter: "money"},
 				        	{key: "selQty",    	label: "수량", 		align: "right", 	width: 130},
 				        	{key: "selAmt",    	label: "금액", 		align: "right", 	width: 140,	formatter: "money"},
