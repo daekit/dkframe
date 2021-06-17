@@ -227,39 +227,42 @@
 						, A.STOCK_CHG_CD
 						, C.PRDT_COIL_YN
 						, C.PRDT_CNVRSN_WT
-				FROM TB_SM01M01 A, TB_BM01M01 C, TB_BM02M01 E
-				WHERE  A.PRDT_CD = C.PRDT_CD
-				AND A.CLNT_CD = E.CLNT_CD(+)
-				<if test="coCd != null and !coCd.equals('')">
-					AND CO_CD = #{coCd}
-				</if>
-				<if test="whCd != null and !whCd.equals('')">
-				 	AND WH_CD = #{whCd}
-				</if>
-				<if test="clntNm != null and !clntNm.equals('')">
-					AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
-				</if>
-				<if test="ownerCd != null and !ownerCd.equals('')">
-					AND OWNER_CD = #{ownerCd}
-				</if>
-				<if test="typCd != null and !typCd.equals('')">
-					AND TYP_CD = #{typCd}
-				</if>
-<!-- 				<if test="makrCd != null and !makrCd.equals('')"> -->
-<!-- 					AND MAKR_CD = #{makrCd} -->
-<!-- 				</if> -->
-				<if test="impYn != null and !impYn.equals('')">
-					AND IMP_YN = #{impYn}
-				</if>
-				<if test="prdtNm != null and !prdtNm.equals('')">
-						AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
-				</if>
-				<if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
-						AND C.PRDT_COIL_YN LIKE  #{prdtCoilYn}
-				</if>
-			     <if test="prjctCd != null and !prjctCd.equals('')">
-						AND A.PRJCT_CD = #{prjctCd}
-				</if>
+				FROM TB_SM01M01 A
+			    LEFT JOIN TB_BM01M01 C ON A.PRDT_CD = C.PRDT_CD
+			    LEFT JOIN TB_BM02M01 E ON A.CLNT_CD = E.CLNT_CD
+				<where> 
+					<if test="coCd != null and !coCd.equals('')">
+						AND CO_CD = #{coCd}
+					</if>
+					<if test="whCd != null and !whCd.equals('')">
+					 	AND WH_CD = #{whCd}
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND E.CLNT_NM LIKE '%' || #{clntNm} || '%'
+					</if>
+					<if test="ownerCd != null and !ownerCd.equals('')">
+						AND OWNER_CD = #{ownerCd}
+					</if>
+					<if test="typCd != null and !typCd.equals('')">
+						AND TYP_CD = #{typCd}
+					</if>
+	<!-- 				<if test="makrCd != null and !makrCd.equals('')"> -->
+	<!-- 					AND MAKR_CD = #{makrCd} -->
+	<!-- 				</if> -->
+					<if test="impYn != null and !impYn.equals('')">
+						AND IMP_YN = #{impYn}
+					</if>
+					<if test="prdtNm != null and !prdtNm.equals('')">
+							AND C.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+					</if>
+					<if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
+							AND C.PRDT_COIL_YN LIKE  #{prdtCoilYn}
+					</if>
+				     <if test="prjctCd != null and !prjctCd.equals('')">
+							AND A.PRJCT_CD = #{prjctCd}
+					</if>
+				</where>
+				ORDER BY C.PRDT_NM,A.PRJCT_CD
 			)D
 			WHERE  1= 1 
 			     <if test="prjctNm != null and !prjctNm.equals('')">
