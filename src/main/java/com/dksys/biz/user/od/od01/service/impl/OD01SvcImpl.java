@@ -60,9 +60,9 @@ public class OD01SvcImpl implements OD01Svc {
 		boolean isReq = false;
 		if("".equals(paramMap.get("odrSeq"))) {
 			isOdr = true;
-			paramMap.put("totQty", paramMap.get("totQty"));
-			paramMap.put("totWt", paramMap.get("totQty"));
-			paramMap.put("totAmt", paramMap.get("totAmt"));
+//			paramMap.put("totQty", paramMap.get("totQty"));
+//			paramMap.put("totWt",  paramMap.get("totWt"));
+//			paramMap.put("totAmt", paramMap.get("totAmt"));
 			paramMap.put("odrRmk", paramMap.get("ordrgRmk"));
 			sd04Mapper.insertOrder(paramMap);
 		}
