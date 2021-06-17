@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +51,37 @@ public class HomeController {
     	authArray = param.get("authInfo") != null ? param.get("authInfo").toString().split(",") : authArray;
     	List<Map<String, Object>> accessList = cm01Svc.selectMenuAuth(authArray);
     	model.addAttribute("accessList", accessList);
+    	JSONArray jsonArray = new JSONArray();
+    	
+    	for (Map<String, Object> map : accessList) {
+    		JSONObject json = new JSONObject();
+    		for(Map.Entry<String, Object> entry : map.entrySet()) {
+    			try {
+    				if(entry.getKey().equals("menuUrl") || entry.getKey().equals("saveYn")) {
+    	    			String key = entry.getKey();
+    	    			String sValue = entry.getValue().toString();
+    	    			if(key.equals("menuUrl")) {
+	    	    			System.out.println("=============================");
+	    	    			System.out.println(sValue.lastIndexOf("/"));
+	    	    			System.out.println(sValue.lastIndexOf("."));
+	    	    			System.out.println(sValue);
+	    	    			if(sValue.lastIndexOf("/") > 0) {
+	    	    				sValue = sValue.substring(sValue.lastIndexOf("/")+1, sValue.lastIndexOf("."));
+	    	    			}
+	    	    			System.out.println(sValue);
+    	    			}
+    	    			Object value = sValue;
+    					json.put(key, value);
+        			}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}
+    		jsonArray.put(json);
+    	}
+    	System.out.println(jsonArray.toString());
+    	model.addAttribute("accessJSON", jsonArray.toString());
     	return "jsonView";
     }
     
