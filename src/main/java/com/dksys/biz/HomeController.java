@@ -61,14 +61,9 @@ public class HomeController {
     	    			String key = entry.getKey();
     	    			String sValue = entry.getValue().toString();
     	    			if(key.equals("menuUrl")) {
-	    	    			System.out.println("=============================");
-	    	    			System.out.println(sValue.lastIndexOf("/"));
-	    	    			System.out.println(sValue.lastIndexOf("."));
-	    	    			System.out.println(sValue);
 	    	    			if(sValue.lastIndexOf("/") > 0) {
 	    	    				sValue = sValue.substring(sValue.lastIndexOf("/")+1, sValue.lastIndexOf("."));
 	    	    			}
-	    	    			System.out.println(sValue);
     	    			}
     	    			Object value = sValue;
     					json.put(key, value);
@@ -80,7 +75,6 @@ public class HomeController {
     		}
     		jsonArray.put(json);
     	}
-    	System.out.println(jsonArray.toString());
     	model.addAttribute("accessJSON", jsonArray.toString());
     	return "jsonView";
     }

@@ -778,11 +778,21 @@ $.urlParam = function(name){
     }
 }
 
-function authChk(){
-	console.log("authChk");
-	console.log(authArr);
+function authChk(menuUrl){
+	if(!menuUrl){
+		var url = window.location.href;
+		menuUrl = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+	}
+	var arr = JSON.parse(getCookie("authArr"));
+	var saveYn = "N";
+	for(var i = 0; i < arr.length; i++){
+		if(arr[i].menuUrl == menuUrl){
+			saveYn = arr[i].saveYn;
+			break;
+		}
+	}
 	$.each($("[authchk]"), function(idx, elem){
-		if(getCookie("menuSaveYn") == "Y"){
+		if(saveYn == "Y"){
 			$(elem).show();
 		} else {
 			$(elem).hide();
