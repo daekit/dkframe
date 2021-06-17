@@ -74,7 +74,7 @@
 			      </if>
 			    UNION ALL
 			    SELECT  2 AS TYPE
-			   	        , 1 AS RN
+			   	        , ROWNUM AS RN
 			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
 			 			,  #{taxivcCoprt}
 						 </if>
@@ -87,10 +87,10 @@
 						, AR04.SELPCH_CD AS GUBUN_CD
 						, (SELECT ARD_5006 FROM TB_AR04D01 D WHERE D.BILG_CERT_NO = AR04.BILG_CERT_NO AND  ARD_5006 IS NOT NULL AND BILG_CERT_NO_SEQ = 1) || ' '||
 						   FTXAC1_1   AS BIGO
-						, SUM(DECODE(AR04.SELPCH_CD, 'SELPCH1', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH3', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0)) AS PCHS_AMT
-						, SUM(DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH4', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0)) AS SELL_AMT
+						, DECODE(AR04.SELPCH_CD, 'SELPCH1', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH3', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS PCHS_AMT
+						, DECODE(AR04.SELPCH_CD, 'SELPCH2', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 'SELPCH4', NVL(AR04.TAX_MOA5_23,0) + NVL(AR04.TAX_MOA5_124,0), 0) AS SELL_AMT
 						, 0 AS BASIS_AMT
-						, MAX(NVL2(TAX_BILG_NO,'완료','계산서미처리')) AS RMK
+						, NVL2(TAX_BILG_NO,'완료','계산서미처리') AS RMK
 				  FROM  TB_AR04M01 AR04
 			     WHERE  AR04.SELL_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
 						<if test= "clntCd != null and !clntCd.equals('')">
@@ -103,7 +103,8 @@
 					 	AND	AR04.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						</if>
 		   	            <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
-		 			    AND AR04.TAXIVC_COPRT = (SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CM05.CODE_ID =  #{taxivcCoprt} )
+<!-- 		 			    AND AR04.TAXIVC_COPRT = (SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CM05.CODE_ID =  #{taxivcCoprt} ) -->
+	 			        AND A.TAXIVC_COPRT = #{taxivcCoprt}
 					    </if>
 					    <if test= "selpchCd != null and !selpchCd.equals('')">
 						 <choose>	
@@ -115,17 +116,17 @@
 		 			         </otherwise>
 					     </choose>
 				       </if>
-				  GROUP BY AR04.SELL_DT
-						, AR04.CO_CD
-			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
-			 			, AR04.TAXIVC_COPRT
-						 </if>
-						, AR04.CLNT_CD
-						, AR04.CLNT_NM
-						, AR04.SELPCH_CD
-						, (SELECT ARD_5006 FROM TB_AR04D01 D WHERE D.BILG_CERT_NO = AR04.BILG_CERT_NO AND  ARD_5006 IS NOT NULL AND BILG_CERT_NO_SEQ = 1) || ' '||
-						   FTXAC1_1
-						, TAX_BILG_NO
+<!-- 				  GROUP BY AR04.SELL_DT -->
+<!-- 						, AR04.CO_CD -->
+<!-- 			   	        <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')"> -->
+<!-- 			 			, AR04.TAXIVC_COPRT -->
+<!-- 						 </if> -->
+<!-- 						, AR04.CLNT_CD -->
+<!-- 						, AR04.CLNT_NM -->
+<!-- 						, AR04.SELPCH_CD -->
+<!-- 						, (SELECT ARD_5006 FROM TB_AR04D01 D WHERE D.BILG_CERT_NO = AR04.BILG_CERT_NO AND  ARD_5006 IS NOT NULL AND BILG_CERT_NO_SEQ = 1) || ' '|| -->
+<!-- 						   FTXAC1_1 -->
+<!-- 						, TAX_BILG_NO -->
 				UNION ALL 
 				SELECT  3 AS TYPE
 			   	        , ROWNUM AS RN
@@ -141,7 +142,7 @@
 						, A.ETRDPS_TYP AS GUBUN_CD
 						, A.SUMRY AS BIGO
 						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH1', 0,NVL(A.ETRDPS_AMT,0))  AS PCHS_AMT   <!-- 수급,     상계 지급보증 보전 -->
-						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH1', NVL(A.ETRDPS_AMT,0))    AS SELL_AMT   <!-- 지급, 상계, 상계 지급보증 -->
+						, DECODE(NVL(CM05.CODE_RPRC,#{selpchCd}),'SELPCH1', NVL(A.ETRDPS_AMT,0),0)    AS SELL_AMT   <!-- 지급, 상계, 상계 지급보증 -->
 <!-- 						, DECODE(A.ETRDPS_TYP, 'ETRDPS01', NVL(A.ETRDPS_AMT,0), 'ETRDPS05', NVL(A.ETRDPS_AMT,0),0) AS PCHS_AMT -->
 <!-- 						, DECODE(A.ETRDPS_TYP, 'ETRDPS02', NVL(A.ETRDPS_AMT,0), 'ETRDPS03', NVL(A.ETRDPS_AMT,0),'ETRDPS04', NVL(A.ETRDPS_AMT,0),0) AS SELL_AMT -->
 						, 0
@@ -259,7 +260,7 @@
 		 	AND	A.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 			</if>
 			</where> -->
-			ORDER BY A.TRST_DT, DECODE(RN,0,0,1),TYPE, A.CLNT_NM
+			ORDER BY A.TRST_DT,TYPE, DECODE(RN,0,0,1), A.CLNT_NM
 		  ) B
 
 <!-- 	WHERE -->
