@@ -53,6 +53,17 @@ public class AR02Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectSellPchSumList")
+	public String selectSellPchSumList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar02Svc.selectSellPchSumCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = ar02Svc.selectSellPchSumList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
     @PostMapping(value = "/selectSellSumList")
     public String selectSellSumList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	List<Map<String, String>> resultList = ar02Svc.selectSellSumList(paramMap);
