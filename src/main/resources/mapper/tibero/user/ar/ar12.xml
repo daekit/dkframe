@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar12.mapper.AR12Mapper">
+	<select id="SelectPtnCreditCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			(
+				WITH T AS (
+					SELECT
+						CO_CD,
+						CLNT_NM,
+						TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
+						SELPCH_CD,
+						RMK,
+						TRST_SEQ,
+						CREAT_ID AS ACC_NM,
+						FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+						NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0) AS SELL_AMT,
+						NVL (CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0) AS PCHS_AMT,
+						PRDT_NM || ' ' || PRDT_SIZE || ' ' || SITE_NM AS TEXT
+					FROM
+					TB_AR10M01	
+											
+					WHERE
+						CO_CD = #{coCd}	
+					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+						AND TRST_DT >= #{trstDtFrom}
+					</if>
+					<if test="trstDtTo != null and !trstDtTo.equals('')">
+						<![CDATA[ AND TRST_DT <= #{trstDtTo} ]]>
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>	
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
+					<if test="accNm != null and !accNm.equals('')">
+						AND CREAT_ID LIKE '%'|| #{accNm} || '%'
+					</if>
+					
+					
+					UNION ALL
+					
+					SELECT
+						CO_CD,
+						CLNT_NM,
+						TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
+						ETRDPS_TYP,
+						SUMRY,
+						ETRDPS_SEQ,
+						ACC_NM,
+						FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+						NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0) AS SELL_AMT,
+						NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0) AS PCHS_AMT,
+						SUMRY AS TEXT
+					FROM
+						TB_AR11M01
+						
+					WHERE
+						CO_CD = #{coCd}	
+					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+						AND ETRDPS_DT >= #{trstDtFrom}
+					</if>
+					<if test="trstDtTo != null and !trstDtTo.equals('')">
+						<![CDATA[ AND ETRDPS_DT <= #{trstDtTo} ]]>
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>	
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
+					<if test="accNm != null and !accNm.equals('')">
+						AND ACC_NM LIKE '%'|| #{accNm} || '%'
+					</if>
+				)
+					SELECT
+						*
+					FROM
+					(
+						SELECT
+							1 seq,
+							t.*,
+							SELL_AMT-PCHS_AMT,
+							SUM(SELL_AMT - PCHS_AMT) OVER(ORDER BY TRST_DT,TRST_SEQ) REMAIND_AMT
+						FROM
+							t
+						
+						UNION ALL
+						
+						SELECT
+							2 seq,
+							max(CO_CD),
+							'',
+							TRST_DT,
+							'합계' xxx,
+							'',
+							999999999,
+							'',
+							'',
+							sum(SELL_AMT),
+							sum(PCHS_AMT),
+							'',
+							0,
+							sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY TRST_dt) TOT_REMAIND_AMT
+						FROM
+							T
+						GROUP BY
+							TRST_DT
+						
+						UNION ALL
+						
+						SELECT
+							3 seq,
+							max(CO_CD),
+							'월계',
+							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM'),
+							'합계' xxx,
+							'',
+							999999999,
+							'',
+							'월계',
+							sum(SELL_AMT),
+							sum(PCHS_AMT),
+							'',
+							0,
+							sum(SELL_AMT) - sum(PCHS_AMT) AS TOT_REMAIND_AMT
+						FROM
+							T
+						GROUP BY
+							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM')	
+					)
+					ORDER BY 
+						CO_CD,
+						DECODE(LENGTH(TRST_DT), 10, TRST_DT, TO_CHAR(LAST_DAY(TO_DATE(TRST_DT, 'YYYY-MM')), 'YYYY-MM-DD')),
+						TRST_SEQ,
+						seq,
+						CLNT_NM
+		)
+		
+	</select>
+
+	<select id="SelectPtnCreditList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				A.*,
+				ROWNUM AS RNUM
+				
+			FROM
+			(
+				WITH T AS (
+					SELECT
+						CO_CD,
+						CLNT_NM,
+						TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
+						SELPCH_CD,
+						RMK,
+						TRST_SEQ,
+						CREAT_ID AS ACC_NM,
+						FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+						NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0) AS SELL_AMT,
+						NVL (CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0) AS PCHS_AMT,
+						PRDT_NM || ' ' || PRDT_SIZE || ' ' || SITE_NM AS TEXT
+					FROM
+					TB_AR10M01	
+											
+					WHERE
+						CO_CD = #{coCd}	
+					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+						AND TRST_DT >= #{trstDtFrom}
+					</if>
+					<if test="trstDtTo != null and !trstDtTo.equals('')">
+						<![CDATA[ AND TRST_DT <= #{trstDtTo} ]]>
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>	
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
+					<if test="accNm != null and !accNm.equals('')">
+						AND CREAT_ID LIKE '%'|| #{accNm} || '%'
+					</if>
+					
+					
+					
+					UNION ALL
+					
+					SELECT
+						CO_CD,
+						CLNT_NM,
+						TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
+						ETRDPS_TYP,
+						SUMRY,
+						ETRDPS_SEQ,
+						ACC_NM,
+						FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+						NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0) AS SELL_AMT,
+						NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0) AS PCHS_AMT,
+						SUMRY AS TEXT
+					FROM
+						TB_AR11M01
+						
+					WHERE
+						CO_CD = #{coCd}	
+					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+						AND ETRDPS_DT >= #{trstDtFrom}
+					</if>
+					<if test="trstDtTo != null and !trstDtTo.equals('')">
+						<![CDATA[ AND ETRDPS_DT <= #{trstDtTo} ]]>
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>	
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
+					<if test="accNm != null and !accNm.equals('')">
+						AND ACC_NM LIKE '%'|| #{accNm} || '%'
+					</if>
+				)
+					SELECT
+						*
+					FROM
+					(
+						SELECT
+							1 seq,
+							t.*,
+							SELL_AMT-PCHS_AMT,
+							SUM(SELL_AMT - PCHS_AMT) OVER(ORDER BY TRST_DT,TRST_SEQ) REMAIND_AMT
+						FROM
+							t
+						
+						UNION ALL
+						
+						SELECT
+							2 seq,
+							max(CO_CD),
+							'일계',
+							TRST_DT,
+							'합계' xxx,
+							'',
+							999999999,
+							'',
+							'',
+							sum(SELL_AMT),
+							sum(PCHS_AMT),
+							'',
+							0,
+							sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY TRST_dt) TOT_REMAIND_AMT
+						FROM
+							T
+						GROUP BY
+							TRST_DT
+						
+						UNION ALL
+						
+						SELECT
+							3 seq,
+							max(CO_CD),
+							'월계',
+							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM'),
+							'합계' xxx,
+							'',
+							999999999,
+							'',
+							'',
+							sum(SELL_AMT),
+							sum(PCHS_AMT),
+							'',
+							0,
+							sum(SELL_AMT) - sum(PCHS_AMT) AS TOT_REMAIND_AMT
+						FROM
+							T
+						GROUP BY
+							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM')	
+					)
+					ORDER BY 
+						CO_CD,
+						DECODE(LENGTH(TRST_DT), 10, TRST_DT, TO_CHAR(LAST_DAY(TO_DATE(TRST_DT, 'YYYY-MM')), 'YYYY-MM-DD')),
+						TRST_SEQ,
+						seq,
+						CLNT_NM
+				)A
+		)
+		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+</mapper>
