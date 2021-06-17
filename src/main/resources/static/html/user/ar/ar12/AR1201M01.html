@@ -79,7 +79,7 @@ th {
 					<tr>
 						<th>회사</th>
 						<td><select id="coCd_S" data-kind="CO" data-search="coCd"
-							onchange="subGridView.setData(0);">
+							onchange="setByCoCd(this.value); subGridView.setData(0);">
 						</select></td>
 						<th class="hit">기간</th>
 						<td>
@@ -91,22 +91,14 @@ th {
 						</td>
 						<th>일계표시</th>
 						<td>
-						<input type="checkbox" id="dailySumYn"  name="dailySumYn">
+						<input type="checkbox" id="dailySumYn"  name="dailySumYn" value="Y">
 						</td>
 					</tr>
 					<tr>
 						<th>판매법인</th>
-						<td><select data-search="taxivcCoprtCd"
-							onchange="subGridView.setData(0);">
-								<option value="">전체</option>
-								<option value="ESTCOPRT1">금문철강(주)</option>
-								<option value="ESTCOPRT2">금문철강 인천공장</option>
-								<option value="ESTCOPRT3">금문철강 진천공장</option>
-								<option value="ESTCOPRT4">지지엠</option>
-								<option value="ESTCOPRT5">지지스틸</option>
-								<option value="ESTCOPRT6">지지스틸 창녕공장</option>
-								<option value="ESTCOPRT7">금문철강 대구지점</option>
-								<option value="ESTCOPRT8">지지엠 대구지점</option>
+						<td><select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprtCd"
+							onchange=" subGridView.setData(0);">
+							<option value="">전체</option>
 						</select></td>
 						<th>거래처</th>
 						<td>
@@ -213,6 +205,7 @@ th {
 			var targetObj = this.target;
 			var paramObj = {"pageNo": _pageNo + 1};
 			
+			
 			$.each($('#main_area [data-search]'), function(idx, elem){
 				var searchValue = elem.value;
 				if($(elem).is('[date]')){
@@ -243,6 +236,8 @@ th {
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$("#coCd_S").val(jwt.coCd);
+		//판매법인
+		setByCoCd(jwt.coCd)
 		
 		// 시작일 (현재날짜의 월 첫일)
 		$('#tsrtDtFrom').datepicker({
@@ -275,6 +270,13 @@ th {
 		// grid init
 		subGridView.initView().setData(0);
 	})
+	
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#estCoprt_S').data("rprc", value);
+		$('#estCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#estCoprt_S'));  
+	}
 	
 	function initSearch() {
 		$(".contents.search select").val("");
