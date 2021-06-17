@@ -461,12 +461,14 @@ function deleteHyphenStr(value){
 	return value.replace(/-/g, "");
 }
 
+var authArr;
 // 권한에 따른 메뉴 보여주기
 function setMenuAuth() {
 	var formData = {
 		"authInfo" : jwt.authInfo
 	}
-	postAjax("/selectMenuAuth", formData, null, function(data) {
+	postAjaxSync("/selectMenuAuth", formData, null, function(data) {
+		authArr = data.accessList;
 		checkMenuAuth(data.accessList);
 	});
 }
@@ -777,6 +779,8 @@ $.urlParam = function(name){
 }
 
 function authChk(){
+	console.log("authChk");
+	console.log(authArr);
 	$.each($("[authchk]"), function(idx, elem){
 		if(getCookie("menuSaveYn") == "Y"){
 			$(elem).show();

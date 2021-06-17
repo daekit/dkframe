@@ -1,5 +1,6 @@
 package com.dksys.biz.main;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
 import com.dksys.biz.main.service.LoginService;
 import com.dksys.biz.main.vo.User;
 import com.dksys.biz.util.MessageUtils;
@@ -32,6 +34,9 @@ public class LoginController {
     
     @Autowired
     LoginService loginService;
+    
+    @Autowired
+    CM01Svc cm01Svc;
 
 //    // 회원가입
 //    @PostMapping("/join")
