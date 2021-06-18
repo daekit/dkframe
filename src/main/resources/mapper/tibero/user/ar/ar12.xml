@@ -188,7 +188,6 @@
 						AND CREAT_ID LIKE '%'|| #{accNm} || '%'
 					</if>
 					
-					
 					UNION ALL
 					
 					SELECT
@@ -236,49 +235,53 @@
 						FROM
 							t
 						
-						UNION ALL
+						<if test='dailySumYn != null and dailySumYn.equals("Y")'>
+							UNION ALL
+							
+							SELECT
+								2 seq,
+								max(CO_CD),
+								'일계',
+								TRST_DT,
+								'합계' xxx,
+								'',
+								999999999,
+								'',
+								'',
+								sum(SELL_AMT),
+								sum(PCHS_AMT),
+								'',
+								0,
+								sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY TRST_dt) TOT_REMAIND_AMT
+							FROM
+								T
+							GROUP BY
+								TRST_DT
+						</if>
 						
-						SELECT
-							2 seq,
-							max(CO_CD),
-							'일계',
-							TRST_DT,
-							'합계' xxx,
-							'',
-							999999999,
-							'',
-							'',
-							sum(SELL_AMT),
-							sum(PCHS_AMT),
-							'',
-							0,
-							sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY TRST_dt) TOT_REMAIND_AMT
-						FROM
-							T
-						GROUP BY
-							TRST_DT
-						
-						UNION ALL
-						
-						SELECT
-							3 seq,
-							max(CO_CD),
-							'월계',
-							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM'),
-							'합계' xxx,
-							'',
-							999999999,
-							'',
-							'',
-							sum(SELL_AMT),
-							sum(PCHS_AMT),
-							'',
-							0,
-							sum(SELL_AMT) - sum(PCHS_AMT) AS TOT_REMAIND_AMT
-						FROM
-							T
-						GROUP BY
-							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM')	
+						<if test='monthlySumYn != null and !monthlySumYn.equals("Y")'>
+							UNION ALL
+							
+							SELECT
+								3 seq,
+								max(CO_CD),
+								'월계',
+								TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM'),
+								'합계' xxx,
+								'',
+								999999999,
+								'',
+								'',
+								sum(SELL_AMT),
+								sum(PCHS_AMT),
+								'',
+								0,
+								sum(SELL_AMT) - sum(PCHS_AMT) AS TOT_REMAIND_AMT
+							FROM
+								T
+							GROUP BY
+								TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM')
+						</if>	
 					)
 					ORDER BY 
 						CO_CD,
