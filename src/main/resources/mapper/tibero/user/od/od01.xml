@@ -347,7 +347,8 @@
 	        UDT_PGM,
 	        UDT_DTTM,
 	        REQ_SEQ,
-			REQ_DTL_SEQ
+			REQ_DTL_SEQ,
+			SHIP_VEH_NO
         ) 
         VALUES
         (
@@ -388,7 +389,8 @@
 		    #{pgmId},
 		    SYSDATE,
         	#{reqSeq},
-	        #{reqDtlSeq}
+	        #{reqDtlSeq},
+	        #{shipVehNo,  jdbcType=VARCHAR}
         )
 	</insert>
 	
@@ -561,7 +563,8 @@
 	        B.PRDT_COIL_YN,
 	        B.PRDT_CNVRSN_WT,	        
 	        T.REQ_SEQ,
-			T.REQ_DTL_SEQ
+			T.REQ_DTL_SEQ,
+			T.SHIP_VEH_NO
 		FROM 
 			TB_OD01D01 T
 			INNER JOIN TB_OD01M01 A ON T.ORDRG_SEQ = A.ORDRG_SEQ
@@ -644,7 +647,7 @@
 		    UDT_PGM                = #{pgmId},                       
 		    UDT_DTTM               = SYSDATE,
 		    TAXIVC_COPRT           = #{taxivcCoprt},
-		    TRSP_TYP_CD            = #{trspTypCd}                        
+		    TRSP_TYP_CD            = #{trspTypCd}        
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
 		<update id="updateOrderDetail" parameterType="Map">
@@ -655,6 +658,7 @@
           , REAL_DLVR_UPR   = #{realDlvrUpr}
           , SHIP_UPR        = #{shipUpr}
           , ORDRG_DTL_RMK   = #{ordrgDtlRmk}
+		  , SHIP_VEH_NO     = #{shipVehNo,  jdbcType=VARCHAR}    
 		  , UDT_ID          = #{userId}
 		  , UDT_PGM         = #{pgmId}
 		  , UDT_DTTM        = SYSDATE		    
