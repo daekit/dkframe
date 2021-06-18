@@ -64,11 +64,10 @@ th {
 		<!-- 페이지 상단 -->
 		<div class="contents no_bg">
 			<ul class="btn_ul">
-				<li class="btn_r"><a onclick="initSearch();">
-						<button class="bg_gray">초기화</button>
-				</a> <a onclick="subGridView.setData(0);">
-						<button class="bg_gray">검 색</button>
-				</a></li>
+				<li class="btn_r">
+					<a onclick="initSearch();"><button class="bg_gray">초기화</button></a> 
+					<a onclick="subGridView.setData(0);"><button class="bg_gray">검 색</button></a>
+				</li>
 			</ul>
 		</div>
 		<!-- 검색 콘텐츠 -->
@@ -78,9 +77,9 @@ th {
 				<table class="table_input type03">
 					<tr>
 						<th>회사</th>
-						<td><select id="coCd_S" data-kind="CO" data-search="coCd"
-							onchange="setByCoCd(this.value); subGridView.setData(0);">
-						</select></td>
+						<td>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); subGridView.setData(0);"></select>
+						</td>
 						<th class="hit">기간</th>
 						<td>
 							<div class="date_input">
@@ -91,33 +90,32 @@ th {
 						</td>
 						<th>일계표시</th>
 						<td>
-						<input type="checkbox" id="dailySumYn"  name="dailySumYn" value="Y">
+							<input type="checkbox" id="dailySumYn" name="dailySumYn" value="Y">
 						</td>
 					</tr>
 					<tr>
 						<th>판매법인</th>
-						<td><select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprtCd"
-							onchange=" subGridView.setData(0);">
-							<option value="">전체</option>
-						</select></td>
+						<td>
+							<select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprtCd" onchange=" subGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
 						<th>거래처</th>
 						<td>
 							<div class="search_form">
-								<input type="text" data-search="clntNm"
-									onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
+								<input type="text" data-search="clntNm" onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
 							</div>
 						</td>
 						<th>월계표시</th>
 						<td>
-						<input type="checkbox" id="monthlySumYn"   name="monthlySumYn" value="Y">
+							<input type="checkbox" id="monthlySumYn" name="monthlySumYn" value="Y">
 						</td>
 					</tr>
 					<tr>
 						<th>입출구분</th>
 						<td>
 							<div class="search_form">
-								<input type="text" id="accNm" data-search="accNm"
-									onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
+								<input type="text" id="accNm" data-search="accNm" onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
 							</div>
 						</td>
 					</tr>
@@ -128,8 +126,7 @@ th {
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
-				<select class="prae_select" data-search="recordCnt"
-					onchange="subGridView.setData(0);">
+				<select class="prae_select" data-search="recordCnt" onchange="subGridView.setData(0);">
 					<option value="100" selected>100</option>
 					<option value="500">500</option>
 					<option value="1000">1000</option>
@@ -139,8 +136,7 @@ th {
 		<!-- 콘텐츠 -->
 		<div class="contents">
 			<!-- 리스트 -->
-			<div class="ax5_grid" data-ax5grid="sub-grid"
-				data-ax5grid-config="{}" style="height: 575px; width: 100%"></div>
+			<div class="ax5_grid" data-ax5grid="sub-grid" data-ax5grid-config="{}" style="height: 575px; width: 100%"></div>
 		</div>
 	</div>
 </body>
@@ -153,6 +149,7 @@ th {
 		    	showRowSelector: false,
 		    	multipleSelect: false,
 		    	sortable: true,
+
 		        target: $('[data-ax5grid="sub-grid"]'),
 		        header: {
 		        	align: "center",
@@ -162,9 +159,12 @@ th {
 		            mergeCells : ["trstDt", "taxivcCoprtNm", "cltnNm"],
 			        onClick: function () {
 						this.self.select(this.dindex);
-		        	}
+			        },
+			        trStyleClass: function(){
+                        return (this.item.seq == "2") ? "RED" : "";
+                    }
 		        },
-		         
+		          
 		        page: {
 		            navigationItemCount: 10,
 		            
@@ -182,7 +182,7 @@ th {
 		            {key: "trstDt",       label: "날짜", 		align: "center", 	width: 150},
 					{key: "taxivcCoprtNm",label: "판매법인", 	align: "center", 	width: 150},
 		            {key: "clntNm",       label: "거래처명",	align: "left", 		width: 200},
-			        {key: "accNm",        label: "입출구분", 	align: "center", 		width: 100},
+			        {key: "accNm",        label: "입출구분", 	align: "center", 	width: 100},
 		            {key: "sellAmt",      label: "차변", 		align: "right", 	formatter: "money", 	width: 200},
 		            {key: "pchsAmt",      label: "대변", 		align: "right",	 	formatter: "money",	 	width: 200},
 		            {key: "remaindAmt",   label: "잔액", 		align: "right", 	formatter: "money",		width: 200},
@@ -193,7 +193,7 @@ th {
 		         footSum: [
 	 			    	[
 	 			    		{label: "총계", colspan:4, align:"center"},
-		                    {key: "sellAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "sellAmt", collector: "sum", formatter:"money", align: "right" },
 			    			{key: "pchsAmt", collector: "sum", formatter:"money", align: "right"},
 			    			{key: "remaindAmt", collector: "sum", formatter:"money", align: "right"}
 	 			    	]
@@ -205,7 +205,6 @@ th {
 			var targetObj = this.target;
 			var paramObj = {"pageNo": _pageNo + 1};
 			
-			
 			$.each($('#main_area [data-search]'), function(idx, elem){
 				var searchValue = elem.value;
 				if($(elem).is('[date]')){
@@ -213,6 +212,20 @@ th {
 				}
 				paramObj[$(elem).data('search')] = searchValue;
 			});
+			
+			// 일계조건 추가
+			if($('#dailySumYn').is(":checked")){
+				paramObj.dailySumYn = "Y";
+			}else{
+				paramObj.dailySumYn = "N";
+			}
+			
+			// 월계조건 추가
+			if($('#monthlySumYn').is(":checked")){
+				paramObj.monthlySumYn = "Y";
+			}else{
+				paramObj.monthlySumYn = "N";
+			}
 			
 			postAjax("/user/ar/ar12/SelectPtnCreditList", paramObj, null, function(data){
 				var list = data.resultList;
@@ -277,7 +290,7 @@ th {
 		$('#estCoprt_S option:not([value=""])').remove()
 		setCommonSelect($('#estCoprt_S'));  
 	}
-	
+
 	function initSearch() {
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
