@@ -13,6 +13,10 @@ public interface AR02Svc {
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
 	
+	int selectSellPchSumCount(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectSellPchSumList(Map<String, String> paramMap);
+	
 	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
 	
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);

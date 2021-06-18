@@ -7,4 +7,8 @@ public interface AR10Svc {
 	int selectPchsSellCount(Map<String, String> paramMap);
 	
 	List<Map<String, Object>> selectPchsSellList(Map<String, String> param);
+
+	int selectPchsSellSumCount(Map<String, String> paramMap);
+	
+	List<Map<String, Object>> selectPchsSellSumList(Map<String, String> param);
 }

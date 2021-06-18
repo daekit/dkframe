@@ -16,7 +16,15 @@ public interface AR02Mapper {
 
 	List<Map<String, String>> selectSellList(Map<String, String> paramMap);
 	
+	int selectSellPchSumCount(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectSellPchSumList(Map<String, String> paramMap);
+	
 	List<Map<String, String>> selectSellSumList(Map<String, String> paramMap);
+	
+	int selectSellSaleCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectSellSaleList(Map<String, String> paramMap);
 	
 	List<Map<String, String>> checkBilg(Map<String, String> detailMap);
 	

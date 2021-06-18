@@ -56,6 +56,16 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 
 	@Override
+	public int selectSellPchSumCount(Map<String, String> paramMap) {
+		return ar02Mapper.selectSellPchSumCount(paramMap);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectSellPchSumList(Map<String, String> paramMap) {
+		return ar02Mapper.selectSellPchSumList(paramMap);
+	}
+	
+	@Override
 	@SuppressWarnings("all")
 	public int updatePchsSell(Map<String, Object> paramMap) {
 		int result = 0;

@@ -33,45 +33,45 @@ public class SD07SvcImpl implements SD07Svc {
 
 	@Override
 	public void excuteStockClose(Map<String, String> paramMap) {
-		int chkCount = sd07Mapper.chkBilgFlagYn(paramMap);
-		if (chkCount > 0) {
-			paramMap.put("chkCount", String.valueOf(chkCount));			
-		}else {
+//		int chkCount = sd07Mapper.chkBilgFlagYn(paramMap);
+//		if (chkCount > 0) {
+//			paramMap.put("chkCount", String.valueOf(chkCount));			
+//		}else {
 			paramMap.put("errCode", "200");	
 			paramMap.put("Message", "");	
 			paramMap.put("chkCount", "0");		
 			sd07Mapper.deleteStockClose(paramMap);
 			sd07Mapper.insertStockClose(paramMap);
 			sm01Mapper.updateStockUpr(paramMap);
-		}
+//		}
 	}
 
 	@Override
 	public void excuteCreditClose(Map<String, String> paramMap) {
-		int chkCount = sd07Mapper.chkBilgFlagYn(paramMap);
-		if (chkCount > 0) {
-			paramMap.put("chkCount", String.valueOf(chkCount));			
-		}else {
+//		int chkCount = sd07Mapper.chkBilgFlagYn(paramMap);
+//		if (chkCount > 0) {
+//			paramMap.put("chkCount", String.valueOf(chkCount));			
+//		}else {
 			paramMap.put("errCode", "200");	
 			paramMap.put("Message", "");	
 			paramMap.put("chkCount", "0");	
 			sd07Mapper.deleteCreditClose(paramMap);
 			sd07Mapper.insertCreditClose(paramMap);
-		}
+//		}
 	}
 
 	@Override
 	public void excuteCreditClosePur(Map<String, String> paramMap) {
-		int chkCount = sd07Mapper.chkBilgFlagYn(paramMap);
-		if (chkCount > 0) {
-			paramMap.put("chkCount", String.valueOf(chkCount));		
-		}else {
+//		int chkCount = sd07Mapper.chkBilgFlagYn(paramMap);
+//		if (chkCount > 0) {
+//			paramMap.put("chkCount", String.valueOf(chkCount));		
+//		}else {
 			paramMap.put("errCode", "200");	
 			paramMap.put("Message", "");	
 			paramMap.put("chkCount", "0");		
 			sd07Mapper.deleteCreditClose(paramMap);
 			sd07Mapper.insertCreditClosePur(paramMap);
-		}
+//		}
 	}
 
 	@Override

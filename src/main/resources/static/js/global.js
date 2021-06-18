@@ -21,14 +21,14 @@ var deleteCookie = function (name) {
 	} 
 }
 
-
 var DOMAIN_URL = "";
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 if(isMobile()){
-	DOMAIN_URL = "http://localhost";
+	// DOMAIN_URL = "http://localhost";
+	DOMAIN_URL = "http://10.90.4.142";
 }
 
 var authorizationToken = getCookie("jwtToken");
@@ -461,12 +461,14 @@ function deleteHyphenStr(value){
 	return value.replace(/-/g, "");
 }
 
+var authArr;
 // 권한에 따른 메뉴 보여주기
 function setMenuAuth() {
 	var formData = {
 		"authInfo" : jwt.authInfo
 	}
-	postAjax("/selectMenuAuth", formData, null, function(data) {
+	postAjaxSync("/selectMenuAuth", formData, null, function(data) {
+		authArr = data.accessList;
 		checkMenuAuth(data.accessList);
 	});
 }
@@ -776,9 +778,21 @@ $.urlParam = function(name){
     }
 }
 
-function authChk(){
+function authChk(menuUrl){
+	if(!menuUrl){
+		var url = window.location.href;
+		menuUrl = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+	}
+	var arr = JSON.parse(getCookie("authArr"));
+	var saveYn = "N";
+	for(var i = 0; i < arr.length; i++){
+		if(arr[i].menuUrl == menuUrl){
+			saveYn = arr[i].saveYn;
+			break;
+		}
+	}
 	$.each($("[authchk]"), function(idx, elem){
-		if(getCookie("menuSaveYn") == "Y"){
+		if(saveYn == "Y"){
 			$(elem).show();
 		} else {
 			$(elem).hide();

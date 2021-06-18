@@ -93,7 +93,7 @@
 				authorizationToken = getCookie("jwtToken");
 				jwt = parseJwt(authorizationToken);
 				menuIdx = getCookie("menuIdx");
-				openNotiPop();
+				selectAuthInfo();
 			}
 		);
 	}
@@ -143,11 +143,24 @@
 		    data: JSON.stringify(formData),
 		    success: function(data){
 		    	if(data.msg == "success"){
-		    		getToken();
+		    		getToken();	    		
 		    	} else {
 		    		alert(data.msg);
 		    	}
 		    }
+		});
+	}
+	
+	function selectAuthInfo(){
+		var formData = {
+			"authInfo" : jwt.authInfo
+		}
+		postAjaxSync("/selectMenuAuth", formData, null, function(data) {
+			var authString = data.accessJSON;
+			deleteCookie("authArr");
+			setCookie("authArr", authString, 1);
+			var arr = JSON.parse(getCookie("authArr"));
+			openNotiPop();
 		});
 	}
 	

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<style>
+th {
+	width: 90px !important;
+}
+
+.add_btn_small {
+	display: inline-block;
+	padding: 0px;
+}
+
+.add_btn_small a {
+	display: inline-block;
+	width: 33px;
+	height: 20px;
+	line-height: 20px;
+	text-align: center;
+	color: #444;
+	background: #ffffff;
+	box-shadow: 1px 1px rgba(0, 0, 0, 0.15);
+}
+</style>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="/static/bootstrap/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+<link rel="stylesheet"
+	href="/static/bootstrap/css/bootstrap-datepicker.css">
+<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+<link rel="stylesheet" href="/static/css/ax5/ax5grid.css">
+<link rel="stylesheet" href="/static/css/ax5/ax5mask.css">
+<link rel="stylesheet" href="/static/css/ax5/ax5modal.css">
+<link rel="stylesheet" href="/static/css/ax5/ax5toast.css">
+<link rel="stylesheet" href="/static/css/jstree/style.min.css">
+<link rel="stylesheet" href="/static/css/gnb.css">
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="/static/css/sub.css">
+<link rel="stylesheet" href="/static/css/common.css">
+
+<script src="/static/js/jquery-latest.min.js"></script>
+<script src="/static/js/jquery.serializeObject.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+<script src="/static/js/moment/moment-with-locales.js"></script>
+<script src="/static/js/ax5/ax5core.min.js"></script>
+<script src="/static/js/ax5/ax5grid.min.js"></script>
+<script src="/static/js/ax5/ax5mask.min.js"></script>
+<script src="/static/js/ax5/ax5modal.min.js"></script>
+<script src="/static/js/ax5/ax5toast.min.js"></script>
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script src="/static/js/global.js"></script>
+</head>
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r"><a onclick="initSearch();">
+						<button class="bg_gray">초기화</button>
+				</a> <a onclick="subGridView.setData(0);">
+						<button class="bg_gray">검 색</button>
+				</a></li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search">
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type03">
+					<tr>
+						<th>회사</th>
+						<td><select id="coCd_S" data-kind="CO" data-search="coCd"
+							onchange="setByCoCd(this.value); subGridView.setData(0);">
+						</select></td>
+						<th class="hit">기간</th>
+						<td>
+							<div class="date_input">
+								<input type="text" class="input_calendar" id="tsrtDtFrom" data-search="trstDtFrom"  autocomplete="off" date> 
+								<span>~</span> 
+								<input type="text" class="input_calendar" id="tsrtDtTo" data-search="trstDtTo"  autocomplete="off" date>
+							</div>
+						</td>
+						<th>일계표시</th>
+						<td>
+						<input type="checkbox" id="dailySumYn"  name="dailySumYn" value="Y">
+						</td>
+					</tr>
+					<tr>
+						<th>판매법인</th>
+						<td><select id="estCoprt_S" data-kind="ESTCOPRT" data-search="taxivcCoprtCd"
+							onchange=" subGridView.setData(0);">
+							<option value="">전체</option>
+						</select></td>
+						<th>거래처</th>
+						<td>
+							<div class="search_form">
+								<input type="text" data-search="clntNm"
+									onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
+							</div>
+						</td>
+						<th>월계표시</th>
+						<td>
+						<input type="checkbox" id="monthlySumYn"   name="monthlySumYn" value="Y">
+						</td>
+					</tr>
+					<tr>
+						<th>입출구분</th>
+						<td>
+							<div class="search_form">
+								<input type="text" id="accNm" data-search="accNm"
+									onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<select class="prae_select" data-search="recordCnt"
+					onchange="subGridView.setData(0);">
+					<option value="100" selected>100</option>
+					<option value="500">500</option>
+					<option value="1000">1000</option>
+				</select>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="sub-grid"
+				data-ax5grid-config="{}" style="height: 575px; width: 100%"></div>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	var subGridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="sub-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },
+		        body: {
+		            mergeCells : ["trstDt", "taxivcCoprtNm", "cltnNm"],
+			        onClick: function () {
+						this.self.select(this.dindex);
+		        	}
+		        },
+		         
+		        page: {
+		            navigationItemCount: 10,
+		            
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	subGridView.setData(this.page.selectPage);
+		            }
+		        },
+		        columns: [
+		            {key: "trstDt",       label: "날짜", 		align: "center", 	width: 150},
+					{key: "taxivcCoprtNm",label: "판매법인", 	align: "center", 	width: 150},
+		            {key: "clntNm",       label: "거래처명",	align: "left", 		width: 200},
+			        {key: "accNm",        label: "입출구분", 	align: "center", 		width: 100},
+		            {key: "sellAmt",      label: "차변", 		align: "right", 	formatter: "money", 	width: 200},
+		            {key: "pchsAmt",      label: "대변", 		align: "right",	 	formatter: "money",	 	width: 200},
+		            {key: "remaindAmt",   label: "잔액", 		align: "right", 	formatter: "money",		width: 200},
+		            {key: "text",   	  label: "적요",		align: "left",		width: 350}
+		          
+		         ],
+		         
+		         footSum: [
+	 			    	[
+	 			    		{label: "총계", colspan:4, align:"center"},
+		                    {key: "sellAmt", collector: "sum", formatter:"money", align: "right"},
+			    			{key: "pchsAmt", collector: "sum", formatter:"money", align: "right"},
+			    			{key: "remaindAmt", collector: "sum", formatter:"money", align: "right"}
+	 			    	]
+	 			    ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo": _pageNo + 1};
+			
+			
+			$.each($('#main_area [data-search]'), function(idx, elem){
+				var searchValue = elem.value;
+				if($(elem).is('[date]')){
+					searchValue = deleteHyphenStr(searchValue);
+				}
+				paramObj[$(elem).data('search')] = searchValue;
+			});
+			
+			postAjax("/user/ar/ar12/SelectPtnCreditList", paramObj, null, function(data){
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+
+	$(document).ready(function() {
+		//순서 맨 처음
+		mainDefaultLoad("영업관리", "파트너 원장");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$("#coCd_S").val(jwt.coCd);
+		//판매법인
+		setByCoCd(jwt.coCd)
+		
+		// 시작일 (현재날짜의 월 첫일)
+		$('#tsrtDtFrom').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#tsrtDtFrom').val() > $('#tsrtDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#tsrtDtFrom').datepicker("setDate", new Date($('#tsrtDtTo').val()));
+			}
+		});
+		
+		//종료일 (현재날짜의 월 말일)
+		$('#tsrtDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#tsrtDtFrom').val() > $('#tsrtDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#tsrtDtTo').datepicker("setDate", new Date($('#tsrtDtFrom').val()));
+			}
+		});
+		
+		// grid init
+		subGridView.initView().setData(0);
+	})
+	
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#estCoprt_S').data("rprc", value);
+		$('#estCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#estCoprt_S'));  
+	}
+	
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input").val("");
+		$("#coCd_S").val(jwt.coCd);
+		$("#tsrtDtFrom").val(getMonth("S"));
+		$("#tsrtDtTo").val(getMonth("E"));
+	}
+</script>

@@ -275,6 +275,19 @@
 				<if test="shipYn != null and !shipYn.equals('')">
 			        AND SHIP_YN = #{shipYn}
 		        </if>
+		        <if test="(prdtDiv != null and !prdtDiv.equals('')) or (prdtGrp != null and !prdtGrp.equals(''))">
+			        AND OD01.ORDRG_SEQ IN (SELECT OD01D.ORDRG_SEQ  
+			                                 FROM TB_OD01D01 OD01D
+			                                INNER JOIN TB_BM01M01 BM01  ON OD01D.PRDT_CD = BM01.PRDT_CD
+			                                WHERE OD01.ORDRG_SEQ = OD01D.ORDRG_SEQ
+										    <if test="prdtDiv != null and !prdtDiv.equals('')">
+										      AND OD01D.PRDT_DIV = #{prdtDiv}
+										   </if>
+										   <if test="prdtGrp != null and !prdtGrp.equals('')">
+										      AND BM01.PRDT_GRP = #{prdtGrp}
+										   </if>
+										   )
+			   </if>			
 				ORDER BY DLVR_DTTM DESC, ORDRG_SEQ DESC
 			) T
 		)
@@ -572,6 +585,8 @@
 			D.PRDT_UNIT,
 			FN_CM05M01_CD_TO_NM(D.PRDT_UNIT) AS PRDT_UNIT_NM,
 			D.PRDT_UPR,
+			D.ODR_UPR,
+			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS SHIP_UPR,
 			D.ODR_QTY AS ORDRG_QTY,
 			D.ODR_QTY AS REAL_DLVR_QTY,
 			B.PRDT_CNVRSN_WT,

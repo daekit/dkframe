@@ -31,5 +31,15 @@ public class AR10Ctr {
     	return "jsonView";
 	}
     
-
+    @PostMapping(value = "/selectPchsSellSumList")
+	public String selectPchsSellSumList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar10Svc.selectPchsSellSumCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, Object>> resultList = ar10Svc.selectPchsSellSumList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
 }

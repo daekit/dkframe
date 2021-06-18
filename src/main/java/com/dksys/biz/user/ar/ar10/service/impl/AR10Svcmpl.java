@@ -26,4 +26,15 @@ public class AR10Svcmpl implements AR10Svc {
 	public List<Map<String, Object>> selectPchsSellList(Map<String, String> paramMap) {
 		return ar10Mapper.selectPchsSellList(paramMap);
 	}
+
+    
+    @Override
+	public int selectPchsSellSumCount(Map<String, String> paramMap) {
+    	return ar10Mapper.selectPchsSellSumCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, Object>> selectPchsSellSumList(Map<String, String> paramMap) {
+		return ar10Mapper.selectPchsSellSumList(paramMap);
+	}
 }
