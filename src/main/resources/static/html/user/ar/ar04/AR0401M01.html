@@ -84,7 +84,7 @@
 					<tr>
 						<th>매입/매출 구분</th>
 						<td>
-							<select data-kind="SELPCH" data-search="selpchCd">
+							<select data-kind="SELPCH" id="selpchCd" data-search="selpchCd">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -104,7 +104,7 @@
 					<tr>
 						<th>전송구분</th>
 						<td>
-							<select data-search="sndYn">
+							<select data-search="sndYn" id="sndYn">
 								<option value="">전체</option>
 								<option value="N" selected>미전송</option>
 								<option value="Y">전송</option>
@@ -522,13 +522,17 @@
 		// 기간
 		$('#startDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
 		$('#endDt').datepicker("setDate", new Date());
-
+		var selpchCd = $('select#selpchCd').val();
+		var sndYn = $('#sndYn').val();
+		
 		// 조건
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		$('[data-search="coCd"]').val(jwt.coCd);
+		$('select#selpchCd').val(selpchCd);
+		$('[data-search="sndYn"]').val(sndYn);
 		
 		// 재검색
-		gridView.setData(0);
+		gridView.initView().setData(0);
 	}
 
 	// 세금계산서 수정 화면
