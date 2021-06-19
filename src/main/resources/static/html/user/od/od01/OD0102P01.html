@@ -398,7 +398,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionOdBtn" authchk></button>
-		<button class="close_btn" onclick="modal.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -472,7 +472,7 @@
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
 		}else if(actionType == "U"){
-			selectOrderInfo(commonModal.paramObj.ordrgSeq);
+			selectOrderInfo(modalStack.last().paramObj.ordrgSeq);
 			$('#actionOdBtn').on("click", function(){updateOrder();});
 			$('.tit_contents .tit').text("발주서 수정");
 			$('#actionOdBtn').text("저장");
@@ -505,17 +505,12 @@
 	}
 	
 	function getOrderInfo(){
-		var formData = {
-			"odrSeq": odrSeq,
-			"odrDtlSeqArr": odrDtlSeqArr
-		};
-		postAjaxSync("/user/od/od01/getOrderInfo", formData, null, function(data){
+		postAjaxSync("/user/od/od01/getOrderInfo", modalStack.last().paramObj, null, function(data){
 			setOrderInfo(data.result);
 		});
 	}
 	
 	function setOrderInfo(obj) {
-		
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
@@ -915,11 +910,12 @@
 			if(taxivcCoprt ==""){
 				$("#taxivcCoprt").val(row.taxivcCoprt);
 			}
-		  if(row.ordTyp) {
+			
+			if(row.ordTyp) {
 				$("#typCd").val('SELLTYPE2'); // 가공
-		  } else{
+			} else{
 				$("#typCd").val('SELLTYPE1'); // 유통
-		  }
+			}
 		});
 	}
 	
@@ -1274,8 +1270,8 @@
 			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
+					modalStack.close();	
 					gridView.setData(0);
-					modal.close();	
 				}
 			});
 		}
@@ -1288,9 +1284,11 @@
 			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
 				alert(data.resultMessage);    
 				if(data.resultCode == 200){
+					modalStack.close();
 					gridView.setData(0);
-				    viewOrderModal($('#ordrgSeq').val());
-					modal.close();
+					setTimeout(function(){
+					    viewOrderModal($('#ordrgSeq').val());
+					}, 500);
 				}
 			});
 		}

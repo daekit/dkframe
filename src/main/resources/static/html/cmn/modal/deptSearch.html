@@ -16,8 +16,8 @@
 		<div id="deptTree" style="overflow: auto; height: 410px; padding: 0 10px;"></div>
 	</div>
 	<div style="padding: 5px 0px;">
-		<button type="button" class="btn btn-default btn-sm" onclick="executeCallBack();">선택</button>
-		<button type="button" class="btn btn-default btn-sm" onclick="commonModal.closeTarget.close();">닫기</button>	
+		<button type="button" class="btn btn-default btn-sm" onclick="executeCallback();">선택</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modalStack.close();">닫기</button>	
 	</div>
 </div>
 <script type="text/javascript">
@@ -28,7 +28,6 @@
 	
 	// 트리 초기화
 	function initDeptTree(deptTree) {
-		debugger;
 		$("#deptTree").jstree(
 		{
 			"plugins": ['types', 'checkbox', 'search', 'sort'],
@@ -74,7 +73,7 @@
 				$('#deptTree').jstree(true).check_node(deptId);
 			}
 			
-			executeCallBack();
+			executeCallback();
 		}).on('open_node.jstree', function(e, data) {
 		// 노드 열릴 때
 			data.instance.set_type(data.node, 'unit-open');
@@ -87,7 +86,7 @@
 	// 트리 데이터 set
 	function setDeptTree() {
 		var deptTree = null;
-		postAjaxSync("/admin/cm/cm04/selectDeptTree", commonModal.paramObj, null, function(data){
+		postAjaxSync("/admin/cm/cm04/selectDeptTree", modalStack.last().paramObj, null, function(data){
 			deptTree = data.deptTree;
 		});
 		return deptTree;
@@ -95,7 +94,7 @@
 	
 	// 트리 노드 select
 	function selectNode() {
-		var deptId = commonModal.paramObj.deptId;
+		var deptId = modalStack.last().paramObj.deptId;
 		if(deptId){
 			$('#deptTree').jstree(true).select_node(deptId);
 		}else{
@@ -110,12 +109,12 @@
 		$('#deptTree').jstree(true).search(nodeName);
 	}
 	
-	function executeCallBack(){
+	function executeCallback(){
 		if($('#deptTree').jstree(true).get_checked() == 0){
 			alert("선택된 데이터가 없습니다.");
 			return false;
 		}
-		commonModal.callBack($('#deptTree').jstree(true));
-		commonModal.closeTarget.close();
+		modalStack.last().callback($('#deptTree').jstree(true));
+		modalStack.close();
 	}
 </script>

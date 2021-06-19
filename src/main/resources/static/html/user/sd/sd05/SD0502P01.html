@@ -144,8 +144,6 @@
 							<input id="pchsEndDt2" name="pchsEndDt" class="input_calendar" autocomplete="off"  msg="제강사 구매종료일자">
 						</div>
 					</td>
-	
-
 				</tr>
 			</table>
 			<input type="hidden" id="userId"    name="userId"> 
@@ -367,7 +365,6 @@
 						</td>
 					</tr>
 					<tr>
-
 						<th>외주담당자</th>
 						<td>
 							<input type="hidden" id="outordMngId" name="outordMngId" style="width: 76%;">
@@ -376,6 +373,7 @@
 								<a onclick="openUserTree2();"><i class="i_search_w"></i>
 								</a>
 							</div>
+						</td>
 					</tr>
 					<tr>
 						<th>연락처</th>
@@ -477,7 +475,7 @@
 				<i class="fas fa-print"></i>출력
 			</button>
 			<button type="button" id="prjctActionBtn" authchk>등록</button>
-			<button type="button" class="btn btn-default btn-sm" onclick="modal.close();">닫기</button>
+			<button type="button" class="btn btn-default btn-sm" onclick="modalStack.close();">닫기</button>
 		</div>
 		<div class="contents">
             <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
@@ -486,8 +484,6 @@
 	</form>
 </div>
 <script type="text/javascript">
-	var openFrom = "SD0502P01";
-	var clntType = null;
 	var fileArr = [];
 	var deleteFileArr = [];
 	var fileGridView = {
@@ -617,9 +613,10 @@
 
 	function viewOrderModal(ordrgSeq) {
 		var paramObj = {
-				'ordrgSeq' : ordrgSeq
+			"ordrgSeq": ordrgSeq,
+			"openFrom": "SD0502P01"
 		};
-		openSecondModal("/static/html/user/od/od01/OD0102V01.html", 920, 780, " ",paramObj);
+		openSecondModal("/static/html/user/od/od01/OD0102V01.html", 920, 780, "", paramObj);
 	}
 	
 	var AR01Grid = null;
@@ -640,7 +637,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	viewShipModal();
+		            	viewShipModal(this.item.shipSeq);
 		            },
 		        },
 		        page: {
@@ -707,30 +704,34 @@
 		}
 	}
 	var excelView = {
-			initView: function(){
-				this.target = new ax5.ui.grid();
-				this.target.setConfig({
-			        target: $('[data-ax5grid="excel-grid"]'),
-			        columns: [
-			            {key: "prjctCd",     	label: "프로젝트코드",   	  align: "center", width: 100},
-			            {key: "prjctNm",     	label: "프로젝트명",      	  align: "center", width: 100},
-			            {key: "prdtDivCd",   	label: "제품구분", 		align: "center", width: 80},
-			            {key: "prdtDivNm",   	label: "제품구분", 			align: "center", width: 80},
-			            {key: "prdtStknCd",  	label: "제품강종",  	  align: "left",    width: 240},
-			            {key: "prdtStknNm",  	label: "제품강종",     	  align: "left",    width: 160},
-			            {key: "prdtSizeNm",    	label: "SPEC",     	  align: "center",  width: 90},
-			            {key: "lossRate",     	label: "총중량(KG)", 	  align: "right",   width: 100,formatter: "money"},
-			            {key: "cplrUpr",   		label: "철근:가공단가, 기타:판매단가",   		align: "right",   width: 100, formatter: "money"},
-			            
-			        ]
-			    });
-				return this;
-			}
-		}		
-	function viewShipModal() {
-		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 920, 780, " ");
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		        target: $('[data-ax5grid="excel-grid"]'),
+		        columns: [
+		            {key: "prjctCd",     	label: "프로젝트코드",   	  align: "center", width: 100},
+		            {key: "prjctNm",     	label: "프로젝트명",      	  align: "center", width: 100},
+		            {key: "prdtDivCd",   	label: "제품구분", 		align: "center", width: 80},
+		            {key: "prdtDivNm",   	label: "제품구분", 			align: "center", width: 80},
+		            {key: "prdtStknCd",  	label: "제품강종",  	  align: "left",    width: 240},
+		            {key: "prdtStknNm",  	label: "제품강종",     	  align: "left",    width: 160},
+		            {key: "prdtSizeNm",    	label: "SPEC",     	  align: "center",  width: 90},
+		            {key: "lossRate",     	label: "총중량(KG)", 	  align: "right",   width: 100,formatter: "money"},
+		            {key: "cplrUpr",   		label: "철근:가공단가, 기타:판매단가",   		align: "right",   width: 100, formatter: "money"},
+		            
+		        ]
+		    });
+			return this;
+		}
 	}
 	
+	function viewShipModal(shipSeq) {
+		var paramObj = {
+			"shipSeq": shipSeq,
+			"openFrom": "SD0502P01"
+		};
+		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 920, 780, "", paramObj);
+	}
 	
 	$(document).ready( function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
@@ -931,6 +932,7 @@
 		});
 		
 	}
+	
 	//샵사용자 검색
 	function openUserTree() {
 		var paramObj = {
@@ -946,6 +948,7 @@
 			$('#mngNm').val(checkedNode.text);
 		});
 	}
+	
 	//외주담당자
 	function openUserTree2() {
 		var paramObj = {
@@ -961,6 +964,7 @@
 			$('#outordMngNm').val(checkedNode.text);
 		});
 	}
+	
 	//거래처
 	function clntSearch(type) {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -988,6 +992,7 @@
 		
 		
 	}
+	
 	//샵업체명
 	function clntSearch2() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -996,7 +1001,6 @@
 			$('#shopClntNm').val(row.clntNm);
 		});
 	}
-	
 	
 	/*select box 선택시*/
 	/* function commonCodeList(param){
@@ -1011,7 +1015,7 @@
 				alert(data.resultMessage);
 				if(data.resultCode == "200") {
 					gridView.setData(0);
-					modal.close();	
+					modalStack.close();	
 				}
 			});
 		}
@@ -1023,7 +1027,7 @@
 			filePostAjax("/user/sd/sd05/updateProject", formData, function(data){
 				alert(data.resultMessage);            
 				gridView.setData(0);
-				modal.close();
+				modalStack.close();
 			});
 		}
 	}
@@ -1139,7 +1143,8 @@
 		});
 		return $("tr[name='tableCd']:last")[0];
 	}
-	//list 행삭제	+ DB 삭제
+	
+	//list 행삭제 + DB 삭제
 	function removeDetailRow(){
 		var detailArr = [];
 		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
@@ -1257,8 +1262,6 @@
  		}
  	}
  	
- 	
-
  	function checkDotUnder(obj) {
  		var dotUnderPattern = /^\d*[.]\d{2}$/;
  		var val = $(obj).val();
@@ -1278,6 +1281,7 @@
  		}
 
  	}
+ 	
 	function setReport() {
 		
 		var fileName = "SD0501R01.jrf";
@@ -1289,7 +1293,6 @@
 	}	
 	
 	function setByCoCd(value){
-		
 		// 창고 set
 		$('#whCd').data("desc", value);
 		$('#whCd option:not([value=""])').remove();
@@ -1308,6 +1311,7 @@
 // 		$('#estCoprt_S option:not([value=""])').remove()
 // 		setCommonSelect($('#estCoprt_S'));  
 	}
+	
 	function excelDown() {
 		var row = gridView.target.getList("selected")[0];
 		var formData = {

@@ -351,7 +351,7 @@
 <!-- 		<button id="cancelBtnP" onclick="updateCancel('P');" style="background-color: red;" authchk>매입취소</button> -->
 		<button id="cancelBtnS" onclick="updateCancel('S');" style="background-color: red;" authchk>매출취소</button>
 		<button id="cancelBtnA" onclick="updateCancel('A');" style="background-color: red;" authchk>일괄취소</button>
-		<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -404,13 +404,13 @@
 			$("#ordrgYnBtnS").hide();
 			$("#ordrgYnBtnA").hide();
 		}else{
-			$('#actionBtn').on("click", function(){updateOrderModal(commonModal.paramObj.ordrgSeq);});
+			$('#actionBtn').on("click", function(){updateOrderModal(modalStack.last().paramObj.ordrgSeq);});
 			$('#actionBtn').text("수정");
  			$("#ordrgYnBtnP").show();
 			$("#ordrgYnBtnS").show();
 			$("#ordrgYnBtnA").show();
 		}
-		authChk("OD0101M01");
+		authChk();
 	});
 	
 	function selectOrderInfo() {
@@ -418,12 +418,12 @@
 		var ordrgSeq = null;
 		
 		if(openFrom == "SD0502P01"){
-			ordrgSeq = commonModal.paramObj.ordrgSeq;
+			ordrgSeq = modalStack.last().paramObj.ordrgSeq;
 		}else if(openFrom == "SD0402V01" || openFrom == "SD0402P01"){
 			row = ordrgGridView.target.getList("selected")[0];
 			ordrgSeq = row.ordrgSeq
 		}else{
-			ordrgSeq = commonModal.paramObj.ordrgSeq;
+			ordrgSeq = modalStack.last().paramObj.ordrgSeq;
 		}
 		
     	var paramObj = {"ordrgSeq" : ordrgSeq}
@@ -627,7 +627,7 @@
 			alert(data.resultMessage);           
 			if(data.resultCode == 200){
 				gridView.setData(0);
-				modal.close();
+				modalStack.close();
 			}
 		});
 	}
@@ -688,7 +688,7 @@
 			alert(data.resultMessage);
 			if(data.resultCode == 200) {
 				gridView.setData(0);
-				modal.close();
+				modalStack.close();
 			}
 		});
 	}
