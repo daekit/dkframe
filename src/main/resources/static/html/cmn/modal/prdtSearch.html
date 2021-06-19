@@ -38,8 +38,8 @@
 		</div>
 	</div>
 	<div class="popup_bottom_btn">
-		<button onclick="executeCallBack();">선택</button>
-		<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+		<button onclick="executeCallback();">선택</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -59,7 +59,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	executeCallBack();
+		            	executeCallback();
 		            }
 		        },
 		        page: {
@@ -97,7 +97,7 @@
 		}, 
 		setData: function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = commonModal.paramObj;
+			var paramObj = modalStack.last().paramObj;
 			paramObj.pageNo = _pageNo + 1;
 			paramObj.recordCnt = 20;
 			
@@ -141,9 +141,9 @@
 		});
 	}
 	
-	function executeCallBack(){
+	function executeCallback(){
 		if(selectGridValidation(prdtGridView.target)) return;
-		commonModal.callBack(prdtGridView);
-		commonModal.closeTarget.close();
+		modalStack.last().callback(prdtGridView);
+		modalStack.close();
 	}
 </script>

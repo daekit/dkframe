@@ -152,7 +152,7 @@
 	</table>
 	<div class="popup_bottom_btn">
 		<button id="actionBtn" authchk>등록</button>
-		<button type="button" class="close_btn" onclick="closeModal();">닫기</button>
+		<button type="button" class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -270,7 +270,7 @@
 	
 	function setInit() {
 		if(actionType == "C") {
-			$('#coCd').val(commonModal.paramObj.coCd);
+			$('#coCd').val(modalStack.last().paramObj.coCd);
             // 판매법인, 창고 set
 			setByCoCd($('#coCd').val());			
 			$('#actionBtn').on("click", function(){insertCaryng();});
@@ -318,7 +318,7 @@
 	}
 	
 	function selectCaryngInfo(){
-		postAjaxSync("/user/ar/ar03/selectCaryngInfo", commonModal.paramObj, null, function(data){
+		postAjaxSync("/user/ar/ar03/selectCaryngInfo", modalStack.last().paramObj, null, function(data){
 			setCaryngInfo(data.result);
 		});
 	}
@@ -369,10 +369,10 @@
 					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
 					$("#arViewDiv #transSeq").val(data.transSeq);
 					onlyNumber($("#arViewDiv #transAmt"));
-					secondModal.close();
+					modalStack.close();
 				} else {
 					gridView.setData(0);
-					modal.close();
+					modalStack.close();
 				}
 			});
 		}
@@ -387,9 +387,9 @@
 				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
 					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
 					onlyNumber($("#arViewDiv #transAmt"));
-					secondModal.close();
+					modalStack.close();
 				}else{
-					modal.close();
+					modalStack.close();
 				}
 			});
 		}
@@ -476,14 +476,6 @@
 		}
 	}
 	
-	function closeModal() {
-		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
-			secondModal.close();
-		} else {
-			modal.close();	
-		}
-	}
-
 	function viewShipDtlModal(shipSeq) {
 		var paramObj = {"shipSeq": shipSeq};
 		openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 1200, 780, "", paramObj);

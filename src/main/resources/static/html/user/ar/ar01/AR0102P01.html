@@ -371,7 +371,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionArBtn" authchk>등록</button>
-		<button class="close_btn" onclick="modal.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -445,7 +445,7 @@
 			$('#actionArBtn').text("등록");
 			$("#odrCreatDiv").val("ERP");
 		} else if(actionType == "U"){
-			selectShipInfo(commonModal.paramObj.shipSeq);
+			selectShipInfo(modalStack.last().paramObj.shipSeq);
 			$('#actionArBtn').on("click", function(){updateShip();});
 			$('.tit_contents .tit').text("출하요청서 수정");
 			$('#actionArBtn').text("저장");
@@ -460,7 +460,6 @@
 	});
 	
 	function selectShipInfo(shipSeq) {
-		debugger;
 		var paramObj = {"shipSeq" : shipSeq};
 		postAjax("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
@@ -468,11 +467,7 @@
 	}
 	
 	function getOrderInfo(){
-		var formData = {
-			"odrSeq": odrSeq,
-			"odrDtlSeqArr": odrDtlSeqArr
-		};
-		postAjax("/user/ar/ar01/getOrderInfo", formData, null, function(data){
+		postAjax("/user/ar/ar01/getOrderInfo", modalStack.last().paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
@@ -971,7 +966,7 @@
 					alert(data.resultMessage);
 					if(data.resultCode == 200){
 						gridView.setData(0);
-						modal.close();
+						modalStack.close();
 					}
 				});
 			}
@@ -985,14 +980,11 @@
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
-					if(openFrom == "CM1001M01"){
-						targetGrid = shipGridView;
-					} else {
-						targetGrid = gridView;
-					}        
-					targetGrid.setData(0);
-					viewShipModal($('#shipSeq').val());
-					modal.close();
+					modalStack.close();
+					gridView.setData(0);
+					setTimeout(function(){
+						viewShipModal($('#shipSeq').val());
+					}, 500)
 				}
 			});
 		}

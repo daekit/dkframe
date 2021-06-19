@@ -23,8 +23,8 @@
 	</div>
 	<div class="popup_bottom_btn">
 		<button onclick="openInsertSiteModal();">등록</button>
-		<button onclick="executeCallBack();">선택</button>
-		<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+		<button onclick="executeCallback();">선택</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -44,7 +44,7 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-		            	executeCallBack();
+		            	executeCallback();
 		            }
 		        },
 		        page: {
@@ -90,7 +90,7 @@
 		}, 
 		setData: function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = commonModal.paramObj;
+			var paramObj = modalStack.last().paramObj;
 			paramObj.pageNo = _pageNo + 1;
 			paramObj.recordCnt = 10;
 			paramObj.useYn = 'Y';
@@ -119,19 +119,22 @@
 		siteGridView.initView().setData(0);
 	});
 	
-	function executeCallBack(){
+	function executeCallback(){
 		if(selectGridValidation(siteGridView.target)) return;
-		commonModal.callBack(siteGridView);
-		commonModal.closeTarget.close();
+		modalStack.last().callback(siteGridView);
+		modalStack.close();
 	}
 	
 	// 현장 상세
-	function openInsertSiteModal(actionType) {
-		commonModal.closeTarget.close();
-		this.actionType = actionType;
-		var paramObj = commonModal.paramObj;
-		openSecondModal("/static/html/user/sd/sd09/SD0902P02.html", 1000, 450, "현장 등록", paramObj, function (grid) {
-			var row = grid.target.getList("selected")[0];
-		});
+	function openInsertSiteModal() {
+		if(!modalStack.last().paramObj.clntCd){
+			alert("거래처를 확인 해 주세요.");
+			return false;
+		}
+		var paramObj = modalStack.last().paramObj;
+		modalStack.close();
+		setTimeout(function(){
+			openSecondModal("/static/html/user/sd/sd09/SD0902P02.html", 1000, 450, "현장 등록", paramObj);
+		}, 500);
 	}
 </script>
