@@ -313,6 +313,7 @@ public class AR04SvcImpl implements AR04Svc {
 		// List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
 		Map<String, Object> param = new HashMap<String, Object>();
 		Map<String, String> taxHdInfo = new HashMap<String, String>();
+		String selectDt = String.valueOf(paramMap.get("selectDt")); /* 세금계산서 발행일자 */
 		int msgId = 0;
 		for (int i = 0; i < list.size(); i++) {
 			//
@@ -325,6 +326,7 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("userNm", userNm);
 			taxHdParam.put("deptId", deptId);
 			taxHdParam.put("pgmId", pgmId);
+			taxHdParam.put("selectDt", selectDt); /* 세금계산서 발행일자 */
 			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
 			taxHdParam.put("coCd", list.get(i).split(",")[1]);
 			Map<String, String> bilgInfo = new HashMap<String, String>();
@@ -334,6 +336,7 @@ public class AR04SvcImpl implements AR04Svc {
 			orgnTaxBilgNo = bilgInfo.get("taxBilgNo");
 			taxHdParam.put("orgnTaxBilgNo", "");
 			taxHdParam.put("bgm1225", "9"); // 정발행은 9
+			taxHdParam.put("invSndYn", bilgInfo.get("invSndYn"));
 			// if (bilgInfo.get("rffGn1").equals("RFFGN101")
 			// && bilgInfo.get("rffAea").isEmpty()) { // 일반세금계산서이고 수정사유가 없으면 (-) 수정세금계산서
 			// 발행(기존 ar04 복사)
