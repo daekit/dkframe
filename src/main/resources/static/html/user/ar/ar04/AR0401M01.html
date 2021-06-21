@@ -578,6 +578,7 @@
 		var emailChk = true;
 		var selpchChk = true;
 		var emailIdx;
+		var selectDt;
 		$.each(list, function(idx, obj){
 			// 매입매출 체크
 			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
@@ -585,7 +586,8 @@
 				alert("매출계산서만 전송 가능합니다!");
 				return false;
 			}
-
+			//세금계산서 발행일자 초기값 설정
+			selectDt = obj.sellDt;
 			if(!obj.taxBilgNo) {
 				flag = true;
 				alert("세금계산서 발행된 건이 아닙니다.");
@@ -626,11 +628,13 @@
 		}
 		var formData = {
 			"bilgCertNoArr" : bilgCertNoArr,
+			"selectDt" : selectDt,
 			"userId" : jwt.userId,
 			"userNm" : jwt.userNm,
 			"deptId" : jwt.deptId,
 			"pgmId" : "AR0401M01"
 		}
+		console.log(formData);
 		postAjax("/user/ar/ar04/insertTaxHdReSend", formData, null, function(data){
 			alert(data.resultMessage);
 			gridView.setData(0);
@@ -690,11 +694,11 @@
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 정발행의 경우 rffgn1 : 01, rffAea : null 인 건만 가능
 			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225Cd != 'BGM12259'){
-				//if((obj.rffGn1Cd != "02" && obj.rffAeaCd != "03")){
+				if((obj.rffAeaCd != "03")){ //obj.rffGn1Cd != "02" && 
 					arrGnChk = false;
 					alert("세금계산서 종류를 확인 해 주세요.");
 					return false;
-				//}
+				}
 			}
 			
 			//e-Mail 체크
@@ -955,6 +959,7 @@
 				"rffAea" : rffAea
 			}
 			postAjax("/user/ar/ar04/insertTaxHdUpdate", formData, null, function(data){
+				console.log(data);
 				alert(data.resultMessage);
 				gridView.setData(0);
 			});
