@@ -24,7 +24,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setCodeSelectByCocd(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setByCoCd(this.value);" required></select>
 					</td>
 					<th>현장명</th>
 					<td>
@@ -463,7 +463,7 @@
 			$('#coCd').val(jwt.coCd);
 			$('#odrCreatDiv').val("ERP");
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setCodeSelectByCocd($('#coCd').val());
+			setByCoCd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$("#dirtrsYn").val("Y"); 
@@ -486,7 +486,7 @@
 			//발주서 등록 시 직송여부 default Y 
 			$("#dirtrsYn").val("Y"); 
 			ctrlDirtrs();
-		}else if (actionType == "R"){ // 구매요청에서 발주서 호춣할때 사용한다.
+		}else if (actionType == "R"){ // 구매요청에서 발주서 호출할때 사용한다.
 			getReqInfo();
 			$('#actionOdBtn').on("click", function(){insertOrder();});
 			$('.tit_contents .tit').text("발주서 등록");
@@ -528,14 +528,15 @@
 				
 				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setCodeSelectByCocd(value);  
+					setByCoCd(value);  
 				}
 				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
 				}
-				// 판매유형, 재고주체 set
+				
+				// 재고주체 set
 				if(key == "typCd"){
 					setBySellType(value);  
 				}
@@ -668,7 +669,7 @@
 				
 				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setCodeSelectByCocd(value);  
+					setByCoCd(value);  
 				}
 				
 				// 제조사 set
@@ -720,13 +721,13 @@
 		} */
 	}
 	
-	// 창고 set
-	function setCodeSelectByCocd(value){
+	// 창고, 판매법인 set
+	function setByCoCd(value){
 		$('#whCd').data("desc", value);
 		$('#whCd option:not([value=""])').remove()
 		setCommonSelect($('#whCd'));
 		
-  		// 창고와 판매법인은 같이 바귐.		
+	 		// 창고와 판매법인은 같이 바귐.		
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
@@ -745,15 +746,15 @@
 		// OWNER3: 건설사
 		// OWNER4: 기타
 		
-		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2"){
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2" || value == "SELLTYPE5"){
 		// 판매유형이 선택, 유통, 가공일때
 			
 			// 재고주체 초기화
 			$('#ownerCd option:not([value=""])').remove();
 			setCommonSelect($('#ownerCd'));
 			
-			if(value == ""){
-			// 판매유형이 선택일때
+			if(value == "" || value == "SELLTYPE5"){
+			// 판매유형이 선택, 관수일때
 				// 재고주체 활성화
 				$('#ownerCd').prop("disabled", false);
 			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
@@ -775,15 +776,6 @@
 			// 직송여부 N set
 			$('#dirtrsYn').val("N");
 			$('#dirtrsYn').prop("disabled", true);
-			ctrlDirtrs();
-		}else{
-			// 재고주체 초기화
-			$('#ownerCd option:not([value=""])').remove();
-			setCommonSelect($('#ownerCd'));
-			$('#ownerCd').prop("disabled", false);
-			// 직송여부 Y set
-			$('#dirtrsYn').val("Y");
-			$('#dirtrsYn').prop("disabled", false);
 			ctrlDirtrs();
 		}
 	}
