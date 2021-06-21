@@ -136,7 +136,7 @@
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
 	                <a onclick="updateRecptYn();" style="height: 30px; line-height: 28px; width: 40px;" authchk> 접수</a>
-	                <a onclick="insertShipModal('C');" style="height: 30px; line-height: 28px;" authchk>+</a>
+	                <a onclick="insertShipModal();" style="height: 30px; line-height: 28px;" authchk>+</a>
 	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;" authchk>-</a>
 					<a onclick="setReport('SHIP');" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
 					<a onclick="setReport();" style="height: 30px; line-height: 28px; width: 110px;" title="계산서 발행건만 출력합니다."><i class="fas fa-print"></i> 출하요청서출력</a>
@@ -163,12 +163,7 @@
 </html>
 
 <script type="text/javascript">
-
-	var authId = null;
-	var authRole = null;
-	var actionType = null;
 	var openFrom = null;
-	var firstGrid = null;
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -247,7 +242,7 @@
 			return this;
 		}, 
 		setData: function(_pageNo) {
-			firstGrid = this.target;
+			var targetObj = this.target;
 			var formData = {
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
 				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
@@ -264,7 +259,7 @@
 			}
 			postAjax("/user/ar/ar01/selectShipList", formData, null, function(data){
 				var list = data.resultList;
-				firstGrid.setData({
+				targetObj.setData({
 					list : list,
 					page : {
 						currentPage : _pageNo,
@@ -373,11 +368,11 @@
 		gridView.initView().setData(0);
 	}
 	
-	function insertShipModal(type){
-		actionType = type;
-		var paramObj ={
-				coCd :$('#coCd_S').val()
-			}
+	function insertShipModal(){
+		var paramObj = {
+			"actionType": "C",
+			"coCd": $('#coCd_S').val()
+		};
 		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1200, 780, "", paramObj);
 	}
 	
@@ -386,13 +381,6 @@
 		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1200, 780, "", paramObj);
 	}
 	
-	function updateShipModal(shipSeq) {
-		modalStack.close();
-		actionType = "U";
-		var paramObj = {'shipSeq' : shipSeq};		
-		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1200, 780, "", paramObj);
-	}
-
 	// 거래처 검색
 	function openClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
