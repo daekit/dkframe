@@ -37,6 +37,7 @@ public class SD09Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+    
     @PostMapping(value = "/selectSiteDetail")
 	public String selectSiteDetail(@RequestBody Map<String, String> paramMap, ModelMap model) {    	
     	Map<String, Object> result = sd09Svc.selectSiteDetail(paramMap);
@@ -122,5 +123,11 @@ public class SD09Ctr {
     	}
     	return "jsonView";
     }
-    
+
+    @PostMapping(value = "/selectClntFromWh")
+	public String selectClntFromWh(@RequestBody Map<String, String> paramMap, ModelMap model) {    	
+    	Map<String, String> result = sd09Svc.selectClntFromWh(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+	}
 }
