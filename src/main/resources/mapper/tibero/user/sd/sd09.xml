@@ -263,6 +263,7 @@
          , RLLRVAL_USE_YN
          , ORGPLCE_PRTN_YN
          , TAG_CTTNLEN_DP_YN
+         , ORG_SITE_CD
 		 ) VALUES (
 		 #{coCd}
 		 , #{siteCd}
@@ -307,6 +308,7 @@
          , NVL(#{rllrvalUseYn,    jdbcType=VARCHAR}, 'N')
          , NVL(#{orgplcePrtnYn,    jdbcType=VARCHAR}, 'N')
          , NVL(#{tagCttnlenDpYn,    jdbcType=VARCHAR}, 'N')
+         , #{orgSiteCd,    jdbcType=VARCHAR}
 		 )
 	</insert>
 	
@@ -577,4 +579,12 @@
 	   AND SITE_CD = #{siteCd}
 	   AND SITE_TRANS_SEQ = #{siteTransSeq}
 	</delete>
+	
+	<select id="selectClntFromWh" parameterType="Map" resultType="CamelMap">
+	SELECT CLNT_CD
+		 , CLNT_NM 
+	  FROM TB_BM02M01 
+	 WHERE CLNT_CD = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID =
+					(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = #{whCd}))
+	</select>
 </mapper>
