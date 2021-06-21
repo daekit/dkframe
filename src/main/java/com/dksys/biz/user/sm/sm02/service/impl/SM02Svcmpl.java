@@ -112,17 +112,21 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sRmk",      detail.get("sRmk"));
 			detailMap.put("sellType",  detail.get("sellType"));
 			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
-			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
-			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
-			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
-			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
+			detailMap.put("sPrdtCd",   detailMap.get("prdtCd"));
+			detailMap.put("sPrdtSpec", detailMap.get("prdtSpec"));
+			detailMap.put("sPrdtSize", detailMap.get("prdtSize"));
+			detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
+			detailMap.put("transSeq",  detail.get("transSeq"));
+			detailMap.put("transAmt",  detail.get("transAmt"));
 
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
 			
 			//  가공으로 이동 시에는 길이가 8M가 된다 -- 공장에서 길이 관리가 안됨
 			if("8".equals(param.get("mngPrdtLen"))) {
 				detailMap.put("sPrdtLen",  param.get("mngPrdtLen"));				
-			}			
+			}else {
+				detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
+			}
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가			
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 		}

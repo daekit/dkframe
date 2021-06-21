@@ -1,5 +1,5 @@
 <body>
-	<div class="container-fluid">
+	<div id="arViewDiv" class="container-fluid">
       <div class="row">
         <div class="popup_area">
 		        <div  class="popup_table">
@@ -21,7 +21,7 @@
 		          			<th colspan= "2">출고 회사</th>
 		          			<td colspan="3"> 
 		          				<select id="searchDtlOutCoCd" name="searchDtlOutCoCd" data-kind="CO" onchange="setWareHouse(this.value); gridView1.setData(0);" required >
-		          				<option value="">전체</option>
+<!-- 		          				<option value="">전체</option> -->
 		          				</select>
 		          			</td>
 		          			<th colspan="2">출고지(창고)</th>
@@ -89,6 +89,7 @@
 	      <ul class="btn_ul">
 	        <li class="btn_r">
 	          <a id="move">
+	            <button class="bg_gray" onclick = "insertTransAmt()" authchk>운송비</button>
 	            <button class="bg_gray" onclick = "insertUpdateMove()" authchk>이동</button>
 	          </a>
 	        </li>
@@ -106,6 +107,10 @@
 			              <input type="hidden" id="sPrdtSpec" name="sPrdtSpec" >
 			              <input type="hidden" id="sPrdtSize" name="sPrdtSize" >
 			              <input type="hidden" id="sWhType"   name="sWhType">
+			              <input type="hidden" id="transSeq"  name="transSeq">
+			              <input type="hidden" id="transAmt"  name="transAmt">
+					 	  <input type="hidden" id="clntCd"    name="clntCd">
+					   	  <input type="hidden" id="clntNm"    name="clntNm">
           		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" onChange="findWhType()" required msg="입고지"></select>
           		</td> 
           		<th colspan="2" class="hit">판매유형</th>
@@ -144,7 +149,7 @@
     </a>
     <form id="popForm">
 		<input type="hidden" id="userId" name="userId">
-	    <input type="hidden" id="pgmId" name="pgmId" value="SM0201P01">
+	    <input type="hidden" id="pgmId"  name="pgmId" value="SM0201P01">
 	</form>
 </body>
 
@@ -236,17 +241,17 @@
 		setData: function(_pageNo) {
 			searchGrid = this.target;
 			 var formData = {
-				"coCd"   : $("#searchDtlOutCoCd").val(),
-				"whCd"   : $("#searchDtlOutWhCd").val(),
-				"clntNm": $("#searchDtlClntNm").val(),
+				"coCd"     : $("#searchDtlOutCoCd").val(),
+				"whCd"     : $("#searchDtlOutWhCd").val(),
+				"clntNm"   : $("#searchDtlClntNm").val(),
 				"ownerCd"  : $("#searchDtlOwnerCd").val(),
-				"typCd" : $("#searchDtlTypCd").val(),
+				"typCd"    : $("#searchDtlTypCd").val(),
 			//	"makrCd" : $("#searchDtlMakr").val(),			
-				"prjctCd" : $("#prjctCd_S").val(),
-				"prjctNm" : $("#prjctNm_S").val(),
-				"impYn" : $("#searchDtlImpYn").val(),
-				"prdtNm" : $("#searchDtlPrdtNm").val(),
-				"pageNo" : _pageNo + 1
+				"prjctCd"  : $("#arViewDiv #prjctCd_S").val(),
+				"prjctNm"  : $("#arViewDiv #prjctNm_S").val(),
+				"impYn"    : $("#searchDtlImpYn").val(),
+				"prdtNm"   : $("#searchDtlPrdtNm").val(),
+				"pageNo"   : _pageNo + 1
 			} 
 			
 			postAjax("/user/sm/sm02/selectStockMoveStatMngmDtlList", formData, null, function(data){
@@ -268,7 +273,8 @@
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
 		$("#searchDtlOutCoCd").val(jwt.coCd);
-
+		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
+		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
 		//창고 초기값 설정
 		setWareHouse(jwt.coCd);
 		
@@ -293,6 +299,53 @@
 		authChk();
 	    
 	})	
+
+		
+	//초기화 함수
+	function searchInit(){
+		$(".row select").val("");
+		$(".row input[type='hidden']").val("");
+		$(".row input[type='text']").val("");
+
+		setCommonSelect($(".popup_area select[data-kind]"));
+		$("#searchDtlOutCoCd").val(jwt.coCd);
+		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
+		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
+		//창고 초기값 설정
+		setWareHouse(jwt.coCd);
+		
+	    //setDtlSelectCombo();
+	    gridView1.initView().setData(0);
+	    $("#sTransDt").val(dateToStr(new Date()));
+	    $('#sTransDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});  
+
+// 재고이동은 유통 <->가공간에만 발생함.
+		$("#searchDtlTypCd option[value='SELLTYPE3']").remove();
+		$("#searchDtlTypCd option[value='SELLTYPE4']").remove();
+		$("#searchDtlType option[value='SELLTYPE3']").remove();
+		$("#searchDtlType option[value='SELLTYPE4']").remove();
+		
+		findWhType(); // 기본 창고 유형  Set
+		
+// 		$("#searchDtlOutCoCd option:eq(0)").prop("selected",true); 
+// 		$("#searchDtlOutWhCd option:eq(0)").prop("selected",true);
+// 		$("#searchDtlClntCd").val('');
+// 		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
+// 		$("#searchDtlTypCd option:eq(0)").prop("selected",true);
+// 		$("#searchPrjctCd option:eq(0)").prop("selected",true);
+// 		$("#arViewDiv #prjctCd_S option:eq(0)").prop("selected",true);
+// 		$("#arViewDiv #prjctNm_S").val("");
+		
+// 	//	$("#searchDtlMakr option:eq(0)").prop("selected",true);
+// 		$("#searchDtlImpYn option:eq(0)").prop("selected",true);
+// 		$("#searchDtlPrdtCd").val('');
+	}
+
+	
 	
 	//공통코드 조회
 	/* function setDtlSelectCombo(){  
@@ -382,16 +435,14 @@
 		
 		var formData = $("#popForm").serializeObject();
 		var formData2 = {
-			"sCoCd"  : $("#searchDtlOutCoCd").val(),   // 출고회사가 바뀌면 매입매출고 처리함.
-			"sWhCd" : $("#searchDtlWhCd").val(),
-			"sTransDt" : $("#sTransDt").val(),
-			"sRmk" : $("#searchRmk").val(),	
-			"sellType" : $("#searchDtlType").val(),	
-			"sPrjctCd" : $("#searchPrjctCd").val(),	
-			"sPrdtCd" : $("#sPrdtCd").val(),
-			"sPrdtSpec" : $("#sPrdtSpec").val(),	
-			"sPrdtSize" : $("#sPrdtSize").val(),	
-			"sPrdtLen" : $("#sPrdtLen").val(),	
+			"sCoCd"     : $("#searchDtlOutCoCd").val(),   // 출고회사가 바뀌면 매입매출고 처리함.
+			"sWhCd"     : $("#searchDtlWhCd").val(),
+			"sTransDt"  : $("#sTransDt").val(),
+			"sRmk"      : $("#searchRmk").val(),	
+			"sellType"  : $("#searchDtlType").val(),	
+			"sPrjctCd"  : $("#searchPrjctCd").val(),	
+			"transSeq"  : $("#transSeq").val(),	
+			"transAmt"  : $("#transAmt").val()
 		}
 		// 상세내역 추가
 		//formData["detailArr"] = searchGrid.getList();
@@ -406,26 +457,13 @@
 		formData["detailArr"] = JSON.stringify(detailArr);
 		return formData;
 	}
-	
-	//초기화 함수
-	function searchInit(){
-		$("#searchDtlOutCoCd option:eq(0)").prop("selected",true); 
-		$("#searchDtlOutWhCd option:eq(0)").prop("selected",true);
-		$("#searchDtlClntCd").val('');
-		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
-		$("#searchDtlTypCd option:eq(0)").prop("selected",true);
-		$("#searchPrjctCd option:eq(0)").prop("selected",true);
-	//	$("#searchDtlMakr option:eq(0)").prop("selected",true);
-		$("#searchDtlImpYn option:eq(0)").prop("selected",true);
-		$("#searchDtlPrdtCd").val('');
-	}
-	
+
 	//거래처 검색
 	function clntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#searchDtlClntCd').val(row.clntCd);
-			$('#searchDtlClntNm').val(row.clntNm);
+			$("#searchDtlClntCd").val(row.clntCd);
+			$("#searchDtlClntNm").val(row.clntNm);
 		});
 	}
 	
@@ -434,7 +472,7 @@
 		$targetRow = $(elem).closest('tr[name="tableCd"]');
 		// selpchCd - SELPCH2: 매출
 		var paramObj = {
-			"coCd": $('#searchDtlOutCoCd').val(),
+			"coCd": $("#searchDtlOutCoCd").val(),
 			"selpchCd": "SELPCH2",
 			"impYn": "N", 
 			"clntCd" : $("#clntCd").val(),
@@ -451,20 +489,20 @@
 	// 현장 검색
 	function openSecondPrjctSearch(type) {
 		var paramObj = {
-			"coCd": $('#popForm #coCd').val(), 
-			"clntCd": $("#popForm #clntCd").val(),
-			"clntNm": $("#popForm #clntNm").val(),
-			"prjctNm": $("#popForm #prjctNm").val()
+			"coCd"   : $("#searchDtlOutCoCd").val(), 
+			"clntCd" : "",
+			"clntNm" : "",
+			"prjctNm": ""
 		}
 		
 		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
 			var row = tree.target.getList("selected")[0];
-			if(type == 'S') {
-				$("#prjctCd_S").val(row.prjctCd);
-				$("#prjctNm_S").val(row.prjctNm);
-			} else {
+			if(type == "E") {
 				$("#searchPrjctCd").val(row.prjctCd);
 				$("#searchPrjctNm").val(row.prjctNm);
+			} else {
+				$("#arViewDiv #prjctCd_S").val(row.prjctCd);
+				$("#arViewDiv #prjctNm_S").val(row.prjctNm);
 			}
 		});
 	}
@@ -485,6 +523,20 @@
 		//임고지 창고법인별 설정
 		$('#searchDtlWhCd').data("desc", value);
 		$('#searchDtlWhCd').empty();
-		setCommonSelect($('#searchDtlWhCd'));
-	}	
+		setCommonSelect($('#searchDtlWhCd'));	
+        //회사 변경
+		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
+		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
+		
+	}
+	// 운반비 등록
+	function insertTransAmt(){
+		openFrom = "SM0201P01";
+		var paramObj ={
+			transSeq :$('#transSeq').val(),
+			coCd     : $("#searchDtlOutCoCd").val()
+		}
+		if(!$('#transSeq').val()) {actionType = 'C';} 
+		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
+	}
 </script>

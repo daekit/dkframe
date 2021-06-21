@@ -266,6 +266,9 @@
 		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
 			$("#transViewDiv #coCd").val($("#arViewDiv #coCd").val());
 			$("#transViewDiv #transSeq").val($("#arViewDiv #transSeq").val());
+		}else if(openFrom == "SM0201P01"){ //  일반재고이동시 운반비 발생
+			$("#transViewDiv #coCd").val($("#arViewDiv #searchDtlOutCoCd").val());
+			$("#transViewDiv #transSeq").val($("#arViewDiv #transSeq").val());
 		}
 		setInit();
 		//권한관리
@@ -304,8 +307,8 @@
 			$("#taxivcCoprt").prop("required", false);
 			$("#taxivcCoprt").prop("disabled", true);
 		}
-		if(openFrom == "AR0102P01" || openFrom == "OD0102P01") {
-			if(openFrom == "AR0102P01") {
+		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "SM0201P01"){ //  일반재고이동시 운반비 발생
+			if(openFrom == "AR0102P01"  || openFrom == "SM0201P01") {
 				$("#transViewDiv #clntCd").val($("#arViewDiv #clntCd").val());
 				$("#transViewDiv #clntNm").val($("#arViewDiv #clntNm").val());
 				$("#transViewDiv #totWt").val($("#arViewDiv #shipTotWt").val());
@@ -321,6 +324,10 @@
 			$("#transViewDiv #whCd").val($("#arViewDiv #whCd").val());
 			$("#transViewDiv #taxivcCoprt").val($("#arViewDiv #taxivcCoprt").val());
 			$("#transViewDiv #desNm").val($("#arViewDiv #addrMain").val());
+		}
+		if( openFrom == "SM0201P01"){ //  일반재고이동시 운반비 발생
+			$("#transViewDiv #transRmk").val("재고이동");
+			$("#transViewDiv #taxivcCoprt").val($('#arViewDiv #searchDtlOutWhCd option:selected').data("etc")); // 판매법인
 		}
 	}
 	
@@ -372,7 +379,8 @@
 			var formData = makeCaryngData();
 			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
 				alert(data.resultMessage);           
-				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
+				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" 
+						                   || openFrom == "OD0202P01" || openFrom == "SM0201P01") {
 					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
 					$("#arViewDiv #transSeq").val(data.transSeq);
 					onlyNumber($("#arViewDiv #transAmt"));
@@ -417,7 +425,7 @@
 	
 	//거래처
 	function clntSearch(type) {
-		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01") {
+		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01" || openFrom == "OD0202P01"  || openFrom=="SM0201P01") {
 			openThirdModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 				var row = grid.target.getList("selected")[0];
 				if(type == "T") {
