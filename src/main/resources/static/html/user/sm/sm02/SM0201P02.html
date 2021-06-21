@@ -1,5 +1,5 @@
 <body>
-	<div class="container-fluid">
+	<div id="arViewDiv" class="container-fluid">
       <div class="row">
         <div class="popup_area">
 		        <div  class="popup_table">
@@ -86,6 +86,7 @@
 	      <ul class="btn_ul">
 	        <li class="btn_r">
 	          <a id="move">
+	            <button class="bg_gray" onclick = "insertTransAmt()" authchk>운송비</button>
 	            <button class="bg_gray" onclick = "insertUpdateMove()" authchk>이동</button>
 	          </a>
 	        </li>
@@ -100,6 +101,10 @@
 			      <input type="hidden" id="sCoCd"         name="sCoCd" >
                   <input type="hidden" id="searchPrjctCd" name="searchMovePrdtCd" style="width: 76%;">
                   <input type="hidden" id="sWhType"       name="sWhType">
+	              <input type="hidden" id="transSeq"      name="transSeq">
+	              <input type="hidden" id="transAmt"      name="transAmt">
+			 	  <input type="hidden" id="clntCd"        name="clntCd">
+			   	  <input type="hidden" id="clntNm"        name="clntNm">
           		  <select id="searchDtlWhCd" name="searchDtlWhCd" data-kind="WH" onChange="findWhType()" required msg="입고지"></select>
           		</td> 
           		<th colspan="2"  class="hit">판매유형</th>
@@ -146,7 +151,7 @@
     </a>
     <form id="popForm">
 		<input type="hidden" id="userId" name="userId">
-	    <input type="hidden" id="pgmId" name="pgmId" value="SM0201P01">
+	    <input type="hidden" id="pgmId" name="pgmId" value="SM0201P02">
 	</form>
 </body>
 
@@ -271,7 +276,8 @@
 	$(document).ready(function() {
 		setCommonSelect($(".popup_area select[data-kind]"));
 		$("#searchDtlOutCoCd").val(jwt.coCd);
-
+		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
+		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
 		//창고 초기값 설정
 		setWareHouse(jwt.coCd);
 
@@ -293,6 +299,26 @@
 		findWhType(); // 기본 창고 유형  Set
 		authChk();
 	})	
+	
+	//초기화 함수
+	function searchInit(){
+		
+		$("#searchDtlOutCoCd option:eq(0)").prop("selected",true); 
+		$("#searchDtlOutWhCd option:eq(0)").prop("selected",true);
+		$("#searchDtlClntCd").val('');
+		$("#searchDtlClntNm").val('');
+		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
+		$("#searchDtlTypCd option:eq(0)").prop("selected",true);
+	//	$("#searchDtlMakr option:eq(0)").prop("selected",true);
+		$("#searchDtlImpYn option:eq(0)").prop("selected",true);
+		$("#searchDtlPrdtCd").val('');
+		$("#searchDtlPrdtNm").val('');
+	    gridView1.initView().setData(0);
+	// 회사의 거래처 코드    	    
+		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
+		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
+	}
+	
 	
 	//공통코드 조회
 	/* function setDtlSelectCombo(){  
@@ -390,7 +416,9 @@
 			"sPrdtCd" : $("#searchMovePrdtCd").val(),
 			"sPrdtSpec" : $("#searchMovePrdtSpec").val(),
 			"sPrdtSize" : $("#searchMovePrdtSize").val(),
-			"sPrdtLen" : $("#searchMovePrdtLen").val()
+			"sPrdtLen" : $("#searchMovePrdtLen").val(),	
+			"transSeq"  : $("#transSeq").val(),	
+			"transAmt"  : $("#transAmt").val()
 		}
 		// 상세내역 추가
 		//formData["detailArr"] = searchGrid.getList();
@@ -403,21 +431,7 @@
 		formData["detailArr"] = JSON.stringify(detailArr);
 		return formData;
 	}
-	
-	//초기화 함수
-	function searchInit(){
-		$("#searchDtlOutCoCd option:eq(0)").prop("selected",true); 
-		$("#searchDtlOutWhCd option:eq(0)").prop("selected",true);
-		$("#searchDtlClntCd").val('');
-		$("#searchDtlOwnerCd option:eq(0)").prop("selected",true);
-		$("#searchDtlTypCd option:eq(0)").prop("selected",true);
-	//	$("#searchDtlMakr option:eq(0)").prop("selected",true);
-		$("#searchDtlImpYn option:eq(0)").prop("selected",true);
-		$("#searchDtlPrdtCd").val('');
-		$("#searchDtlPrdtNm").val('');
-	    gridView1.initView().setData(0);
-	}
-	
+
 	//거래처 검색
 	function clntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
@@ -478,6 +492,9 @@
 		$('#searchDtlWhCd').data("desc", value);
 		$('#searchDtlWhCd').empty();
 		setCommonSelect($('#searchDtlWhCd'));
+        //회사 변경
+		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
+		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
 	}	
 	// 창고 유형  codeRprc
 	function findWhType(){
@@ -493,5 +510,15 @@
 			$('#searchMovePrdtLen').prop("readonly",false);
 		}
 			
+	}
+	// 운반비 등록
+	function insertTransAmt(){
+		openFrom = "SM0201P02";
+		var paramObj ={
+			transSeq :$('#transSeq').val(),
+			coCd     : $("#searchDtlOutCoCd").val()
+		}
+		if(!$('#transSeq').val()) {actionType = 'C';} 
+		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
 	}
 </script>
