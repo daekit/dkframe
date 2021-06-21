@@ -626,18 +626,23 @@
 		if(!confirm(rowLength + "건을 재전송 하시겠습니까?")){
 			return;
 		}
-		var formData = {
-			"bilgCertNoArr" : bilgCertNoArr,
-			"selectDt" : selectDt,
-			"userId" : jwt.userId,
-			"userNm" : jwt.userNm,
-			"deptId" : jwt.deptId,
-			"pgmId" : "AR0401M01"
-		}
-		console.log(formData);
-		postAjax("/user/ar/ar04/insertTaxHdReSend", formData, null, function(data){
-			alert(data.resultMessage);
-			gridView.setData(0);
+		var paramObj = {
+				"selectDt": selectDt
+			}
+		openSecondModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 260, "세금계산서 발행일자 선택", paramObj, function (selectDt) {
+			
+			var formData = {
+					"bilgCertNoArr" : bilgCertNoArr,
+					"userId" : jwt.userId,
+					"userNm" : jwt.userNm,
+					"deptId" : jwt.deptId,
+					"pgmId" : "AR0401M01",
+					"selectDt" : selectDt
+				}
+			postAjax("/user/ar/ar04/insertTaxHdReSend", formData, null, function(data){
+				alert(data.resultMessage);
+				gridView.setData(0);
+			});
 		});
 	}
 	
@@ -881,12 +886,16 @@
 		var emailIdx;
 		var arrGnChk = true;
 		var taxBilgChk = true;
+		var selectDt;
 		$.each(list, function(idx, obj){
 			if(!obj.taxBilgNo){
 				flag = true;
 				alert("정발행 계산서만 수정가능합니다!");
 				return false;
 			}
+
+			//세금계산서 발행일자 초기값 설정
+			selectDt = obj.sellDt;
 			//gridView.target.select(obj.__index);
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 
@@ -946,8 +955,10 @@
 		if(!confirm(rowLength + "건을 수정발행 하시겠습니까?")){
 			return;
 		}
-
-		openSecondModal("/static/html/user/ar/ar04/AR0401P04.html", 600, 260, "수정사유코드 선택", {}, function (rffAea) {
+		var paramObj = {
+				"selectDt": selectDt
+			}
+		openSecondModal("/static/html/user/ar/ar04/AR0401P04.html", 600, 280, "수정사유코드 선택", paramObj, function (rffAea, selectDt) {
 			
 
 			var formData = {
@@ -956,7 +967,8 @@
 				"userNm" : jwt.userNm,
 				"deptId" : jwt.deptId,
 				"pgmId" : "AR0401M01",
-				"rffAea" : rffAea
+				"rffAea" : rffAea,
+				"selectDt" : selectDt
 			}
 			postAjax("/user/ar/ar04/insertTaxHdUpdate", formData, null, function(data){
 				console.log(data);
