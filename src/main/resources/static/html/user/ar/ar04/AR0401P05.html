@@ -40,7 +40,7 @@
 	</div>
 	<div>
 	    <button type="button" class="btn btn-default btn-sm" onclick="setSelectDt();" authchk>세금계산서 발행/전송처리</button>
-	    <button type="button" class="close_btn"  onclick="commonModal.closeTarget.close();">닫기</button>
+	    <button type="button" class="close_btn"  onclick="modalStack.close();">닫기</button>
     </div>
 </div>
 <script type="text/javascript">	
@@ -51,17 +51,17 @@
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true,
-			startDate: moment(commonModal.paramObj.selectDt).startOf("month").toDate(),
-			endDate: moment(commonModal.paramObj.selectDt).endOf("month").toDate()
+			startDate: moment(modalStack.last().paramObj.selectDt).startOf("month").toDate(),
+			endDate: moment(modalStack.last().paramObj.selectDt).endOf("month").toDate()
 		})
-			.datepicker("setDate", commonModal.paramObj.selectDt);
+			.datepicker("setDate", modalStack.last().paramObj.selectDt);
 		
-		authChk();
+		authChk(AR0401M01);
 	})
 
 	function setSelectDt(){
-		commonModal.callBack($("#selectDt").val().replace(/\-/g,''));
-		commonModal.closeTarget.close();
+		modalStack.last().callback($("#selectDt").val().replace(/\-/g,''));
+		modalStack.close();
 	}
 
 </script>

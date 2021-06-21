@@ -47,7 +47,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionBtn" onclick="updatePchsSell();" authchk>저장</button>
-		<button class="close_btn" onclick="modal.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <form id="popForm">
@@ -75,8 +75,6 @@
 		            	var realTrstAmt = 0;
 		            	var bilgAmt     = 0;
 		            	if(this.key == "bilgQty" || this.key == "bilgUpr" ||this.key == "trstDcAmt"){
-		            		
-		            		debugger;
 		            		
 			            	// 물품금액 = 청구수량 * 청구단가
 			            	if(this.item.bilgQty){
@@ -170,7 +168,7 @@
 		}, 
 		setData: function() {
 			var targetObj = this.target;
-			var list = commonModal.paramObj.selectedRows;
+			var list = modalStack.last().paramObj.selectedRows;
 			
 			// 단가적용의 기준이되는 청구단가(원본) 데이터 삽입
 			$.each(list, function(idx, obj){
@@ -195,7 +193,7 @@
 		$("#clntNm_P").val(row.clntNm);
 		
 		// 전표유무에 따른 액션영역 숨김처리
-		if(commonModal.paramObj.bilgYn == "Y"){
+		if(modalStack.last().paramObj.bilgYn == "Y"){
 			$('#actionDiv').closest('div.contents').hide();
 		}
 		
@@ -210,7 +208,7 @@
 			$("#creditAmt").val(creditAmt);
 		}, 500);
 		
-		authChk();
+		authChk("AR0201M01");
 	});
 
 	function setDcAmt(targetName) {
@@ -253,7 +251,7 @@
 				alert(data.resultMessage);           
 				if(data.resultCode == 200){
 					subGridView.setData(0);
-					modal.close();
+					modalStack.close();
 				}
 			});
 		}

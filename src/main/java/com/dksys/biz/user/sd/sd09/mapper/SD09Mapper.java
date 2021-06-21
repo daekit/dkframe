@@ -45,6 +45,8 @@ public interface SD09Mapper {
 	
 	String selectSiteCdFind(Map<String, String> paramMap);
 
+	Map<String, String> selectClntFromWh(Map<String, String> paramMap);
+
 	
 
 }

@@ -40,7 +40,7 @@
 	<br>
 	<div class="popup_bottom_btn">
 		<button type="button" onclick="insertSalesDivision();" authchk>저장</button>
-		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
+		<button type="button" class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -48,7 +48,7 @@
 	var isApplied = false;
 
 	// 원본데이터 배열
-	var orgRows = JSON.parse(JSON.stringify(commonModal.paramObj.selectedRows));
+	var orgRows = JSON.parse(JSON.stringify(modalStack.last().paramObj.selectedRows));
 	
 	// 원본데이터 합
 	var orgTotData = {
@@ -219,7 +219,7 @@
 		}, 
 		setData: function() {
 			var targetObj = this.target;
-			var selectedRows = commonModal.paramObj.selectedRows;
+			var selectedRows = modalStack.last().paramObj.selectedRows;
 			
 			$.each(selectedRows, function(idx, obj){
 				// 거래일자 하이픈 제거
@@ -249,7 +249,7 @@
 				obj.diffTrstDcAmt = 0;
 			});
 			
-			targetObj.setData(commonModal.paramObj.selectedRows);
+			targetObj.setData(modalStack.last().paramObj.selectedRows);
 		}
 	}
 	
@@ -310,7 +310,7 @@
 			orgTotData.bilgVatAmt += Number(obj.bilgVatAmt); // 부가세
 			orgTotData.trstDcAmt += Number(obj.trstDcAmt); // 할인금액
 		});
-		authChk();
+		authChk("AR0201M01");
 	});
 	
 	// 거래처 검색
@@ -587,7 +587,7 @@
 						// subGrid set
 						subGridView.setData(0);
 						// modal close
-						modal.close();
+						modalStack.close();
 					}
 				});
 			}else{

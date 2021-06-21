@@ -312,12 +312,11 @@
 		<button type="button" name="actionBtn" onclick="openInsertShip()"   authchk>출하</button>
 		<button type="button" name="actionBtn" onclick="openUpdateOrder();" authchk>수정</button>
 		<button type="button" name="actionBtn" onclick="closeOrder()"       authchk>종료</button>
-		<button type="button" class="close_btn" onclick="modal.close();">닫기</button>
+		<button type="button" class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 
 <script type="text/javascript">
-	var openFrom = "SD0402V01";
 	var fileArr = [];
 	var fileGridView = {
 		initView : function() {
@@ -373,11 +372,11 @@
 		                this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-
 		    			var paramObj = {
-		    					'ordrgSeq' : this.item.ordrgSeq
+    						"ordrgSeq": this.item.ordrgSeq,
+    						"openFrom": "SD0402V01" 
 		    			};	
-		            	openSecondModal("/static/html/user/od/od01/OD0102V01.html", 1300, 800, "",paramObj);
+		            	openSecondModal("/static/html/user/od/od01/OD0102V01.html", 1300, 800, "", paramObj);
 		            }
 		        },
 		        page: {
@@ -472,9 +471,10 @@
 		            },
 		            onDBLClick: function () {
 		    			var paramObj = {
-		    					'shipSeq' : this.item.shipSeq
+   							"shipSeq": this.item.shipSeq,
+    						"openFrom": "SD0402V01" 
 		    			};	
-		            	openThirdModal("/static/html/user/ar/ar01/AR0102V01.html", 1300, 800, "",paramObj);
+		    			openSecondModal("/static/html/user/ar/ar01/AR0102V01.html", 1300, 800, "", paramObj);
 		            }
 		        },
 		        page: {
@@ -562,7 +562,7 @@
 	});
 	
 	function selectOrderInfo() {
-		postAjax("/user/sd/sd04/selectOrderInfo", commonModal.paramObj, null, function(data) {
+		postAjax("/user/sd/sd04/selectOrderInfo", modalStack.last().paramObj, null, function(data) {
 			setOrderInfo(data.orderInfo);
 		});
 	}
@@ -668,45 +668,51 @@
 	
 	// 발주 등록
 	function openInsertOrdrg(){
-		if(orderSequenceSet()){
-			modal.close();
-
-			var paramObj = {
-					'ordrgSeq' : ""
-			};	
-			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 800, "",paramObj);
+		var paramObj = orderSequenceSet();
+		if(paramObj){
+			actionType = "O";
+			modalStack.close();
+			setTimeout(function(){
+				openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 800, "", paramObj);
+			}, 500);
 		}
 	}
 
 	// 출하 등록
 	function openInsertShip(){
-		if(orderSequenceSet()){
-			modal.close();
-			openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 800, " ");
+		var paramObj = orderSequenceSet();
+		if(paramObj){
+			actionType = "O";
+			modalStack.close();
+			setTimeout(function(){
+				openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 800, "", paramObj);
+			}, 500);
 		}
 	}
 	
 	// 수정
 	function openUpdateOrder(){
 		actionType = "U";
-		modal.close();
-		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1300, 800, "", {"odrSeq": $('#odrSeq').val()});
+		modalStack.close();
+		var paramObj = {"odrSeq": $('#odrSeq').val()};	
+		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1300, 800, "", paramObj);
 	}
 	
 	// odrSeq, odrDtlSeq set
 	function orderSequenceSet(){
-		var tempArr = [];
+		var odrDtlSeqArr = [];
 		$.each($('tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find('input[name="detailChkBox"]').is(':checked')) {
-				tempArr.push($(elem).find('input[name="odrDtlSeq"]').val());
+				odrDtlSeqArr.push($(elem).find('input[name="odrDtlSeq"]').val());
 			}
 		});
 		
-		if(tempArr.length > 0){
-			actionType = 'O';
-			odrSeq = $('#odrSeq').val();
-			odrDtlSeqArr = tempArr;
-			return true;
+		if(odrDtlSeqArr.length > 0){
+			var paramObj = {
+				"odrSeq": $('#odrSeq').val(),
+				"odrDtlSeqArr": odrDtlSeqArr
+			}
+			return paramObj;
 		}else{
 			alert("주문내역을 선택하세요.");
 			return false;
@@ -731,8 +737,9 @@
 			gridView.setData(gridView.target.page.currentPage);
 			
 			// 뷰페이지 재호출
-			modal.close();
-			openModal("/static/html/user/sd/sd04/SD0402V01.html", 1300, 800, "", {"odrSeq": $('#odrSeq').val()});
+			modalStack.close();
+			var paramObj = {"odrSeq": $('#odrSeq').val()};
+			openModal("/static/html/user/sd/sd04/SD0402V01.html", 1300, 800, "", paramObj);
 		});
 	}
 </script>

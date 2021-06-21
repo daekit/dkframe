@@ -1,5 +1,4 @@
-<div id="arViewDiv" class="popup_area of_a"
-	style="width: 100%; height: 100%;">
+<div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
 	<div class="tit_contents">
 		<h4 class="tit"></h4>
 	</div>
@@ -29,11 +28,11 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setByCoCd(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
-						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" required>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value);" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -371,7 +370,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionArBtn" authchk>등록</button>
-		<button class="close_btn" onclick="modal.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -437,7 +436,7 @@
 		if(actionType == "C"){
 			$("#coCd").val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setWareHouse($('#coCd').val());
+			setByCoCd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$('#actionArBtn').on("click", function(){insertShip();});
@@ -445,7 +444,7 @@
 			$('#actionArBtn').text("등록");
 			$("#odrCreatDiv").val("ERP");
 		} else if(actionType == "U"){
-			selectShipInfo(commonModal.paramObj.shipSeq);
+			selectShipInfo(modalStack.last().paramObj.shipSeq);
 			$('#actionArBtn').on("click", function(){updateShip();});
 			$('.tit_contents .tit').text("출하요청서 수정");
 			$('#actionArBtn').text("저장");
@@ -456,11 +455,10 @@
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
 		}
-		authChk();
+		authChk("AR0101M01");
 	});
 	
 	function selectShipInfo(shipSeq) {
-		debugger;
 		var paramObj = {"shipSeq" : shipSeq};
 		postAjax("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
@@ -468,11 +466,7 @@
 	}
 	
 	function getOrderInfo(){
-		var formData = {
-			"odrSeq": odrSeq,
-			"odrDtlSeqArr": odrDtlSeqArr
-		};
-		postAjax("/user/ar/ar01/getOrderInfo", formData, null, function(data){
+		postAjax("/user/ar/ar01/getOrderInfo", modalStack.last().paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
@@ -494,14 +488,19 @@
 					$('#'+key).val(value);
 				}
 				
-				// 창고 set
+				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setWareHouse(value);
+					setByCoCd(value);
 				}
 				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
+				}
+				
+				// 재고주체 set
+				if(key == "typCd"){
+					setBySellType(value);  
 				}
 			}
 		});
@@ -565,17 +564,54 @@
 		}
 	}
 	
-	// 창고 set
-	function setWareHouse(value){
+	// 창고, 판매법인 set
+	function setByCoCd(value){
 		$('#whCd').data("desc", value);
 		$('#whCd').empty();
 		setCommonSelect($('#whCd'));
-		 // 창고와 판매법인은 같이 바귐.		
+		// 창고와 판매법인은 같이 바귐.		
 
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
+	}
+	
+	function setBySellType(value){
+		// 판매유형
+		// SELLTYPE1: 유통
+		// SELLTYPE2: 가공
+		// SELLTYPE4: 임가공
+		// SELLTYPE5: 관수
 		
+		// 재고주체
+		// OWNER1: 자사
+		// OWNER2: 제강사
+		// OWNER3: 건설사
+		// OWNER4: 기타
+		
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2" || value == "SELLTYPE5"){
+		// 판매유형이 선택, 유통, 가공일때
+			
+			// 재고주체 초기화
+			$('#ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ownerCd'));
+			
+			if(value == "" || value == "SELLTYPE5"){
+			// 판매유형이 선택, 관수일때
+				// 재고주체 활성화
+				$('#ownerCd').prop("disabled", false);
+			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
+			// 판매유형이 유통, 가공일때
+				// 재고주체 자사 set, 비활성화
+				$('#ownerCd').val("OWNER1");
+				$('#ownerCd').prop("disabled", true);
+			}
+		}else if(value == "SELLTYPE4"){
+		// 판매유형이 임가공일때
+			// 재고주체에서 자사 삭제
+			$('#ownerCd option[value="OWNER1"]').remove();
+			$('#ownerCd').prop("disabled", false);
+		}
 	}
 	
 	// 거래처 검색
@@ -971,7 +1007,7 @@
 					alert(data.resultMessage);
 					if(data.resultCode == 200){
 						gridView.setData(0);
-						modal.close();
+						modalStack.close();
 					}
 				});
 			}
@@ -985,14 +1021,11 @@
 			filePutAjax("/user/ar/ar01/updateShip", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
-					if(openFrom == "CM1001M01"){
-						targetGrid = shipGridView;
-					} else {
-						targetGrid = gridView;
-					}        
-					targetGrid.setData(0);
-					viewShipModal($('#shipSeq').val());
-					modal.close();
+					modalStack.close();
+					gridView.setData(0);
+					setTimeout(function(){
+						viewShipModal($('#shipSeq').val());
+					}, 500)
 				}
 			});
 		}

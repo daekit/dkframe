@@ -52,7 +52,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionBtn" onclick="updatePchsSell();"  authchk>저장</button>
-		<button class="close_btn" onclick="modal.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <form id="popForm">
@@ -153,7 +153,7 @@
 		}, 
 		setData: function(_pageNo) {
 			var targetObj = this.target;
-			var list = commonModal.paramObj.selectedRows;
+			var list = modalStack.last().paramObj.selectedRows;
 			
 			// 단가적용의 기준이되는 매입단가(원본) 데이터 삽입
 			$.each(list, function(idx, obj){
@@ -178,7 +178,7 @@
 		$("#clntNm_P").val(row.clntNm);
 		
 		// 전표유무에 따른 액션영역 숨김처리
-		if(commonModal.paramObj.bilgYn == "Y"){
+		if(modalStack.last().paramObj.bilgYn == "Y"){
 			$('#actionDiv').closest('div.contents').hide();
 		}
 		
@@ -199,8 +199,6 @@
 		var totRealTrstAmt = 0; // 총금액
 		
 		// 배부금액 = 금액 * 할인금액 / 총금액
-		
-		debugger;
 		
 		$.each(list, function(idx, item) {
 			totRealTrstAmt +=  Number(item.realTrstAmt);
@@ -229,7 +227,7 @@
 				alert(data.resultMessage);           
 				if (data.resultCode == 200) {
 					subGridView.setData(0);
-					modal.close();
+					modalStack.close();
 				}
 			});
 		}

@@ -330,7 +330,7 @@
 			<button id="actionBtn" authchk>수정</button>
 			<button id="shipYnBtn" onclick="updateConfirm();" authchk>출하처리</button>
 			<button id="cancelBtn" onclick="updateCancel();" style="background-color: red;" authchk>출하취소</button>
-			<button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+			<button class="close_btn" onclick="modalStack.close();">닫기</button>
 		</div>
 	</div>
 </body>
@@ -382,11 +382,11 @@
 			$("#actionBtn").hide();
 			$("#shipYnBtn").hide();
 		}else{
-			$('#actionBtn').on("click", function(){updateShipModal(commonModal.paramObj.shipSeq);});
+			$('#actionBtn').on("click", function(){updateShipModal(modalStack.last().paramObj.shipSeq);});
 			$('#actionBtn').text("수정");
 			$("#shipYnBtn").show();
 		}
-		authChk();
+		authChk("AR0101M01");
 	});
 	
 	function selectShipInfo() {
@@ -400,7 +400,7 @@
 			row = shipGridView.target.getList("selected")[0];
 			shipSeq = row.shipSeq
 		}else{
-			shipSeq = commonModal.paramObj.shipSeq;
+			shipSeq = modalStack.last().paramObj.shipSeq;
 		}
 		
 		var paramObj = {"shipSeq": shipSeq}
@@ -575,7 +575,7 @@
 					targetGrid = gridView;
 				}        
 				targetGrid.setData(0);
-				modal.close();
+				modalStack.close();
 			}
 		});
 	}
@@ -604,7 +604,7 @@
 			alert(data.resultMessage);         
 			if(data.resultCode == 200) {
 				gridView.setData(0);
-				modal.close();	
+				modalStack.close();	
 			}
 		});
 	}

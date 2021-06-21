@@ -267,6 +267,12 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("xmlMsgId", xmlMsgId);
 			taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
 			taxHdParam.put("docCode", "938"); // 세금계산서 938
+
+			if (taxHdParam.get("invSndYn").equals("Y")) {
+				taxHdParam.put("bgm1060", "COINTX");
+			} else {
+				taxHdParam.put("bgm1060", "");
+			}
 			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
 			ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
@@ -348,6 +354,11 @@ public class AR04SvcImpl implements AR04Svc {
 			String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
 			taxHdParam.put("bilgCertNo", bilgCertNo);
 			taxHdParam.put("rffAea", rffAea);
+			if (taxHdParam.get("invSndYn").equals("Y")) {
+				taxHdParam.put("bgm1060", "COINTX");
+			} else {
+				taxHdParam.put("bgm1060", "");
+			}
 			ar04Mapper.insertCopyBilgTax(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 			ar04Mapper.updateOrgnTaxBilgNo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 			ar04Mapper.insertCopyTaxBilgDetail(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
@@ -419,6 +430,11 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("docCode", "938"); // 세금계산서 938
 			taxHdParam.put("bgm1060", ""); // 거래명세서연계
 			taxHdParam.put("selectDt", selectDt);
+			if (taxHdParam.get("invSndYn").equals("Y")) {
+				taxHdParam.put("bgm1060", "COINTX");
+			} else {
+				taxHdParam.put("bgm1060", "");
+			}
 			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
 			result = ar04Mapper.insertTaxDtl(taxHdParam);
 			result = ar04Mapper.insertTaxItem(taxHdParam);
@@ -485,6 +501,11 @@ public class AR04SvcImpl implements AR04Svc {
 				taxHdParam.put("rffGn1", "RFFGN102");
 				taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
 				taxHdParam.put("rffAea", "RFFAEA03");
+				if (taxHdParam.get("invSndYn").equals("Y")) {
+					taxHdParam.put("bgm1060", "COINTX");
+				} else {
+					taxHdParam.put("bgm1060", "");
+				}
 				result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
 				ar04Mapper.insertTaxHdCancel(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
 				ar04Mapper.insertTaxDtl(taxHdParam);

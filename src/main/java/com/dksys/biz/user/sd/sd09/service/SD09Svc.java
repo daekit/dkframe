@@ -33,4 +33,6 @@ public interface SD09Svc {
 
 	void deleteSiteTrans(List<Map<String, String>> paramList);
 	
+	public Map<String, String> selectClntFromWh(Map<String, String> param);
+	
 }

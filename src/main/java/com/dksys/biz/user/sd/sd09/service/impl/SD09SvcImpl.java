@@ -214,4 +214,9 @@ public class SD09SvcImpl implements SD09Svc {
 		}	
 	}
 
+	@Override
+	public Map<String, String> selectClntFromWh(Map<String, String> paramMap) {		
+		return sd09Mapper.selectClntFromWh(paramMap);
+		
+	}
 }

@@ -27,8 +27,8 @@ function isMobile() {
 }
 
 if(isMobile()){
-	// DOMAIN_URL = "http://localhost";
-	DOMAIN_URL = "http://10.90.4.142";
+	DOMAIN_URL = "";
+	//DOMAIN_URL = "http://10.90.4.142";
 }
 
 var authorizationToken = getCookie("jwtToken");
@@ -41,6 +41,27 @@ var secondModal = new ax5.ui.modal();
 var thirdModal = new ax5.ui.modal();
 var commonModal = {};
 
+// 모달 스택
+function ModalStack() {
+	this.modalArr = [];
+}
+ModalStack.prototype.push = function(modalObj){
+	this.modalArr.push(modalObj);
+}
+ModalStack.prototype.pop = function(){
+	return this.modalArr.pop() || null;
+}
+ModalStack.prototype.last = function(){
+	return this.modalArr[this.modalArr.length-1];
+}
+ModalStack.prototype.size = function(){
+	return this.modalArr.length;
+}
+ModalStack.prototype.close = function(){
+	this.pop().target.close();
+}
+var modalStack = new ModalStack();
+
 var ubiprefix = "";
 switch (jwt.serverType){
     case "real" :
@@ -52,7 +73,8 @@ switch (jwt.serverType){
     default :
         ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
 }
-var openModal = function(url, width, height, title, paramObj, callBack) {
+
+var openModal = function(url, width, height, title, paramObj, callback) {
 	modal.open({
 		header: {
 			title: title,
@@ -60,17 +82,23 @@ var openModal = function(url, width, height, title, paramObj, callBack) {
 	        	close: {
 	                label: '<i class="fa fa-times-circle" aria-hidden="true"></i>',
 	                onClick: function () {
-	                    modal.close();
+	                	modalStack.close();
 	                }
 	            }
 	        }
 	    },
         width: width,
         height: height,
+        closeToEsc: false,
         onStateChanged: function () {
-            // mask
             if (this.state === "open") {
                 mask.open();
+                var modalObj = {
+                	"target": this.self,
+                	"paramObj": paramObj,
+                	"callback": callback
+                }
+                modalStack.push(modalObj);
             }
             else if (this.state === "close") {
                 mask.close();
@@ -81,15 +109,10 @@ var openModal = function(url, width, height, title, paramObj, callBack) {
     	$.get(url, function(data) {    	        
     		targetEl.append(data);
       	});
-    	
-    	// commonModal 객체 set
-    	commonModal.closeTarget = modal;
-    	commonModal.callBack = callBack;
-    	commonModal.paramObj = paramObj;
     });
 };
 
-var openSecondModal = function(url, width, height, title, paramObj, callBack) {
+var openSecondModal = function(url, width, height, title, paramObj, callback) {
 	secondModal.open({
 		header: {
 			title: title,
@@ -97,27 +120,33 @@ var openSecondModal = function(url, width, height, title, paramObj, callBack) {
 	        	close: {
 	                label: '<i class="fa fa-times-circle" aria-hidden="true"></i>',
 	                onClick: function () {
-	                	secondModal.close();
+	                	modalStack.close();
 	                }
 	            }
 	        }
 	    },
         width: width,
-        height: height
+        height: height,
+        closeToEsc: false,
+        onStateChanged: function () {
+        	if (this.state === "open") {
+        		var modalObj = {
+                	"target": this.self,
+                	"paramObj": paramObj,
+                	"callback": callback
+                }
+                modalStack.push(modalObj);
+        	}
+        }
     }, function () {
     	var targetEl = this.$["body-frame"];
     	$.get(url, function(data) {    	        
     		targetEl.append(data);
       	});
-    	
-    	// commonModal 객체 set
-    	commonModal.closeTarget = secondModal;
-    	commonModal.callBack = callBack;
-    	commonModal.paramObj = paramObj;
     });
 };
 
-var openThirdModal = function(url, width, height, title, paramObj, callBack) {
+var openThirdModal = function(url, width, height, title, paramObj, callback) {
 	thirdModal.open({
 		header: {
 			title: title,
@@ -125,23 +154,29 @@ var openThirdModal = function(url, width, height, title, paramObj, callBack) {
 	        	close: {
 	                label: '<i class="fa fa-times-circle" aria-hidden="true"></i>',
 	                onClick: function () {
-	                	thirdModal.close();
+	                	modalStack.close();
 	                }
 	            }
 	        }
 	    },
         width: width,
-        height: height
+        height: height,
+        closeToEsc: false,
+        onStateChanged: function () {
+        	if (this.state === "open") {
+        		var modalObj = {
+                	"target": this.self,
+                	"paramObj": paramObj,
+                	"callback": callback
+                }
+                modalStack.push(modalObj);
+        	}
+        }
     }, function () {
     	var targetEl = this.$["body-frame"];
     	$.get(url, function(data) {    	        
     		targetEl.append(data);
       	});
-    	
-    	// commonModal 객체 set
-    	commonModal.closeTarget = thirdModal;
-    	commonModal.callBack = callBack;
-    	commonModal.paramObj = paramObj;
     });
 };
 

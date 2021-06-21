@@ -24,7 +24,7 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setCodeSelectByCocd(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setByCoCd(this.value);" required></select>
 					</td>
 					<th>현장명</th>
 					<td>
@@ -218,6 +218,7 @@
 					<col width="7%">  <!-- 매출 금액-->
 					<col width="7%">  <!-- 발주지시 손익-->
 					<col width="7%">  <!-- 완료일자 -->
+					<col width="7%">  <!-- 차량번호 -->
 					<col width="14%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
@@ -239,6 +240,7 @@
 					<th class="tc">매출금액</th>
 					<th class="tc">예상손익</th>
 					<th class="tc">완료일자</th>
+					<th class="tc">차량번호</th>
 					<th class="tc">비고</th>
 				</tr>
 			</table>
@@ -323,6 +325,9 @@
 						<input type="text" class="tc" name="ordrgProcDttm" readonly>
 					</td>
 					<td>
+						<input type="text" class="tc" name="shipVehNo">
+					</td>
+					<td>
 						<input type="text" name="ordrgDtlRmk">
 					</td>
 				</tr>
@@ -345,6 +350,7 @@
 					<col width="7%">  <!-- 매출 금액-->
 					<col width="7%">  <!-- 발주지시 손익-->
 					<col width="7%">  <!-- 완료일자 -->
+					<col width="7%">  <!-- 차량번호 -->
 					<col width="14%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
@@ -366,6 +372,7 @@
 					<td>
 						<input class="tr" type="text" id="totEpctPal" name="totEpctPal" comma readonly>
 					</td>
+					<td></td>
 					<td></td>
 					<td></td>
 				</tr>
@@ -391,7 +398,7 @@
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionOdBtn" authchk></button>
-		<button class="close_btn" onclick="modal.close();">닫기</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
 <script type="text/javascript">
@@ -456,7 +463,7 @@
 			$('#coCd').val(jwt.coCd);
 			$('#odrCreatDiv').val("ERP");
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setCodeSelectByCocd($('#coCd').val());
+			setByCoCd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$("#dirtrsYn").val("Y"); 
@@ -465,11 +472,11 @@
 			$('.tit_contents .tit').text("발주서 등록");
 			$('#actionOdBtn').text("등록");
 		}else if(actionType == "U"){
-			selectOrderInfo(commonModal.paramObj.ordrgSeq);
+			selectOrderInfo(modalStack.last().paramObj.ordrgSeq);
 			$('#actionOdBtn').on("click", function(){updateOrder();});
 			$('.tit_contents .tit').text("발주서 수정");
 			$('#actionOdBtn').text("저장");
-		}else if (actionType == "O"){ // 주문에서 발주서 호춣할때 사용한다.
+		}else if (actionType == "O"){ // 주문에서 발주서 호출할때 사용한다.
 			getOrderInfo();
 			$('#odrSeq').siblings('a').remove();
 			$('#actionOdBtn').on("click", function(){insertOrder();});
@@ -479,7 +486,7 @@
 			//발주서 등록 시 직송여부 default Y 
 			$("#dirtrsYn").val("Y"); 
 			ctrlDirtrs();
-		}else if (actionType == "R"){ // 구매요청에서 발주서 호춣할때 사용한다.
+		}else if (actionType == "R"){ // 구매요청에서 발주서 호출할때 사용한다.
 			getReqInfo();
 			$('#actionOdBtn').on("click", function(){insertOrder();});
 			$('.tit_contents .tit').text("발주서 등록");
@@ -498,17 +505,12 @@
 	}
 	
 	function getOrderInfo(){
-		var formData = {
-			"odrSeq": odrSeq,
-			"odrDtlSeqArr": odrDtlSeqArr
-		};
-		postAjaxSync("/user/od/od01/getOrderInfo", formData, null, function(data){
+		postAjaxSync("/user/od/od01/getOrderInfo", modalStack.last().paramObj, null, function(data){
 			setOrderInfo(data.result);
 		});
 	}
 	
 	function setOrderInfo(obj) {
-		
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
@@ -526,14 +528,15 @@
 				
 				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setCodeSelectByCocd(value);  
+					setByCoCd(value);  
 				}
 				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
 				}
-				// 판매유형, 재고주체 set
+				
+				// 재고주체 set
 				if(key == "typCd"){
 					setBySellType(value);  
 				}
@@ -666,7 +669,7 @@
 				
 				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setCodeSelectByCocd(value);  
+					setByCoCd(value);  
 				}
 				
 				// 제조사 set
@@ -718,13 +721,13 @@
 		} */
 	}
 	
-	// 창고 set
-	function setCodeSelectByCocd(value){
+	// 창고, 판매법인 set
+	function setByCoCd(value){
 		$('#whCd').data("desc", value);
 		$('#whCd option:not([value=""])').remove()
 		setCommonSelect($('#whCd'));
 		
-  		// 창고와 판매법인은 같이 바귐.		
+	 		// 창고와 판매법인은 같이 바귐.		
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
@@ -743,15 +746,15 @@
 		// OWNER3: 건설사
 		// OWNER4: 기타
 		
-		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2"){
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2" || value == "SELLTYPE5"){
 		// 판매유형이 선택, 유통, 가공일때
 			
 			// 재고주체 초기화
 			$('#ownerCd option:not([value=""])').remove();
 			setCommonSelect($('#ownerCd'));
 			
-			if(value == ""){
-			// 판매유형이 선택일때
+			if(value == "" || value == "SELLTYPE5"){
+			// 판매유형이 선택, 관수일때
 				// 재고주체 활성화
 				$('#ownerCd').prop("disabled", false);
 			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
@@ -773,15 +776,6 @@
 			// 직송여부 N set
 			$('#dirtrsYn').val("N");
 			$('#dirtrsYn').prop("disabled", true);
-			ctrlDirtrs();
-		}else{
-			// 재고주체 초기화
-			$('#ownerCd option:not([value=""])').remove();
-			setCommonSelect($('#ownerCd'));
-			$('#ownerCd').prop("disabled", false);
-			// 직송여부 Y set
-			$('#dirtrsYn').val("Y");
-			$('#dirtrsYn').prop("disabled", false);
 			ctrlDirtrs();
 		}
 	}
@@ -908,11 +902,12 @@
 			if(taxivcCoprt ==""){
 				$("#taxivcCoprt").val(row.taxivcCoprt);
 			}
-		  if(row.ordTyp) {
+			
+			if(row.ordTyp) {
 				$("#typCd").val('SELLTYPE2'); // 가공
-		  } else{
+			} else{
 				$("#typCd").val('SELLTYPE1'); // 유통
-		  }
+			}
 		});
 	}
 	
@@ -1267,8 +1262,8 @@
 			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
+					modalStack.close();	
 					gridView.setData(0);
-					modal.close();	
 				}
 			});
 		}
@@ -1281,9 +1276,11 @@
 			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
 				alert(data.resultMessage);    
 				if(data.resultCode == 200){
+					modalStack.close();
 					gridView.setData(0);
-				    viewOrderModal($('#ordrgSeq').val());
-					modal.close();
+					setTimeout(function(){
+					    viewOrderModal($('#ordrgSeq').val());
+					}, 500);
 				}
 			});
 		}

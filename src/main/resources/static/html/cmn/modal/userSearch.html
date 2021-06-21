@@ -16,8 +16,8 @@
 		<div id="userTree" style="overflow: auto; height: 410px; padding: 0 10px;"></div>
 	</div>
 	<div style="padding: 5px 0px;">
-		<button type="button" class="btn btn-default btn-sm" onclick="executeCallBack();">선택</button>
-		<button type="button" class="btn btn-default btn-sm" onclick="commonModal.closeTarget.close();">닫기</button>	
+		<button type="button" class="btn btn-default btn-sm" onclick="executeCallback();">선택</button>
+		<button type="button" class="btn btn-default btn-sm" onclick="modalStack.close();">닫기</button>	
 	</div>
 </div>
 <script type="text/javascript">
@@ -73,7 +73,7 @@
 				$('#userTree').jstree(true).check_node(userId);
 			}
 			
-			executeCallBack();
+			executeCallback();
 		}).on('open_node.jstree', function(e, data) {
 		// 노드 열릴 때
 			data.instance.set_type(data.node, 'unit-open');
@@ -86,7 +86,7 @@
 	// 트리 데이터 set
 	function setUserTree() {
 		var userTree = null;
-		postAjaxSync("/admin/cm/cm06/selectUserTree", commonModal.paramObj, null, function(data){
+		postAjaxSync("/admin/cm/cm06/selectUserTree", modalStack.last().paramObj, null, function(data){
 			userTree = data.userTree;
 		});
 		return userTree;
@@ -94,7 +94,7 @@
 	
 	// 트리 노드 select
 	function selectNode() {
-		var userId = commonModal.paramObj.userId;
+		var userId = modalStack.last().paramObj.userId;
 		if(userId){
 			$('#userTree').jstree(true).select_node(userId);
 		}else{
@@ -109,12 +109,12 @@
 		$('#userTree').jstree(true).search(nodeName);
 	}
 	
-	function executeCallBack(){
+	function executeCallback(){
 		if($('#userTree').jstree(true).get_checked() == 0){
 			alert("선택된 데이터가 없습니다.");
 			return false;
 		}
-		commonModal.callBack($('#userTree').jstree(true));
-		commonModal.closeTarget.close();
+		modalStack.last().callback($('#userTree').jstree(true));
+		modalStack.close();
 	}
 </script>

@@ -71,12 +71,12 @@
 	            	
 	            	<th>영업담당자</th>
 					<td>
-							<input type="hidden" id="mngId" name="mngId" style="width: 76%;" maxlength="20">
-							<div class="search_form">
-								<input type="text" id="mngNm" name="mngNm" readonly="readonly">
-								<a onclick="openUserTree();"><i class="i_search_w"></i>
-								</a>
-							</div>
+						<input type="hidden" id="mngId" name="mngId" style="width: 76%;" maxlength="20">
+						<div class="search_form">
+							<input type="text" id="mngNm" name="mngNm" readonly="readonly">
+							<a onclick="openUserTree();"><i class="i_search_w"></i>
+							</a>
+						</div>
 					</td>
 	            		            	
 	            	<th>사용여부</th>
@@ -118,7 +118,7 @@
     <!-- 하단 버튼 -->
     <div class="popup_bottom_btn">
       <button id="siteActionBtn" authchk></button>
-      <button class="close_btn" onclick="commonModal.closeTarget.close();">닫기</button>
+      <button class="close_btn" onclick="modalStack.close();">닫기</button>
     </div>
 </div>
 <link rel="stylesheet" href="/static/css/jstree/style.min.css" />
@@ -133,10 +133,6 @@
 	var selectedIdx = 0;
 	
 	$(document).ready(function() {
-		if(!commonModal.paramObj.clntCd){
-			alert("거래처를 확인 해 주세요.");
-			commonModal.closeTarget.close();
-		}
 		setCommonSelect($("#siteSearchForm select[data-kind]"));
 		setInit();
 		
@@ -154,9 +150,9 @@
 	    var date = format.getDate();
 	    if(date<10) date = '0' + date;
 		$("#creatDttm").val(year + "-" + month + "-" + date);
-		$("#siteSearchForm #coCd").val(commonModal.paramObj.coCd);
-		$("#siteSearchForm #clntCd").val(commonModal.paramObj.clntCd);
-		$("#siteSearchForm #clntNm").val(commonModal.paramObj.clntNm);
+		$("#siteSearchForm #coCd").val(modalStack.last().paramObj.coCd);
+		$("#siteSearchForm #clntCd").val(modalStack.last().paramObj.clntCd);
+		$("#siteSearchForm #clntNm").val(modalStack.last().paramObj.clntNm);
 		$("#siteSearchForm #useYn").val("Y");
 		setWareHouse($("#siteSearchForm #coCd").val());
 		
@@ -180,7 +176,7 @@
 				alert(data.resultMessage);
 				$("#siteCd").val(data.siteCd);
 				$("#siteNm").val($('#siteSearchForm #siteNm').val());
-				commonModal.closeTarget.close();
+				modalStack.close();
 			});
 		}
 	}
@@ -207,10 +203,6 @@
 		}).open();
 	}
 
-	function modalClose(){
-		commonModal.closeTarget.close();
-	}
-	
 	function openUserTree() {
 		var paramObj = {
 			"coCd" : "GUM", //$('#coCd').val(),
