@@ -28,11 +28,11 @@
 				<tr>
 					<th class="hit">회사</th>
 					<td>
-						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setWareHouse(this.value);" required></select>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setByCoCd(this.value);" required></select>
 					</td>
 					<th class="hit">판매유형</th>
 					<td>
-						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" required>
+						<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value);" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -436,7 +436,7 @@
 		if(actionType == "C"){
 			$("#coCd").val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setWareHouse($('#coCd').val());
+			setByCoCd($('#coCd').val());
 			setMaker($('#impYn').val());
 			$("#makrCd").val("MAKR09");
 			$('#actionArBtn').on("click", function(){insertShip();});
@@ -488,14 +488,19 @@
 					$('#'+key).val(value);
 				}
 				
-				// 창고 set
+				// 창고, 판매법인 set
 				if(key == "coCd"){
-					setWareHouse(value);
+					setByCoCd(value);
 				}
 				
 				// 제조사 set
 				if(key == "impYn"){
 					setMaker(value);
+				}
+				
+				// 재고주체 set
+				if(key == "typCd"){
+					setBySellType(value);  
 				}
 			}
 		});
@@ -559,17 +564,63 @@
 		}
 	}
 	
-	// 창고 set
-	function setWareHouse(value){
+	// 창고, 판매법인 set
+	function setByCoCd(value){
 		$('#whCd').data("desc", value);
 		$('#whCd').empty();
 		setCommonSelect($('#whCd'));
-		 // 창고와 판매법인은 같이 바귐.		
+		// 창고와 판매법인은 같이 바귐.		
 
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
+	}
+	
+	function setBySellType(value){
+		// 판매유형
+		// SELLTYPE1: 유통
+		// SELLTYPE2: 가공
+		// SELLTYPE4: 임가공
+		// SELLTYPE5: 관수
 		
+		// 재고주체
+		// OWNER1: 자사
+		// OWNER2: 제강사
+		// OWNER3: 건설사
+		// OWNER4: 기타
+		
+		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2" || value == "SELLTYPE5"){
+		// 판매유형이 선택, 유통, 가공일때
+			
+			// 재고주체 초기화
+			$('#ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ownerCd'));
+			
+			if(value == "" || value == "SELLTYPE5"){
+			// 판매유형이 선택, 관수일때
+				// 재고주체 활성화
+				$('#ownerCd').prop("disabled", false);
+			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
+			// 판매유형이 유통, 가공일때
+				// 재고주체 자사 set, 비활성화
+				$('#ownerCd').val("OWNER1");
+				$('#ownerCd').prop("disabled", true);
+			}
+			
+			// 직송여부 Y set
+			$('#dirtrsYn').val("Y");
+			$('#dirtrsYn').prop("disabled", false);
+			ctrlDirtrs();
+		}else if(value == "SELLTYPE4"){
+		// 판매유형이 임가공일때
+			// 재고주체에서 자사 삭제
+			$('#ownerCd option[value="OWNER1"]').remove();
+			$('#ownerCd').prop("disabled", false);
+			// 직송여부 N set
+			$('#dirtrsYn').val("N");
+			$('#dirtrsYn').prop("disabled", true);
+			ctrlDirtrs();
+		}
 	}
 	
 	// 거래처 검색
