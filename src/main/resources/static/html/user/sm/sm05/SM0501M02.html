@@ -188,9 +188,10 @@
 	            </div>
 				<select id="recordCnt" class="prae_select" data-search="recordCnt" onchange="gridView.setData(0);">
 					<option value="10">10</option>
-					<option value="20" selected="selected">20</option>
+					<option value="20" >20</option>
 					<option value="50">50</option>
-					<option value="100">100</option>
+					<option value="100" >100</option>
+					<option value="9999999" selected="selected">전체</option>
 				</select>
 				<input type="hidden" id="pgmId" name="pgmId" value="SM0501M01">
 			</div>
@@ -227,7 +228,21 @@
 		            },
 		            onDBLClick: function () {
 		            	insertUpdatePrdtAcins("U");
-		            }, 
+		            },
+		            mergeCells : ["salesMngNm","prdtDivNm","coNm"],
+		            grouping: {
+		            	by: ["salesMngNm"],
+		            	columns: [
+		                    {
+		                        label: function () { return "소 계"; }, colspan: 4
+		                    },
+		                    {key: "bilgWt", collector: "sum", formatter:"money", align: "right"},
+				    		{key: "bilgAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "bilgVatAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "totalAmt", collector: "sum", formatter:"money", align: "right"},
+		                    
+		                ]
+		            },
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -251,11 +266,11 @@
 			    	]
 			    ],
 		        columns: [
+		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
+		            {key: "prdtDivNm",  label: "제품",   align: "left", width: "130px"},
 		            {key: "coNm",       label: "회사",   align: "left", width: "130px"},
 		            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
 		            {key: "clntDivNm",  label: "구분",   align: "left", width: "130px"},
-		            {key: "prdtDivNm",  label: "구분",   align: "left", width: "130px"},
-		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
 		            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
 		            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
 		            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
@@ -295,11 +310,11 @@
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [
-			        	{key: "coNm",       label: "회사",   align: "left", width: "130px"},
+			        	{key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
+			            {key: "prdtDivNm",  label: "제품",   align: "left", width: "130px"},
+			            {key: "coNm",       label: "회사",   align: "left", width: "130px"},
 			            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
 			            {key: "clntDivNm",  label: "구분",   align: "left", width: "130px"},
-			            {key: "prdtDivNm",  label: "구분",   align: "left", width: "130px"},
-			            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
 			            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
 			            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
 			            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
@@ -312,7 +327,7 @@
 		}	
 	
 	$(document).ready(function() {
-		mainDefaultLoad("매출관리", "매입/매출집계 관리");
+		mainDefaultLoad("매출관리", "매입/매출집계 관리(담당자별)");
 		setCommonSelect($("#main_area select[data-kind]"));
 		initSearch();
 		$('#startDt, #endDt').datepicker({
