@@ -53,7 +53,7 @@ public class BM02Ctr {
     public String insertClnt(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
     		Map<String, String> dupClnt = bm02Svc.selectCrnDupChk(paramMap);
-        	if(dupClnt.size() > 0) {
+        	if(dupClnt != null && dupClnt.size() > 0) {
         		model.addAttribute("resultCode", 500);
         		model.addAttribute("resultMessage",dupClnt.get("clntNm") + " : 동일 사업자번호를 가진 거래처가 있습니다.");
         	}else {
