@@ -32,6 +32,9 @@ public class SM07Ctr {
     	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     
+    	String searchDttm = sm07svc.selectSearchDttm();
+    	model.addAttribute("searchDttm", searchDttm);
+    	
     	List<Map<String, String>> stockList = sm07svc.selectStockSummaryList(param);
     	model.addAttribute("stockList", stockList);
         return "jsonView";

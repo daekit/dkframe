@@ -16,4 +16,6 @@ public interface SM07Mapper {
 	
 	List<Map<String, String>> selectStockSummaryDetailList(Map<String, String> param);
 	
+	String selectSearchDttm();
+
 }
