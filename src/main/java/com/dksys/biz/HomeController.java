@@ -3,10 +3,14 @@ package com.dksys.biz;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.mobile.device.Device;
+import org.springframework.mobile.device.DeviceUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +38,15 @@ public class HomeController {
     
 	// 웰컴 페이지
     @GetMapping("/")
-    public String welcome(Model model) {
-    	return "redirect:/static/index.html";
+    public String welcome(HttpServletRequest request) {
+    	Device device = DeviceUtils.getCurrentDevice(request);
+    	String redirectUrl = "";
+    	if(device.isNormal()) {
+    		redirectUrl = "/static/index.html";
+    	}else {
+    		redirectUrl = "/static/mobile/index.html";
+    	}
+    	return "redirect:"+redirectUrl;
     }
 	
 	// 권한 오류 시 요청처리
