@@ -37,4 +37,9 @@ public class SM07Svcmpl implements SM07Svc {
 		return sm07Mapper.selectStockSummaryDetailList(param);
 	}
 	
+	@Override
+	public String selectSearchDttm() {
+		return sm07Mapper.selectSearchDttm();
+	}
+    
 }

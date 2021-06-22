@@ -50,19 +50,17 @@
 	</div>
 
     <div id="main_area">
-
-
 		<div>
 			<div class="contents search" style="text-align:right">
 				<table class="table_input type03">
 					<tr>
-						<th style="text-align:right;">조회 일자</th>
+						<th style="text-align:right; display:none">조회 일자</th>
 						<td>
-							<select id="searchYear" name="searchYear" data-search="searchYear" onchange="gridView2.reqSetData();">
+							<select id="searchYear" name="searchYear" data-search="searchYear" onchange="gridView2.reqSetData();" style="display:none;">
 							</select>
 						</td>
 						<td>
-							<select id="searchMonth" name="searchMonth" data-search="searchMonth" onchange="gridView2.reqSetData();">
+							<select id="searchMonth" name="searchMonth" data-search="searchMonth" onchange="gridView2.reqSetData();" style="display:none;">
 							</select>
 						</td>
 						<th style="text-align:right;">
@@ -70,8 +68,8 @@
 						</th>
 						<td>
                             <select id="searchUnit" name="searchUnit" data-search="searchItem" onchange="gridView2.reqSetData();">
-								<option value="100" selected>100Ton</option>
-								<option value="1">Ton</option>
+								<option value="100000">100Ton</option>
+								<option value="1000" selected>Ton</option>
 							</select>
 						</td>
 					</tr>
@@ -83,7 +81,7 @@
                 <thead>
                     <tr>
                         <td style="text-align: left;">
-                            <h3 class="location"><span class="page_tit">매출실적(법인)</span></h3> (
+                            <h3 class="location"><span class="page_tit">재고실적(법인)</span></h3> (
                             <h7 class="location"><span class="page_tit" id="searchDttm">조회 일시 : </span></h7>)                       
                         </td>
                     </tr>
@@ -92,16 +90,11 @@
                     <tr>
                         <td>
                             <div class="" style="margin:0px;padding:0px;width:100%;">
-                                <div data-ax5grid="grid02" data-ax5grid-config="{}" style="height:250px; ">
+                                <div data-ax5grid="grid02" data-ax5grid-config="{}" style="height:600px; ">
                                 </div>
                             </div>
                         </td>
 
-                    </tr>
-                    <tr>
-                        <td>
-                            <div id="chart_div2"></div>
-                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -127,6 +120,7 @@
                         selector: false
                     },
                     body: {
+    		            mergeCells : ["coNm", "prdtGrpNm", "prdtDivNm"],
                         onClick: function () {
                             this.self.select(this.dindex);
                         }
@@ -134,82 +128,41 @@
                     page: {
                         display: false,
                     },
-                    footSum: [
-                        [{
-                                label: "합계",
-                                align: "center"
-                            },
-                            {
-                                key: "planWt",
-                                collector: "sum",
-                                formatter: "money",
-                                align: "right"
-                            },
-                            {
-                                key: "realTrstQty",
-                                collector: "sum",
-                                formatter: "money",
-                                align: "right"
-                            }
-                        ]
-                    ],
-                    columns: [{
-                            key: "clntNm",
-                            label: "회사",
-                            align: "center",
-                            width: "50%"
-                        },
-                        {
-                            key: "planWt",
-                            label: "계획",
-                            align: "right",
-                            width: "25%",
-                            formatter: "money"
-                        },
-                        {
-                            key: "realTrstQty",
-                            label: "실적",
-                            align: "right",
-                            width: "25%",
-                            formatter: "money"
-                        }
-                    ]
+    		        columns: [
+    		          	/* {key: "prdtDt", label: "기준날짜", align: "center", width: "25%"}, */
+    		            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "15%", hidden: "true"},
+    		         	{key: "coNm", label: "회사", align: "center", width: "16%"}, 
+    		         	{key: "prdtGrp",  hidden: "true"},
+    		         	{key: "prdtGrpNm", label: "제품그룹", align: "center", width: "18%"},
+    		         	{key: "prdtDiv",  hidden: "true"}, 
+    		         	{key: "prdtDivNm", label: "제품유형", align: "center", width: "20%"},
+    		        	{key: "stockQty", label: "재고수량", align: "right", width: "22%", formatter: "money"},
+    		        	{key: "stockWt", label: "재고중량", align: "right", width: "22%", 	formatter: "money"},
+    		        ],
+    		        footSum: [
+    			    	[
+    			    		{label: "합 계", 	    align:"center",	  colspan:3},
+    	                    {key: "stockQty", 		collector: "sum", formatter:"money", align: "right"},
+    	                    {key: "stockWt", 		collector: "sum", formatter:"money", align: "right"},
+    			    	]
+    			    ]
                 });
                 return this;
             },          
             reqSetData: function () {
+            	debugger;
                 var paramObj = {
-						option : 'co',
+                		coCd: "",
 						searchUnit : $("#searchUnit").val(),
-						searchYm : $("#searchYear").val() + $("#searchMonth").val()
+						baseDt: new Date().toISOString().substring(0, 10)
 				};
-                postAjax(DOMAIN_URL + "/user/cm/cm11/selectDashBoardList", paramObj, null, function (data) {
+                postAjax(DOMAIN_URL + "/user/sm/sm07/selectStockSummaryList", paramObj, null, function (data) {
                     $("#searchDttm").html("조회 일시 : " + data.searchDttm);
                     gridView2.target.setData({
-                        list: data.resultList2,
+                        list: data.stockList,
                         page: {
-                            totalElements: data.paginationInfo2.totalRecordCount
+                            totalElements: 1
                         }
-
-                    });
-                    google.charts.setOnLoadCallback(function drawChart() {
-                        var chartData2 = new google.visualization.DataTable(data
-                            .chartData2); // 매출실적(거래처)    
-                        var chart2 = new google.visualization.BarChart(document.getElementById(
-                            "chart_div2")); // 매출실적(거래처)    
-                        var options = {
-                            height: 300,
-//                             width: 340,
-                            fontSize: '10',
-                            //curveType: 'function',
-                            animation: { //차트가 뿌려질때 실행될 애니메이션 효과
-                                startup: true,
-                                duration: 1000,
-                                easing: 'linear'
-                            }
-                        }
-                        chart2.draw(chartData2,
-                        options); // 매출실적(제품)                             
                     });
                 });
             }

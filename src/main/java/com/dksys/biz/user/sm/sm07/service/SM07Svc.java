@@ -13,4 +13,6 @@ public interface SM07Svc {
 	
 	public List<Map<String, String>> selectStockSummaryDetailList(Map<String, String> param);	
     
+	public String selectSearchDttm();
+
 }
