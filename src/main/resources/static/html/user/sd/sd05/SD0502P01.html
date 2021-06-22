@@ -155,6 +155,8 @@
 			<input type="hidden" id="outordUpr" name="outordUpr">
 			<input type="hidden" id="scndWhCd"  name="scndWhCd">
 			<input type="hidden" id="thrdWhCd"  name="thrdWhCd">
+			<input type="hidden" id="tnkeyCfYn" name="tnkeyCfYn">
+			<input type="hidden" id="tnkeyCfDt" name="tnkeyCfDt">
 <!-- 						<th>가공단가(원/톤)</th> -->
 <!-- 						<td> -->
 <!-- 							<input id="prcsnUpr" name="prcsnUpr" type="text" onkeyup="onlyNumber(this); onlyNumber(this);" maxlength="13" comma> -->
@@ -835,6 +837,10 @@
 			if(key == "ordTyp"){
 				setByOrdTyp(value);
 			}
+			// 턴키확정에 따른 수정 금지
+			if(key == "tnkeyCfYn" && value =="Y"){
+				$('#tnkeyYn').prop("disabled", true);
+			}
 		});
 		//발주서 세팅
 		OD01GridView.setData(0);
@@ -1348,7 +1354,7 @@
 	//Maker에 맞는 거래처 
 	function getPchsClnt(){
 				
-		if($('#tnkeyYn').is(":checked")){
+		if($('#tnkeyYn').is(":checked") && $('#tnkeyCfYn') == "N"){
 			var formData = {
 					"makrCd" : $("#makrCd").val()
 				}
