@@ -65,8 +65,33 @@ public class SM02Svcmpl implements SM02Svc {
 	}
 	
 	@Override
+	public int selectStockTernKeykMovePchListCount(Map<String, String> param) {
+		return sm02Mapper.selectStockTernKeykMovePchListCount(param);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectStockTernKeykMovePchList(Map<String, String> param) {
+		return sm02Mapper.selectStockTernKeykMovePchList(param);
+	}
+	
+	@Override
 	public List<Map<String, String>> selectStockMoveStatMngmDtlList(Map<String, String> param) {
 		return sm02Mapper.selectStockMoveStatMngmDtlList(param);
+	}
+	
+	@Override
+	public int sm02UpdateTernKeyStockMst(Map<String, String> param) {
+		return sm02Mapper.sm02UpdateTernKeyStockMst(param);
+	}
+
+	@Override
+	public int sm03UpdateInsertStockMove(Map<String, String> param) {
+		return sm02Mapper.sm03UpdateInsertStockMove(param);
+	}
+	
+	@Override
+	public List<Map<String, String>> sm02selectTernKeyStock(Map<String, String> param) {
+		return sm02Mapper.sm02selectTernKeyStock(param);
 	}
 	
 	/*
@@ -157,12 +182,12 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sWhCd",     detail.get("sWhCd"));
 			detailMap.put("sTransDt",  detail.get("sTransDt"));
 			detailMap.put("sRmk",      detail.get("sRmk"));
-			detailMap.put("sellType",  detail.get("sellType"));
-			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
-			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
-			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
-			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
-			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
+			detailMap.put("sellType",  detail.get("typCd"));
+			detailMap.put("sPrjctCd",  detail.get("prjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
+			detailMap.put("sPrdtCd",   detail.get("prdtCd"));
+			detailMap.put("sPrdtSize", detail.get("prdtSize"));
+			detailMap.put("sPrdtSpec", detail.get("prdtSpec"));
+			detailMap.put("sPrdtLen",  detail.get("prdtLen"));
 			detailMap.put("transSeq",  detail.get("transSeq"));
 			detailMap.put("transAmt",  detail.get("transAmt"));
 			
@@ -177,6 +202,69 @@ public class SM02Svcmpl implements SM02Svc {
 		}
 		return 200;
 		
+	}
+	
+	@Override
+	public int insertUpdateTernKeyStockMove(Map<String, String> param) {
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		Type map = new TypeToken<Map<String, String>>() {}.getType();
+		Map<String, String> detail = gson.fromJson(param.get("detailArr2"), map);
+		//마감 체크 .. 매출
+		param.put("coCd",  detail.get("sCoCd"));
+		param.put("sTransDt",  detail.get("sTransDt"));
+		if(checkStockClose(param)) {
+			return 500;
+		}			
+		
+		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
+		for (Map<String, String> detailMap : detailList) {
+			 detailMap.put("userId",    param.get("userId").toString());
+			 detailMap.put("pgmId",     param.get("pgmId").toString());
+			 detailMap.put("sPrdtCd",   detailMap.get("trstPrdtCd").toString());
+			 detailMap.put("sPrdtSpec", detailMap.get("prdtSpec").toString());
+			 detailMap.put("sPrdtSize", detailMap.get("prdtSize").toString());
+			 detailMap.put("sPrdtLen",  detailMap.get("prdtLen").toString());
+			 detailMap.put("sCoCd",     detail.get("sCoCd"));
+			 detailMap.put("sWhCd",     detail.get("sWhCd"));
+			 detailMap.put("sTransDt",  detail.get("sTransDt"));
+			 detailMap.put("sRmk",      detail.get("sRmk"));
+			 detailMap.put("sellType",  detail.get("sellType"));
+			 detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
+			
+			 /*
+			 * 제강사 턴키 재고이동 순서
+			 * 1) 기존 재고마스터 prdtSize 매입기준으로 제품 사이즈수정
+			 * 2) 기존 재고마스터 가공 데이터 차감
+			 * 3) 재고이동 이력 가공 추가
+			 * 4) 기존 재고마스터 유통데이터 차감한 만큼 추가
+			 * 5) 재고이동 이력 유통 추가
+			 * */
+			
+			// 매입정보로 재고 마스터 조회 
+			List<Map<String, String>> tempList = sm02selectTernKeyStock(detailMap);
+			Map<String, String> selectedStock = tempList.get(0);
+			detailMap.put("stockQty",  selectedStock.get("stockQty"));
+			detailMap.put("stockWt",   selectedStock.get("stockWt"));
+			detailMap.put("stockUpr",  selectedStock.get("stockUpr"));
+			detailMap.put("stdUpr",    selectedStock.get("stdUpr"));
+			detailMap.put("pchsUpr",   selectedStock.get("pchsUpr"));
+			detailMap.put("sellUpr",   selectedStock.get("sellUpr"));
+			
+			//1) 기존 재고마스터 prdtSize 매입기준으로 제품 사이즈수정
+			//2) 기존 재고마스터 가공 데이터 차감
+			sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
+			// 가공 시 TYP_CD : SELLTYPE1 아니면 SELLTYPE2
+			detailMap.put("typCd",   "SELLTYPE2");      
+			//3) 재고이동 이력 가공 추가
+			sm02Mapper.sm03InsertStockMove(detailMap);         
+			detailMap.put("typCd",   "SELLTYPE1");
+			//4) 기존 재고마스터 유통데이터 차감한 만큼 추가
+			sm02Mapper.sm03UpdateInsertStockMove(detailMap); 
+			//5) 재고이동 이력 유통 추가
+			sm02Mapper.sm03InsertStockMove(detailMap);
+		}
+		return 200;
 	}
 	
 	@Override

@@ -59,7 +59,7 @@
 		</if>
 		ORDER BY TRST_NO
 	</select>
-	
+
 	<select id="selectStockMoveStatMngmList" parameterType="Map" resultType="CamelMap">
 		SELECT *
 			FROM(
@@ -143,6 +143,153 @@
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
+	<select id="selectStockTernKeykMovePchListCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+			FROM (
+			   SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+					SELECT A.TRST_CERTI_NO
+							, A.CO_CD
+							, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+							, A.WH_CD
+							, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+							, A.MAKR_CD
+							, A.OWNER_CD
+							, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+							, A.TYP_CD
+							, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+							, A.SELPCH_CD
+							, A.PRJCT_CD
+							, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+							, A.TRST_CLNT_CD
+							,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
+							, A.TRST_PRDT_CD
+							,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
+							, A.PRDT_SPEC
+							, A.PRDT_LEN
+							, A.PRDT_SIZE
+							, A.TRST_DT
+							, A.IMP_YN
+							, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+							, A.TRSP_TYP_CD  
+							, A.TRST_RPRC_SEQ
+							, A.TRST_DTL_SEQ
+							, A.REAL_TRST_QTY 
+							, A.REAL_TRST_WT
+							, A.REAL_TRST_UPR
+							, A.REAL_TRST_AMT
+							, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+					FROM TB_AR02M01 A
+						LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
+					WHERE A.SELPCH_CD = 'SELPCH1'
+						AND A.TYP_CD = 'SELLTYPE2'
+						AND A.PRJCT_CD IS NOT NULL
+						<if test="coCd != null and !coCd.equals('')">
+							AND A.CO_CD = #{coCd}
+						</if>
+						<if test="whCd != null and !whCd.equals('')">
+							AND A.WH_CD = #{whCd}
+						 </if>
+						 <if test="trstClntCd != null and !trstClntCd.equals('')">
+							AND A.TRST_CLNT_CD = #{trstClntCd}
+						</if>
+					     <if test="prjctCd != null and !prjctCd.equals('')">
+							AND A.PRJCT_CD = #{prjctCd}
+						</if>
+						ORDER BY A.TRST_CERTI_NO DESC
+			) D
+			WHERE 1 = 1 
+		     <if test="prjctNm != null and !prjctNm.equals('')">
+				AND D.PRJCT_NM LIKE '%'|| #{prjctNm} ||'%'
+			</if>
+		    <if test="trstClntNm != null and !trstClntNm.equals('')">
+				AND D.TRST_CLNT_NM LIKE '%'|| #{trstClntNm} ||'%'
+			</if>
+			)
+	</select>	
+	
+	<select id="selectStockTernKeykMovePchList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+					SELECT A.TRST_CERTI_NO
+							, A.CO_CD
+							, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+							, A.WH_CD
+							, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+							, A.MAKR_CD
+							, A.OWNER_CD
+							, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+							, A.TYP_CD
+							, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+							, A.SELPCH_CD
+							, A.PRJCT_CD
+							, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+							, A.TRST_CLNT_CD
+							,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
+							, A.TRST_PRDT_CD
+							,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
+							, A.PRDT_SPEC
+							, A.PRDT_LEN
+							, A.PRDT_SIZE
+							, A.TRST_DT
+							, A.IMP_YN
+							, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+							, A.TRSP_TYP_CD  
+							, A.TRST_RPRC_SEQ
+							, A.TRST_DTL_SEQ
+							, A.REAL_TRST_QTY 
+							, A.REAL_TRST_WT
+							, A.REAL_TRST_UPR
+							, A.REAL_TRST_AMT
+							, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+					FROM TB_AR02M01 A
+						LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
+					WHERE A.SELPCH_CD = 'SELPCH1'
+						AND A.TYP_CD = 'SELLTYPE2'
+						AND A.PRJCT_CD IS NOT NULL
+						<if test="coCd != null and !coCd.equals('')">
+							AND A.CO_CD = #{coCd}
+						</if>
+						<if test="whCd != null and !whCd.equals('')">
+							AND A.WH_CD = #{whCd}
+						 </if>
+						 <if test="trstClntCd != null and !trstClntCd.equals('')">
+							AND A.TRST_CLNT_CD = #{trstClntCd}
+						</if>
+					     <if test="prjctCd != null and !prjctCd.equals('')">
+							AND A.PRJCT_CD = #{prjctCd}
+						</if>
+						ORDER BY A.TRST_CERTI_NO DESC
+			) D
+			WHERE 1 = 1 
+		     <if test="prjctNm != null and !prjctNm.equals('')">
+				AND D.PRJCT_NM LIKE '%'|| #{prjctNm} ||'%'
+			</if>
+		    <if test="trstClntNm != null and !trstClntNm.equals('')">
+				AND D.TRST_CLNT_NM LIKE '%'|| #{trstClntNm} ||'%'
+			</if>
+		)
+		WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="sm02selectTernKeyStock" parameterType="Map" resultType="CamelMap">
+		SELECT *
+		FROM TB_SM01M01
+		WHERE TYP_CD = 'SELLTYPE2'
+		  AND CO_CD = #{coCd}
+		  AND WH_CD = #{whCd}
+		  AND PRJCT_CD = #{prjctCd}
+		  AND MAKR_CD = #{makrCd}
+		  AND OWNER_CD = #{ownerCd}
+		  AND PRDT_CD = #{trstPrdtCd}
+	</select>	
+	
 	<select id="selectUprDtlCount" parameterType="Map" resultType="int">
 		SELECT
 			COUNT(*)
@@ -182,6 +329,8 @@
 				AND SD05.PRJCT_NM LIKE '%' || #{prjctNm} || '%'
 		</if>
 	</select>
+	
+	
 	
 	<select id="selectStockMoveStatMngmDtlList" parameterType="Map" resultType="CamelMap">
 		SELECT *
@@ -274,6 +423,20 @@
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
+	
+	<update id="sm02UpdateTernKeyStockMst" parameterType="Map">
+		UPDATE TB_SM01M01
+		SET STOCK_QTY = #{stockQty}-#{moveQty}
+		   ,STOCK_WT  = #{stockWt}-#{moveWt} 
+		   ,PRDT_SIZE = #{prdtSize}
+		WHERE TYP_CD = 'SELLTYPE2'
+			AND CO_CD = #{coCd}
+			AND WH_CD = #{whCd}
+			AND TYP_CD = #{typCd}
+			AND OWNER_CD = #{ownerCd}
+			AND PRJCT_CD = #{prjctCd}
+			AND PRDT_SPEC = #{prdtSpec}
+	</update>
 	
 	<update id="sm01UpdateStockMove" parameterType="Map">
 		UPDATE TB_SM01M01 SET
@@ -645,6 +808,192 @@
 			TO_CHAR(TO_DATE(#{sTransDt}, 'YYYY-MM-DD'),'YYYYMMDD'),
 			#{transAmt, jdbcType=VARCHAR},
 			#{transSeq, jdbcType=VARCHAR}
+	 	)
+	</insert>
+	
+	<update id="sm03UpdateInsertStockMove" parameterType="Map">
+		MERGE INTO TB_SM01M01 A
+		USING (
+		   SELECT
+			   STOK_SEQ,
+			   CO_CD,
+			   #{sWhCd} AS WH_CD,
+			   PRDT_CD,
+			   PRDT_SIZE,
+			   PRDT_SPEC,
+			   #{sPrdtLen} PRDT_LEN,
+			   OWNER_CD,
+			   CLNT_CD,
+			   TYP_CD,
+			   MAKR_CD,
+			   #{sPrjctCd} PRJCT_CD,
+			   IMP_YN,
+			   #{moveQty} AS STOCK_QTY,
+			   #{moveWt}  AS STOCK_Wt,
+			   STOCK_UPR,
+			   STOCK_AMT,
+			   STD_UPR,
+			   PCHS_UPR,
+			   SELL_UPR,
+			   PROPRT_STOCK_QTY,
+			   'STOCKCHG06',
+			   #{userId},
+			   #{pgmId}, 
+			   SYSDATE 
+		   FROM TB_SM01M01
+		   WHERE TYP_CD = 'SELLTYPE1'
+			  AND CO_CD = #{coCd}
+			  AND WH_CD = #{whCd}
+			  AND PRJCT_CD = #{prjctCd}
+			  AND MAKR_CD = #{makrCd}
+			  AND OWNER_CD = #{ownerCd}
+			  AND PRDT_CD = #{trstPrdtCd}) S 
+		ON (
+			  A.CO_CD     = S.CO_CD
+		  AND A.WH_CD     = S.WH_CD
+		  AND A.CLNT_CD   = S.CLNT_CD
+		  AND A.TYP_CD    = S.TYP_CD
+		  AND A.MAKR_CD   = S.MAKR_CD
+		  AND A.OWNER_CD  = S.OWNER_CD
+		  AND A.PRDT_CD   = S.PRDT_CD
+		  AND A.IMP_YN    = S.IMP_YN
+		  AND A.PRJCT_CD  = S.PRJCT_CD
+		  AND NVL(A.PRDT_SIZE,0) = NVL(S.PRDT_SIZE,0)
+		  AND NVL(A.PRDT_SPEC,0) = NVL(S.PRDT_SPEC,0)
+		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0)
+		  AND S.TYP_CD = 'SELLTYPE1'
+		)
+		WHEN MATCHED THEN 
+			UPDATE SET   ( STOCK_QTY )= ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
+			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
+			           ,(STOCK_WT ) = ( SELECT STOCK_WT + #{moveWt} AS STOCK_Wt FROM TB_SM01M01 
+			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
+		WHEN NOT MATCHED THEN 
+		INSERT
+		(
+		   STOK_SEQ,
+		   CO_CD,
+		   WH_CD,
+		   PRDT_CD,
+		   PRDT_SIZE,
+		   PRDT_SPEC,
+		   PRDT_LEN,
+		   OWNER_CD,
+		   CLNT_CD,
+		   TYP_CD,
+		   MAKR_CD,
+		   PRJCT_CD,
+		   IMP_YN,
+		   STOCK_QTY,
+		   STOCK_WT,
+		   STOCK_UPR,
+		   STOCK_AMT,
+		   STD_UPR,
+		   PCHS_UPR,
+		   SELL_UPR,
+		   PROPRT_STOCK_QTY,
+		   STOCK_CHG_CD,
+		   CREAT_ID,
+		   CREAT_PGM, 
+		   UDT_DTTM
+		)VALUES(
+		   TB_SM01M01_SQ01.NEXTVAL, 
+		   S.CO_CD,
+		   S.WH_CD,
+		   S.PRDT_CD,
+		   S.PRDT_SIZE,
+		   S.PRDT_SPEC,
+		   S.PRDT_LEN,
+		   S.OWNER_CD,
+		   S.CLNT_CD,
+		   'SELLTYPE1',
+		   S.MAKR_CD,
+		   S.PRJCT_CD,
+		   S.IMP_YN,
+		   S.STOCK_QTY,
+		   S.STOCK_WT,
+		   S.STOCK_UPR,
+		   S.STOCK_AMT,
+		   S.STD_UPR,
+		   S.PCHS_UPR,
+		   S.SELL_UPR,
+		   S.PROPRT_STOCK_QTY,
+		   'STOCKCHG06',
+		   #{userId},
+		   #{pgmId}, 
+		   SYSDATE)
+	</update>
+	
+	<insert id="sm03InsertStockMove" parameterType="Map">
+		INSERT INTO TB_SM02M01
+		(
+			TRST_NO, 
+			OUT_CO_CD,	
+			OUT_WH_CD, 
+			OWNER_CD,
+			CLNT_CD, 
+			TYP_CD, 
+			MAKR_CD, 
+			PRJCT_CD, 
+			PRDT_CD, 
+			PRDT_SIZE,
+		    PRDT_SPEC,
+		    PRDT_LEN,
+			IMP_YN, 
+			IN_CO_CD, 
+			IN_TYP_CD, 
+			IN_WH_CD, 
+			IN_PRJCT_CD,
+			IN_PRDT_CD,
+			IN_PRDT_SPEC,
+			IN_PRDT_SIZE,
+			IN_PRDT_LEN,
+			STOCK_UPR, 
+			STD_UPR,
+			PCHS_UPR, 
+			SELL_UPR,	
+			MOVE_QTY,
+			MOVE_WT,
+			RMK,	
+			CREAT_ID, 
+			CREAT_PGM, 
+			CREAT_DTTM, 
+			TRST_DT				
+		)
+	 	VALUES
+	 	(
+			TB_SM02M01_SQ01.NEXTVAL, 
+			#{coCd}, 
+			#{whCd}, 
+			#{ownerCd}, 
+			#{trstClntCd},
+			#{typCd},
+			#{makrCd},
+			#{prjctCd}, 
+			#{trstPrdtCd}, 
+			#{prdtSize},
+			#{prdtSpec},
+			#{prdtLen},
+			#{impYn},
+			#{coCd}, 
+			#{sellType}, 
+			#{whCd},
+			#{prjctCd},
+            #{trstPrdtCd}, 
+		    #{prdtSize},
+			#{prdtSpec},
+			#{prdtLen},
+			#{stockUpr},
+			#{stdUpr}, 
+			#{pchsUpr}, 
+			#{sellUpr},
+			#{moveQty},
+			#{moveWt},
+			#{sRmk},
+			#{userId}, 
+			#{pgmId}, 
+			sysdate, 
+			TO_CHAR(TO_DATE(#{sTransDt}, 'YYYY-MM-DD'),'YYYYMMDD')
 	 	)
 	</insert>
 	
