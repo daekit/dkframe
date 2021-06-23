@@ -1,0 +1,540 @@
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="popup_area">
+				<div class="popup_table">
+					<div class="contents no_bg">
+						<ul class="btn_ul">
+							<li class="btn_r"><a onclick="gridView1.setData(0);">
+									<button class="bg_gray">검 색</button>
+							</a> <a onclick="searchInit()">
+									<button class="bg_gray">초기화</button>
+							</a></li>
+						</ul>
+					</div>
+					<table>
+						<tbody>
+							<tr>
+								<th colspan="2">출고 회사</th>
+								<td colspan="3"><select id="searchDtlOutCoCd"
+									name="searchDtlOutCoCd" data-kind="CO" data-search="coCd"
+									onchange="setWareHouse(this.value); gridView1.setData(0);"
+									required>
+										<option value="">전체</option>
+								</select></td>
+								<th colspan="2">출고지(창고)</th>
+								<td colspan="3"><select id="searchDtlOutWhCd"
+									name="searchDtlOutWhCd" data-kind="WH" data-search="whCd"
+									onchange="setDtlInOutWhCd();" required>
+										<option value="">전체</option>
+								</select></td>
+								<th colspan="2">거래처</th>
+								<td colspan="3"><input type="hidden" id="clntCd_S"
+									data-search="clntCd">
+									<div class="search_form">
+										<input type="text" id="clntNm_S" data-search="clntNm"
+											onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView1.setData(0) : ''">
+										<a onclick="openClntSearch();"> <i class="i_search_w"></i>
+										</a>
+									</div></td>
+								</td>
+							</tr>
+							<tr name="tableCd">
+								<th colspan="2">판매유형</th>
+								<td colspan="3"><select id="searchDtlTypCd"
+									data-kind="SELLTYPE" data-search="typCd"
+									onchange="gridView1.setData(0);" required>
+										<option value="">전체</option>
+								</select></td>
+								<th colspan="2" class="hit">프로젝트</th>
+								<td colspan="3">
+									<div class="search_form">
+										<input type="hidden" id="prjctCd"> <input type="text"
+											required msg="프로젝트" id="prjctNm"
+											onkeyup="event.keyCode == 13 ? openSecondPrjctSearch('S') : ''"
+											readonly="readonly"> <a
+											onclick="openSecondPrjctSearch('S');"><i
+											class="i_search_w"></i></a>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="contents">
+					<div data-ax5grid="search-grid" data-ax5grid-config="{}"
+						style="height: 400px; width: 100%"></div>
+				</div>
+			</div>
+		</div>
+		<div class="popup_area" style="min-height: 120px;">
+			<div class="popup_table">
+				<div class="contents no_bg">
+					<ul class="btn_ul">
+						<li class="btn_r"><a id="move">
+								<button class="bg_gray" onclick="insertUpdateMove()" authchk>이동</button>
+						</a></li>
+					</ul>
+				</div>
+				<div class="contents">
+					<table>
+						<tbody>
+							<tr>
+								<th colspan="2" class="hit">입고지</th>
+								<td colspan="2"><input type="hidden" id="sCoCd"
+									name="sCoCd"> <input type="hidden" id="sPrdtCd"
+									name="sPrdtCd"> <input type="hidden" id="sPrdtLen"
+									name="sPrdtLen"> <input type="hidden" id="sPrdtSpec"
+									name="sPrdtSpec"> <input type="hidden" id="sPrdtSize"
+									name="sPrdtSize"> <input type="hidden" id="sWhType"
+									name="sWhType"> <select id="searchDtlWhCd"
+									name="searchDtlWhCd" data-kind="WH" onChange="findWhType()"
+									required msg="입고지"></select></td>
+								<th colspan="2" class="hit">판매유형</th>
+								<td colspan="3"><select id="searchDtlType"
+									data-kind="SELLTYPE" required msg="판매유형"></select></td>
+							</tr>
+							<tr>
+								<th colspan="2" class="hit">이동일자</th>
+								<td colspan="2"><input type="text" id="sTransDt"
+									name="sTransDt" class="input_calendar" required msg="이동일자">
+								</td>
+								<th colspan="2" class="hit">메모</th>
+								<td colspan="8"><input id="searchRmk" required msg="메모">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<a id="closeBtn">
+		<button class="bg_gray" onclick="modalStack.close();">닫기</button>
+	</a>
+	<form id="popForm">
+		<input type="hidden" id="userId" name="userId"> <input
+			type="hidden" id="pgmId" name="pgmId" value="SM0301P01">
+	</form>
+</body>
+
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var searchGrid = null;
+	var insertOK = false;
+
+	var gridView1 = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target
+					.setConfig({
+						showRowSelector : true,
+						multipleSelect : true,
+						sortable : true,
+						target : $('[data-ax5grid="search-grid"]'),
+						header : {
+							align : "center",
+							selector : true
+						},
+						body : {
+							onClick : function() {
+								var idx = this.self.select(this.dindex);
+							},
+							onDBLClick : function() {
+							},
+							onDataChanged : function() {
+								/* 체크 선택 안됨 현상으로 인한 getList 후 저장 */
+								var list = searchGrid.getList();
+								list[this.dindex].moveWt = list[this.dindex].moveQty
+										* list[this.dindex].prdtCnvrsnWt
+
+								var idx = this.self.select(this.dindex);
+								idx.list = list;
+								this.self.repaint();
+							}
+						},
+						page : {
+							navigationItemCount : 9,
+							height : 30,
+							display : true,
+							searchIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+							prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+							nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+							lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+							onChange : function() {
+								gridView1.setData(this.page.selectPage);
+							}
+						},
+						columns : [ {
+							key : "stokSeq",
+							label : "시퀀스",
+							align : "center",
+							width : 100,
+							hidden : "true"
+						}, {
+							key : "coNm",
+							label : "출고회사",
+							align : "center",
+							width : 100,
+							hidden : "true"
+						}, {
+							key : "whNm",
+							label : "출고지",
+							align : "center",
+							width : 90
+						}, {
+							key : "ownerNm",
+							label : "주체",
+							align : "center",
+							width : 50
+						}, {
+							key : "typNm",
+							label : "유형",
+							align : "center",
+							width : 50
+						}, {
+							key : "prjctNm",
+							label : "프로젝트",
+							align : "left",
+							width : 100
+						}, {
+							key : "trstClntNm",
+							label : "거래처",
+							align : "left",
+							width : 100
+						}, {
+							key : "trstPrdtNm",
+							label : "제품",
+							align : "left",
+							width : 160
+						}, {
+							key : "prdtSpec",
+							label : "스펙",
+							align : "left",
+							width : 70
+						}, {
+							key : "prdtSize",
+							label : "사이즈",
+							align : "left",
+							width : 80
+						}, {
+							key : "prdtLen",
+							label : "길이",
+							align : "left",
+							width : 60
+						}, {
+							key : "realTrstQty",
+							label : "입고 수량",
+							align : "right",
+							width : 100,
+							formatter : "money"
+						}, {
+							key : "realTrstWt",
+							label : "입고 중량(KG)",
+							align : "right",
+							width : 100,
+							formatter : "money"
+						}, {
+							key : "moveQty",
+							label : "이동 수량",
+							align : "right",
+							width : 120,
+							formatter : "money",
+							editor : {
+								type : "text"
+							},
+							styleClass : "grid-cell-blue"
+						}, {
+							key : "moveWt",
+							label : "이동 중량(KG)",
+							align : "right",
+							width : 120,
+							formatter : "money"
+						}, {
+							key : "prdtCnvrsnWt",
+							label : "변환중량",
+							align : "right",
+							width : 120,
+							formatter : "money",
+							hidden : true
+						}, {
+							key : "realTrstAmt",
+							label : "단가",
+							hidden : true
+						}, {
+							key : "prjctCd",
+							label : "프로젝트",
+							hidden : true
+						}, {
+							key : "trstPrdtCd",
+							label : "제품",
+							hidden : true
+						}, {
+							key : "makrCd",
+							label : "제조사",
+							hidden : true
+						}, {
+							key : "trstCertiNo",
+							label : "거래 처리 번호",
+							hidden : true
+						}, {
+							key : "stockQty",
+							label : "재고수량",
+							hidden : true
+						}, {
+							key : "stockWt",
+							label : "재고중량",
+							hidden : true
+						}, {
+							key : "stockUpr",
+							label : "재고단가",
+							hidden : true
+						} ]
+					});
+			return this;
+		},
+		setData : function(_pageNo) {
+			searchGrid = this.target;
+			// 페이지 필요유무 추가
+			var formData = {
+				"coCd" : $("#searchDtlOutCoCd").val(),
+				"whCd" : $("#searchDtlOutWhCd").val(),
+				"trstClntNm" : $("#clntNm_S").val(),
+				"trstClntCd" : $("#clntCd_S").val(),
+				"typCd" : $("#searchDtlTypCd").val(),
+				"prjctCd" : $("input#prjctCd").val(),
+				"prjctNm" : $("#prjctNm_S").val(),
+				"pageNo" : _pageNo + 1
+			}
+			postAjax(
+					"/user/sm/sm02/selectStockTernKeykMovePchList",
+					formData,
+					null,
+					function(data) {
+						var list = data.smsmDtlList;
+						searchGrid
+								.setData({
+									list : list,
+									page : {
+										currentPage : _pageNo,
+										pageSize : data.paginationInfo.pageSize,
+										totalElements : data.paginationInfo.totalRecordCount,
+										totalPages : data.paginationInfo.totalPageCount
+									}
+								});
+					});
+		}
+	}
+
+	//화면로드시
+	$(document).ready(function() {
+		setCommonSelect($(".popup_area select[data-kind]"));
+		$("#searchDtlOutCoCd").val(jwt.coCd);
+
+		//처음 화면 set
+		setWareHouse(jwt.coCd);
+		gridView1.initView().setData(0);
+		$("#sTransDt").val(dateToStr(new Date()));
+		$('#sTransDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+
+		findWhType(); // 기본 창고 유형  Set
+		authChk();
+
+	})
+	//출고, 입고지 set
+	function setDtlInOutWhCd() {
+		var searchDtlOutWhCd = $('#searchDtlOutWhCd').val();
+		$('#searchDtlWhCd').val(searchDtlOutWhCd);
+
+		gridView1.initView().setData(0);
+	}
+
+	function insertUpdateMove() {
+
+		if (inputValidation($('input[required]'))) {
+			var formData = makeFormData();
+			if (!formData) {
+				return;
+			} /* valid check */
+
+			var formData = $("#popForm").serializeObject();
+			var formData2 = {
+				"sCoCd" : $("#searchDtlOutCoCd").val(), // 출고회사가 바뀌면 매입매출고 처리함.
+				"sWhCd" : $("#searchDtlWhCd").val(),
+				"sTransDt" : $("#sTransDt").val(),
+				"sRmk" : $("#searchRmk").val(),
+				"sellType" : $("#searchDtlType").val(),
+				"sPrjctCd" : $("#prjctCd").val(),
+				"sPrdtCd" : $("#searchMovePrdtCd").val(),
+				"sPrdtSpec" : $("#searchMovePrdtSpec").val(),
+				"sPrdtSize" : $("#searchMovePrdtSize").val(),
+				"sPrdtLen" : $("#searchMovePrdtLen").val()
+			}
+
+			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+			var mngPrdtLen = '';
+			if ($('#sWhType').val() == "WHDIV01") {
+				mngPrdtLen = 8;
+			}
+			formData.mngPrdtLen = mngPrdtLen;
+
+			formData["detailArr2"] = JSON.stringify(formData2);
+			var detailArr = searchGrid.getList("selected");
+			formData["detailArr"] = JSON.stringify(detailArr);
+			putAjax("/user/sm/sm02/insertUpdateTernKeyStockMove", formData,
+					null, function(data) {
+						alert(data.resultMessage);
+						gridView.setData(0);
+						modalStack.close();
+					})
+		}
+	}
+
+	function makeFormData() {
+		$("#userId").val(jwt.userId);
+		var selectedRows = searchGrid.getList("selected");
+
+		//선택 안햇을 경우
+		if (selectedRows.length == 0) {
+			alert('선택된 데이터가 없습니다.');
+			return false;
+		}
+
+		//이동 수량 입력 안햇을 경우
+		var isVaild = true;
+		for (var i = 0; i < selectedRows.length; i++) {
+			var tempElem = selectedRows[i];
+			if (isNaN(tempElem.moveWt)) { // NaN check
+				alert('이동수량을 입력해 주세요.');
+				return false;
+			}
+			if (tempElem.moveWt == null) { // undefined check
+				alert('이동수량을 입력해 주세요.');
+				return false;
+			}
+		}
+
+		var formData = $("#popForm").serializeObject();
+		var formData2 = {
+			"sCoCd" : $("#searchDtlOutCoCd").val(), // 출고회사가 바뀌면 매입매출고 처리함.
+			"sWhCd" : $("#searchDtlWhCd").val(),
+			"sTransDt" : $("#sTransDt").val(),
+			"sRmk" : $("#searchRmk").val(),
+			"sellType" : $("#searchDtlType").val(),
+			"sPrjctCd" : $("input#prjctCd").val(),
+			"sPrdtCd" : $("#sPrdtCd").val(),
+			"sPrdtSpec" : $("#sPrdtSpec").val(),
+			"sPrdtSize" : $("#sPrdtSize").val(),
+			"sPrdtLen" : $("#sPrdtLen").val(),
+		}
+
+		// 상세내역 추가
+		formData["detailArr2"] = JSON.stringify(formData2);
+		var detailArr = searchGrid.getList("selected");
+		formData["detailArr"] = JSON.stringify(detailArr);
+		return formData;
+	}
+
+	//초기화 함수
+	function searchInit() {
+		$("#searchDtlOutCoCd option:eq(0)").prop("selected", true);
+		$("#searchDtlOutWhCd option:eq(0)").prop("selected", true);
+		$("input#prjctCd").val('');
+		$("input#prjctNm").val('');
+		$('#searchRmk').val('');
+		$("#clntNm").val('');
+
+		gridView1.initView().setData(0);
+	}
+
+	//거래처 검색
+	function openClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420,
+			"거래처 검색", {}, function(grid) {
+				var row = grid.target.getList("selected")[0];
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);
+			});
+	}
+
+	// 제품 검색
+	function prdtSearch(elem) {
+		$targetRow = $(elem).closest('tr[name="tableCd"]');
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd" : $('#searchDtlOutCoCd').val(),
+			"selpchCd" : "SELPCH2",
+			"impYn" : "N",
+			"clntCd" : $("#clntCd").val(),
+			"useYn" : "Y"
+		};
+
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600,
+				"제품 검색", paramObj, function(grid) {
+					var row = grid.target.getList("selected")[0];
+					$targetRow.find('input[name="searchDtlPrdtCd"]').val(
+							row.prdtCd);
+					$targetRow.find('input[name="searchDtlPrdtNm"]').val(
+							row.prdtNm);
+				});
+	}
+
+	// 현장 검색
+	function openSecondPrjctSearch(type) {
+		var paramObj = {
+			"coCd" : $('#popForm #coCd').val(),
+			"clntCd" : $("#popForm #clntCd").val(),
+			"clntNm" : $("#popForm #clntNm").val(),
+			"prjctNm" : $("#popForm #prjctNm").val()
+		}
+
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450,
+			"프로젝트 검색", paramObj, function(tree) {
+				var row = tree.target.getList("selected")[0];
+				if (type == 'S') {
+					$("input#prjctCd").val(row.prjctCd);
+					$("input#prjctNm").val(row.prjctNm);
+					$('#searchRmk')
+							.val('[' + row.prjctNm + '] 제강사 턴키 재고이동');
+				} else {
+					$("#searchPrjctCd").val(row.prjctCd);
+					$("#searchPrjctNm").val(row.prjctNm);
+				}
+				gridView1.initView().setData(0);
+			});
+	}
+
+	// 창고 유형  codeRprc
+	function findWhType() {
+		$('#sWhType').val($('#searchDtlWhCd option:selected').data("rprc"));
+		//	$('#sWhType').val("WHDIV01");
+	}
+
+	// 처음 화면 set
+	function setWareHouse(value) {
+		//출고고지 창고 법인별 설정
+		$('#searchDtlOutWhCd').data("desc", value);
+		$('#searchDtlOutWhCd').empty();
+		setCommonSelect($('#searchDtlOutWhCd'));
+		$('#searchDtlTypCd').val("SELLTYPE2");
+		$('#searchDtlTypCd').prop("disabled", true);
+
+		//임고지 창고법인별 설정
+		$('#searchDtlWhCd').data("desc", value);
+		$('#searchDtlWhCd').empty();
+
+		$('#searchDtlType').val("SELLTYPE1");
+		$('#searchDtlType').prop("disabled", true);
+		$('#searchDtlWhCd').prop("disabled", true);
+
+		setCommonSelect($('#searchDtlWhCd'));
+	}
+</script>
