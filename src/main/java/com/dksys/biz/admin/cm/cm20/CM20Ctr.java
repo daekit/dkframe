@@ -48,7 +48,7 @@ public class CM20Ctr {
     }
     
 	@DeleteMapping("/deleteSanctnInfo")
-    public String deleteEtrdps(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String deleteSanctnInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
 		try {
 			cm20Svc.deleteSanctnInfo(paramMap);
     		model.addAttribute("resultCode", 200);
