@@ -100,7 +100,6 @@
 </html>
 
 <script type="text/javascript">
-	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
 	var gridView = {
@@ -169,70 +168,70 @@
 	
 
 	var shipGridView = {
-			initView : function() {
-				this.target = new ax5.ui.grid();
-				this.target.setConfig({
-					showRowSelector : true,
-					multipleSelect : false,
-					sortable : true,
-					target : $('[data-ax5grid="second-grid"]'),
-					header : {
-						align : "center",
-						selector : false
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : true,
+				multipleSelect : false,
+				sortable : true,
+				target : $('[data-ax5grid="second-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
 					},
-					body : {
-						onClick : function() {
-							this.self.select(this.dindex);
-						},
-			            onDBLClick: function () {
-			            	viewShipModal(this.item.shipSeq);
-			            },
-					},
+		            onDBLClick: function () {
+		            	viewShipModal(this.item.shipSeq);
+		            },
+				},
+				page : {
+					display : true,
+				},
+				footSum: [
+			    	[
+			    		{label: "합계", align: "center", colspan: 7},
+	                    {key: "shipTotQty", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "realTotQty", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "remainQty", collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
+				columns: [
+		          	{key: "shipSeq",    label: "출하일련번호",  align: "center",  hidden: true},
+		          	{key: "shipYn",     label: "확정",   		align: "center",  width: 50},
+		          	{key: "recptYn",    label: "접수",   		align: "center",  width: 50, styleClass: function () {
+	                     return (this.item.recptYn == "N") ? "grid-font-red-bold":"";}},
+		          	{key: "reqDt",      label: "요청일", 		align: "center",  width: 80},
+		          	{key: "clntNm",     label: "거래처", 		align: "left",    width: 120},
+		          	{key: "siteNm",     label: "현장",		align: "left",    width: 120},
+		          	{key: "whNm",       label: "창고",   		align: "left",    width: 100},
+		          	{key: "odrCreatDiv",label: "구분",   		align: "center",  width: 60, styleClass: function () {
+	                     return (this.item.odrCreatDiv == "MES") ? "grid-font-blue":"";}},
+		          	{key: "shipTotQty", label: "요청량",	 	align: "right",   width: 70, formatter: "money"},
+		          	{key: "realTotQty", label: "출하량", 		align: "right",   width: 70, formatter: "money"},
+		          	{key: "remainQty",  label: "잔량",   		align: "right",   width: 70, formatter: "money"}
+		        ]
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {
+					coCd3 : $("#coCd3").val()
+					};
+			postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
 					page : {
-						display : true,
-					},
-					footSum: [
-				    	[
-				    		{label: "합계", align: "center", colspan: 7},
-		                    {key: "shipTotQty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "realTotQty", collector: "sum", formatter:"money", align: "right"},
-		                    {key: "remainQty", collector: "sum", formatter:"money", align: "right"}
-				    	]
-				    ],
-					columns: [
-			          	{key: "shipSeq",    label: "출하일련번호",  align: "center",  hidden: true},
-			          	{key: "shipYn",     label: "확정",   		align: "center",  width: 50},
-			          	{key: "recptYn",    label: "접수",   		align: "center",  width: 50, styleClass: function () {
-		                     return (this.item.recptYn == "N") ? "grid-font-red-bold":"";}},
-			          	{key: "reqDt",      label: "요청일", 		align: "center",  width: 80},
-			          	{key: "clntNm",     label: "거래처", 		align: "left",    width: 120},
-			          	{key: "siteNm",     label: "현장",		align: "left",    width: 120},
-			          	{key: "whNm",       label: "창고",   		align: "left",    width: 100},
-			          	{key: "odrCreatDiv",label: "구분",   		align: "center",  width: 60, styleClass: function () {
-		                     return (this.item.odrCreatDiv == "MES") ? "grid-font-blue":"";}},
-			          	{key: "shipTotQty", label: "요청량",	 	align: "right",   width: 70, formatter: "money"},
-			          	{key: "realTotQty", label: "출하량", 		align: "right",   width: 70, formatter: "money"},
-			          	{key: "remainQty",  label: "잔량",   		align: "right",   width: 70, formatter: "money"}
-			        ]
+						totalElements : data.paginationInfo.totalRecordCount
+					}
 				});
-				return this;
-			},
-			setData : function(_pageNo) {
-				var targetObj = this.target;
-				var paramObj = {
-						coCd3 : $("#coCd3").val()
-						};
-				postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
-					var list = data.resultList;
-					targetObj.setData({
-						list : list,
-						page : {
-							totalElements : data.paginationInfo.totalRecordCount
-						}
-					});
-				});				
-			}
+			});				
 		}
+	}
 	
 	var reqGridView = {
 			initView : function() {
@@ -251,7 +250,7 @@
 							this.self.select(this.dindex);
 						},
 			            onDBLClick: function () {
-			            	viewReqModal(this.item.reqSeq,this.item.reqDt);
+			            	viewReqModal(this.item.reqSeq, this.item.reqDt);
 			            },
 					},
 					page : {
@@ -334,11 +333,11 @@
 	}
 	
 	function viewReqModal(reqSeq, reqDt) {
-        actionType = "U";
         openFrom   = "CM1001M01";
 		var paramObj = {
-			'reqSeq' : reqSeq,
-			"reqDt" :  reqDt
+			"reqSeq": reqSeq,
+			"reqDt": reqDt,
+			"actionType": "U"
 		};
 		openModal("/static/html/user/od/od04/OD0402P01.html", 1200, 780, "", paramObj);
 	}

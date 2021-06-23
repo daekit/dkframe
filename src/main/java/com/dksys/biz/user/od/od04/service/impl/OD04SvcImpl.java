@@ -53,11 +53,8 @@ public class OD04SvcImpl implements OD04Svc {
 	@Override
 	public Map<String, Object> selectReqOrder(Map<String, Object> param) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		System.out.println(param);
 		returnMap.put("reqInfo", od04Mapper.selectReqOrder(param));
 		returnMap.put("reqDetail", od04Mapper.selectReqOrderDetail(param));
-		System.out.println("111");
-		System.out.println(returnMap);
 		return returnMap;
 	} 
 	

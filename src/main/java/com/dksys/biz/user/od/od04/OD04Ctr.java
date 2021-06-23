@@ -53,12 +53,10 @@ public class OD04Ctr {
 	
 	@PostMapping(value = "/selectReqOrder") 
 	public String selectReqOrder(@RequestBody Map<String, Object> param, ModelMap model) { 
-		System.out.println(param);
 		Map<String, Object> result = od04Svc.selectReqOrder(param);
-		System.out.println(result); model.addAttribute("result", result);
+		model.addAttribute("result", result);
 		return "jsonView"; 
 	}
-	 
     
 	@PostMapping(value = "/insertReq")
     public String insertReq(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
