@@ -1,5 +1,4 @@
-<div id="arViewDiv" class="popup_area of_a"
-	style="width: 100%; height: 100%;">
+<div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
 	<div class="tit_contents">
 		<h4 class="tit"></h4>
 	</div>
@@ -317,7 +316,8 @@
 		
 		// 파일 그리드 초기화
 		fileGridView.initView();
-		console.log(actionType);
+		
+		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType == "C"){
 			$("#popForm #coCd").val(jwt.coCd);
 			$("#popForm #reqDt").val(moment(new Date()).format("YYYYMMDD"));
@@ -420,19 +420,6 @@
 		});
 		countTot();
 		
-		if(actionType != "O"){
-			$.each(fileInfo, function(idx, obj){
-				fileArr.push({
-					'fileKey' : obj.fileKey,
-			      	'fileName' : obj.fileName,
-			      	'fileType' : obj.fileType,
-			      	'fileSize' : obj.fileSize,
-			      	'file' : obj
-				});
-			});
-			// 첨부파일 그리드 set
-			fileGridView.setData();
-		}
 	}
 
 	// 사용자 검색
@@ -486,10 +473,12 @@
 	function transAmtModal() {
 		openFrom = "AR0102P01";
 		var paramObj ={
-				transSeq :$('#transSeq').val(),
-				coCd :$('#coCd').val()
-			}
-			if(!$('#transSeq').val()) {actionType = 'C';} 
+			transSeq :$('#transSeq').val(),
+			coCd :$('#coCd').val()
+		}
+		if(!$('#transSeq').val()) {
+			paramObj.actionType = "C";
+		} 
 		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
 	}
 	
@@ -798,39 +787,36 @@
 		
 		return formData;
 	}
-	var reqSeq;
-	var reqDtlSeqArr;
+	
 	//  발주서 생성
 	function openInsertOrdrg(){
-		if(orderSequenceSet()){
-			actionType = 'R';
+		var paramObj = reqSequenceSet();
+		if(paramObj){
 			modalStack.close();
-	
-			var paramObj = {
-					'reqSeq' : ""
-			};	
-			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 800, "",paramObj);
+			setTimeout(function(){
+				openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 800, "", paramObj);
+			}, 500);
 		}
 	}
 	
-
-	
 	// reqSeq, reqDtlSeq set
-	function orderSequenceSet(){
-		var tempArr = [];
+	function reqSequenceSet(){
+		var reqDtlSeqArr = [];
 		$.each($('tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find('input[name="detailChkBox"]').is(':checked') && $(elem).find('input[name="ordrgYn"]').val() == "N") {
-				tempArr.push($(elem).find('input[name="reqDtlSeq"]').val());
+				reqDtlSeqArr.push($(elem).find('input[name="reqDtlSeq"]').val());
 			}
 		});
 		
-		if(tempArr.length > 0){
-			actionType = 'R';
-			reqSeq = $('#popForm #reqSeq').val();
-			reqDtlSeqArr = tempArr;
-			return true;
+		if(reqDtlSeqArr.length > 0){
+			var paramObj = {
+				"reqSeq": $('#popForm #reqSeq').val(),
+				"reqDtlSeqArr": reqDtlSeqArr,
+				"actionType": "R"
+			}
+			return paramObj;
 		}else{
-			alert("주문내역을 선택하세요.");
+			alert("상세내역을 선택하세요.");
 			return false;
 		}
 	}
@@ -846,6 +832,7 @@
 		//$('#taxivcCoprt option:not([value=""])').remove()
 		//setCommonSelect($('#taxivcCoprt'));  
 	}
+	
 	//거래처
 	function openSecondClntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
