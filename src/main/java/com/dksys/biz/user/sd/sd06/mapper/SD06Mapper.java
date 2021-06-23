@@ -13,11 +13,11 @@ public interface SD06Mapper {
 	
 	List<Map<String, String>> selectUprList(Map<String, String> param);
 
-	int insertUpr(Map<String, String> param);
+//	int insertUpr(Map<String, String> param);
 
-	int deleteUpr(Map<String, String> param);
+//	int deleteUpr(Map<String, String> param);
 
-	int updateUpr(Map<String, String> param);
+//	int updateUpr(Map<String, String> param);
 	
 	Map<String, String> selectUprInfo(Map<String, String> param);
 
@@ -45,7 +45,20 @@ public interface SD06Mapper {
 	
 	int updateOneDetail01(Map<String, String> param);
 	
-	int updateOneDetail02(Map<String, String> param); 
+	int updateOneDetail02(Map<String, String> param);
+
+	int selectUprClntCount(Map<String, String> param);
+
+	List<Map<String, String>> selectUprClntList(Map<String, String> param);
+
+	int selectOneMasterClntCount(Map<String, String> param);
+
+	Map<String, String> seletOneMasterClnt(Map<String, String> param);
+
+	int insertOneMasterClnt(Map<String, String> param);
+
+	int updateUseYnClnt(Map<String, String> param);
+
 
 
 }

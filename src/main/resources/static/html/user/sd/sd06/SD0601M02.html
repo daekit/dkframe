@@ -59,7 +59,7 @@
     <div class="contents search">
         <div class="">
             <!-- 테이블 인풋 2분할 -->
-            <table class="table_input type03">
+            <table class="table_input type04">
               <tr>
                 <th>기준일자</th>
                 <td>
@@ -67,14 +67,14 @@
                       <input id="prdtDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="prdtDt">
                     </div>
                 </td>
-                <!--  <th>매입/매출구분</th>
-                <td>
-                 	<select id ="SELPCH" data-kind="SELPCH" onchange="gridView.setData(0);" data-search="selpch">
-                 		<option value="">전체</option>
-                 	</select>
-                </td>-
-              </tr>
-              <tr>-->
+                <th>매입거래처</th>
+	                <td>
+	                  <input type="hidden" id="clntCd_S">
+	                  <div class="search_form" style="width: 50%;">
+		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+		              	<a onclick="openClntSearch();"><i class="i_search_w"></i></a>
+		              </div>
+	            </td>
                 <th>수입여부</th>
                 <td>
                   <select id= "PRDTIMP" onchange="gridView.setData(0);" data-search="prdtImp">
@@ -83,10 +83,29 @@
 		                  	<option value="Y" >Y</option>
                   </select>
                 </td>
-                <th >제품구분</th>
+                
+              </tr>
+              <tr>
+              <th >제품구분</th>
                 <td>
                   <select id= "PRDTDIV"  data-kind="PRDTDIV" onchange="gridView.setData(0);" data-search="prdtDiv">
                   	<option value="">전체</option>
+                  </select>
+                </td>
+                <th >턴키여부</th>
+                <td>
+                  <select id= "tnkeyYn_S"  onchange="gridView.setData(0);" data-search="tnkeyYn_S">
+                  			<option value="" selected="selected">전체</option>
+                  			<option value="N" >N</option>
+		                  	<option value="Y" >Y</option>
+                  </select>
+                </td>
+                <th >사용여부</th>
+                <td>
+                  <select id= "useYn_S"  onchange="gridView.setData(0);" data-search="useYn_S">
+                  			<option value="" selected="selected">전체</option>
+                  			<option value="N" >N</option>
+		                  	<option value="Y" >Y</option>
                   </select>
                 </td>
               </tr>
@@ -103,6 +122,8 @@
 		<div class="contents no_bg">
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	            </div>
 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
@@ -116,12 +137,13 @@
 	  <!-- 콘텐츠 -->
 	    <div class="contents">
 	      <!-- 리스트 -->
-	        <ul class="ul_list type03">
+	        <ul class="ul_list type02">
 	            <li>
 	                <div class="table_list_tit">
 	                    <h5 class="tit">기준단가</h5>
 	                    <span>&nbsp;&nbsp;&nbsp;단위:원</span>
 	                    <div class="add_btn_small">
+	              		    <a onclick= "updateUseYnClnt();"     style="width: 70px;" authchk><i class="fas fa-folder-minus"></i> 사용중지</a>
 	                        <a onclick= "updateUprList('C')" style="width: 50px;" authchk><i class="fas fa-folder-plus"></i> 등록</a>
 	                        <a onclick= "updateUprList('U')" style="width: 50px;" authchk><i class="fas fa-money-check"></i> 수정 </a>
 	                    </div>
@@ -132,30 +154,26 @@
 	                
 	            </li>
 	            <li>
-	                <div class="table_list_tit">
-	                    <h5 class="tit">강종 할증 금액</h5>
-	                    <span>&nbsp;&nbsp;&nbsp;단위:원</span>
-	                     <div class="add_btn_small">
-	                        <a onclick= "updateDtl01List('C')" style="width: 50px;" authchk><i class="fas fa-folder-plus"></i> 등록</a>
-	                        <a onclick= "updateDtl01List('U')" style="width: 50px;" authchk><i class="fas fa-money-check"></i> 수정 </a>
-	                    </div>
-	                </div>
-	                  <div>
-	                <div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%" ></div>
-	                </div>
-	            </li>
-	            <li>
-	                <div class="table_list_tit">
-	                    <h5 class="tit">철근 SIZE 할증 금액</h5>
-	                    <span>&nbsp;&nbsp;&nbsp;단위:원</span>
-	                    <div class="add_btn_small">
-	                        <a onclick= "updateDtl02List('C')" style="width: 50px;" authchk><i class="fas fa-folder-plus"></i> 등록</a>
-	                        <a onclick= "updateDtl02List('U')" style="width: 50px;" authchk><i class="fas fa-money-check"></i> 수정 </a>
-	                    </div>
-	                </div>
-	               <div>
-	                <div data-ax5grid="third-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%" ></div>
-	                </div>
+		           <ul class="ul_list type02">
+			            <li>
+			                <div class="table_list_tit">
+			                    <h5 class="tit">강종 할증 금액(기준)</h5>
+			                    <span>&nbsp;&nbsp;&nbsp;단위:원</span>
+			                </div>
+			                  <div>
+			                <div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%" ></div>
+			                </div>
+			            </li>
+			            <li>
+			                <div class="table_list_tit">
+			                    <h5 class="tit">철근 SIZE 할증 금액(기준)</h5>
+			                    <span>&nbsp;&nbsp;&nbsp;단위:원</span>
+			                </div>
+			               <div>
+			                <div data-ax5grid="third-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%" ></div>
+			                </div>
+			            </li>
+		            </ul>
 	            </li>
 	        </ul>	
 	    </div>
@@ -213,14 +231,19 @@
 		            }
 		        },
 		        columns: [
-		          	{key: "prdtDt", label: "기준날짜", align: "center", width: "25%"},
-		            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "14%", hidden: "true"},
-		         	{key: "prdtImpYn", label: "수입여부", align: "center", width: "21%"},
-		         	{key: "prdtDiv",  hidden: "true"},
-		         	{key: "prdtDivNm", label: "자재제품", align: "center", width: "21%"},
-		        	{key: "prdtUpr", label: "매입단가", align: "right", width: "18%"},
-		        	{key: "sellUpr", label: "매출단가", align: "right", width: "18%"},
-		         	   
+		          	{key: "prdtDt",    label: "기준날짜", align: "center", width: "12%"},
+		            {key: "clntNm",    label: "거래처",   align: "left",  width: "20%"},
+		            {key: "tnkeyYn",   label: "턴키",    align: "center", width: "7%"},
+		            {key: "useYn",     label: "사용",    align: "center", width: "7%"},
+		         	{key: "prdtImpYn", label: "수입",    align: "center", width: "7%"},
+		         	{key: "prdtDivNm", label: "자재제품", align: "center", width: "14%"},
+		        	{key: "prdtUpr",   label: "매입단가", align: "right",  width: "16%"},
+		        	{key: "sellUpr",   label: "매출단가", align: "right",  width: "16%"},
+		        	{key: "udtId",     label: "수정자ID", align: "center", width: "10%"},
+		        	{key: "udtNm",     label: "수정자명", align: "center", width: "15%"},
+		        	{key: "udtDttm",   label: "수정일자", align: "center", width: "15%"},
+		            {key: "basisPriceSeq", label: "기준번호", align: "center", width: "14%",hidden:true},	
+		         	{key: "prdtDiv",   hidden: true},         	   
 		        ]
 		    });
 			return this;
@@ -234,14 +257,17 @@
 			
 			firstGrid = this.target;
 			var formData = {
-				"prdtDt" : $("#prdtDt").val().replace(/\-/g,''),
+				"prdtDt"    : $("#prdtDt").val().replace(/\-/g,''),
 				"prdtImpYn" : $("#PRDTIMP").val(),
-				"prdtDiv" : $("#PRDTDIV").val(),
-				"pageNo" : _pageNo + 1, 
+				"clntCd"    : $("#clntCd_S").val(),
+				"tnkeyYn"   : $("#tnkeyYn_S").val(),
+				"useYn"     : $("#useYn_S").val(),
+				"prdtDiv"   : $("#PRDTDIV").val(),
+				"pageNo"    : _pageNo + 1, 
 				"recordCnt" : $("#recordCnt").val()
 			}
 			
-			postAjax("/user/sd/sd06/selectUprList", formData, null, function(data){
+			postAjax("/user/sd/sd06/selectUprClntList", formData, null, function(data){
 				var list = data.uprList;
 				
 				firstGrid.setData({
@@ -366,7 +392,7 @@
 			        	{key: "prdtErqkNm", label: "내진", align: "center",  hidden: "true"},
 			        	{key: "prdtSize",  hidden: "true"},
 			        	{key: "prdtSizeNm", label: "사이즈", align: "center", width: "50%"},
-			        	{key: "scAmt", label: "할증금액", align: "center", width: "51%"},
+			        	{key: "scAmt", label: "할증금액", align: "center", width: "50%"},
 			           ]
 			    });
 				return this;
@@ -397,7 +423,7 @@
 	
 	
 	$(document).ready(function() {
-		mainDefaultLoad("기준관리", "단가 관리");
+		mainDefaultLoad("기준관리", "거래처별 단가 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		
 		 document.getElementById('prdtDt').value = new Date().toISOString().substring(0, 10);
@@ -408,9 +434,8 @@
 				language : "ko",
 				autoclose : true
 			});
-		
-		gridView.initView().setData(0);
-		 
+
+	   gridView.initView().setData(0);
 		authChk();
 	})
 
@@ -432,37 +457,42 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid))
 			return;
 		
-		openModal("/static/html/user/sd/sd06/SD0602P01.html", 800, 230, "기준단가 관리");
+		openModal("/static/html/user/sd/sd06/SD0602P11.html", 800, 230, "기준단가 관리");
 		
 	}
-	
 
-	function updateDtl01List(type){
-		actionType = type;
-		 
-		if ( actionType == 'U' && selectGridValidation(secondGrid))
-			return;
-		
-		if ( actionType == 'C' && selectGridValidation(firstGrid))
-			return;
-		
-		openModal("/static/html/user/sd/sd06/SD0602P02.html", 800, 150, "강종별 할증 관리");
-		
+	// 거래처 검색
+	function openClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
+		});
+	
 	}
-	
-
-	function updateDtl02List(type){
-		actionType = type;
+	// 사용중지
+	function updateUseYnClnt() {
+		var row = gridView.target.getList("selected")[0];
 		
-		if ( actionType == 'U' && selectGridValidation(thirdGrid))
-			return;
-		
-		if ( actionType == 'C' && selectGridValidation(secondGrid))
-			return;
-		
-		openModal("/static/html/user/sd/sd06/SD0602P03.html", 800, 150, "철근 사이즈 관리");
-		
+		var formData = {
+			"prdtDt"    : row.prdtDt.replace(/\-/g,''),
+			"prdtImpYn" : row.prdtImpYn,
+			"clntCd"    : row.clntCd,
+			"tnkeyYn"   : row.tnkeyYn,
+			"useYn"     : row.useYn,
+			"prdtDiv"   : row.prdtDiv,
+			"userId"    : jwt.userId
+		}
+		putAjax("/user/sd/sd06/updateUseYnClnt", formData, null, function(data){	
+			alert(data.result);
+			if(data.resultCode == 200){
+				if(actionType == 'C'){
+					alert("수정되었습니다.");
+				}else{
+					alert(data.resultMessage);
+				}
+				gridView.initView().setData(0);
+			}
+		});
 	}
-	
-
 </script>

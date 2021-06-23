@@ -82,10 +82,40 @@ public class SM02Ctr {
         return "jsonView";
     }
     
+    //재고 이동 현황 팝업 조회
+    @PostMapping("/selectStockTernKeykMovePchList")
+    public String selectStockTernKeykMovePchList(@RequestBody Map<String, String> param, ModelMap model) {
+    	int totalCnt = sm02svc.selectStockTernKeykMovePchListCount(param);
+    	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    
+    	List<Map<String, String>> smsmDtlList = sm02svc.selectStockTernKeykMovePchList(param);
+    	model.addAttribute("smsmDtlList", smsmDtlList);
+        return "jsonView";
+    }
+    
     //일반 재고 이동 등록
     @PutMapping("/insertUpdateStockMove")
     public String insertUpdateStockMove(@RequestBody Map<String, String> param, ModelMap model) {
 		int result = sm02svc.sm01UpdateInsertStockMove(param);    	
+		if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
+		} else if(result == 500) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("stockClose"));
+		} else {
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}
+		return "jsonView";
+	}
+    
+    //일반 재고 이동 등록
+    @PutMapping("/insertUpdateTernKeyStockMove")
+    public String insertUpdateTernKeyStockMove(@RequestBody Map<String, String> param, ModelMap model) {
+    	System.out.println("@@@@@@@@@@@@@@@@@@@param" + param);
+		int result = sm02svc.insertUpdateTernKeyStockMove(param);    	
 		if(result == 0) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));

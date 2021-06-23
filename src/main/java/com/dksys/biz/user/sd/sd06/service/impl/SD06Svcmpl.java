@@ -27,20 +27,20 @@ public class SD06Svcmpl implements SD06Svc {
 		return sd06Mapper.selectUprList(param);
 	}
 
-	@Override
-	public int insertUpr(Map<String, String> param) {
-		return sd06Mapper.insertUpr(param);
-	}
+//	@Override
+//	public int insertUpr(Map<String, String> param) {
+//		return sd06Mapper.insertUpr(param);
+//	}
 
-	@Override
-	public int deleteUpr(Map<String, String> param) {
-		return sd06Mapper.deleteUpr(param);
-	}
-
-	@Override
-	public int updateUpr(Map<String, String> param) {
-		return sd06Mapper.updateUpr(param);
-	}
+//	@Override
+//	public int deleteUpr(Map<String, String> param) {
+//		return sd06Mapper.deleteUpr(param);
+//	}
+//
+//	@Override
+//	public int updateUpr(Map<String, String> param) {
+//		return sd06Mapper.updateUpr(param);
+//	}
 
 	@Override
 	public Map<String, String> selectUprInfo(Map<String, String> param) {
@@ -114,5 +114,41 @@ public class SD06Svcmpl implements SD06Svc {
 		return sd06Mapper.updateOneDetail02(param);
 	}
 
+	// 거래처,턴키별 단가
+	
+	@Override
+	public int selectUprClntCount(Map<String, String> param) {
+		// TODO Auto-generated method stub
+		return sd06Mapper.selectUprClntCount(param);
+	}
 
+	@Override
+	public List<Map<String, String>> selectUprClntList(Map<String, String> param) {
+		// TODO Auto-generated method stub
+		return sd06Mapper.selectUprClntList(param);
+	}
+
+	@Override
+	public int selectOneMasterClntCount(Map<String, String> param) {
+		// TODO Auto-generated method stub
+		return sd06Mapper.selectOneMasterClntCount(param);
+	}
+
+	@Override
+	public Map<String, String> seletOneMasterClnt(Map<String, String> param) {
+		// TODO Auto-generated method stub
+		return  sd06Mapper.seletOneMasterClnt(param);
+	}
+
+	@Override
+	public int insertOneMasterClnt(Map<String, String> param) {
+		// TODO Auto-generated method stub
+		return sd06Mapper.insertOneMasterClnt(param);
+	}
+
+	@Override
+	public int updateUseYnClnt(Map<String, String> param) {
+		// TODO Auto-generated method stub
+		return sd06Mapper.updateUseYnClnt(param);
+	}
 }

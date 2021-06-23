@@ -21,6 +21,12 @@ public interface SM02Mapper {
 	List<Map<String, String>> selectStockMoveStatMngmList(Map<String, String> param);
 	
 	int selectUprDtlCount(Map<String, String> param);
+
+	int selectStockTernKeykMovePchListCount(Map<String, String> param);
+
+	List<Map<String, String>> selectStockTernKeykMovePchList(Map<String, String> param);
+
+	List<Map<String, String>> sm02selectTernKeyStock(Map<String, String> param);
 	
 	List<Map<String, String>> selectStockMoveStatMngmDtlList(Map<String, String> param);
 	
@@ -28,14 +34,20 @@ public interface SM02Mapper {
 	
 	/* int sm01InsertStockMove(Map<String, Object> param); */
 
+	int sm02UpdateTernKeyStockMst(Map<String, String> param);
+	
 	int sm01UpdateStockMove(Map<String, String> param);
 
 	int sm01UpdateInsertStockMove(Map<String, String> detailMap);
 	
 	int sm02InsertStockMove(Map<String, String> param);
 
+	int sm03InsertStockMove(Map<String, String> param);
+
 	int sm01UpdateInsertBarterStockMove(Map<String, String> detailMap);
 	
 	int sm02InsertBarterStockMove(Map<String, String> param);
+	
+	int sm03UpdateInsertStockMove(Map<String, String> param);
 	
 }
