@@ -122,7 +122,7 @@
 					<option value="9999999">전체</option>
 				</select>
 				<div class="add_btn_small pdr10">
-	                <a onclick="setReport();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-print"></i> 견적서출력</a>
+	                <a onclick="setReport();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-print"></i>견적서출력</a>
 	            </div>
 				<input type="hidden" id="recordCnt">
 				<input type="hidden" id="basisPriceSeq">
@@ -177,12 +177,13 @@
 		        },
 		        columns: [
 		            {key: "winbdYn",    label: "낙찰",       align: "center", width: 50},
-		            {key: "estDt",      label: "견적일자",       align: "center", width: 90},
-		            {key: "name",       label: "견적 담당자",      align: "center", width: 100},
-		            {key: "estCoprtNm", label: "발신처",        align: "left", width: 130},
+		            {key: "estDt",      label: "견적일자",       align: "center", width: 85},
+		            {key: "name",       label: "견적 담당자",      align: "center", width: 90},
+		            {key: "estCoprtNm", label: "발신처",        align: "left", width: 100},
 		            {key: "estClntNm",  label: "수신처",        align: "left",   width: 130},
 		            {key: "estRprc",    label: "수신처 참조",     align: "left",   width: 120},
-		            {key: "estQty",     label: "수량(합계)",      align: "right",  width: 110, styleClass:"grid-cell-blue", formatter:"money"},
+		            {key: "estQty",     label: "수량(합계)",      align: "right",  width: 100, styleClass:"grid-cell-blue", formatter:"money"},
+		            {key: "estWt",      label: "중량(합계)",      align: "right",  width: 100, styleClass:"grid-cell-blue", formatter:"money"},
 		            {key: "estAmt",     label: "공급가액(합계)",   align: "right",   width: 110, styleClass:"grid-cell-blue", formatter:"money"},
 		            {key: "bizTelNo",   label: "사업자 전화번호",   align: "center", width: 110},
 		            {key: "bizFaxNo",   label: "사업자 FAX번호",   align: "center", width: 110},
@@ -208,6 +209,7 @@
 					"pageNo" : _pageNo + 1,
 					"recordCnt" : $("#recordCnt").val() 
 				}
+				
 				postAjax("/user/sd/sd03/selectEstList", formData, null, function(data){
 					console.log(data);
 					var list = data.estList;
@@ -274,7 +276,7 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid)){
 			return;
 		}
-		openModal("/static/html/user/sd/sd03/SD0302P01.html", 1200, 780, "");
+		openModal("/static/html/user/sd/sd03/SD0302P01.html", 1300, 780, "");
 	}
 	
 	function initSearch() {
@@ -303,13 +305,28 @@
 
 	function setReport() {
 		var row = gridView.target.getList("selected")[0];
+		var iChk;
+		var rptName;
 		if(row == undefined) {
 			alert("출력할 견적자료를 선택하세요!");		
 			return;
 		}
-		var fileName = "SD0301R01.jrf";
-		var arg = "i_est_no#" + row.estNo + "#";
-		callReport(fileName, arg, 750, 900);
+// 		if(typ == 1) {
+// 			var fileName = "SD0301R01.jrf";
+// 		} else {
+// 			var fileName = "SD0301R02.jrf";
+// 		}
+
+		var paramObj = {
+				"iChk": iChk
+			}
+		openSecondModal("/static/html/user/sd/sd03/sd0303P01.html", 600, 260, "견적서 출력 선택", paramObj, function (rptName, iChk) {
+			var arg = "i_est_no#" + row.estNo + "#"
+			        + "iChk#" + iChk +"#";
+			callReport(rptName, arg, 750, 900);
+		});
+		
+	
 	}	
 	
 </script>
