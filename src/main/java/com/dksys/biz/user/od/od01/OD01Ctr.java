@@ -28,55 +28,60 @@ public class OD01Ctr {
     @Autowired
     OD01Svc od01Svc;
 	
-    @PostMapping(value = "/selectOrderList")
-	public String selectOrderList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int totalCnt = od01Svc.selectOrderCount(paramMap);
+    @PostMapping(value = "/selectOrdrgList")
+	public String selectOrdrgList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = od01Svc.selectOrdrgCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, String>> resultList = od01Svc.selectOrderList(paramMap);
+    	List<Map<String, String>> resultList = od01Svc.selectOrdrgList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
     
-    @PostMapping(value = "/selectOrderDetailList")
-	public String selectOrderDetailList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int totalCnt = od01Svc.selectOrderDetailCount(paramMap);
+    @PostMapping(value = "/selectOrdrgDetailList")
+	public String selectOrdrgDetailList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = od01Svc.selectOrdrgDetailCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
-    	List<Map<String, String>> resultList = od01Svc.selectOrderDetailList(paramMap);
+    	List<Map<String, String>> resultList = od01Svc.selectOrdrgDetailList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
     
-    @PostMapping(value = "/selectOrderInfo")
-    public String selectOrderInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, Object> result = od01Svc.selectOrderInfo(paramMap);
+    @PostMapping(value = "/selectOrdrgInfo")
+    public String selectOrdrgInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = od01Svc.selectOrdrgInfo(paramMap);
     	model.addAttribute("result", result);
     	return "jsonView";
     }
     
     @PostMapping(value = "/getOrderInfo")
     public String getOrderInfo(@RequestBody Map<String, Object> paramMap, ModelMap model) {
-    	System.out.println("ctr");
-    	System.out.println(paramMap);
     	Map<String, Object> result = od01Svc.getOrderInfo(paramMap);
     	model.addAttribute("result", result);
     	return "jsonView";
     }
     
-    @PostMapping(value = "/insertOrder")
-    public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-    	od01Svc.insertOrder(paramMap, mRequest);
+    @PostMapping(value = "/selectConfirmCount")
+    public String selectConfirmCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int result = od01Svc.selectConfirmCount(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
+    @PostMapping(value = "/insertOrdrg")
+    public String insertOrdrg(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	od01Svc.insertOrdrg(paramMap, mRequest);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
     }
     
-    @PutMapping(value = "/updateOrder")
-    public String updateOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-    	od01Svc.updateOrder(paramMap, mRequest);
+    @PutMapping(value = "/updateOrdrg")
+    public String updateOrdrg(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	od01Svc.updateOrdrg(paramMap, mRequest);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
@@ -120,19 +125,11 @@ public class OD01Ctr {
 		return "jsonView";
 	}
     
-    @DeleteMapping(value = "/deleteOrder")
-    public String deleteOrder(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	od01Svc.deleteOrder(paramMap);
+    @DeleteMapping(value = "/deleteOrdrg")
+    public String deleteOrdrg(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	od01Svc.deleteOrdrg(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
     	return "jsonView";
     }
-    
-    @PostMapping(value = "/selectConfirmCount")
-    public String selectConfirmCount(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	int result = od01Svc.selectConfirmCount(paramMap);
-    	model.addAttribute("result", result);
-    	return "jsonView";
-    }
-    
 }

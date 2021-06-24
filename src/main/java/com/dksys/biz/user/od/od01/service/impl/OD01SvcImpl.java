@@ -54,8 +54,50 @@ public class OD01SvcImpl implements OD01Svc {
     @Autowired
     CM08Svc cm08Svc;
     
+    @Override
+	public int selectOrdrgCount(Map<String, String> paramMap) {
+		return od01Mapper.selectOrdrgCount(paramMap);
+	}
+
 	@Override
-	public int insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+	public List<Map<String, String>> selectOrdrgList(Map<String, String> paramMap) {
+		return od01Mapper.selectOrdrgList(paramMap);
+	}
+	
+	@Override
+	public Map<String, Object> selectOrdrgInfo(Map<String, String> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("ordrgSeq")));
+		returnMap.put("orderInfo", od01Mapper.selectOrdrgInfo(paramMap));
+		returnMap.put("orderDetail", od01Mapper.selectOrdrgDetailList(paramMap));
+		return returnMap;
+	}
+	
+	@Override
+	public int selectOrdrgDetailCount(Map<String, String> paramMap) {
+		return od01Mapper.selectOrdrgDetailCount(paramMap);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectOrdrgDetailList(Map<String, String> paramMap) {
+		return od01Mapper.selectOrdrgDetailList(paramMap);
+	}
+	
+	@Override
+	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("orderInfo", od01Mapper.getOrderInfo(paramMap));
+		returnMap.put("orderDetail", od01Mapper.getOrderDetailList(paramMap));
+		return returnMap;
+	}
+	
+	@Override
+	public int selectConfirmCount(Map<String, String> paramMap) {
+		return od01Mapper.selectConfirmCount(paramMap);
+	}
+	
+	@Override
+	public int insertOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		boolean isOdr = false;
 		boolean isReq = false;
 		if("".equals(paramMap.get("odrSeq"))) {
@@ -69,7 +111,7 @@ public class OD01SvcImpl implements OD01Svc {
 		if(!"".equals(paramMap.get("reqSeq"))) {
 			isReq = true;
 		}
-		int result = od01Mapper.insertOrder(paramMap);
+		int result = od01Mapper.insertOrdrg(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		
@@ -103,7 +145,7 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("odrDtlRmk", detailMap.get("ordrgDtlRmk"));
 				sd04Mapper.insertOrderDetail(detailMap);
 			}
-			od01Mapper.insertOrderDetail(detailMap);
+			od01Mapper.insertOrdrgDetail(detailMap);
 			if(isReq) {
 				od04Mapper.updateReqOrder(detailMap);
 			}
@@ -119,58 +161,14 @@ public class OD01SvcImpl implements OD01Svc {
 		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("reqDt")+paramMap.get("ordrgSeq"), mRequest);
 		return result;
 	}
-
-	@Override
-	public int selectOrderCount(Map<String, String> paramMap) {
-		return od01Mapper.selectOrderCount(paramMap);
-	}
 	
 	@Override
-	public int selectOrderDetailCount(Map<String, String> paramMap) {
-		return od01Mapper.selectOrderDetailCount(paramMap);
-	}
-
-	@Override
-	public List<Map<String, String>> selectOrderList(Map<String, String> paramMap) {
-		return od01Mapper.selectOrderList(paramMap);
-	}
-	
-	@Override
-	public List<Map<String, String>> selectOrderDetailList(Map<String, String> paramMap) {
-		return od01Mapper.selectOrderDetailList(paramMap);
-	}
-
-	@Override
-	public int deleteOrder(Map<String, String> paramMap) {
-		int result = od01Mapper.deleteOrder(paramMap);
-		result += od01Mapper.deleteOrderDetail(paramMap);
-		return result;
-	}
-
-	@Override
-	public Map<String, Object> selectOrderInfo(Map<String, String> paramMap) {
-		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("ordrgSeq")));
-		returnMap.put("orderInfo", od01Mapper.selectOrderInfo(paramMap));
-		returnMap.put("orderDetail", od01Mapper.selectOrderDetailList(paramMap));
-		return returnMap;
-	}
-	
-	@Override
-	public Map<String, Object> getOrderInfo(Map<String, Object> paramMap) {
-		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("orderInfo", od01Mapper.getOrderInfo(paramMap));
-		returnMap.put("orderDetail", od01Mapper.getOrderDetailList(paramMap));
-		return returnMap;
-	}
-
-	@Override
-	public int updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
-		int result = od01Mapper.updateOrder(paramMap);
+	public int updateOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		int result = od01Mapper.updateOrdrg(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		// 발주상세 delete
-		od01Mapper.deleteOrderDetail(paramMap);
+		od01Mapper.deleteOrdrgDetail(paramMap);
 		// 발주상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
@@ -190,9 +188,9 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			// 매입, 매출 하나라도 확정이 되었으면 수정으로 한다.
 			if("Y".equals(detailMap.get("ordrgYn")) || "Y".equals(detailMap.get("shipYn"))) {
-				od01Mapper.updateOrderDetail(detailMap);
+				od01Mapper.updateOrdrgDetail(detailMap);
 			}else {
-				od01Mapper.insertOrderDetail(detailMap);
+				od01Mapper.insertOrdrgDetail(detailMap);
 			}			
 		}
 		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("reqDt")+paramMap.get("ordrgSeq"), mRequest);
@@ -203,7 +201,14 @@ public class OD01SvcImpl implements OD01Svc {
 		}
 		return result;
 	}
-
+	
+	@Override
+	public int deleteOrdrg(Map<String, String> paramMap) {
+		int result = od01Mapper.deleteOrdrg(paramMap);
+		result += od01Mapper.deleteOrdrgDetail(paramMap);
+		return result;
+	}
+    
 	@Override
 	public int updateConfirm(Map<String, String> paramMap) {
 		int result = 0;
@@ -299,7 +304,7 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 
 			//매출매입 데이터 세팅
-			Map<String, String> detailMap2 = od01Mapper.selectOrderDetailInfo(detailMap);
+			Map<String, String> detailMap2 = od01Mapper.selectOrdrgDetailInfo(detailMap);
 
 			paramMap.put("prdtSpec",    "");
 			paramMap.put("prdtSize",    "");
@@ -451,27 +456,17 @@ public class OD01SvcImpl implements OD01Svc {
 			}
 		} // for문 종료
 		
-		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
+		if(od01Mapper.selectConfirmCount(paramMap) == od01Mapper.selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirm(paramMap);
 		}
 		
-		if(selectConfirmCountS(paramMap) == selectDetailCount(paramMap)) {
+		if(od01Mapper.selectConfirmCountS(paramMap) == od01Mapper.selectDetailCount(paramMap)) {
 			od01Mapper.updateConfirmS(paramMap);
 		}
 		
 		return result;
 	}
 
-	public int selectDetailCount(Map<String, String> paramMap) {
-		return od01Mapper.selectDetailCount(paramMap);
-	}
-
-	public int selectConfirmCount(Map<String, String> paramMap) {
-		return od01Mapper.selectConfirmCount(paramMap);
-	}
-	public int selectConfirmCountS(Map<String, String> paramMap) {
-		return od01Mapper.selectConfirmCountS(paramMap);
-	}
 	@Override
 	public int updateCancel(Map<String, String> paramMap) {
 
@@ -604,5 +599,4 @@ public class OD01SvcImpl implements OD01Svc {
 		}
 		return result;
 	}
-	
 }

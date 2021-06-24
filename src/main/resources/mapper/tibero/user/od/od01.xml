@@ -2,98 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.user.od.od01.mapper.OD01Mapper">
-
-	<insert id="insertOrder" parameterType="Map">
-		<selectKey keyProperty="ordrgSeq" resultType="String" order="BEFORE">
-			SELECT TB_OD01M01_SQ01.NEXTVAL FROM DUAL
-		</selectKey>
-		INSERT INTO TB_OD01M01
-		(
-			CO_CD,
-		    REQ_DT,
-		    CLNT_CD,
-		    ORDRG_SEQ,
-		    PRJCT_CD,
-		    MAKR_CD,
-		    WH_CD,
-		    TYP_CD,
-		    OWNER_CD,
-		    IMP_YN,
-		    SALES_AREA_CD,
-		    SELL_CLNT_CD,
-		    MNG_TEL,
-		    DLVR_DTTM,
-		    DIRTRS_YN,
-		    ADDR_ZIP,
-		    ADDR_MAIN,
-		    ADDR_SUB,
-		    ORDRG_RMK,
-		    TOT_QTY,
-		    TOT_WT,
-		    TOT_AMT,
-		    TRANS_AMT,
-		    TRANS_SEQ,
-		    ODR_SEQ,
-		    ODR_CREAT_DIV,
-		    SALES_MNG,
-		    ORDRG_YN,
-		    SHIP_YN,
-		    CREAT_ID,
-		    CREAT_PGM,
-		    CREAT_DTTM,
-		    UDT_ID,
-		    UDT_PGM,
-		    UDT_DTTM,
-		    SITE_CD,
-		    TAXIVC_COPRT,
-		    REQ_SEQ,
-		    TRSP_TYP_CD
-	    ) 
-	    VALUES
-	    (
-	    	#{coCd},
-		    #{reqDt},
-		    #{clntCd},
-		    #{ordrgSeq},
-		    #{prjctCd},
-		    #{makrCd},
-		    #{whCd},
-		    #{typCd},
-		    #{ownerCd},
-		    #{impYn},
-		    #{salesAreaCd},
-		    #{sellClntCd},
-		    #{mngTel},
-		    #{dlvrDttm},
-		    #{dirtrsYn},
-		    #{addrZip},
-		    #{addrMain},
-		    #{addrSub},
-		    #{ordrgRmk},
-		    #{totQty},
-		    #{totWt},
-		    #{totAmt},
-		    #{transAmt},
-		    #{transSeq},
-		    #{odrSeq},
-		    NVL(#{odrCreatDiv},'ERP'),
-		    #{salesMng},
-		    'N',
-		    'N',
-		    #{userId},
-		    #{pgmId},
-		    SYSDATE,
-		    #{userId},
-		    #{pgmId},
-		    SYSDATE,
-		    NVL(#{siteCd,  	jdbcType=VARCHAR},0),
-		    #{taxivcCoprt,  jdbcType=VARCHAR},
-		    #{reqSeq,       jdbcType=VARCHAR},
-		    #{trspTypCd,    jdbcType=VARCHAR}
-	    )
-	</insert>
 	
-	<select id="selectOrderCount" parameterType="Map" resultType="int">
+	<select id="selectOrdrgCount" parameterType="Map" resultType="int">
 		SELECT 
 	 		COUNT(*) 
 	 	FROM TB_OD01M01 OD01
@@ -144,16 +54,7 @@
 		</if>
 	</select>
 	
-	<select id="selectOrderDetailCount" parameterType="Map" resultType="int">
-		SELECT
-			COUNT(*)
-		FROM
-			TB_OD01D01
-		WHERE
-			ORDRG_SEQ = #{ordrgSeq}
-	</select>
-	
-	<select id="selectOrderList" parameterType="Map" resultType="camelMap">
+	<select id="selectOrdrgList" parameterType="Map" resultType="camelMap">
 		SELECT * FROM (
 			SELECT 
 				 ROWNUM RNUM
@@ -294,17 +195,344 @@
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
 	
-	<delete id="deleteOrder" parameterType="Map">
-		DELETE FROM TB_OD01M01
+	<select id="selectOrdrgInfo" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.ORDRG_SEQ,
+            T.CO_CD,
+            FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
+            T.REQ_DT,
+            T.CLNT_CD,
+            T.PRJCT_CD,
+            T.IMP_YN,
+            T.MAKR_CD,
+			FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
+            T.WH_CD,
+			FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
+            T.TYP_CD,
+            FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
+            T.OWNER_CD,
+			FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
+            T.SALES_AREA_CD,
+            FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) AS SALES_AREA_NM,
+            T.SELL_CLNT_CD,
+            (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM,
+            T.MNG_TEL,
+            TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+            T.DLVR_RMK,
+            T.DIRTRS_YN,
+            T.ADDR_ZIP,
+            T.ADDR_MAIN,
+            T.ADDR_SUB,
+            T.ORDRG_RMK,
+            T.TOT_QTY,
+            T.TOT_WT,
+            T.TOT_AMT,
+            T.TRANS_AMT,
+            T.TRANS_SEQ,
+            T.ODR_SEQ,
+            T.PCHS_NO,
+            T.SALES_MNG,
+            T.ORDRG_YN,
+            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND ORDRG_YN = 'Y') AS CONFIRM_CNT_P,
+            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND SHIP_YN  = 'Y') AS CONFIRM_CNT_S,
+            T.ORDRG_PROC_ID,
+            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,            
+            T.SHIP_YN,
+            TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
+            T.SHIP_PROC_ID,
+            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
+            TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM,
+            T.ETC_FIELD1,
+            T.ETC_FIELD2,
+            T.ETC_FIELD3,
+            T.CREAT_ID,
+            T.CREAT_PGM,
+            T.CREAT_DTTM,
+            T.UDT_ID,
+            T.UDT_PGM,
+            T.UDT_DTTM,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
+			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM ,
+			T.SITE_CD,		        
+			T.TAXIVC_COPRT,
+			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,		        
+	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
+			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
+			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE,
+	        T.REQ_SEQ,
+		    T.TRSP_TYP_CD,
+	        FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM
+		FROM TB_OD01M01 T
 		WHERE ORDRG_SEQ = #{ordrgSeq}
-	</delete>
+	</select>
 	
-	<delete id="deleteOrderDetail" parameterType="Map">
-		DELETE FROM TB_OD01D01
-		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'N' AND SHIP_YN = 'N'
-	</delete>
+	<select id="selectOrdrgDetailCount" parameterType="Map" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			TB_OD01D01
+		WHERE
+			ORDRG_SEQ = #{ordrgSeq}
+	</select>
 	
-	<insert id="insertOrderDetail" parameterType="Map">
+	<select id="selectOrdrgDetailList" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.ORDRG_SEQ,
+	        T.ORDRG_DTL_SEQ,
+	        T.PRDT_CD,
+	        B.PRDT_NM,
+	        T.PRDT_DIV,
+	        T.PRDT_STKN,
+	        T.PRDT_ERQK_YN,
+	        T.PRDT_SIZE,
+	        T.PRDT_SPEC,
+	        T.PRDT_COIL_YN,
+	        T.PRDT_UNIT,
+	        T.PRDT_LEN,
+	        T.ORDRG_QTY,
+	        T.ORDRG_WT,
+	        T.ORDRG_UPR,
+	        T.ORDRG_AMT,
+	        <!-- [발주 예상손익 조회] 직송여부'Y': (매출단가 * 수량) minus (발주단가 * 수량), 직송여부'N': (재고단가 * 수량) minus (발주단가 * 수량) -->
+	        DECODE(A.DIRTRS_YN, 'Y', (T.SHIP_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY), (T.STOCK_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY)) AS EPCT_PAL,
+	        T.REAL_DLVR_QTY,
+	        T.REAL_DLVR_WT,
+	        T.REAL_DLVR_UPR,
+	        T.REAL_DLVR_AMT,
+	        (T.ORDRG_QTY - T.REAL_DLVR_QTY) AS INTEND_DLVR_QTY,
+	        T.SHIP_UPR,
+	       	T.SHIP_AMT,
+	        T.SELL_UPR,
+	        T.PCHS_UPR,
+	        T.STOCK_UPR,
+	        T.PRDT_UPR,
+	        T.PCHS_CERTI_NO,
+	        T.ORDRG_YN,
+	        T.ORDRG_PROC_ID,
+	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
+	        TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
+	        T.ORDRG_DTL_RMK,
+	        T.SHIP_YN,	        
+	        T.SHIP_PROC_ID,
+	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
+	        TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM,	        
+	        T.ETC_FIELD1,
+	        T.ETC_FIELD2,
+	        T.ETC_FIELD3,
+	        T.CREAT_ID,
+	        T.CREAT_PGM,
+	        T.CREAT_DTTM,
+	        T.UDT_ID,
+	        T.UDT_PGM,
+	        T.UDT_DTTM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_DIV) AS PRDT_DIV_NM,
+	        NVL(FN_CM05M01_CD_TO_NM(T.PRDT_SIZE), T.PRDT_SIZE) AS PRDT_SIZE_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_ERQK_YN) AS PRDT_ERQK_NM,
+	        NVL(FN_CM05M01_CD_TO_NM(T.PRDT_SPEC), T.PRDT_SPEC) AS PRDT_SPEC_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) AS PRDT_UNIT_NM,
+			B.PRDT_DIV,
+	        B.PRDT_STKN,
+	        B.PRDT_STOCK_CD,
+	        B.PRDT_COIL_YN,
+	        B.PRDT_CNVRSN_WT,	        
+	        T.REQ_SEQ,
+			T.REQ_DTL_SEQ,
+			T.SHIP_VEH_NO
+		FROM 
+			TB_OD01D01 T
+			INNER JOIN TB_OD01M01 A ON T.ORDRG_SEQ = A.ORDRG_SEQ
+			INNER JOIN  TB_BM01M01 B ON B.PRDT_CD = T.PRDT_CD
+		WHERE 
+			T.ORDRG_SEQ = #{ordrgSeq}
+	</select>
+	
+	<select id="selectOrdrgDetailInfo" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			T.*,
+			B.PRDT_CNVRSN_WT,
+			B.PRDT_STOCK_CD,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS CLNT_NM,
+			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD)) AS WH_CLNT_CD,
+			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD) AS WH_TYPE
+		FROM TB_OD01D01 T
+		INNER JOIN TB_OD01M01 M
+		   ON M.ORDRG_SEQ = T.ORDRG_SEQ
+		INNER JOIN TB_BM01M01 B
+		   ON B.PRDT_CD = T.PRDT_CD
+		WHERE T.ORDRG_SEQ = #{ordrgSeq} AND T.ORDRG_DTL_SEQ = #{ordrgDtlSeq} 
+	</select>
+	
+	<select id="getOrderInfo" parameterType="Map" resultType="camelMap">
+		SELECT 
+			T.ODR_SEQ,
+			T.CO_CD,
+			T.TYP_CD,
+			T.DIRTRS_YN,
+            T.CLNT_CD AS SELL_CLNT_CD,
+			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS SELL_CLNT_NM,
+			T.OWNER_CD,
+			T.SALES_MNG,
+			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
+            T.MAKR_CD,
+            T.WH_CD,
+            T.TAXIVC_COPRT,
+            T.IMP_YN,
+            T.SITE_CD,
+			(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
+            T.PRJCT_CD,
+			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
+            T.REQ_DT,
+            TO_CHAR(T.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
+            T.ADDR_ZIP,
+			T.ADDR_MAIN,
+			T.ADDR_SUB,
+			T.MNG_TEL,
+			T.ODR_RMK AS ORDRG_RMK,
+            T.TOT_QTY,
+            T.TOT_WT,
+            T.TOT_AMT
+		FROM 
+			TB_SD04M01 T
+		WHERE
+			ODR_SEQ = #{odrSeq}
+	</select>
+	
+	<select id="getOrderDetailList" parameterType="Map" resultType="camelMap">
+		SELECT
+			D.ODR_SEQ,
+			D.ODR_DTL_SEQ,
+			D.PRDT_CD,
+			B.PRDT_NM,
+			B.PRDT_DIV,
+			B.PRDT_STKN,
+			FN_CM05M01_CD_TO_NM(B.PRDT_STKN) PRDT_STKN_NM,
+			B.PRDT_SIZE,
+			B.PRDT_SPEC,
+			D.PRDT_LEN,
+			D.PRDT_UNIT,
+			FN_CM05M01_CD_TO_NM(D.PRDT_UNIT) AS PRDT_UNIT_NM,
+			D.PRDT_UPR,
+			D.ODR_UPR,
+			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS SHIP_UPR,
+			D.ODR_QTY AS ORDRG_QTY,
+			D.ODR_QTY AS REAL_DLVR_QTY,
+			B.PRDT_CNVRSN_WT,
+			B.PRDT_STOCK_CD,
+			D.ODR_WT AS ORDRG_WT,
+			D.ODR_WT AS REAL_DLVR_WT,
+			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS ORDRG_UPR,
+			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS REAL_DLVR_UPR,
+			D.ODR_AMT AS ORDRG_AMT,
+			D.ODR_AMT AS REAL_DLVR_AMT,
+			D.ODR_DTL_RMK AS ORDRG_DTL_RMK
+		FROM 
+			TB_SD04M01 M
+			INNER JOIN TB_SD04D01 D ON M.ODR_SEQ = D.ODR_SEQ
+			INNER JOIN TB_BM01M01 B ON D.PRDT_CD = B.PRDT_CD
+		WHERE 
+			M.ODR_SEQ = #{odrSeq}
+			<if test="odrDtlSeqArr != null and odrDtlSeqArr.size != 0">
+				AND D.ODR_DTL_SEQ IN
+				<foreach item="odrDtlSeq" collection="odrDtlSeqArr" open="(" close=")" separator="," >
+					#{odrDtlSeq}
+				</foreach>
+			</if>
+		ORDER BY D.ODR_DTL_SEQ
+	</select>
+	
+	<insert id="insertOrdrg" parameterType="Map">
+		<selectKey keyProperty="ordrgSeq" resultType="String" order="BEFORE">
+			SELECT TB_OD01M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_OD01M01
+		(
+			CO_CD,
+		    REQ_DT,
+		    CLNT_CD,
+		    ORDRG_SEQ,
+		    PRJCT_CD,
+		    MAKR_CD,
+		    WH_CD,
+		    TYP_CD,
+		    OWNER_CD,
+		    IMP_YN,
+		    SALES_AREA_CD,
+		    SELL_CLNT_CD,
+		    MNG_TEL,
+		    DLVR_DTTM,
+		    DIRTRS_YN,
+		    ADDR_ZIP,
+		    ADDR_MAIN,
+		    ADDR_SUB,
+		    ORDRG_RMK,
+		    TOT_QTY,
+		    TOT_WT,
+		    TOT_AMT,
+		    TRANS_AMT,
+		    TRANS_SEQ,
+		    ODR_SEQ,
+		    ODR_CREAT_DIV,
+		    SALES_MNG,
+		    ORDRG_YN,
+		    SHIP_YN,
+		    CREAT_ID,
+		    CREAT_PGM,
+		    CREAT_DTTM,
+		    UDT_ID,
+		    UDT_PGM,
+		    UDT_DTTM,
+		    SITE_CD,
+		    TAXIVC_COPRT,
+		    REQ_SEQ,
+		    TRSP_TYP_CD
+	    ) 
+	    VALUES
+	    (
+	    	#{coCd},
+		    #{reqDt},
+		    #{clntCd},
+		    #{ordrgSeq},
+		    #{prjctCd},
+		    #{makrCd},
+		    #{whCd},
+		    #{typCd},
+		    #{ownerCd},
+		    #{impYn},
+		    #{salesAreaCd},
+		    #{sellClntCd},
+		    #{mngTel},
+		    #{dlvrDttm},
+		    #{dirtrsYn},
+		    #{addrZip},
+		    #{addrMain},
+		    #{addrSub},
+		    #{ordrgRmk},
+		    #{totQty},
+		    #{totWt},
+		    #{totAmt},
+		    #{transAmt},
+		    #{transSeq},
+		    #{odrSeq},
+		    NVL(#{odrCreatDiv},'ERP'),
+		    #{salesMng},
+		    'N',
+		    'N',
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    #{userId},
+		    #{pgmId},
+		    SYSDATE,
+		    NVL(#{siteCd,  	jdbcType=VARCHAR},0),
+		    #{taxivcCoprt,  jdbcType=VARCHAR},
+		    #{reqSeq,       jdbcType=VARCHAR},
+		    #{trspTypCd,    jdbcType=VARCHAR}
+	    )
+	</insert>
+	
+	<insert id="insertOrdrgDetail" parameterType="Map">
 		<selectKey keyProperty="ordrgDtlSeq" resultType="String" order="BEFORE">
 			SELECT TB_OD01D01_SQ01.NEXTVAL FROM DUAL
 		</selectKey>
@@ -394,229 +622,7 @@
         )
 	</insert>
 	
-	<select id="selectOrderInfo" parameterType="Map" resultType="camelMap">
-		SELECT 
-			T.ORDRG_SEQ,
-            T.CO_CD,
-            FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM,
-            T.REQ_DT,
-            T.CLNT_CD,
-            T.PRJCT_CD,
-            T.IMP_YN,
-            T.MAKR_CD,
-			FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
-            T.WH_CD,
-			FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
-            T.TYP_CD,
-            FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
-            T.OWNER_CD,
-			FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
-            T.SALES_AREA_CD,
-            FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) AS SALES_AREA_NM,
-            T.SELL_CLNT_CD,
-            (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM,
-            T.MNG_TEL,
-            TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
-            T.DLVR_RMK,
-            T.DIRTRS_YN,
-            T.ADDR_ZIP,
-            T.ADDR_MAIN,
-            T.ADDR_SUB,
-            T.ORDRG_RMK,
-            T.TOT_QTY,
-            T.TOT_WT,
-            T.TOT_AMT,
-            T.TRANS_AMT,
-            T.TRANS_SEQ,
-            T.ODR_SEQ,
-            T.PCHS_NO,
-            T.SALES_MNG,
-            T.ORDRG_YN,
-            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND ORDRG_YN = 'Y') AS CONFIRM_CNT_P,
-            (SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ AND SHIP_YN  = 'Y') AS CONFIRM_CNT_S,
-            T.ORDRG_PROC_ID,
-            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,            
-            T.SHIP_YN,
-            TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
-            T.SHIP_PROC_ID,
-            (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
-            TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM,
-            T.ETC_FIELD1,
-            T.ETC_FIELD2,
-            T.ETC_FIELD3,
-            T.CREAT_ID,
-            T.CREAT_PGM,
-            T.CREAT_DTTM,
-            T.UDT_ID,
-            T.UDT_PGM,
-            T.UDT_DTTM,
-			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM,
-			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
-			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM ,
-			T.SITE_CD,		        
-			T.TAXIVC_COPRT,
-			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,		        
-	        (SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
-			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD)) AS WH_CLNT_CD,
-			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE,
-	        T.REQ_SEQ,
-		    T.TRSP_TYP_CD,
-	        FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM
-		FROM TB_OD01M01 T
-		WHERE ORDRG_SEQ = #{ordrgSeq}
-	</select>
-	
-	<select id="getOrderInfo" parameterType="Map" resultType="camelMap">
-		SELECT 
-			T.ODR_SEQ,
-			T.CO_CD,
-			T.TYP_CD,
-			T.DIRTRS_YN,
-            T.CLNT_CD AS SELL_CLNT_CD,
-			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS SELL_CLNT_NM,
-			T.OWNER_CD,
-			T.SALES_MNG,
-			(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM,
-            T.MAKR_CD,
-            T.WH_CD,
-            T.TAXIVC_COPRT,
-            T.IMP_YN,
-            T.SITE_CD,
-			(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = T.SITE_CD) AS SITE_NM,
-            T.PRJCT_CD,
-			(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,
-            T.REQ_DT,
-            TO_CHAR(T.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
-            T.ADDR_ZIP,
-			T.ADDR_MAIN,
-			T.ADDR_SUB,
-			T.MNG_TEL,
-			T.ODR_RMK AS ORDRG_RMK,
-            T.TOT_QTY,
-            T.TOT_WT,
-            T.TOT_AMT
-		FROM 
-			TB_SD04M01 T
-		WHERE
-			ODR_SEQ = #{odrSeq}
-	</select>
-	
-	<select id="selectOrderDetailList" parameterType="Map" resultType="camelMap">
-		SELECT 
-			T.ORDRG_SEQ,
-	        T.ORDRG_DTL_SEQ,
-	        T.PRDT_CD,
-	        B.PRDT_NM,
-	        T.PRDT_DIV,
-	        T.PRDT_STKN,
-	        T.PRDT_ERQK_YN,
-	        T.PRDT_SIZE,
-	        T.PRDT_SPEC,
-	        T.PRDT_COIL_YN,
-	        T.PRDT_UNIT,
-	        T.PRDT_LEN,
-	        T.ORDRG_QTY,
-	        T.ORDRG_WT,
-	        T.ORDRG_UPR,
-	        T.ORDRG_AMT,
-	        <!-- [발주 예상손익 조회] 직송여부'Y': (매출단가 * 수량) minus (발주단가 * 수량), 직송여부'N': (재고단가 * 수량) minus (발주단가 * 수량) -->
-	        DECODE(A.DIRTRS_YN, 'Y', (T.SHIP_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY), (T.STOCK_UPR * T.ORDRG_QTY - T.ORDRG_UPR * T.ORDRG_QTY)) AS EPCT_PAL,
-	        T.REAL_DLVR_QTY,
-	        T.REAL_DLVR_WT,
-	        T.REAL_DLVR_UPR,
-	        T.REAL_DLVR_AMT,
-	        (T.ORDRG_QTY - T.REAL_DLVR_QTY) AS INTEND_DLVR_QTY,
-	        T.SHIP_UPR,
-	       	T.SHIP_AMT,
-	        T.SELL_UPR,
-	        T.PCHS_UPR,
-	        T.STOCK_UPR,
-	        T.PRDT_UPR,
-	        T.PCHS_CERTI_NO,
-	        T.ORDRG_YN,
-	        T.ORDRG_PROC_ID,
-	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
-	        TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
-	        T.ORDRG_DTL_RMK,
-	        T.SHIP_YN,	        
-	        T.SHIP_PROC_ID,
-	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
-	        TO_CHAR(T.SHIP_PROC_DTTM, 'yyyy-MM-dd') AS SHIP_PROC_DTTM,	        
-	        T.ETC_FIELD1,
-	        T.ETC_FIELD2,
-	        T.ETC_FIELD3,
-	        T.CREAT_ID,
-	        T.CREAT_PGM,
-	        T.CREAT_DTTM,
-	        T.UDT_ID,
-	        T.UDT_PGM,
-	        T.UDT_DTTM,
-	        FN_CM05M01_CD_TO_NM(T.PRDT_DIV) AS PRDT_DIV_NM,
-	        NVL(FN_CM05M01_CD_TO_NM(T.PRDT_SIZE), T.PRDT_SIZE) AS PRDT_SIZE_NM,
-	        FN_CM05M01_CD_TO_NM(T.PRDT_ERQK_YN) AS PRDT_ERQK_NM,
-	        NVL(FN_CM05M01_CD_TO_NM(T.PRDT_SPEC), T.PRDT_SPEC) AS PRDT_SPEC_NM,
-	        FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM,
-	        FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) AS PRDT_UNIT_NM,
-			B.PRDT_DIV,
-	        B.PRDT_STKN,
-	        B.PRDT_STOCK_CD,
-	        B.PRDT_COIL_YN,
-	        B.PRDT_CNVRSN_WT,	        
-	        T.REQ_SEQ,
-			T.REQ_DTL_SEQ,
-			T.SHIP_VEH_NO
-		FROM 
-			TB_OD01D01 T
-			INNER JOIN TB_OD01M01 A ON T.ORDRG_SEQ = A.ORDRG_SEQ
-			INNER JOIN  TB_BM01M01 B ON B.PRDT_CD = T.PRDT_CD
-		WHERE 
-			T.ORDRG_SEQ = #{ordrgSeq}
-	</select>
-	
-	<select id="getOrderDetailList" parameterType="Map" resultType="camelMap">
-		SELECT
-			D.ODR_SEQ,
-			D.ODR_DTL_SEQ,
-			D.PRDT_CD,
-			B.PRDT_NM,
-			B.PRDT_DIV,
-			B.PRDT_STKN,
-			FN_CM05M01_CD_TO_NM(B.PRDT_STKN) PRDT_STKN_NM,
-			B.PRDT_SIZE,
-			B.PRDT_SPEC,
-			D.PRDT_LEN,
-			D.PRDT_UNIT,
-			FN_CM05M01_CD_TO_NM(D.PRDT_UNIT) AS PRDT_UNIT_NM,
-			D.PRDT_UPR,
-			D.ODR_UPR,
-			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS SHIP_UPR,
-			D.ODR_QTY AS ORDRG_QTY,
-			D.ODR_QTY AS REAL_DLVR_QTY,
-			B.PRDT_CNVRSN_WT,
-			B.PRDT_STOCK_CD,
-			D.ODR_WT AS ORDRG_WT,
-			D.ODR_WT AS REAL_DLVR_WT,
-			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS ORDRG_UPR,
-			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD), 0) AS REAL_DLVR_UPR,
-			D.ODR_AMT AS ORDRG_AMT,
-			D.ODR_AMT AS REAL_DLVR_AMT,
-			D.ODR_DTL_RMK AS ORDRG_DTL_RMK
-		FROM 
-			TB_SD04M01 M
-			INNER JOIN TB_SD04D01 D ON M.ODR_SEQ = D.ODR_SEQ
-			INNER JOIN TB_BM01M01 B ON D.PRDT_CD = B.PRDT_CD
-		WHERE 
-			M.ODR_SEQ = #{odrSeq}
-			<if test="odrDtlSeqArr != null and odrDtlSeqArr.size != 0">
-				AND D.ODR_DTL_SEQ IN
-				<foreach item="odrDtlSeq" collection="odrDtlSeqArr" open="(" close=")" separator="," >
-					#{odrDtlSeq}
-				</foreach>
-			</if>
-		ORDER BY D.ODR_DTL_SEQ
-	</select>
-	
-	<update id="updateOrder" parameterType="Map">
+	<update id="updateOrdrg" parameterType="Map">
 		UPDATE TB_OD01M01
 		SET
 		    CLNT_CD                = #{clntCd},                      
@@ -650,7 +656,8 @@
 		    TRSP_TYP_CD            = #{trspTypCd}        
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
-		<update id="updateOrderDetail" parameterType="Map">
+	
+	<update id="updateOrdrgDetail" parameterType="Map">
 		UPDATE TB_OD01D01 T
 		SET ORDRG_UPR       = #{ordrgUpr}
           , ORDRG_AMT       = #{ordrgAmt}
@@ -663,7 +670,31 @@
 		  , UDT_PGM         = #{pgmId}
 		  , UDT_DTTM        = SYSDATE		    
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
-	</update>	
+	</update>
+	
+	<delete id="deleteOrdrg" parameterType="Map">
+		DELETE FROM TB_OD01M01
+		WHERE ORDRG_SEQ = #{ordrgSeq}
+	</delete>
+	
+	<delete id="deleteOrdrgDetail" parameterType="Map">
+		DELETE FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'N' AND SHIP_YN = 'N'
+	</delete>
+	
+	<select id="selectDetailCount" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} 
+	</select>
+	
+	<select id="selectConfirmCount" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'Y' 
+	</select>
 	
 	<update id="updateConfirm" parameterType="Map">
 		UPDATE TB_OD01M01 T
@@ -671,18 +702,6 @@
 		    ORDRG_PROC_ID   = #{userId},
 		    ORDRG_PROC_DTTM = SYSDATE,
 		    ORDRG_YN 		= 'Y',
-		    UDT_ID          = #{userId},
-		    UDT_PGM         = #{pgmId},
-		    UDT_DTTM        = SYSDATE
-		WHERE ORDRG_SEQ = #{ordrgSeq}
-	</update>
-	
-	<update id="updateCancel" parameterType="Map">
-		UPDATE TB_OD01M01 T
-		SET
-		    ORDRG_PROC_ID   = '',
-		    ORDRG_PROC_DTTM = '',
-		    ORDRG_YN 		= 'N',
 		    UDT_ID          = #{userId},
 		    UDT_PGM         = #{pgmId},
 		    UDT_DTTM        = SYSDATE
@@ -701,6 +720,18 @@
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
 	</update>
 	
+	<update id="updateCancel" parameterType="Map">
+		UPDATE TB_OD01M01 T
+		SET
+		    ORDRG_PROC_ID   = '',
+		    ORDRG_PROC_DTTM = '',
+		    ORDRG_YN 		= 'N',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE ORDRG_SEQ = #{ordrgSeq}
+	</update>
+	
 	<update id="updateCancelDetail" parameterType="Map">
 		UPDATE TB_OD01D01 T
 		SET
@@ -713,24 +744,19 @@
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
 	</update>
 	
+	<select id="selectConfirmCountS" parameterType="Map" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM TB_OD01D01
+		WHERE ORDRG_SEQ = #{ordrgSeq} AND SHIP_YN = 'Y' 
+	</select>
+	
 	<update id="updateConfirmS" parameterType="Map">
 		UPDATE TB_OD01M01 T
 		SET
 		    SHIP_PROC_ID    = #{userId},
 		    SHIP_PROC_DTTM  = SYSDATE,
 		    SHIP_YN 		= 'Y',
-		    UDT_ID          = #{userId},
-		    UDT_PGM         = #{pgmId},
-		    UDT_DTTM        = SYSDATE
-		WHERE ORDRG_SEQ = #{ordrgSeq}
-	</update>
-	
-	<update id="updateCancelS" parameterType="Map">
-		UPDATE TB_OD01M01 T
-		SET
-		    SHIP_PROC_ID    = '',
-		    SHIP_PROC_DTTM  = '',
-		    SHIP_YN 		= 'N',
 		    UDT_ID          = #{userId},
 		    UDT_PGM         = #{pgmId},
 		    UDT_DTTM        = SYSDATE
@@ -749,6 +775,18 @@
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
 	</update>
 	
+	<update id="updateCancelS" parameterType="Map">
+		UPDATE TB_OD01M01 T
+		SET
+		    SHIP_PROC_ID    = '',
+		    SHIP_PROC_DTTM  = '',
+		    SHIP_YN 		= 'N',
+		    UDT_ID          = #{userId},
+		    UDT_PGM         = #{pgmId},
+		    UDT_DTTM        = SYSDATE
+		WHERE ORDRG_SEQ = #{ordrgSeq}
+	</update>
+	
 	<update id="updateCancelDetailS" parameterType="Map">
 		UPDATE TB_OD01D01 T
 		SET
@@ -759,40 +797,6 @@
 		    UDT_PGM         = #{pgmId},
 		    UDT_DTTM        = SYSDATE		    
 		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_DTL_SEQ = #{ordrgDtlSeq}
-	</update>	
-	<select id="selectOrderDetailInfo" parameterType="Map" resultType="CamelMap">
-		SELECT 
-			T.*,
-			B.PRDT_CNVRSN_WT,
-			B.PRDT_STOCK_CD,
-			(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = M.CLNT_CD) AS CLNT_NM,
-			(SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD)) AS WH_CLNT_CD,
-			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = M.WH_CD) AS WH_TYPE
-		FROM TB_OD01D01 T
-		INNER JOIN TB_OD01M01 M
-		   ON M.ORDRG_SEQ = T.ORDRG_SEQ
-		INNER JOIN TB_BM01M01 B
-		   ON B.PRDT_CD = T.PRDT_CD
-		WHERE T.ORDRG_SEQ = #{ordrgSeq} AND T.ORDRG_DTL_SEQ = #{ordrgDtlSeq} 
-	</select>
+	</update>
 	
-	<select id="selectDetailCount" parameterType="Map" resultType="int">
-		SELECT 
-			COUNT(*)
-		FROM TB_OD01D01
-		WHERE ORDRG_SEQ = #{ordrgSeq} 
-	</select>
-	
-	<select id="selectConfirmCount" parameterType="Map" resultType="int">
-		SELECT 
-			COUNT(*)
-		FROM TB_OD01D01
-		WHERE ORDRG_SEQ = #{ordrgSeq} AND ORDRG_YN = 'Y' 
-	</select>
-	<select id="selectConfirmCountS" parameterType="Map" resultType="int">
-		SELECT 
-			COUNT(*)
-		FROM TB_OD01D01
-		WHERE ORDRG_SEQ = #{ordrgSeq} AND SHIP_YN = 'Y' 
-	</select>	
 </mapper>

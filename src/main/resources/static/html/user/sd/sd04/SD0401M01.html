@@ -112,7 +112,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a onclick="openInsertOrder();" authchk>+</a> 
+					<a onclick="openOrderInsert();" authchk>+</a> 
 					<a onclick="deleteOrder();"authchk>-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
@@ -139,7 +139,6 @@
 </html>
 
 <script type="text/javascript">
-	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
 	var fixedOrderCount = 0;
@@ -162,7 +161,7 @@
 					onDBLClick : function() {
 						gridView.target.clearSelect();
 						this.self.select(this.dindex);
-						openModal("/static/html/user/sd/sd04/SD0402V01.html", 1300, 800, "", {"odrSeq": gridView.target.getList("selected")[0].odrSeq});
+						openOrderView(this.item.odrSeq);
 					}
 				},
 				page : {
@@ -211,7 +210,7 @@
 			}
 			
 			postAjax("/user/sd/sd04/selectOrderList", paramObj, null, function(data) {
-				var list = testFunction(data.orderList);
+				var list = data.orderList;
 				targetObj.setData({
 					list : list,
 					page : {
@@ -317,12 +316,6 @@
 		// 재검색
 		gridView.setData(0);
 	}
-
-	// 주문 상세
-	function openInsertOrder() {
-		actionType = "C";
-		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1300, 800, "");
-	}
 	
 	// 거래처 검색
 	function openClntSearch() {
@@ -331,6 +324,18 @@
 			$('[data-search="clntCd"]').val(row.clntCd);
 			$('[data-search="clntNm"]').val(row.clntNm);
 		});
+	}
+
+	// 주문 등록
+	function openOrderInsert() {
+		var paramObj = {"actionType": "C"};
+		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1300, 800, "", paramObj);
+	}
+	
+	// 주문 뷰
+	function openOrderView(odrSeq) {
+		var paramObj = {"odrSeq": odrSeq};
+		openModal("/static/html/user/sd/sd04/SD0402V01.html", 1300, 780, "", paramObj);
 	}
 	
 	// 거래처 삭제
@@ -412,16 +417,5 @@
            	var todayDate = new Date().format('yyyyMMddHHmmss');
 			excelView.target.exportExcel("주문목록_"+todayDate+".xls");
 		});	
-	}
-	
-	// 그리드 숫자 정렬 테스트중입니다.
-	function testFunction(list){
-		for(var i=0;i<list.length;i++){
-			var obj = list[i];
-			for(var key in obj){
-				
-			}
-		}
-		return list;
 	}
 </script>

@@ -1,4 +1,4 @@
-<div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+<div id="ordrgPopup" class="popup_area of_a" style="width: 100%; height: 100%;">
 	<div class="tit_contents">
 		<h4 class="tit">발주서 등록</h4>
 	</div>
@@ -390,7 +390,7 @@
 					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
 				</th>
 				<td>
-					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
+					<div data-ax5grid="ordrg-file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
 				</td>
 			</tr>
 		</table>
@@ -403,13 +403,13 @@
 </div>
 <script type="text/javascript">
 	var targetRow = null;
-	var fileArr = [];
+	var ordrgFileArr = [];
 	var deleteFileArr = [];
-	var fileGridView = {
+	var ordrgFileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
-				target: $('[data-ax5grid="file-grid"]'),
+				target: $('[data-ax5grid="ordrg-file-grid"]'),
 				showLineNumber: true,
 				showRowSelector: false,
 	        	multipleSelect: false,
@@ -438,9 +438,9 @@
 		setData : function() {
 			var targetObj = this.target;
 			targetObj.setData({
-				list: fileArr,
+				list: ordrgFileArr,
 				page : {
-					totalElements : fileArr.length
+					totalElements : ordrgFileArr.length
 				}
 			});
 		}
@@ -449,83 +449,86 @@
 	$(document).ready(function() {
 		
 		// 공통코드 selectBox set
-		setCommonSelect($(".popup_area select[data-kind]"));
+		setCommonSelect($("#ordrgPopup select[data-kind]"));
 		
 		// 납기일자 datepicker bind
-		$('#dlvrDttm').datepicker({
+		$('#ordrgPopup #dlvrDttm').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		});
+		
 		// 파일 그리드 초기화
-		fileGridView.initView();
+		ordrgFileGridView.initView();
 		
 		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType == "C"){
-			$('#coCd').val(jwt.coCd);
-			$('#odrCreatDiv').val("ERP");
-			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
-			setByCoCd($('#coCd').val());
-			setMaker($('#impYn').val());
-			$("#makrCd").val("MAKR09");
-			$("#dirtrsYn").val("Y"); 
-			$('#trspTypCd').val("TRSPTYP1");
-			$('#actionOdBtn').on("click", function(){insertOrder();});
-			$('.tit_contents .tit').text("발주서 등록");
-			$('#actionOdBtn').text("등록");
+			$('#ordrgPopup #coCd').val(jwt.coCd);
+			$('#ordrgPopup #odrCreatDiv').val("ERP");
+			$("#ordrgPopup #reqDt").val(moment(new Date()).format("YYYYMMDD"));
+			setByCoCd($('#ordrgPopup #coCd').val());
+			setMaker($('#ordrgPopup #impYn').val());
+			$("#ordrgPopup #makrCd").val("MAKR09");
+			$("#ordrgPopup #dirtrsYn").val("Y"); 
+			$('#ordrgPopup #trspTypCd').val("TRSPTYP1");
+			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
+			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
+			$('#ordrgPopup #actionOdBtn').text("등록");
 		}else if(actionType == "U"){
-			selectOrderInfo(modalStack.last().paramObj.ordrgSeq);
-			$('#actionOdBtn').on("click", function(){updateOrder();});
-			$('.tit_contents .tit').text("발주서 수정");
-			$('#actionOdBtn').text("저장");
+			selectOrdrgInfo(modalStack.last().paramObj.ordrgSeq);
+			$('#ordrgPopup #actionOdBtn').on("click", function(){updateOrdrg();});
+			$('#ordrgPopup .tit_contents .tit').text("발주서 수정");
+			$('#ordrgPopup #actionOdBtn').text("저장");
 		}else if (actionType == "O"){ // 주문에서 발주서 호출할때 사용한다.
 			getOrderInfo();
-			$('#odrSeq').siblings('a').remove();
-			$('#actionOdBtn').on("click", function(){insertOrder();});
-			$('.tit_contents .tit').text("발주서 등록");
-			$('#actionOdBtn').text("등록");
-			$('#trspTypCd').val("TRSPTYP1");
+			$('#ordrgPopup #odrSeq').siblings('a').remove();
+			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
+			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
+			$('#ordrgPopup #actionOdBtn').text("등록");
+			$('#ordrgPopup #trspTypCd').val("TRSPTYP1");
 			//발주서 등록 시 직송여부 default Y 
-			$("#dirtrsYn").val("Y"); 
+			$("#ordrgPopup #dirtrsYn").val("Y"); 
 			ctrlDirtrs();
 		}else if (actionType == "R"){ // 구매요청에서 발주서 호출할때 사용한다.
 			getReqInfo();
-			$('#actionOdBtn').on("click", function(){insertOrder();});
-			$('.tit_contents .tit').text("발주서 등록");
-			$('#actionOdBtn').text("등록");
-			$('#trspTypCd').val("TRSPTYP1");
+			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
+			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
+			$('#ordrgPopup #actionOdBtn').text("등록");
+			$('#ordrgPopup #trspTypCd').val("TRSPTYP1");
 		}
 		
 		ctrlDirtrsMaster();
 	});
 	
-	function selectOrderInfo(ordrgSeq) {
+	function selectOrdrgInfo(ordrgSeq) {
 		var paramObj = {"ordrgSeq" : ordrgSeq};
-		postAjaxSync("/user/od/od01/selectOrderInfo", paramObj, null, function(data){
-			setOrderInfo(data.result);
+		postAjaxSync("/user/od/od01/selectOrdrgInfo", paramObj, null, function(data){
+			setOrdrgInfo(data.result);
 		});
 	}
 	
 	function getOrderInfo(){
-		postAjaxSync("/user/od/od01/getOrderInfo", modalStack.last().paramObj, null, function(data){
-			setOrderInfo(data.result);
+		var paramObj = modalStack.last().paramObj;
+		postAjaxSync("/user/od/od01/getOrderInfo", paramObj, null, function(data){
+			setOrdrgInfo(data.result);
 		});
 	}
 	
-	function setOrderInfo(obj) {
+	function setOrdrgInfo(obj) {
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
+		
 		// 메인정보 세팅
 		$.each(orderInfo, function(key, value){
-			if($('#'+key)[0]){
-				if($('#'+key).is('[date]')){
-					$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+			if($('#ordrgPopup #'+key)[0]){
+				if($('#ordrgPopup #'+key).is('[date]')){
+					$('#ordrgPopup #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}else{
-					if($('#'+key).is('[comma]')){
+					if($('#ordrgPopup #'+key).is('[comma]')){
 						value = addCommaStr(value);
 					}
-					$('#'+key).val(value);
+					$('#ordrgPopup #'+key).val(value);
 				}
 				
 				// 창고, 판매법인 set
@@ -612,7 +615,7 @@
 		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType != "O"){
 			$.each(fileInfo, function(idx, obj){
-				fileArr.push({
+				ordrgFileArr.push({
 					'fileKey' : obj.fileKey,
 			      	'fileName' : obj.fileName,
 			      	'fileType' : obj.fileType,
@@ -621,25 +624,25 @@
 				});
 			});
 			// 첨부파일 그리드 set
-			fileGridView.setData();
+			ordrgFileGridView.setData();
 		}
 
 		if(orderInfo.dirtrsYn == "Y"){			
 			if(orderInfo.ordrgYn == "Y" && orderInfo.shipYn =="Y" ) {
-				$("#actionOdBtn").hide();
+				$("#ordrgPopup #actionOdBtn").hide();
 			}
 		} else {
 			if(orderInfo.ordrgYn == "Y") {
-				$("#actionOdBtn").hide();
+				$("#ordrgPopup #actionOdBtn").hide();
 			}
 		}
 	}
 	
 	function getReqInfo(){
 		var paramObj = modalStack.last().paramObj;
-		paramObj.reqDt = $('#reqDt').val();
-		paramObj.impYn = $('#impYn').val();
-		paramObj.clntCd = $('#clntCd').val();
+		paramObj.reqDt = $('#ordrgPopup #reqDt').val();
+		paramObj.impYn = $('#ordrgPopup #impYn').val();
+		paramObj.clntCd = $('#ordrgPopup #clntCd').val();
 		postAjaxSync("/user/od/od04/selectReqOrder", paramObj, null, function(data){
 			setReqInfo(data.result);
 		});
@@ -652,14 +655,14 @@
 		
 		// 메인정보 세팅
 		$.each(reqInfo, function(key, value){
-			if($('#popForm #'+key)[0]){
-				if($('#popForm #'+key).is('[date]')){
-					$('#popForm #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+			if($('#ordrgPopup #'+key)[0]){
+				if($('#ordrgPopup #'+key).is('[date]')){
+					$('#ordrgPopup #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}else{
-					if($('#popForm #'+key).is('[comma]')){
+					if($('#ordrgPopup #'+key).is('[comma]')){
 						value = addCommaStr(value);
 					}
-					$('#popForm #'+key).val(value);
+					$('#ordrgPopup #'+key).val(value);
 				}
 
 				
@@ -682,7 +685,7 @@
 				}
 				// 생성구분이 다름으로 추가한다.
 				if(key == "reqCreatDiv"){
-					$('#popForm #odrCreatDiv').val(value); 
+					$('#ordrgPopup #odrCreatDiv').val(value); 
 				}
 			}
 		});
@@ -705,14 +708,14 @@
 	
 	// 창고, 판매법인 set
 	function setByCoCd(value){
-		$('#whCd').data("desc", value);
-		$('#whCd option:not([value=""])').remove()
-		setCommonSelect($('#whCd'));
+		$('#ordrgPopup #whCd').data("desc", value);
+		$('#ordrgPopup #whCd option:not([value=""])').remove()
+		setCommonSelect($('#ordrgPopup #whCd'));
 		
 	 		// 창고와 판매법인은 같이 바귐.		
-		$('#taxivcCoprt').data("rprc", value);
-		$('#taxivcCoprt option:not([value=""])').remove()
-		setCommonSelect($('#taxivcCoprt'));  
+		$('#ordrgPopup #taxivcCoprt').data("rprc", value);
+		$('#ordrgPopup #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#ordrgPopup #taxivcCoprt'));  
 	}
 	
 	function setBySellType(value){
@@ -732,32 +735,32 @@
 		// 판매유형이 선택, 유통, 가공일때
 			
 			// 재고주체 초기화
-			$('#ownerCd option:not([value=""])').remove();
-			setCommonSelect($('#ownerCd'));
+			$('#ordrgPopup #ownerCd option:not([value=""])').remove();
+			setCommonSelect($('#ordrgPopup #ownerCd'));
 			
 			if(value == "" || value == "SELLTYPE5"){
 			// 판매유형이 선택, 관수일때
 				// 재고주체 활성화
-				$('#ownerCd').prop("disabled", false);
+				$('#ordrgPopup #ownerCd').prop("disabled", false);
 			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
 			// 판매유형이 유통, 가공일때
 				// 재고주체 자사 set, 비활성화
-				$('#ownerCd').val("OWNER1");
-				$('#ownerCd').prop("disabled", true);
+				$('#ordrgPopup #ownerCd').val("OWNER1");
+				$('#ordrgPopup #ownerCd').prop("disabled", true);
 			}
 			
 			// 직송여부 Y set
-			$('#dirtrsYn').val("Y");
-			$('#dirtrsYn').prop("disabled", false);
+			$('#ordrgPopup #dirtrsYn').val("Y");
+			$('#ordrgPopup #dirtrsYn').prop("disabled", false);
 			ctrlDirtrs();
 		}else if(value == "SELLTYPE4"){
 		// 판매유형이 임가공일때
 			// 재고주체에서 자사 삭제
-			$('#ownerCd option[value="OWNER1"]').remove();
-			$('#ownerCd').prop("disabled", false);
+			$('#ordrgPopup #ownerCd option[value="OWNER1"]').remove();
+			$('#ordrgPopup #ownerCd').prop("disabled", false);
 			// 직송여부 N set
-			$('#dirtrsYn').val("N");
-			$('#dirtrsYn').prop("disabled", true);
+			$('#ordrgPopup #dirtrsYn').val("N");
+			$('#ordrgPopup #dirtrsYn').prop("disabled", true);
 			ctrlDirtrs();
 		}
 	}
@@ -770,29 +773,29 @@
 	
 	// 직송여부 변경 master
 	function ctrlDirtrsMaster(){
-		if($("#dirtrsYn").val() == "N") {
-			$(".drctArea input").prop("disabled", true);
-			$(".drctArea input").val("");
-			$(".drctArea select").prop("disabled", true);
-			$(".drctArea select").val("");
-			$(".drctArea a").removeAttr("onclick");
-			$("#sellClntNm").closest('td').prev().removeClass("hit");
-			$("#sellClntNm").prop("required", false);
+		if($("#ordrgPopup #dirtrsYn").val() == "N") {
+			$("#ordrgPopup .drctArea input").prop("disabled", true);
+			$("#ordrgPopup .drctArea input").val("");
+			$("#ordrgPopup .drctArea select").prop("disabled", true);
+			$("#ordrgPopup .drctArea select").val("");
+			$("#ordrgPopup .drctArea a").removeAttr("onclick");
+			$("#ordrgPopup #sellClntNm").closest('td').prev().removeClass("hit");
+			$("#ordrgPopup #sellClntNm").prop("required", false);
 		} else {
-			$(".drctArea input").prop("disabled", false);
-			$(".drctArea select").prop("disabled", false);
-			$(".drctArea a").attr("onclick", "openSecondClntSearch('SELL')");
-			$("#sellClntNm").closest('td').prev().addClass("hit");
-			$("#sellClntNm").prop("required", true);
+			$("#ordrgPopup .drctArea input").prop("disabled", false);
+			$("#ordrgPopup .drctArea select").prop("disabled", false);
+			$("#ordrgPopup .drctArea a").attr("onclick", "openSecondClntSearch('SELL')");
+			$("#ordrgPopup #sellClntNm").closest('td').prev().addClass("hit");
+			$("#ordrgPopup #sellClntNm").prop("required", true);
 		}
 	}
 	
 	// 직송여부 변경 detail
 	function ctrlDirtrsDetail() {
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find('input[name="ordrgYn"]').val() != "Y" || $(elem).find('input[name="shipYn"]').val() != "Y"){
 			// 일괄확정되지 않았으면
-				if($("#dirtrsYn").val() == "Y") {
+				if($("#ordrgPopup #dirtrsYn").val() == "Y") {
 				// 직송이면
 					// 매출단가 수정 가능
 					$(elem).find('input[name="shipUpr"]').prop("readonly", false);
@@ -821,11 +824,11 @@
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			if(type == "PUR") {
-				$('#clntCd').val(row.clntCd);
-				$('#clntNm').val(row.clntNm);
+				$('#ordrgPopup #clntCd').val(row.clntCd);
+				$('#ordrgPopup #clntNm').val(row.clntNm);
 			} else {
-				$('#sellClntCd').val(row.clntCd);
-				$('#sellClntNm').val(row.clntNm);
+				$('#ordrgPopup #sellClntCd').val(row.clntCd);
+				$('#ordrgPopup #sellClntNm').val(row.clntNm);
 				
 				//거래처 영업담당자 조회
 				var paramObj = {
@@ -834,8 +837,8 @@
 				}				
 				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {			
 					if(data.mngInfo != null) {
-						$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
-						$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+						$('#ordrgPopup #salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+						$('#ordrgPopup #salesMngNm').val(data.mngInfo.salesEmpNm);	 // "권경미"	  
 					}
 				});	
 			}
@@ -844,51 +847,51 @@
 	
 	// 입고창고 변경시 계산서발행법인 set
 	function setTaxivcCoprt(){
-		$('#taxivcCoprt').val($("#whCd option:selected").data("etc"));
+		$('#ordrgPopup #taxivcCoprt').val($("#ordrgPopup #whCd option:selected").data("etc"));
 	}
 	
 	// 제조사 set
 	function setMaker(value){
-		$('#makrCd').data("rprc", value);
-		$('#makrCd').empty();
-		setCommonSelect($('#makrCd'));
+		$('#ordrgPopup #makrCd').data("rprc", value);
+		$('#ordrgPopup #makrCd').empty();
+		setCommonSelect($('#ordrgPopup #makrCd'));
 	}
 	
 	// 현장 검색
 	function openOdSiteSearch() {
 		var paramObj = {
-			"coCd": $('#popForm #coCd').val(),
-			"clntCd": $("#popForm #sellClntCd").val(),
-			"clntNm": $("#popForm #sellClntNm").val()
+			"coCd": $('#ordrgPopup #coCd').val(),
+			"clntCd": $("#ordrgPopup #sellClntCd").val(),
+			"clntNm": $("#ordrgPopup #sellClntNm").val()
 		}
 		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
 			var row = tree.target.getList("selected")[0];
-			$("#siteCd").val(row.siteCd);
-			$("#siteNm").val(row.siteNm);
-			$("#prjctCd").val(row.prjctCd);
-			$('#addrZip').val(row.siteAddrZip);
-			$('#addrMain').val(row.siteAddr);
-			$('#addrSub').val(row.siteAddrSub);
-			$('#mngTel').val(row.telNo);
-			$('#salesAreaCd').val(row.salesAreaCd);
-			$('#sellClntCd').val(row.clntCd);
-			$('#sellClntNm').val(row.clntNm);
-			$('#salesMng').val(row.salesEmpId);
-			$('#salesMngNm').val(row.salesEmpNm);
+			$("#ordrgPopup #siteCd").val(row.siteCd);
+			$("#ordrgPopup #siteNm").val(row.siteNm);
+			$("#ordrgPopup #prjctCd").val(row.prjctCd);
+			$('#ordrgPopup #addrZip').val(row.siteAddrZip);
+			$('#ordrgPopup #addrMain').val(row.siteAddr);
+			$('#ordrgPopup #addrSub').val(row.siteAddrSub);
+			$('#ordrgPopup #mngTel').val(row.telNo);
+			$('#ordrgPopup #salesAreaCd').val(row.salesAreaCd);
+			$('#ordrgPopup #sellClntCd').val(row.clntCd);
+			$('#ordrgPopup #sellClntNm').val(row.clntNm);
+			$('#ordrgPopup #salesMng').val(row.salesEmpId);
+			$('#ordrgPopup #salesMngNm').val(row.salesEmpNm);
 			
-			var whCd = $("#whCd").val();
+			var whCd = $("#ordrgPopup #whCd").val();
 			if(whCd ==""){
-				$("#whCd").val(row.whCd); 
+				$("#ordrgPopup #whCd").val(row.whCd); 
 			}
-			var taxivcCoprt = $("#taxivcCoprt").val();
+			var taxivcCoprt = $("#ordrgPopup #taxivcCoprt").val();
 			if(taxivcCoprt ==""){
-				$("#taxivcCoprt").val(row.taxivcCoprt);
+				$("#ordrgPopup #taxivcCoprt").val(row.taxivcCoprt);
 			}
 			
 			if(row.ordTyp) {
-				$("#typCd").val('SELLTYPE2'); // 가공
+				$("#ordrgPopup #typCd").val('SELLTYPE2'); // 가공
 			} else{
-				$("#typCd").val('SELLTYPE1'); // 유통
+				$("#ordrgPopup #typCd").val('SELLTYPE1'); // 유통
 			}
 		});
 	}
@@ -896,7 +899,7 @@
 	function openSecondOrderSearch(){
 		openSecondModal("/static/html/cmn/modal/orderSearch.html", 700, 420, "주문서 검색", {}, function(grid){
 			var row = grid.target.getList("selected")[0];
-			$("#odrSeq").val(row.odrSeq);
+			$("#ordrgPopup #odrSeq").val(row.odrSeq);
 		});
 	}
 	
@@ -904,15 +907,15 @@
 	function openSecondUserSearch() {
 		var paramObj = {
 			"coCd" : "GUM", // $('#coCd').val(),
-			"userId": $('#salesMng').val(),
+			"userId": $('#ordrgPopup #salesMng').val(),
 			"useYn": "Y"
 		};
 		
 		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function(tree) {
 			var checkedId = tree.get_checked()[0];
 			var checkedNode = tree.get_node(checkedId);
-			$('#salesMng').val(checkedNode.id);
-			$('#salesMngNm').val(checkedNode.text);
+			$('#ordrgPopup #salesMng').val(checkedNode.id);
+			$('#ordrgPopup #salesMngNm').val(checkedNode.text);
 		});
 	}
 	
@@ -920,8 +923,8 @@
 		new daum.Postcode({
 			oncomplete:function(data){
 				// 우편번호
-				$('#addrZip').val(data.zonecode);
-				$('#addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+				$('#ordrgPopup #addrZip').val(data.zonecode);
+				$('#ordrgPopup #addrMain').val((data.roadAddress || data.address) + ' ' + data.buildingName);
 			}
 		}).open();
 	}
@@ -930,17 +933,17 @@
 	function transAmtModal() {
 		openFrom = "OD0102P01";
 		var paramObj ={
-			transSeq :$('#transSeq').val(),
-			coCd     : $('#coCd').val()
+			transSeq :$('#ordrgPopup #transSeq').val(),
+			coCd     : $('#ordrgPopup #coCd').val()
 		}
-		if(!$('#transSeq').val()) {
+		if(!$('#ordrgPopup #transSeq').val()) {
 			paramObj.actionType = "C";
 		} 
 		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
 	}
 	
 	function cloneDetailRow(){
-		var checkedRows = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		var checkedRows = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		
 		if(checkedRows.length == 0){
 			alert("선택된 데이터가 없습니다.");
@@ -952,11 +955,11 @@
 			return false;
 		}
 		
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
 				var $clonedRow = $(elem).clone();
 				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
-				$('#detailTable tbody:last').append($clonedRow[0]);
+				$('#ordrgPopup #detailTable tbody:last').append($clonedRow[0]);
 			}
 		})
 		
@@ -964,14 +967,14 @@
 	}
 	
 	function addDetailRow() {
-		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
-		$('#detailTable tbody').append($detailRow[0]);
+		var $detailRow = $('#ordrgPopup #frameTable tr[name="detailRow"]').clone();
+		$('#ordrgPopup #detailTable tbody').append($detailRow[0]);
 		ctrlAllChkBox();
 		return $detailRow;
 	}
 	
 	function removeDetailRow(){
-		var $checkedDetails = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		var $checkedDetails = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		if($checkedDetails.length > 0){
 			$.each($checkedDetails, function(idx, elem){
 				$(elem).closest('tr[name="detailRow"]').remove();
@@ -985,7 +988,7 @@
 	
 	function ctrlAllChkBox(){
 		var isAllChk = true;
-		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
+		var $detailChkBoxes = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
 		if($detailChkBoxes.length > 0){
 			$.each($detailChkBoxes, function(idx, elem){
 				if(!$(elem).is(':checked')){
@@ -993,20 +996,20 @@
 				}
 			});
 			if(isAllChk){
-				$('#allChkBox').prop("checked", true);
+				$('#ordrgPopup #allChkBox').prop("checked", true);
 			}else{
-				$('#allChkBox').prop("checked", false);
+				$('#ordrgPopup #allChkBox').prop("checked", false);
 			}
 		}else{
-			$('#allChkBox').prop("checked", false);
+			$('#ordrgPopup #allChkBox').prop("checked", false);
 		}
 	}
 	
 	function ctrlDetailChkBox(elem){
 		if($(elem).is(':checked')){
-			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
+			$('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
 		}else{
-			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+			$('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
 		}
 	}
 	
@@ -1016,11 +1019,11 @@
 		
 		// selpchCd - SELPCH1: 매입
 		var paramObj = {
-			"coCd": $("#coCd").val(),
+			"coCd": $("#ordrgPopup #coCd").val(),
 			"selpchCd": "SELPCH1",
-			"impYn": $("#impYn").val(), 
-			"clntCd" : $("#clntCd").val(),
-			"prjctCd" : $("#prjctCd").val(),
+			"impYn": $("#ordrgPopup #impYn").val(), 
+			"clntCd" : $("#ordrgPopup #clntCd").val(),
+			"prjctCd" : $("#ordrgPopup #prjctCd").val(),
 			"useYn": "Y"
 		};
 				
@@ -1059,7 +1062,7 @@
 				$targetRow.find('input[name="ordrgWt"]').prop("readonly", true);
 				// 재고관리 대상이 아닐경우 발주금액 수정 가능
 				$targetRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-				if($("#dirtrsYn").val() == "Y"){
+				if($("#ordrgPopup #dirtrsYn").val() == "Y"){
 					// 재고관리 대상이 아니면서 직송인경우 매출금액 수정 가능
 					$targetRow.find('input[name="shipAmt"]').prop("readonly", false);
 				}
@@ -1076,11 +1079,11 @@
 	function openSecondMultiPrdtSearch() {
 		// selpchCd - SELPCH1: 매입
 		var paramObj = {
-			"coCd": $("#coCd").val(),
+			"coCd": $("#ordrgPopup #coCd").val(),
 			"selpchCd": "SELPCH1",
-			"impYn": $("#impYn").val(), 
-			"clntCd" : $("#clntCd").val(),
-			"prjctCd" : $("#prjctCd").val(),
+			"impYn": $("#ordrgPopup #impYn").val(), 
+			"clntCd" : $("#ordrgPopup #clntCd").val(),
+			"prjctCd" : $("#ordrgPopup #prjctCd").val(),
 			"useYn": "Y"
 		};
 				
@@ -1096,12 +1099,13 @@
 						$(elem).val(itemValue);
 					}
 				});
+				
 				// prdtUpr에 ordrgUpr set (궁금한점.)
 				$addedRow.find('input[name=prdtUpr]').val(obj.ordrgUpr);
 				$addedRow.find('input[name=shipUpr]').val(obj.shipUpr);
 				
 				// 직송여부에 따른 dom 변경 (shipUpr은 기본값이 활성화 상태이므로 직송여부가 N일때만 readonly)
-				if($("#dirtrsYn").val() == "N"){
+				if($("#ordrgPopup #dirtrsYn").val() == "N"){
 					$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
 				}
 				
@@ -1114,7 +1118,7 @@
 					$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
 					// 재고관리 대상이 아닐경우 발주금액 수정 가능
 					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-					if($("#dirtrsYn").val() == "Y"){
+					if($("#ordrgPopup #dirtrsYn").val() == "Y"){
 						// 재고관리 대상이 아니면서 직송인경우 매출금액 수정 가능
 						$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
 					}
@@ -1148,7 +1152,7 @@
 			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgQty * ordrgUpr))
 			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(ordrgQty * shipUpr))			
 			
-			if($('#dirtrsYn').val() == "Y"){
+			if($('#ordrgPopup #dirtrsYn').val() == "Y"){
 				// 직송여부가 Y일때 예상손익 : 매출단가 * 수량 - 매입단가(발주단가) * 수량
 				$targetRow.find('input[name="epctPal"]').val(addCommaStr((ordrgQty * shipUpr) - (ordrgQty * ordrgUpr)));
 			}else{
@@ -1183,7 +1187,7 @@
 		var totShipAmt  = 0;
 		var totEpctPal  = 0;
 		
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val())) || 0;
 			var ordrgWt  = Number(deleteCommaStr($(elem).find('input[name="ordrgWt"]').val())) || 0;
 			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val())) || 0;
@@ -1197,18 +1201,18 @@
 			totEpctPal  += epctPal; 
 		});
 		
-		$('#totQty').val(addCommaStr(totOrdrgQty));
-		$('#totWt').val(addCommaStr(totOrdrgWt));
-		$('#totAmt').val(addCommaStr(totOrdrgAmt));
-		$('#totShipAmt').val(addCommaStr(totShipAmt));
-		$('#totEpctPal').val(addCommaStr(totEpctPal));
+		$('#ordrgPopup #totQty').val(addCommaStr(totOrdrgQty));
+		$('#ordrgPopup #totWt').val(addCommaStr(totOrdrgWt));
+		$('#ordrgPopup #totAmt').val(addCommaStr(totOrdrgAmt));
+		$('#ordrgPopup #totShipAmt').val(addCommaStr(totShipAmt));
+		$('#ordrgPopup #totEpctPal').val(addCommaStr(totEpctPal));
 	}
 	
 	function setFile(elem){
 		var tempFiles = elem.files;
 		$.each(tempFiles, function(idx, obj){
 			var tempArr = obj.name.split(".");
-			fileArr.push({
+			ordrgFileArr.push({
 				'fileKey' : 0,
 		      	'fileName' : obj.name,
 		      	'fileType' : tempArr[tempArr.length-1],
@@ -1216,36 +1220,36 @@
 		      	'file' : obj
 			});
 		});
-		fileGridView.setData();
+		ordrgFileGridView.setData();
 		$(elem).val("");
 	}
 	
 	function deleteFile(rowIndex) {
-		fileGridView.target.removeRow(rowIndex);
+		ordrgFileGridView.target.removeRow(rowIndex);
 		
-		if(fileArr[rowIndex].fileKey){
+		if(ordrgFileArr[rowIndex].fileKey){
 		// 기 등록되어 있는 파일 삭제시
-			deleteFileArr.push(fileArr[rowIndex].fileKey);
+			deleteFileArr.push(ordrgFileArr[rowIndex].fileKey);
 		}
 		
-		fileArr.splice(rowIndex, 1);
+		ordrgFileArr.splice(rowIndex, 1);
 		
-		fileGridView.setData();
+		ordrgFileGridView.setData();
 	}
 	
 	function downloadFile(idx) {
-		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": ordrgFileArr[idx].fileKey}, null, function(data){
 			var fileInfo = data.fileInfo;
 			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
 	}
 	
-	function insertOrder() {
+	function insertOrdrg() {
 		if(!lengthValidation()) return false;
-		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
+		if(inputValidation($('#ordrgPopup [required]').not('#ordrgPopup #frameTable [required]'))) {
 			var formData = makeFormData();
-			filePostAjax("/user/od/od01/insertOrder", formData, function(data){
+			filePostAjax("/user/od/od01/insertOrdrg", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
 					modalStack.close();	
@@ -1255,14 +1259,14 @@
 		}
 	}
 	
-	function updateOrder() {
+	function updateOrdrg() {
 		if(!lengthValidation()) return false;
-		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
+		if(inputValidation($('#ordrgPopup [required]').not('#ordrgPopup #frameTable [required]'))) {
 			var formData = makeFormData();
-			filePutAjax("/user/od/od01/updateOrder", formData, function(data){
+			filePutAjax("/user/od/od01/updateOrdrg", formData, function(data){
 				alert(data.resultMessage);    
 				if(data.resultCode == 200){
-					var ordrgSeq = $('#ordrgSeq').val();
+					var ordrgSeq = $('#ordrgPopup #ordrgSeq').val();
 					modalStack.close();
 					gridView.setData(0);
 					setTimeout(function(){
@@ -1275,7 +1279,7 @@
 	
 	function lengthValidation() {
 		var isValid = true;
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var prdtDiv = $(elem).find('input[name="prdtDiv"]').val();
 			var prdtCoilYn = $(elem).find('input[name="prdtCoilYn"]').val();
 			var prdtStockCd = $(elem).find('input[name="prdtStockCd"]').val();
@@ -1292,30 +1296,30 @@
 	}
 	
 	function makeFormData() {
-		$("#popForm input").prop("disabled", false);
-		$("#popForm select").prop("disabled", false);
-		if($("#prjctCd").val() == "") $("#prjctCd").val("0");
+		$("#ordrgPopup input").prop("disabled", false);
+		$("#ordrgPopup select").prop("disabled", false);
+		if($("#ordrgPopup #prjctCd").val() == "") $("#ordrgPopup #prjctCd").val("0");
 		
 		//콤마 제거
-		$.each($('.popup_area input[comma]'), function(idx, elem){
+		$.each($('#ordrgPopup input[comma]'), function(idx, elem){
 			deleteComma(elem);
 		});
 		
 		// 폼데이터 생성
-		var formData = new FormData($("#popForm")[0]);
+		var formData = new FormData($("#ordrgPopup #popForm")[0]);
 		
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);
 		
 		// 합계 추가
-		formData.append("totQty", $('#totQty').val());
-		formData.append("totWt", $('#totWt').val());
-		formData.append("totAmt", $('#totAmt').val());
-		formData.append("totShipAmt", $('#totShipAmt').val());
+		formData.append("totQty", $('#ordrgPopup #totQty').val());
+		formData.append("totWt", $('#ordrgPopup #totWt').val());
+		formData.append("totAmt", $('#ordrgPopup #totAmt').val());
+		formData.append("totShipAmt", $('#ordrgPopup #totShipAmt').val());
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='ordrgYn']").val() == "") {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
@@ -1327,7 +1331,7 @@
 		formData.append("detailArr", JSON.stringify(detailArr));
 		
 		// 첨부파일 추가
-		$.each(fileArr, function(idx, obj){
+		$.each(ordrgFileArr, function(idx, obj){
 			// 신규파일만 추가
 			if(obj.fileKey == 0){
 				formData.append("files", obj.file);

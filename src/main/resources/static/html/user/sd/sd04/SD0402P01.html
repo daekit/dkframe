@@ -480,6 +480,7 @@
 		// 파일 그리드 초기화
 		fileGridView.initView();
 		
+		var actionType = modalStack.last().paramObj.actionType;
 		if (actionType == "C") {
 			addDetailRow();
 			countTot();
@@ -883,9 +884,12 @@
 			filePutAjax("/user/sd/sd04/updateOrder", formData, function(data) {
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
-					gridView.setData(0);
+					var odrSeq = $('#odrSeq').val();
 					modalStack.close();
-					openModal("/static/html/user/sd/sd04/SD0402V01.html", 1300, 800, "", {"odrSeq": $('#odrSeq').val()});
+					gridView.setData(0);
+					setTimeout(function(){
+						openOrderView(odrSeq);
+					}, 500);
 				}
 			});
 		}
@@ -934,6 +938,7 @@
 		});
 		
 		// 수정시 삭제된 파일 추가
+		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType == "U"){
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		}
