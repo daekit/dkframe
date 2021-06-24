@@ -6,6 +6,7 @@
 		WITH T AS (
 			SELECT
 				CO_CD,
+				CLNT_CD,
 				CLNT_NM,
 				TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
 				FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
@@ -27,6 +28,9 @@
 			<if test="trstDtTo != null and !trstDtTo.equals('')">
 				<![CDATA[ AND TRST_DT <= #{trstDtTo} ]]>
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}
+			</if>	
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>	
@@ -41,6 +45,7 @@
 			
 			SELECT
 				CO_CD,
+				CLNT_CD,
 				CLNT_NM,
 				TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
 				FN_CM05M01_CD_TO_NM(DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1')) AS SELPCH_NM,
@@ -62,6 +67,9 @@
 			<if test="trstDtTo != null and !trstDtTo.equals('')">
 				<![CDATA[ AND ETRDPS_DT <= #{trstDtTo} ]]>
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}
+			</if>				
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>	
@@ -80,6 +88,7 @@
 		WITH T AS (
 			SELECT
 				CO_CD,
+				CLNT_CD,
 				CLNT_NM,
 				TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
 				FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
@@ -101,6 +110,9 @@
 			<if test="trstDtTo != null and !trstDtTo.equals('')">
 				<![CDATA[ AND TRST_DT <= #{trstDtTo} ]]>
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD =  #{clntCd}
+			</if>	
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>	
@@ -115,6 +127,7 @@
 			
 			SELECT
 				CO_CD,
+				CLNT_CD,
 				CLNT_NM,
 				TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
 				FN_CM05M01_CD_TO_NM(DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1')) AS SELPCH_NM,
@@ -136,6 +149,9 @@
 			<if test="trstDtTo != null and !trstDtTo.equals('')">
 				<![CDATA[ AND ETRDPS_DT <= #{trstDtTo} ]]>
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}
+			</if>				
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>	
@@ -150,8 +166,8 @@
 		C AS (
 			SELECT
 				CO_CD,
-				NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0) AS SELL_AMT,
-				NVL(CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0) AS PCHS_AMT
+				SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0)) AS SELL_AMT,
+				SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0)) AS PCHS_AMT
 			FROM
 				TB_AR10M01	
 			WHERE
@@ -159,6 +175,9 @@
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
 				<![CDATA[ AND TRST_DT < #{trstDtFrom} ]]>
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}
+			</if>				
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>	
@@ -168,13 +187,15 @@
 			<if test="selpchCd != null and !selpchCd.equals('')">
 				AND SELPCH_CD = #{selpchCd}
 			</if>
+			GROUP BY CO_CD
+			
 			
 			UNION ALL
 			
 			SELECT
 				CO_CD,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0) AS SELL_AMT,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0) AS PCHS_AMT
+				SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0)) AS SELL_AMT,
+				SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0)) AS PCHS_AMT
 			FROM
 				TB_AR11M01 E
 			WHERE
@@ -182,6 +203,9 @@
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
 				<![CDATA[ AND ETRDPS_DT < #{trstDtFrom} ]]>
 			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND CLNT_CD = #{clntCd}
+			</if>				
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 			</if>	
@@ -191,6 +215,7 @@
 			<if test="selpchCd != null and !selpchCd.equals('')">
 				AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
 			</if>
+			GROUP BY CO_CD
 		)
 		SELECT
 			*
@@ -213,6 +238,7 @@
 					(
 						SELECT
 							CO_CD,
+							0 AS CLNT_CD,
 							'' AS CLNT_NM,
 							TO_CHAR(TO_DATE(#{trstDtFrom}, 'YYYYMMDD') -1, 'YYYY-MM-DD') AS TRST_DT,
 							'이월' AS SELPCH_NM,
@@ -232,6 +258,7 @@
 				
 						SELECT
 							CO_CD,
+							CLNT_CD,
 							CLNT_NM,
 							TRST_DT,
 							SELPCH_NM,
@@ -253,6 +280,7 @@
 						SELECT
 							2 SEQ,
 							MAX(CO_CD),
+							0,
 							'일계',
 							TRST_DT,
 							'합계' xxx,
@@ -277,6 +305,7 @@
 						SELECT
 							3 SEQ,
 							MAX(CO_CD),
+							0,
 							'월계',
 							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM'),
 							'합계' xxx,
@@ -300,7 +329,8 @@
 					DECODE(LENGTH(TRST_DT), 10, TRST_DT, TO_CHAR(LAST_DAY(TO_DATE(TRST_DT, 'YYYY-MM')), 'YYYY-MM-DD')),
 					TRST_SEQ,
 					SEQ,
-					CLNT_NM
+					CLNT_NM,
+					CLNT_CD
 			)A
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
