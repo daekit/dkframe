@@ -43,12 +43,12 @@
 							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG05_AMT,
 							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0)) AS CDTLN_AMT
 			        FROM TB_BM02M01 A
-						LEFT OUTER JOIN TB_BM02D02 B
+						INNER JOIN TB_BM02D02 B
 					             ON  B.CLNT_CD = A.CLNT_CD 
 					             AND B.USE_YN = 'Y'
 <!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
 					             <if test="coCd !=null and !coCd.equals('')">
-				     	         AND B.CO_CD = #{coCd} 
+				     	          AND B.CO_CD = #{coCd} 
 					            </if>
 					WHERE 1=1
 					<if test="useYn != null and !useYn.equals('')">
@@ -63,6 +63,12 @@
 					<if test="clntDivCd !=null and !clntDivCd.equals('')">
 					  AND A.CLNT_DIV_CD = #{clntDivCd} 
 					</if>
+					<if test="pldgDivCd !=null and !pldgDivCd.equals('')">
+					  AND B.PLDG_DIV_CD = #{pldgDivCd} 
+					</if>
+					<if test="selpchCd !=null and !selpchCd.equals('')">
+					  AND B.SELPCH_CD = #{selpchCd} 
+					</if>
 					GROUP BY A.USE_YN,
 						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
 							B.CO_CD,
@@ -73,6 +79,7 @@
 				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
 	         WHERE TOT_LOAN_AMT != 0
+	         AND CDTLN_AMT  != 0
 			 ORDER BY a.LINK_GRP_CLNT_NM 
 		
 		
@@ -124,8 +131,8 @@
 							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG05_AMT,
 							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0)) AS CDTLN_AMT
 			        FROM TB_BM02M01 A
-						LEFT OUTER JOIN TB_BM02D02 B
-					             ON  B.CLNT_CD = A.CLNT_CD 
+						INNER JOIN TB_BM02D02 B
+					             ON  B.CLNT_CD = A.CLNT_CD
 					             AND B.USE_YN = 'Y'
 <!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
 					             <if test="coCd !=null and !coCd.equals('')">
@@ -134,7 +141,7 @@
 					WHERE 1=1
 					<if test="useYn != null and !useYn.equals('')">
 					  AND A.USE_YN = #{useYn}
-					</if>
+					</if> 
 					<if test="clntCdS != null and !clntCdS.equals('')">
 					  AND A.CLNT_CD = #{clntCdS}
 					</if>
@@ -143,6 +150,12 @@
 					</if>
 					<if test="clntDivCd !=null and !clntDivCd.equals('')">
 					  AND A.CLNT_DIV_CD = #{clntDivCd} 
+					</if>
+					<if test="pldgDivCd !=null and !pldgDivCd.equals('')">
+					  AND B.PLDG_DIV_CD = #{pldgDivCd} 
+					</if>
+					<if test="selpchCd !=null and !selpchCd.equals('')">
+					  AND B.SELPCH_CD = #{selpchCd} 
 					</if>
 					GROUP BY A.USE_YN,
 						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
@@ -154,6 +167,7 @@
 				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
 	         WHERE TOT_LOAN_AMT != 0
+	         AND CDTLN_AMT  != 0
 			 ORDER BY a.LINK_GRP_CLNT_NM 
 		)
 		WHERE  RNUM BETWEEN #{firstIndex} AND #{lastIndex}
@@ -229,8 +243,8 @@
 				  INNER JOIN TB_BM02M01 BM02
 				          ON BM02.CLNT_CD = A.CLNT_CD 
 				 WHERE 1 = 1
-				<if test="useYn != null and !useYn.equals('')">
-				   AND A.PROC_DTTM   = #{procDttm}
+				<if test="startDt != null and !startDt.equals('') and  endDt != null and !endDt.equals('')" >
+				   AND A.PROC_DTTM  BETWEEN TO_DATE( #{startDt},'YYYYMMDD') AND TO_DATE( #{endDt},'YYYYMMDD') +1
 				</if>				
 				<if test="chgCd != null and !chgCd.equals('')">   
 				   AND A.CHG_CD      = #{chgCd}
@@ -306,7 +320,7 @@
 				          ON BM02.CLNT_CD = A.CLNT_CD 
 				 WHERE 1 = 1
 				<if test="startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
-				   AND A.PROC_DTTM  BETWEEN TO_DATE(#{startDt},'YYYY-MM-DD') AND TO_DATE(#{endDt},'YYYY-MM-DD')+1
+				   AND A.PROC_DTTM  BETWEEN TO_DATE(#{startDt},'YYYYMMDD') AND TO_DATE(#{endDt},'YYYYMMDD')+1
 				</if>				
 				<if test="chgCd != null and !chgCd.equals('')">   
 				   AND A.CHG_CD      = #{chgCd}

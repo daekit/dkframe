@@ -171,19 +171,20 @@
 						columns : [ 
 							{key : "stokSeq", label : "시퀀스", align : "center", width : 100, hidden : "true"}, 
 							{key : "coNm", label : "출고회사", align : "center", width : 100, hidden : "true" }, 
+							{key : "listGb", label : "구분", align : "center", width : 45}, 
 							{key : "whNm", label : "출고지", align : "center", width : 90}, 
 							{key : "ownerNm", label : "주체", align : "center", width : 50}, 
 							{key : "typNm", label : "유형", align : "center", width : 50}, 
 							{key : "prjctNm", label : "프로젝트", align : "left", width : 100}, 
 							{key : "trstClntNm", label : "거래처", align : "left", width : 100}, 
-							{key : "trstPrdtNm", label : "제품", align : "left", width : 160}, 
+							{key : "trstPrdtNm", label : "제품", align : "left", width : 140}, 
 							{key : "prdtSpec", label : "스펙", align : "left", width : 70}, 
-							{key : "prdtSize", label : "사이즈", align : "left", width : 80}, 
+							{key : "prdtSize", label : "사이즈", align : "left", width : 60}, 
 							{key : "prdtLen", label : "길이", align : "left", width : 60}, 
 							{key : "realTrstQty", label : "입고 수량", align : "right", width : 100, formatter : "money"}, 
 							{key : "realTrstWt", label : "입고 중량(KG)", align : "right", width : 100, formatter : "money"}, 
-							{key : "moveQty", label : "이동 수량", align : "right", width : 120, formatter : "money", editor : {type : "text"}, styleClass : "grid-cell-blue"}, 
-							{key : "moveWt", label : "이동 중량(KG)", align : "right", width : 120, formatter : "money"}, 
+							{key : "moveQty", label : "이동 수량", align : "right", width : 100, formatter : "money", editor : {type : "text"}, styleClass : "grid-cell-blue"}, 
+							{key : "moveWt", label : "이동 중량(KG)", align : "right", width : 100, formatter : "money"}, 
 							{key : "prdtCnvrsnWt", label : "변환중량", align : "right", width : 120, formatter : "money", hidden : true}, 
 							{key : "realTrstAmt", label : "단가", hidden : true}, 
 							{key : "prjctCd", label : "프로젝트", hidden : true}, 
@@ -210,22 +211,19 @@
 				"prjctNm" : $("#prjctNm_S").val(),
 				"pageNo" : _pageNo + 1
 			}
-			postAjax(
-					"/user/sm/sm02/selectStockTernKeykMovePchList",
-					formData,
-					null,
+			postAjax("/user/sm/sm02/selectStockTernKeykMovePchList",formData,null,
 					function(data) {
 						var list = data.smsmDtlList;
 						searchGrid
-								.setData({
-									list : list,
-									page : {
-										currentPage : _pageNo,
-										pageSize : data.paginationInfo.pageSize,
-										totalElements : data.paginationInfo.totalRecordCount,
-										totalPages : data.paginationInfo.totalPageCount
-									}
-								});
+						.setData({
+							list : list,
+							page : {
+								currentPage : _pageNo,
+								pageSize : data.paginationInfo.pageSize,
+								totalElements : data.paginationInfo.totalRecordCount,
+								totalPages : data.paginationInfo.totalPageCount
+							}
+						});
 					});
 		}
 	}
@@ -244,9 +242,19 @@
 			language : "ko",
 			autoclose : true
 		});
-
+	
 		findWhType(); // 기본 창고 유형  Set
 		authChk();
+		
+		console.log('@@@@@gridView1 : ', gridView1);
+		var list = gridView1.target.list;
+		console.log('@@@@@gridView1.target.list : ', gridView1.target);
+		for(var i=0;i<list.length;i++){
+			console.log('@@@@@list[i] : ', list[i]);
+			list[i].realTrstQty = list[i].realTrstQty
+			list[i].moveWt = list[i].moveQty * list[i].prdtCnvrsnWt
+		}
+		
 
 	})
 	//출고, 입고지 set
