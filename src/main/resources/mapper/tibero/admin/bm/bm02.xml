@@ -190,7 +190,12 @@
 						AND A.LINK_GRP_CLNT_CD =  #{linkGrpClntCd}
 					</if>
 				</where>
-				ORDER BY A.LINK_GRP_CLNT_CD, A.CLNT_CD
+				<if test="sortType != null and !sortType.equals('')">
+					ORDER BY NVL(A.UDT_DTTM, A.CREAT_DTTM) DESC, A.LINK_GRP_CLNT_CD, A.CLNT_CD
+				</if>
+				<if test="sortType = null and sortType.equals('')">
+					ORDER BY A.LINK_GRP_CLNT_CD, A.CLNT_CD
+				</if>
 			) T
 				<where>
 					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
