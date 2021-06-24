@@ -1,4 +1,4 @@
-<div id="odViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+<div id="ordrgView" class="popup_area of_a" style="width: 100%; height: 100%;">
 	<div class="tit_contents">
 		<h4 class="tit">발주서 조회</h4>
 	</div>
@@ -337,17 +337,17 @@
 			<tr>
 				<th>첨부파일</th>
 				<td>
-					<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
+					<div data-ax5grid="ordrg-file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
 				</td>
 			</tr>
 		</table>
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button id="actionBtn" authchk></button>
-		<button id="ordrgYnBtnP" style="display: none;" onclick="updateConfirm('P');" authchk>매입확정</button>
-		<button id="ordrgYnBtnS" style="display: none;" onclick="updateConfirm('S');" authchk>매출확정</button>
-		<button id="ordrgYnBtnA" style="display: none;" onclick="updateConfirm('A');" authchk>일괄확정</button>
+		<button id="actionBtn" onclick="updateOrderModal();" authchk>수정</button>
+		<button id="ordrgYnBtnP" onclick="updateConfirm('P');" authchk>매입확정</button>
+		<button id="ordrgYnBtnS" onclick="updateConfirm('S');" authchk>매출확정</button>
+		<button id="ordrgYnBtnA" onclick="updateConfirm('A');" authchk>일괄확정</button>
 <!-- 		<button id="cancelBtnP" onclick="updateCancel('P');" style="background-color: red;" authchk>매입취소</button> -->
 		<button id="cancelBtnS" onclick="updateCancel('S');" style="background-color: red;" authchk>매출취소</button>
 		<button id="cancelBtnA" onclick="updateCancel('A');" style="background-color: red;" authchk>일괄취소</button>
@@ -356,12 +356,12 @@
 </div>
 <script type="text/javascript">
 	var targetRow = null;
-	var fileArr = [];
-	var fileGridView = {
+	var ordrgFileArr = [];
+	var ordrgFileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
-				target: $('[data-ax5grid="file-grid"]'),
+				target: $('[data-ax5grid="ordrg-file-grid"]'),
 				showLineNumber: true,
 				showRowSelector: false,
 	        	multipleSelect: false,
@@ -384,9 +384,9 @@
 		setData : function() {
 			var targetObj = this.target;
 			targetObj.setData({
-				list: fileArr,
+				list: ordrgFileArr,
 				page : {
-					totalElements : fileArr.length
+					totalElements : ordrgFileArr.length
 				}
 			});
 		}
@@ -394,33 +394,19 @@
 	
 	$(document).ready(function() {
 		// 파일 그리드 초기화
-		fileGridView.initView();
-		
-		selectOrderInfo();
-		
-		if( openFrom == "SD0502P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
-			$("#actionBtn").hide();
-			$("#ordrgYnBtnP").hide();
-			$("#ordrgYnBtnS").hide();
-			$("#ordrgYnBtnA").hide();
-		}else{
-			$('#actionBtn').on("click", function(){updateOrderModal(modalStack.last().paramObj.ordrgSeq);});
-			$('#actionBtn').text("수정");
- 			$("#ordrgYnBtnP").show();
-			$("#ordrgYnBtnS").show();
-			$("#ordrgYnBtnA").show();
-		}
+		ordrgFileGridView.initView();
+		selectOrdrgInfo();
 		authChk();
 	});
 	
-	function selectOrderInfo() {
+	function selectOrdrgInfo() {
     	var paramObj = modalStack.last().paramObj;
-		postAjax("/user/od/od01/selectOrderInfo", paramObj, null, function(data){
-			setOrderInfo(data.result);
+		postAjax("/user/od/od01/selectOrdrgInfo", paramObj, null, function(data){
+			setOrdrgInfo(data.result);
 		});
 	}
 	
-	function setOrderInfo(obj) {
+	function setOrdrgInfo(obj) {
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
@@ -428,10 +414,10 @@
 		// 메인정보 세팅
 		$.each(orderInfo, function(key, value){
 			var itemValue = value;
-			if($('#'+key).is('[comma]')){
+			if($('#ordrgView #'+key).is('[comma]')){
 				itemValue = addCommaStr(itemValue);
 			}
-			$('#'+key).val(itemValue);
+			$('#ordrgView #'+key).val(itemValue);
 		});
 		
 		// 상세정보 세팅
@@ -448,22 +434,17 @@
 					if(elem.name == "ordrgYn" && itemValue == 'N') { //red
 						$(elem).css({"color": "red"});
 					}
-					if($("#dirtrsYn").val() == "Y" && elem.name == "shipYn" && itemValue == 'N') { //red
+					if($("#ordrgView #dirtrsYn").val() == "Y" && elem.name == "shipYn" && itemValue == 'N') { //red
 						$(elem).css({"color": "red"});
 					}
 				}
 			});
-			
-// 			if(obj.ordrgYn == "Y" && obj.shipYn == "Y") {
-// 				$addedRow.find('input[name="detailChkBox"]').prop("checked", true);
-// 				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-// 			}
 		});
 		countTot();
 		
 		// 첨부파일 set
 		$.each(fileInfo, function(idx, obj){
-			fileArr.push({
+			ordrgFileArr.push({
 				'fileKey' : obj.fileKey,
 		      	'fileName' : obj.fileName,
 		      	'fileType' : obj.fileType,
@@ -472,48 +453,57 @@
 			});
 		});
 		// 첨부파일 그리드 set
-		fileGridView.setData();
+		ordrgFileGridView.setData();
 		
 // 		// 매입확정된 상세가 없을경우 취소버튼 hide
 // 		if(orderInfo.confirmCntP == 0){
 // 			$("#cancelBtnP").hide();
-// 		}		
+// 		}
+
 		// 직송이 아니거나 매출 확정된 상세가 없을경우 취소버튼 hide
-		if(orderInfo.confirmCntS == 0 || $("#dirtrsYn").val() == 'N'){
-			$("#cancelBtnS").hide();
+		if(orderInfo.confirmCntS == 0 || $("#ordrgView #dirtrsYn").val() == 'N'){
+			$("#ordrgView #cancelBtnS").hide();
 		}
 		// 매임/매출 확정된 상세가 없을경우 전체 취소버튼 hide
 		if(orderInfo.confirmCntS == 0 && orderInfo.confirmCntP == 0){
-			$("#cancelBtnA").hide();
+			$("#ordrgView #cancelBtnA").hide();
 		}	
 		
 		// 전체 매입확정시 확정  hide
 		if(orderInfo.ordrgYn == "Y") {
-			$("#ordrgYnBtnP").hide();
-			$("#ordrgYnBtnA").hide();
+			$("#ordrgView #ordrgYnBtnP").hide();
+			$("#ordrgView #ordrgYnBtnA").hide();
 		}
 		// 직송이 아니거나 전체 매출확정시 확정  hide
-		if(orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N') {
-			$("#ordrgYnBtnS").hide();
+		if(orderInfo.shipYn  == "Y" || $("#ordrgView #dirtrsYn").val() == 'N') {
+			$("#ordrgView #ordrgYnBtnS").hide();
 		}
 		
 		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
-		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#dirtrsYn").val() == 'N')) {
-			$("#ordrgYnBtnA").hide();
-			$("#actionBtn").hide();   // 수정버턴
+		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#ordrgView #dirtrsYn").val() == 'N')) {
+			$("#ordrgView #ordrgYnBtnA").hide();
+			$("#ordrgView #actionBtn").hide();   // 수정버턴
 		}
 		
 	}
 	
 	function addDetailRow() {
-		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
-		$('#detailTable tbody').append($detailRow[0]);
+		var $detailRow = $('#ordrgView #frameTable tr[name="detailRow"]').clone();
+		$('#ordrgView #detailTable tbody').append($detailRow[0]);
 		return $detailRow;
+	}
+	
+	function ctrlDetailChkBox(elem){
+		if($(elem).is(':checked')){
+			$('#ordrgView #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
+		}else{
+			$('#ordrgView #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+		}
 	}
 	
 	function ctrlAllChkBox(){
 		var isAllChk = true;
-		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
+		var $detailChkBoxes = $('#ordrgView #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
 		if($detailChkBoxes.length > 0){
 			$.each($detailChkBoxes, function(idx, elem){
 				if(!$(elem).is(':checked')){
@@ -521,20 +511,12 @@
 				}
 			});
 			if(isAllChk){
-				$('#allChkBox').prop("checked", true);
+				$('#ordrgView #allChkBox').prop("checked", true);
 			}else{
-				$('#allChkBox').prop("checked", false);
+				$('#ordrgView #allChkBox').prop("checked", false);
 			}
 		}else{
-			$('#allChkBox').prop("checked", false);
-		}
-	}
-	
-	function ctrlDetailChkBox(elem){
-		if($(elem).is(':checked')){
-			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
-		}else{
-			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+			$('#ordrgView #allChkBox').prop("checked", false);
 		}
 	}
 	
@@ -545,7 +527,7 @@
 		var totShipAmt = 0;
 		var totEpctPal = 0;
 		
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val()));
 			var ordrgWt  = Number(deleteCommaStr($(elem).find('input[name="ordrgWt"]').val()));
 			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val()));
@@ -559,15 +541,15 @@
 			totEpctPal  += epctPal; 
 		});
 		
-		$('#totQty').val(addCommaStr(totOrdrgQty));
-		$('#totWt').val(addCommaStr(totOrdrgWt));
-		$('#totAmt').val(addCommaStr(totOrdrgAmt));
-		$('#totShipAmt').val(addCommaStr(totShipAmt));
-		$('#totEpctPal').val(addCommaStr(totEpctPal));
+		$('#ordrgView #totQty').val(addCommaStr(totOrdrgQty));
+		$('#ordrgView #totWt').val(addCommaStr(totOrdrgWt));
+		$('#ordrgView #totAmt').val(addCommaStr(totOrdrgAmt));
+		$('#ordrgView #totShipAmt').val(addCommaStr(totShipAmt));
+		$('#ordrgView #totEpctPal').val(addCommaStr(totEpctPal));
 	}
 	
 	function downloadFile(idx) {
-		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": ordrgFileArr[idx].fileKey}, null, function(data){
 			var fileInfo = data.fileInfo;
 			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
@@ -589,7 +571,7 @@
 		var checkCount = 0;
 		var checkCountP = 0;
 		var checkCountS = 0;
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && ($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "N")) {
 				checkCount++;
 			}
@@ -619,7 +601,7 @@
 		
 		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
 		var mngPrdtLen = ''; 
-		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		if($('#ordrgView #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
 		formData.mngPrdtLen = mngPrdtLen;
 
 		putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
@@ -636,7 +618,7 @@
 		var checkCountChk  = 0;
 		var checkCountP = 0;
 		var checkCountS = 0;
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") || $(elem).find("input[name='ordrgYn']").val() == "Y"
 				                                                         || $(elem).find("input[name='shipYn']").val() == "Y") {
 				checkCount++;
@@ -680,7 +662,7 @@
 
 		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
 		var mngPrdtLen = ''; 
-		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		if($('#ordrgView #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
 		formData.mngPrdtLen = mngPrdtLen
 		
 		putAjax("/user/od/od01/updateCancel", formData, null, function(data){
@@ -694,19 +676,19 @@
 	
 	function makeFormData(type) {
 		//콤마 제거
-		$.each($('.popup_area input[comma]'), function(idx, elem){
+		$.each($('#ordrgView input[comma]'), function(idx, elem){
 			deleteComma(elem);
 		});
 		
 		// 폼데이터 생성
-		var formData = $("#popForm").serializeObject();
+		var formData = $("#ordrgView #popForm").serializeObject();
 		
 		// 유저아이디 추가
 		formData.userId = jwt.userId;
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if(type == "CONFIRM") {
 				if($(elem).find("input[name='detailChkBox']").is(":checked") ) {  //&& $(elem).find("input[name='ordrgYn']").val() == "N"
 					var detailObj = {};

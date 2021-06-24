@@ -434,7 +434,7 @@
 				"odrSeq": $('#odrSeq').val()
 			};
 			
-			postAjax("/user/od/od01/selectOrderList", paramObj, null, function(data){
+			postAjax("/user/od/od01/selectOrdrgList", paramObj, null, function(data){
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -670,7 +670,7 @@
 	function openInsertOrdrg(){
 		var paramObj = orderSequenceSet();
 		if(paramObj){
-			actionType = "O";
+			paramObj.actionType = "O";
 			modalStack.close();
 			setTimeout(function(){
 				openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 800, "", paramObj);
@@ -682,7 +682,7 @@
 	function openInsertShip(){
 		var paramObj = orderSequenceSet();
 		if(paramObj){
-			actionType = "O";
+			paramObj.actionType = "O";
 			modalStack.close();
 			setTimeout(function(){
 				openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 800, "", paramObj);
@@ -692,10 +692,14 @@
 	
 	// 수정
 	function openUpdateOrder(){
-		actionType = "U";
+		var paramObj = {
+			"actionType": "U",
+			"odrSeq": $('#odrSeq').val()
+		};
 		modalStack.close();
-		var paramObj = {"odrSeq": $('#odrSeq').val()};	
-		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1300, 800, "", paramObj);
+		setTimeout(function(){
+			openModal("/static/html/user/sd/sd04/SD0402P01.html", 1300, 800, "", paramObj);
+		}, 500);
 	}
 	
 	// odrSeq, odrDtlSeq set

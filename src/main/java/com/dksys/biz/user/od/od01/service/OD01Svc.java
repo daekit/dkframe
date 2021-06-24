@@ -7,28 +7,28 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 public interface OD01Svc {
 
-	int insertOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
-
-	int selectOrderCount(Map<String, String> paramMap);
+	int selectOrdrgCount(Map<String, String> paramMap);
 	
-	int selectOrderDetailCount(Map<String, String> paramMap);
-
-	List<Map<String, String>> selectOrderList(Map<String, String> paramMap);
+	List<Map<String, String>> selectOrdrgList(Map<String, String> paramMap);
 	
-	List<Map<String, String>> selectOrderDetailList(Map<String, String> paramMap);
+	Map<String, Object> selectOrdrgInfo(Map<String, String> paramMap);
 	
-	int deleteOrder(Map<String, String> paramMap);
-
-	Map<String, Object> selectOrderInfo(Map<String, String> paramMap);
+	int selectOrdrgDetailCount(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectOrdrgDetailList(Map<String, String> paramMap);
 	
 	Map<String, Object> getOrderInfo(Map<String, Object> paramMap);
-
-	int updateOrder(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
-
-	int updateConfirm(Map<String, String> paramMap);
-
+	
 	int selectConfirmCount(Map<String, String> paramMap);
 	
-	int updateCancel(Map<String, String> paramMap);
+	int insertOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+	
+	int updateOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+	
+	int deleteOrdrg(Map<String, String> paramMap);
+	
+	int updateConfirm(Map<String, String> paramMap);
 
+	int updateCancel(Map<String, String> paramMap);
+	
 }
