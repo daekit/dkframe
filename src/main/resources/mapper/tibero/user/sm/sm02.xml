@@ -150,55 +150,83 @@
 			   SELECT
 						ROWNUM AS RNUM, D.*
 				FROM(		
-					SELECT A.TRST_CERTI_NO
-							, A.CO_CD
-							, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
-							, A.WH_CD
-							, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
-							, A.MAKR_CD
-							, A.OWNER_CD
-							, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
-							, A.TYP_CD
-							, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
-							, A.SELPCH_CD
-							, A.PRJCT_CD
-							, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
-							, A.TRST_CLNT_CD
-							,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
-							, A.TRST_PRDT_CD
-							,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
-							, A.PRDT_SPEC
-							, A.PRDT_LEN
-							, A.PRDT_SIZE
-							, A.TRST_DT
-							, A.IMP_YN
-							, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
-							, A.TRSP_TYP_CD  
-							, A.TRST_RPRC_SEQ
-							, A.TRST_DTL_SEQ
-							, A.REAL_TRST_QTY 
-							, A.REAL_TRST_WT
-							, A.REAL_TRST_UPR
-							, A.REAL_TRST_AMT
-							, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
-					FROM TB_AR02M01 A
-						LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
-					WHERE A.SELPCH_CD = 'SELPCH1'
-						AND A.TYP_CD = 'SELLTYPE2'
-						AND A.PRJCT_CD IS NOT NULL
+					SELECT T1.* 
+					FROM
+					(SELECT 
+						'TYPE2' AS T_TYPE
+						, A.CO_CD
+						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+						, A.WH_CD
+						, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+						, A.MAKR_CD
+						, A.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+						, A.TYP_CD
+						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+						, A.SELPCH_CD
+						, A.PRJCT_CD
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+						, A.TRST_CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
+						, A.TRST_PRDT_CD
+						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
+						, A.PRDT_SPEC
+						, A.PRDT_LEN
+						, A.PRDT_SIZE
+						, A.IMP_YN
+						, A.REAL_TRST_QTY 
+						, A.REAL_TRST_WT
+						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+						, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+						FROM TB_AR02M01 A
+							LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
+						WHERE A.SELPCH_CD = 'SELPCH1'
+							AND A.TYP_CD = 'SELLTYPE2'
+							AND A.PRJCT_CD IS NOT NULL
+					UNION ALL
+					SELECT
+						'TYPE2' AS T_TYPE
+						, B.IN_CO_CD AS CO_CD
+						, FN_CM05M01_CD_TO_NM(B.IN_CO_CD) AS CO_NM
+						, B.IN_WH_CD
+						, FN_CM05M01_CD_TO_NM(B.IN_WH_CD) WH_NM
+						, B.MAKR_CD
+						, B.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(B.OWNER_CD) AS OWNER_NM
+						, B.IN_TYP_CD AS TYP_CD
+						, FN_CM05M01_CD_TO_NM(B.TYP_CD) AS TYP_NM
+						, B.IN_TYP_CD AS SELPCH_CD
+						, B.IN_PRJCT_CD AS PRJCT_CD
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = B.IN_PRJCT_CD ) AS PRJCT_NM
+						, B.CLNT_CD AS TRST_CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 TT1 WHERE TT1.CLNT_CD = B.CLNT_CD) AS TRST_CLNT_NM
+						, B.IN_PRDT_CD AS TRST_PRDT_CD
+						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = B.IN_PRDT_CD) AS TRST_PRDT_NM
+						, B.IN_PRDT_SPEC
+						, B.IN_PRDT_LEN
+						, B.IN_PRDT_SIZE
+						, B.IMP_YN
+						, B.MOVE_WT AS REAL_TRST_QTY 
+						, B.MOVE_QTY AS REAL_TRST_WT
+						, FN_CM05M01_CD_TO_NM(B.IMP_YN) AS IMP_NM
+						, E.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+						FROM TB_SM02M01 B
+							LEFT JOIN TB_BM01M01 E ON B.IN_PRDT_CD = E.PRDT_CD
+						WHERE B.TYP_CD = 'SELLTYPE2') T1
+						WHERE 1 = 1
 						<if test="coCd != null and !coCd.equals('')">
-							AND A.CO_CD = #{coCd}
+							AND CO_CD = #{coCd}
 						</if>
 						<if test="whCd != null and !whCd.equals('')">
-							AND A.WH_CD = #{whCd}
+							AND WH_CD = #{whCd}
 						 </if>
 						 <if test="trstClntCd != null and !trstClntCd.equals('')">
-							AND A.TRST_CLNT_CD = #{trstClntCd}
+							AND TRST_CLNT_CD = #{trstClntCd}
 						</if>
 					     <if test="prjctCd != null and !prjctCd.equals('')">
-							AND A.PRJCT_CD = #{prjctCd}
+							AND PRJCT_CD = #{prjctCd}
 						</if>
-						ORDER BY A.TRST_CERTI_NO DESC
+						ORDER BY TRST_PRDT_NM DESC
 			) D
 			WHERE 1 = 1 
 		     <if test="prjctNm != null and !prjctNm.equals('')">
@@ -216,55 +244,91 @@
 				SELECT
 						ROWNUM AS RNUM, D.*
 				FROM(		
-					SELECT A.TRST_CERTI_NO
-							, A.CO_CD
-							, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
-							, A.WH_CD
-							, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
-							, A.MAKR_CD
-							, A.OWNER_CD
-							, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
-							, A.TYP_CD
-							, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
-							, A.SELPCH_CD
-							, A.PRJCT_CD
-							, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
-							, A.TRST_CLNT_CD
-							,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
-							, A.TRST_PRDT_CD
-							,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
-							, A.PRDT_SPEC
-							, A.PRDT_LEN
-							, A.PRDT_SIZE
-							, A.TRST_DT
-							, A.IMP_YN
-							, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
-							, A.TRSP_TYP_CD  
-							, A.TRST_RPRC_SEQ
-							, A.TRST_DTL_SEQ
-							, A.REAL_TRST_QTY 
-							, A.REAL_TRST_WT
-							, A.REAL_TRST_UPR
-							, A.REAL_TRST_AMT
-							, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
-					FROM TB_AR02M01 A
-						LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
-					WHERE A.SELPCH_CD = 'SELPCH1'
-						AND A.TYP_CD = 'SELLTYPE2'
-						AND A.PRJCT_CD IS NOT NULL
+					SELECT T1.* 
+					FROM
+					(SELECT 
+						'TYPE2' AS T_TYPE
+						,'매입' AS LIST_GB
+						, A.CO_CD
+						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+						, A.WH_CD
+						, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+						, A.MAKR_CD
+						, A.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+						, A.TYP_CD
+						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+						, A.SELPCH_CD
+						, A.PRJCT_CD
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+						, A.TRST_CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
+						, A.TRST_PRDT_CD
+						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
+						, A.PRDT_SPEC
+						, A.PRDT_LEN
+						, A.PRDT_SIZE
+						, A.IMP_YN
+						, A.REAL_TRST_QTY 
+						, A.REAL_TRST_WT
+						, ABS(A.REAL_TRST_QTY) AS MOVE_QTY
+						, ABS(A.REAL_TRST_WT) AS MOVE_WT
+						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+						, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+						, TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD HH24:MI') AS UDT_DTTM
+						FROM TB_AR02M01 A
+							LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
+						WHERE A.SELPCH_CD = 'SELPCH1'
+							AND A.TYP_CD = 'SELLTYPE2'
+							AND A.PRJCT_CD IS NOT NULL
+					UNION ALL
+					SELECT
+						'TYPE2' AS T_TYPE
+						,'이동' AS LIST_GB
+						, B.IN_CO_CD AS CO_CD
+						, FN_CM05M01_CD_TO_NM(B.IN_CO_CD) AS CO_NM
+						, B.IN_WH_CD
+						, FN_CM05M01_CD_TO_NM(B.IN_WH_CD) WH_NM
+						, B.MAKR_CD
+						, B.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(B.OWNER_CD) AS OWNER_NM
+						, B.IN_TYP_CD AS TYP_CD
+						, FN_CM05M01_CD_TO_NM(B.TYP_CD) AS TYP_NM
+						, B.IN_TYP_CD AS SELPCH_CD
+						, B.IN_PRJCT_CD AS PRJCT_CD
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = B.IN_PRJCT_CD ) AS PRJCT_NM
+						, B.CLNT_CD AS TRST_CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 TT1 WHERE TT1.CLNT_CD = B.CLNT_CD) AS TRST_CLNT_NM
+						, B.IN_PRDT_CD AS TRST_PRDT_CD
+						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = B.IN_PRDT_CD) AS TRST_PRDT_NM
+						, B.IN_PRDT_SPEC
+						, B.IN_PRDT_LEN
+						, B.IN_PRDT_SIZE
+						, B.IMP_YN
+						, B.MOVE_WT AS REAL_TRST_QTY 
+						, B.MOVE_QTY AS REAL_TRST_WT
+						, ABS(B.MOVE_QTY) AS MOVE_QTY
+						, ABS(B.MOVE_WT) AS MOVE_WT
+						, FN_CM05M01_CD_TO_NM(B.IMP_YN) AS IMP_NM
+						, E.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+						, TO_CHAR(B.UDT_DTTM, 'YYYY-MM-DD HH24:MI') AS UDT_DTTM
+						FROM TB_SM02M01 B
+							LEFT JOIN TB_BM01M01 E ON B.IN_PRDT_CD = E.PRDT_CD
+						WHERE B.TYP_CD = 'SELLTYPE2') T1
+						WHERE 1 = 1
 						<if test="coCd != null and !coCd.equals('')">
-							AND A.CO_CD = #{coCd}
+							AND CO_CD = #{coCd}
 						</if>
 						<if test="whCd != null and !whCd.equals('')">
-							AND A.WH_CD = #{whCd}
+							AND WH_CD = #{whCd}
 						 </if>
 						 <if test="trstClntCd != null and !trstClntCd.equals('')">
-							AND A.TRST_CLNT_CD = #{trstClntCd}
+							AND TRST_CLNT_CD = #{trstClntCd}
 						</if>
 					     <if test="prjctCd != null and !prjctCd.equals('')">
-							AND A.PRJCT_CD = #{prjctCd}
+							AND PRJCT_CD = #{prjctCd}
 						</if>
-						ORDER BY A.TRST_CERTI_NO DESC
+						ORDER BY TRST_PRDT_NM DESC
 			) D
 			WHERE 1 = 1 
 		     <if test="prjctNm != null and !prjctNm.equals('')">
@@ -980,15 +1044,21 @@
 			#{whCd},
 			#{prjctCd},
             #{trstPrdtCd}, 
-		    #{prdtSize},
 			#{prdtSpec},
+		    #{prdtSize},
 			#{prdtLen},
 			#{stockUpr},
 			#{stdUpr}, 
 			#{pchsUpr}, 
 			#{sellUpr},
+			<if test="typCd.equals('SELLTYPE1')">
 			#{moveQty},
 			#{moveWt},
+			</if>
+			<if test="typCd.equals('SELLTYPE2')">
+			#{moveQty} * -1,
+			#{moveWt} * -1,
+			</if>
 			#{sRmk},
 			#{userId}, 
 			#{pgmId}, 
