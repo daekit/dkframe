@@ -44,17 +44,21 @@
 		
 		SELECT TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
 		, PRDT_UPR, SELL_UPR, BASIS_PRICE_SEQ, PRDT_IMP_YN, PRDT_DIV, PRDT_DIV_NM 
+		, UDT_ID, UDT_NM, TO_CHAR(UDT_DTTM,'YYYY-MM-DD HH24:MI:SS') AS UDT_DTTM
 		from(
 			SELECT ROWNUM AS RNUM, A.*
+			      , (SELECT NAME FROM TB_CM06M01 WHERE ID = A.UDT_ID) AS UDT_NM
 			FROM (
 				select
 					max(PRDT_DT) AS PRDT_DT,
 					max(PRDT_UPR) AS PRDT_UPR,
 					MAX(SELL_UPR) AS SELL_UPR,
 					max(basis_price_seq) AS BASIS_PRICE_SEQ,
+					max(UDT_ID) AS UDT_ID,
+					max(UDT_DTTM) AS UDT_DTTM,
 					PRDT_IMP_YN,
-						  PRDT_DIV, 
-						  FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
+				    PRDT_DIV, 
+				    FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
 				from(
 					select
 						*
@@ -351,4 +355,232 @@
 		)
 	</update>
 	
+	<!--       거래처별 단가    -->
+	
+	<select id="selectUprClntCount" parameterType="Map" resultType="int">
+			SELECT count(*)
+			FROM TB_SD06M02 SD06
+					WHERE ( CLNT_CD,PRDT_IMP_YN, PRDT_DIV, PRDT_DT) IN (
+							SELECT  CLNT_CD,PRDT_IMP_YN, PRDT_DIV, MAX(TO_DATE(PRDT_DT, 'YYYYMMDD')) AS PRDT_DT
+							from TB_SD06M02 M02
+							WHERE SD06.CLNT_CD = M02.CLNT_CD
+							<if test="useYn != null and !useYn.equals('')">
+						  	  AND USE_YN = #{useYn}
+						  	</if>
+							<if test="tnkeyYn != null and !tnkeyYn.equals('')">
+						  	  AND TNKEY_YN = #{tnkeyYn}
+						  	</if>
+							<if test="prdtDt != null and !prdtDt.equals('')">
+							<![CDATA[
+							  AND TO_DATE(PRDT_DT, 'YYYYMMDD') <=  TO_DATE(#{prdtDt}, 'YYYYMMDD')  ]]>
+							</if>
+							 <if test="prdtImpYn != null and !prdtImpYn.equals('')">
+							  AND PRDT_IMP_YN = #{prdtImpYn}
+							</if>
+							<if test="prdtDiv != null and !prdtDiv.equals('')">
+							  AND PRDT_DIV = #{prdtDiv}
+							</if>
+							GROUP BY CLNT_CD, PRDT_IMP_YN, PRDT_DIV
+					)
+					<if test="clntCd != null and !clntCd.equals('')">
+					  AND  CLNT_CD = #{clntCd}
+					</if>
+					<if test="useYn != null and !useYn.equals('')">
+					  AND  USE_YN  = #{useYn}
+					</if>
+					<if test="prdtImpYn != null and !prdtImpYn.equals('')">
+					  AND PRDT_IMP_YN = #{prdtImpYn}
+					</if>
+					<if test="prdtDiv != null and !prdtDiv.equals('')">
+					  AND PRDT_DIV = #{prdtDiv}
+					</if>
+					<if test="tnkeyYn != null and !tnkeyYn.equals('')">
+					  AND TNKEY_YN = #{tnkeyYn}
+					</if>
+	</select>
+
+	 <select id="selectUprClntList" parameterType="Map" resultType="CamelMap">
+		
+		SELECT Z.CLNT_CD
+		    , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = Z.CLNT_CD) CLNT_NM 
+		    , Z.USE_YN
+		    , Z.TNKEY_YN
+		    , TO_CHAR(TO_DATE(PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
+			, Z.PRDT_UPR
+			, Z.SELL_UPR
+			, (SELECT MAX(M01.BASIS_PRICE_SEQ) FROM TB_SD06M01 M01 
+			    WHERE M01.PRDT_DT <![CDATA[<= ]]> #{prdtDt} 
+			      AND M01.PRDT_DIV = Z.PRDT_DIV AND M01.PRDT_IMP_YN = Z.PRDT_IMP_YN
+			      AND M01.SELPCH_CD = 'SELPCH2' ) AS BASIS_PRICE_SEQ
+			, Z.PRDT_IMP_YN
+			, Z.PRDT_DIV
+			, Z.PRDT_DIV_NM
+			, Z.CREAT_ID
+			, Z.CREAT_PGM
+			, Z.CREAT_DTTM
+			, Z.UDT_ID
+			, (SELECT NAME FROM TB_CM06M01 WHERE ID = Z.UDT_ID) AS UDT_NM
+			, Z.UDT_PGM
+			, TO_CHAR(Z.UDT_DTTM,'YYYY-MM-DD HH24:MI:SS') AS UDT_DTTM
+		FROM(
+			SELECT ROWNUM AS RNUM, A.*
+			FROM (
+				SELECT
+					PRDT_DT  AS PRDT_DT,
+    				PRDT_UPR AS PRDT_UPR,
+					SELL_UPR AS SELL_UPR,
+<!-- 					max(basis_price_seq) AS BASIS_PRICE_SEQ, -->
+                    CLNT_CD,
+                    USE_YN,
+                    TNKEY_YN,
+					PRDT_IMP_YN,
+				    PRDT_DIV, 
+					FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM,
+					CREAT_ID,
+					CREAT_PGM,
+					CREAT_DTTM,
+					UDT_ID,
+					UDT_PGM,
+					UDT_DTTM
+				from(
+					SELECT
+						*
+					FROM TB_SD06M02 SD06
+					WHERE ( CLNT_CD,PRDT_IMP_YN, PRDT_DIV, PRDT_DT) IN (
+							SELECT  CLNT_CD,PRDT_IMP_YN, PRDT_DIV, MAX(TO_DATE(PRDT_DT, 'YYYYMMDD')) AS PRDT_DT
+							from TB_SD06M02 M02
+							WHERE SD06.CLNT_CD = M02.CLNT_CD
+							<if test="useYn != null and !useYn.equals('')">
+						  	  AND USE_YN = #{useYn}
+						  	</if>
+							<if test="tnkeyYn != null and !tnkeyYn.equals('')">
+						  	  AND TNKEY_YN = #{tnkeyYn}
+						  	</if>
+							<if test="prdtDt != null and !prdtDt.equals('')">
+							<![CDATA[
+							  AND TO_DATE(PRDT_DT, 'YYYYMMDD') <=  TO_DATE(#{prdtDt}, 'YYYYMMDD')  ]]>
+							</if>
+							 <if test="prdtImpYn != null and !prdtImpYn.equals('')">
+							  AND PRDT_IMP_YN = #{prdtImpYn}
+							</if>
+							<if test="prdtDiv != null and !prdtDiv.equals('')">
+							  AND PRDT_DIV = #{prdtDiv}
+							</if>
+							GROUP BY CLNT_CD, PRDT_IMP_YN, PRDT_DIV
+					)
+					<if test="clntCd != null and !clntCd.equals('')">
+					AND  CLNT_CD = #{clntCd}
+					</if>
+					<if test="useYn != null and !useYn.equals('')">
+					AND  USE_YN  = #{useYn}
+					</if>
+					<if test="prdtImpYn != null and !prdtImpYn.equals('')">
+					 AND PRDT_IMP_YN = #{prdtImpYn}
+					</if>
+					<if test="prdtDiv != null and !prdtDiv.equals('')">
+					  AND PRDT_DIV = #{prdtDiv}
+					</if>
+					<if test="tnkeyYn != null and !tnkeyYn.equals('')">
+				  	  AND TNKEY_YN = #{tnkeyYn}
+				  	</if>
+					order by PRDT_DT, CLNT_CD DESC
+				) t
+<!-- 				group by T.CLNT_CD, T.USE_YN, t.PRDT_IMP_YN, t.PRDT_DIV -->
+			)A
+		) Z
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+		
+	
+	</select>
+	<select id= "selectOneMasterClntCount" parameterType="Map" resultType="int">
+		
+			SELECT
+				count(*)
+			FROM TB_SD06M02
+			WHERE  PRDT_IMP_YN = #{prdtImpYn}
+			  AND  CLNT_CD     = #{clntCd}
+			  AND  USE_YN      = #{useYn}
+			  AND  TNKEY_YN    = #{tnkeyYn}
+			<if test= "prdtDt != null and !prdtDt.equals('')">
+				AND PRDT_DT = #{prdtDt}
+			</if>
+				AND PRDT_DIV = #{prdtDiv}
+
+		
+	</select>	
+		<select id="seletOneMasterClnt" parameterType="Map" resultType="CamelMap">
+			SELECT  TO_CHAR(TO_DATE(SD06.PRDT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRDT_DT
+			      , SD06.PRDT_UPR
+			      , SD06.SELL_UPR
+			      , SD06.BASIS_PRICE_SEQ
+			      , SD06.PRDT_IMP_YN
+			      , SD06.PRDT_DIV
+			      , SD06.CLNT_CD
+			      , BM02.CLNT_NM
+			      , SD06.TNKEY_YN
+			      , SD06.USE_YN
+			FROM TB_SD06M02 SD06
+				 INNER JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = SD06.CLNT_CD
+			WHERE 
+<!-- 				BASIS_PRICE_SEQ = #{basisPriceSeq} -->
+		           SD06.CLNT_CD     = #{clntCd}
+			  AND  SD06.TNKEY_YN    = #{tnkeyYn}
+			  AND  SD06.PRDT_DT     = #{prdtDt}
+			  AND  SD06.PRDT_IMP_YN = #{prdtImpYn}
+			  AND  SD06.PRDT_DIV    = #{prdtDiv}
+				
+	</select>
+	
+	<update id= "insertOneMasterClnt" parameterType="Map">
+	
+		MERGE INTO TB_SD06M02
+		USING DUAL
+		ON (
+<!-- 			PRICE_SEQ = #{basisPriceSeq} -->
+			    CLNT_CD     = #{clntCd}
+			AND TNKEY_YN    = #{tnkeyYn}
+			AND PRDT_DT     = #{prdtDt} 
+<!-- 			AND SELPCH_CD   = #{selpchCd} -->
+			AND PRDT_IMP_YN = #{prdtImpYn}
+			AND PRDT_DIV    = #{prdtDiv}
+
+		)
+		WHEN MATCHED THEN 
+			UPDATE SET 
+<!-- 				  PRDT_IMP_YN = #{prdtImpYn}, -->
+<!-- 				  PRDT_DIV = #{prdtDiv}, -->
+			      USE_YN   = #{useYn},
+				  PRDT_UPR = #{prdtUpr},
+				  SELL_UPR = #{sellUpr},
+				  UDT_ID   = #{userId},
+				  UDT_PGM  = 'SD0602P02.html',
+				  UDT_DTTM = sysdate
+		WHEN NOT  MATCHED THEN 
+		INSERT 
+		 ( CLNT_CD,PRDT_DT, PRDT_IMP_YN, PRDT_DIV, PRDT_UPR, SELL_UPR, USE_YN,TNKEY_YN
+<!-- 		 , BASIS_PRICE_SEQ -->
+		 , CREAT_ID, CREAT_PGM, CREAT_DTTM, UDT_ID, UDT_PGM, UDT_DTTM) 
+		VALUES
+		(#{clntCd},#{prdtDt}, #{prdtImpYn}, #{prdtDiv}, #{prdtUpr}, #{sellUpr}, #{useYn}, #{tnkeyYn}
+<!-- 		,( SELECT MAX(BASIS_PRICE_SEQ) FROM TB_SD06M01 WHERE PRDT_IMP_YN = #{prdtImpYn} AND PRDT_DIV = #{prdtDiv}) -->
+		, #{userId}, #{pgmId}, sysdate,  #{userId}, #{pgmId}, sysdate);
+
+	</update>
+	
+		<update id= "updateUseYnClnt" parameterType="Map">
+	
+			UPDATE  TB_SD06M02
+			   SET  USE_YN      = DECODE(#{useYn},'Y','N','Y'),
+				 	UDT_ID      = #{userId},
+				 	UDT_PGM     = 'SD0602P02.html',
+				 	UDT_DTTM    = sysdate
+		    WHERE   CLNT_CD     = #{clntCd}
+			  AND   TNKEY_YN    = #{tnkeyYn} 
+			  AND   PRDT_DT     = #{prdtDt} 
+			  AND   PRDT_IMP_YN = #{prdtImpYn}
+			  AND   PRDT_DIV    = #{prdtDiv}
+			  AND   USE_YN      = #{useYn} 
+<!-- 		      AND   BASIS_PRICE_SEQ = #{basisPriceSeq} -->
+
+	</update>
 </mapper>

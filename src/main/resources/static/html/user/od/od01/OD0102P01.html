@@ -636,23 +636,16 @@
 	}
 	
 	function getReqInfo(){
-		console.log("getReqInfogetReqInfogetReqInfogetReqInfo");
-		var formData = {
-			"reqSeq": reqSeq,
-			"reqDtlSeqArr" : reqDtlSeqArr,
-			"reqDt" : $("#reqDt").val(),
-			"impYn": $("#impYn").val(), 
-			"clntCd" : $("#clntCd").val()
-		};
-		console.log(formData);
-		postAjaxSync("/user/od/od04/selectReqOrder", formData, null, function(data){
-			console.log(data);
+		var paramObj = modalStack.last().paramObj;
+		paramObj.reqDt = $('#reqDt').val();
+		paramObj.impYn = $('#impYn').val();
+		paramObj.clntCd = $('#clntCd').val();
+		postAjaxSync("/user/od/od04/selectReqOrder", paramObj, null, function(data){
 			setReqInfo(data.result);
 		});
 	}
 	
 	function setReqInfo(obj) {
-		console.log(obj);
 		var fileInfo = obj.fileList;
 		var reqInfo = obj.reqInfo;
 		var reqDetail = obj.reqDetail;
@@ -708,20 +701,6 @@
 			});
 		});
 		countTot();
-		
-		/* if(actionType != "R"){
-			$.each(fileInfo, function(idx, obj){
-				fileArr.push({
-					'fileKey' : obj.fileKey,
-			      	'fileName' : obj.fileName,
-			      	'fileType' : obj.fileType,
-			      	'fileSize' : obj.fileSize,
-			      	'file' : obj
-				});
-			});
-			// 첨부파일 그리드 set
-			fileGridView.setData();
-		} */
 	}
 	
 	// 창고, 판매법인 set

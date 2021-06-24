@@ -88,31 +88,31 @@ public class SD06Ctr {
 		return "jsonView";
     }
     // 
-    @PostMapping("/insertUpr")
-    public String createUpr(@RequestBody Map<String, String> param, ModelMap model) {
-    	sd06svc.insertUpr(param);
-    	model.addAttribute("resultUpr", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-    	return "jsonView";
-    }
-    
-    // 
-    @DeleteMapping("/deleteUpr")
-    public String deleteUpr(@RequestBody Map<String, String> param, ModelMap model) {
-    	sd06svc.deleteUpr(param);
-    	model.addAttribute("resultUpr", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
-    	return "jsonView";
-    }
-    
-    // 
-    @PutMapping("/updateUpr")
-    public String updateUpr(@RequestBody Map<String, String> param, ModelMap model) {
-    	sd06svc.updateUpr(param);
-    	model.addAttribute("resultUpr", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
-    	return "jsonView";
-    }
+//    @PostMapping("/insertUpr")
+//    public String createUpr(@RequestBody Map<String, String> param, ModelMap model) {
+//    	sd06svc.insertUpr(param);
+//    	model.addAttribute("resultUpr", 200);
+//    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+//    	return "jsonView";
+//    }
+//    
+//    // 
+//    @DeleteMapping("/deleteUpr")
+//    public String deleteUpr(@RequestBody Map<String, String> param, ModelMap model) {
+//    	sd06svc.deleteUpr(param);
+//    	model.addAttribute("resultUpr", 200);
+//    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+//    	return "jsonView";
+//    }
+//    
+//    // 
+//    @PutMapping("/updateUpr")
+//    public String updateUpr(@RequestBody Map<String, String> param, ModelMap model) {
+//    	sd06svc.updateUpr(param);
+//    	model.addAttribute("resultUpr", 200);
+//    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+//    	return "jsonView";
+//    }
     
         
     //강종별 할증금액 리스트 조회
@@ -205,6 +205,71 @@ public class SD06Ctr {
     @PutMapping("/insertOneDetail02")
     public String insertOneDetail02(@RequestBody Map<String, String> param, ModelMap model) {
     	sd06svc.insertOneDetail02(param);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+    
+//  ----- 거래처별 단가관리 시작 ---
+    
+    //단가관리 리스트 조회
+    @PostMapping("/selectUprClntList")
+    public String selectUprClntList(@RequestBody Map<String, String> param, ModelMap model) {
+    	int totalCnt = sd06svc.selectUprClntCount(param);
+    	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    
+    	List<Map<String, String>> uprList = sd06svc.selectUprClntList(param);
+    	model.addAttribute("uprList", uprList);
+        return "jsonView";
+    }
+    //단가관리 중복 조회
+    @PostMapping("/checkOverLapMasterClnt")
+    public String checkOverLapMasterClnt(@RequestBody Map<String, String> param, ModelMap model) {
+    	int result = sd06svc.selectOneMasterClntCount(param);
+    	if(result > 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("exist"));
+		} else {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("check"));
+		}
+		model.addAttribute("result", result);
+    	
+		return "jsonView";
+    }
+   
+    //사용중지 Update
+    @PutMapping("/updateUseYnClnt")
+    public String updateUseYnClnt(@RequestBody Map<String, String> param, ModelMap model) {
+    	int result = sd06svc.updateUseYnClnt(param);
+    	if(result > 0) {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("success"));
+		} else {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+		model.addAttribute("result", result);
+    	
+		return "jsonView";
+    }
+   
+    
+    //자재 기준 단가관리 상세조회
+    @PostMapping("/seletOneMasterClnt")
+    public String seletOneMasterClnt(@RequestBody Map<String, String> param, ModelMap model) {
+    	Map<String, String> detailInfo = sd06svc.seletOneMasterClnt(param);
+    	model.addAttribute("detailInfo", detailInfo);
+    	return "jsonView";
+    }    
+    
+    //자재 기준 단가관리 수정 및 등록
+    @PutMapping("/insertOneMasterClnt")
+    public String insertOneMasterClnt(@RequestBody Map<String, String> param, ModelMap model) {
+ 
+    	sd06svc.insertOneMasterClnt(param);
+
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";

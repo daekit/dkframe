@@ -34,16 +34,17 @@
 						<tr>
 							<th class="hit">거래처명</th>
 							<td>
-								<input type="text" class="form-control" id="clntNm" name="clntNm" maxlength="25" required>
+								<input type="text" class="form-control" id="clntNm" name="clntNm" maxlength="25" required msg="회사명">
 							</td>
 							<th class="hit">사업자등록번호</th>
 							<td>
-								<input type="text" class="form-control" id="crn" name="crn" onkeyup="crnFormatter(this);" maxlength="15" required>
+								<input type="text" class="form-control" id="crn" name="crn" onkeyup="crnFormatter(this);" maxlength="15" required msg="사업자등롭번호">
 							</td>
 							<th>법인번호</th>
 							<td>
 								<input type="text" class="form-control" id="coprtNo" name="coprtNo" maxlength="14">
 							</td>
+
 						</tr>
 						<tr>
 							<th>대표자명</th>
@@ -119,13 +120,13 @@
 							<td>
 								<input type="text" class="form-control" id="bkacOwner" name="bkacOwner" maxlength="10">
 							</td>
-						</tr>	
+						</tr>
 						<tr>
 							<th>신용연계여부</th>
 							<td>
 								 <input type="text" id="linkGrpYn" name ="linkGrpYn" value="N" readonly>
 							</td> 
-	                    	<th>거래처</th>
+	                    	<th>연계거래처</th>
 	                        <td>
 	                            <input type="hidden" id="basisCdtlnAmt" name="basisCdtlnAmt" >
 	                            <input type="hidden" id="linkGrpClntCd" name="linkGrpClntCd">
@@ -135,7 +136,7 @@
 <!-- 							<td> -->
 <!-- 								<input type="text" class="form-control" id="basisCdtlnAmt" name="basisCdtlnAmt" comma readonly> -->
 <!-- 							</td> -->
-						</tr>											
+						</tr>
 						<tr>
 							<th>메모</th>
 							<td colspan="5">
@@ -292,10 +293,10 @@
 						<input type="checkbox" name="bizdeptChkBox">
 					</td>
 					<td>
-						<input type="text" class="form-control" name="bizdeptNm" maxlength="15" required>
+						<input type="text" class="form-control" name="bizdeptNm" maxlength="25" required msg="사업부명">
 					</td>
 					<td>
-						<select class="form-control input-sm" name="bizdeptDivCd" data-kind="BIZDIV">
+						<select class="form-control input-sm" name="bizdeptDivCd" data-kind="BIZDIV" >
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -469,7 +470,6 @@
 	    <button type="button" class="btn btn-default btn-sm" onclick="modalStack.close();">닫기</button>
     </div>
 </div>
-
 <script type="text/javascript">
 	var $targetRow = null;
 	var clntFileArr = [];
@@ -497,7 +497,7 @@
 	                {
 						key:"fileDelete", label: "삭제", width:60,
 						formatter:function() {
-							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>'
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');" authchk>삭제</button>'
 						}
 					}
 	            ]
@@ -563,7 +563,6 @@
 				}
 			}
 		});
-		
 		// 사업부 set
 		var bizdeptList = clntInfo.bizdeptList;
 		if(bizdeptList.length > 0){
@@ -590,6 +589,7 @@
 				for(var i=0;i<$pldgRow.find('[name]').length;i++){
 					var pldgItem = $pldgRow.find('[name]')[i];
 					var itemValue = obj[pldgItem.name];
+					
 					if(itemValue){
 						if($(pldgItem).is('[comma]')){
 							itemValue = addCommaStr(itemValue);
@@ -628,7 +628,7 @@
 			}
 		}).open();
 	}
-	
+
 	// 사업부 추가
 	function addBizdeptRow(){
 		var $bizdeptRow = $('#bizdeptFrameTable tr[name="bizdeptRow"]').clone();
@@ -803,10 +803,10 @@
 			if(obj.fileKey == 0){
 				formData.append("files", obj.file);
 			}
-			
 		});
 		
 		// 수정시 삭제된 파일 추가
+		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType == "U"){
 			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		}

@@ -99,10 +99,9 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		
 		setCommonSelect($("#sanctnFrom select[data-kind]"));
 		
-		
+		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType == "C"){
 			$('#actionBtn').text("등록");
 		}else if(actionType == "U"){
@@ -127,21 +126,15 @@
 	}
 	
 	function deleteSanctnInfo() {
-		
-		
 		if(inputValidation($('[required]'))){
-			
 			var detailArr = [];
 			$.each($('tr[name="table"]'), function (idx, elem){
 				var detailObj = {};
 				
 				$.each($(elem).find('[name]'), function(idx, elem){
-					
-						detailObj.actionType = actionType;
-						detailObj.userId = jwt.userId;
-						detailObj.sanctnCd = $("#sanctnCd").val();
-						detailObj[elem.name] = elem.value;
-				
+					detailObj.userId = jwt.userId;
+					detailObj.sanctnCd = $("#sanctnCd").val();
+					detailObj[elem.name] = elem.value;
 				});
 				
 				detailArr.push(detailObj);
@@ -162,12 +155,9 @@
 				}
 			});
 		}
-	
-
 	}
 	
 	function insertSanctnInfo(formData){
-	
 		postAjax("/admin/cm/cm20/insertSanctnInfo", formData, null, function(data){
 			alert(data.resultMessage);
 			if(data.resultCode == 200){
@@ -175,11 +165,5 @@
 				modalStack.close();
 			}
 		});
-
-		
 	}
-	
-	
-	
-
 </script>

@@ -1,0 +1,322 @@
+<script type="text/javascript">
+	
+	var today = getTimeStamp();
+	var insertOK = false;
+	
+	$(document).ready(function() {
+		
+		 setCombo();
+		 
+		 document.getElementById('prdtDtInput').value = new Date().toISOString().substring(0, 10);
+		 
+		 $('#clntCd').val($('#clntCd_S').val());
+		 $('#clntNm').val($('#clntNm_S').val());
+		 
+		if(actionType == 'U'){
+			$('#actionBtn').text("수정");
+			insertOK = true;
+			setData();	
+		}else if(actionType == 'C'){
+			
+			$('#prdtDtInput').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+			});
+			
+			$('#actionBtn').text("등록");
+			$('#updateMsg').text("기준번호는 자동으로 등록됩니다. ");
+			$('#useYn').val("Y");
+		}
+		
+		
+		$("#prdtImpYn").on("change", function(){
+			insertOK = false;
+		});
+		$("#prdtDivCd").on("change", function(){
+			insertOK = false;
+		});
+		$("#prdtDtInput").on("change", function(){
+			insertOK = false;
+		});
+		
+		
+		 
+		
+	})
+	
+	function setCombo(){
+		/* 
+		var selectSelpchCd = document.getElementById("SELPCH");
+		document.getElementById("selpchCd").innerHTML = selectSelpchCd.innerHTML; */
+		
+		var searchPrdtImpYn = document.getElementById("PRDTIMP");
+		document.getElementById("prdtImpYn").innerHTML = searchPrdtImpYn.innerHTML;
+		
+		var searchPrdtDiv = document.getElementById("PRDTDIV");
+		document.getElementById("prdtDivCd").innerHTML = searchPrdtDiv.innerHTML;
+
+		var searchPrdtDiv = document.getElementById("useYn_S");
+		document.getElementById("useYn").innerHTML = searchPrdtDiv.innerHTML;
+		
+		var searchPrdtDiv = document.getElementById("tnkeyYn_S");
+		document.getElementById("tnkeyYn").innerHTML = searchPrdtDiv.innerHTML;
+		
+	}
+	
+	function setData() {
+	
+		var row = firstGrid.getList("selected")[0];
+		
+		var paramObj = {
+// 				"basisPriceSeq": row.basisPriceSeq,
+				"clntCd"     : row.clntCd,
+				"tnkeyYn"    : row.tnkeyYn,
+				"prdtDt"     : row.prdtDt.replace(/\-/g,''),
+				"prdtImpYn"  : row.prdtImpYn,
+				"prdtDiv"  : row.prdtDiv,
+				"useYn"      : row.useYn,
+				"userId"     : jwt.userId
+				};
+		
+		postAjax("/user/sd/sd06/seletOneMasterClnt", paramObj, null, function(data){
+			setDetailInfo(data.detailInfo);
+		});
+		
+	}
+	
+	function setDetailInfo(data){
+		$.each(data, function(key, value){
+			if(key == 'basisPriceSeq'){
+				$("#basisPriceSeqCd").val(value);
+			}
+			else if(key == 'prdtImpYn'){
+				$("#prdtImpYn").val(value).attr("selected", "selected"); 
+				$("#prdtImpYn").val(value).prop('disabled',true);  
+			}
+			else if(key == 'prdtDiv'){
+				$("#prdtDivCd").val(value).attr("selected", "selected");  
+				$("#prdtDivCd").val(value).prop('disabled',true);  
+			}
+			else if(key == 'prdtDt'){
+				$("#prdtDtInput").val(value);
+				document.getElementById("prdtDtInput").readOnly = true;
+			}
+			else{
+				$('#'+key).val(value);
+			}
+		});
+// 수정불가
+		$("#tnkeyYn").prop('disabled',true);  
+	}
+	
+	function insertOneMaster() {
+		if(insertOK){
+				var formData = {
+						"clntCd"        : $("#clntCd").val(),
+						"useYn"         : $("#useYn").val(),
+						"tnkeyYn"       : $("#tnkeyYn").val(),
+						"basisPriceSeq" : $("#basisPriceSeqCd").val(),
+						"prdtDt"        : $("#prdtDtInput").val().replace(/\-/g,''),
+						"prdtImpYn"     : $("#prdtImpYn").val(),
+						"prdtDiv"       : $("#prdtDivCd").val(),
+						"prdtUpr"       : $("#prdtUpr").val().replace(/,/g, ""),
+						"sellUpr"       : $("#sellUpr").val().replace(/,/g, ""),
+						"userId"        : jwt.userId,
+						"pgmId"         : $("#pgmId").val()
+				}
+				putAjax("/user/sd/sd06/insertOneMasterClnt", formData, null, function(data){	
+					if(data.resultCode == 200){
+						if(actionType == 'C'){
+							alert("등록되었습니다.");
+						}else{
+							alert(data.resultMessage);
+						}
+						modalStack.close();
+						gridView.initView().setData(0);
+					}
+				});
+			
+		}
+		
+	}
+		
+		
+	
+	
+	
+	function checkOverLap() {
+		
+		var isValid = true;
+		
+// 		if (inputValidation($('#frm [required]'))) {
+
+// 			isValid = false;
+// 		return false;
+// 		}
+		
+// 		$('#frm [required]').each(function(idx, elem){
+// 				if($.trim($(elem).val()) == ""){
+// 					alert("필수값을 입력해 주세요.");
+// 					$(elem).focus();
+// 					isValid = false;
+// 				return false;
+// 			}
+// 		});
+		
+		if(inputValidation($('#frm [required]'))){
+			if(insertOK){
+				insertOneMaster(); 
+			}else{
+			
+				var formData = {
+						"prdtDt"    : $("#prdtDtInput").val().replace(/\-/g,''),
+						"clntCd"    : $("#clntCd").val(),
+						"tnkeyYn"   : $("#tnkeyYn").val(),
+						"useYn"     : $("#useYn").val(),
+						"prdtImpYn" : $("#prdtImpYn").val(),
+						"prdtDiv"   : $("#prdtDivCd").val(),
+						
+				}
+				postAjax("/user/sd/sd06/checkOverLapMasterClnt", formData, null, function(data){
+					
+					if(data.resultCode != 200){
+						alert(data.resultMessage);	
+					}
+					if(data.resultCode == 200){
+						insertOK = true;
+						insertOneMaster();
+					}
+				})	
+			}	
+		}
+		
+			
+	}
+	
+	
+	function getTimeStamp() {
+
+	    var d = new Date();
+	    var s =
+	        leadingZeros(d.getFullYear(), 4) + '-' +
+	        leadingZeros(d.getMonth() + 1, 2) + '-' +
+	        leadingZeros(d.getDate(), 2);
+
+	    return s;
+	}
+
+	function leadingZeros(n, digits) {
+
+	    var zero = '';
+	    n = n.toString();
+
+	    if (n.length < digits) {
+	        for (i = 0; i < digits - n.length; i++)
+	            zero += '0';
+	    }
+	    return zero + n;
+	}
+	// 거래처 검색
+	function openThirdClntSearch() {
+		openThirdModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
+	
+	}
+	
+</script>
+
+
+<body>
+	<div class="container-fluid">
+      <div class="row">
+        <div class="popup_area">
+	        <form id="frm">
+		        <div  class="popup_table">
+		          <table>
+		          	<tbody>
+		          		<tr>
+		          			<th colspan= "2">기준번호
+		          			</th>
+		          			<td colspan="6"> 
+		          				<input type="text" id="basisPriceSeqCd" readonly>
+		          			</td>
+		          			<th colspan="2">기준날짜</th>
+		          			<td colspan="6"> 
+		          				
+		          				<input id="prdtDtInput"  onkeyup="dateMask(this);" class="input_calendar">
+		          			</td>
+		          		</tr>
+		          		<tr>
+		          			<th lass="hit"  colspan="2"> 매입거래처</th>
+			                <td colspan="6">
+				                  <input type="hidden" id="clntCd" required msg="거래처")>
+				                  <div class="search_form" >
+					                <input type="text" id="clntNm"  readonly required msg="거래처이름">
+					              	<a onclick="openThirdClntSearch();"><i class="i_search_w"></i></a>
+					              </div>
+				            </td>
+		          			<th class="hit" colspan="2">사용여부</th>
+		          			<td colspan="6">
+		          				<select id="useYn" required msg="사용여부"></select>
+		          			</td>
+		          		</tr>
+		          		<tr>
+		          			<th class="hit" colspan="2">제품구분</th>
+		          			<td colspan="6"> 
+		          				<select id="prdtDivCd" required msg="제품구분"></select>
+		          			</td>
+		          			<th class="hit" colspan="2">턴키여부</th>
+		          			<td colspan="6"> 
+		          				<select id="tnkeyYn" required msg="턴키여부"> </select>
+		          			</td>
+		          		</tr>
+		          		<tr>
+		          		
+		          			<th class="hit" colspan= "2">매입단가
+		          			</th>
+		          			<td colspan="6">  <!--  onkeyup="exceptKorean(this);" -->
+		          				<input type="text" id="prdtUpr"  onkeyup="onlyNumber(this);" maxlength="20" required msg="매입단가" comma>
+		          				
+		          			</td>
+		          			<th class="hit" colspan="2">수입여부</th>
+		          			<td colspan="6"> 
+		          				<select id="prdtImpYn" required msg="수입여부"> </select>
+		          			</td>
+		          		</tr>
+		          		<tr>		          			
+		          			<th class="hit" colspan= "2">매출단가
+		          			</th>
+		          			<td colspan="6">  
+		          				<input type="text" id="sellUpr"  onkeyup="onlyNumber(this);" maxlength="20" required msg="매출단가" comma >
+		          				
+		          			</td>		          					          			
+		          			<th colspan= "2">
+		          			</th>
+		          			<td colspan="6">
+		          			</td>
+		          		</tr>
+		          	</tbody>
+		          	
+		          </table>
+	          </div>
+	          		<input type="hidden" id="userId" name="userId">
+		          	<input type="hidden" id="pgmId"  name="pgmId" value="SD0602P01">
+		          	<input type="hidden" id="clntCd" name="clntCd">
+	        </form>
+		
+			<div class ="popup_bottom_btn">
+				<!--  <button id="checkBtn" type="button" class="bg_g fs-5" onclick="checkOverLap()">중복체크</button> -->
+				<button type="button"  onclick="checkOverLap();" id ="actionBtn"></button>
+				<button type="button"  onclick="modalStack.close();">닫기</button>
+				<p class="pd10" id ="updateMsg"> 수정의 경우 단가만 수정이 가능합니다.</p>
+				<!-- <p class="pd10" id ="insertMsg"> 기준번호는 자동으로 등록됩니다. </p> -->
+			</div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

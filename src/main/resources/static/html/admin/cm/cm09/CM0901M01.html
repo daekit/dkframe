@@ -39,10 +39,6 @@
 </div>
 
 <script type="text/javascript">
-	
-	var firstGrid = null;
-	var actionType = null;
-	
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -89,12 +85,12 @@
 			return this;
 		}, 
 		setData: function(_pageNo) {
-			firstGrid = this.target;
+			var targetObj = this.target;
 			var formData = $('#mainForm').serializeObject();
 			formData.pageNo = _pageNo + 1;
 			formData.recordCnt = 20;
 			postAjax("/admin/cm/cm09/selectNotiList", formData, null, function(data){
-				firstGrid.setData({
+				targetObj.setData({
 					list : data.notiList,
 					page : {
 						currentPage : _pageNo,
@@ -128,8 +124,8 @@
 	}
 	
 	function insertNotiModal(type){
-		actionType = type;
-		openModal("/static/html/admin/cm/cm09/CM0902P01.html", 610, 520, "공지사항 등록");
+		var paramObj = {"actionType": type};
+		openModal("/static/html/admin/cm/cm09/CM0902P01.html", 610, 520, "공지사항 등록", paramObj);
 	}
 	
 </script>

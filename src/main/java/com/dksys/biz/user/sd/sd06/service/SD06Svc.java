@@ -10,11 +10,11 @@ public interface SD06Svc {
 	
     public List<Map<String, String>> selectUprList(Map<String, String> param);
 
-	public int insertUpr(Map<String, String> param);
+//	public int insertUpr(Map<String, String> param);
 
-	public int deleteUpr(Map<String, String> param);
+//	public int deleteUpr(Map<String, String> param);
 
-	public int updateUpr(Map<String, String> param);
+//	public int updateUpr(Map<String, String> param);
 
 	public Map<String, String> selectUprInfo(Map<String, String> param);
 
@@ -43,5 +43,18 @@ public interface SD06Svc {
     public int updateOneDetail01(Map<String, String> param);
 
     public int updateOneDetail02(Map<String, String> param);
+    
+    // 거래처별 단가 -------------
+    public int selectUprClntCount(Map<String, String> param);
+	
+    public List<Map<String, String>> selectUprClntList(Map<String, String> param);
+    
+	public int selectOneMasterClntCount(Map<String, String>  param);
+    
+    public Map<String, String> seletOneMasterClnt(Map<String, String> param);
+    
+    public int insertOneMasterClnt(Map<String, String> param);
+    
+    public int updateUseYnClnt(Map<String, String> param);
     
 }
