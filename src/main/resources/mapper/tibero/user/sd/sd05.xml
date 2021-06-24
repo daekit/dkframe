@@ -10,14 +10,22 @@
 				WHERE A.CLNT_CD = B.CLNT_CD(+)
 				 AND  A.MNG_ID = C.ID(+)
 				 AND  A.USE_YN = 'Y'
+
 				<if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
+				</if> 
+				<if test="strtDt != null and !strtDt.equals('')">
+				 	AND ( A.CREAT_DTTM >= #{strtDt})
 				</if>
-				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				 	AND ( A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt} )
+				<if test="endDt != null and !endDt.equals('')">
+				 	<![CDATA[AND ( A.CREAT_DTTM <= to_timestamp(to_date(#{endDt}, 'YYYY-MM-DD')+1)    )]]>
+				 	<!-- TO_CHAR(TO_DATE(#{endDt}, 'YYYYMMDD') +1, 'YYYY-MM-DD') AS .. -->
 				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
+				</if>
+				<if test="ordTyp != null and !ordTyp.equals('')">
+					AND A.ORD_TYP = #{ordTyp}
 				</if>
 	</select>
 	
@@ -38,7 +46,7 @@
 					,B.CLNT_NM
 					,A.MAKR_CD
 					,FN_CM05M01_CD_TO_NM(A.MAKR_CD) AS MAKR_NM
-					,A.PRJCT_ADDR_ZIP
+					,A.PRJCT_ADDR_ZIP 
 					,A.PRJCT_ADDR
 					,A.PRJCT_ADDR_SUB
 					,A.PRJCT_MNG_NM
@@ -113,11 +121,17 @@
 				<if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
 				</if>
-				<if test="strtDt != null and !strtDt.equals('') and endDt != null and !endDt.equals('')">
-				 	AND ( A.STRT_DT BETWEEN #{strtDt} AND #{endDt} OR A.END_DT BETWEEN #{strtDt} AND #{endDt} )
+				<if test="strtDt != null and !strtDt.equals('')">
+				 	AND ( A.CREAT_DTTM >= #{strtDt})
+				</if>
+				<if test="endDt != null and !endDt.equals('')">
+				 	<![CDATA[AND ( A.CREAT_DTTM <= to_timestamp(to_date(#{endDt}, 'YYYY-MM-DD')+1)    )]]>
 				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
+				</if>
+				<if test="ordTyp != null and !ordTyp.equals('')">
+					AND A.ORD_TYP = #{ordTyp}
 				</if>
 				ORDER BY  A.STRT_DT DESC
 			) D
