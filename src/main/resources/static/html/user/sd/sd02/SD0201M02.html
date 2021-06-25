@@ -169,7 +169,27 @@
 		                    {key: "dayWt", 	collector: "sum", formatter: "money", align: "right"},
 		                    {key: "monWt",  collector: "sum", formatter: "money", align: "right"},
 		                    {key: "dayAmt", collector: "sum", formatter:"money", align: "right"},
-				    		{key: "monAmt", collector: "sum", formatter:"money", align: "right"}
+				    		{key: "monAmt", collector: "sum", formatter:"money", align: "right"},
+				    		{formatter:"money", align: "right", label: function(){ 
+				    			var planSum = 0;
+				    			var monSum = 0;
+				    			var totRate = 0;
+				    			this.list.forEach(function (n){
+				    				if(!n.__isGrouping){
+				    					planSum += Number(n.planWt);
+				    					monSum += Number(n.monWt);
+				    				}
+				    			});
+				    			if(monSum == 0){
+				    				totRate = "0 %";	
+				    			} else if (planSum == 0) {
+				    				totRate = "-"
+				    			} else {
+				    				totRate = Math.round(planSum / monSum * 100, 2) + " %";
+				    			}
+				    			
+				    			return totRate;
+				    		}}
 		                ]
 		            },
 		        },
@@ -180,7 +200,8 @@
 	                    {key: "dayWt", collector: "sum", formatter:"money", align: "right"},
 			    		{key: "monWt", collector: "sum", formatter:"money", align: "right"},
 	                    {key: "dayAmt", collector: "sum", formatter:"money", align: "right"},
-			    		{key: "monAmt", collector: "sum", formatter:"money", align: "right"}
+			    		{key: "monAmt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "rateWt", collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
 		        page: {
