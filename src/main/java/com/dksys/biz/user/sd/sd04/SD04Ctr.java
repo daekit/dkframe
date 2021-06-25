@@ -57,6 +57,7 @@ public class SD04Ctr {
     public String insertOrder(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	try {
     		sd04Svc.insertOrder(paramMap, mRequest);
+    		model.addAttribute("odrSeq", paramMap.get("odrSeq"));
         	model.addAttribute("resultCode", 200);
         	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch (Exception e){
