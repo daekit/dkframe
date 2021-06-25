@@ -57,4 +57,9 @@ public class SD02Svcmpl implements SD02Svc {
     	return sd02Mapper.deletePlan(paramMap);
 		 
 	}
+
+	@Override
+	public List<Map<String, String>> selectSellDailyRep(Map<String, String> param) {
+		return sd02Mapper.selectSellDailyRep(param);
+	}
 }

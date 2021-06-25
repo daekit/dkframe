@@ -97,4 +97,11 @@ public class SD02Ctr {
     	return "jsonView";
     }
     
+    @PostMapping(value = "/selectSellDailyRep")
+    public String selectSellDailyRep(@RequestBody Map<String, String> param, ModelMap model) {
+    	List<Map<String, String>> sellList = sd02svc.selectSellDailyRep(param);
+    	model.addAttribute("sellList", sellList);
+        return "jsonView";
+    }
+    
 }
