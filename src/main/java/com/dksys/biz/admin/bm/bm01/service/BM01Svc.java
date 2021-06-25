@@ -11,8 +11,6 @@ public interface BM01Svc {
     
     public Map<String, String> selectMaterialInfo(Map<String, String> param);
     
-    public int selectPrdtCntInPrjct(Map<String, String> param);
-    
     public int checkOverLap(Map<String, String> param);
 
 	public int insertMaterial(Map<String, String> param);

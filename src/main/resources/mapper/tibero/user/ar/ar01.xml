@@ -37,6 +37,7 @@
             ODR_SEQ,
             ORDRG_SEQ,
             SALES_MNG,
+            SALES_DEPT,
             SHIP_YN,
             ODR_CREAT_DIV,
             CREAT_ID,
@@ -80,6 +81,7 @@
 			#{odrSeq},
 			#{ordrgSeq},
 			#{salesMng},
+			(SELECT DEPT_ID FROM TB_CM06M01 WHERE ID = #{salesMng}),
 			'N',
 			NVL(#{odrCreatDiv},'ERP'),
 			#{userId},
@@ -132,7 +134,9 @@
             UDT_PGM,
             UDT_DTTM,
             PRDT_SIZE,
-            PRDT_SPEC
+            PRDT_SPEC,
+            IMP_YN,
+            MAKR_CD
 	    ) 
 	    VALUES
 	    (
@@ -167,7 +171,9 @@
 			#{pgmId},
 			SYSDATE,
 			#{prdtSize,  jdbcType=VARCHAR},
-			#{prdtSpec,  jdbcType=VARCHAR}
+			#{prdtSpec,  jdbcType=VARCHAR},
+			#{impYn},
+			#{makrCd}
 	    )
 	</insert>
 	
@@ -428,13 +434,25 @@
 	        T.PRDT_CD,
 			B.PRDT_NM,
 	        T.PRDT_UNIT,
-	        FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) PRDT_UNIT_NM,
+	        FN_CM05M01_CD_TO_NM(T.PRDT_UNIT) AS PRDT_UNIT_NM,
 	        T.PRDT_LEN,
 	        T.PRDT_SPEC,
 	        T.PRDT_SIZE,
 	        T.SHIP_QTY,
 	        T.SHIP_WT,
 	        T.SHIP_UPR,
+	        DECODE(
+		    	M.PRJCT_CD, 
+		    	0, 
+		    	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'N', T.PRDT_CD, M.CLNT_CD, ''), 0)),
+		    	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'N', T.PRDT_CD, M.CLNT_CD, M.PRJCT_CD), 0))
+		    ) AS SHIP_UPR_D,
+	        DECODE(
+	        	M.PRJCT_CD, 
+	        	0, 
+	        	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'Y', T.PRDT_CD, M.CLNT_CD, ''), 0)),
+	        	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'Y', T.PRDT_CD, M.CLNT_CD, M.PRJCT_CD), 0))
+	        ) AS SHIP_UPR_I,
 	        T.SHIP_AMT,
 	        <!-- [출하 예상손익 조회] (매출단가 * 수량) minus (재고단가 * 수량) -->
 	        (T.SHIP_UPR * T.SHIP_QTY - T.STOCK_UPR * T.SHIP_QTY) AS EPCT_PAL,
@@ -455,6 +473,9 @@
 	        T.SHIP_DTL_RMK,
 	        T.ORDRG_DTL_SEQ,
 	        T.ODR_DTL_SEQ,
+	        T.IMP_YN,
+	        T.MAKR_CD,
+	        FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
 	        T.ETC_FIELD1,
 	        T.ETC_FIELD2,
 	        T.ETC_FIELD3,
@@ -470,10 +491,12 @@
 	        B.PRDT_COIL_YN,
 	        B.PRDT_CNVRSN_WT,
 	        B.PRDT_DT
-		FROM TB_AR01D01 T
-		INNER JOIN TB_BM01M01 B
-		   ON B.PRDT_CD = T.PRDT_CD
-		WHERE SHIP_SEQ = #{shipSeq}
+		FROM 
+			TB_AR01D01 T
+			INNER JOIN TB_AR01M01 M ON T.SHIP_SEQ = M.SHIP_SEQ
+			INNER JOIN TB_BM01M01 B ON B.PRDT_CD = T.PRDT_CD
+		WHERE 
+			T.SHIP_SEQ = #{shipSeq}
 	</select>
 	
 	<select id="getOrderDetail" parameterType="Map" resultType="camelMap">
@@ -497,15 +520,30 @@
 			T.ODR_WT AS SHIP_WT,
 			T.ODR_WT AS REAL_SHIP_WT,
 			T.ODR_UPR AS SHIP_UPR,
+			DECODE(
+	        	M.PRJCT_CD, 
+	        	0, 
+	        	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'N', T.PRDT_CD, M.CLNT_CD, ''), 0)),
+	        	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'N', T.PRDT_CD, M.CLNT_CD, M.PRJCT_CD), 0))
+	        ) AS SHIP_UPR_D,
+			DECODE(
+	        	M.PRJCT_CD, 
+	        	0, 
+	        	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'Y', T.PRDT_CD, M.CLNT_CD, ''), 0)),
+	        	DECODE(B.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'Y', T.PRDT_CD, M.CLNT_CD, M.PRJCT_CD), 0))
+	        ) AS SHIP_UPR_I,
 			T.ODR_UPR AS REAL_SHIP_UPR,
 			T.ODR_AMT AS SHIP_AMT,
+			<!-- [출하 예상손익 조회] (매출단가 * 수량) minus (재고단가 * 수량) -->
+	        (T.ODR_UPR * T.ODR_QTY - T.STOCK_UPR * T.ODR_QTY) AS EPCT_PAL,
 			T.ODR_AMT AS REAL_SHIP_AMT,
 			T.ODR_DTL_RMK AS ORDRG_DTL_RMK
 		FROM 
 			TB_SD04D01 T
+			INNER JOIN TB_SD04M01 M ON T.ODR_SEQ = M.ODR_SEQ
 			INNER JOIN TB_BM01M01 B ON T.PRDT_CD = B.PRDT_CD
 		WHERE 
-			ODR_SEQ = #{odrSeq}
+			T.ODR_SEQ = #{odrSeq}
 			<if test="odrDtlSeqArr != null and odrDtlSeqArr.size != 0">
 				AND ODR_DTL_SEQ IN
 				<foreach item="odrDtlSeq" collection="odrDtlSeqArr" open="(" close=")" separator="," >

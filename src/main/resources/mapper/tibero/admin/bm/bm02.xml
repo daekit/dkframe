@@ -310,10 +310,11 @@
 	<select id="selectMngInfo" resultType="CamelMap">
 		SELECT
 			A.SALES_EMP_ID,
-			(SELECT NAME FROM TB_CM06M01 WHERE ID = A.SALES_EMP_ID) AS SALES_EMP_NM			
+			CM06.NAME AS SALES_EMP_NM,
+			CM06.DEPT_ID AS SALES_DEPT_ID
 		FROM 
 			( SELECT FN_BM02_MNG_ID( #{coCd} , #{clntCd} ) AS SALES_EMP_ID FROM DUAL ) AS A
-			
+			INNER JOIN TB_CM06M01 CM06 ON A.SALES_EMP_ID = CM06.ID 
 	</select>
 
 	<insert id="insertClnt">

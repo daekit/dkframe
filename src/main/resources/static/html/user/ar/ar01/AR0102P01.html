@@ -73,12 +73,16 @@
 					</td>
 				</tr>
 				<tr>
-					<th class="hit">수입여부</th>
+					<th>현장명</th>
 					<td>
-						<select id="impYn" name="impYn" onchange="setMaker(this.value);" msg="수입여부" required>
-							<option value="N" selected>N</option>
-							<option value="Y">Y</option>
-						</select>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd">
+							<input type="hidden" id="siteCd" name="siteCd">
+							<input type="text" id="siteNm" name="siteNm" readonly>
+							<a onclick="openArSiteSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
 					</td>
 					<th class="hit">출하창고</th>
 					<td>
@@ -94,37 +98,11 @@
 					</td>
 				</tr>
 				<tr>
-					<th class="hit">Maker</th>
-					<td>
-						<select id="makrCd" name="makrCd" data-kind="MAKR" msg="Maker" required></select>
-					</td>
-					<th>현장명</th>
-					<td>
-						<div class="search_form">
-							<input type="hidden" id="prjctCd" name="prjctCd">
-							<input type="hidden" id="siteCd" name="siteCd">
-							<input type="text" id="siteNm" name="siteNm" readonly>
-							<a onclick="openArSiteSearch();">
-								<i class="i_search_w"></i>
-							</a>
-						</div>
-					</td>
 					<th>판매지역</th>
 					<td>
 						<select id="salesAreaCd" name="salesAreaCd" data-kind="SALESAREA">
 							<option value="">선택</option>
 						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>주문번호</th>
-					<td>
-						<div class="search_form">
-							<input type="text" id="odrSeq" name="odrSeq" readonly>
-							<a onclick="openSecondOrderSearch();">
-								<i class="i_search_w"></i>
-							</a>
-						</div>
 					</td>
 					<th>착지연락처</th>
 					<td>
@@ -136,11 +114,11 @@
 					</td>
 				</tr>
 				<tr>
-					<th rowspan="2">착지주소</th>
+					<th>주문번호</th>
 					<td>
 						<div class="search_form">
-							<input id="addrZip" name="addrZip" type="text" readonly>
-							<a onclick="openDaumPostcode();">
+							<input type="text" id="odrSeq" name="odrSeq" readonly>
+							<a onclick="openSecondOrderSearch();">
 								<i class="i_search_w"></i>
 							</a>
 						</div>
@@ -161,7 +139,16 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="border-left: 0px !important;">
+					<th>착지주소</th>
+					<td>
+						<div class="search_form">
+							<input id="addrZip" name="addrZip" type="text" readonly>
+							<a onclick="openDaumPostcode();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<td colspan="2" style="border-left: 0px !important;">
 						<input type="text" id="addrMain" name="addrMain" placeholder="선택 주소지" readonly>
 					</td>
 					<td colspan="2">
@@ -204,18 +191,20 @@
 				<colgroup>
 					<col width="2%">
 					<col width="13%"> <!-- 제품명 -->
-					<col width="7%">  <!-- SIZE -->
-					<col width="7%">  <!-- SPEC-->
+					<col width="6%">  <!-- SIZE -->
+					<col width="6%">  <!-- SPEC-->
 					<col width="5%">  <!-- 길이 -->
 					<col width="5%">  <!-- 단위 -->
 					<col width="6%">  <!-- 출하지시 수량-->
 					<col width="6%">  <!-- 출하지시 중량-->
 					<col width="5%">  <!-- 출하지시 단가-->
-					<col width="7%">  <!-- 출하지시 금액-->
-					<col width="7%">  <!-- 출하지시 손익-->
-					<col width="7%">  <!-- 완료일자 -->
-					<col width="8%">  <!-- 차량번호 -->
-					<col width="15%"> <!-- 비고 -->
+					<col width="6%">  <!-- 출하지시 금액-->
+					<col width="6%">  <!-- 출하지시 손익-->
+					<col width="4%">  <!-- 수입여부 -->
+					<col width="5%">  <!-- Maker -->
+					<col width="6%">  <!-- 완료일자 -->
+					<col width="6%">  <!-- 차량번호 -->
+					<col width="13%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
 					<th class="tc" style="padding: 3px;"> 
@@ -231,6 +220,8 @@
 					<th class="tc">매출단가</th>
 					<th class="tc">금액</th>
 					<th class="tc">예상손익</th>
+					<th class="tc">수입</th>
+					<th class="tc">Maker</th>
 					<th class="tc">완료일자</th>
 					<th class="tc">차량번호</th>
 					<th class="tc">비고</th>
@@ -293,6 +284,8 @@
 						<input type="text" class="tr" name="shipWt" onkeyup="onlyNumber(this); countAmt(this);" msg="중량" comma required>
 					</td>
 					<td>
+						<input type="hidden" name="shipUprD">
+						<input type="hidden" name="shipUprI">
 						<input type="text" class="tr" name="shipUpr" onkeyup="onlyNumber(this); countAmt(this);" comma>
 					</td>
 					<td>
@@ -300,6 +293,15 @@
 					</td>
 					<td>
 						<input type="text" class="tr" name="epctPal" comma readonly>
+					</td>
+					<td>
+						<select name="impYn" onchange="setByImpYn(this);" msg="수입여부">
+							<option value="N" selected>N</option>
+							<option value="Y">Y</option>
+						</select>
+					</td>
+					<td>
+						<select name="makrCd" data-kind="MAKR" msg="Maker"></select>
 					</td>
 					<td>
 						<input type="text" class="tc" name="shipDttm" readonly>
@@ -316,18 +318,20 @@
 				<colgroup>
 					<col width="2%">
 					<col width="13%"> <!-- 제품명 -->
-					<col width="7%">  <!-- SIZE -->
-					<col width="7%">  <!-- SPEC-->
+					<col width="6%">  <!-- SIZE -->
+					<col width="6%">  <!-- SPEC-->
 					<col width="5%">  <!-- 길이 -->
 					<col width="5%">  <!-- 단위 -->
 					<col width="6%">  <!-- 출하지시 수량-->
 					<col width="6%">  <!-- 출하지시 중량-->
 					<col width="5%">  <!-- 출하지시 단가-->
-					<col width="7%">  <!-- 출하지시 금액-->
-					<col width="7%">  <!-- 출하지시 손익-->
-					<col width="7%">  <!-- 완료일자 -->
-					<col width="8%">  <!-- 차량번호 -->
-					<col width="15%"> <!-- 비고 -->
+					<col width="6%">  <!-- 출하지시 금액-->
+					<col width="6%">  <!-- 출하지시 손익-->
+					<col width="4%">  <!-- 수입여부 -->
+					<col width="5%">  <!-- Maker -->
+					<col width="6%">  <!-- 완료일자 -->
+					<col width="6%">  <!-- 차량번호 -->
+					<col width="13%"> <!-- 비고 -->
 				</colgroup>
 				<tr>
 					<th class="tc" colspan="6">합계</th>
@@ -344,6 +348,8 @@
 					<td>
 						<input class="tr" type="text" id="totEpctPal" name="totEpctPal" comma readonly>
 					</td>
+					<td></td>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
@@ -438,8 +444,8 @@
 			$("#coCd").val(jwt.coCd);
 			$("#reqDt").val(moment(new Date()).format("YYYYMMDD"));
 			setByCoCd($('#coCd').val());
-			setMaker($('#impYn').val());
-			$("#makrCd").val("MAKR09");
+			setByImpYn($('#frameTable select[name="impYn"]')[0]);
+// 			$("#makrCd").val("MAKR09");
 			$('#actionArBtn').on("click", function(){insertShip();});
 			$('.tit_contents .tit').text("출하요청서 등록");
 			$('#actionArBtn').text("등록");
@@ -494,11 +500,6 @@
 					setByCoCd(value);
 				}
 				
-				// 제조사 set
-				if(key == "impYn"){
-					setMaker(value);
-				}
-				
 				// 재고주체 set
 				if(key == "typCd"){
 					setBySellType(value);  
@@ -516,6 +517,10 @@
 						itemValue = addCommaStr(itemValue);
 					}
 					$(elem).val(itemValue);
+				}
+				
+				if(elem.name == "impYn"){
+					setByImpYn(elem);
 				}
 			});
 			
@@ -659,11 +664,27 @@
 		$('#taxivcCoprt').val($("#whCd option:selected").data("etc"));
 	}
 	
-	// 제조사 set
-	function setMaker(value){
-		$('#makrCd').data("rprc", value);
-		$('#makrCd').empty();
-		setCommonSelect($('#makrCd'));
+	// 제조사, 매출단가 set
+	function setByImpYn(elem){
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		// 제조사 set
+		$targetRow.find('select[name="makrCd"]').data("rprc", elem.value);
+		$targetRow.find('select[name="makrCd"]').empty();
+		setCommonSelect($targetRow.find('select[name="makrCd"]'));
+		
+		// 매출단가 변경은 수입여부 변경시에만 발생한다.
+		if(event.type == "change"){
+			debugger;
+			// 매출단가 set
+			var shipUpr = null;
+			if(elem.value == "N"){
+				shipUpr = $targetRow.find('input[name="shipUprD"]').val();
+			}else{
+				shipUpr = $targetRow.find('input[name="shipUprI"]').val();
+			}
+			$targetRow.find('input[name="shipUpr"]').val(shipUpr);
+			countAmt($targetRow.find('input[name="shipUpr"]')[0]);
+		}
 	}
 	
 	// 현장 검색
@@ -730,25 +751,28 @@
 	}
 	
 	function cloneDetailRow(){
-		var checkedRows = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		var $checkedInputs = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		
-		if(checkedRows.length == 0){
+		if($checkedInputs.length == 0){
 			alert("선택된 데이터가 없습니다.");
 			return false;
 		}
 		
-		if(checkedRows.length > 1){
+		if($checkedInputs.length > 1){
 			alert("한 건만 선택해주세요.");
 			return false;
 		}
 		
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
-				var $clonedRow = $(elem).clone();
-				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
-				$('#detailTable tbody:last').append($clonedRow[0]);
-			}
-		})
+		var $checkedRow = $checkedInputs.closest('tr');
+		var $clonedRow = $($checkedRow).clone();
+		// 체크박스 해제
+		$clonedRow.find('input[name="detailChkBox"]').prop("checked", false);
+		// 수입여부 복사
+		$clonedRow.find('select[name="impYn"]').val($checkedRow.find('select[name="impYn"]').val());
+		// 제조사 복사
+		$clonedRow.find('select[name="makrCd"]').val($checkedRow.find('select[name="makrCd"]').val());
+		
+		$checkedRow.after($clonedRow[0]);
 		
 		ctrlAllChkBox();
 	}
@@ -808,7 +832,7 @@
 		var paramObj = {
 			"coCd": $("#coCd").val(),
 			"selpchCd": "SELPCH2",
-			"impYn": $("#impYn").val(),
+			"impYn": "N",
 			"clntCd" : $("#clntCd").val(),
 			"prjctCd" : $("#prjctCd").val(),
 			"useYn": "Y"
@@ -861,7 +885,7 @@
 		var paramObj = {
 			"coCd": $("#coCd").val(),
 			"selpchCd": "SELPCH2",
-			"impYn": $("#impYn").val(), 
+			"impYn": "N",
 			"clntCd" : $("#clntCd").val(),
 			"prjctCd" : $("#prjctCd").val(),
 			"useYn": "Y"
@@ -879,7 +903,6 @@
 						$(elem).val(itemValue);
 					}
 				});
-				// prdtUpr에 ordrgUpr set (궁금한점.)
 				$addedRow.find('input[name=prdtUpr]').val(obj.ordrgUpr);
 				
 				// 재고관리에 따른 dom 변경

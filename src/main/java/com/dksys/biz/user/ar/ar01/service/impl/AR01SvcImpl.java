@@ -60,21 +60,28 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public int insertShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		boolean isOdr = false;
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
+		
+		// 주문 insert
 		if("".equals(paramMap.get("odrSeq"))) {
 			isOdr = true;
 			paramMap.put("totQty", paramMap.get("shipTotQty"));
 			paramMap.put("totWt", paramMap.get("shipTotQty"));
 			paramMap.put("totAmt", paramMap.get("shipTotAmt"));
 			paramMap.put("odrRmk", paramMap.get("dlvrRmk"));
+			// 출하요청서는 개별로 수입여부와 제조사를 관리하므로 첫번째를 추출하여 주문 insert
+			paramMap.put("impYn", detailList.get(0).get("impYn"));
+			paramMap.put("makrCd", detailList.get(0).get("makrCd"));
 			sd04Mapper.insertOrder(paramMap);
 		}
+		
+		// 출하메인 insert
 		int result = ar01Mapper.insertShip(paramMap);
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		// 출하상세 delete
 		ar01Mapper.deleteShipDetail(paramMap);
 		// 출하상세 insert
-		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
 			paramMap.put("prdtSize", detailMap.get("prdtSize"));
@@ -160,6 +167,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("prdtSize", detailMap.get("prdtSize"));
 			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 			paramMap.put("prdtLen", detailMap.get("prdtLen"));
+			paramMap.put("impYn", detailMap.get("impYn"));
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfo == null) {
 				detailMap.put("stockUpr", "0");

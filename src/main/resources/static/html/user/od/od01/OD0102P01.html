@@ -943,28 +943,26 @@
 	}
 	
 	function cloneDetailRow(){
-		var checkedRows = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		var $checkedInputs = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		
-		if(checkedRows.length == 0){
+		if($checkedInputs.length == 0){
 			alert("선택된 데이터가 없습니다.");
 			return false;
 		}
 		
-		if(checkedRows.length > 1){
+		if($checkedInputs.length > 1){
 			alert("한 건만 선택해주세요.");
 			return false;
 		}
 		
-		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find('input[name="detailChkBox"]').is(':checked')){
-				var $clonedRow = $(elem).clone();
-				$clonedRow.find('input[name="detailChkBox"]').prop('checked', false);
-				$('#ordrgPopup #detailTable tbody:last').append($clonedRow[0]);
-			}
-		})
+		var $checkedRow = $checkedInputs.closest('tr');
+		var $clonedRow = $($checkedRow).clone();
+		$clonedRow.find('input[name="detailChkBox"]').prop("checked", false);
+		$checkedRow.after($clonedRow[0]);
 		
 		ctrlAllChkBox();
 	}
+	
 	
 	function addDetailRow() {
 		var $detailRow = $('#ordrgPopup #frameTable tr[name="detailRow"]').clone();

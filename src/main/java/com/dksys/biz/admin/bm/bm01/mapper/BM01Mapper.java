@@ -14,8 +14,6 @@ public interface BM01Mapper {
 	
 	Map<String, String> selectMaterialInfo(Map<String, String> param);
 	
-	int selectPrdtCntInPrjct(Map<String, String> param);
-	
 	int checkOverLap(Map<String, String> param);
 
 	int insertMaterial(Map<String, String> param);
