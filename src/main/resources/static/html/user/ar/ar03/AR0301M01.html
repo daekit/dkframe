@@ -149,7 +149,9 @@
 					<a onclick="updateProcYn('Y');" style="font-size:100%; width:70px; height: 30px; line-height: 28px;" authchk>지불완료</a>
 					<a onclick="updateProcYn('N');" style="font-size:100%; width:70px; height: 30px; line-height: 28px;" authchk>지불취소</a>
 	                <a onclick="insertProjectModal('C');" style="height: 30px; line-height: 28px;" authchk>+</a>
-	                <a onclick="deleteTrans();" style="height: 30px; line-height: 28px;" authchk>-</a>
+	                <a onclick="setReport('DTL');" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 상세출력</a>
+					<a onclick="setReport('SUM');" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 집계출력</a>
+					<a onclick="deleteTrans();" style="height: 30px; line-height: 28px;" authchk>-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
@@ -487,4 +489,33 @@
 		$('#whCd_S option:not([value=""])').remove()
 		setCommonSelect($('#whCd_S'));
 	}
+	
+	function setReport(type) {
+		
+	      if(type == 'DTL'){
+	  		    var row = gridView.target.getList("selected");
+	  		    if(row.length > 1){
+	  		    	alert("납품서는 첫번째만 출력됩니다.");
+	  		    }
+					
+	  		    fileName = "AR0301R01.jrf";
+				var arg = "coCd#"			+ $('#coCd_S').val()
+			         + "#startDt#"		+ $("#strtDt_S").val().replace(/\-/g,'')
+			         + "#endDt#"	    + $("#endDt_S").val().replace(/\-/g,'')
+			         + "#dssize#"		+ '8'
+			         + "#";
+			}else{
+				var fileName = "AR0301R02.jrf";
+				var arg = "#coCd#"			+ $('#coCd_S').val()
+				         + "#endDt#"		+ $("#endDt_S").val().replace(/\-/g,'')
+				         + "#dssize#"		+ '8'
+				         + "#userId#"		+ jwt.userId
+				         + "#";
+			}
+
+
+			callReport(fileName, arg, "1050", "700");
+		}
+		
+	
 </script>
