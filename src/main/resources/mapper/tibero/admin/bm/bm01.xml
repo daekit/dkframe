@@ -61,22 +61,25 @@
 					<choose>
 						<when test="clntCd != null and !clntCd.equals('')">
 							<choose>
-								<when test="impYn != null and !impYn.equals('')">
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}), 0)) AS ORDRG_UPR
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', #{impYn}, T.PRDT_CD, #{clntCd}), 0)) AS SHIP_UPR
+								<when test="prjctCd != null  and !prjctCd.equals('')">
+									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS ORDRG_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR_I
 								</when>
 								<otherwise>
-									<!-- 출하요청서에서 사용 -->
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'N', T.PRDT_CD,''), 0)) AS SHIP_UPR
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'N', T.PRDT_CD,''), 0)) AS SHIP_UPR_D
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', 'Y', T.PRDT_CD,''), 0)) AS SHIP_UPR_I
+									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)) AS ORDRG_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR_I
 								</otherwise>
 							</choose>
 						</when>
 						<otherwise>
+						<!-- 거래처가 없을때 -->
+						<!-- CASE1: 거래처 선택하지않고 제품검색 CASE2: 관리자 > 자재관리 -->
 							<if test="impYn != null and !impYn.equals('') and selpchCd != null and !selpchCd.equals('')">
-								, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD,''), 0)) AS ORDRG_UPR
-								, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2', #{impYn}, T.PRDT_CD,''), 0)) AS SHIP_UPR
+								, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, '', ''), 0)) AS ORDRG_UPR
+								, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, '', ''), 0)) AS SHIP_UPR
+								, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, '', ''), 0)) AS SHIP_UPR_I
 							</if>
 						</otherwise>
 					</choose>

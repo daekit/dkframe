@@ -82,7 +82,7 @@
 				<tr>	
 					<th class="hit">금액</th>
 					<td>
-						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this);" msg="금액"  comma required>
+						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" msg="금액"  comma required >
 					</td>
 					<th></th>
 					<td></td>
@@ -117,7 +117,7 @@
 					</td>
 					<th class="hit">어음번호</th>
 					<td>
-						<input type="text" id="bilNo" name="bilNo" required> 
+						<input type="text" id="bilNo" name="bilNo" required onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''"> 
 					</td>
 				</tr>
 				<tr>
@@ -135,17 +135,17 @@
 				<tr>
 					<th>발행자</th>
 					<td>
-						<input type="text" id="bilPblsPsn" name="bilPblsPsn" maxlength="25">
+						<input type="text" id="bilPblsPsn" name="bilPblsPsn" maxlength="25" onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
 					</td>
 					<th>배서인 수</th>
 					<td>
-						<input type="text" id="endrsPsnCnt" name="endrsPsnCnt" onkeyup="onlyNumber(this);">
+						<input type="text" id="endrsPsnCnt" name="endrsPsnCnt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''">
 					</td>
 				</tr>
 				<tr>
 					<th>어음금액</th>
 					<td>
-						<input type="text" id="bilAmt" name="bilAmt" onkeyup="onlyNumber(this);" comma>
+						<input type="text" id="bilAmt" name="bilAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" comma>
 					</td>
 					<th>발행일</th>
 					<td>
@@ -155,7 +155,7 @@
 				<tr>
 					<th>전배서인</th>
 					<td>
-						<input type="text" id="endrsPsn" name="endrsPsn" maxlength="25">
+						<input type="text" id="endrsPsn" name="endrsPsn" maxlength="25"  onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
 					</td>
 					<th>
 					</th>
@@ -235,7 +235,19 @@
 			$('.tit_contents .tit').text("입/출금 수정");
 			$('#actionBtn').text("수정");
 		}
-		authChk(AR0501M01);
+		authChk();
+		
+		
+	   /* select 태그 keypress catch */
+	   $('td select').keypress(function(event){
+		   var tagId = $(event.target).attr('id');
+    	   var keyCode = event.keyCode;
+    	   var idx=keyCode-48; 
+    	   var target = event.target;
+            $("select#"+tagId+" option:eq("+idx+")").prop("selected", true);
+		   if(tagId == 'setleTypCd'){ctrlBillTable(target);}
+       });
+		
 	});
 	
 	// 거래처 검색
@@ -418,4 +430,27 @@
 		$('#etrdpsBkacCd option:not([value=""])').remove()
 		setCommonSelect($('#etrdpsBkacCd'));  		
 	}	
+	
+	//input창에서 enter입력 이벤트
+	function enterRemote(val){
+		var tagId = $(val).attr('id');
+		if(tagId == 'etrdpsAmt'){
+			$('#sumry').focus();
+		}
+		if(tagId == 'bilNo'){
+			$('#exprtnDt').focus();
+		}
+		if(tagId == 'bilPblsPsn'){
+			$('#endrsPsnCnt').focus();
+		}
+		if(tagId == 'endrsPsnCnt'){
+			$('input#bilAmt').focus();
+		}
+		if(tagId == 'bilAmt'){
+			$('#bilPblsDt').focus();
+		}
+		if(tagId == 'endrsPsn'){
+			$('textarea#sumry.form-control').focus();
+		}
+	}
 </script>
