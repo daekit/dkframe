@@ -56,6 +56,7 @@ public class AR01Ctr {
 	@PostMapping(value = "/insertShip")
     public String insertShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
 		ar01Svc.insertShip(paramMap, mRequest);
+		model.addAttribute("shipSeq", paramMap.get("shipSeq"));
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
