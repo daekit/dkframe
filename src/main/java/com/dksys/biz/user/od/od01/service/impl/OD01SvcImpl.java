@@ -142,7 +142,6 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("odrWt", detailMap.get("ordrgWt"));
 				detailMap.put("odrUpr", detailMap.get("ordrgUpr"));
 				detailMap.put("odrAmt", detailMap.get("ordrgAmt"));
-				detailMap.put("odrDtlRmk", detailMap.get("ordrgDtlRmk"));
 				sd04Mapper.insertOrderDetail(detailMap);
 			}
 			od01Mapper.insertOrdrgDetail(detailMap);
@@ -294,7 +293,6 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("selpchCd", "SELPCH1");
 				detailMap.put("prdtDt", paramMap.get("reqDt"));
 				detailMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
-				detailMap.put("rmk", paramMap.get("ordrgDtlRmk"));
 				sd08Mapper.insertCplrUntpc(detailMap);
 				if("Y".equals(paramMap.get("dirtrsYn"))) {
 					detailMap.put("selpchCd", "SELPCH2");

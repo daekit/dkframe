@@ -312,7 +312,6 @@
 	        T.ORDRG_PROC_ID,
 	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORDRG_PROC_ID) AS ORDRG_PROC_NM,
 	        TO_CHAR(T.ORDRG_PROC_DTTM, 'yyyy-MM-dd') AS ORDRG_PROC_DTTM,
-	        T.ORDRG_DTL_RMK,
 	        T.SHIP_YN,	        
 	        T.SHIP_PROC_ID,
 	        (SELECT NAME FROM TB_CM06M01 WHERE ID = T.SHIP_PROC_ID) AS SHIP_PROC_NM,
@@ -425,8 +424,7 @@
 			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD, M.PRJCT_CD), 0) AS ORDRG_UPR,
 			NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH1', M.IMP_YN, B.PRDT_CD, M.CLNT_CD, M.PRJCT_CD), 0) AS REAL_DLVR_UPR,
 			D.ODR_AMT AS ORDRG_AMT,
-			D.ODR_AMT AS REAL_DLVR_AMT,
-			D.ODR_DTL_RMK AS ORDRG_DTL_RMK
+			D.ODR_AMT AS REAL_DLVR_AMT
 		FROM 
 			TB_SD04M01 M
 			INNER JOIN TB_SD04D01 D ON M.ODR_SEQ = D.ODR_SEQ
@@ -567,7 +565,6 @@
 	        ORDRG_YN,
 	        SHIP_YN,
 	        ORDRG_PROC_ID,
-	        ORDRG_DTL_RMK,
 	        CREAT_ID,
 	        CREAT_PGM,
 	        CREAT_DTTM,
@@ -609,7 +606,6 @@
 	        'N',
 	        'N',
 	        #{ordrgProcId},
-	        #{ordrgDtlRmk},
 	        #{userId},
 		    #{pgmId},
 		    SYSDATE,
@@ -664,7 +660,6 @@
           , REAL_DLVR_AMT   = #{realDlvrAmt}
           , REAL_DLVR_UPR   = #{realDlvrUpr}
           , SHIP_UPR        = #{shipUpr}
-          , ORDRG_DTL_RMK   = #{ordrgDtlRmk}
 		  , SHIP_VEH_NO     = #{shipVehNo,  jdbcType=VARCHAR}    
 		  , UDT_ID          = #{userId}
 		  , UDT_PGM         = #{pgmId}
