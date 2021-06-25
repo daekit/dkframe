@@ -74,6 +74,7 @@ public class OD01Ctr {
     @PostMapping(value = "/insertOrdrg")
     public String insertOrdrg(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	od01Svc.insertOrdrg(paramMap, mRequest);
+    	model.addAttribute("ordrgSeq", paramMap.get("ordrgSeq"));
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
