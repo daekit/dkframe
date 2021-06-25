@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+		        <a onclick="initSearch();">
+			          <button class="bg_gray">초기화</button>
+			    </a>
+		        <a onclick="gridView.setData(0);">
+		          <button class="bg_gray">검 색</button>
+		        </a>
+	        </li>
+	      </ul>
+    	</div>
+				  <!-- 검색 콘텐츠 -->
+      <div class="contents search">
+        <div class="">
+            <!-- 테이블 인풋 3분할 -->
+            <table class="table_input type03">
+            <tr>
+              <th class="hit">회사</th>
+                <td>
+               	  <select id="coCd" data-kind="CO" style="width: 100%;" onchange="gridView.setData(0);" required="required">
+               	      <option value="">전체</option>
+               	  </select>
+                </td>
+              <th class="hit">일자</th>
+                <td>
+					<input type="text" class="input_calendar" id="planDt" data-search="planDt" autocomplete="off" date>
+               	  <!-- <input id="planYm" name="planYm" type="month" onchange="gridView.setData(0);"> -->
+              </td>
+              <th></th>
+              <td></td>
+            </tr>
+            <tr>
+	            <th class="hit">판매유형</th>
+	            <td>
+		            <select id="selpchCd_S" style="width: 100%;" onchange="gridView.setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
+			            <option value="SELPCH1">매입</option>
+						<option value="SELPCH2" selected>매출</option>
+		            </select>
+	            </td>
+	              <th>부서</th>
+	              <td>
+	              	<input type="hidden" id="deptId_S" name="deptId" style="width: 73%;">
+	                  <div class="search_form">
+	                  <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" onkeyup="event.keyCode == 8 ? deptId_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+	                  	<a onclick="openDeptTree();"><i class="i_search_w"></i></a>
+	                  </div>
+	              </td>
+	              <th>제품그룹</th>
+	              <td>
+	                <select id="prdtGrp_S" name="prdtGrp_S" data-kind="PRDTGRP" style="width: 100%;" onchange="gridView.setData(0);">
+	                   <option value="">전체</option>
+	                </select>
+	              </td>
+            </tr>
+            </table>
+          </div>
+    </div>
+    	<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+<!-- 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+ -->				
+				<input type="hidden" id="planSeq" name="planSeq">
+			</div>
+			<!-- <div class="add_btn_small">
+	                <a onclick="copy();" style="height: 30px; line-height: 28px;">+</a>
+	        </div> -->
+		</div>
+    	<div class="contents">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 640px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+	</div>
+		
+</body>
+</html>
+<script type="text/javascript">
+
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;	
+	var gridView = {	
+		initView: function(){ 
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center", 
+		        	selector: false
+		        },
+		        body: {
+		        	 onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {
+		            	insertUpdatePlan("U");
+		            }, 
+		            mergeCells : ["coNm","clntDivNm","salesAreaNm","prdtDivNm"],
+		            grouping: {
+		            	by: ["coNm","clntDivNm"],
+		            	columns: [
+		                    {
+		                        label: function () {if(this.groupBy.labels.length > 1) {
+		                        		return "소 계";
+			                        } else {
+			                        	return "합 계";
+			                        }
+		                        }
+		                    	, colspan: 4
+		                    },
+		                    {key: "planWt", collector: "sum", formatter: "money", align: "right"},
+		                    {key: "dayWt", 	collector: "sum", formatter: "money", align: "right"},
+		                    {key: "monWt",  collector: "sum", formatter: "money", align: "right"},
+		                    {key: "dayAmt", collector: "sum", formatter:"money", align: "right"},
+				    		{key: "monAmt", collector: "sum", formatter:"money", align: "right"}
+		                ]
+		            },
+		        },
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan:4, align:"center"},
+			    		{key:"planWt", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "dayWt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "monWt", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "dayAmt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "monAmt", collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
+		        page: {
+		            display: false,
+/*		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+*/		        },
+		        
+		        columns: [
+		        	{key: "planSeq",   label: "계획번호",    align: "center",  hidden:true},
+		            {key: "coNm", label: "회사", align: "center", width: "9%"},
+		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
+		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
+		            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
+		            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
+		            {label: "실적",  columns:[
+			            {key: "dayWt", label: "조회일자실적",     align: "right", width: "9%", formatter: "money"},
+		            	{key: "monWt", label: "판매누계",     align: "right", width: "9%", formatter: "money"},
+			            {key: "dayAmt", label: "조회일자실적(원)",     align: "right", width: "9%", formatter: "money"},
+		            	{key: "monAmt", label: "판매누계(원)",     align: "right", width: "9%", formatter: "money"}
+			        ]},
+		            {key: "rateWt", label: "달성율", align: "right", width: "9%"},
+		            {key: "rmk", label: "비고", align: "center", width: "12%"},
+		        ]
+		    });
+			return this;
+		},
+		setData: function(_pageNo) {
+			firstGrid = this.target;
+			if(inputValidation($('input[required]'))){
+				var formData = {
+					"coCd" : $("#coCd").val(),
+					"selpchCd" : $("#selpchCd_S").val(),
+					"planDt"  : $("#planDt").val(),
+					"planDeptId"  : $("#deptId_S").val(),
+					"prdtGrp"  : $("#prdtGrp_S").val(),
+				//	"pageNo" : _pageNo + 1,
+				//	"recordCnt" : $("#recordCnt").val() 
+				}
+				postAjax("/user/sd/sd02/selectSellDailyRep", formData, null, function(data){
+					var list = data.sellList;
+					firstGrid.setData(list);
+/*					firstGrid.setData({
+						list : list
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+
+					});
+*/					
+				});
+			}
+		} 
+	}
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+				        	{key: "planSeq",   label: "계획번호",    align: "center",  hidden:true},
+				            {key: "coNm", label: "회사", align: "center", width: "9%"},
+				        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
+				            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
+				            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
+				            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
+				            {label: "실적",  columns:[
+					            {key: "dayWt", label: "조회일자실적",     align: "right", width: "9%", formatter: "money"},
+				            	{key: "monWt", label: "판매누계",     align: "right", width: "9%", formatter: "money"},
+					            {key: "dayAmt", label: "조회일자실적(원)",     align: "right", width: "9%", formatter: "money"},
+				            	{key: "monAmt", label: "판매누계(원)",     align: "right", width: "9%", formatter: "money"}
+					        ]},
+				            {key: "rateWt", label: "달성율", align: "right", width: "9%"},
+				            {key: "rmk", label: "비고", align: "center", width: "12%"},
+		            ]
+			    });
+				return this;
+			}
+	}
+	
+	//화면로드시
+	$(document).ready(function() {
+		mainDefaultLoad("영업관리", "판매 속보");
+		$("#userId").val(jwt.userId);
+
+		// 일자
+		$('#planDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date());
+		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd").val(jwt.coCd);
+		$("#selpchCd_S").val("SELPCH2");
+		/* $('#planYm').datepicker({
+			format : "yyyy-mm",
+			language : "ko",
+			autoclose : true
+		}); */
+		
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+	    gridView.initView().setData(0);
+		excelView.initView();
+		
+		//권한체크
+		authChk();
+	})	
+	
+	//부서 검색
+	function openDeptTree() {
+		var paramObj = {
+			"coCd" : "GUM", //$('#coCd').val(),
+			"userId": $('#salesMng_S').val(),
+			"useYn": "Y"
+		};
+		openSecondModal("/static/html/cmn/modal/deptSearch.html", 300, 500, "부서 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#deptId_S').val(checkedNode.id);
+			$('#deptNm_S').val(checkedNode.text);
+			gridView.initView().setData(0);
+		});
+	}
+		
+	function insertUpdatePlan(type){
+		actionType = type;
+		if ( actionType == 'U' && selectGridValidation(firstGrid)){
+			return;
+		}
+		openModal("/static/html/user/sd/sd02/SD0201P01.html", 400, 600," ");
+	}
+	
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input[type='hidden']").val("");
+		$(".contents.search input[type='text']").val("");
+		$("#coCd").val(jwt.coCd);
+		$("#selpchCd_S").val("SELPCH2");
+		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
+		gridView.initView().setData(0);
+	}
+	
+	function excelDown() {
+		firstGrid = this.target;
+		if(inputValidation($('input[required]'))){
+			var formData = {
+				"coCd" : $("#coCd").val(),
+				"selpchCd" : $("#selpchCd_S").val(),
+				"planDt"  : $("#planDt").val(),
+				"planDeptId"  : $("#deptId_S").val(),
+				"prdtGrp"  : $("#prdtGrp_S").val(),
+			//	"pageNo" : _pageNo + 1,
+			//	"recordCnt" : $("#recordCnt").val() 
+			}
+			postAjax("/user/sd/sd02/selectSellDailyRep", formData, null, function(data){
+				var list = data.sellList;
+				excelView.target.setData(list);
+			
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("판매일보_"+todayDate+".xls");
+			});	
+		}
+	}
+	
+</script>
