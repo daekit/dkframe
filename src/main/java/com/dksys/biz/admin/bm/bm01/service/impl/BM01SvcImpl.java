@@ -32,11 +32,6 @@ public class BM01SvcImpl implements BM01Svc {
 	}
 	
 	@Override
-	public int selectPrdtCntInPrjct(Map<String, String> param) {
-		return bm01Mapper.selectPrdtCntInPrjct(param);
-	}
-	
-	@Override
 	public int checkOverLap(Map<String, String> param) {
 		return bm01Mapper.checkOverLap(param);
 	}
