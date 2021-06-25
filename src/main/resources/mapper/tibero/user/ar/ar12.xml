@@ -86,29 +86,18 @@
 
 	<select id="SelectPtnCreditList" resultType="CamelMap">
 		WITH T AS (
-			SELECT
-				CO_CD,
-				CLNT_CD,
-				CLNT_NM,
-				TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
-				FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM,
-				RMK,
-				TRST_SEQ,
-				'' AS ACC_NM,
-				FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
-				NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0) AS SELL_AMT,
-				NVL(CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0) AS PCHS_AMT,
+		   SELECT 2 SEQ, --거래내역
+			   CO_CD, CLNT_CD, CLNT_NM,  TO_CHAR(TO_DATE(TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT, SELPCH_CD,  
+		       FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM, RMK,  TRST_SEQ, '' AS ACC_NM,
+			   FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+				nvl(CASE SELPCH_CD WHEN 'SELPCH2' THEN  BILG_TOT_AMT END,0) AS SELL_AMT,  
+				nvl(CASE SELPCH_CD WHEN 'SELPCH1' THEN  BILG_TOT_AMT END,0) AS PCHS_AMT, 
 				PRDT_NM || ' ' || PRDT_SIZE || ' ' || SITE_NM AS TEXT
-			FROM
-				TB_AR10M01	
-									
+			FROM TB_AR10M01 									
 			WHERE
 				CO_CD = #{coCd}	
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				AND TRST_DT >= #{trstDtFrom}
-			</if>
-			<if test="trstDtTo != null and !trstDtTo.equals('')">
-				<![CDATA[ AND TRST_DT <= #{trstDtTo} ]]>
+				AND TRST_DT BETWEEN #{trstDtFrom} AND #{trstDtTo}
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
 				AND CLNT_CD =  #{clntCd}
@@ -125,29 +114,21 @@
 			
 			UNION ALL
 			
-			SELECT
-				CO_CD,
-				CLNT_CD,
-				CLNT_NM,
-				TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
-				FN_CM05M01_CD_TO_NM(DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1')) AS SELPCH_NM,
-				SUMRY AS RMK,
-				ETRDPS_SEQ AS TRST_SEQ,
-				ACC_NM,
-				FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0) AS SELL_AMT,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0) AS PCHS_AMT,
-				SUMRY AS TEXT
-			FROM
-				TB_AR11M01 E
-				
+			SELECT 2 SEQ, --거래내역
+			       CO_CD, CLNT_CD, CLNT_NM, TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT, ETRDPS_TYP, 
+				   FN_CM05M01_CD_TO_NM(ETRDPS_TYP) AS SELPCH_NM,
+				   '' AS RMK,
+				   ETRDPS_SEQ,
+				   ACC_NM,
+				   FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
+				nvl(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN  ETRDPS_AMT END,0) AS CHA보통예금외,
+				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN  ETRDPS_AMT END, 0) AS DAE외상매입금,
+				SUMRY AS TEXT 
+			FROM TB_AR11M01
 			WHERE
 				CO_CD = #{coCd}	
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				AND ETRDPS_DT >= #{trstDtFrom}
-			</if>
-			<if test="trstDtTo != null and !trstDtTo.equals('')">
-				<![CDATA[ AND ETRDPS_DT <= #{trstDtTo} ]]>
+				AND ETRDPS_DT BETWEEN #{trstDtFrom} AND #{trstDtTo}
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
 				AND CLNT_CD = #{clntCd}
@@ -162,60 +143,101 @@
 				AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
 			</if>
 			
-		),
-		C AS (
+		UNION ALL 
 			SELECT
-				CO_CD,
-				SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0)) AS SELL_AMT,
-				SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0)) AS PCHS_AMT
-			FROM
-				TB_AR10M01	
-			WHERE
-				CO_CD = #{coCd}	
-			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				<![CDATA[ AND TRST_DT < #{trstDtFrom} ]]>
-			</if>
-			<if test="clntCd != null and !clntCd.equals('')">
-				AND CLNT_CD = #{clntCd}
-			</if>				
-			<if test="clntNm != null and !clntNm.equals('')">
-				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
-			</if>	
-			<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
-				AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
-			</if>
-			<if test="selpchCd != null and !selpchCd.equals('')">
-				AND SELPCH_CD = #{selpchCd}
-			</if>
-			GROUP BY CO_CD
+			     1 SEQ --이월 
+				,CO_CD
+				,0 AS CLNT_CD
+				,'이월' AS CLNT_NM
+				,TO_CHAR(TO_DATE('20160101', 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+				,'' AS SELPCH_CD
+				,'이월' AS SELPCH_NM
+				,'' AS RMK
+				,0 AS TRST_SEQ
+				,'' AS ACC_NM
+				,'이월금액' AS TAXIVC_COPRT_NM
+				,CASE WHEN (#{selpchCd} = 'SELPCH2') THEN SUM(SELL_AMT)-SUM(PCHS_AMT) ELSE 0 END SELL_AMT
+				,CASE WHEN (#{selpchCd} = 'SELPCH1') THEN SUM(PCHS_AMT)-SUM(SELL_AMT) ELSE 0 END PCHS_AMT
+				,'' AS TEXT
+				FROM (
+						SELECT
+							CO_CD,
+							SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN BILG_TOT_AMT END, 0)) AS SELL_AMT,
+							SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH1' THEN BILG_TOT_AMT END, 0)) AS PCHS_AMT
+						FROM
+							TB_AR10M01	
+						WHERE
+							CO_CD = #{coCd}	
+						<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+							<![CDATA[ AND TRST_DT < #{trstDtFrom} ]]>
+						</if>
+						<if test="clntCd != null and !clntCd.equals('')">
+							AND CLNT_CD = #{clntCd}
+						</if>				
+						<if test="clntNm != null and !clntNm.equals('')">
+							AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+						</if>	
+						<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+							AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+						</if>
+						<if test="selpchCd != null and !selpchCd.equals('')">
+							AND SELPCH_CD = #{selpchCd}
+						</if>
+						GROUP BY CO_CD
 			
-			
-			UNION ALL
-			
-			SELECT
-				CO_CD,
-				SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0)) AS SELL_AMT,
-				SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0)) AS PCHS_AMT
-			FROM
-				TB_AR11M01 E
-			WHERE
-				CO_CD = #{coCd}	
-			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				<![CDATA[ AND ETRDPS_DT < #{trstDtFrom} ]]>
-			</if>
-			<if test="clntCd != null and !clntCd.equals('')">
-				AND CLNT_CD = #{clntCd}
-			</if>				
-			<if test="clntNm != null and !clntNm.equals('')">
-				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
-			</if>	
-			<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
-				AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
-			</if>
-			<if test="selpchCd != null and !selpchCd.equals('')">
-				AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
-			</if>
-			GROUP BY CO_CD
+				UNION ALL
+					SELECT
+						CO_CD,
+						SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0)) AS SELL_AMT,
+						SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0)) AS PCHS_AMT
+					FROM
+						TB_AR11M01 E
+					WHERE
+						CO_CD = #{coCd}	
+					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
+						<![CDATA[ AND ETRDPS_DT < #{trstDtFrom} ]]>
+					</if>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND CLNT_CD = #{clntCd}
+					</if>				
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>	
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
+					<if test="selpchCd != null and !selpchCd.equals('')">
+						AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
+					</if>
+					GROUP BY CO_CD
+				UNION ALL
+					SELECT
+						CO_CD,
+						SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH2' THEN TRMEND_CREDIT_AMT END, 0)) AS SELL_AMT,
+						SUM(NVL(CASE SELPCH_CD WHEN 'SELPCH1' THEN TRMEND_CREDIT_AMT END, 0)) AS PCHS_AMT
+					FROM
+						TB_AR12M01 E
+					WHERE
+						CO_CD = #{coCd}	
+<!-- 					<if test="trstDtFrom != null and !trstDtFrom.equals('')"> -->
+<!-- 						<![CDATA[ AND CLOSE_YM < #{trstDtFrom} ]]> -->
+<!-- 					</if> -->
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND CLNT_CD = #{clntCd}
+					</if>				
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
+					</if>	
+					<if test="taxivcCoprtCd != null and !taxivcCoprtCd.equals('')">
+						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
+					</if>
+					<if test="selpchCd != null and !selpchCd.equals('')">
+						AND SELPCH_CD = #{selpchCd}
+					</if>
+					GROUP BY CO_CD
+			) GROUP BY CO_CD	  
+			<![CDATA[ HAVING  (SUM(SELL_AMT) - SUM(PCHS_AMT)) <> 0	]]>					
+
 		)
 		SELECT
 			*
@@ -230,98 +252,62 @@
 					*
 				FROM
 				(
-					SELECT
-						1 SEQ,
-						H.*,
-						SUM(SELL_AMT_CAL - PCHS_AMT) OVER(ORDER BY TRST_DT, TRST_SEQ) REMAIND_AMT
-					FROM 
-					(
-						SELECT
-							CO_CD,
-							0 AS CLNT_CD,
-							'' AS CLNT_NM,
-							TO_CHAR(TO_DATE(#{trstDtFrom}, 'YYYYMMDD') -1, 'YYYY-MM-DD') AS TRST_DT,
-							'이월' AS SELPCH_NM,
-							'' AS RMK,
-							0 AS TRST_SEQ,
-							'' AS ACC_NM,
-							'' AS TAXIVC_COPRT_NM,
-							SUM(SELL_AMT) - SUM(PCHS_AMT) AS SELL_AMT_CAL,
-							0 AS SELL_AMT,
-							0 AS PCHS_AMT,
-							'' AS TEXT
-						FROM 
-							C
-						GROUP BY CO_CD
-				
-						UNION ALL
-				
-						SELECT
-							CO_CD,
-							CLNT_CD,
-							CLNT_NM,
-							TRST_DT,
-							SELPCH_NM,
-							RMK,
-							TRST_SEQ,
-							ACC_NM,
-							TAXIVC_COPRT_NM,
-							SELL_AMT,
-							SELL_AMT,
-							PCHS_AMT,
-							TEXT
-						FROM
-							T
-					) H
-					
+					SELECT  SEQ, CO_CD, CLNT_CD, CLNT_NM, TRST_DT, SELPCH_CD  
+					        ,SELPCH_NM, RMK,  TRST_SEQ, ACC_NM
+						    ,TAXIVC_COPRT_NM
+							,sum(SELL_AMT)   SELL_AMT
+							,sum(PCHS_AMT) PCHS_AMT
+							,TEXT 
+					        , sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY SEQ,TRST_dt,TRST_SEQ) REMAIND_AMT	  
+						FROM (SELECT  *
+							  FROM T
+							)
+						GROUP BY SEQ, CO_CD, CLNT_CD, CLNT_NM, TRST_DT, SELPCH_CD  
+					        ,SELPCH_NM, RMK,  TRST_SEQ, ACC_NM
+						    ,TAXIVC_COPRT_NM,  TEXT 
+									
 					<if test='dailySumYn != null and dailySumYn.equals("Y")'>
-						UNION ALL
-						
-						SELECT
-							2 SEQ,
-							MAX(CO_CD),
-							0,
-							'일계',
-							TRST_DT,
-							'합계' xxx,
-							'',
-							999999999,
-							'',
-							'',
-							0,
-							SUM(SELL_AMT),
-							SUM(PCHS_AMT),
-							'',
-							0
-						FROM
-							T
-						GROUP BY
-							TRST_DT
+					 UNION ALL 
+						SELECT   
+						           3 SEQ --일계
+								 , MAX(CO_CD)
+								 ,	0
+								 ,	'일계'
+								 ,	TRST_DT
+								 ,	'소계' xxx
+								 ,	'일계'
+								 ,   ''
+								 ,	999999999
+								 ,	''
+								 ,	''
+						         , sum(SELL_AMT)
+						         , sum(PCHS_AMT)
+								 ,	''
+						         , sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY TRST_DT) REMAIND_AMT
+							  FROM T 
+							 GROUP BY TRST_DT
 					</if>
 					
 					<if test='monthlySumYn != null and monthlySumYn.equals("Y")'>
-						UNION ALL
-						
-						SELECT
-							3 SEQ,
-							MAX(CO_CD),
-							0,
-							'월계',
-							'',
-							'합계' xxx,
-							'',
-							999999999,
-							'',
-							'',
-							0,
-							SUM(SELL_AMT),
-							SUM(PCHS_AMT),
-							'',
-							0
-						FROM
-							T
-						GROUP BY
-							TO_CHAR(TO_DATE(TRST_DT, 'YYYY-MM-DD'), 'YYYY-MM')
+					  UNION ALL 
+						SELECT   
+						           4 SEQ --월계
+								 , MAX(CO_CD)
+								 ,	0
+								 ,	'월계'
+					             , SUBSTRING(TRST_DT,1,7)|| '-99'
+								 ,	'소계' xxx
+								 ,	'월계'
+								 ,   ''
+								 ,	999999999
+								 ,	''
+								 ,	''
+						         , sum(SELL_AMT)
+						         , sum(PCHS_AMT)
+								 ,	''
+					             , sum(sum(SELL_AMT) - sum(PCHS_AMT)) OVER(ORDER BY SUBSTRING(TRST_DT,1,7)) REMAIND_AMT	
+							  FROM T 
+							 GROUP BY SUBSTRING(TRST_DT,1,7)
 					</if>	
 				)
 				ORDER BY 
