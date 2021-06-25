@@ -402,6 +402,7 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("clntCd", sellClntCd);
 					paramMap.put("clntNm", sellClntNm);
 					paramMap.put("sellUpr", detailMap.get("shipUpr"));
+					paramMap.put("trspRmk", paramMap.get("dlvrRmk"));
 
 					// 매출자료를 세팅한다... 매출단가를 기준으로 모든 금액을 재계산한다.
 					paramMap.put("trstUpr", detailMap.get("shipUpr"));
