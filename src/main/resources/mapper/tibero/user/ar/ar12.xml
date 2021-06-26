@@ -23,13 +23,10 @@
 			WHERE
 				CO_CD = #{coCd}	
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				AND TRST_DT >= #{trstDtFrom}
-			</if>
-			<if test="trstDtTo != null and !trstDtTo.equals('')">
-				<![CDATA[ AND TRST_DT <= #{trstDtTo} ]]>
+				AND TRST_DT BETWEEN #{trstDtFrom} AND #{trstDtTo}
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
-				AND CLNT_CD = #{clntCd}
+				AND CLNT_CD =  #{clntCd}
 			</if>	
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
@@ -40,7 +37,6 @@
 			<if test="selpchCd != null and !selpchCd.equals('')">
 				AND SELPCH_CD = #{selpchCd}
 			</if>
-			
 			UNION ALL
 			
 			SELECT
@@ -48,13 +44,13 @@
 				CLNT_CD,
 				CLNT_NM,
 				TO_CHAR(TO_DATE(ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT,
-				FN_CM05M01_CD_TO_NM(DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1')) AS SELPCH_NM,
+				FN_CM05M01_CD_TO_NM(ETRDPS_TYP) AS SELPCH_NM,
 				SUMRY,
 				ETRDPS_SEQ,
 				ACC_NM,
 				FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0) AS SELL_AMT,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0) AS PCHS_AMT,
+			    nvl(DE_AMT, 0) AS CHA보통예금외,
+			    NVL(CR_AMT, 0) AS DAE외상매입금,
 				SUMRY AS TEXT
 			FROM
 				TB_AR11M01 E
@@ -62,10 +58,7 @@
 			WHERE
 				CO_CD = #{coCd}	
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				AND ETRDPS_DT >= #{trstDtFrom}
-			</if>
-			<if test="trstDtTo != null and !trstDtTo.equals('')">
-				<![CDATA[ AND ETRDPS_DT <= #{trstDtTo} ]]>
+				AND ETRDPS_DT BETWEEN #{trstDtFrom} AND #{trstDtTo}
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
 				AND CLNT_CD = #{clntCd}
@@ -77,7 +70,8 @@
 				AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
 			</if>
 			<if test="selpchCd != null and !selpchCd.equals('')">
-				AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
+			    AND ((#{selpchCd}='SELPCH1' AND ETRDPS_TYP IN ('ETRDPS02', 'ETRDPS04'))
+			          OR (#{selpchCd}='SELPCH2' AND ETRDPS_TYP IN ('ETRDPS01', 'ETRDPS05')))
 			</if>
 			
 		)
@@ -121,9 +115,9 @@
 				   ETRDPS_SEQ,
 				   ACC_NM,
 				   FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
-				nvl(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN  ETRDPS_AMT END,0) AS CHA보통예금외,
-				NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN  ETRDPS_AMT END, 0) AS DAE외상매입금,
-				SUMRY AS TEXT 
+				   nvl(DE_AMT, 0) AS CHA보통예금외,
+				   NVL(CR_AMT, 0) AS DAE외상매입금,
+				   SUMRY AS TEXT 
 			FROM TB_AR11M01
 			WHERE
 				CO_CD = #{coCd}	
@@ -140,7 +134,8 @@
 				AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
 			</if>
 			<if test="selpchCd != null and !selpchCd.equals('')">
-				AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
+			    AND ((#{selpchCd}='SELPCH1' AND ETRDPS_TYP IN ('ETRDPS02', 'ETRDPS04'))
+			          OR (#{selpchCd}='SELPCH2' AND ETRDPS_TYP IN ('ETRDPS01', 'ETRDPS05')))
 			</if>
 			
 		UNION ALL 
@@ -149,7 +144,7 @@
 				,CO_CD
 				,0 AS CLNT_CD
 				,'이월' AS CLNT_NM
-				,TO_CHAR(TO_DATE('20160101', 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+				,TO_CHAR(TO_DATE(#{trstDtFrom}, 'YYYYMMDD')-1, 'YYYY-MM-DD') AS TRST_DT
 				,'' AS SELPCH_CD
 				,'이월' AS SELPCH_NM
 				,'' AS RMK
@@ -188,8 +183,8 @@
 				UNION ALL
 					SELECT
 						CO_CD,
-						SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS02' THEN ETRDPS_AMT END, 0)) AS SELL_AMT,
-						SUM(NVL(CASE ETRDPS_TYP WHEN 'ETRDPS01' THEN ETRDPS_AMT END, 0)) AS PCHS_AMT
+						SUM(nvl(DE_AMT, 0)) AS SELL_AMT,
+						SUM(NVL(CR_AMT, 0)) AS PCHS_AMT			
 					FROM
 						TB_AR11M01 E
 					WHERE
@@ -207,7 +202,8 @@
 						AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
 					</if>
 					<if test="selpchCd != null and !selpchCd.equals('')">
-						AND DECODE(ETRDPS_TYP, 'ETRDPS01', 'SELPCH2', 'ETRDPS02', 'SELPCH1') = #{selpchCd}
+					    AND ((#{selpchCd}='SELPCH1' AND ETRDPS_TYP IN ('ETRDPS02', 'ETRDPS04'))
+					        OR (#{selpchCd}='SELPCH2' AND ETRDPS_TYP IN ('ETRDPS01', 'ETRDPS05')))
 					</if>
 					GROUP BY CO_CD
 				UNION ALL
