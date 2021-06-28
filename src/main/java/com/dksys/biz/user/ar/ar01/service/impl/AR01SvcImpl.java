@@ -84,9 +84,11 @@ public class AR01SvcImpl implements AR01Svc {
 		// 출하상세 insert
 		for(Map<String, String> detailMap : detailList) {
 			paramMap.put("prdtCd", detailMap.get("prdtCd"));
+			paramMap.put("impYn", detailMap.get("impYn"));
 			paramMap.put("prdtSize", detailMap.get("prdtSize"));
 			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 			paramMap.put("prdtLen", detailMap.get("prdtLen"));
+			
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfo == null) {
 				detailMap.put("pchsUpr", "0");
