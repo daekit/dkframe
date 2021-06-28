@@ -91,10 +91,15 @@ public class SD09SvcImpl implements SD09Svc {
 	}
 
 	@Override
-	public int deleteSite(Map<String, String> paramMap) {
-//	     deleteSitePrdt(paramMap);
-		sd09Mapper.deleteSitePrdt(paramMap);
-		 return sd09Mapper.deleteSite(paramMap); 
+	@SuppressWarnings("all")
+	public int deleteSite(Map<String, Object> paramMap) {		
+		System.out.println("paramMap : " + paramMap.toString());
+		int result = 0;
+		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
+		for(Map<String, String> detailMap : detailList) {
+			result += sd09Mapper.deleteSite(detailMap);
+		}
+		 return result; 
 	}
 
 	@Override
