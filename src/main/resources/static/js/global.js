@@ -1,6 +1,10 @@
 // 그리도 총건수 표기 커스텀
 if(ax5.ui.grid){
 	ax5.ui.grid.tmpl.page_status = function(){return '<span>총 {{totalElements}}건</span>';};
+	
+	ax5.ui.grid.formatter["kg"] = function () {
+		return addCommaStr(this.value);
+	};
 }
 
 var setCookie = function(name, value, exp) {
