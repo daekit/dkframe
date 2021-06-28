@@ -1029,12 +1029,19 @@
 	}
 	
 	function insertShip() {
-		if(!lengthValidation()) return false;
+		if(!lengthValidation()) {return false;}
 		if(inputValidation($('.popup_area [required]').not('#frameTable [required]'))) {
 			var formData = makeFormData();
 			if(formData){
 				filePostAjax("/user/ar/ar01/insertShip", formData, function(data){
-					alert(data.resultMessage);
+					var resultMessage = data.resultMessage;
+					//상세내역 여부
+					if(resultMessage){
+						alert(data.resultMessage);	
+					}else {
+						alert("상세 내역을 추가해 주세요.");
+						return false;
+					}
 					if(data.resultCode == 200){
 						var shipSeq = data.shipSeq;
 						modalStack.close();
