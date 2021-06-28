@@ -13,10 +13,10 @@
 				AND T.SELPCH_CD = #{selpchCd}				
 			</if>	
 			<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-				AND T.TRST_DT >= #{trstDtFrom}
+				AND T.TRST_DT BETWEEN  #{trstDtFrom} AND #{trstDtTo}
 			</if>
-			<if test="trstDtTo != null and !trstDtTo.equals('')">
-				<![CDATA[ AND T.TRST_DT <= #{trstDtTo} ]]>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND T.CLNT_CD =  #{clntCd} 
 			</if>
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
@@ -98,10 +98,10 @@
 						AND T.SELPCH_CD = #{selpchCd}				
 					</if>	
 					<if test="trstDtFrom != null and !trstDtFrom.equals('')">
-						AND T.TRST_DT >= #{trstDtFrom}
+						AND T.TRST_DT BETWEEN  #{trstDtFrom} AND #{trstDtTo}
 					</if>
-					<if test="trstDtTo != null and !trstDtTo.equals('')">
-						<![CDATA[ AND T.TRST_DT <= #{trstDtTo} ]]>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND T.CLNT_CD =  #{clntCd} 
 					</if>
 					<if test="clntNm != null and !clntNm.equals('')">
 						AND T.CLNT_NM LIKE '%'|| #{clntNm} || '%'
@@ -124,7 +124,7 @@
 					<if test="rmk != null and !rmk.equals('')">
 						AND T.RMK LIKE '%'|| #{rmk} || '%'
 					</if>
-				ORDER BY T.CO_CD, T.TAXIVC_COPRT_CD, T.TRST_DT, T.CLNT_NM, T.SELPCH_CD
+				ORDER BY T.CO_CD, T.TAXIVC_COPRT_CD, T.TRST_DT, T.CLNT_NM, CLNT_CD, T.SELPCH_CD
 			) A
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -137,7 +137,7 @@
 			(
 					WITH t AS 
 					(
-						SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6) YYMM, SUM(BILG_TOT_AMT) BILG_TOT_AMT, COUNT(*) CNT
+						SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUBSTR(TRST_DT,1,6) YYMM, SUM(BILG_TOT_AMT) BILG_TOT_AMT, COUNT(*) CNT
 						  FROM TB_AR10M01
 						 WHERE CO_CD = #{coCd}
 						<if test="selpchCd != null and !selpchCd.equals('')">
@@ -147,6 +147,9 @@
 							AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
 						</if>
 						   AND TRST_DT BETWEEN #{searchYear} || '0101' AND #{searchYear} || '1231'
+						<if test="clntCd != null and !clntCd.equals('')">
+							AND T.CLNT_CD =  #{clntCd} 
+						</if>
 						<if test="clntNm != null and !clntNm.equals('')">
 							AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 						</if>
@@ -165,9 +168,9 @@
 						<if test="rmk != null and !rmk.equals('')">
 							AND RMK LIKE '%'|| #{rmk} || '%'
 						</if>
-						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6)
+						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUBSTR(TRST_DT,1,6)
 					)
-					SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUM(BILG_TOT_AMT) TOT_AMT, SUM(CNT) TOT_CNT,
+					SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUM(BILG_TOT_AMT) TOT_AMT, SUM(CNT) TOT_CNT,
 						sum(CASE WHEN substr(yymm,5,2) = 01 THEN  BILG_TOT_AMT ELSE 0 END) "01월합계", 
 						sum(CASE WHEN substr(yymm,5,2) = 02 THEN  BILG_TOT_AMT ELSE 0 END) "02월합계", 
 						sum(CASE WHEN substr(yymm,5,2) = 03 THEN  BILG_TOT_AMT ELSE 0 END) "03월합계", 
@@ -193,8 +196,8 @@
 						sum(CASE WHEN substr(yymm,5,2) = 11 THEN  cnt ELSE 0 END) "11월건수", 
 						sum(CASE WHEN substr(yymm,5,2) = 12 THEN  cnt ELSE 0 END) "12월건수"	
 					FROM t
-					GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
-					ORDER BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
+					GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD
+					ORDER BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD
 			)
 	</select>
 
@@ -211,7 +214,7 @@
 			(
 					WITH t AS 
 					(
-						SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6) YYMM, SUM(BILG_TOT_AMT) BILG_TOT_AMT, COUNT(*) CNT
+						SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUBSTR(TRST_DT,1,6) YYMM, SUM(BILG_TOT_AMT) BILG_TOT_AMT, COUNT(*) CNT
 						  FROM TB_AR10M01
 						 WHERE CO_CD = #{coCd}
 						<if test="selpchCd != null and !selpchCd.equals('')">
@@ -221,6 +224,9 @@
 							AND TAXIVC_COPRT_CD = #{taxivcCoprtCd}
 						</if>
 						   AND TRST_DT BETWEEN #{searchYear} || '0101' AND #{searchYear} || '1231'
+						<if test="clntCd != null and !clntCd.equals('')">
+							AND T.CLNT_CD =  #{clntCd} 
+						</if>
 						<if test="clntNm != null and !clntNm.equals('')">
 							AND CLNT_NM LIKE '%'|| #{clntNm} || '%'
 						</if>
@@ -239,7 +245,7 @@
 						<if test="rmk != null and !rmk.equals('')">
 							AND RMK LIKE '%'|| #{rmk} || '%'
 						</if>
-						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, SUBSTR(TRST_DT,1,6)
+						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUBSTR(TRST_DT,1,6)
 					)
 					SELECT 
 						CO_CD,
@@ -248,6 +254,7 @@
 						FN_CM05M01_CD_TO_NM(TAXIVC_COPRT_CD) AS TAXIVC_COPRT_NM,
 						SELPCH_CD,
 						FN_CM05M01_CD_TO_NM(SELPCH_CD) AS SELPCH_NM, 
+						CLNT_CD,
 						CLNT_NM, 
 						round(sum(BILG_TOT_AMT)/#{searchItem}) TOT_AMT, 
 						sum(CNT) TOT_CNT,
@@ -276,8 +283,8 @@
 						sum(CASE WHEN substr(yymm,5,2) = 11 THEN  cnt ELSE 0 END) "11월건수", 
 						sum(CASE WHEN substr(yymm,5,2) = 12 THEN  cnt ELSE 0 END) "12월건수"	
 					FROM t
-					GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
-					ORDER BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM
+					GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD
+					ORDER BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD
 			) A
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
