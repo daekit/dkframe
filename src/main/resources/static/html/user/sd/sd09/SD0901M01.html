@@ -353,4 +353,32 @@
 			}
 		});
 	}
+	// 현장 삭제
+	function deleteSite() {
+		var rowList = gridView.target.getList("selected");
+		if(rowList.length == 0) {
+			alert("삭제할 건을 선택해주세요");
+			return;
+		}
+		var detailArr = [];
+		
+		$.each(rowList, function(idx, elem){
+			var detailObj = {};
+			detailObj["coCd"]   = elem.coCd;
+			detailObj["siteCd"] = elem.siteCd;
+			detailArr.push(detailObj);
+		});
+		
+		var formData = {
+			"detailArr" : detailArr
+		}
+		if(confirm("삭제하시겠습니까?")){
+			putAjax("/user/sd/sd09/deleteSite", formData, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+				}
+			});
+		}
+	}
 </script>
