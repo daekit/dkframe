@@ -73,7 +73,7 @@ public class SD09Ctr {
     }
     
     @PutMapping(value = "/deleteSite")
-    public String deleteSite(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String deleteSite(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	try {
     		sd09Svc.deleteSite(paramMap);
         	model.addAttribute("resultCode", 200);
