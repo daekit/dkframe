@@ -16,6 +16,8 @@ public interface AR05Mapper {
 	
 	Map<String, String> selectBillInfo(Map<String, String> paramMap);
 	
+	List<Map<String, String>> selectBilgList(Map<String, String> paramMap);
+	
 	int insertEtrdps(Map<String, String> paramMap);
 	
 	int insertBill(Map<String, String> paramMap);
@@ -29,5 +31,17 @@ public interface AR05Mapper {
 	int deleteEtrdps(Map<String, String> paramMap);
 	
 	int deleteBill(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectEtrdpsDtlList(Map<String, String> paramMap);
+	
+	int updateEtrdpsDtl(Map<String, String> paramMap);
+	
+	int insertEtrdpsDtl(Map<String, String> paramMap);
+	
+	int insertAdvPay(Map<String, String> paramMap);
+	
+	int updateEtrdpsDtlDelete(Map<String, String> paramMap);
+	
+	int deleteEtrdpsDtl(Map<String, String> paramMap);
 	
 }

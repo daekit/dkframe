@@ -27,7 +27,7 @@
 					</td>
 					<th class="hit">판매법인</th>
 					<td>
-						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT"  onchange="setEtrdpsBkac(this.value)"  msg="계산서발행법인" required>
+						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT"  onchange="setEtrdpsBkac(this.value); selectEtrdpsDtlList();"  msg="계산서발행법인" required>
 <!-- 							<option value="">선택</option> -->
 						</select>
 					</td>
@@ -50,7 +50,7 @@
 				<tr>
 					<th class="hit">구분</th>
 					<td>
-						<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable()"  msg="구분" required>
+						<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable(); selectEtrdpsDtlList();"  msg="구분" required>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -95,6 +95,79 @@
 				</tr>
 			</table>
 		</form>
+	</div>
+	<div class="popup_table" id="etrdpsTb">
+		<table>
+			<tr>
+				<td colspan="2" style="text-align: LEFT; border-right: 0;">입금 - 매출</td>
+				<td colspan="9">
+				</td>
+			</tr>
+		</table>
+		<table id="detailTb">
+			<colgroup>
+				<col width="3%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="11%">
+				<col width="11%">
+				<col width="11%">
+			</colgroup>
+			<tr>
+				<th></th>
+				<th class="tc">거래처</th>
+				<th class="tc">매출일자</th>
+				<th class="tc">프로젝트</th>
+				<th class="tc">결제방법</th>
+				<th class="tc">수급조건</th>
+				<th class="tc">결제일</th>
+				<th class="tc">채권금액</th>
+				<th class="tc">수금액</th>
+			</tr>
+			<!-- // -->
+			<tr class="detailRow" name="tableEtrdps">
+				<td>
+					<input type="checkbox" name="detailChkBox" onchange="setEtrdpsAmt(this)">
+					<input type="hidden" name="prjctSeq">
+					<input type="hidden" name="coCd">
+					<input type="hidden" name="trstClntCd">
+					<input type="hidden" name="clmnDivCd">
+					<input type="hidden" name="pmntMtdCd">
+					<input type="hidden" name="prjctCd">
+					<input type="hidden" name="trstCertiNo">
+					<input type="hidden" name="bilgCertNo">
+					<input type="hidden" name="taxBilgNo">
+					<input type="hidden" name="prdtGrp">
+				</td>
+				<td>
+					<input class="tc" name="clntNm" type="text" readonly>
+				</td>
+				<td>
+					<input class="tc" name="trstDt" type="text" readonly>
+				</td>
+				<td>
+					<input class="tc" name="prjctNm" type="text" readonly>
+				</td>
+				<td>
+					<input class="tc" name="pmntMtdNm" type="text" readonly>
+				</td>
+				<td>
+					<input class="tc" name="clmnDivNm" type="text" readonly>
+				</td>
+				<td>
+					<input class="tc" name="clmnDay" type="text" readonly>
+				</td>
+				<td>
+					<input class="tc" name="bilgTot" type="text" readonly comma>
+				</td>
+				<td>
+					<input class="tc" name="etrdpsAmt" type="text" onkeyup="onlyNumber(this)" comma>
+				</td>
+			</tr>
+		</table>
 	</div>
 	<br>
 	<!-- 어음 테이블 -->
@@ -205,11 +278,9 @@
 			language : "ko",
 			autoclose : true
 		});
-		
 		if (actionType == "C") {
 			// 입금일자 오늘날짜 set
 			$('#etrdpsDt').datepicker("setDate", new Date());
-			
 			$('#actionBtn').on("click", function() {insertEtrdps();});
 			$('.tit_contents .tit').text("입/출금 등록");
 			$('#actionBtn').text("등록");			
@@ -224,6 +295,7 @@
 			$('#clntCd').prop("readonly", true);
 			$('#clntCd').prop("disabled", true);
 			$('#btnClntSearch').remove();
+			$('#etrdpsTb').hide();
 			// 금액 변경 disable
 			$('#etrdpsAmt').prop("disabled", true);
 			// 결제방법 변경 disable
@@ -259,6 +331,56 @@
 			var row = clntGridView.target.getList("selected")[0];
 			$("#clntCd").val(row.clntCd);
 			$("#clntNm").val(row.clntNm);
+			selectEtrdpsDtlList();
+		});
+	}
+	
+	function selectEtrdpsDtlList(){
+		console.log(!$("#etrdpsData #coCd").val());
+		console.log(!$("#etrdpsData #clntCd").val());
+		console.log(!$("#etrdpsData #taxivcCoprt").val());
+		console.log(!$("#etrdpsData #etrdpsTyp").val());
+		console.log("!!!!!!!!!!!!!!!!!!!!!");
+		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
+			var detailObj = {};
+			if(idx != 0){
+				var $closestRow = $(elem).closest('.detailRow');
+				detailObj["coCd"]     = $('#coCd').val();
+				detailObj["prjctCd"]  = $('#prjctCd').val();
+				detailObj["prjctSeq"] = $closestRow.find('[name="prjctSeq"]').val();
+				
+				if(detailObj.prjctSeq){
+					detailArr.push(detailObj);
+				}				
+ 				$(elem).closest('.detailRow').remove();
+			} else {
+				$(elem).closest('.detailRow').find('input').val("");
+			}			
+		});		
+
+		if(!$("#etrdpsData #coCd").val() || !$("#etrdpsData #clntCd").val() ||  !$("#etrdpsData #taxivcCoprt").val() || !($("#etrdpsData #etrdpsTyp").val())){
+			$('#etrdpsTb').hide();
+			return false;
+		}
+		if($("#etrdpsTyp option:selected").attr("data-rprc") == "SELPCH1"){
+			$('#etrdpsTb').hide();
+			return false;
+		}
+		var paramObj = {
+				"coCd": $("#etrdpsData #coCd").val(),
+				"clntCd": $("#etrdpsData #clntCd").val(),
+				"taxivcCoprt": $("#etrdpsData #taxivcCoprt").val(),
+				};
+		console.log(paramObj);
+		postAjax("/user/ar/ar05/selectEtrdpsDtlList", paramObj, null, function(data){
+			$('#etrdpsTb').show();
+			console.log(data.resultList);
+			$.each(data.resultList, function(idx, item){
+				if(idx != 0) addRow();
+				$.each(item, function(key, value){
+					setBilgList(idx, item);
+				});
+			});
 		});
 	}
 	
@@ -316,7 +438,13 @@
 	
 	function selectEtrdpsInfo(){
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"etrdpsSeq": row.etrdpsSeq};
+		var paramObj = {
+				"etrdpsSeq": row.etrdpsSeq,
+				"coCd": row.coCd,
+				"clntCd": row.clntCd,
+				"taxivcCoprt": row.taxivcCoprt
+				};
+		
 		postAjax("/user/ar/ar05/selectEtrdpsInfo", paramObj, null, function(data){
 			setEtrdpsInfo(data.etrdpsInfo);
 		});
@@ -325,10 +453,9 @@
 	function setEtrdpsInfo(etrdpsInfo){
 		var etrdpsData = etrdpsInfo.etrdpsData;
 		var billData = etrdpsInfo.billData;
-	
+
 		$.each(etrdpsData, function(key, value){
-			if($('#etrdpsData').find('#'+key)[0]){
-				
+			if($('#etrdpsData').find('#'+key)[0]){				
 				// 판매법인 Set
 				if(key == 'coCd'){
 					setTaxivcCoprt(value);
@@ -369,9 +496,49 @@
 		}
 	}
 	
+	function setBilgList(idx, item){
+
+		$.each(item, function(key, value){
+			if($(".detailRow").find("[name="+key+"]")[idx] != undefined) {
+				var itemValue = value;
+				if($(".detailRow").find("[name="+key+"]").eq(idx).is('[comma]')){
+					itemValue = addCommaStr(itemValue);
+				}
+				$(".detailRow").find("[name="+key+"]")[idx].value = itemValue;
+			}
+		});
+	}
+	
 	function insertEtrdps() {
 		if (inputValidation($('.popup_table table:visible [required]'))) {
+			var etrdpsAmt = Number(deleteCommaStr($("#etrdpsAmt").val()));
+			var totEtrdpsAtm = 0;
+			var isAdvPay = false;
+			var diffAmt = 0;
+			$.each($(".detailRow [name=etrdpsAmt]"), function(idx, elem){
+				if($(".detailRow [name=detailChkBox]").eq(idx).prop("checked")){
+					console.log("???");
+					console.log(Number(deleteCommaStr($(elem).val())));
+					totEtrdpsAtm += Number(deleteCommaStr($(elem).val()));
+				}
+			});
+			
+			console.log(totEtrdpsAtm);
+			
+			if(totEtrdpsAtm > Number(deleteCommaStr($("#etrdpsAmt").val()))){
+				alert("금액을 확인해주세요");
+				return false;
+			} else if (totEtrdpsAtm == $("#etrdpsAmt").val()){
+				isAdvPay = false;
+			} else {
+				isAdvPay = true;	
+				diffAmt = Number(deleteCommaStr($("#etrdpsAmt").val())) - totEtrdpsAtm;
+			}
+			
 			var formData = makeFormData();
+			formData.isAdvPay = isAdvPay;
+			formData.diffAmt = diffAmt;
+			console.log(formData);
 			postAjax("/user/ar/ar05/insertEtrdps", formData, null, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
@@ -384,6 +551,9 @@
 
 	function updateEtrdps() {
 		if (inputValidation($('.popup_table table:visible [required]'))) {
+			
+			
+			
 			var formData = makeFormData();
 			putAjax("/user/ar/ar05/updateEtrdps", formData, null, function(data){
 				alert(data.resultMessage);
@@ -413,9 +583,25 @@
 			// 객체 생성
 			var tempObj = $(tempForm).serializeObject();
 			tempObj.coCd = $('#coCd').val();
+			tempObj.clntCd = $("#clntCd").val();
 			tempObj.userId = jwt.userId;
 			formData[tempForm.id] = tempObj;
 		}
+		// 프로젝트Dtl 추가
+		var detailArr = [];
+		$.each($("#detailTb tr[name='tableEtrdps']"), function(idx, elem){
+			var detailObj = {};
+			if($(elem).find('[name=detailChkBox]').prop("checked")){
+				$.each($(elem).find('[comma]'), function(idx, elem){
+					deleteComma(elem);
+				});
+				$.each($(elem).find('[name]'), function(idx, elem){
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
+		});
+		formData.detailArr = JSON.stringify(detailArr);
 		return formData;
 	}
 	// 판매법인 set
@@ -454,6 +640,28 @@
 		}
 		if(tagId == 'endrsPsn'){
 			$('textarea#sumry.form-control').focus();
+		}
+	}
+	
+
+	//list 행추가
+	function addRow() {
+		var row = $("#detailTb > tbody:last > tr:last").clone();
+		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
+		});
+		return $("tr[name='tableEtrdps']:last")[0];
+	}
+	
+	function setEtrdpsAmt(elem){
+		if($(elem).prop("checked")){
+			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
+			$targetRow.find('input[name="etrdpsAmt"]').val($targetRow.find('input[name="bilgTot"]').val());
+		} else {
+			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
+			$targetRow.find('input[name="etrdpsAmt"]').val();
 		}
 	}
 </script>

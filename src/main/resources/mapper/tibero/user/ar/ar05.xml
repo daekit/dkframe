@@ -61,7 +61,9 @@
 					FN_CM05M01_CD_TO_NM(D.CO_CD) AS CO_NM,
 					D.ETRDPS_SEQ,
 					TO_CHAR(TO_DATE(D.ETRDPS_DT, 'YYYYMMDD'), 'YYYY-MM-DD') ETRDPS_DT,
+					C.CLNT_CD,
 					C.CLNT_NM,
+					D.TAXIVC_COPRT,
 					FN_CM05M01_CD_TO_NM(D.SETLE_TYP_CD) AS SETLE_TYP_NM,
 					D.ETRDPS_AMT,
 					FN_CM05M01_CD_TO_NM(D.ETRDPS_BKAC_CD) AS ETRDPS_BKAC_NM, 
@@ -160,6 +162,9 @@
 	</select>
 	
 	<insert id="insertEtrdps">
+		<selectKey keyProperty="etrdpsSeq" resultType="String" order="BEFORE">
+			SELECT TB_AR05M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
 		INSERT INTO TB_AR05M01 (
 			CO_CD,
 			ETRDPS_DT,
@@ -181,7 +186,7 @@
 	 		#{coCd},
 			#{etrdpsDt},
 			#{clntCd},
-			TB_AR05M01_SQ01.NEXTVAL,
+			#{etrdpsSeq},
 			#{setleTypCd},
 			#{etrdpsAmt},
 			#{etrdpsBkacCd},
@@ -292,6 +297,155 @@
 			TB_AR05D01
 		WHERE
 			BIL_NO = #{bilNo}
+	</delete>
+	
+	<select id="selectEtrdpsDtlList" parameterType="Map" resultType="CamelMap">
+	SELECT A.CO_CD
+		 , A.TRST_CLNT_CD
+		 , C.CLNT_NM
+		 , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TRST_DT
+		 , A.PRJCT_CD
+		 , B.PRJCT_NM
+		 , FN_CM05M01_CD_TO_NM(CASE WHEN (A.PRJCT_CD != 0 OR A.PRJCT_CD != NULL) THEN B.PMNT_MTD_CD
+		 		ELSE C.SELL_PMNT_MTD_CD END) PMNT_MTD_NM
+		 , CASE WHEN (A.PRJCT_CD != 0 OR A.PRJCT_CD != NULL) THEN B.PMNT_MTD_CD
+		 		ELSE C.SELL_PMNT_MTD_CD END PMNT_MTD_CD -- 결제방법
+		 , FN_CM05M01_CD_TO_NM(CASE WHEN (A.PRJCT_CD != 0 OR A.PRJCT_CD != NULL) THEN B.CLMN_DIV_CD
+		 	    ELSE C.SELL_CLMN_DIV_CD END) CLMN_DIV_NM
+		 , CASE WHEN (A.PRJCT_CD != 0 OR A.PRJCT_CD != NULL) THEN B.CLMN_DIV_CD
+		 	    ELSE C.SELL_CLMN_DIV_CD END CLMN_DIV_CD -- 수금조건
+		 , CASE WHEN (A.PRJCT_CD != 0 OR A.PRJCT_CD != NULL) THEN B.CLMN_DAY
+		 	    ELSE C.SELL_CLMN_DAY END CLMN_DAY -- 수금일자
+		 , A.BILG_VAT_AMT + A.BILG_AMT - A.ETRDPS_AMT BILG_TOT -- 청구금액
+		 , A.BILG_CERT_NO
+		 , A.TRST_CERTI_NO
+		 , E.PRDT_GRP
+		 , D.TAX_BILG_NO
+	  FROM TB_AR02M01 A
+		LEFT OUTER JOIN TB_SD05M01 B
+		ON A.PRJCT_CD = B.PRJCT_CD
+		LEFT OUTER JOIN TB_BM02M01 C
+		ON A.TRST_CLNT_CD = C.CLNT_CD
+		LEFT OUTER JOIN TB_AR04M01 D
+		ON A.BILG_CERT_NO = D.BILG_CERT_NO
+		LEFT OUTER JOIN TB_BM01M01 E
+		ON A.TRST_PRDT_CD = E.PRDT_CD
+		WHERE A.CO_CD = #{coCd}
+		  AND A.TRST_CLNT_CD = #{clntCd}
+		  AND A.TAXIVC_COPRT = #{taxivcCoprt}
+		  AND A.BILG_CERT_NO IS NOT NULL
+		  AND A.ETRDPS_YN = 'N'
+		  AND D.TAX_BILG_NO IS NOT NULL
+	</select>
+	
+	<update id="updateEtrdpsDtl" parameterType="Map">	
+	UPDATE TB_AR02M01
+	   SET ETRDPS_AMT = NVL(ETRDPS_AMT, 0) + #{etrdpsAmt}
+	     , ETRDPS_YN = CASE WHEN #{etrdpsAmt} = (BILG_VAT_AMT + BILG_AMT - ETRDPS_AMT) THEN 'Y' ELSE 'N' END
+	 WHERE CO_CD = #{coCd}
+	   AND TRST_CERTI_NO = #{trstCertiNo}
+	</update>
+
+	<insert id="insertEtrdpsDtl" parameterType="Map">
+	INSERT INTO TB_AR05D02
+	(
+		CO_CD
+		, ETRDPS_SEQ
+		, ETRDPS_DTL_SEQ
+		, BILG_CERT_NO
+		, TRST_CERTI_NO
+		, ETRDPS_DT
+		, TRST_DT
+		, CLNT_CD
+		, SELL_CLMN_DIV_CD
+		, SELL_PMNT_MTD_CD
+		, SELL_CLMN_DAY
+		, TAX_BILG_NO
+		, PRJCT_CD
+		, ETRDPS_AMT
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+		, PRDT_GRP
+	)
+	VALUES
+	(
+		#{coCd}
+		, #{etrdpsSeq}
+		, (SELECT NVL(MAX(ETRDPS_DTL_SEQ), 0) + 1 FROM TB_AR05D02 WHERE ETRDPS_SEQ = #{etrdpsSeq})
+		, #{bilgCertNo}
+		, #{trstCertiNo}
+		, TO_CHAR(SYSDATE, 'YYYYMMDD')
+		, REPLACE(#{trstDt}, '-', '')
+		, #{trstClntCd, jdbcType=VARCHAR}
+		, #{clmnDivCd, jdbcType=VARCHAR}
+		, #{pmntMtdCd, jdbcType=VARCHAR}
+		, REPLACE(#{clmnDay}, '-', '')
+		, #{taxBilgNo}
+		, #{prjctCd, jdbcType=VARCHAR}
+		, #{etrdpsAmt, jdbcType=VARCHAR}
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+		, NVL(#{prdtGrp}, 'PRDTGRP1')
+	)
+	</insert>
+	
+	<insert id="insertAdvPay" parameterType="Map">
+	INSERT INTO TB_AR05D02
+	(
+		CO_CD
+		, ETRDPS_SEQ
+		, ETRDPS_DTL_SEQ
+		, BILG_CERT_NO
+		, TRST_CERTI_NO
+		, ETRDPS_DT
+		, TRST_DT
+		, CLNT_CD
+		, SELL_CLMN_DIV_CD
+		, SELL_PMNT_MTD_CD
+		, SELL_CLMN_DAY
+		, TAX_BILG_NO
+		, PRJCT_CD
+		, ETRDPS_AMT
+		, CREAT_ID
+		, CREAT_PGM
+		, CREAT_DTTM
+		, PRDT_GRP
+	)
+	VALUES
+	(
+		#{coCd}
+		, #{etrdpsSeq}
+		, (SELECT NVL(MAX(ETRDPS_DTL_SEQ), 0) + 1 FROM TB_AR05D02 WHERE ETRDPS_SEQ = #{etrdpsSeq})
+		, '0'
+		, '0'
+		, TO_CHAR(SYSDATE, 'YYYYMMDD')
+		, NULL
+		, #{clntCd}
+		, #{clmnDivCd, jdbcType=VARCHAR}
+		, #{pmntMtdCd, jdbcType=VARCHAR}
+		, REPLACE(#{clmnDay, jdbcType=VARCHAR}, '-', '')
+		, '0'
+		, #{prjctCd, jdbcType=VARCHAR}
+		, #{diffAmt}
+		, #{userId}
+		, #{pgmId}
+		, SYSDATE
+		, NVL(#{prdtGrp, jdbcType=VARCHAR}, 'PRDTGRP1')
+	)
+	</insert>
+	
+	<update id="updateEtrdpsDtlDelete" parameterType="Map">
+	UPDATE TB_AR02M01
+	   SET ETRDPS_YN = 'N'
+	     , ETRDPS_AMT = 0
+	 WHERE TRST_CERTI_NO IN (SELECT TRST_CERTI_NO FROM TB_AR05D02 WHERE ETRDPS_SEQ = #{etrdpsSeq})
+	</update>
+	
+	<delete id="deleteEtrdpsDtl" parameterType="Map">
+	DELETE FROM TB_AR05D02
+	 WHERE ETRDPS_SEQ = #{etrdpsSeq}
 	</delete>
 	
 </mapper>

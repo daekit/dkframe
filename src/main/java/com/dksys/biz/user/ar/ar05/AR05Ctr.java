@@ -46,6 +46,14 @@ public class AR05Ctr {
         return "jsonView";
     }
     
+    // 입금-매출 정보 조회
+    @PostMapping("/selectEtrdpsDtlList")
+    public String selectEtrdpsDtlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> resultList = ar05Svc.selectEtrdpsDtlList(paramMap);
+    	model.addAttribute("resultList", resultList);
+        return "jsonView";
+    }
+    
     // 입금 등록
 	@PostMapping("/insertEtrdps")
     public String insertEtrdps(@RequestBody Map<String, Object> paramMap, ModelMap model) {
