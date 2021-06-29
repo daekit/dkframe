@@ -82,21 +82,20 @@ public class OD04Ctr {
     	return "jsonView";
     }
 	
+	@PostMapping(value = "/updateRecpt")
+    public String updateRecpt(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		od04Svc.updateRecpt(paramMap);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+	
 	@PostMapping(value = "/updateRecptList")
     public String updateRecptList(@RequestBody Map<String, Object> paramMap, ModelMap model) {
-		System.out.println(paramMap);
 		od04Svc.updateRecptList(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";
     }
 	
-	@PostMapping(value = "/updateRecpt")
-    public String updateRecpt(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		System.out.println(paramMap);
-		od04Svc.updateRecpt(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
-    	return "jsonView";
-    }
 }
