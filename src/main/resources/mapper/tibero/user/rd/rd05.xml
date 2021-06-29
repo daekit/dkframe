@@ -304,42 +304,45 @@
 				ROWNUM AS RNUM, A.*
 			FROM
 			(
-				SELECT CLOSE_YM
+				SELECT T.CLOSE_YM
 					 , REPLACE(#{baseDt}, '-', '')	 AS BASE_DT
-					 , WH_CD
-					 , CO_CD
-					 , PRDT_CD
-					 , PRDT_DIV
-					 , OWNER_CD
-					 , TYP_CD
-				--	 , MAKR_CD
-					 , CLNT_CD
-					 , IMP_YN
-					 , PRJCT_CD
-				--	 , PRDT_SIZE
-				--	 , PRDT_SPEC
-				--	 , PRDT_LEN
-					 , PRDT_NM
-					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
-					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
-					 , FN_CM05M01_CD_TO_NM(OWNER_CD) OWNER_NM
+					 , T.WH_CD
+					 , T.CO_CD
+					 , T.PRDT_CD
+					 , T.PRDT_DIV
+					 , T.OWNER_CD
+					 , T.TYP_CD
+				--	 , T.MAKR_CD
+					 , T.CLNT_CD
+					 , T.IMP_YN
+					 , T.PRJCT_CD
+				--	 , T.PRDT_SIZE
+				--	 , T.PRDT_SPEC
+				--	 , T.PRDT_LEN
+					 , T.PRDT_NM
+					 , FN_CM05M01_CD_TO_NM(T.PRDT_DIV) PRDT_DIV_NM
+					 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM
+					 , FN_CM05M01_CD_TO_NM(T.OWNER_CD) OWNER_NM
 					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
-					 , FN_CM05M01_CD_TO_NM(TYP_CD) TYP_NM
-				--	 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
+					 , FN_CM05M01_CD_TO_NM(T.TYP_CD) TYP_NM
+				--	 , FN_CM05M01_CD_TO_NM(T.MAKR_CD) MAKR_NM
 					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
-					 , IMP_YN
-					 , SUM(NVL(BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
-					 , SUM(NVL(SELPCH1_QTY, 0))   SELPCH1_QTY
-					 , SUM(NVL(SELPCH2_QTY, 0))   SELPCH2_QTY
-					 , SUM(NVL(OUT_MOVE_QTY, 0))  OUT_MOVE_QTY
-					 , SUM(NVL(IN_MOVE_QTY, 0))   IN_MOVE_QTY
-					 , SUM(NVL(BFR_STOCK_QTY, 0) + NVL(SELPCH1_QTY, 0) - NVL(SELPCH2_QTY, 0)+ NVL(IN_MOVE_QTY, 0) - NVL(OUT_MOVE_QTY, 0)) STOCK_QTY
-					 , SUM(NVL(BFR_STOCK_WT, 0)) BFR_STOCK_WT
-					 , SUM(NVL(SELPCH1_WT, 0))   SELPCH1_WT
-					 , SUM(NVL(SELPCH2_WT, 0))   SELPCH2_WT
-					 , SUM(NVL(OUT_MOVE_WT, 0))  OUT_MOVE_WT
-					 , SUM(NVL(IN_MOVE_WT, 0))   IN_MOVE_WT
-					 , SUM(NVL(BFR_STOCK_WT, 0) + NVL(SELPCH1_WT, 0) - NVL(SELPCH2_WT, 0)+ NVL(IN_MOVE_WT, 0) - NVL(OUT_MOVE_WT, 0)) STOCK_WT
+					 , SUM(NVL(T.BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
+					 , SUM(NVL(T.SELPCH1_QTY, 0))   SELPCH1_QTY
+					 , SUM(NVL(T.SELPCH2_QTY, 0))   SELPCH2_QTY
+					 , SUM(NVL(T.OUT_MOVE_QTY, 0))  OUT_MOVE_QTY
+					 , SUM(NVL(T.IN_MOVE_QTY, 0))   IN_MOVE_QTY
+					 , SUM(NVL(T.BFR_STOCK_QTY, 0) + NVL(T.SELPCH1_QTY, 0) - NVL(T.SELPCH2_QTY, 0)+ NVL(T.IN_MOVE_QTY, 0) - NVL(T.OUT_MOVE_QTY, 0)) STOCK_QTY
+					 , SUM(NVL(T.BFR_STOCK_WT, 0)) BFR_STOCK_WT
+					 , SUM(NVL(T.SELPCH1_WT, 0))   SELPCH1_WT
+					 , SUM(NVL(T.SELPCH2_WT, 0))   SELPCH2_WT
+					 , SUM(NVL(T.OUT_MOVE_WT, 0))  OUT_MOVE_WT
+					 , SUM(NVL(T.IN_MOVE_WT, 0))   IN_MOVE_WT
+					 , SUM(NVL(T.BFR_STOCK_WT, 0) + NVL(T.SELPCH1_WT, 0) - NVL(T.SELPCH2_WT, 0)+ NVL(T.IN_MOVE_WT, 0) - NVL(T.OUT_MOVE_WT, 0)) STOCK_WT
+					 , SUM(NVL(T.CUR_SELPCH1_QTY, 0)) AS  CUR_SELPCH1_QTY
+					 , SUM(NVL(T.CUR_SELPCH1_WT, 0))  AS  CUR_SELPCH1_WT
+					 , SUM(NVL(T.CUR_SELPCH2_QTY, 0)) AS  CUR_SELPCH2_QTY
+					 , SUM(NVL(T.CUR_SELPCH2_WT, 0))  AS  CUR_SELPCH2_WT
 				FROM(
 					SELECT TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')	 AS CLOSE_YM
 						 , SM01.WH_CD
@@ -368,6 +371,10 @@
 						 , 0 AS  OUT_MOVE_WT
 						 , 0 AS  IN_MOVE_WT
 						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),SM01.STOCK_WT,0) AS STOCK_WT -- 현재고
+						 , 0 AS  CUR_SELPCH1_QTY
+						 , 0 AS  CUR_SELPCH1_WT
+						 , 0 AS  CUR_SELPCH2_QTY
+						 , 0 AS  CUR_SELPCH2_WT
 					FROM TB_SM01D01 SM01
 					   , TB_BM01M01 BM01 
 					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
@@ -406,6 +413,10 @@
 						 , 0 AS  OUT_MOVE_WT
 						 , 0 AS  IN_MOVE_WT
 						 , 0 AS STOCK_WT -- 현재고
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_QTY),0))  AS  CUR_SELPCH1_QTY
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_WT),0))   AS  CUR_SELPCH1_WT
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_QTY),0))  AS  CUR_SELPCH2_QTY
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_WT),0))   AS  CUR_SELPCH2_WT
 				 FROM TB_AR02M01 AR02
 					   , TB_BM01M01 BM01 
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
@@ -459,6 +470,10 @@
 						 , SUM(NVL(MOVE_WT,0))  AS OUT_MOVE_WT
 						 , 0 AS IN_MOVE_WT
 						 , 0 AS STOCK_WT
+						 , 0 AS  CUR_SELPCH1_QTY
+						 , 0 AS  CUR_SELPCH1_WT
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_QTY,0),0)) AS  CUR_SELPCH2_QTY
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_WT,0),0))  AS  CUR_SELPCH2_WT
 					FROM TB_SM02M01 SM02
 					 INNER JOIN  TB_BM01M01 BM01 
 							ON	SM02.PRDT_CD   = BM01.PRDT_CD
@@ -510,6 +525,10 @@
 						 , 0 AS OUT_MOVE_WT
 						 , SUM(NVL(MOVE_WT,0)) AS IN_MOVE_WT
 						 , 0 AS STOCK_WT
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_QTY,0),0)) AS  CUR_SELPCH1_QTY
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_WT,0),0)) AS  CUR_SELPCH1_WT
+						 , 0 AS  CUR_SELPCH2_QTY
+						 , 0 AS  CUR_SELPCH2_WT
 					FROM TB_SM02M01 SM02
 					 INNER JOIN  TB_BM01M01 BM01 
 							ON	SM02.PRDT_CD   = BM01.PRDT_CD
@@ -534,6 +553,7 @@
 						  , SM02.IN_PRDT_LEN
 						  , BM01.PRDT_NM					 
 				) T
+				INNER JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = T.CLNT_CD
 				WHERE 1 = 1						 
 						<if test="coCd != null and !coCd.equals('')">
 							AND T.CO_CD = #{coCd}				
@@ -566,28 +586,39 @@
 							AND T.CLNT_CD = #{clntCd}				
 						</if>
 						<if test="impYn != null and !impYn.equals('')">
-							AND T.IMP_YN = #{impYn}				
+							AND T.IMP_YN = #{impYn}
 						</if>
 						<if test="prjctCd != null and !prjctCd.equals('')">
-							AND T.PRJCT_CD = #{prjctCd}				
+							AND T.PRJCT_CD = #{prjctCd}
 						</if>
-				  GROUP BY CLOSE_YM
-						 , WH_CD
-						 , CO_CD
-						 , PRDT_CD
-						 , PRDT_DIV
-						 , OWNER_CD
-						 , TYP_CD
-					--	 , MAKR_CD
-						 , CLNT_CD
-						 , IMP_YN
-						 , PRJCT_CD
-					--	 , PRDT_SIZE
-					--	 , PRDT_SPEC
-					--	 , PRDT_LEN
-						 , PRDT_NM
-						 , IMP_YN	
+						<if test="clntNm != null and !clntNm.equals('')">
+							AND BM02.CLNT_NM LIKE '%'|| #{prjctCd} ||'%'
+						</if>
+				  GROUP BY T.CLOSE_YM
+						 , T.WH_CD
+						 , T.CO_CD
+						 , T.PRDT_CD
+						 , T.PRDT_DIV
+						 , T.OWNER_CD
+						 , T.TYP_CD
+					--	 , T.MAKR_CD
+						 , T.CLNT_CD
+						 , T.IMP_YN
+						 , T.PRJCT_CD
+					--	 , T.PRDT_SIZE
+					--	 , T.PRDT_SPEC
+					--	 , T.PRDT_LEN
+						 , T.PRDT_NM
+					ORDER BY  
+						   T.PRDT_DIV	
+						 , T.WH_CD 
+						 , T.PRDT_CD	
+						 , T.OWNER_CD
+						 , T.CLNT_CD
+						 , T.TYP_CD
+						 , T.PRJCT_CD
 			) A
+			
 		)
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}

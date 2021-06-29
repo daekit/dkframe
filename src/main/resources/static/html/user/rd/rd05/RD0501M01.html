@@ -83,7 +83,7 @@
 						<td>
 			                <input type="hidden" data-search="prdtCd" id="prdtCd">
 							<div class="search_form" style="width: 50%;">
-								<input type="text" data-search="prdtNm" id="prdtNm"> 
+								<input type="text" data-search="prdtNm" id="prdtNm" onkeyup="event.keyCode == 8 ? prdtCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
 								<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i>
 								</a>
 							</div>
@@ -127,7 +127,7 @@
 						<td>
 							<input type="hidden" data-search="clntCd" id="clntCd">
 							<div class="search_form" style="width: 50%;">
-								<input type="text" data-search="clntNm" id="clntNm"> 
+								<input type="text" data-search="clntNm" id="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
 								<a onclick="openSecondClntSearch();"><i class="i_search_w"></i>
 								</a>
 							</div>
@@ -152,7 +152,8 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	                <a onclick="setReport();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 입출고현황</a>
+					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>			
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
@@ -410,10 +411,10 @@
 	function openSecondPrdtSearch(elem) {
 		// selpchCd - SELPCH2: 매출
 		var paramObj = {
-			"coCd": $('#coCd').val(),
+			"coCd"    : $('[data-search="coCd"]').val(),
 			"selpchCd": "SELPCH2",
-			"impYn": $("#impYn").val(), 
-			"clntCd" : $("#clntCd").val(),
+			"impYn"   : $('[data-search="impYn"]').val(),
+			"clntCd"  : $('[data-search="clntCd"]').val(),
 			"prjctCd" : $("#prjctCd").val(),
 			"useYn": "Y"
 		};
@@ -473,5 +474,15 @@
 		setCommonSelect($('[data-search="whCd"]'));
 	}
 	
+    //출력
+	function setReport(type) {
 	
+			var fileName = "RD0501R01.jrf";
+			var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
+			         + "#endDt#"		+ $('[data-search="baseDt"]').val().replace(/\-/g,'')
+			         + "#whCd#"			+$('[data-search="whCd"]').val()
+			         + "#";
+			callReport(fileName, arg, "1050", "700");
+		
+	}
 </script>
