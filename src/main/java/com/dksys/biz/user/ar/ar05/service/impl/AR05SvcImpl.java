@@ -1,6 +1,8 @@
 package com.dksys.biz.user.ar.ar05.service.impl;
 
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,9 @@ import com.dksys.biz.user.ar.ar05.service.AR05Svc;
 import com.dksys.biz.user.fi.douzone.mapper.DouzoneMapper;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.util.DateUtil;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -49,7 +54,7 @@ public class AR05SvcImpl implements AR05Svc {
 		
 		Map<String, String> etrdpsData = ar05Mapper.selectEtrdpsInfo(paramMap);
 		returnMap.put("etrdpsData", etrdpsData);
-		
+		System.out.println(returnMap);
 		String bilNo = etrdpsData.get("bilNo");
 		if(bilNo != null && !"".equals(bilNo)) {
 			paramMap.put("bilNo", bilNo);
@@ -58,6 +63,11 @@ public class AR05SvcImpl implements AR05Svc {
 		}
 		
 		return returnMap;
+	}
+
+	@Override
+	public List<Map<String, String>> selectEtrdpsDtlList(Map<String, String> paramMap) {
+		return ar05Mapper.selectEtrdpsDtlList(paramMap);
 	}
 	
 	@Override
@@ -174,7 +184,24 @@ public class AR05SvcImpl implements AR05Svc {
 		douzoneParam.put("CT_NB", "");   //	관리번호	"-부가세계정이고 세무구분이 12.영세 16.수출일 경우 : 수출신고번호 -어음계정일 경우 : 어음번호"
 
 		//douzoneMapper.insertAutodocuSimple(douzoneParam);
-		
+
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> dtlParam = gson.fromJson((String)paramMap.get("detailArr"), dtlMap);
+		System.out.println(dtlParam);
+
+		for(Map<String, String> dtl : dtlParam) {
+			dtl.put("userId",  etrdpsData.get("userId"));
+			dtl.put("pgmId",   etrdpsData.get("pgmId"));
+			dtl.put("etrdpsSeq", etrdpsData.get("etrdpsSeq"));
+			ar05Mapper.updateEtrdpsDtl(dtl);
+			ar05Mapper.insertEtrdpsDtl(dtl);
+		}
+		if((Boolean)paramMap.get("isAdvPay").equals(true)) {
+			etrdpsData.put("diffAmt", paramMap.get("diffAmt").toString());
+			System.out.println(etrdpsData);
+			ar05Mapper.insertAdvPay(etrdpsData);
+		}
 		return result;
 		
 	}
@@ -185,23 +212,21 @@ public class AR05SvcImpl implements AR05Svc {
 		Map<String, String> billData = (Map<String, String>) paramMap.get("billData");
 		// 원래 금액을 가져온다.
 		Map<String, String> etrdpsInfo = ar05Mapper.selectEtrdpsInfo(etrdpsData);
-		
 
-		int result = 0;
-		//마감 체크
-		if(checkEtrdpsClose(etrdpsData)) {
-			return 500;				
-		}
-		
-		if(billData != null) {
-			// 결제방법이 어음일때
-			ar05Mapper.updateBill(billData);
-		}
-		result = ar05Mapper.updateEtrdps(etrdpsData);
-		
-		//  입금은 금액수정이 없음으로 한도에 반영안함.
-
-		return result;
+		  int result = 0; //마감 체크 
+		  if(checkEtrdpsClose(etrdpsData)) { 
+			  return 500; 
+		  }
+		  
+		  if(billData != null) { // 결제방법이 어음일때 
+			  ar05Mapper.updateBill(billData);
+		  }
+		  result = ar05Mapper.updateEtrdps(etrdpsData);
+		  
+		  // 입금은 금액수정이 없음으로 한도에 반영안함.
+		  
+		  return result;
+		 
 	}
 
 	@Override

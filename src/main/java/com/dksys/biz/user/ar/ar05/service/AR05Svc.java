@@ -10,6 +10,8 @@ public interface AR05Svc {
 	List<Map<String, String>> selectEtrdpsList(Map<String, String> paramMap);
 
 	Map<String, Object> selectEtrdpsInfo(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectEtrdpsDtlList(Map<String, String> paramMap);
 	
 	int insertEtrdps(Map<String, Object> paramMap);
 	
