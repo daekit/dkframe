@@ -257,6 +257,8 @@ public class AR05SvcImpl implements AR05Svc {
 			paramMap.put("bilNo", etrdpsInfo.get("bilNo"));
 			ar05Mapper.deleteBill(paramMap);
 		}
+		ar05Mapper.updateEtrdpsDtlDelete(paramMap);
+		ar05Mapper.deleteEtrdpsDtl(paramMap);
 		result = ar05Mapper.deleteEtrdps(paramMap);
 		return result;
 	}
