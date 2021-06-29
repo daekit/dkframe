@@ -65,7 +65,7 @@
 					<a onclick="initSearch();">
 						<button class="bg_gray">초기화</button>
 					</a> 
-					<a onclick="gridView.setData(0);">
+					<a onclick="reqGridView.setData(0);">
 						<button class="bg_gray">검 색</button>
 					</a>
 				</li>
@@ -77,7 +77,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select id="coCd_S" data-kind="CO" msg="회사" onchange="setByCoCd(this.value); gridView.setData(0);" required>
+							<select id="coCd_S" data-kind="CO" msg="회사" onchange="setByCoCd(this.value); reqGridView.setData(0);" required>
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -91,7 +91,7 @@
 						</td>
 						<th>창고</th>
 						<td>
-							<select id="whCd_S" data-kind="WH" onchange="gridView.setData(0);">
+							<select id="whCd_S" data-kind="WH" onchange="reqGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -99,7 +99,7 @@
 					<tr>
 						<th>판매유형</th>
 						<td>
-							<select id="typCd_S" data-kind="SELLTYPE" onchange="gridView.setData(0);">
+							<select id="typCd_S" data-kind="SELLTYPE" onchange="reqGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -107,7 +107,7 @@
 						<td>
 							<div class="search_form">
 								<input type="hidden" id="siteCd_S" data-search="siteCd">
-								<input type="text" id="siteNm_S" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<input type="text" id="siteNm_S" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? reqGridView.setData(0) : ''">
 								<a onclick="openSiteSearch();">
 									<i class="i_search_w"></i>
 								</a>
@@ -115,7 +115,7 @@
 						</td>
 						<th>제품구분</th>
 						<td>
-							<select id="prdtDiv_S" data-kind="PRDTDIV" onchange="gridView.setData(0);">
+							<select id="prdtDiv_S" data-kind="PRDTDIV" onchange="reqGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -132,7 +132,7 @@
 					<a onclick="deleteReq();" style="height: 30px; line-height: 28px;" authchk>-</a>
 					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
 				</div>
-				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
+				<select id="recordCnt" class="prae_select" onchange="reqGridView.setData(0);">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
 					<option value="50">50</option>
@@ -150,12 +150,13 @@
 </html>
 <script type="text/javascript">
 	var openFrom  = "OD0401M01";
-	var gridView = {
+	var reqGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
-		    	multipleSelect: true,
+		    	multipleSelect: false,
+		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
 		        	align: "center", 
@@ -163,15 +164,10 @@
 		        },
 		        body: {
 		        	onClick: function () {
-		                this.self.select(this.dindex); 
+		        		this.self.select(this.dindex); 
 		            },
 		            onDBLClick: function () {
-						var list = gridView.target.getList("selected");
-						$.each(list, function(idx, obj){
-							gridView.target.select(obj.__index);
-						});
-						this.self.select(this.dindex);
-		            	insertReqModal("U");
+		            	insertReqModal("U", this.item.reqSeq);
 		            }
 		        },
 		        page: {
@@ -183,7 +179,7 @@
 		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
 		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
 		            onChange: function () {
-		            	gridView.setData(this.page.selectPage);
+		            	reqGridView.setData(this.page.selectPage);
 		            }
 		        },
 		        columns: [
@@ -291,30 +287,33 @@
 		});
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
-			gridView.setData(0);
+			reqGridView.setData(0);
 		});
-		gridView.initView().setData(0);
+		reqGridView.initView().setData(0);
 		excelView.initView();
 		authChk();
 	})
 	
 	
 	/*수정 or 등록 버튼 클릭시*/
-	function insertReqModal(type) {
-		var paramObj = {"actionType": type};
+	function insertReqModal(type, reqSeq) {
+		var paramObj = {
+			"actionType": type,
+			"reqSeq": reqSeq
+		};
 		openModal("/static/html/user/od/od04/OD0402P01.html", 1000, 780, "", paramObj);
 	}
 	
 	/*삭제 버튼 클릭시*/
 	function deleteReq() {
-		var row = gridView.target.getList("selected")[0];
+		var row = reqGridView.target.getList("selected")[0];
 
 		var reqSeq = [];
-		var list = gridView.target.getList("selected");
+		var list = reqGridView.target.getList("selected");
 		var recptChk = true;
 		$.each(list, function(idx, obj){
 			if(obj.dtlOrdrgYn == "Y") {
-				gridView.target.select(obj.__index);
+				reqGridView.target.select(obj.__index);
 				recptChk = false;
 			}
 		});
@@ -325,7 +324,7 @@
 				return false;
 			}
 		}
-		row = gridView.target.getList("selected")[0];
+		row = reqGridView.target.getList("selected")[0];
 		var formData = {
 				"reqSeq" : row.reqSeq,
 				"reqDt" : row.reqDt
@@ -334,7 +333,7 @@
 			deleteAjax("/user/od/od04/deleteReq", formData, null, function(data){
 				if(data.resultCode == 200){
 					alert(data.resultMessage);
-					gridView.setData(0);
+					reqGridView.setData(0);
 				}
 			});
 		}
@@ -345,7 +344,7 @@
 		$("#startDt").val(lastWeek());
 		$("#endDt").val(dateToStr(new Date()));
 		$("#coCd").val(jwt.coCd);
-		gridView.initView().setData(0);
+		reqGridView.initView().setData(0);
 	}
 	
 	// 현장 검색
@@ -359,10 +358,10 @@
 	}
 	
 	function setRecpt(){
-		var row = gridView.target.getList("selected")[0];
+		var row = reqGridView.target.getList("selected")[0];
 
 		var reqSeq = [];
-		var list = gridView.target.getList("selected");
+		var list = reqGridView.target.getList("selected");
 		var recptChk = true;
 		var reqSeqArr = [];
 		$.each(list, function(idx, obj){
@@ -390,7 +389,7 @@
 				console.log(data);
 				if(data.resultCode == 200){
 					alert(data.resultMessage);
-					gridView.setData(0);
+					reqGridView.setData(0);
 				}
 			});
 		}
