@@ -240,11 +240,11 @@
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
-			        columns: [
+			        columns: [	            	
 		            	{key: "trstNo",	       label: "이력일련번호",	width: 45,		align: "center", hidden: "true"},
-		            	{key: "procDttm",	   label: "이력발생일자",	width: 45,		align: "center"},
+		            	{key: "procDttm",	   label: "이력발생일자",	width: 80,		align: "center"},
 		            	{key: "chgCd",	       label: "변경코드",		width: 45,		align: "center", hidden: "true"},
-		            	{key: "chgNm",	       label: "변경내용",		width: 45,		align: "center"},
+		            	{key: "chgNm",	       label: "변경내용",		width: 100,		align: "center"},
 		            	{key: "pldgSn",	       label: "담보번호",		width: 45,		align: "center", hidden: "true"},
 		            	{key: "clntCd",	       label: "거래처코드",		width: 45,		align: "center", hidden: "true"},
 		                {key: "clntNm",		   label: "거래처명", 		width: 130,      align: "left"},
@@ -255,20 +255,24 @@
 		                {key: "pldgCHgCd",	   label: "변경구분",		width: 90,		align: "center", hidden: "true"},
 		                {key: "pldgChgNm",	   label: "변경구분명",		width: 120,		align: "center"},
 		                {key: "pldgDivCd",	   label: "담보구분",		width: 90,		align: "center", hidden: "true"},
-		                {key: "pldgDivNm",	   label: "담보구분명",		width: 90,		align: "center"},
-		                {key: "pldgAmt",	   label: "담보금액",	 	width: 100,		align: "right", formatter: "money"},
+		                {key: "pldgDivNm",	   label: "담보구분명",		width: 120,		align: "center"},
+		                {key: "pldgAmt",	   label: "담보금액",	 	width: 120,		align: "right", formatter: "money"},
 		                {key: "pldgRcognRate", label: "담보인증비율", 	width: 100,		align: "right", formatter: "money"},
-		            	{key: "setupDt",       label: "담보설정일",		width: 45,		align: "center"},
-		            	{key: "exprtnDt",	   label: "담보만기일",		width: 45,		align: "center"},
-		            	{key: "pldgRmk",       label: "비고",			width: 45,		align: "left"},
+		                {key: "cdtlnAmt",	   label: "여신금액",	 	width: 120,		align: "right", formatter: "money"},
+		                {key: "prePldgAmt",    label: "수정전담보금액", 	width: 100,		align: "right", formatter: "money"},
+		                {key: "prePldgRcognRate",label: "수정전인증비율",width: 120,		align: "right", formatter: "money"},
+		                {key: "preCdtlnAmt",   label: "수정전여신금액", 	width: 100,		align: "right", formatter: "money"},
+		            	{key: "setupDt",       label: "담보설정일",		width: 90,		align: "center"},
+		            	{key: "exprtnDt",	   label: "담보만기일",		width: 90,		align: "center"},
+		            	{key: "pldgRmk",       label: "비고",			width: 200,		align: "left"},
 		            	{key: "useYn",	       label: "사용",			width: 45,		align: "center"},
-		            	{key: "creatId",       label: "등록자",		width: 45,		align: "center"},
-		            	{key: "creatNm",       label: "등록자명",		width: 45,		align: "center"},
-		            	{key: "creatDttm",     label: "등록일",		width: 45,		align: "center"},
-		            	{key: "udtId",         label: "수정자",		width: 45,		align: "center"},
-		            	{key: "udtNm",         label: "수정자명",		width: 45,		align: "center"},
-		            	{key: "udtDttm",       label: "수정일",		width: 45,		align: "center"},
-			        ]
+		            	{key: "creatId",       label: "등록자",		width: 100,		align: "center"},
+		            	{key: "creatNm",       label: "등록자명",		width: 100,		align: "center"},
+		            	{key: "creatDttm",     label: "등록일",		width: 90,		align: "center"},
+		            	{key: "udtId",         label: "수정자",		width: 100,		align: "center"},
+		            	{key: "udtNm",         label: "수정자명",		width: 100,		align: "center"},
+		            	{key: "udtDttm",       label: "수정일",		width: 90,		align: "center"},
+		            ]
 			    });
 				return this;
 			}
@@ -362,24 +366,24 @@
 				"clntCdS"	: $('#clntCd_S').val(),
 				"clntNm"	: $('#clntNm_S').val(),
 				"selpchCd"	: $('#selpchCd_S').val(),
-				"startDt"	: $('#startDt').val(),
-				"endDt"   	: $('#endDt').val(),
+				"startDt"	: $('#startDt').val().replace(/\-/g,''),
+				"endDt"   	: $('#endDt').val().replace(/\-/g,''),
 				"pageNo" 	: 1, 
 				"recordCnt" : 9999999
-			}
+		}
 		
-		postAjax("/admin/bm/bm08/selectClntPldgHistoryList", formData, null, function(data){
-				var list = data.pldgList;				
-				excelView.target.setData({
-					list : list,
-					page : {
-						totalElements : list.length,
-					}
-				});
-				
-				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("거래처 담보 이력현황"+todayDate+".xls");
-			});	
+		postAjaxSync("/admin/bm/bm08/selectClntPldgHistoryList", formData, null, function(data){
+			var list = data.pldgList;
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("거래처 담보 이력현황"+todayDate+".xls");
+		})
+		
 	}	
 	
 	

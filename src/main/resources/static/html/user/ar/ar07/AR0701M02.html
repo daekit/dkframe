@@ -190,31 +190,23 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var formData = {
-					"closeYm" : $("#closeYm").val().replace(/\-/g,''),
-					"coCd"    : $("#coCd").val(),
-					"clntCd"  : $("#clntCd").val(),
-					"clntNm"  : $("#clntNm").val(),
-					"pageNo"  : _pageNo + 1, 
-					"recordCnt" : $("#recordCnt").val()
- 				}
-// 			for(var i=0;i<$('[data-search]').length;i++){
-// 				var tempElem = $('[data-search]')[i];
-// 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
-// 			}
+			var paramObj = {"pageNo"  : 1, "recordCnt" : 9999999}
 			
-			postAjax("/user/ar/ar07/selectClosCditList", formData, null, function(data) {
+ 			for(var i=0;i<$('[data-search]').length;i++){
+ 				var tempElem = $('[data-search]')[i];
+ 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+ 			}
+			//set DATE type 
+			paramObj.closeYm = $("#closeYm").val().replace(/\-/g,'');
+			
+			postAjax("/user/ar/ar07/selectClosCditList", paramObj, null, function(data) {
 				var list = data.resultList;
-				targetObj.setData(list);
-// 				targetObj.setData({
-// 					list : list,
-// 					page : {
-// 						currentPage : _pageNo,
-// 						pageSize : data.paginationInfo.pageSize,
-// 						totalElements : data.paginationInfo.totalRecordCount,
-// 						totalPages : data.paginationInfo.totalPageCount
-// 					}
-// 				});
+ 				targetObj.setData({
+ 					list : list,
+ 					page : {
+						totalElements : list.length,
+ 					}
+ 				});
 			});
 		}
 	}
@@ -294,6 +286,7 @@
 		// grid init
 		gridView.initView(closeYm.value).setData(0);
 		excelView.initView(closeYm.value);
+		authChk();
 	});
 	
 	// 검색조건 초기화

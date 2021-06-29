@@ -319,7 +319,7 @@
 			$('#actionBtn').text("수정");
 		}
         //권한관리
-        authChk();
+        authChk("SD0301M01");
 	
 	});
 	
@@ -558,7 +558,7 @@
 			var estAmt = $(elem).find("input[name='estAmt']").val();
 			var expAmt = $(elem).find("input[name='expAmt']").val();
 			var stockCd = $(elem).find("input[name='prdtStockCd']").val();
-			debugger;
+
 			if (stockCd == "Y"){
 				totEstQty  += Number(deleteCommaStr(estQty)); 
 				totEstWt   += Number(deleteCommaStr(estWt));
@@ -566,8 +566,18 @@
 			totEstAmt  += Number(deleteCommaStr(estAmt));
 			totExpAmt  += Number(deleteCommaStr(expAmt));
 		});
-		$("#totEstQty").html(addCommaStr(totEstQty.toFixed(0)));
-		$("#totEstWt").html(addCommaStr(totEstWt.toFixed(0)));
+		
+		
+		if ((totEstQty % 1)== 0) {
+			$("#totEstQty").html(addCommaStr(totEstQty.toFixed(0)));
+		} else {
+			$("#totEstQty").html(addCommaStr(totEstQty.toFixed(3)));
+		}
+		if  ((totEstWt % 1)== 0) {
+			$("#totEstWt").html(addCommaStr(totEstWt.toFixed(0)));
+		} else {
+			$("#totEstWt").html(addCommaStr(totEstWt.toFixed(3)));
+		}
 		$("#totEstAmt").html(addCommaStr(totEstAmt.toFixed(0)));
 		$("#totExpAmt").html(addCommaStr(totExpAmt.toFixed(0)));
 	}
@@ -643,7 +653,6 @@
 		$("#estRprc").val(cutStr($("#estRprc").val(),100));
 		$("#prjctNm").val(cutStr($("#prjctNm").val(),100));
 		$("#rmk").val(cutStr($("#rmk").val(),1000));
-	debugger;
 		if(inputValidation($('.popup_area input[required]'))) {
 			var formData = makeFormData();
 			filePutAjax("/user/sd/sd03/updateEst", formData, function(data){

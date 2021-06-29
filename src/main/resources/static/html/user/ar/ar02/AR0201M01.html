@@ -413,7 +413,8 @@
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "trspTypNm",	    label: "출고",   	    align: "center", 	width: 80},
 		        	{key: "deptNm",	   		label: "부서",   	    align: "left", 		width: 100},
-		          	{key: "taxivcCoprtNm",	label: "매입법인",	    align: "left", 		width: 120}
+		          	{key: "taxivcCoprtNm",	label: "매입법인",	    align: "left", 		width: 120},
+		          	{key: "taxivcCoprt",	label: "법인코드",	    hidden: true}
 //		        	{key: "sellClntNm",     label: "매출거래처명",	align: "left",		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 			        ],
 		        footSum: [
@@ -511,7 +512,8 @@
 		        	{key: "makrNm",			label: "제조사", 		align: "left", 		width: 100},
 		        	{key: "trspTypNm",	    label: "출고",   	    align: "center", 	width: 80},
 		        	{key: "deptNm",	   		label: "부서",   	    align: "left", 		width: 100},
-		          	{key: "taxivcCoprtNm",	label: "매입법인",	    align: "left", 		width: 120}
+		          	{key: "taxivcCoprtNm",	label: "매입법인",	    align: "left", 		width: 120},
+		          	{key: "taxivcCoprt",	label: "법인코드",	    hidden: true}
 //		        	{key: "sellClntNm",     label: "매출거래처명",	align: "left",		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 			     ]
 		    });
@@ -575,6 +577,10 @@
 		$("#coCd_S").val(jwt.coCd);
 		$("#reqDtFrom").val(getMonth("S"));
 		$("#reqDtTo").val(getMonth("E"));
+		
+		subGridView.initView();
+		mainGridView.initView().setData(0);
+		excelView.initView();
 	}
 	
 	function setByCoCd(value){
@@ -879,6 +885,7 @@
 		var p_clntNm = "";
 		var p_clntCd = "";
 		var p_siteNm = "";
+		var p_taxivcCoprt = "";
 		
 		if ($('#coCd_S').val() == "") {
 			alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
@@ -892,6 +899,7 @@
 				p_clntCd = obj.clntCd;
 				p_clntNm = obj.clntNm;
 				p_siteNm = obj.siteNm;
+				p_taxivcCoprt = obj.taxivcCoprt;
 			} else {
 				trstNoArr = trstNoArr + "," + obj.trstCertiNo;
 			}
@@ -936,6 +944,7 @@
 
 		var arg = "selPchCd#SELPCH2" 
 		         + "#coCd#"			+ $('#coCd_S').val() 
+		         + "#taxivcCoprt#"  + p_taxivcCoprt
 		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
 		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
 		         + "#clntCd#"		+ p_clntCd
