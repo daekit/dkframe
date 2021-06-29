@@ -40,4 +40,8 @@ public interface AR05Mapper {
 	
 	int insertAdvPay(Map<String, String> paramMap);
 	
+	int updateEtrdpsDtlDelete(Map<String, String> paramMap);
+	
+	int deleteEtrdpsDtl(Map<String, String> paramMap);
+	
 }
