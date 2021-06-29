@@ -68,8 +68,8 @@
 					<th>발주처리여부</th>
 					<td>
 						<select id="ordrgYn" name="ordrgYn" disabled>
-							<option value="N" selected>N</option>
 							<option value="Y">Y</option>
+							<option value="N" selected>N</option>
 						</select>
 					</td>
 				</tr>
@@ -246,7 +246,7 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button id="actionArBtn" authchk>등록</button>
+		<button id="actionRqBtn" authchk>등록</button>
 		<button id="btnOdrg" onclick="updateRecpt();" authchk>접수</button>
 		<button id="btnOpenOdrg" onclick="openInsertOrdrg();" authchk>발주서</button>
 		<button class="close_btn" onclick="modalStack.close();">닫기</button>
@@ -322,52 +322,27 @@
 			$("#popForm #coCd").val(jwt.coCd);
 			$("#popForm #reqDt").val(moment(new Date()).format("YYYYMMDD"));
 			setCodeSelectByCocd($('#coCd').val());
-			$('#actionArBtn').on("click", function(){insertReq();});
+			$('#actionRqBtn').on("click", function(){insertReq();});
 			$('.tit_contents .tit').text("구매요청서 등록");
-			$('#actionArBtn').text("등록");
+			$('#actionRqBtn').text("등록");
 			$("#btnOdrg").hide();
 			$("#btnOpenOdrg").hide();
 			$("#reqCreatDiv").val("ERP");
 			$("#recptYn").val("N");			
 		} else if(actionType == "U"){
 			selectReqInfo();
-			$('#actionArBtn').on("click", function(){updateReq();});
+			$('#actionRqBtn').on("click", function(){updateReq();});
 			$('.tit_contents .tit').text("구매요청서 수정");
-			$('#actionArBtn').text("저장");
-			if(openFrom == "CM1001M01"){
-				if(reqGridView.target.getList("selected")[0].ordrgYn == "Y"){
-					$("#btnOdrg").hide();
-					$("#btnOpenOdrg").hide();
-				}	
-			}else{
-				if(gridView.target.getList("selected")[0].ordrgYn == "Y"){
-					$("#btnOdrg").hide();
-					$("#btnOpenOdrg").hide();
-				}				
-			}
-
+			$('#actionRqBtn').text("저장");
 		}
+		
         //권한관리
 		authChk("OD0401M01");
 	});
 	
 	function selectReqInfo() {
-		var row    = gridView.target.getList("selected")[0];
-		var reqSeq = null;
-		var reqDt  = null;
-		if(openFrom == "CM1001M01"){
-			reqSeq = modalStack.last().paramObj.reqSeq;
-			reqDt  = modalStack.last().paramObj.reqDt;
-		}else {
-			reqSeq = row.reqSeq;
-			reqDt  = row.reqDt;
-		} 
-		
-		var formData = {
-			"reqSeq" : reqSeq,
-			"reqDt" :  reqDt
-		}
-		postAjax("/user/od/od04/selectReq", formData, null, function(data){
+		var paramObj = modalStack.last().paramObj;
+		postAjax("/user/od/od04/selectReq", paramObj, null, function(data){
 			setReqInfo(data.result);
 		});
 	}
@@ -388,14 +363,6 @@
 					}
 					console.log(key + " : " + value);
 					$('#popForm #'+key).val(value);
-					//발주처리여부 Y 일 시 발주서 버튼 hidden
-					if(key == 'ordrgYn' && value == 'Y'){
-						$("#btnOpenOdrg").hide();
-					}
-					//접수처리여부 Y 일 시 접수 버튼 hidden
-					if(key == 'recptYn' && value == 'Y'){
-						$("#btnOdrg").hide();
-					}
 				}
 				
 				// 창고, 판매법인 set
@@ -420,6 +387,15 @@
 		});
 		countTot();
 		
+		//발주처리여부 Y 일 시 발주서 버튼 hidden
+		if(reqInfo.ordrgYn == "Y"){
+			$('#btnOpenOdrg').hide();
+		}
+		
+		//접수처리여부 Y 일 시 접수 버튼 hidden
+		if(reqInfo.recptYn == "Y"){
+			$('#btnOdrg').hide();
+		}
 	}
 
 	// 사용자 검색
@@ -691,7 +667,7 @@
 				filePostAjax("/user/od/od04/insertReq", formData, function(data){
 					alert(data.resultMessage);
 					if(data.resultCode == 200){
-						gridView.setData(0);
+						reqGridView.setData(0);
 						modalStack.close();
 					}
 				});
@@ -706,7 +682,7 @@
 			filePutAjax("/user/od/od04/updateReq", formData, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
-					gridView.setData(0);
+					reqGridView.setData(0);
 					modalStack.close();
 				}
 			});
@@ -722,7 +698,7 @@
 				console.log(data);
 				if(data.resultCode == 200){
 					alert(data.resultMessage);
-					gridView.setData(0);
+					reqGridView.setData(0);
 					modalStack.close();
 				}
 			});

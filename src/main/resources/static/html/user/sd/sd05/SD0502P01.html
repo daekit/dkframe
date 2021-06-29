@@ -121,9 +121,9 @@
 					</td>
 					<th class="">제강사</th>
 					<td class="tl">
-						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%" onchange="getPchsClnt(this.value)"></select>
+						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%" onchange="getPchsClnt();"></select>
   						<label for="tnkeyYn">제강사턴키여부</label>
-						<input type="checkbox" id="tnkeyYn" name="tnkeyYn" onchange="getPchsClnt('TNKEY')">
+						<input type="checkbox" id="tnkeyYn" name="tnkeyYn" onchange="getPchsClnt();">
 					</td>
 				</tr>
 				<tr>
@@ -219,8 +219,8 @@
 						</th>
 						<td>
 							<select id="cplrYn" name="cplrYn" class="form-control">
-								<option value="Y" selected>Y</option>
-								<option value="N">N</option>
+								<option value="Y">Y</option>
+								<option value="N" selected>N</option>
 							</select>
 						</td>
 						<th>할인단가(원/톤)</th>
@@ -235,7 +235,7 @@
 					<tr>
 						<th>결재조건</th>
 						<td>
-							<select id="pmntMtdCd" name="pmntMtdCd" data-kind="PMNTMTD"style="width: 33% !important;">
+							<select id="pmntMtdCd" name="pmntMtdCd" data-kind="PMNTMTD" style="width: 33% !important;">
 								<option value="">전체</option>
 							</select>
 							<select id="clmnDivCd" name="clmnDivCd" data-kind="CLMNDIV" style="width: 33% !important;">
@@ -1051,6 +1051,8 @@
 		});
 		var formData = new FormData($("#popForm")[0]);
 		
+		debugger;
+		
 		// 턴키여부 set
 		if($('#tnkeyYn').is(":checked")){
 			formData.set("tnkeyYn", "Y");
@@ -1356,21 +1358,22 @@
 	
 	//Maker에 맞는 거래처 
 	function getPchsClnt(){
-				
 		if($('#tnkeyYn').is(":checked")){
-			var formData = {
-					"makrCd" : $("#makrCd").val()
-				}
-			postAjax("/user/sd/sd05/selectMakerPchsClntCd", formData, null, function(data){
+			var paramObj = {
+				"makrCd" : $("#makrCd").val()
+			}
+			postAjax("/user/sd/sd05/selectMakerPchsClntCd", paramObj, null, function(data){
 				if(data.result){
 					$("#pchsClntCd").val( data.result.clntCd);
 					$("#pchsClntNm").val( data.result.clntNm);	
 				}else{
-
 					$("#pchsClntCd").val("");
 					$("#pchsClntNm").val("");	
 				}
 			});	
+		}else{
+			$("#pchsClntCd").val("");
+			$("#pchsClntNm").val("");
 		}
 	}
 </script>

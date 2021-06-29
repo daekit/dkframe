@@ -354,7 +354,6 @@
 	</div>
 </div>
 <script type="text/javascript">
-	var targetRow = null;
 	var ordrgFileArr = [];
 	var ordrgFileGridView = {
 		initView: function(){
@@ -379,6 +378,7 @@
 	                {key: "fileSize", label: "파일크기", width: 140},
 	            ]
 			});
+			return this;
 		},
 		setData : function() {
 			var targetObj = this.target;
@@ -392,8 +392,6 @@
 	}
 	
 	$(document).ready(function() {
-		// 파일 그리드 초기화
-		ordrgFileGridView.initView();
 		selectOrdrgInfo();
 		authChk("OD0101M01");
 	});
@@ -452,7 +450,7 @@
 			});
 		});
 		// 첨부파일 그리드 set
-		ordrgFileGridView.setData();
+		ordrgFileGridView.initView().setData();
 		
 // 		// 매입확정된 상세가 없을경우 취소버튼 hide
 // 		if(orderInfo.confirmCntP == 0){
@@ -604,7 +602,7 @@
 		putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
 			alert(data.resultMessage);           
 			if(data.resultCode == 200){
-				gridView.setData(0);
+				ordrgGridView.setData(0);
 				modalStack.close();
 			}
 		});
@@ -665,7 +663,7 @@
 		putAjax("/user/od/od01/updateCancel", formData, null, function(data){
 			alert(data.resultMessage);
 			if(data.resultCode == 200) {
-				gridView.setData(0);
+				ordrgGridView.setData(0);
 				modalStack.close();
 			}
 		});
