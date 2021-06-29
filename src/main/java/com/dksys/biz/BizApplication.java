@@ -11,6 +11,7 @@ import com.dksys.biz.property.SapProperty;
 public class BizApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("spring.profiles.active", "local");
 		SpringApplication.run(BizApplication.class, args);
 	}
 
