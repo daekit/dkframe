@@ -6,38 +6,85 @@
 	<select id="selectPrdtAcinsCount" parameterType="Map" resultType="int">
 		SELECT
 			COUNT(*)
-		FROM TB_SM03M01 
-		WHERE 1=1
-		<if test= "coCd != null and !coCd.equals('')">
- 			AND CO_CD = #{coCd}
-		</if>
-		<if test="acinsDt != null and !acinsDt.equals('') and endDt != null and !endDt.equals('')">
- 			AND ACINS_DT = #{acinsDt}
-		</if>
-		<if test= "whCd != null and !whCd.equals('')">
- 			AND WH_CD = #{whCd}
-		</if>
-		<if test= "prdtCd != null and !prdtCd.equals('')">
- 			AND PRDT_CD = #{prdtCd}
-		</if>
-		<if test= "prjctCd != null and !prjctCd.equals('')">
- 			AND PRJCT_CD = #{prjctCd}
-		</if>
-		<if test= "ownerCd != null and !ownerCd.equals('')">
- 			AND OWNER_CD = #{ownerCd}
-		</if>
-		<if test= "typCd != null and !typCd.equals('')">
- 			AND TYP_CD = #{typCd}
-		</if>
-		<if test= "makrCd != null and !makrCd.equals('')">
- 			AND MAKR_CD = #{makrCd}
-		</if>
-		<if test= "clntCd != null and !clntCd.equals('')">
- 			AND CLNT_CD = #{clntCd}
-		</if>
-		<if test= "impYn != null and !impYn.equals('')">
- 			AND IMP_YN = #{impYn}
-		</if>
+		FROM (SELECT
+					A.CO_CD,
+					A.ACINS_DT,
+					A.STOK_SEQ,
+					A.WH_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.WH_CD) AS WH_NM,
+				    A.OWNER_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.OWNER_CD) AS OWNER_NM,
+					A.CLNT_CD,
+					BM02.CLNT_NM,
+				---	(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CLNT_CD) AS CLNT_NM,
+					A.TYP_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.TYP_CD) AS TYP_NM,
+					A.MAKR_CD,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.MAKR_CD) AS MAKR_NM,
+					A.PRJCT_CD,
+					SD05.PRJCT_NM,
+				--	(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD) AS PRJCT_NM,
+					A.PRDT_CD,
+					BM01.PRDT_NM,
+			---		(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.PRDT_CD) AS PRDT_NM,
+					A.PRDT_SIZE,
+					A.PRDT_SPEC,
+					A.PRDT_LEN,
+					A.IMP_YN,
+					(SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.IMP_YN) AS IMP_NM,
+					A.STOCK_QTY,
+					A.STOCK_WT,
+					A.ACINS_QTY,
+					A.ACINS_WT,
+					A.STOCK_QTY - A.ACINS_QTY AS STOCK_ACINS_QTY,
+					A.STOCK_WT  - A.ACINS_WT  AS STOCK_ACINS_WT,
+					A.ACINS_ID,
+					(SELECT NAME FROM TB_CM06M01 C WHERE C.ID = A.ACINS_ID) AS ACINS_NM,
+					A.RMK
+				FROM TB_SM03M01 A
+				     INNER JOIN TB_BM01M01 BM01   ON  BM01.PRDT_CD  = A.PRDT_CD
+				LEFT OUTER JOIN TB_BM02M01 BM02   ON  BM02.CLNT_CD  = A.CLNT_CD
+				LEFT OUTER JOIN TB_SD05M01 SD05   ON  SD05.PRJCT_CD = A.PRJCT_CD
+				WHERE 1=1
+				<if test= "coCd != null and !coCd.equals('')">
+		 			AND A.CO_CD = #{coCd}
+				</if>
+				<if test="acinsDt != null and !acinsDt.equals('')">
+		 			AND A.ACINS_DT = #{acinsDt}
+				</if>
+				<if test= "whCd != null and !whCd.equals('')">
+		 			AND A.WH_CD = #{whCd}
+				</if>
+				<if test= "prdtCd != null and !prdtCd.equals('')">
+		 			AND A.PRDT_CD = #{prdtCd}
+				</if>
+				<if test= "prjctCd != null and !prjctCd.equals('')">
+		 			AND A.PRJCT_CD = #{prjctCd}
+				</if>
+				<if test= "ownerCd != null and !ownerCd.equals('')">
+		 			AND A.OWNER_CD = #{ownerCd}
+				</if>
+				<if test= "typCd != null and !typCd.equals('')">
+		 			AND A.TYP_CD = #{typCd}
+				</if>
+				<if test= "makrCd != null and !makrCd.equals('')">
+		 			AND A.MAKR_CD = #{makrCd}
+				</if>
+				<if test= "clntCd != null and !clntCd.equals('')">
+		 			AND A.CLNT_CD = #{clntCd}
+				</if>
+				<if test= "impYn != null and !impYn.equals('')">
+		 			AND A.IMP_YN = #{impYn}
+				</if>
+				<if test= "prdtNm != null and !prdtNm.equals('')">
+		 			AND BM01.PRDT_NM like '%' || UPPER(#{prdtNm}) ||'%'
+				</if>
+				<if test= "clntNm != null and !clntNm.equals('')">
+		 			AND BM02.CLNT_NM like '%' || #{clntNm} ||'%'
+				</if>
+				<if test= "prjctNm != null and !prjctNm.equals('')">
+		 			AND SD05.PRJCT_NM like '%' || #{prjctNm} ||'%'
+				</if>)
 	</select>
 	
 	<select id="selectPrdtAcinsList" parameterType="Map" resultType="CamelMap">
