@@ -1,5 +1,5 @@
 <body>
-	<div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div id="shipView" class="popup_area of_a" style="width: 100%; height: 100%;">
 		<div class="tit_contents">
 			<h4 class="tit">출하요청서 조회</h4>
 		</div>
@@ -321,7 +321,7 @@
 				<tr>
 					<th>첨부파일</th>
 					<td>
-						<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
+						<div data-ax5grid="ship-file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
 					</td>
 				</tr>
 			</table>
@@ -332,7 +332,7 @@
 				<i class="fas fa-print"></i>납품서
 			</button>
 			<button id="recptYnBtn" onclick="updateRecptYn();" authchk>접수</button>
-			<button id="actionBtn" authchk>수정</button>
+			<button id="actionBtn" onclick="updateShipModal();" authchk>수정</button>
 			<button id="shipYnBtn" onclick="updateConfirm();" authchk>출하처리</button>
 			<button id="cancelBtn" onclick="updateCancel();" style="background-color: red;" authchk>출하취소</button>
 			<button class="close_btn" onclick="modalStack.close();">닫기</button>
@@ -340,13 +340,12 @@
 	</div>
 </body>
 <script type="text/javascript">
-	var fileArr = [];
-	var selectedIdx = 0;
-	var fileGridView = {
+	var shipFileArr = [];
+	var shipFileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
-				target: $('[data-ax5grid="file-grid"]'),
+				target: $('[data-ax5grid="ship-file-grid"]'),
 				showLineNumber: true,
 				showRowSelector: false,
 	        	multipleSelect: false,
@@ -365,33 +364,21 @@
 	                {key: "fileSize", label: "파일크기", width: 140},
 	            ]
 			});
+			return this;
 		},
 		setData : function() {
 			var targetObj = this.target;
 			targetObj.setData({
-				list: fileArr,
+				list: shipFileArr,
 				page : {
-					totalElements : fileArr.length
+					totalElements : shipFileArr.length
 				}
 			});
 		}
 	}
 	
 	$(document).ready(function() {
-		// 파일 그리드 초기화
-		fileGridView.initView();
-		
 		selectShipInfo();
-		
-		if(openFrom == "SD0502P01" || openFrom == "SD0402V01" || openFrom == "SD0402P01"){
-			$("#actionBtn").hide();
-			$("#shipYnBtn").hide();
-		}else{
-			var paramObj = modalStack.last().paramObj;
-			$('#actionBtn').on("click", function(){updateShipModal(paramObj);});
-			$('#actionBtn').text("수정");
-			$("#shipYnBtn").show();
-		}
 		authChk("AR0101M01");
 	});
 	
@@ -410,10 +397,10 @@
 		// 메인정보 세팅
 		$.each(shipInfo, function(key, value){
 			var itemValue = value;
-			if($('#'+key).is('[comma]')){
+			if($('#shipView #'+key).is('[comma]')){
 				itemValue = addCommaStr(itemValue);
 			}
-			$('#'+key).val(itemValue);
+			$('#shipView #'+key).val(itemValue);
 		});
 		
 		//상세정보 세팅
@@ -426,7 +413,7 @@
 						itemValue = addCommaStr(itemValue);
 					}
 					$(elem).val(itemValue);
-					if(elem.name == "shipYn" && itemValue == 'N') { //red
+					if(elem.name == "shipYn" && itemValue == "N") { //red
 						$(elem).css({"color": "red"});
 					}
 					
@@ -443,7 +430,7 @@
 
 		// 첨부파일 set
 		$.each(fileInfo, function(idx, obj){
-			fileArr.push({
+			shipFileArr.push({
 				'fileKey' : obj.fileKey,
 		      	'fileName' : obj.fileName,
 		      	'fileType' : obj.fileType,
@@ -453,34 +440,34 @@
 		});
 		
 		// 첨부파일 그리드 set
-		fileGridView.setData();
+		shipFileGridView.initView().setData();
 		
 		// 창고담당자가 확인한경우 접수버튼 hide
 		if(shipInfo.recptYn == "Y") {
-			$("#recptYnBtn").hide();
+			$("#shipView #recptYnBtn").hide();
 		}
 		
 		// 전체 출하확정시 출하처리 및 수정버튼 hide
 		if(shipInfo.shipYn == "Y") {
-			$("#shipYnBtn").hide();
-			$("#actionBtn").hide();
+			$("#shipView #shipYnBtn").hide();
+			$("#shipView #actionBtn").hide();
 		}
 		
 		// 확정된 상세가 없을경우 취소버튼 hide
 		if(shipInfo.confirmCnt == 0){
-			$("#cancelBtn").hide();
+			$("#shipView #cancelBtn").hide();
 		}
 	}
 	
 	function addDetailRow() {
-		var $detailRow = $('#frameTable tr[name="detailRow"]').clone();
-		$('#detailTable tbody').append($detailRow[0]);
+		var $detailRow = $('#shipView #frameTable tr[name="detailRow"]').clone();
+		$('#shipView #detailTable tbody').append($detailRow[0]);
 		return $detailRow;
 	}
 	
 	function ctrlAllChkBox(){
 		var isAllChk = true;
-		var $detailChkBoxes = $('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
+		var $detailChkBoxes = $('#shipView #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)');
 		if($detailChkBoxes.length > 0){
 			$.each($detailChkBoxes, function(idx, elem){
 				if(!$(elem).is(':checked')){
@@ -488,20 +475,20 @@
 				}
 			});
 			if(isAllChk){
-				$('#allChkBox').prop("checked", true);
+				$('#shipView #allChkBox').prop("checked", true);
 			}else{
-				$('#allChkBox').prop("checked", false);
+				$('#shipView #allChkBox').prop("checked", false);
 			}
 		}else{
-			$('#allChkBox').prop("checked", false);
+			$('#shipView #allChkBox').prop("checked", false);
 		}
 	}
 	
 	function ctrlDetailChkBox(elem){
 		if($(elem).is(':checked')){
-			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
+			$('#shipView #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", true);
 		}else{
-			$('#detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
+			$('#shipView #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
 		}
 	}
 	
@@ -511,7 +498,7 @@
 		var shipTotAmt = 0;
 		var totEpctPal = 0;
 		
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var shipQty = Number(deleteCommaStr($(elem).find('input[name="shipQty"]').val()));
 			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val()));
 			var shipAmt = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
@@ -523,34 +510,32 @@
 			totEpctPal += epctPal; 
 		});
 		
-		$('#shipTotQty').val(addCommaStr(shipTotQty));
-		$('#shipTotWt').val(addCommaStr(shipTotWt));
-		$('#shipTotAmt').val(addCommaStr(shipTotAmt));
-		$("#totEpctPal").val(addCommaStr(totEpctPal));
+		$('#shipView #shipTotQty').val(addCommaStr(shipTotQty));
+		$('#shipView #shipTotWt').val(addCommaStr(shipTotWt));
+		$('#shipView #shipTotAmt').val(addCommaStr(shipTotAmt));
+		$("#shipView #totEpctPal").val(addCommaStr(totEpctPal));
 	}
 	
 	function downloadFile(idx) {
-		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileArr[idx].fileKey}, null, function(data){
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": shipFileArr[idx].fileKey}, null, function(data){
 			var fileInfo = data.fileInfo;
 			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
 	}
 	
-	function updateShipModal(shipSeq) {
+	function updateShipModal() {
+		var paramObj = modalStack.last().paramObj;
 		modalStack.close();
 		setTimeout(function(){
-			var paramObj = {
-				"actionType": "U",
-				"shipSeq": shipSeq
-			};
+			paramObj.actionType = "U";
 			openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 780, "", paramObj);
 		}, 500);
 	}
 	
 	function updateConfirm() {
 		var checkCount = 0;
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
 				checkCount++;
 			}
@@ -562,23 +547,15 @@
 		}
 		var formData = makeFormData('CONFIRM');
 	
-// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
-//		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
 		var mngPrdtLen = ''; 
-		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
-		formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
-//--------------------------------------------------------------------------------------------------------------
+		if($('#shipView #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		formData.append("mngPrdtLen", mngPrdtLen);
 		
 		filePutAjax("/user/ar/ar01/updateConfirm", formData, function(data){
 			alert(data.resultMessage);  
 			if(data.resultCode == 200) {
-				var targetGrid;
-				if(openFrom == "CM1001M01"){
-					targetGrid = shipGridView;
-				} else {
-					targetGrid = gridView;
-				}        
-				targetGrid.setData(0);
+				shipGridView.setData(0);
 				modalStack.close();
 			}
 		});
@@ -586,7 +563,7 @@
 	
 	function updateCancel() {
 		var checkCount = 0;
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "Y") {
 				checkCount++;
 			}
@@ -596,18 +573,17 @@
 			alert("확정 건이 존재하지 않습니다.");
 			return;
 		}
-		var formData = makeFormData('CANCEL');		
-// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
-//		$('#whType').val($("#whCd option:selected").data("rprc"));  // 하치장, 공장, 외주 구분
+		var formData = makeFormData('CANCEL');
+		
+		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머진 하치장, 외주는 실제 길이 관리한다.
 		var mngPrdtLen = ''; 
-		if($('#whType').val() == "WHDIV01") {mngPrdtLen = 8;}
-		formData.append("mngPrdtLen", mngPrdtLen);           // 길이관리,,,, 공장의 경우 길이는  8m로 고정할때 사용한다.
-//--------------------------------------------------------------------------------------------------------------
+		if($('#shipView #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+		formData.append("mngPrdtLen", mngPrdtLen);
 
 		filePutAjax("/user/ar/ar01/updateCancel", formData, function(data){
 			alert(data.resultMessage);         
 			if(data.resultCode == 200) {
-				gridView.setData(0);
+				shipGridView.setData(0);
 				modalStack.close();	
 			}
 		});
@@ -615,19 +591,19 @@
 	
 	function makeFormData(type) {
 		//콤마 제거
-		$.each($('input[comma]'), function(idx, elem){
+		$.each($('#shipView input[comma]'), function(idx, elem){
 			deleteComma(elem);
 		});
 		
 		// 폼데이터 생성
-		var formData = new FormData($("#popForm")[0]);
+		var formData = new FormData($("#shipView #popForm")[0]);
 		
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);
 		
 		// 상세내역 추가
 		var detailArr = [];
-		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem){
+		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if(type == "CONFIRM") {
 				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
 					var detailObj = {};
@@ -655,15 +631,14 @@
 	
 	function setReport(type) {
 		var flag = false;
-		
 		if(type == 'SHIP'){
 			var fileName = "AR0101R02.jrf";
-			if ($('#detailTable tr[name="detailRow"]').length > 6) {
+			if ($('#shipView #detailTable tr[name="detailRow"]').length > 6) {
 				fileName = "AR0101R03.jrf";
 			}
-			var arg = "coCd#"			+ $('#coCd').val()
-		         + "#clntCd#"		+ $('#clntCd').val()
-		         + "#shipSeq#"		+ $('#shipSeq').val()
+			var arg = "coCd#"			+ $('#shipView #coCd').val()
+		         + "#clntCd#"		+ $('#shipView #clntCd').val()
+		         + "#shipSeq#"		+ $('#shipView #shipSeq').val()
 		         + "#";
 		}
 		callReport(fileName, arg, "1050", "700");

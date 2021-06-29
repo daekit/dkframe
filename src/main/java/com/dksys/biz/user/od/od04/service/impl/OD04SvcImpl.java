@@ -116,6 +116,13 @@ public class OD04SvcImpl implements OD04Svc {
 		}
 		return result;
 	}
+	
+	@Override
+	public int updateRecpt(Map<String, String> paramMap) {
+		int result = 0;
+		result = od04Mapper.updateRecpt(paramMap.get("reqSeq"));
+		return result;
+	}
     
 	@Override
 	public int updateRecptList(Map<String, Object> paramMap) {
@@ -126,11 +133,5 @@ public class OD04SvcImpl implements OD04Svc {
 		}
 		return result;
 	}
-    
-	@Override
-	public int updateRecpt(Map<String, String> paramMap) {
-		int result = 0;
-		result = od04Mapper.updateRecpt(paramMap.get("reqSeq"));
-		return result;
-	}
+	
 }
