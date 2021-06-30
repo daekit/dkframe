@@ -12,6 +12,6 @@ public class LogicException extends Exception{
 	
 	@Override
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
 }
