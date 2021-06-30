@@ -212,17 +212,21 @@
 		(SELECT   ROWNUM AS RNUM
 	              , A.*
 	  		      , FN_CM05M01_CD_TO_NM(A.CO_CD)  AS  CO_NM
+	  		      , FN_CM05M01_CD_TO_NM(A.PRDT_GRP)  AS PRDT_GRP_NM
+	  		      , (SELECT PRJCT_NM FROM  TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
 	  		      , FN_CM05M01_CD_TO_NM(A.SELL_PAY_DIV_CD)  AS  SELL_PAY_DIV_NM
     			  , FN_CM05M01_CD_TO_NM(A.SELL_CLMN_DIV_CD) AS  SELL_CLMN_DIV_NM
 	              , FN_CM05M01_CD_TO_NM(A.SELL_PMNT_MTD_CD) AS  SELL_PMNT_MTD_NM
 	              , FN_CM05M01_CD_TO_NM(A.SELL_VAT_CD)      AS  SELL_VAT_NM
 	              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT	               
-	              , F_CREDIT_LOAN('T', A.CLNT_CD, A.CO_CD, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
-				  , F_CREDIT_LOAN('C', A.CLNT_CD, A.CO_CD, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  	
+	              , F_CREDIT_LOAN_PRDTGRP('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
+				  , F_CREDIT_LOAN_PRDTGRP('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  	
 	         FROM (
 	            SELECT
 	                   CO_CD
 			         , CLNT_NM
+			         , PRDT_GRP
+			         , PRJCT_CD
 					 , SELL_PAY_DIV_CD
 			  	     , SELL_CLMN_DIV_CD
 			  	     , SELL_PMNT_MTD_CD
@@ -247,11 +251,13 @@
 						SELECT  1 AS TYPE1  <!--- 당월 입금 -->
 					     , AR05.CO_CD
 			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
-			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
+			             , AR05.PRDT_GRP
+					     , AR05.PRJCT_CD
+					     , BM02.SELL_PAY_DIV_CD
+			  		     , AR05.SELL_CLMN_DIV_CD
+			  		     , AR05.SELL_PMNT_MTD_CD
+			  		     , BM02.SELL_VAT_CD
+			  		     , AR05.SELL_CLMN_DAY
 						 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
 						 , SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) CLOSE_YM
 						 , AR05.CLNT_CD
@@ -267,9 +273,9 @@
 						 , 0 AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
 						 , 0 AS CLOSE_YM2_TOT_AMT    <!--전전월매출	 -->
 						 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
-					  FROM TB_AR05M01 AR05
+					  FROM TB_AR05D02 AR05
 					  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
-					  WHERE ETRDPS_TYP IN ('ETRDPS01','ETRDPS03') 					  
+					  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 					  
 					  <if test="coCd != null and !coCd.equals('')">
 					  AND AR05.CO_CD = #{coCd}				
 					  </if>	
@@ -284,20 +290,24 @@
 					  </if>
 					  GROUP BY AR05.CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) 					  
 			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
-			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
+			             , AR05.PRDT_GRP
+					     , AR05.PRJCT_CD
+					     , BM02.SELL_PAY_DIV_CD
+			  		     , AR05.SELL_CLMN_DIV_CD
+			  		     , AR05.SELL_PMNT_MTD_CD
+			  		     , BM02.SELL_VAT_CD
+			  		     , AR05.SELL_CLMN_DAY
 				   UNION 
 					SELECT   2 AS TYPE1  <!--- 당월 매출 -->
 					     , AR02.CO_CD
 			             , BM02.CLNT_NM
+			             , (SELECT PRDT_GRP FROM TB_BM01M01 BM01 WHERE BM01.PRDT_CD = AR02.TRST_PRDT_CD ) AS PRDT_GRP
+					     , AR02.PRJCT_CD
 					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
+			  		     , NVL(SD05.CLMN_DIV_CD, SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_CD
+			  		     , NVL(SD05.PMNT_MTD_CD, SELL_PMNT_MTD_CD) AS SELL_PMNT_MTD_CD
 			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
+			  		     , NVL(SD05.CLMN_DAY, SELL_CLMN_DAY) AS SELL_CLMN_DAY
 						 , SUBSTRING(TRST_DT, 0, 6) TRST_YM	
 						 , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2) CLOSE_YM	
 						 , TRST_CLNT_CD AS CLNT_CD 
@@ -314,7 +324,8 @@
 						 , 0 AS CLOSE_YM2_TOT_AMT    <!--전전월매출	 -->
 						 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
 					  FROM TB_AR02M01 AR02
-					  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD 
+					  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD
+					  LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR02.PRJCT_CD
 					  WHERE SELPCH_CD = 'SELPCH2'				  
 					  <if test="coCd != null and !coCd.equals('')">
 					  AND AR02.CO_CD = #{coCd}				
@@ -330,15 +341,19 @@
 					  </if>
 					  GROUP BY AR02.CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
 			             , BM02.CLNT_NM
+			             , AR02.TRST_PRDT_CD
+					     , AR02.PRJCT_CD
 					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
+			  		     , NVL(SD05.CLMN_DIV_CD, SELL_CLMN_DIV_CD)
+			  		     , NVL(SD05.PMNT_MTD_CD, SELL_PMNT_MTD_CD)
 			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
+			  		     , NVL(SD05.CLMN_DAY, SELL_CLMN_DAY)
 					UNION  
-					  SELECT  3 AS TYPE1  <!--- 당월 매출 -->
+					  SELECT  3 AS TYPE1  <!--- 전월 매출 -->
 					     , C.CO_CD
 			             , BM02.CLNT_NM
+			             , C.PRDT_GRP
+					     , C.PRJCT_CD
 					     , SELL_PAY_DIV_CD
 			  		     , SELL_CLMN_DIV_CD
 			  		     , SELL_PMNT_MTD_CD
@@ -379,6 +394,8 @@
 				    GROUP BY C.CO_CD
 					     , C.CLNT_CD
 			             , BM02.CLNT_NM
+			             , C.PRDT_GRP
+					     , C.PRJCT_CD
 					     , SELL_PAY_DIV_CD
 			  		     , SELL_CLMN_DIV_CD
 			  		     , SELL_PMNT_MTD_CD
@@ -388,6 +405,8 @@
 			     GROUP BY
 			   		   CO_CD
 			         , CLNT_NM
+			         , PRDT_GRP
+			         , PRJCT_CD
 					 , SELL_PAY_DIV_CD
 			  	     , SELL_CLMN_DIV_CD
 			  	     , SELL_PMNT_MTD_CD
@@ -411,6 +430,7 @@
 				          SUBSTRING(C.CLOSE_YM, 0, 4) || '-' || SUBSTRING( C.CLOSE_YM, 5,2) CLOSE_YM,
 					      C.CLNT_CD ,
 					      BM02.CLNT_NM,
+					      C.PRJCT_CD,
 					      SELL_PAY_DIV_CD,
 			  		      SELL_CLMN_DIV_CD,
 			  		      SELL_PMNT_MTD_CD,
@@ -449,6 +469,7 @@
 					      C.CLOSE_YM ,
 					      C.CLNT_CD ,
 					      BM02.CLNT_NM,
+					      C.PRJCT_CD,
 					      SELL_PAY_DIV_CD,
 			  		      SELL_CLMN_DIV_CD,
 			  		      SELL_PMNT_MTD_CD,
@@ -471,6 +492,10 @@
 			        , SUBSTRING(REPLACE(#{closeYm}, '-', ''), 0, 4) || '-' || SUBSTRING(REPLACE(#{closeYm}, '-', ''), 5,2) CLOSE_YM
 				    , C.CLNT_CD
 				    , BM02.CLNT_NM
+					, C.PRJCT_CD
+					, (SELECT PRJCT_NM FROM TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = C.PRJCT_CD  ) AS PRJCT_NM
+					, C.PRDT_GRP
+					, FN_CM05M01_CD_TO_NM(C.PRDT_GRP)  AS  PRDT_GRP_NM
 				    , SELL_PAY_DIV_CD
 		  		    , SELL_CLMN_DIV_CD
 		  		    , SELL_PMNT_MTD_CD
@@ -492,8 +517,8 @@
 				    , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.CELL_CLMN_AMT, 0)))     CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
 				    , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.CELL_TOT_AMT, 0)))      CLOSE_YM2_TOT_AMT    <!--전전월매출 -->
 				    , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
-				    , F_CREDIT_LOAN('T',C.CLNT_CD,C.CO_CD,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
-			        , F_CREDIT_LOAN('C',C.CLNT_CD,C.CO_CD,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  	
+				    , F_CREDIT_LOAN_PRDTGRP('T',C.CLNT_CD,C.CO_CD,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
+			        , F_CREDIT_LOAN_PRDTGRP('C',C.CLNT_CD,C.CO_CD,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  	
 			  	 FROM TB_AR07M01 C
 			  	 LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD
 				<where>
@@ -514,6 +539,8 @@
 			    GROUP BY C.CO_CD,
 				      C.CLNT_CD ,
 				      BM02.CLNT_NM,
+					  C.PRJCT_CD,
+					  C.PRDT_GRP,
 				      SELL_PAY_DIV_CD,
 		  		      SELL_CLMN_DIV_CD,
 		  		      SELL_PMNT_MTD_CD,
@@ -528,24 +555,28 @@
 
 	<select id="selectClosCditList" resultType="CamelMap">
 	SELECT AR07.*, (SELECT NAME FROM TB_CM06M01 WHERE ID = AR07.SALES_EMP_ID  ) AS SALES_EMP_NM
-	           ,F_CREDIT_LOAN('T',AR07.CLNT_CD,AR07.CO_CD,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT   -- 총여신금액
-			   ,F_CREDIT_LOAN('C',AR07.CLNT_CD,AR07.CO_CD,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  -- 여신잔액
-			   ,(SELECT SUM(ETRDPS_AMT) FROM TB_AR05M01 AR05 
-		         INNER JOIN TB_AR05D01 AR05D  
+	      , (SELECT PRJCT_NM FROM TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = AR07.PRJCT_CD  ) AS PRJCT_NM
+	  	  , FN_CM05M01_CD_TO_NM(AR07.PRDT_GRP)  AS PRDT_GRP_NM
+	      ,F_CREDIT_LOAN_PRDTGRP('T',AR07.CLNT_CD,AR07.CO_CD,AR07.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT   -- 총여신금액
+		  ,F_CREDIT_LOAN_PRDTGRP('C',AR07.CLNT_CD,AR07.CO_CD,AR07.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  -- 여신잔액
+		  ,(SELECT SUM(ETRDPS_AMT) FROM TB_AR05M01 AR05 
+		           INNER JOIN TB_AR05D01 AR05D  
 		                 ON AR05D.CO_CD = AR05.CO_CD AND AR05D.CLNT_CD = AR05.CLNT_CD AND AR05D.BIL_NO = AR05.BIL_NO
 		         WHERE AR05.ETRDPS_DT  <![CDATA[<= ]]>TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')
 		           AND AR05D.EXPRTN_DT <![CDATA[>  ]]>TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')
 		           AND AR05.CO_CD = AR07.CO_CD
 		           AND AR05.CLNT_CD = AR07.CLNT_CD) AS UNSETL_BIL_AMT -- 미결제어음
-		       ,(SELECT SUM(NVL(PLDG_AMT,0) /100 * NVL(PLDG_RCOGN_RATE,1)) 
-		           FROM TB_BM02D02 BM02D02
-		          WHERE BM02D02.CLNT_CD = AR07.CLNT_CD AND BM02D02.CO_CD = AR07.CO_CD AND BM02D02.USE_YN = 'Y'
-		            AND NVL(EXPRTN_DT,TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')) <![CDATA[<= ]]> TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')) AS PLDG_AMT -- 담보금액
+		   ,(SELECT SUM(NVL(PLDG_AMT,0) /100 * NVL(PLDG_RCOGN_RATE,1)) 
+		       FROM TB_BM02D02 BM02D02
+		      WHERE BM02D02.CLNT_CD = AR07.CLNT_CD AND BM02D02.CO_CD = AR07.CO_CD AND BM02D02.USE_YN = 'Y'
+		        AND NVL(EXPRTN_DT,TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')) <![CDATA[<= ]]> TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')) AS PLDG_AMT -- 담보금액
 	FROM (
 	    SELECT  AR07.CO_CD
 		       ,FN_CM05M01_CD_TO_NM(AR07.CO_CD) AS CO_NM
 		       ,AR07.CLNT_CD 
 		       ,BM02.CLNT_NM
+		       ,AR07.PRDT_GRP
+		       ,AR07.PRJCT_CD
 		       ,BM02.SELL_CLMN_DAY
 		       ,BM02.SELL_CLMN_RMK
 		       ,BM02.SELL_PAY_DIV_CD
@@ -582,6 +613,8 @@
 		GROUP BY AR07.CO_CD
 		       ,AR07.CLNT_CD 
 		       ,BM02.CLNT_NM
+		       ,AR07.PRDT_GRP
+		       ,AR07.PRJCT_CD
 		       ,BM02.SELL_CLMN_DAY
 		       ,BM02.SELL_CLMN_RMK
 		       ,BM02.SELL_PAY_DIV_CD
