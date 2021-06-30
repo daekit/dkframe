@@ -14,6 +14,10 @@ public interface BM01Mapper {
 	
 	Map<String, String> selectMaterialInfo(Map<String, String> param);
 	
+	String selectProductGroup(String prdtCd);
+	
+	String selectProductGroupNm(String prdtGrp);
+	
 	int checkOverLap(Map<String, String> param);
 
 	int insertMaterial(Map<String, String> param);
