@@ -215,18 +215,17 @@
 					B.SETUP_DT,
 					B.SELPCH_CD,
 					FN_CM05M01_CD_TO_NM(B.SELPCH_CD) SELPCH_NM,
-					B.PTON_NM
+					B.PTON_NM,
+					FN_CM05M01_CD_TO_NM(B.PRDT_GRP) PRDT_GRP_NM
 				FROM
 				  	TB_BM02M01 A
 				LEFT OUTER JOIN TB_BM02D02 B
 				             ON  A.CLNT_CD = B.CLNT_CD
 				WHERE 1=1
+				  AND B.CLNT_CD = #{clntCd}
 				<if test="coCd != null and !coCd.equals('')">
 				  AND B.CO_CD = #{coCd}
 			   </if>
-				<if test="clntCd != null and !clntCd.equals('')">
-				  AND B.CLNT_CD = #{clntCd}
-				</if>
 				<if test="useYn != null and !useYn.equals('')">
 				  AND B.USE_YN = #{useYn}
 				</if>
@@ -348,7 +347,7 @@
 				</if>
 
 			) A
-			ORDER BY PLDG_DIV_CD , CLNT_CD ,CO_CD 
+			ORDER BY PLDG_DIV_CD , CLNT_CD ,CO_CD, TRST_NO
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
