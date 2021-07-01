@@ -75,7 +75,7 @@ switch (jwt.serverType){
         ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
         break;
     default :
-        ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
+        ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
 }
 
 var openModal = function(url, width, height, title, paramObj, callback) {
