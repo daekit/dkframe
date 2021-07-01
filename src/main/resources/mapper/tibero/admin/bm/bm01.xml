@@ -34,10 +34,10 @@
 			 	SELECT
 			 		PRDT_CD
 					, PRDT_NM
-					, PRDT_DIV
-					, FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
 					, PRDT_GRP
 					, FN_CM05M01_CD_TO_NM(PRDT_GRP) AS PRDT_GRP_NM
+					, PRDT_DIV
+					, FN_CM05M01_CD_TO_NM(PRDT_DIV) AS PRDT_DIV_NM
 					, PRDT_STKN
 					, FN_CM05M01_CD_TO_NM(PRDT_STKN) AS PRDT_STKN_NM
 					, PRDT_ERQK_YN
@@ -195,6 +195,19 @@
 	 	 <if test="prdtCoilYn != null and !prdtCoilYn.equals('')">
 	 	AND PRDT_COIL_YN= #{prdtCoilYn}
 	 	</if>
+	</select>
+	
+	<select id="selectProductGroupCd" resultType="String">
+		SELECT
+			PRDT_GRP
+		FROM
+			TB_BM01M01
+		WHERE
+			PRDT_CD = #{value}
+	</select>
+	
+	<select id="selectProductGroupNm" resultType="String">
+		SELECT FN_CM05M01_CD_TO_NM(#{value}) FROM DUAL
 	</select>
 	
 	<insert id="insertMaterial" parameterType="Map">

@@ -27,7 +27,7 @@ public interface OD01Svc {
 	
 	int deleteOrdrg(Map<String, String> paramMap);
 	
-	int updateConfirm(Map<String, String> paramMap);
+	void updateConfirm(Map<String, String> paramMap) throws Exception;
 
 	int updateCancel(Map<String, String> paramMap);
 	

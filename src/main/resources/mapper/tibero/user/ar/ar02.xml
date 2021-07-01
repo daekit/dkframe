@@ -492,6 +492,8 @@
 				    T.TRST_PRDT_CD,
 				    T.TRST_PRDT_CD AS PRDT_CD,
 				    BM01M01.PRDT_NM,
+				    BM01M01.PRDT_GRP,
+				    FN_CM05M01_CD_TO_NM(BM01M01.PRDT_GRP) PRDT_GRP_NM,
 				    T.OWNER_CD,
 				    FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
 				    T.IMP_YN,
@@ -736,6 +738,8 @@
 	        T.TRST_PRDT_CD,
 	        T.TRST_PRDT_CD AS PRDT_CD,
 	        (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = T.TRST_PRDT_CD) AS PRDT_NM,
+	        BM01.PRDT_GRP,
+	        FN_CM05M01_CD_TO_NM(BM01.PRDT_GRP) AS PRDT_GRP_NM,
 	        T.OWNER_CD,
 	        FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
 	        T.IMP_YN,
@@ -966,6 +970,10 @@
 	
     <select id="callCreditLoan" parameterType="Map" resultType="long">
     	SELECT F_CREDIT_LOAN(#{loanCd}, #{clntCd}, #{coCd}, #{iTrDt}, #{amt}) FROM DUAL
+    </select>
+    
+    <select id="callCreditLoan2" parameterType="Map" resultType="long">
+    	SELECT F_CREDIT_LOAN_PRDTGRP(#{loanCd}, #{clntCd}, #{coCd}, #{iPrdtGrp}, #{iTrDt}, #{amt}) FROM DUAL
     </select>
 	
     <select id="selectSellSumList" parameterType="Map" resultType="CamelMap">

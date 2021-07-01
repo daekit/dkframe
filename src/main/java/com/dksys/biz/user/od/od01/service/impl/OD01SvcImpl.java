@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
@@ -22,6 +24,7 @@ import com.dksys.biz.user.od.od04.mapper.OD04Mapper;
 import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
 import com.dksys.biz.user.sd.sd08.mapper.SD08Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
+import com.dksys.biz.util.ExceptionThrower;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -49,10 +52,16 @@ public class OD01SvcImpl implements OD01Svc {
     SD08Mapper sd08Mapper;
     
     @Autowired
+    BM01Mapper bm01Mapper;
+    
+    @Autowired
     AR02Svc ar02Svc;
     
     @Autowired
     CM08Svc cm08Svc;
+    
+    @Autowired
+    ExceptionThrower thrower;
     
     @Override
 	public int selectOrdrgCount(Map<String, String> paramMap) {
@@ -209,12 +218,11 @@ public class OD01SvcImpl implements OD01Svc {
 	}
     
 	@Override
-	public int updateConfirm(Map<String, String> paramMap) {
-		int result = 0;
+	public void updateConfirm(Map<String, String> paramMap) throws Exception{
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		result = detailList.size();
+		List<Map<String, Object>> loanList = new ArrayList<Map<String,Object>>();
 		
 		/*
 		 * 1. 일괄 확정 (A)
@@ -233,8 +241,8 @@ public class OD01SvcImpl implements OD01Svc {
 		if("P".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
 			// 마감 체크
 			if(!ar02Svc.checkPchsClose(paramMap)) {
-				return 500;
-			}	
+	    		thrower.throwCommonException("pchsClose");
+			}
 		}		
 		
 		// 직송이면서 매출여부 N인경우 매출확정 시작
@@ -242,38 +250,55 @@ public class OD01SvcImpl implements OD01Svc {
 		       // 전체 확정인 경우는 진행
 		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
         	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
+        		
 				// 마감 체크 (매출)
         		if(!ar02Svc.checkSellClose(paramMap)) {
-        			return 501;
-				}
+            		thrower.throwCommonException("sellClose");
+        		}
         		
-        		// 여신 체크 (매출)
-        		// 1. 매출금액합계 계산
-        		long totShipAmt = 0;
+        		/* 여신 체크 start */
+        		
+        		// 그룹별 금액 Map 
+        		Map<String, Object> grpAmtMap = new LinkedHashMap<String, Object>();
         		for(Map<String, String> detailMap : detailList) {
         			if("N".equals(detailMap.get("shipYn"))) {
-        				totShipAmt += Long.parseLong(detailMap.get("shipAmt"));
+	        			String prdtGrp = bm01Mapper.selectProductGroup(detailMap.get("prdtCd"));
+	        			if(grpAmtMap.containsKey(prdtGrp)) {
+	        				grpAmtMap.put(prdtGrp, (Long) grpAmtMap.get(prdtGrp) + Long.parseLong(detailMap.get("shipAmt")));
+	        			}else {
+	        				grpAmtMap.put(prdtGrp, Long.parseLong(detailMap.get("shipAmt")));
+	        			}
         			}
         		}
         		
-        		// 2. 부가세율 조회해서 계산후 플러스
-        		Map<String, String> vatPerMap = new HashMap<String, String>();
-        		vatPerMap.put("selpchCd", "SELPCH2");
-        		vatPerMap.put("clntCd", paramMap.get("sellClntCd"));
+        		// 여신 Map
+        		Map<String, String> bilgVatPerMap = new HashMap<String, String>();
+        		bilgVatPerMap.put("selpchCd", "SELPCH2");
+        		bilgVatPerMap.put("clntCd", paramMap.get("sellClntCd"));
+        		int bilgVatPer = ar02Mapper.selectBilgVatPer(bilgVatPerMap);
         		
-        		int bilgVatPer = ar02Mapper.selectBilgVatPer(vatPerMap);
-        		totShipAmt += Math.floor(totShipAmt * bilgVatPer / 100);
+        		for(Map.Entry<String, Object> entry : grpAmtMap.entrySet()) {
+        			String prdtGrp = entry.getKey();
+        			Long totAmt = (Long) entry.getValue();
+        			Map<String, Object> loanMap = new HashMap<String, Object>();
+        			loanMap.put("coCd", paramMap.get("coCd"));
+        			loanMap.put("clntCd", paramMap.get("sellClntCd"));
+        			loanMap.put("prdtGrp", prdtGrp);
+        			loanMap.put("trstDt", paramMap.get("dlvrDttm"));
+        			long bilgVatAmt = (long) Math.floor(totAmt * bilgVatPer / 100);
+        			loanMap.put("totAmt", totAmt + bilgVatAmt);
+        			loanList.add(loanMap);
+        		}
         		
-        		// 3. 여신체크
-        		Map<String, String> loanMap = new HashMap<String, String>();
-        		loanMap.put("clntCd", paramMap.get("sellClntCd"));
-        		loanMap.put("coCd", paramMap.get("coCd"));
-        		loanMap.put("dlvrDttm", paramMap.get("dlvrDttm"));
-        		loanMap.put("realTotTrstAmt", String.valueOf(totShipAmt));
-        		if (ar02Svc.checkLoan(loanMap)) {
-        			paramMap.put("diffLoan", loanMap.get("diffLoan"));
-					return 0;
-				}
+        		// 그룹별 여신 리스트를 순회하며 여신 체크
+        		for(Map<String, Object> loanMap : loanList) {
+        			long diffLoan = ar02Svc.checkLoan(loanMap);
+        			if(diffLoan < 0) {
+        				String prdtGrpNm = bm01Mapper.selectProductGroupNm(loanMap.get("prdtGrp").toString());
+        	        	thrower.throwCreditLoanException(prdtGrpNm, diffLoan);
+        	        }
+        		}
+        		/* 여신 체크 end */
         	}
         }
 //-----------------------------------------------------------------------------------------------------------------------------------------------		
@@ -463,7 +488,27 @@ public class OD01SvcImpl implements OD01Svc {
 			od01Mapper.updateConfirmS(paramMap);
 		}
 		
-		return result;
+		// 직송이면서 매출여부 N인경우 매출확정 시작
+        if("Y".equals(paramMap.get("dirtrsYn"))) {		
+		       // 전체 확정인 경우는 진행
+		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
+	       	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
+	       		// 최종 여신 체크 / 여신 차감
+	    		for(Map<String, Object> loanMap : loanList) {
+	    			long diffLoan = ar02Svc.checkLoan(loanMap);
+	    			if(diffLoan < 0) {
+	    				String prdtGrpNm = bm01Mapper.selectProductGroupNm(loanMap.get("prdtGrp").toString());
+	    	        	thrower.throwCreditLoanException(prdtGrpNm, diffLoan);
+	    	        }else {
+	    	        	// 여신 차감후 음수 return시 롤백 
+	    	        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);
+	    	        	if(loanPrcsResult < 0) {
+	    	    			throw new Exception();
+	    	    		}
+	    	        }
+	    		}
+	       	}
+        }
 	}
 
 	@Override
@@ -583,10 +628,10 @@ public class OD01SvcImpl implements OD01Svc {
 			od01Mapper.updateCancelS(paramMap);
 			
 			// 2. 부가세율 조회해서 계산후 플러스
-    		Map<String, String> vatPerMap = new HashMap<String, String>();
-    		vatPerMap.put("selpchCd", "SELPCH2");
-    		vatPerMap.put("clntCd", sellClntCd);
-    		int bilgVatPer = ar02Mapper.selectBilgVatPer(vatPerMap);
+    		Map<String, String> bilgVatPerMap = new HashMap<String, String>();
+    		bilgVatPerMap.put("selpchCd", "SELPCH2");
+    		bilgVatPerMap.put("clntCd", sellClntCd);
+    		int bilgVatPer = ar02Mapper.selectBilgVatPer(bilgVatPerMap);
     		totShipAmt += Math.floor(totShipAmt * bilgVatPer / 100);
 			
 			// 여신 원복

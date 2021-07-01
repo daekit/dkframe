@@ -710,6 +710,7 @@
 		if(checkGridRow(subGridView.target, "multi")){
 			var isValid = true;
 			var clntCd = null;
+			var prdtGrp = null;
 			
 			var selectedRows = subGridView.target.getList("selected");
 			$.each(selectedRows, function(idx, obj){
@@ -724,13 +725,22 @@
 					isValid = false;
 					return false;
 				}
-				clntCd = obj.clntCd;
+				
+				if(prdtGrp != null && prdtGrp != obj.prdtGrp){
+					alert("동일한 제품그룹끼리만 가능합니다.");
+					isValid = false;
+					return false;
+				}
 				
 				if(obj.returnYn == "Y"){
 					alert("반품건은 분할이 불가능합니다.");
 					isValid = false;
 					return false;
 				}
+				
+				clntCd = obj.clntCd;
+				prdtGrp = obj.prdtGrp;
+				
 				obj.__selected__ = false;
 			});
 			
@@ -744,6 +754,7 @@
 		if(checkGridRow(subGridView.target, "multi")){
 			var bilgYn = null;
 			var clntCd = null;
+			var prdtGrp = null;
 			var returnYn = null;
 			
 			var selectedRows = subGridView.target.getList("selected");
@@ -759,6 +770,11 @@
 					return false;
 				}
 				
+				if(prdtGrp != null && prdtGrp != obj.prdtGrp){
+					alert("동일한 제품그룹끼리만 가능합니다.");
+					return false;
+				}
+				
 				if(returnYn != null && returnYn != obj.returnYn){
 					alert("반품은 반품끼리만 가능합니다.");
 					return false;
@@ -766,6 +782,7 @@
 				
 				bilgYn = obj.bilgYn;
 				clntCd = obj.clntCd;
+				prdtGrp = obj.prdtGrp;
 				returnYn = obj.returnYn;
 				
 				obj.__selected__ = false;
@@ -1025,7 +1042,7 @@
 			alert("삭제는 한건씩 진행해주세요");
 			return;
 		}
-		//전표 미발행, 매출화면에서 직접 등록한 데이터만 삭제 가능
+		//전표 미발행 && 매출화면에서 직접 등록한 데이터만 삭제 가능
 		if (row.bilgCertNo == undefined && row.trstDtlSeq == undefined) {
 			if (confirm("삭제하시겠습니까?")) {
 				deleteAjax("/user/ar/ar02/deleteSell", formData, null, function(data) {

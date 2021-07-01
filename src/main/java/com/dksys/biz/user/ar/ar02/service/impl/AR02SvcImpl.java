@@ -1,5 +1,7 @@
 package com.dksys.biz.user.ar.ar02.service.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,8 +9,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
@@ -28,6 +30,9 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Autowired
     SM01Mapper sm01Mapper;
+	
+	@Autowired
+    BM01Mapper bm01Mapper;
 	
 	@Autowired
     AR02Svc ar02Svc;
@@ -67,56 +72,92 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Override
 	@SuppressWarnings("all")
-	public int updatePchsSell(Map<String, Object> paramMap) {
-		int result = 0;
-		int bilgAmt = 0;
-		String selpchCd = "";
+	// 매입리스트, 매출리스트 정산
+	public void updatePchsSell(Map<String, Object> paramMap) throws Exception{
+		// 매입 매출 구분
+		String selpchCd = paramMap.get("selpchCd").toString();
+		// 정산후 변경되어서 넘어온 부가세 포함 총 금액
+		long totAmt = 0;
+		// 거래일자
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+		String maxTrstDt = null;
+		String trstDt = null;
+		
 		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
 		for (Map<String, String> detailMap : detailList) {
-			selpchCd = detailMap.get("selpchCd");
+			// for문을 순회하며 개별 마감 체크
+			Map<String, String> closeChkMap = new HashMap<String, String>();
+			closeChkMap.put("trstDt", detailMap.get("trstDt").toString());
+			closeChkMap.put("coCd", detailMap.get("coCd").toString());
+		
+	        if("SELPCH1".equals(selpchCd)) {
+				if(!ar02Svc.checkPchsClose(closeChkMap)) {
+		    		thrower.throwCommonException("pchsClose");
+				}
+	        }
+	        
+	        if("SELPCH2".equals(selpchCd)) {
+	        	if(!ar02Svc.checkSellClose(closeChkMap)) {
+            		thrower.throwCommonException("sellClose");
+        		}
+	        }
+	        
+	        // 매입/매출 업데이트
 			detailMap.put("userId", paramMap.get("userId").toString());
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
-			result += ar02Mapper.updatePchsSell(detailMap);
-			bilgAmt += Integer.parseInt(String.valueOf(detailMap.get("totAmt")));
-
-			//마감 체크
-			Map<String, String> closeChkMap = new HashMap<String, String>();
-			closeChkMap.put("dlvrDttm",detailMap.get("trstDt").toString());
-			closeChkMap.put("coCd",detailMap.get("coCd").toString());
-	        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
-				if(!ar02Svc.checkPchsClose(closeChkMap)) {
-					return 500;				
-				}
-	        }
-	        if("SELPCH2".equals(paramMap.get("selpchCd"))) {
-				if(!ar02Svc.checkSellClose(closeChkMap)) {
-					return 501;
-				}	
-	        }
-		}
-		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)) {
-			int creditAmt = Integer.parseInt(paramMap.get("creditAmt").toString());
-			int exceedAmt = bilgAmt - creditAmt;
-			if(exceedAmt > 0) {
-				Map<String, String> param = new HashMap<String, String>();
-				param.put("clntCd", paramMap.get("clntCd").toString());
-				param.put("coCd", paramMap.get("coCd").toString());
-				param.put("realTotTrstAmt", String.valueOf(exceedAmt));
-				param.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
-				if(checkLoan(param)) {
-					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-					return 0;
-				}
-			} else {
-				paramMap.put("creditAmt", String.valueOf(exceedAmt));
-				paramMap.put("dlvrDttm", detailList.get(0).get("trstDt").replace("-", ""));
-				if(creditDeposit(paramMap)) {
-					TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-					return 0;
+			ar02Mapper.updatePchsSell(detailMap);
+			
+			// for문을 순회하며 가장 큰 trstDt 계산
+			if(trstDt == null) {
+				maxTrstDt = detailMap.get("trstDt").toString();
+			}else{
+				Date tempDate1 = dateFormat.parse(maxTrstDt);
+				Date tempDate2 = dateFormat.parse(detailMap.get("trstDt").toString());
+				if(tempDate2.compareTo(tempDate1) > 0) {
+					maxTrstDt = dateFormat.format(tempDate2);
 				}
 			}
+			
+			// 비교를 위한 현재 인덱스의 거래일자 set
+			trstDt = detailMap.get("trstDt").toString();
+			// 총금액 계산
+			totAmt += Long.parseLong(String.valueOf(detailMap.get("totAmt")));
 		}
-		return result;
+		
+		// 여신맵 초기화
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("prdtGrp", detailList.get(0).get("prdtGrp"));
+		loanMap.put("trstDt", maxTrstDt.replace("-", ""));
+		
+		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)){
+			// 부가세를 포함한 원본 총 금액
+			long orgTotAmt = Long.parseLong(paramMap.get("orgTotAmt").toString());
+			// 차이금액(원본 총 금액 - 정산 총 금액)
+			long exceedAmt = totAmt - orgTotAmt;
+			if(exceedAmt > 0) {
+				loanMap.put("totAmt", exceedAmt);
+				
+				long diffLoan = ar02Svc.checkLoan(loanMap);
+				if(diffLoan < 0) {
+		        	thrower.throwCreditLoanException("", diffLoan);
+		        }else {
+		        	// 여신 차감후 음수 return시 롤백 
+		        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);
+		        	if(loanPrcsResult < 0) {
+		    			throw new Exception();
+		    		}
+		        }
+			}else if(exceedAmt < 0){
+				loanMap.put("totAmt", exceedAmt);
+				// 여신 누적후 음수 return시 롤백 
+	        	long loanPrcsResult = ar02Svc.depositLoan(loanMap);
+	        	if(loanPrcsResult < 0) {
+	    			throw new Exception();
+	    		}
+			}
+		}
 	}
 
 	@Override
@@ -135,6 +176,7 @@ public class AR02SvcImpl implements AR02Svc {
     	Map<String, Object> loanMap = new HashMap<String, Object>();
 		loanMap.put("coCd", paramMap.get("coCd"));
 		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("prdtGrp", paramMap.get("prdtGrp"));
 		loanMap.put("trstDt", paramMap.get("trstDt"));
 		
 		if("SELPCH1".equals(paramMap.get("selpchCd"))) {
@@ -153,9 +195,9 @@ public class AR02SvcImpl implements AR02Svc {
     		// 매출리스트에서 반품건 삭제
         		// 여신 체크
         		loanMap.put("totAmt", -1 * totAmt);
-        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		long diffLoan = ar02Svc.checkLoan(loanMap);
         		if(diffLoan < 0) {
-                	thrower.throwCreditLoanException(diffLoan);
+                	thrower.throwCreditLoanException("", diffLoan);
                 }
         	}
         }
@@ -203,9 +245,9 @@ public class AR02SvcImpl implements AR02Svc {
     		// 매출리스트에서 반품건 삭제
         		// 여신 체크
         		loanMap.put("totAmt", -1 * totAmt);
-        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		long diffLoan = ar02Svc.checkLoan(loanMap);
         		if(diffLoan < 0) {
-                	thrower.throwCreditLoanException(diffLoan);
+                	thrower.throwCreditLoanException("", diffLoan);
                 }else {
                 	// 여신 차감
                 	loanPrcsResult = ar02Svc.deductLoan(loanMap);
@@ -238,6 +280,7 @@ public class AR02SvcImpl implements AR02Svc {
     	Map<String, Object> loanMap = new HashMap<String, Object>();
 		loanMap.put("coCd", paramMap.get("coCd"));
 		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("prdtGrp", paramMap.get("prdtGrp"));
 		loanMap.put("trstDt", paramMap.get("trstDt"));
     	
         if("SELPCH1".equals(paramMap.get("selpchCd"))) {
@@ -256,9 +299,9 @@ public class AR02SvcImpl implements AR02Svc {
     		// 매출 / 반품의 반품
         		loanMap.put("totAmt", totAmt);
         		// 여신 체크
-        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		long diffLoan = ar02Svc.checkLoan(loanMap);
         		if(diffLoan < 0) {
-                	thrower.throwCreditLoanException(diffLoan);
+                	thrower.throwCreditLoanException("", diffLoan);
                 }
         	}
         }
@@ -332,9 +375,9 @@ public class AR02SvcImpl implements AR02Svc {
     		// 매출 / 반품의 반품
         		loanMap.put("totAmt", totAmt);
         		// 여신 체크
-        		long diffLoan = ar02Svc.checkLoan2(loanMap);
+        		long diffLoan = ar02Svc.checkLoan(loanMap);
         		if(diffLoan < 0) {
-                	thrower.throwCreditLoanException(diffLoan);
+                	thrower.throwCreditLoanException("", diffLoan);
                 }else {
                 	// 여신 차감
                 	loanPrcsResult = ar02Svc.deductLoan(loanMap);
@@ -356,22 +399,23 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	public void insertSalesDivision(List<Map<String, String>> paramList) throws Exception{
 		// 여신체크
-		Map<String, Object> loanMap = new HashMap<String, Object>();
 		long totAmt = 0;
+		Map<String, Object> loanMap = new HashMap<String, Object>();
 		for(int i=0;i<paramList.size();i++) {
 			Map<String, String> paramMap = paramList.get(i);
-			if(i==0) {
+			if(i == 0) {
 				loanMap.put("coCd", paramMap.get("coCd"));
 				loanMap.put("clntCd", paramMap.get("divClntCd"));
+				loanMap.put("prdtGrp", paramMap.get("prdtGrp"));
 				loanMap.put("trstDt", paramMap.get("trstDt"));
 			}
 			totAmt += Long.parseLong(paramMap.get("divTotAmt"));
 		}
 		loanMap.put("totAmt", totAmt);
 		
-		Long diffLoan =  checkLoan2(loanMap);
+		long diffLoan =  checkLoan(loanMap);
 		if(diffLoan < 0) {
-			thrower.throwCreditLoanException(diffLoan);
+			thrower.throwCreditLoanException("", diffLoan);
 		}
 		
 		for(Map<String, String> paramMap : paramList) {
@@ -410,6 +454,18 @@ public class AR02SvcImpl implements AR02Svc {
 			// insert
 			ar02Mapper.insertPchsSell(divMap);
 		}
+		
+		// 최종 여신 체크 / 여신 차감
+		diffLoan = ar02Svc.checkLoan(loanMap);
+		if(diffLoan < 0) {
+        	thrower.throwCreditLoanException("", diffLoan);
+        }else {
+        	// 여신 차감후 음수 return시 롤백 
+        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);
+        	if(loanPrcsResult < 0) {
+    			throw new Exception();
+    		}
+        }
 	}
 	
 	@Override
@@ -424,36 +480,17 @@ public class AR02SvcImpl implements AR02Svc {
 		return ar02Mapper.selectSellInfo(paramMap);
 	}
 
-	@Override
-	public boolean checkLoan(Map<String, String> paramMap) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("loanCd", 'C');
-		map.put("clntCd", paramMap.get("clntCd"));
-		map.put("coCd", paramMap.get("coCd"));
-		map.put("iTrDt", paramMap.get("dlvrDttm").replace("-", ""));
-		map.put("amt", paramMap.get("realTotTrstAmt"));
-		long result = ar02Mapper.callCreditLoan(map);
-		if(result < Long.parseLong(paramMap.get("realTotTrstAmt"))) {
-			paramMap.put("diffLoan", String.valueOf(result - Long.parseLong(paramMap.get("realTotTrstAmt"))));
-			return true;
-		} else {
-			map.put("loanCd", 'P');
-			map.put("iTrDt", paramMap.get("dlvrDttm").replace("-", ""));
-			ar02Mapper.callCreditLoan(map);
-		}
-		return false;
-	}
-	
 	// 여신체크
 	@Override
-	public long checkLoan2(Map<String, Object> paramMap) {
+	public long checkLoan(Map<String, Object> paramMap) {
 		Map<String, Object> loanMap = new HashMap<String, Object>();
 		loanMap.put("loanCd", 'C');
 		loanMap.put("coCd", paramMap.get("coCd"));
 		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iPrdtGrp", paramMap.get("prdtGrp"));
 		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
 		loanMap.put("amt", paramMap.get("totAmt"));
-		long creditLoan  = ar02Mapper.callCreditLoan(loanMap);
+		long creditLoan  = ar02Mapper.callCreditLoan2(loanMap);
 		long diffLoan = creditLoan - (Long)paramMap.get("totAmt");
 		return diffLoan;
 	}
@@ -465,21 +502,23 @@ public class AR02SvcImpl implements AR02Svc {
 		loanMap.put("loanCd", 'P');
 		loanMap.put("coCd", paramMap.get("coCd"));
 		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iPrdtGrp", paramMap.get("prdtGrp"));
 		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
 		loanMap.put("amt", paramMap.get("totAmt"));
-		return ar02Mapper.callCreditLoan(loanMap);
+		return ar02Mapper.callCreditLoan2(loanMap);
 	}
 	
-	// 여신증가
+	// 여신누적
 	@Override
 	public long depositLoan(Map<String, Object> paramMap) {
 		Map<String, Object> loanMap = new HashMap<String, Object>();
 		loanMap.put("loanCd", 'M');
-		loanMap.put("clntCd", paramMap.get("clntCd"));
 		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("iPrdtGrp", paramMap.get("prdtGrp"));
 		loanMap.put("iTrDt", paramMap.get("trstDt").toString().replace("-", ""));
 		loanMap.put("amt", paramMap.get("totAmt"));
-		return ar02Mapper.callCreditLoan(loanMap);
+		return ar02Mapper.callCreditLoan2(loanMap);
 	}
 	
 	@Override

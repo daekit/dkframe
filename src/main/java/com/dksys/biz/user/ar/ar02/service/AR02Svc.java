@@ -21,7 +21,7 @@ public interface AR02Svc {
 	
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 
-	int updatePchsSell(Map<String, Object> paramMap);
+	void updatePchsSell (Map<String, Object> paramMap) throws Exception;
 
 	void deleteSell(Map<String, String> paramMap) throws Exception;
 
@@ -35,9 +35,7 @@ public interface AR02Svc {
 	
 	boolean checkPchsClose(Map<String, String> paramMap);
 	
-	boolean checkLoan(Map<String, String> paramMap);
-	
-	long checkLoan2(Map<String, Object> paramMap);
+	long checkLoan(Map<String, Object> paramMap);
 	
 	long deductLoan(Map<String, Object> paramMap);
 	

@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.ar.ar01.mapper.AR01Mapper;
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
@@ -22,6 +24,7 @@ import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sd.sd08.mapper.SD08Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
+import com.dksys.biz.util.ExceptionThrower;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -49,6 +52,9 @@ public class AR01SvcImpl implements AR01Svc {
     SD08Mapper sd08Mapper;
     
     @Autowired
+    BM01Mapper bm01Mapper;
+    
+    @Autowired
     AR01Svc ar01Svc;
     
     @Autowired
@@ -56,6 +62,9 @@ public class AR01SvcImpl implements AR01Svc {
 
     @Autowired
     CM08Svc cm08Svc;
+    
+    @Autowired
+    ExceptionThrower thrower;
     
 	@Override
 	public int insertShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
@@ -194,25 +203,62 @@ public class AR01SvcImpl implements AR01Svc {
 
 	//출하확정 수정시 updateConfirmToMes도 같이 수정해주어야함.
 	@Override
-	public int updateConfirm(Map<String, String> paramMap) {
-		// 마감 체크
-//		paramMap.put("dlvrDttm", paramMap.get("reqDt"));
-		if(!ar02Svc.checkSellClose(paramMap)) {
-			return 500;
-		}
-		int result = 0;
-		long realTotTrstAmt = 0;
+	public void updateConfirm(Map<String, String> paramMap) throws Exception{
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		result = detailList.size();
+		
+		// 마감 체크
+		if(!ar02Svc.checkSellClose(paramMap)) {
+    		thrower.throwCommonException("sellClose");
+		}
+		
+		/* 여신 체크 start */
+		List<Map<String, Object>> loanList = new ArrayList<Map<String,Object>>();
+		
+		// 그룹별 금액 Map 
+		Map<String, Object> grpAmtMap = new LinkedHashMap<String, Object>();
+		for(Map<String, String> detailMap : detailList) {
+			String prdtGrp = bm01Mapper.selectProductGroup(detailMap.get("prdtCd"));
+			if(grpAmtMap.containsKey(prdtGrp)) {
+				grpAmtMap.put(prdtGrp, (Long) grpAmtMap.get(prdtGrp) + Long.parseLong(detailMap.get("realShipAmt")));
+			}else {
+				grpAmtMap.put(prdtGrp, Long.parseLong(detailMap.get("realShipAmt")));
+			}
+		}
+		
+		// 여신 Map
+		int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+		for(Map.Entry<String, Object> entry : grpAmtMap.entrySet()) {
+			String prdtGrp = entry.getKey();
+			Long totAmt = (Long) entry.getValue();
+			Map<String, Object> loanMap = new HashMap<String, Object>();
+			loanMap.put("coCd", paramMap.get("coCd"));
+			loanMap.put("clntCd", paramMap.get("clntCd"));
+			loanMap.put("prdtGrp", prdtGrp);
+			loanMap.put("trstDt", paramMap.get("dlvrDttm"));
+			long bilgVatAmt = (long) Math.floor(totAmt * bilgVatPer / 100);
+			loanMap.put("totAmt", totAmt + bilgVatAmt);
+			loanList.add(loanMap);
+		}
+		
+		// 그룹별 여신 리스트를 순회하며 여신 체크
+		for(Map<String, Object> loanMap : loanList) {
+			long diffLoan = ar02Svc.checkLoan(loanMap);
+			if(diffLoan < 0) {
+				String prdtGrpNm = bm01Mapper.selectProductGroupNm(loanMap.get("prdtGrp").toString());
+	        	thrower.throwCreditLoanException(prdtGrpNm, diffLoan);
+	        }
+		}
+		/* 여신 체크 end */
+		
 		String clntCd = paramMap.get("clntCd");
 		String clntNm = paramMap.get("clntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
-			//커플러일 경우 별도 단가 데이터 저장
+			// 커플러일 경우 별도 단가 데이터 저장
 			if(detailMap.get("prdtDiv").contains("PRDTDIV22")) {
 				detailMap.put("coCd", paramMap.get("coCd"));
 				detailMap.put("clntCd", paramMap.get("clntCd"));
@@ -223,7 +269,7 @@ public class AR01SvcImpl implements AR01Svc {
 				sd08Mapper.insertCplrUntpc(detailMap);
 			}
 			ar01Mapper.updateConfirmDetail(detailMap);
-			//매출정보 insert
+			// 매출정보 insert
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
 			paramMap.put("trstDt", 		paramMap.get("dlvrDttm").replace("-", ""));
@@ -238,7 +284,6 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("realTrstWt",  detailMap.get("realShipWt"));
 			paramMap.put("realTrstUpr", detailMap.get("realShipUpr"));
 			paramMap.put("realTrstAmt", detailMap.get("realShipAmt"));
-			realTotTrstAmt += Long.parseLong(detailMap.get("realShipAmt"));
 			paramMap.put("bilgQty",     detailMap.get("realShipQty"));
 			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
@@ -247,15 +292,12 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("clntNm",      clntNm);
 			paramMap.put("prdtSpec", 	detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize", 	detailMap.get("prdtSize"));		
-			paramMap.put("trspTypCd", 	"TRSPTYP1");              /* 정상매출 */
+			paramMap.put("trspTypCd", 	"TRSPTYP1"); // 정상매출
 			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
 			paramMap.put("trstDtlSeq", 	detailMap.get("shipDtlSeq"));				  	
 			paramMap.put("odrNo", 		paramMap.get("odrSeq"));
-			paramMap.put("trspRmk", 	paramMap.get("shipRmk"));
-			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
-			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
-			realTotTrstAmt += bilgVatAmt;
-			
+			paramMap.put("makrCd", 	    detailMap.get("makrCd"));
+			paramMap.put("trspRmk", 	detailMap.get("shipRmk"));
 			ar02Mapper.insertPchsSell(paramMap);
 			
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
@@ -292,19 +334,29 @@ public class AR01SvcImpl implements AR01Svc {
 				sm01Mapper.updateStockSell(paramMap);
 			}
 		}
-		// 여신 체크
-		paramMap.put("realTotTrstAmt", String.valueOf(realTotTrstAmt));
-		paramMap.put("clntCd",  clntCd);
-		if(ar02Svc.checkLoan(paramMap)) {
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
-		}
+		
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			ar01Mapper.updateConfirm(paramMap);
 		}
-		return result;
+		
+		// 최종 여신 체크 / 여신 차감
+		for(Map<String, Object> loanMap : loanList) {
+			long diffLoan = ar02Svc.checkLoan(loanMap);
+			if(diffLoan < 0) {
+				String prdtGrpNm = bm01Mapper.selectProductGroupNm(loanMap.get("prdtGrp").toString());
+	        	thrower.throwCreditLoanException(prdtGrpNm, diffLoan);
+	        }else {
+	        	// 여신 차감후 음수 return시 롤백 
+	        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);
+	        	if(loanPrcsResult < 0) {
+	    			throw new Exception();
+	    		}
+	        }
+		}
 	}
 	
+	/*
+	 * 여신체크 일괄변경으로 인한 주석처리 - 20210630
 	@Override
 	public int updateConfirmToMes(Map<String, String> paramMap, List<Map<String, String>> detailList) {
 		//마감 체크
@@ -358,7 +410,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("clntNm",      clntNm);
 			paramMap.put("prdtSpec", 	detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize", 	detailMap.get("prdtSize"));		
-			paramMap.put("trspTypCd", 	"TRSPTYP1");              /* 정상매출 */
+			paramMap.put("trspTypCd", 	"TRSPTYP1");              // 정상매출
 			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
 			paramMap.put("trstDtlSeq", 	detailMap.get("shipDtlSeq"));				  	
 			paramMap.put("odrNo", 		paramMap.get("odrSeq"));
@@ -421,6 +473,7 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		return result;
 	}
+	*/
 
 	@Override
 	public int selectConfirmCount(Map<String, String> paramMap) {
