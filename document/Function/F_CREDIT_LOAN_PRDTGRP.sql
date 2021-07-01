@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN(I_CD CHAR,I_CLNT_CD number, I_CO_CD varchar, I_TR_DT VARCHAR, I_AMT number)
+CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN_PRDTGRP(I_CD CHAR,I_CLNT_CD number, I_CO_CD varchar, I_PRDT_GRP varchar, I_TR_DT VARCHAR, I_AMT number)
     RETURN number is 
     PRAGMA AUTONOMOUS_TRANSACTION;
  
@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN(I_CD CHAR,I_CLNT_CD number, I_
 *  I_AMT  금액
 ******************************************************************************/
 
-    I_PRDT_GRP   VARCHAR(20) := 'PRDTGRP1';   
+
     O_BLCE_TRDT_AMT 	number := 0;	/*거래일기준 잔액 계산 */  
     O_BLCE_CURR_AMT 	number := 0;	/*현재일기준 잔액 계산 */  
     O_BLCE_AMT 	number := 0;	/*가용 잔액 */  

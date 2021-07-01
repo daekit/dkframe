@@ -16,11 +16,14 @@ DECLARE
     C_LINK_GRP_YN 	VARCHAR(20) := '';
     C_LINK_GRP_CLNT_CD 	number  := 0;
     C_CO_CD	 		VARCHAR(20) := '';
+    C_PRDT_GRP      VARCHAR(20) := '';
+    
 
 BEGIN
 	SELECT TB_BM02H02_SQ01.NEXTVAL into to_SEQ FROM DUAL  ;
 	
 	IF inserting THEN
+	    C_PRDT_GRP := :NEW.PRDT_GRP;
 		C_CLNT_CD := :NEW.CLNT_CD;
 		C_CO_CD   := :NEW.CO_CD;
 		
@@ -47,6 +50,7 @@ BEGIN
 			,UDT_PGM
 			,UDT_DTTM
 			,PLDG_CHG_CD
+			,PRDT_GRP
 		)
  		VALUES (
  			to_SEQ
@@ -70,10 +74,13 @@ BEGIN
 			,:NEW.UDT_ID
 			,:NEW.UDT_PGM
 			,:NEW.UDT_DTTM
-			,:NEW.PLDG_CHG_CD						
+			,:NEW.PLDG_CHG_CD	
+			,:NEW.PRDT_GRP
+								
 	 );
 
 	ELSIF updating THEN
+	    C_PRDT_GRP := :NEW.PRDT_GRP;
 		C_CLNT_CD := :NEW.CLNT_CD;
 		C_CO_CD   := :NEW.CO_CD;
 		
@@ -103,6 +110,7 @@ BEGIN
 			,PRE_PLDG_AMT
 			,PRE_PLDG_RCOGN_RATE
 			,PLDG_CHG_CD
+			,PRDT_GRP
 		)
  		VALUES (
  			to_SEQ
@@ -129,9 +137,11 @@ BEGIN
 			,:OLD.PLDG_AMT
 			,:OLD.PLDG_RCOGN_RATE
 			,:NEW.PLDG_CHG_CD							
+			,:NEW.PRDT_GRP
 	 );
                
 	ELSIF deleting THEN
+	    C_PRDT_GRP := :OLD.PRDT_GRP;
 		C_CLNT_CD := :OLD.CLNT_CD;
 		C_CO_CD   := :OLD.CO_CD;
 	
@@ -159,6 +169,7 @@ BEGIN
 			,UDT_PGM
 			,UDT_DTTM
 			,PLDG_CHG_CD
+			,PRDT_GRP
 		)
  		VALUES (
 			to_SEQ
@@ -183,6 +194,7 @@ BEGIN
 			,:OLD.UDT_PGM
 			,:OLD.UDT_DTTM
 			,:OLD.PLDG_CHG_CD						
+			,:OLD.PRDT_GRP
 	 );
 	END IF;
 	
@@ -212,13 +224,14 @@ BEGIN
 							AND b.SELPCH_CD = 'SELPCH2'
 			  				AND nvl(B.SETUP_DT,00010101) <= TO_CHAR(sysdate, 'YYYYMMDD') 
 							AND nvl(B.EXPRTN_DT,99999999) >= TO_CHAR(sysdate, 'YYYYMMDD') 
+							AND b.PRDT_GRP = C_PRDT_GRP
 		WHERE a.USE_YN  = 'Y'
 		  AND a.CLNT_CD = C_CLNT_CD;
 	
 	
 		IF C_LINK_GRP_YN = 'Y' THEN  -- 연계 여신관리 대상
 	
-	       C_GRP_AMT := 0; 
+	       C_GRP_AMT := 0;  --헤더의 공통 금액 사용안함
 	       C_CO_AMT  := 0;
 			
 			/* 연계 거래처 금액 산정 --> 기본 신용은 마스터금액과 Detail 금액  2곳에 있음
@@ -236,6 +249,7 @@ BEGIN
 									AND b.SELPCH_CD = 'SELPCH2'
 									AND nvl(B.SETUP_DT,00010101) <= TO_CHAR(sysdate, 'YYYYMMDD') 
 									AND nvl(B.EXPRTN_DT,99999999) >= TO_CHAR(sysdate, 'YYYYMMDD') 
+									AND b.PRDT_GRP = C_PRDT_GRP
 			  WHERE a.LINK_GRP_CLNT_CD = C_LINK_GRP_CLNT_CD
 			    AND a.LINK_GRP_YN      = 'Y' 
 				AND a.USE_YN           = 'Y';
@@ -248,13 +262,17 @@ BEGIN
 	/*  처음 설계시    TB_BM02M01에서 그룹공통여신금액 관리하였으나 TB_BM02D02에서 공통여신금액 관리하는것으로 로 변경됨            */
 	/*----------------------------------------------------------------------------*/	
 
-		SELECT COUNT(*) INTO C_GRP_CNT FROM TB_BM03M01 WHERE CLNT_CD = C_CLNT_CD;
+		SELECT COUNT(*) INTO C_GRP_CNT 
+		  FROM TB_BM03M01 
+		 WHERE CLNT_CD  = NVL(C_LINK_GRP_CLNT_CD, C_CLNT_CD)
+		   AND PRDT_GRP = C_PRDT_GRP;
 	
 		IF C_GRP_CNT > 0 THEN
 			UPDATE TB_BM03M01
 			   SET GRP_PLDG_AMT    = C_CO_AMT,	--그룹담보금액
 			       GRP_BLCE_AMT    = C_CO_AMT	--그룹여신사용금액
-			 WHERE CLNT_CD = C_CLNT_CD;
+			 WHERE CLNT_CD  = NVL(C_LINK_GRP_CLNT_CD, C_CLNT_CD)
+		       AND PRDT_GRP = C_PRDT_GRP;
 
 		--거래처 여신금액 관리 테이블 사별여신금액 (담보금액 * 답보인정비율 )
 	 		SELECT nvl(sum(PLDG_AMT*PLDG_RCOGN_RATE/100),0)
@@ -266,18 +284,21 @@ BEGIN
 			  AND SELPCH_CD = 'SELPCH2'
 			  AND nvl(SETUP_DT,00010101) <= TO_CHAR(sysdate, 'YYYYMMDD') 
 			  AND nvl(EXPRTN_DT,99999999) >= TO_CHAR(sysdate, 'YYYYMMDD') 
+			  AND PRDT_GRP = C_PRDT_GRP
 			  AND USE_YN    = 'Y';
 
 			UPDATE TB_BM04M01
-			   SET CO_PLDG_AMT    = O_CO_AMT	--그룹담보금액
-			 WHERE CLNT_CD = C_CLNT_CD
-			   AND CO_CD   = C_CO_CD;
+			   SET CO_PLDG_AMT    = O_CO_AMT,							--사별담보금액
+			       CO_BLCE_AMT    = O_CO_AMT - NVL(CELL_REM_AMT,0)		--사별담보잔액
+			 WHERE CLNT_CD  = C_CLNT_CD
+			   AND CO_CD    = C_CO_CD
+			   AND PRDT_GRP = C_PRDT_GRP;
 
 		ELSE
 			INSERT INTO TB_BM03M01
-				(CLNT_CD, GRP_PLDG_AMT, GRP_BLCE_AMT, USE_YN, CREAT_ID, CREAT_PGM, CREAT_DTTM)
+				(CLNT_CD,  PRDT_GRP, GRP_PLDG_AMT, GRP_BLCE_AMT, USE_YN, CREAT_ID, CREAT_PGM, CREAT_DTTM)
 			VALUES
-				(C_CLNT_CD, C_CO_AMT, C_CO_AMT, 'Y', 'DB_TRIGER', 'TB_BM02D02_HISTORY', SYSDATE);
+				(NVL(C_LINK_GRP_CLNT_CD, C_CLNT_CD), C_PRDT_GRP, C_CO_AMT, C_CO_AMT, 'Y', 'DB_TRIGER', 'TB_BM02D02_HISTORY', SYSDATE);
 		END IF;
 	
 END;

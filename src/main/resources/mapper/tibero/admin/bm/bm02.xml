@@ -176,6 +176,9 @@
 					<if test="searchValue != null and !searchValue.equals('')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
+					<!-- <if test="!isSearchValueNaN and !searchValue.equals('')">
+						OR A.CLNT_CD = ${searchValue}
+					</if> -->
 					<if test="clntDivCd !=null and !clntDivCd.equals('')">
 						AND A.CLNT_DIV_CD = #{clntDivCd} 
 					</if>
@@ -281,6 +284,8 @@
 			CO_CD,
 			PLDG_DIV_CD,
 			FN_CM05M01_CD_TO_NM(PLDG_DIV_CD) AS PLDG_DIV_NM,
+			FN_CM05M01_CD_TO_NM(PRDT_GRP) AS PRDT_GRP_NM,
+			PRDT_GRP,
 			PLDG_AMT,
 			PLDG_RCOGN_RATE,
 			PLDG_AMT * PLDG_RCOGN_RATE / 100 AS CDTLN_AMT,
@@ -564,6 +569,7 @@
 			 , PTON_NM       	   = #{ptonNm}
 		     , UDT_ID        	   = #{udtId}
 		     , UDT_PGM       	   = #{udtPgm}
+		     , PRDT_GRP       	   = #{prdtGrp}
 		     , UDT_DTTM      	   = SYSDATE
 		 WHERE PLDG_SN        	   = #{pldgSn}
 		   AND (PLDG_AMT      	  != #{pldgAmt}
@@ -574,6 +580,7 @@
 		    OR USE_YN        	  != #{useYn}
 		    OR SELPCH_CD    	  != #{selpchCd}
 		    OR CO_CD         	  != #{coCd}
+		    OR PRDT_GRP           != #{prdtGrp}
 		    OR PLDG_CHG_CD    	  != #{pldgChgCd}
 		    OR PLDG_DIV_CD        != #{pldgDivCd}
 			OR NVL(PTON_NM ,'X')  != NVL(#{ptonNm},'X')			
@@ -604,6 +611,7 @@
 			UDT_PGM,
 			UDT_DTTM,
 			SELPCH_CD,
+			PRDT_GRP,
 			PTON_NM
 		)
 		VALUES(
@@ -626,6 +634,7 @@
 			#{pgmId},
 			SYSDATE,
 			#{selpchCd},
+			#{prdtGrp},
 			#{ptonNm}
 		)
 	</insert>
