@@ -83,10 +83,13 @@ var modalStack = new ModalStack();
 var ubiprefix = "";
 switch (jwt.serverType){
     case "real" :
-        ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
+        ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
         break;
     case "dev" :
-        ubiprefix = "http://61.97.190.240:8090/ubi4/ubihtml.jsp";
+        ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
+        break;
+    case "local" :
+        ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
         break;
     default :
         ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
