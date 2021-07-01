@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
+import com.dksys.biz.exc.LogicException;
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.util.MessageUtils;
 
@@ -80,16 +81,16 @@ public class AR01Ctr {
 	
 	@PutMapping(value = "/updateConfirm")
     public String updateConfirm(@RequestParam Map<String, String> paramMap, ModelMap model) {
-		int result = ar01Svc.updateConfirm(paramMap);
-		if(result == 0) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("exceedLoan"));
-		} else if(result == 500) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
-		} else {
+		try {
+			ar01Svc.updateConfirm(paramMap);
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
     	return "jsonView";
     }

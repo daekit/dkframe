@@ -38,6 +38,8 @@ public interface AR02Mapper {
 	
 	long callCreditLoan(Map<String, Object> map);
 	
+	long callCreditLoan2(Map<String, Object> map);
+	
 	long selectBilgVatAmt(Map<String, String> paramMap);
 	
 	int selectBilgVatPer(Map<String, String> paramMap);

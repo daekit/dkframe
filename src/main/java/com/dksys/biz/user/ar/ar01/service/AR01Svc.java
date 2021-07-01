@@ -21,9 +21,10 @@ public interface AR01Svc {
 	
 	int updateShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 
-	int updateConfirm(Map<String, String> paramMap);
-
-	int updateConfirmToMes(Map<String, String> paramMap, List<Map<String, String>> detailList);
+	void updateConfirm(Map<String, String> paramMap) throws Exception;
+	
+	// 여신체크 일괄변경으로 인한 주석처리 - 20210630
+	// int updateConfirmToMes(Map<String, String> paramMap, List<Map<String, String>> detailList);
 
 	int selectConfirmCount(Map<String, String> paramMap);
 	

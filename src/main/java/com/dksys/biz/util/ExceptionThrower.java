@@ -17,10 +17,15 @@ public class ExceptionThrower{
 		throw new LogicException(messageUtils.getMessage(msgKey));
 	}
 	
-	public void throwCreditLoanException(Long diffLoan) throws LogicException{
+	public void throwCreditLoanException(String prdtGrpNm, Long diffLoan) throws LogicException{
 		diffLoan *= -1;
 		NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
-		String message = numberFormat.format(diffLoan) + "원 만큼 여신이 부족합니다.";
+		String message = "";
+		if(!"".equals(prdtGrpNm)) {
+			message += prdtGrpNm + " 그룹의 ";
+		}
+		message += "여신이" + numberFormat.format(diffLoan) + "원 만큼 부족합니다."; 
 		throw new LogicException(message);
 	}
+	
 }

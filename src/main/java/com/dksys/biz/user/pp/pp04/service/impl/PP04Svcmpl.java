@@ -65,10 +65,11 @@ public class PP04Svcmpl implements PP04Svc {
 			ar01mList.put("pgmId", userId);
 			List<Map<String,String>> ar01dList = new ArrayList<Map<String, String>>(); 
 			ar01dList.addAll(pp04Mapper.selectAr01DList(listMap.get(i)));
-			//ar01mList.put("detail_Arr", ar01dList.toString());
-			//pp04Mapper.insertSellTrst(listMap.get(i));
-			//System.out.println(ar01mList.toString());
-			ar01Svc.updateConfirmToMes(ar01mList, ar01dList);
+			// ar01mList.put("detail_Arr", ar01dList.toString());
+			// pp04Mapper.insertSellTrst(listMap.get(i));
+			// System.out.println(ar01mList.toString());
+			// 여신체크 일괄변경으로 인한 주석처리 - 20210630
+			// ar01Svc.updateConfirmToMes(ar01mList, ar01dList);
 			pp04Mapper.updateMesListAmt(listMap.get(i));
 			pp04Mapper.updateMesMtrlRslt(listMap.get(i));
 		}
