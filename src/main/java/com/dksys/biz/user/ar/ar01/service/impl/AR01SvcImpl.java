@@ -97,6 +97,7 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("prdtSize", detailMap.get("prdtSize"));
 			paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 			paramMap.put("prdtLen", detailMap.get("prdtLen"));
+			paramMap.put("impYn", detailMap.get("impYn"));
 			
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfo == null) {
@@ -312,6 +313,7 @@ public class AR01SvcImpl implements AR01Svc {
 				paramMap.put("prdtSize", detailMap.get("prdtSize"));
 				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 				paramMap.put("prdtLen", detailMap.get("prdtLen"));
+				paramMap.put("impYn", detailMap.get("impYn"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				paramMap.put("stockChgCd", "STOCKCHG02");
 				if(stockInfo == null) {
@@ -535,6 +537,7 @@ public class AR01SvcImpl implements AR01Svc {
 				paramMap.put("prdtSize", detailMap.get("prdtSize"));
 				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 				paramMap.put("prdtLen", detailMap.get("prdtLen"));
+				paramMap.put("impYn", detailMap.get("impYn"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realShipQty"));
 				int stockWt = Integer.parseInt(stockInfo.get("stockWt")) + Integer.parseInt(detailMap.get("realShipWt"));
