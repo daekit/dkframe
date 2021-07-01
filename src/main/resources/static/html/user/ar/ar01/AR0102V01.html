@@ -655,15 +655,19 @@
 	function secondSetReport() {
 		var flag = false;
 		var fileName = "AR0101R02.jrf";
-		if ($('#shipView #detailTable tr[name="detailRow"]').length > 6) {
-			fileName = "AR0101R03.jrf";
-		}
+		var detailListLen = $('#shipView #detailTable tr[name="detailRow"]').length;
 		var arg = "coCd#"			+ $('#shipView #coCd').val()
 	         + "#clntCd#"		+ $('#shipView #clntCd').val()
 	         + "#shipSeq#"		+ $('#shipView #shipSeq').val()
 	         + "#";
 		openSecondModal("/static/html/user/ar/ar01/AR0102P04.html", 600, 200, "납품서 출력 선택", null, function (rptName) {
 			fileName = rptName;
+			if (detailListLen > 6 && rptName == 'AR0101R02.jrf') {
+				fileName = "AR0101R03.jrf";
+			}
+			if (detailListLen > 4 && rptName == 'AR0101R04.jrf') {
+				fileName = "AR0101R05.jrf";
+			}
 			callReport(fileName, arg, "1050", "700");
 		});
 		//callReport(fileName, arg, "1050", "700");
