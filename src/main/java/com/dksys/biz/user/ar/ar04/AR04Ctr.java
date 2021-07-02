@@ -30,7 +30,7 @@ public class AR04Ctr {
 		try {
 			ar04Svc.insertBilg(paramMap);
 			model.addAttribute("resultCode", 200);
-			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
 		}catch(Exception e){
 			model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
