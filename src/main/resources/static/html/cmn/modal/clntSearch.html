@@ -23,12 +23,13 @@
 					<td>
 						<select data-search="searchType">
 							<option value="CLNT_NM">거래처명</option>
+							<option value="CLNT_CD">거래처코드</option>
 							<option value="CRN">사업자번호</option>
 						</select>
 					</td>
 					<td>
 						<div class="search_form">
-							<input type="text" data-search="searchValue" onkeypress="if(event.keyCode == 13){clntGridView.setData(0);}"> 
+							<input type="text" data-search="searchValue" onkeypress="if(event.keyCode == 13){clntGridView.setData(0);}">
 							<a onclick="clntGridView.setData(0);">
 								<i class="i_search_w"></i>
 							</a>
@@ -105,8 +106,12 @@
 			 * isNaN true이면 문자 아니면 숫자
 			 */ 
 			var searchValue = paramObj.searchValue;
-			paramObj.isSearchValueNaN = isNaN(searchValue);
-			
+			var searchType  = paramObj.searchType;
+			var isSearchValueNaN = isNaN(searchValue);
+			if(searchType == 'CLNT_CD' && isSearchValueNaN && searchValue != ''){
+				alert("거래처 코드는 숫자만 입력해주세요.");
+				return;
+			}
 			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data) {
 				var list = data.clntList;
 				targetObj.setData({
