@@ -149,7 +149,7 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;" authchk>+</a>
 	                <a onclick="deleteOrder();" style="height: 30px; line-height: 28px;" authChk>-</a>
-	                <!-- <a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a> -->
+	                <a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
@@ -378,7 +378,12 @@
 	}
 
 	function viewOrderModal(ordrgSeq) {
-		var paramObj = {'ordrgSeq' : ordrgSeq};
+		var row = ordrgGridView.target.getList("selected");
+		var paramObj = {
+			            'coCd_R' : row[0].coCd
+				        ,'clntCd_R' : row[0].clntCd
+				        ,'ordrgSeq' : row[0].ordrgSeq
+						};
 		openModal("/static/html/user/od/od01/OD0102V01.html", 1300, 780, "", paramObj);
 	}
 	
@@ -433,23 +438,22 @@
 	         + "#clntCd#"		+  row[0].clntCd
 	         + "#ordrgSeq#"		+  row[0].ordrgSeq
 	         + "#";
-		
-		/* 표준 레포트이고 6개 이상이면 다중 레포트 선택
-		*  유통 레포트이고 5개 이상이면 다중 레포트 선택 */
-		if (row[0].d01cnt > 6 && rptName == 'STD') {
-			fileName = "AR0101R03.jrf";
-		}else {
-			fileName == 'AR0101R02.jrf'
-		}
-		if (row[0].d01cnt > 5 && rptName == 'DST') {
-			fileName = "AR0101R05.jrf";
-		}else {
-			fileName == 'AR0101R04.jrf'
-		}
-		
-		console.log('@!@@@@@@@@@@@ arg : ', arg);
 		openSecondModal("/static/html/user/ar/ar01/AR0102P04.html", 600, 200, "납품서 출력 선택", null, function (rptName) {
-			fileName = rptName;
+			/* 표준 레포트이고 6개 이상이면 다중 레포트 선택
+			*  유통 레포트이고 5개 이상이면 다중 레포트 선택 */
+			if(rptName == 'STD') {
+				if (row[0].d01cnt > 6) {
+					fileName = 'OD0101M02.jrf';
+				}else {
+					fileName = "OD0101M01.jrf";
+				}	
+			}else {
+				if (row[0].d01cnt > 4) {
+					fileName = "OD0101M04.jrf";
+				}else {
+					fileName = 'OD0101M03.jrf';
+				}	
+			}
 			callReport(fileName, arg, "1050", "700");
 			//callReport(rptName, arg, 750, 900);
 		});

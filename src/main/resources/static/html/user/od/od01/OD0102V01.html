@@ -343,6 +343,9 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
+		<button id="reportBtn" onclick="setReportPopup();" title="제품만 출력합니다.">
+			<i class="fas fa-print"></i>납품서
+		</button>
 		<button id="actionBtn" onclick="updateOrderModal();" authchk>수정</button>
 		<button id="ordrgYnBtnP" onclick="updateConfirm('P');" authchk>매입확정</button>
 		<button id="ordrgYnBtnS" onclick="updateConfirm('S');" authchk>매출확정</button>
@@ -708,4 +711,35 @@
 		
 		return formData;
 	}
+	
+	function setReportPopup() {
+		var paramObj = modalStack.last().paramObj;
+		var detailListLen = $('#ordrgView #detailTable tr[name="detailRow"]').length;
+		var fileName = "AR0101R02.jrf";
+		var arg = "coCd#"		+ paramObj.coCd_R
+	         + "#clntCd#"		+  paramObj.clntCd_R
+	         + "#ordrgSeq#"		+  paramObj.ordrgSeq
+	         + "#";
+		
+		openSecondModal("/static/html/user/ar/ar01/AR0102P04.html", 600, 200, "납품서 출력 선택", null, function (rptName) {
+			/* 표준 레포트이고 6개 이상이면 다중 레포트 선택
+			*  유통 레포트이고 5개 이상이면 다중 레포트 선택 */
+			if(rptName == 'STD') {
+				if (detailListLen > 6) {
+					fileName = 'OD0101M02.jrf';
+				}else {
+					fileName = "OD0101M01.jrf";
+				}	
+			}else {
+				if (detailListLen > 4) {
+					fileName = "OD0101M04.jrf";
+				}else {
+					fileName = 'OD0101M03.jrf';
+				}	
+			}
+			callReport(fileName, arg, "1050", "700");
+			//callReport(rptName, arg, 750, 900);
+		});
+	}
+	
 </script>
