@@ -149,6 +149,7 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;" authchk>+</a>
 	                <a onclick="deleteOrder();" style="height: 30px; line-height: 28px;" authChk>-</a>
+	                <!-- <a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a> -->
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
@@ -415,4 +416,42 @@
 			excelView.target.exportExcel("발주서목록_"+todayDate+".xls");
 		});	
 	}		
+	function setReportMain() {
+	    var row = ordrgGridView.target.getList("selected");
+	    
+		if(row[0] == undefined) {
+			alert("출력할 납품서를 선택하세요!");		
+			return;
+		}
+	    
+	    if(row.length > 1){
+	    	alert("납품서는 첫번째만 출력됩니다.");
+	    }
+		var fileName = "AR0101R02.jrf";
+		//var fileName = "AR0101R02.jrf";
+		var arg = "coCd#"		+ row[0].coCd
+	         + "#clntCd#"		+  row[0].clntCd
+	         + "#ordrgSeq#"		+  row[0].ordrgSeq
+	         + "#";
+		
+		/* 표준 레포트이고 6개 이상이면 다중 레포트 선택
+		*  유통 레포트이고 5개 이상이면 다중 레포트 선택 */
+		if (row[0].d01cnt > 6 && rptName == 'STD') {
+			fileName = "AR0101R03.jrf";
+		}else {
+			fileName == 'AR0101R02.jrf'
+		}
+		if (row[0].d01cnt > 5 && rptName == 'DST') {
+			fileName = "AR0101R05.jrf";
+		}else {
+			fileName == 'AR0101R04.jrf'
+		}
+		
+		console.log('@!@@@@@@@@@@@ arg : ', arg);
+		openSecondModal("/static/html/user/ar/ar01/AR0102P04.html", 600, 200, "납품서 출력 선택", null, function (rptName) {
+			fileName = rptName;
+			callReport(fileName, arg, "1050", "700");
+			//callReport(rptName, arg, 750, 900);
+		});
+	}
 </script>
