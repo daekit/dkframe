@@ -733,7 +733,7 @@
 		// OWNER4: 기타
 		
 		if(value == "" || value == "SELLTYPE1" || value == "SELLTYPE2" || value == "SELLTYPE5"){
-		// 판매유형이 선택, 유통, 가공일때
+		// 판매유형이 선택, 유통, 가공, 관수일때
 			
 			// 재고주체 초기화
 			$('#ordrgPopup #ownerCd option:not([value=""])').remove();
@@ -743,23 +743,31 @@
 			// 판매유형이 선택, 관수일때
 				// 재고주체 활성화
 				$('#ordrgPopup #ownerCd').prop("disabled", false);
+				// 직송여부 Y set, 활성화
+				$('#ordrgPopup #dirtrsYn').val("Y");
+				$('#ordrgPopup #dirtrsYn').prop("disabled", false);
 			}else if(value == "SELLTYPE1" || value == "SELLTYPE2"){
 			// 판매유형이 유통, 가공일때
 				// 재고주체 자사 set, 비활성화
 				$('#ordrgPopup #ownerCd').val("OWNER1");
 				$('#ordrgPopup #ownerCd').prop("disabled", true);
+				if(value == "SELLTYPE1"){
+					// 직송여부 Y set, 활성화
+					$('#ordrgPopup #dirtrsYn').val("Y");
+					$('#ordrgPopup #dirtrsYn').prop("disabled", false);
+				}else if(value == "SELLTYPE2"){
+					// 직송여부 N set, 비활성화
+					$('#ordrgPopup #dirtrsYn').val("N");
+					$('#ordrgPopup #dirtrsYn').prop("disabled", true);
+				}
 			}
-			
-			// 직송여부 Y set
-			$('#ordrgPopup #dirtrsYn').val("Y");
-			$('#ordrgPopup #dirtrsYn').prop("disabled", false);
 			ctrlDirtrs();
 		}else if(value == "SELLTYPE4"){
 		// 판매유형이 임가공일때
-			// 재고주체에서 자사 삭제
+			// 재고주체에서 자사 삭제, 활성화
 			$('#ordrgPopup #ownerCd option[value="OWNER1"]').remove();
 			$('#ordrgPopup #ownerCd').prop("disabled", false);
-			// 직송여부 N set
+			// 직송여부 N set, 비활성화
 			$('#ordrgPopup #dirtrsYn').val("N");
 			$('#ordrgPopup #dirtrsYn').prop("disabled", true);
 			ctrlDirtrs();
@@ -775,19 +783,10 @@
 	// 직송여부 변경 master
 	function ctrlDirtrsMaster(){
 		if($('#ordrgPopup #dirtrsYn').val() == "N") {
-			$('#ordrgPopup .drctArea input').prop("disabled", true);
-			$('#ordrgPopup .drctArea input').val("");
 			$('#ordrgPopup .drctArea select').prop("disabled", true);
 			$('#ordrgPopup .drctArea select').val("");
-			$('#ordrgPopup .drctArea a').removeAttr("onclick");
-			$('#ordrgPopup #sellClntNm').closest('td').prev().removeClass("hit");
-			$('#ordrgPopup #sellClntNm').prop("required", false);
 		} else {
-			$('#ordrgPopup .drctArea input').prop("disabled", false);
 			$('#ordrgPopup .drctArea select').prop("disabled", false);
-			$('#ordrgPopup .drctArea a').attr("onclick", "openSecondClntSearch('SELL')");
-			$('#ordrgPopup #sellClntNm').closest('td').prev().addClass("hit");
-			$('#ordrgPopup #sellClntNm').prop("required", true);
 		}
 	}
 	
