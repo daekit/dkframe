@@ -342,12 +342,43 @@
 		  AND D.TAX_BILG_NO IS NOT NULL
 	</select>
 	
+	<select id="selectEtrdpsDtlUpdate" parameterType="Map" resultType="CamelMap">
+	SELECT A.PRJCT_CD
+	 , A.CO_CD
+	 , A.CLNT_CD AS TRST_CLNT_CD
+	 , TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') TRST_DT
+	 , A.SELL_CLMN_DIV_CD AS CLMN_DIV_CD
+	 , A.SELL_PMNT_MTD_CD AS PMNT_MTD_CD
+	 , A.SELL_CLMN_DAY AS CLMN_DAY
+	 , A.TRST_CERTI_NO 
+	 , A.BILG_CERT_NO 
+	 , A.PRDT_GRP 
+	 , C.CLNT_NM
+	 , FN_CM05M01_CD_TO_NM(A.SELL_CLMN_DIV_CD) CLMN_DIV_NM
+	 , FN_CM05M01_CD_TO_NM(A.SELL_PMNT_MTD_CD) PMNT_MTD_NM
+	 , B.PRJCT_NM
+	 , A.ETRDPS_AMT AS BILG_TOT
+  FROM TB_AR05D02 A
+LEFT OUTER JOIN TB_SD05M01 B
+ON A.PRJCT_CD = B.PRJCT_CD
+LEFT OUTER JOIN TB_BM02M01 C
+ON A.CLNT_CD = C.CLNT_CD
+WHERE ETRDPS_SEQ = #{etrdpsSeq} 
+	</select>
+	
 	<update id="updateEtrdpsDtl" parameterType="Map">	
 	UPDATE TB_AR02M01
 	   SET ETRDPS_AMT = NVL(ETRDPS_AMT, 0) + #{etrdpsAmt}
 	     , ETRDPS_YN = CASE WHEN #{etrdpsAmt} = (BILG_VAT_AMT + BILG_AMT - ETRDPS_AMT) THEN 'Y' ELSE 'N' END
 	 WHERE CO_CD = #{coCd}
 	   AND TRST_CERTI_NO = #{trstCertiNo}
+	</update>
+	
+	<update id="updateEtrdpsDt" parameterType="Map">	
+	UPDATE TB_AR05D02
+	   SET ETRDPS_DT = REPLACE(#{etrdpsDt}, '-', '')
+	   	 , EXPRTN_DT = REPLACE(#{exprtnDt, jdbcType=VARCHAR}, '-', '')
+	 WHERE ETRDPS_SEQ = #{etrdpsSeq}
 	</update>
 
 	<insert id="insertEtrdpsDtl" parameterType="Map">
@@ -371,6 +402,7 @@
 		, CREAT_PGM
 		, CREAT_DTTM
 		, PRDT_GRP
+		, EXPRTN_DT
 	)
 	VALUES
 	(
@@ -392,6 +424,7 @@
 		, #{pgmId}
 		, SYSDATE
 		, NVL(#{prdtGrp}, 'PRDTGRP1')
+		, #{exprtnDt, jdbcType=VARCHAR}
 	)
 	</insert>
 	
@@ -416,6 +449,7 @@
 		, CREAT_PGM
 		, CREAT_DTTM
 		, PRDT_GRP
+		, EXPRTN_DT
 	)
 	VALUES
 	(
@@ -437,6 +471,7 @@
 		, #{pgmId}
 		, SYSDATE
 		, NVL(#{prdtGrp, jdbcType=VARCHAR}, 'PRDTGRP1')
+		, #{exprtnDt, jdbcType=VARCHAR}
 	)
 	</insert>
 	

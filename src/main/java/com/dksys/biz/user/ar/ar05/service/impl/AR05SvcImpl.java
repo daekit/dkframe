@@ -20,6 +20,7 @@ import com.dksys.biz.util.DateUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.sun.media.sound.EmergencySoundbank;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -62,6 +63,8 @@ public class AR05SvcImpl implements AR05Svc {
 			returnMap.put("billData", billData);
 		}
 		
+		List<Map<String, String>> etrdpsList = ar05Mapper.selectEtrdpsDtlUpdate(paramMap);
+		returnMap.put("etrdpsList", etrdpsList);
 		return returnMap;
 	}
 
@@ -197,6 +200,10 @@ public class AR05SvcImpl implements AR05Svc {
 			if(dtl.get("prdtGrp").isEmpty()) {
 				dtl.put("prdtGrp", etrdpsData.get("prdtGrp"));
 			}
+			if(billData != null) {
+				dtl.put("exprtnDt",billData.get("exprtnDt")); //	종료일	어음계정일 경우 : 만기일
+			}
+			System.out.println(dtl);
 			ar05Mapper.updateEtrdpsDtl(dtl);
 			ar05Mapper.insertEtrdpsDtl(dtl);
 		}
@@ -225,6 +232,8 @@ public class AR05SvcImpl implements AR05Svc {
 			  ar05Mapper.updateBill(billData);
 		  }
 		  result = ar05Mapper.updateEtrdps(etrdpsData);
+		  
+		  result = ar05Mapper.updateEtrdpsDt(etrdpsData);
 		  
 		  // 입금은 금액수정이 없음으로 한도에 반영안함.
 		  
