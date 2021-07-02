@@ -167,8 +167,25 @@
 					<input class="tr" name="bilgTot" type="text" readonly comma>
 				</td>
 				<td>
-					<input class="tr" name="etrdpsAmt" type="text" onkeyup="onlyNumber(this)" comma>
+					<input class="tr" name="etrdpsAmt" type="text" onkeyup="onlyNumber(this); setTot();" comma>
 				</td>
+			</tr>
+		</table>
+		<table>
+			<colgroup>
+				<col width="3%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="10%">
+				<col width="11%">
+				<col width="11%">
+				<col width="11%">
+			</colgroup>
+			<tr>
+				<th class="tc" colspan="8">합계</th>
+				<td class="tr" id="totEtrdpsAmt"></td>
 			</tr>
 		</table>
 	</div>
@@ -298,7 +315,9 @@
 			$('#clntCd').prop("readonly", true);
 			$('#clntCd').prop("disabled", true);
 			$('#btnClntSearch').remove();
-			$('#etrdpsTb').hide();
+			//$('#etrdpsTb').hide();
+			$('[name=detailChkBox]').prop("disabled", true);
+			$('[name=etrdpsAmt]').prop("disabled", true);
 			// 금액 변경 disable
 			$('#etrdpsAmt').prop("disabled", true);
 			// 결제방법 변경 disable
@@ -339,11 +358,6 @@
 	}
 	
 	function selectEtrdpsDtlList(){
-		console.log(!$("#etrdpsData #coCd").val());
-		console.log(!$("#etrdpsData #clntCd").val());
-		console.log(!$("#etrdpsData #taxivcCoprt").val());
-		console.log(!$("#etrdpsData #etrdpsTyp").val());
-		console.log("!!!!!!!!!!!!!!!!!!!!!");
 		$.each($('input:checkbox[name="detailChkBox"]'), function(idx, elem){
 			var detailObj = {};
 			if(idx != 0){
@@ -456,6 +470,7 @@
 	function setEtrdpsInfo(etrdpsInfo){
 		var etrdpsData = etrdpsInfo.etrdpsData;
 		var billData = etrdpsInfo.billData;
+		var etrdpsList = etrdpsInfo.etrdpsList;
 
 		$.each(etrdpsData, function(key, value){
 			if($('#etrdpsData').find('#'+key)[0]){				
@@ -474,6 +489,11 @@
 				}
 
 			}
+		});
+		
+		$.each(etrdpsList, function(idx, value){
+			if(idx != 0) addRow();
+			setBilgList(idx, value);
 		});
 
 		// 구분에 따른 필수지정 관리
@@ -510,6 +530,7 @@
 				$(".detailRow").find("[name="+key+"]")[idx].value = itemValue;
 			}
 		});
+		setTot();
 	}
 	
 	function insertEtrdps() {
@@ -667,5 +688,18 @@
 			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
 			$targetRow.find('input[name="etrdpsAmt"]').val();
 		}
+	}
+	
+	function setTot(){
+		var totEtrdpsAmt = 0;
+		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) {
+			var etrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val()));
+			if(!etrdpsAmt){
+				etrdpsAmt = 0;
+			}
+			totEtrdpsAmt += etrdpsAmt;
+		});
+		
+		$("#totEtrdpsAmt").text(addCommaStr(totEtrdpsAmt));
 	}
 </script>

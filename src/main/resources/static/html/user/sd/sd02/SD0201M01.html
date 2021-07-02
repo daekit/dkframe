@@ -47,10 +47,10 @@
 	      <ul class="btn_ul">
 	        <li class="btn_r">
 		        <a onclick="initSearch();">
-			          <button class="bg_gray">초기화</button>
+			    	<button type="button" class="bg_gray">초기화</button>
 			    </a>
-		        <a onclick="gridView.setData(0);">
-		          <button class="bg_gray">검 색</button>
+		        <a onclick="dtlSearch();">
+		          <button type="button" class="bg_gray">검 색</button>
 		        </a>
 	        </li>
 	      </ul>
@@ -63,18 +63,18 @@
             <tr>
               <th class="hit">회사</th>
                 <td>
-               	  <select id="coCd" data-kind="CO" style="width: 100%;" onchange="gridView.setData(0);" required="required">
+               	  <select id="coCd" data-kind="CO" style="width: 100%;" onchange="dtlSearch();" required="required">
                	      <option value="">전체</option>
                	  </select>
                 </td>
               <th class="hit">계획년월</th>
                 <td>
-               	  <input type="month" id="planYm" name="planYm" class="month_calendar" onchange="gridView.setData(0);"style="width: 100%;line-height: 21px;"  required="required">
+               	  <input type="month" id="planYm" name="planYm" class="month_calendar" onchange="dtlSearch();"style="width: 100%;line-height: 21px;"  required="required">
                	  <!-- <input id="planYm" name="planYm" type="month" onchange="gridView.setData(0);"> -->
               </td>
               <th class="hit">판매유형</th>
                 <td>
-               	  <select id="selpchCd_S" style="width: 100%;" onchange="gridView.setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
+               	  <select id="selpchCd_S" style="width: 100%;" onchange="dtlSearch();" required="required">  <!--  data-kind="SELPCH"  -->
                	  <option value="SELPCH1">매입</option>
 				  <option value="SELPCH2" selected>매출</option>
                	  </select>
@@ -85,7 +85,7 @@
 	              <td>                                
 	                  <input type="hidden" id="salesMng_S" name="salesMng_S" style="width: 100%;">
 	                  <div class="search_form">
-	                   <input type="text" id="salesMngNm_S" name="salesMngNm_S" disabled>
+	                   <input type="text" id="salesMngNm_S" name="salesMngNm_S" onkeyup="event.keyCode == 8 ? salesMng_S.value = '' : event.keyCode == 13 ? dtlSearch() : ''">
 	                  	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
 	                  </div>
 	              </td>
@@ -93,15 +93,21 @@
 	              <td>
 	              	<input type="hidden" id="deptId_S" name="deptId" style="width: 73%;">
 	                  <div class="search_form">
-	                  <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" onkeyup="event.keyCode == 8 ? deptId_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+	                  <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" onkeyup="event.keyCode == 8 ? deptId_S.value = '' : event.keyCode == 13 ? dtlSearch() : ''">
 	                  	<a onclick="openDeptTree();"><i class="i_search_w"></i></a>
 	                  </div>
 	              </td>
 	              <th>제품그룹</th>
 	              <td>
-	                <select id="prdtGrp_S" name="prdtGrp_S" data-kind="PRDTGRP" style="width: 100%;" onchange="gridView.setData(0);">
+	                <select id="prdtGrp_S" name="prdtGrp_S" data-kind="PRDTGRP" style="width: 100%;" onchange="dtlSearch();">
 	                   <option value="">전체</option>
 	                </select>
+	              </td>
+            </tr>
+            <tr>
+                <th>담당자 조회여부</th>
+	              <td>
+	                <input type="checkbox" id="mngShowYn" name="mngShowYn"  style="width: 100%;" onchange="dtlSearch();">
 	              </td>
             </tr>
             </table>
@@ -138,7 +144,8 @@
 </body>
 </html>
 <script type="text/javascript">
-
+	var deptBool = true;
+	var salesBool = true;
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
@@ -197,7 +204,9 @@
 */		        },
 		        
 		        columns: [
-		        	{key: "planSeq",   label: "계획번호",    align: "center",  hidden:true},
+		        	{key: "planSeq",     label: "계획번호",    align: "center",  hidden:true},
+		        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%", hidden: deptBool},
+		        	{key: "planSalesNm", label: "담당자",    align: "center", width: "9%",hidden: salesBool},
 		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
 		            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
 		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
@@ -220,13 +229,14 @@
 			if(inputValidation($('input[required]'))){
 				var formData = {
 					"coCd" : $("#coCd").val(),
-					"selpchCd" : $("#selpchCd_S").val(),
-					"planYm"  : $("#planYm").val(),
+					"selpchCd"     : $("#selpchCd_S").val(),
+					"planYm"       : $("#planYm").val(),
 					"planSalesId"  : $("#salesMng_S").val(),
 					"planSalesNm"  : $("#salesMngNm_S").val(),
-					"planDeptId"  : $("#deptId_S").val(),
-					"planDeptNm"  : $("#deptNm_S").val(),
-					"prdtGrp"  : $("#prdtGrp_S").val(),
+					"planDeptId"   : $("#deptId_S").val(),
+					"planDeptNm"   : $("#deptNm_S").val(),
+					"prdtGrp"      : $("#prdtGrp_S").val(),
+					"mngShow"      : $('#mngShowYn').is(":checked") ? 'Y' : 'N'
 				//	"pageNo" : _pageNo + 1,
 				//	"recordCnt" : $("#recordCnt").val() 
 				}
@@ -254,7 +264,9 @@
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [
-					        	{key: "planSeq",   label: "계획번호",    align: "center",  hidden:true},
+					        	{key: "planSeq",     label: "계획번호",    align: "center",  hidden:true},
+					        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%"},
+					        	{key: "planSalesNm", label: "담당자",    align: "center", width: "9%"},
 					        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
 					            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
 					            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
@@ -294,6 +306,30 @@
 		authChk();
 	})	
 	
+	// 검색
+	
+	function dtlSearch(){
+		var salesMngNm =  $("#salesMngNm_S").val();
+		var planDeptId =  $("#deptId_S").val();
+		var planDeptNm  = $("#deptNm_S").val();
+		
+		if(planDeptNm){
+			 deptBool = false;
+		}else{
+			deptBool = true;
+		}
+		
+// 		if(salesMngNm){
+	    if($('#mngShowYn').is(":checked") || salesMngNm){
+	    	 mngShow = 'Y';
+			 salesBool = false;
+		}else{
+	    	 mngShow = 'N';
+			 salesBool = true;
+		}
+			
+		gridView.initView().setData(0);
+	}
 	//사용자 검색
 	function openUserTree() {
 		var paramObj = {
@@ -308,6 +344,7 @@
 			$('#salesMngNm_S').val(checkedNode.text);
 			$("#deptNm_S").val(checkedNode.original.deptNm);
 			$("#deptId_S").val(checkedNode.parent);
+			dtlSearch();
 		});
 	}
 	
@@ -323,6 +360,7 @@
 			var checkedNode = tree.get_node(checkedId);
 			$('#deptId_S').val(checkedNode.id);
 			$('#deptNm_S').val(checkedNode.text);
+			dtlSearch();
 		});
 	}
 		
@@ -392,7 +430,11 @@
 				"selpchCd" : $("#selpchCd_S").val(),
 				"planYm"  : $("#planYm").val(),
 				"planSalesId"  : $("#salesMng_S").val(),
+				"planSalesNm"  : $("#salesMngNm_S").val(),
+				"planDeptId"   : $("#deptId_S").val(),
+				"planDeptNm"   : $("#deptNm_S").val(),
 				"prdtGrp"  : $("#prdtGrp_S").val(),
+				"mngShow"      : $('#mngShowYn').is(":checked") ? 'Y' : 'N'
 			//	"pageNo" : _pageNo + 1,
 			//	"recordCnt" : $("#recordCnt").val() 
 			}
