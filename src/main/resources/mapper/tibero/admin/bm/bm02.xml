@@ -29,10 +29,12 @@
 					<if test="crn != null and !crn.equals('')">
 						AND BM02.CRN LIKE '%'|| #{crn} ||'%'
 					</if>
-					<if test="searchValue != null and !searchValue.equals('')">
+					<if test="searchValue != null and !searchValue.equals('') and !searchType.equals('CLNT_CD')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
-					
+					<if test="searchValue != null and !searchValue.equals('') and searchType.equals('CLNT_CD')">
+						AND BM02.CLNT_CD = #{searchValue}
+					</if>
 				</where>
 		     ) T
 				<where>
@@ -173,12 +175,12 @@
 					<if test="useYn != null and !useYn.equals('')">
 						USE_YN = #{useYn}
 					</if>
-					<if test="searchValue != null and !searchValue.equals('')">
+					<if test="searchValue != null and !searchValue.equals('') and !searchType.equals('CLNT_CD')">
 						AND ${searchType} LIKE '%${searchValue}%'
 					</if>
-					<!-- <if test="!isSearchValueNaN and !searchValue.equals('')">
-						OR A.CLNT_CD = ${searchValue}
-					</if> -->
+					<if test="searchValue != null and !searchValue.equals('') and searchType.equals('CLNT_CD')">
+						AND A.CLNT_CD = #{searchValue}
+					</if>
 					<if test="clntDivCd !=null and !clntDivCd.equals('')">
 						AND A.CLNT_DIV_CD = #{clntDivCd} 
 					</if>
