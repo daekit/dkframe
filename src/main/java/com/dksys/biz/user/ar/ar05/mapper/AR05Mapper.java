@@ -34,7 +34,11 @@ public interface AR05Mapper {
 	
 	List<Map<String, String>> selectEtrdpsDtlList(Map<String, String> paramMap);
 	
+	List<Map<String, String>> selectEtrdpsDtlUpdate(Map<String, String> paramMap);
+	
 	int updateEtrdpsDtl(Map<String, String> paramMap);
+	
+	int updateEtrdpsDt(Map<String, String> paramMap);
 	
 	int insertEtrdpsDtl(Map<String, String> paramMap);
 	
