@@ -43,7 +43,8 @@
 				    , SUM(NVL(T1.TRST_N,0)) AS TRST_N
 				    , CASE WHEN SUM(NVL(T1.PLAN_WT,0)) != 0 THEN ((SUM(NVL(T1.TRST_N,0)) + SUM(NVL(T1.TRST_Y,0))) / SUM(NVL(T1.PLAN_WT,0))) * 100 
 				    		ELSE 0 END AS TRST_RATE
-				    <if test="planSalesId != null and !planSalesId.equals('')">
+<!-- 				    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+					 <if test="mngShow != null and !mngShow.equals('')">
 					  ,T1.PLAN_SALES_ID
 					  ,T1.PLAN_SALES_NM
 					 </if>
@@ -63,7 +64,8 @@
 				       , TRIM(S.PRDT_DIV) PRDT_DIV
 				       , NVL(S.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD
 				       , S.PLAN_YM
-				       <if test="planSalesId != null and !planSalesId.equals('')">
+<!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+					  <if test="mngShow != null and !mngShow.equals('')">
 					    ,S.PLAN_SALES_ID
 					    , CM06.NAME AS PLAN_SALES_NM
 					  </if>
@@ -89,11 +91,44 @@
 			          <if test="planSalesId != null and !planSalesId.equals('')">
 					    AND S.PLAN_SALES_ID = #{planSalesId}
 					  </if>
+					  <if test="planSalesNm != null and !planSalesNm.equals('')">
+					    AND CM06.NAME  LIKE '%'||#{planSalesNm} || '%'
+					   </if>
 					   <if test="planDeptId != null and !planDeptId.equals('')">
-					    AND S.PAN_DEPT_ID = #{planDeptId}
+<!-- 					    AND S.PAN_DEPT_ID = #{planDeptId} -->
+					    AND S.PAN_DEPT_ID IN (SELECT
+													DEPT_ID
+												FROM
+												(
+													SELECT
+														LEVEL LV,
+														A.*
+													FROM
+														TB_CM04M01 A
+													WHERE USE_YN = 'Y'
+													START WITH DEPT_ID = #{planDeptId}
+													CONNECT BY PRIOR DEPT_ID = UP_DEPT_ID
+													ORDER SIBLINGS BY SORT_NO
+												) B)
+									
 					  </if>
 					   <if test="planDeptNm != null and !planDeptNm.equals('')">
-					    AND CM04.DEPT_NM  like '%'||#{planDeptNm}||'%'
+<!-- 					    AND CM04.DEPT_NM  like '%'||#{planDeptNm}||'%' -->
+                            AND CM04.DEPT_NM  IN (SELECT
+														DEPT_NM
+													FROM
+													(
+														SELECT
+															LEVEL LV,
+															A.*
+														FROM
+															TB_CM04M01 A
+														WHERE USE_YN = 'Y'
+														START WITH DEPT_NM like '%'||#{planDeptNm}||'%'
+														CONNECT BY PRIOR DEPT_ID = UP_DEPT_ID
+														ORDER SIBLINGS BY SORT_NO
+													) B)
+									
 					  </if>
 					  <if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND S.PRDT_GRP = #{prdtGrp}
@@ -114,7 +149,8 @@
 				       , TRIM(S.PRDT_DIV)
 				       , NVL(S.SALES_AREA_CD, 'SALESAREA99')
 				       , S.PLAN_YM
-				       <if test="planSalesId != null and !planSalesId.equals('')">
+<!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+					  <if test="mngShow != null and !mngShow.equals('')">
 					   , S.PLAN_SALES_ID
 					   , CM06.NAME
 					  </if>
@@ -132,7 +168,8 @@
 				       , TRIM(AR02.PRDT_DIV) PRDT_DIV 
 				       , NVL(AR02.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD 
 				       , SUBSTRING(AR02.TRST_DT, 0, 6) TRST_DT
-				       <if test="planSalesId != null and !planSalesId.equals('')">
+<!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+					 <if test="mngShow != null and !mngShow.equals('')">
 					   , AR02.SALES_MNG 
 					   , CM06.NAME
 					  </if>
@@ -169,18 +206,51 @@
 			      	   <if test="planSalesId != null and !planSalesId.equals('')">
 					    AND AR02.SALES_MNG = #{planSalesId}
 					  </if>
+					  <if test="planSalesNm != null and !planSalesNm.equals('')">
+					    AND CM06.NAME  LIKE '%'||#{planSalesNm} || '%'
+					   </if>
 					  <if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND BM01.PRDT_GRP = #{prdtGrp}
 					  </if>
 					  <if test="planDeptId != null and !planDeptId.equals('')">
-					    AND CM06.DEPT_ID = #{planDeptId}
+<!-- 					    AND CM06.DEPT_ID = #{planDeptId} -->
+					    AND CM06.DEPT_ID IN (SELECT
+										DEPT_ID
+									FROM
+									(
+										SELECT
+											LEVEL LV,
+											A.*
+										FROM
+											TB_CM04M01 A
+										WHERE USE_YN = 'Y'
+										START WITH DEPT_ID = #{planDeptId}
+										CONNECT BY PRIOR DEPT_ID = UP_DEPT_ID
+										ORDER SIBLINGS BY SORT_NO
+									) B)
+									
 					  </if>
 					  <if test="planDeptNm != null and !planDeptNm.equals('')">
-					    AND CM04.DEPT_NM like '%'||#{planDeptNm}||'%'
+<!-- 					    AND CM04.DEPT_NM like '%'||#{planDeptNm}||'%' -->					    
+                            AND CM04.DEPT_NM  IN (SELECT
+										DEPT_NM
+									FROM
+									(
+										SELECT
+											LEVEL LV,
+											A.*
+										FROM
+											TB_CM04M01 A
+										WHERE USE_YN = 'Y'
+										START WITH DEPT_NM like '%'||#{planDeptNm}||'%'
+										CONNECT BY PRIOR DEPT_ID = UP_DEPT_ID
+										ORDER SIBLINGS BY SORT_NO
+									) B)
 					  </if>
 				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV) ,
 				         NVL(AR02.SALES_AREA_CD, 'SALESAREA99') , SUBSTRING(AR02.TRST_DT, 0, 6) 
-				         <if test="planSalesId != null and !planSalesId.equals('')">
+<!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+						 <if test="mngShow != null and !mngShow.equals('')">
 					     , AR02.SALES_MNG 
 					     , CM06.NAME
 					    </if>
@@ -199,7 +269,8 @@
 				    ,  T1.PRDT_DIV
 				    ,  T1.SALES_AREA_CD
 				    , NVL(BM02.CLNT_NM, '기타')
-				    <if test="planSalesId != null and !planSalesId.equals('')">
+<!-- 				    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+					 <if test="mngShow != null and !mngShow.equals('')">
 					  ,T1.PLAN_SALES_ID
 					  ,T1.PLAN_SALES_NM
 					 </if>
@@ -209,7 +280,16 @@
 					 <if test="planDeptNm != null and !planDeptNm.equals('')">
 					 , T1.PLAN_DEPT_NM
 					 </if>
-				 ORDER BY T1.CO_CD, BM02.CLNT_DIV_CD,SALES_AREA_CD, T1.PRDT_DIV, T1.CLNT_CD 
+				 ORDER BY 
+				 <if test="planDeptNm != null and !planDeptNm.equals('')">
+					  T1.PLAN_DEPT_NM ,
+					 </if>
+<!-- 				    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
+					 <if test="mngShow != null and !mngShow.equals('')">
+					  T1.PLAN_SALES_ID,
+					  T1.PLAN_SALES_NM,
+					 </if>
+				 T1.CO_CD, BM02.CLNT_DIV_CD,SALES_AREA_CD, T1.PRDT_DIV, T1.CLNT_CD 
 		    ) D
 	</select>
 	
