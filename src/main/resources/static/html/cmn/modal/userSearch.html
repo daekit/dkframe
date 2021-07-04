@@ -111,14 +111,19 @@
 	}
 	
 	function executeCallback(){
-		if($('#userTree').jstree(true).get_node($('#userTree').jstree(true).get_checked()).type != "person"){
-			return false;
-		}
-		if($('#userTree').jstree(true).get_checked() == 0){
+		var userTree = $('#userTree').jstree(true);
+		
+		if(userTree.get_checked() == 0){
 			alert("선택된 데이터가 없습니다.");
 			return false;
 		}
-		modalStack.last().callback($('#userTree').jstree(true));
+		
+		if(userTree.get_node(userTree.get_checked()[0]).type != "person"){
+			alert("부서는 선택할 수 없습니다.");
+			return false;
+		}
+		
+		modalStack.last().callback(userTree);
 		modalStack.close();
 	}
 </script>
