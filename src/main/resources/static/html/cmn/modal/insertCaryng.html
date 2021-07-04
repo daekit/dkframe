@@ -280,7 +280,31 @@
 		if(actionType == "C") {
 			$('#coCd').val(modalStack.last().paramObj.coCd);
             // 판매법인, 창고 set
-			setByCoCd($('#coCd').val());			
+			setByCoCd($('#coCd').val());
+            
+			if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "SM0201P01" || openFrom == "SM0201P02"){ //  일반재고이동시 운반비 발생
+				if(openFrom == "AR0102P01"  || openFrom == "SM0201P01" || openFrom == "SM0201P02") {
+					$("#transViewDiv #clntCd").val($("#arViewDiv #clntCd").val());
+					$("#transViewDiv #clntNm").val($("#arViewDiv #clntNm").val());
+					$("#transViewDiv #totWt").val($("#arViewDiv #shipTotWt").val());
+				} else {
+					$("#transViewDiv #clntCd").val($("#arViewDiv #sellClntCd").val());
+					$("#transViewDiv #clntNm").val($("#arViewDiv #sellClntNm").val());
+					$("#transViewDiv #totWt").val($("#arViewDiv #totWt").val());
+				}
+				$("#transViewDiv #prjctCd").val($("#arViewDiv #prjctCd").val());
+				$("#transViewDiv #prjctNm").val($("#arViewDiv #prjctNm").val());
+				$("#transViewDiv #siteCd").val($("#arViewDiv #siteCd").val());
+				$("#transViewDiv #siteNm").val($("#arViewDiv #siteNm").val());
+				$("#transViewDiv #whCd").val($("#arViewDiv #whCd").val());
+				$("#transViewDiv #taxivcCoprt").val($("#arViewDiv #taxivcCoprt").val());
+				$("#transViewDiv #desNm").val($("#arViewDiv #addrMain").val());
+			}
+			if( openFrom == "SM0201P01"){ //  일반재고이동시 운반비 발생
+				$("#transViewDiv #transRmk").val("재고이동");
+				$("#transViewDiv #taxivcCoprt").val($('#arViewDiv #searchDtlOutWhCd option:selected').data("etc")); // 판매법인
+			}
+            
 			$('#actionBtn').on("click", function(){insertCaryng();});
 			$("#actionBtn").text("등록");
 			$("#arvpayYn").val("N");
@@ -307,28 +331,6 @@
 			$("#taxivcCoprt").val("");
 			$("#taxivcCoprt").prop("required", false);
 			$("#taxivcCoprt").prop("disabled", true);
-		}
-		if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "SM0201P01" || openFrom == "SM0201P02"){ //  일반재고이동시 운반비 발생
-			if(openFrom == "AR0102P01"  || openFrom == "SM0201P01" || openFrom == "SM0201P02") {
-				$("#transViewDiv #clntCd").val($("#arViewDiv #clntCd").val());
-				$("#transViewDiv #clntNm").val($("#arViewDiv #clntNm").val());
-				$("#transViewDiv #totWt").val($("#arViewDiv #shipTotWt").val());
-			} else {
-				$("#transViewDiv #clntCd").val($("#arViewDiv #sellClntCd").val());
-				$("#transViewDiv #clntNm").val($("#arViewDiv #sellClntNm").val());
-				$("#transViewDiv #totWt").val($("#arViewDiv #totWt").val());
-			}
-			$("#transViewDiv #prjctCd").val($("#arViewDiv #prjctCd").val());
-			$("#transViewDiv #prjctNm").val($("#arViewDiv #prjctNm").val());
-			$("#transViewDiv #siteCd").val($("#arViewDiv #siteCd").val());
-			$("#transViewDiv #siteNm").val($("#arViewDiv #siteNm").val());
-			$("#transViewDiv #whCd").val($("#arViewDiv #whCd").val());
-			$("#transViewDiv #taxivcCoprt").val($("#arViewDiv #taxivcCoprt").val());
-			$("#transViewDiv #desNm").val($("#arViewDiv #addrMain").val());
-		}
-		if( openFrom == "SM0201P01"){ //  일반재고이동시 운반비 발생
-			$("#transViewDiv #transRmk").val("재고이동");
-			$("#transViewDiv #taxivcCoprt").val($('#arViewDiv #searchDtlOutWhCd option:selected').data("etc")); // 판매법인
 		}
 	}
 	
@@ -400,13 +402,13 @@
 			var formData = makeCaryngData();
 			putAjax("/user/ar/ar03/updateCaryng", formData, null, function(data){
 				alert(data.resultMessage);           
-				gridView.setData(0);
-				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "AR0202P01"
-				   						   || openFrom == "OD0202P01") {
+				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "SM0201P01" ||
+				   openFrom == "AR0202P01" || openFrom == "OD0202P01" || openFrom == "SM0201P02") {
 					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
 					onlyNumber($("#arViewDiv #transAmt"));
 					modalStack.close();
 				}else{
+					gridView.setData(0);
 					modalStack.close();
 				}
 			});
