@@ -59,35 +59,33 @@
 				<!-- 테이블 인풋 3분할 -->
 				<table class="table_input type03">
 					<tr>
-						<th class="hit">회사</th>
+						<th>회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd"  required="required" msg="회사" id="coCd" onchange="gridView.setData(0);">
-								<option value="">전체</option>
-							</select>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="gridView.setData(0);"></select>
 						</td>
 						<th>거래처</th>
 						<td>
 							<div class="search_form">
-								<input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
-								<input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
-								<a onclick="openClntSearch();"> <i class="i_search_w"></i></a>
+								<input type="hidden" id="clntCd_S" data-search="clntCd">
+								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
+								<a onclick="openClntSearch();"><i class="i_search_w"></i></a>
 							</div>
 						</td>
 						<th>현장명</th>
 						<td>
-							<input type="text" id="siteNm" data-search="siteNm" > 
+							<input type="text" id="siteNm_S" data-search="siteNm" > 
 						</td>
 					</tr>
 					<tr>
 						<th>판매지역</th>
 						<td>
-							<select data-kind="SALESAREA" data-search="salesAreaCd" id="salesAreaCd" name="salesAreaCd" onchange="gridView.setData(0);">
+							<select id="salesAreaCd_S" data-kind="SALESAREA" data-search="salesAreaCd" onchange="gridView.setData(0);">
 	                			<option value="">전체</option>
 	              			</select> 
 						</td>
 						<th>사용여부</th>
 						<td>
-							<select data-kind="YN" data-search="useYn" onchange="gridView.setData(0);">
+							<select id="useYn_S" data-kind="YN" data-search="useYn" onchange="gridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -238,10 +236,10 @@
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
-		$('[data-search="coCd"]').val(jwt.coCd);
+		$('#coCd_S').val(jwt.coCd);
 		
 		// 사용여부 set
-		$('[data-search="useYn"]').val("Y");
+		$('#useYn_S').val("Y");
 
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
@@ -262,13 +260,13 @@
 		// 조건초기화
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 접속자 회사 set
-		$('[data-search="coCd"]').val(jwt.coCd);
+		$('#coCd_S').val(jwt.coCd);
 		// 거래처 초기화
-		$('[data-search="clntCd"]').val("");
-		$('#clntNm').val("");
+		$('#clntCd_S').val("");
+		$('#clntNm_S').val("");
 
 		// 사용여부 set
-		$('[data-search="useYn"]').val("Y");
+		$('#useYn_S').val("Y");
 		
 		// 재검색
 		gridView.setData(0);
@@ -284,17 +282,18 @@
 	function openClntSearch() {
 		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd').val(row.clntCd);
-			$('#clntNm').val(row.clntNm);
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);
 			gridView.setData(0);
 		});
 	}
 	
 	// 현장 검색
 	function openSiteSearch() {
-		var paramObj = {"coCd": $('#coCd').val()
-						, "clntCd": $("#clntCd").val()
-						, "clntNm": $("#clntNm").val()}
+		var paramObj = {
+			"coCd": $('#coCd_S').val(),
+			"insertYn": "N"
+		};
 		openModal("/static/html/cmn/modal/siteSearch.html", 600, 420, "현장 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			gridView.setData(0);

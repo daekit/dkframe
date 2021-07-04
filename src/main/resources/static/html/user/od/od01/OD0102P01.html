@@ -783,9 +783,18 @@
 	// 직송여부 변경 master
 	function ctrlDirtrsMaster(){
 		if($('#ordrgPopup #dirtrsYn').val() == "N") {
-			$('#ordrgPopup .drctArea select').prop("disabled", true);
+			$('#ordrgPopup .drctArea input').val("");
+			$('#ordrgPopup .drctArea input').prop("disabled", true);
+			$('#ordrgPopup #sellClntNm').closest('td').prev().removeClass("hit");
+			$('#ordrgPopup #sellClntNm').prop("required", false);
+			$('#ordrgPopup .drctArea a').removeAttr("onclick");
 			$('#ordrgPopup .drctArea select').val("");
+			$('#ordrgPopup .drctArea select').prop("disabled", true);
 		} else {
+			$('#ordrgPopup .drctArea input').prop("disabled", false);
+			$('#ordrgPopup #sellClntNm').closest('td').prev().addClass("hit");
+			$('#ordrgPopup #sellClntNm').prop("required", true);
+			$('#ordrgPopup .drctArea a').attr("onclick", "openSecondClntSearch('SELL')");
 			$('#ordrgPopup .drctArea select').prop("disabled", false);
 		}
 	}
@@ -861,11 +870,11 @@
 	function openOdSiteSearch() {
 		var paramObj = {
 			"coCd": $('#ordrgPopup #coCd').val(),
-			"clntCd": $('#ordrgPopup #sellClntCd').val(),
-			"clntNm": $('#ordrgPopup #sellClntNm').val()
+			"insertYn": "Y",
+			"isClntReq": "N"
 		}
-		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (tree){
-			var row = tree.target.getList("selected")[0];
+		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
+			var row = grid.target.getList("selected")[0];
 			$('#ordrgPopup #siteCd').val(row.siteCd);
 			$('#ordrgPopup #siteNm').val(row.siteNm);
 			$('#ordrgPopup #prjctCd').val(row.prjctCd);
@@ -941,7 +950,7 @@
 		if(!$('#ordrgPopup #transSeq').val()) {
 			paramObj.actionType = "C";
 		} 
-		openSecondModal("/static/html/user/ar/ar03/AR0301P01.html", 800, 450, "", paramObj);
+		openSecondModal("/static/html/cmn/modal/insertCaryng.html", 800, 450, "", paramObj);
 	}
 	
 	function cloneDetailRow(){

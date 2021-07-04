@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<div class="popup_bottom_btn">
-		<button onclick="openInsertSiteModal();">등록</button>
+		<button id="siteInsertBtn" onclick="openInsertSiteModal();">등록</button>
 		<button onclick="executeCallback();">선택</button>
 		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
@@ -117,6 +117,11 @@
 	$(document).ready(function() {
 		$('[data-search="siteNm"]').focus();
 		siteGridView.initView().setData(0);
+		
+		var paramObj = modalStack.last().paramObj;
+		if(paramObj.insertYn == "N"){
+			$('#siteInsertBtn').hide();
+		}
 	});
 	
 	function executeCallback(){
@@ -127,9 +132,12 @@
 	
 	// 현장 상세
 	function openInsertSiteModal() {
-		if(!modalStack.last().paramObj.clntCd){
-			alert("거래처를 확인 해 주세요.");
-			return false;
+		var paramObj = modalStack.last().paramObj;
+		if(paramObj.insertYn == "Y" && paramObj.isClntReq == "Y"){
+			if(!paramObj.clntCd){
+				alert("거래처를 확인 해 주세요.");
+				return false;
+			}
 		}
 		var paramObj = modalStack.last().paramObj;
 		modalStack.close();
