@@ -30,7 +30,7 @@ public interface AR01Svc {
 	
 	int selectDetailCount(Map<String, String> paramMap);
 
-	int updateCancel(Map<String, String> paramMap);
+	void updateCancel(Map<String, String> paramMap) throws Exception;
 
 	int updateRecptYn(Map<String, Object> param);
 

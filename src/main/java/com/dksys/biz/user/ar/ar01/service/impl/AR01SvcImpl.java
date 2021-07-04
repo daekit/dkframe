@@ -11,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper;
@@ -30,7 +29,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 @Service
-@Transactional
+@Transactional("erpTransactionManager")
 public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
@@ -253,8 +252,6 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		/* 여신 체크 end */
 		
-		String clntCd = paramMap.get("clntCd");
-		String clntNm = paramMap.get("clntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -289,8 +286,8 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
-			paramMap.put("clntCd",      clntCd);
-			paramMap.put("clntNm",      clntNm);
+			paramMap.put("clntCd",      paramMap.get("clntCd"));
+			paramMap.put("clntNm",      paramMap.get("clntNm"));
 			paramMap.put("prdtSpec", 	detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize", 	detailMap.get("prdtSize"));		
 			paramMap.put("trspTypCd", 	"TRSPTYP1"); // 정상매출
@@ -492,41 +489,60 @@ public class AR01SvcImpl implements AR01Svc {
 	}
 
 	@Override
-	public int updateCancel(Map<String, String> paramMap) {
-		
-		// 마감 체크
-		if(!ar02Svc.checkSellClose(paramMap)) {
-			return 500;
-		}
-		
-		int result = 0;
-		long realTotTrstAmt = 0;
-		boolean bilgFlag = false;
+	public void updateCancel(Map<String, String> paramMap) throws Exception{
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		result = detailList.size();
-		String clntCd = paramMap.get("clntCd");
+		
+		// 마감 체크
+		if(!ar02Svc.checkSellClose(paramMap)) {
+    		thrower.throwCommonException("sellClose");
+		}
+		
+		/* 그룹별 여신 리스트 생성 start */
+		List<Map<String, Object>> loanList = new ArrayList<Map<String,Object>>();
+		
+		// 그룹별 금액 Map 
+		Map<String, Object> grpAmtMap = new LinkedHashMap<String, Object>();
+		for(Map<String, String> detailMap : detailList) {
+			String prdtGrp = bm01Mapper.selectProductGroup(detailMap.get("prdtCd"));
+			if(grpAmtMap.containsKey(prdtGrp)) {
+				grpAmtMap.put(prdtGrp, (Long) grpAmtMap.get(prdtGrp) + Long.parseLong(detailMap.get("realShipAmt")));
+			}else {
+				grpAmtMap.put(prdtGrp, Long.parseLong(detailMap.get("realShipAmt")));
+			}
+		}
+		
+		// 여신 Map
+		int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+		for(Map.Entry<String, Object> entry : grpAmtMap.entrySet()) {
+			String prdtGrp = entry.getKey();
+			Long totAmt = (Long) entry.getValue();
+			Map<String, Object> loanMap = new HashMap<String, Object>();
+			loanMap.put("coCd", paramMap.get("coCd"));
+			loanMap.put("clntCd", paramMap.get("clntCd"));
+			loanMap.put("prdtGrp", prdtGrp);
+			loanMap.put("trstDt", paramMap.get("dlvrDttm"));
+			long bilgVatAmt = (long) Math.floor(totAmt * bilgVatPer / 100);
+			loanMap.put("totAmt", totAmt + bilgVatAmt);
+			loanList.add(loanMap);
+		}
+		/* 그룹별 여신 리스트 생성 end */
+		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			detailMap.put("trstRprcSeq", paramMap.get("shipSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));
-			realTotTrstAmt += Long.parseLong(detailMap.get("realShipAmt"));
 			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+			
 			for (Map<String, String> map : bilgList) {
 				if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
-					bilgFlag = true;
-					break;
+					thrower.throwCommonException("bilgComplete");
 				}
 			}
-			paramMap.put("selpchCd", "SELPCH2"); // 매출데이터 
-			paramMap.put("realTrstAmt", detailMap.get("realShipAmt")); // 매출금액
-			long bilgVatAmt = ar02Mapper.selectBilgVatAmt(paramMap);
-			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
-			realTotTrstAmt += bilgVatAmt;
-
+			
 			ar01Mapper.updateCancelDetail(detailMap);
 			ar02Mapper.deletePchsSell(detailMap);
 			//재고원복
@@ -549,17 +565,17 @@ public class AR01SvcImpl implements AR01Svc {
 				sm01Mapper.updateStockCancel(paramMap);
 			}
 		}
-		if(bilgFlag) {
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
-		}
-		// 여신 원복
-		paramMap.put("clntCd",  clntCd);
-		paramMap.put("creditAmt", String.valueOf(realTotTrstAmt));
-		Map<String, Object> paramMapObj = new HashMap<>(paramMap);
-		ar02Svc.creditDeposit(paramMapObj);
+		
 		ar01Mapper.updateCancel(paramMap);
-		return result;
+		
+		// 그룹별 여신 리스트를 순회하며 여신 원복
+		for(Map<String, Object> loanMap : loanList) {
+			// 여신 원복후 음수 return시 롤백 
+	    	long loanPrcsResult = ar02Svc.depositLoan(loanMap);
+	    	if(loanPrcsResult < 0) {
+				throw new Exception();
+			}
+		}
 	}
 
 	@Override

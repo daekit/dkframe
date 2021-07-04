@@ -97,18 +97,18 @@ public class AR01Ctr {
 	
 	@PutMapping(value = "/updateCancel")
 	public String updateCancel(@RequestParam Map<String, String> paramMap, ModelMap model) {
-		int result = ar01Svc.updateCancel(paramMap);
-		if(result == 0) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("bilgComplete"));
-		} else if(result == 500) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
-		} else {
+		try {
+			ar01Svc.updateCancel(paramMap);
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("cancel"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
-		return "jsonView";
+    	return "jsonView";
 	}
 	
 	@PostMapping(value = "/selectConfirmCount")
