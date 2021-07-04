@@ -5,265 +5,273 @@
 	<div class="tit_contents">
 		<h4 class="tit"></h4>
 	</div>
+	<ul class="dp_ib">
+		<li style="width: 40%; vertical-align: top;">
+			<!-- 수금 테이블 -->
+			<div class="popup_table" id="etrdpsTableDiv">
+				<form id="etrdpsData">
+					<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
+					<input type="hidden" id="etrdpsSeq" name="etrdpsSeq">
+					<table>
+						<colgroup>
+							<col width="15%">
+							<col width="">
+							<col width="15%">
+							<col width="">
+						</colgroup>
+						<tr>
+							<th class="hit">회사</th>
+							<td>
+								<select id="coCd" name="coCd" data-kind="CO"  onchange="setTaxivcCoprt(this.value)"  msg="회사" required>
+									<option value="">선택</option>
+								</select>
+							</td>
+							<th class="hit">판매법인</th>
+							<td>
+								<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT"  onchange="setEtrdpsBkac(this.value); selectEtrdpsDtlList();"  msg="계산서발행법인" required>
+		<!-- 							<option value="">선택</option> -->
+								</select>
+							</td>
+						</tr>
+						
+						<tr>
+							<th class="hit">거래처</th>
+							<td>
+								<div class="search_form">
+									<input type="hidden" id="clntCd" name="clntCd"  msg="거래처" required>
+									<input type="text" id="clntNm" disabled> 
+									<a id="btnClntSearch" onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
+								</div> 
+							</td>
+							<th class="hit">일자</th>
+							<td>
+								<input type="text" class="input_calendar" autocomplete="off" id="etrdpsDt" name="etrdpsDt"  msg="일자" date required>
+							</td>
+						</tr>
+						<tr>
+							<th class="hit">구분</th>
+							<td>
+								<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable(); selectEtrdpsDtlList();"  msg="구분" required>
+									<option value="">선택</option>
+								</select>
+							</td>
+							<th>잡이익여부</th>
+							<td>
+								<select id="msclPrftYn" name="msclPrftYn" msg="잡이익 여부" >
+									<option value="">선택</option>
+									<option value="Y">잡이익</option>
+									<option value="N">잡손실</option>
+								</select>
+							</td>
+		
+						</tr>
+						<tr>
+							<th class="hit">입금계좌</th>
+							<td>
+								<select id="etrdpsBkacCd" name="etrdpsBkacCd" data-kind="BKAC"  msg="입금계좌" required>
+									<option value="">선택</option>
+								</select>
+							</td>
+						
+							<th class="hit">결제방법</th>
+							<td>
+								<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);"  msg="결제방법"required>
+									<option value="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>	
+							<th class="hit">금액</th>
+							<td>
+								<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" msg="금액"  comma required >
+							</td>
+							<th class="hit">제품그룹</th>
+							<td>
+								<select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" msg="제품그룹" required>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>적요</th>
+							<td colspan="3">
+								<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			
+			<br>
+			<!-- 어음 테이블 -->
+			<div class="popup_table" id="billTableDiv" style="display: none;">
+				<form id="billData">
+					<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
+					<table>
+						<colgroup>
+							<col width="15%">
+							<col width="">
+							<col width="15%">
+							<col width="">
+						</colgroup>
+						<tr>
+							<th class="hit">어음종류</th>
+							<td>
+								<select id="bilTypCd" name="bilTypCd" data-kind="BIL" required>
+									<option value="">선택</option>
+								</select>
+							</td>
+							<th class="hit">어음번호</th>
+							<td>
+								<input type="text" id="bilNo" name="bilNo" required onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''"> 
+							</td>
+						</tr>
+						<tr>
+							<th class="hit">만기일</th>
+							<td>
+								<input type="text" class="input_calendar" autocomplete="off" id="exprtnDt" name="exprtnDt" date required>
+							</td>
+							<th>지급은행</th>
+							<td>
+								<select id="pymntBankCd" name="pymntBankCd" data-kind="BANK">
+									<option value="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>발행자</th>
+							<td>
+								<input type="text" id="bilPblsPsn" name="bilPblsPsn" maxlength="25" onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
+							</td>
+							<th>배서인 수</th>
+							<td>
+								<input type="text" id="endrsPsnCnt" name="endrsPsnCnt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''">
+							</td>
+						</tr>
+						<tr>
+							<th>어음금액</th>
+							<td>
+								<input type="text" id="bilAmt" name="bilAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" comma>
+							</td>
+							<th>발행일</th>
+							<td>
+								<input type="text" class="input_calendar" autocomplete="off" id="bilPblsDt" name="bilPblsDt" date>
+							</td>
+						</tr>
+						<tr>
+							<th>전배서인</th>
+							<td>
+								<input type="text" id="endrsPsn" name="endrsPsn" maxlength="25"  onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
+							</td>
+							<th>
+							</th>
+							<td>
+							</td>
+						</tr>
+						<tr>
+							<th>비고</th>
+							<td colspan="3">
+								<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</li>
+		<li style="width: 58%; vertical-align: top;">
+			<!-- 데이터 테이블 -->
+			<div class="popup_table" id="etrdpsTb">
+				<table>
+					<tr>
+						<td colspan="2" style="text-align: LEFT; border-right: 0;">입금 - 매출</td>
+						<td colspan="9">
+						</td>
+					</tr>
+				</table>
+				<table id="detailTb">
+					<colgroup>
+						<col width="3%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="11%">
+						<col width="11%">
+						<col width="11%">
+					</colgroup>
+					<tr>
+						<th></th>
+						<th class="tc">거래처</th>
+						<th class="tc">매출일자</th>
+						<th class="tc">프로젝트</th>
+						<th class="tc">결제방법</th>
+						<th class="tc">수급조건</th>
+						<th class="tc">결제일</th>
+						<th class="tc">채권금액</th>
+						<th class="tc">수금액</th>
+					</tr>
+					<!-- // -->
+					<tr class="detailRow" name="tableEtrdps">
+						<td>
+							<input type="checkbox" name="detailChkBox" onchange="setEtrdpsAmt(this)">
+							<input type="hidden" name="prjctSeq">
+							<input type="hidden" name="coCd">
+							<input type="hidden" name="trstClntCd">
+							<input type="hidden" name="clmnDivCd">
+							<input type="hidden" name="pmntMtdCd">
+							<input type="hidden" name="prjctCd">
+							<input type="hidden" name="trstCertiNo">
+							<input type="hidden" name="bilgCertNo">
+							<input type="hidden" name="taxBilgNo">
+							<input type="hidden" name="prdtGrp">
+						</td>
+						<td>
+							<input class="tc" name="clntNm" type="text" readonly>
+						</td>
+						<td>
+							<input class="tc" name="trstDt" type="text" readonly>
+						</td>
+						<td>
+							<input class="tc" name="prjctNm" type="text" readonly>
+						</td>
+						<td>
+							<input class="tc" name="pmntMtdNm" type="text" readonly>
+						</td>
+						<td>
+							<input class="tc" name="clmnDivNm" type="text" readonly>
+						</td>
+						<td>
+							<input class="tc" name="clmnDay" type="text" readonly>
+						</td>
+						<td>
+							<input class="tr" name="bilgTot" type="text" readonly comma>
+						</td>
+						<td>
+							<input class="tr" name="etrdpsAmt" type="text" onkeyup="onlyNumber(this); setTot();" comma>
+						</td>
+					</tr>
+				</table>
+				<table>
+					<colgroup>
+						<col width="3%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="10%">
+						<col width="11%">
+						<col width="11%">
+						<col width="11%">
+					</colgroup>
+					<tr>
+						<th class="tc" colspan="8">합계</th>
+						<td class="tr" id="totEtrdpsAmt"></td>
+					</tr>
+				</table>
+			</div>
+		</li>
 	
-	<!-- 수금 테이블 -->
-	<div class="popup_table" id="etrdpsTableDiv">
-		<form id="etrdpsData">
-			<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
-			<input type="hidden" id="etrdpsSeq" name="etrdpsSeq">
-			<table>
-				<colgroup>
-					<col width="15%">
-					<col width="">
-					<col width="15%">
-					<col width="">
-				</colgroup>
-				<tr>
-					<th class="hit">회사</th>
-					<td>
-						<select id="coCd" name="coCd" data-kind="CO"  onchange="setTaxivcCoprt(this.value)"  msg="회사" required>
-							<option value="">선택</option>
-						</select>
-					</td>
-					<th class="hit">판매법인</th>
-					<td>
-						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT"  onchange="setEtrdpsBkac(this.value); selectEtrdpsDtlList();"  msg="계산서발행법인" required>
-<!-- 							<option value="">선택</option> -->
-						</select>
-					</td>
-				</tr>
-				
-				<tr>
-					<th class="hit">거래처</th>
-					<td>
-						<div class="search_form">
-							<input type="hidden" id="clntCd" name="clntCd"  msg="거래처" required>
-							<input type="text" id="clntNm" disabled> 
-							<a id="btnClntSearch" onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
-						</div> 
-					</td>
-					<th class="hit">일자</th>
-					<td>
-						<input type="text" class="input_calendar" autocomplete="off" id="etrdpsDt" name="etrdpsDt"  msg="일자" date required>
-					</td>
-				</tr>
-				<tr>
-					<th class="hit">구분</th>
-					<td>
-						<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable(); selectEtrdpsDtlList();"  msg="구분" required>
-							<option value="">선택</option>
-						</select>
-					</td>
-					<th>잡이익여부</th>
-					<td>
-						<select id="msclPrftYn" name="msclPrftYn" msg="잡이익 여부" >
-							<option value="">선택</option>
-							<option value="Y">잡이익</option>
-							<option value="N">잡손실</option>
-						</select>
-					</td>
-
-				</tr>
-				<tr>
-					<th class="hit">입금계좌</th>
-					<td>
-						<select id="etrdpsBkacCd" name="etrdpsBkacCd" data-kind="BKAC"  msg="입금계좌" required>
-							<option value="">선택</option>
-						</select>
-					</td>
-				
-					<th class="hit">결제방법</th>
-					<td>
-						<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);"  msg="결제방법"required>
-							<option value="">선택</option>
-						</select>
-					</td>
-				</tr>
-				<tr>	
-					<th class="hit">금액</th>
-					<td>
-						<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" msg="금액"  comma required >
-					</td>
-					<th class="hit">제품그룹</th>
-					<td>
-						<select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" msg="제품그룹" required>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>적요</th>
-					<td colspan="3">
-						<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
-					</td>
-				</tr>
-			</table>
-		</form>
-	</div>
-	<div class="popup_table" id="etrdpsTb">
-		<table>
-			<tr>
-				<td colspan="2" style="text-align: LEFT; border-right: 0;">입금 - 매출</td>
-				<td colspan="9">
-				</td>
-			</tr>
-		</table>
-		<table id="detailTb">
-			<colgroup>
-				<col width="3%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="11%">
-				<col width="11%">
-				<col width="11%">
-			</colgroup>
-			<tr>
-				<th></th>
-				<th class="tc">거래처</th>
-				<th class="tc">매출일자</th>
-				<th class="tc">프로젝트</th>
-				<th class="tc">결제방법</th>
-				<th class="tc">수급조건</th>
-				<th class="tc">결제일</th>
-				<th class="tc">채권금액</th>
-				<th class="tc">수금액</th>
-			</tr>
-			<!-- // -->
-			<tr class="detailRow" name="tableEtrdps">
-				<td>
-					<input type="checkbox" name="detailChkBox" onchange="setEtrdpsAmt(this)">
-					<input type="hidden" name="prjctSeq">
-					<input type="hidden" name="coCd">
-					<input type="hidden" name="trstClntCd">
-					<input type="hidden" name="clmnDivCd">
-					<input type="hidden" name="pmntMtdCd">
-					<input type="hidden" name="prjctCd">
-					<input type="hidden" name="trstCertiNo">
-					<input type="hidden" name="bilgCertNo">
-					<input type="hidden" name="taxBilgNo">
-					<input type="hidden" name="prdtGrp">
-				</td>
-				<td>
-					<input class="tc" name="clntNm" type="text" readonly>
-				</td>
-				<td>
-					<input class="tc" name="trstDt" type="text" readonly>
-				</td>
-				<td>
-					<input class="tc" name="prjctNm" type="text" readonly>
-				</td>
-				<td>
-					<input class="tc" name="pmntMtdNm" type="text" readonly>
-				</td>
-				<td>
-					<input class="tc" name="clmnDivNm" type="text" readonly>
-				</td>
-				<td>
-					<input class="tc" name="clmnDay" type="text" readonly>
-				</td>
-				<td>
-					<input class="tr" name="bilgTot" type="text" readonly comma>
-				</td>
-				<td>
-					<input class="tr" name="etrdpsAmt" type="text" onkeyup="onlyNumber(this); setTot();" comma>
-				</td>
-			</tr>
-		</table>
-		<table>
-			<colgroup>
-				<col width="3%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="10%">
-				<col width="11%">
-				<col width="11%">
-				<col width="11%">
-			</colgroup>
-			<tr>
-				<th class="tc" colspan="8">합계</th>
-				<td class="tr" id="totEtrdpsAmt"></td>
-			</tr>
-		</table>
-	</div>
-	<br>
-	<!-- 어음 테이블 -->
-	<div class="popup_table" id="billTableDiv" style="display: none;">
-		<form id="billData">
-			<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
-			<table>
-				<colgroup>
-					<col width="15%">
-					<col width="">
-					<col width="15%">
-					<col width="">
-				</colgroup>
-				<tr>
-					<th class="hit">어음종류</th>
-					<td>
-						<select id="bilTypCd" name="bilTypCd" data-kind="BIL" required>
-							<option value="">선택</option>
-						</select>
-					</td>
-					<th class="hit">어음번호</th>
-					<td>
-						<input type="text" id="bilNo" name="bilNo" required onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''"> 
-					</td>
-				</tr>
-				<tr>
-					<th class="hit">만기일</th>
-					<td>
-						<input type="text" class="input_calendar" autocomplete="off" id="exprtnDt" name="exprtnDt" date required>
-					</td>
-					<th>지급은행</th>
-					<td>
-						<select id="pymntBankCd" name="pymntBankCd" data-kind="BANK">
-							<option value="">선택</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>발행자</th>
-					<td>
-						<input type="text" id="bilPblsPsn" name="bilPblsPsn" maxlength="25" onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
-					</td>
-					<th>배서인 수</th>
-					<td>
-						<input type="text" id="endrsPsnCnt" name="endrsPsnCnt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''">
-					</td>
-				</tr>
-				<tr>
-					<th>어음금액</th>
-					<td>
-						<input type="text" id="bilAmt" name="bilAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" comma>
-					</td>
-					<th>발행일</th>
-					<td>
-						<input type="text" class="input_calendar" autocomplete="off" id="bilPblsDt" name="bilPblsDt" date>
-					</td>
-				</tr>
-				<tr>
-					<th>전배서인</th>
-					<td>
-						<input type="text" id="endrsPsn" name="endrsPsn" maxlength="25"  onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
-					</td>
-					<th>
-					</th>
-					<td>
-					</td>
-				</tr>
-				<tr>
-					<th>비고</th>
-					<td colspan="3">
-						<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
-					</td>
-				</tr>
-			</table>
-		</form>
-	</div>
+	</ul>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
 		<button id="actionBtn" authchk></button>
