@@ -29,6 +29,6 @@ public interface OD01Svc {
 	
 	void updateConfirm(Map<String, String> paramMap) throws Exception;
 
-	int updateCancel(Map<String, String> paramMap);
+	void updateCancel(Map<String, String> paramMap) throws Exception;
 	
 }

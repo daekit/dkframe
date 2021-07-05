@@ -3,6 +3,8 @@ package com.dksys.biz.user.od.od01;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,6 +24,8 @@ import com.dksys.biz.util.MessageUtils;
 @Controller
 @RequestMapping("/user/od/od01")
 public class OD01Ctr {
+	
+	private Logger logger = LoggerFactory.getLogger(OD01Ctr.class);
 	
 	@Autowired
 	MessageUtils messageUtils;
@@ -101,27 +105,37 @@ public class OD01Ctr {
 		}catch(Exception e) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
 		}
     	return "jsonView";
     }
     
     @PutMapping(value = "/updateCancel")
 	public String updateCancel(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		int result = od01Svc.updateCancel(paramMap);
-		if(result == 0) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("bilgComplete"));
-		} else if(result == 500) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose"));
-		} else if(result == 501) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("sellClose"));
-		} else {
+    	try {
+    		od01Svc.updateCancel(paramMap);
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("cancel"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
-		return "jsonView";
+    	return "jsonView";
+		
+		/*
+		 * if(result == 0) { model.addAttribute("resultCode", 500);
+		 * model.addAttribute("resultMessage", messageUtils.getMessage("bilgComplete"));
+		 * } else if(result == 500) { model.addAttribute("resultCode", 500);
+		 * model.addAttribute("resultMessage", messageUtils.getMessage("pchsClose")); }
+		 * else if(result == 501) { model.addAttribute("resultCode", 500);
+		 * model.addAttribute("resultMessage", messageUtils.getMessage("sellClose")); }
+		 * else { model.addAttribute("resultCode", 200);
+		 * model.addAttribute("resultMessage", messageUtils.getMessage("cancel")); }
+		 * return "jsonView";
+		 */
 	}
     
     @DeleteMapping(value = "/deleteOrdrg")

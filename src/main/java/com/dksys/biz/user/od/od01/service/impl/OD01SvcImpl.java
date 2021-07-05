@@ -512,67 +512,67 @@ public class OD01SvcImpl implements OD01Svc {
 	}
 
 	@Override
-	public int updateCancel(Map<String, String> paramMap) {
-
-		// 작업 시작전에 매입은 체크 매출은 건별로 체크
-		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
-			// 마감 체크....매입
-			if(!ar02Svc.checkPchsClose(paramMap)) {
-				return 500;
-			}				
-		}
-		
-		int result = 0;
+	public void updateCancel(Map<String, String> paramMap) throws Exception{
+		// P 매입취소, S 매출취소, A 일괄 취소 
 		long totShipAmt = 0;
-		boolean bilgFlag = false;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
-		result = detailList.size();
 		String sellClntCd = paramMap.get("sellClntCd");
 		
 		for(Map<String, String> detailMap : detailList) {
+			// detailMap set
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
 			totShipAmt += Integer.parseInt(detailMap.get("shipAmt"));
-
-			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
-				
-				if("Y".equals(detailMap.get("shipYn"))){
-					//마감 체크 .. 매출   ,   매출없이 매입만 있는 경우 매출에 대한 마감이 진행 중이면.. 매입도 마감이 아니어도 취소가 안됨.해서 매출 건별로 먼저 체크함.
-					if(!ar02Svc.checkSellClose(paramMap)) {
-						return 501;
-					}				
-				}
-			    od01Mapper.updateCancelDetailS(detailMap);
-			    detailMap.put("selpchCd", "SELPCH2");
-			    //매출확정 체크
-				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
-				for (Map<String, String> map : bilgList) {
-					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
-						bilgFlag = true;
-						break;
+			
+			// 매입마감 체크
+			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+				if("Y".equals(detailMap.get("ordrgYn"))){
+					if(!ar02Svc.checkPchsClose(paramMap)) {
+						thrower.throwCommonException("pchsClose");
 					}
 				}
-				ar02Mapper.deletePchsSell(detailMap);  //   SELPCH2	 매출만 삭제
-			} 
+			}
 			
-			// P 매입취소, S 매출취소, A 일괄 취소 
+			// 매출마감 체크
+			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+				if("Y".equals(detailMap.get("shipYn"))){
+					if(!ar02Svc.checkSellClose(paramMap)) {
+	            		thrower.throwCommonException("sellClose");
+	        		}			
+				}
+			}
+			
+			// 매입확정 체크
 			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 			    od01Mapper.updateCancelDetail(detailMap);
 			    detailMap.put("selpchCd", "SELPCH1");
-			    // 매입확정 체크
 				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
 				for (Map<String, String> map : bilgList) {
 					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
-						bilgFlag = true;
-						break;
+						// 전표처리 되었으면 취소 불가 : rollback
+						thrower.throwCommonException("bilgComplete");
 					}
 				}				
-				ar02Mapper.deletePchsSell(detailMap); //   	 메입만 삭제
+				ar02Mapper.deletePchsSell(detailMap); // 매입만 삭제
+			}
+			
+			//매출확정 체크
+			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+			    od01Mapper.updateCancelDetailS(detailMap);
+			    detailMap.put("selpchCd", "SELPCH2");
+				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+				for (Map<String, String> map : bilgList) {
+					if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+						// 전표처리 되었으면 취소 불가 : rollback
+						thrower.throwCommonException("bilgComplete");
+					}
+				}
+				ar02Mapper.deletePchsSell(detailMap);  // 매출만 삭제
 			} 
 		
 			//재고원복
@@ -591,18 +591,17 @@ public class OD01SvcImpl implements OD01Svc {
 				int stockQty = 0;
 				int stockWt  = 0;
 				
-				// P 매입취소, A 일괄 취소 : 매입이 Y 인경우
+				// 매입이 Y && (P 매입취소 || A 일괄 취소)
 				if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
-				
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
 					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
 					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));					
 					paramMap.put("stockWt" , String.valueOf(stockWt));					
-				     sm01Mapper.updateStockCancel(paramMap);
+				    sm01Mapper.updateStockCancel(paramMap);
 				}
 				
-				// 직송이면서 매출취소(S), 일괄취소(A)  : 매출이 Y 인경우
+				// 직송이 Y && 매출이 Y (매출취소(S) || 일괄취소(A))
 				if("Y".equals(paramMap.get("dirtrsYn")) && "Y".equals(detailMap.get("shipYn")) &&
 				  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
@@ -614,16 +613,13 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}	
 		}
-		if(bilgFlag) {
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-			return 0;
-		}
 
 		// P 매입취소, A 일괄 취소
 		if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
-		od01Mapper.updateCancel(paramMap);
+			od01Mapper.updateCancel(paramMap);
 		}
-		// 직송이면서 매출취소(P), 일괄취소(A)  반영
+		
+		// 직송이 Y && (매출취소(P) || 일괄취소(A))
 		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 			od01Mapper.updateCancelS(paramMap);
 			
@@ -641,6 +637,5 @@ public class OD01SvcImpl implements OD01Svc {
 			ar02Svc.creditDeposit(paramMapObj);
 			
 		}
-		return result;
 	}
 }
