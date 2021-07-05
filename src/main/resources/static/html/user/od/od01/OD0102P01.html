@@ -219,13 +219,14 @@
 						<col width="5%">  <!-- 단위 -->
 						<col width="5%">  <!-- 발주지시 수량-->
 						<col width="5%">  <!-- 발주지시 중량-->
+						<col width="5%">  <!-- 번들 -->
 						<col width="5%">  <!-- 발주지시 단가-->
 						<col width="5%">  <!-- 매출 단가-->
-						<col width="7%">  <!-- 발주지시 금액-->
-						<col width="7%">  <!-- 매출 금액-->
-						<col width="7%">  <!-- 발주지시 손익-->
-						<col width="7%">  <!-- 완료일자 -->
-						<col width="7%">  <!-- 차량번호 -->
+						<col width="6%">  <!-- 발주지시 금액-->
+						<col width="6%">  <!-- 매출 금액-->
+						<col width="6%">  <!-- 발주지시 손익-->
+						<col width="6%">  <!-- 완료일자 -->
+						<col width="6%">  <!-- 차량번호 -->
 					</colgroup>
 					<tr>
 						<th class="tc" style="padding: 3px;"> 
@@ -313,7 +314,7 @@
 							<input type="text" class="tr" name="ordrgWt" onkeyup="onlyNumber(this); countAmt(this);" msg="중량" comma required>
 						</td>
 						<td>
-							<input type="text" class="tr" name="bdCnt" onkeyup="onlyNumber(this);" msg="번들" maxlength="5" comma>
+							<input type="text" class="tr" name="bdCnt" onkeyup="onlyNumber(this); countTot(this);" msg="번들" comma>
 						</td>
 						<td>
 							<input type="text" class="tr" name="ordrgUpr" onkeyup="onlyNumber(this); countAmt(this);" comma>
@@ -350,13 +351,14 @@
 						<col width="5%">  <!-- 단위 -->
 						<col width="5%">  <!-- 발주지시 수량-->
 						<col width="5%">  <!-- 발주지시 중량-->
+						<col width="5%">  <!-- 번들 -->
 						<col width="5%">  <!-- 발주지시 단가-->
 						<col width="5%">  <!-- 매출 단가-->
-						<col width="7%">  <!-- 발주지시 금액-->
-						<col width="7%">  <!-- 매출 금액-->
-						<col width="7%">  <!-- 발주지시 손익-->
-						<col width="7%">  <!-- 완료일자 -->
-						<col width="7%">  <!-- 차량번호 -->
+						<col width="6%">  <!-- 발주지시 금액-->
+						<col width="6%">  <!-- 매출 금액-->
+						<col width="6%">  <!-- 발주지시 손익-->
+						<col width="6%">  <!-- 완료일자 -->
+						<col width="6%">  <!-- 차량번호 -->
 					</colgroup>
 					<tr>
 						<th class="tc" colspan="8">합계</th>
@@ -365,6 +367,9 @@
 						</td>
 						<td>
 							<input class="tr" type="text" id="totWt" name="totWt" comma readonly>
+						</td>
+						<td>
+							<input class="tr" type="text" id="totBd" name="totBd" comma readonly>
 						</td>
 						<td>-</td>
 						<td>-</td>
@@ -1197,6 +1202,7 @@
 	function countTot() {
 		var totOrdrgQty = 0;
 		var totOrdrgWt  = 0;
+		var totBdCnt = 0;
 		var totOrdrgAmt = 0;
 		var totShipAmt  = 0;
 		var totEpctPal  = 0;
@@ -1204,12 +1210,14 @@
 		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val())) || 0;
 			var ordrgWt  = Number(deleteCommaStr($(elem).find('input[name="ordrgWt"]').val())) || 0;
+			var bdCnt    = Number(deleteCommaStr($(elem).find('input[name="bdCnt"]').val())) || 0;
 			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val())) || 0;
 			var shipAmt  = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val())) || 0;
 			var epctPal  = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val())) || 0;
 			
 			totOrdrgQty += ordrgQty;
 			totOrdrgWt  += ordrgWt;
+			totBdCnt    += bdCnt;
 			totOrdrgAmt += ordrgAmt; 
 			totShipAmt  += shipAmt; 
 			totEpctPal  += epctPal; 
@@ -1217,6 +1225,7 @@
 		
 		$('#ordrgPopup #totQty').val(addCommaStr(totOrdrgQty));
 		$('#ordrgPopup #totWt').val(addCommaStr(totOrdrgWt));
+		$('#ordrgPopup #totBd').val(addCommaStr(totBdCnt));
 		$('#ordrgPopup #totAmt').val(addCommaStr(totOrdrgAmt));
 		$('#ordrgPopup #totShipAmt').val(addCommaStr(totShipAmt));
 		$('#ordrgPopup #totEpctPal').val(addCommaStr(totEpctPal));
