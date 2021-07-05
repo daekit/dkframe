@@ -387,8 +387,8 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("sellUpr",  stockInfo.get("sellUpr"));
 					paramMap.put("stockUpr", stockInfo.get("stockUpr"));
 					paramMap.put("stdUpr",   stockInfo.get("stdUpr"));
-					int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
-					int stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(detailMap.get("realDlvrWt"));
+					double stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realDlvrQty"));
+					double stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));
 					paramMap.put("stockWt" , String.valueOf(stockWt));
 				}
@@ -468,8 +468,8 @@ public class OD01SvcImpl implements OD01Svc {
 						paramMap.put("stockQty", "-"+detailMap.get("realDlvrQty"));
 						paramMap.put("stockWt",  "-"+detailMap.get("realDlvrWt"));
 					} else {
-						int stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
-						int stockWt = Integer.parseInt(stockInfo.get("stockWt")) - Integer.parseInt(detailMap.get("realDlvrWt"));
+						double stockQty = Double.parseDouble(stockInfo.get("stockQty")) - Double.parseDouble(detailMap.get("realDlvrQty"));
+						double stockWt = Double.parseDouble(stockInfo.get("stockWt")) - Double.parseDouble(detailMap.get("realDlvrWt"));
 						paramMap.put("stockQty", String.valueOf(stockQty));
 						paramMap.put("stockWt", String.valueOf(stockWt));
 						paramMap.put("sellUpr", detailMap.get("shipUpr"));
@@ -514,7 +514,6 @@ public class OD01SvcImpl implements OD01Svc {
 	@Override
 	public void updateCancel(Map<String, String> paramMap) throws Exception{
 		// P 매입취소, S 매출취소, A 일괄 취소 
-		long totShipAmt = 0;
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
@@ -527,7 +526,6 @@ public class OD01SvcImpl implements OD01Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
-			totShipAmt += Integer.parseInt(detailMap.get("shipAmt"));
 			
 			// 매입마감 체크
 			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
@@ -587,15 +585,15 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 				paramMap.put("prdtLen", detailMap.get("prdtLen"));		
 				
-				Map<String, String> stockInfo =null;
-				int stockQty = 0;
-				int stockWt  = 0;
+				Map<String, String> stockInfo = null;
+				double stockQty = 0;
+				double stockWt  = 0;
 				
 				// 매입이 Y && (P 매입취소 || A 일괄 취소)
 				if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(detailMap.get("realDlvrQty"));
-					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(detailMap.get("realDlvrWt"));
+					stockQty = Double.parseDouble(stockInfo.get("stockQty")) - Double.parseDouble(detailMap.get("realDlvrQty"));
+					stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  - Double.parseDouble(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));					
 					paramMap.put("stockWt" , String.valueOf(stockWt));					
 				    sm01Mapper.updateStockCancel(paramMap);
@@ -605,8 +603,8 @@ public class OD01SvcImpl implements OD01Svc {
 				if("Y".equals(paramMap.get("dirtrsYn")) && "Y".equals(detailMap.get("shipYn")) &&
 				  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realDlvrQty"));
-					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(detailMap.get("realDlvrWt"));
+					stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realDlvrQty"));
+					stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("realDlvrWt"));
 					paramMap.put("stockQty", String.valueOf(stockQty));
 					paramMap.put("stockWt" , String.valueOf(stockWt));
 					sm01Mapper.updateStockCancel(paramMap);
@@ -623,19 +621,47 @@ public class OD01SvcImpl implements OD01Svc {
 		if("Y".equals(paramMap.get("dirtrsYn")) && ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 			od01Mapper.updateCancelS(paramMap);
 			
-			// 2. 부가세율 조회해서 계산후 플러스
+			/* 그룹별 여신 리스트 생성 start */
+			List<Map<String, Object>> loanList = new ArrayList<Map<String,Object>>();
+			
+			// 그룹별 금액 Map 
+			Map<String, Object> grpAmtMap = new LinkedHashMap<String, Object>();
+			for(Map<String, String> detailMap : detailList) {
+				String prdtGrp = bm01Mapper.selectProductGroup(detailMap.get("prdtCd"));
+				if(grpAmtMap.containsKey(prdtGrp)) {
+					grpAmtMap.put(prdtGrp, (Long) grpAmtMap.get(prdtGrp) + Long.parseLong(detailMap.get("shipAmt")));
+				}else {
+					grpAmtMap.put(prdtGrp, Long.parseLong(detailMap.get("shipAmt")));
+				}
+			}
+			
+			// 여신 Map
     		Map<String, String> bilgVatPerMap = new HashMap<String, String>();
     		bilgVatPerMap.put("selpchCd", "SELPCH2");
     		bilgVatPerMap.put("clntCd", sellClntCd);
-    		int bilgVatPer = ar02Mapper.selectBilgVatPer(bilgVatPerMap);
-    		totShipAmt += Math.floor(totShipAmt * bilgVatPer / 100);
+			int bilgVatPer = ar02Mapper.selectBilgVatPer(bilgVatPerMap);
+			for(Map.Entry<String, Object> entry : grpAmtMap.entrySet()) {
+				String prdtGrp = entry.getKey();
+				Long totAmt = (Long) entry.getValue();
+				Map<String, Object> loanMap = new HashMap<String, Object>();
+				loanMap.put("coCd", paramMap.get("coCd"));
+				loanMap.put("clntCd", sellClntCd);
+				loanMap.put("prdtGrp", prdtGrp);
+				loanMap.put("trstDt", paramMap.get("dlvrDttm"));
+				long bilgVatAmt = (long) Math.floor(totAmt * bilgVatPer / 100);
+				loanMap.put("totAmt", totAmt + bilgVatAmt);
+				loanList.add(loanMap);
+			}
+			/* 그룹별 여신 리스트 생성 end */
 			
-			// 여신 원복
-			paramMap.put("clntCd",  sellClntCd);
-			paramMap.put("creditAmt", String.valueOf(totShipAmt));
-			Map<String, Object> paramMapObj = new HashMap<>(paramMap);
-			ar02Svc.creditDeposit(paramMapObj);
-			
+			// 그룹별 여신 리스트를 순회하며 여신 원복
+			for(Map<String, Object> loanMap : loanList) {
+				// 여신 원복후 음수 return시 롤백 
+		    	long loanPrcsResult = ar02Svc.depositLoan(loanMap);
+		    	if(loanPrcsResult < 0) {
+					throw new Exception();
+				}
+			}
 		}
 	}
 }

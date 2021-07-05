@@ -501,36 +501,6 @@ public class AR01SvcImpl implements AR01Svc {
     		thrower.throwCommonException("sellClose");
 		}
 		
-		/* 그룹별 여신 리스트 생성 start */
-		List<Map<String, Object>> loanList = new ArrayList<Map<String,Object>>();
-		
-		// 그룹별 금액 Map 
-		Map<String, Object> grpAmtMap = new LinkedHashMap<String, Object>();
-		for(Map<String, String> detailMap : detailList) {
-			String prdtGrp = bm01Mapper.selectProductGroup(detailMap.get("prdtCd"));
-			if(grpAmtMap.containsKey(prdtGrp)) {
-				grpAmtMap.put(prdtGrp, (Long) grpAmtMap.get(prdtGrp) + Long.parseLong(detailMap.get("realShipAmt")));
-			}else {
-				grpAmtMap.put(prdtGrp, Long.parseLong(detailMap.get("realShipAmt")));
-			}
-		}
-		
-		// 여신 Map
-		int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
-		for(Map.Entry<String, Object> entry : grpAmtMap.entrySet()) {
-			String prdtGrp = entry.getKey();
-			Long totAmt = (Long) entry.getValue();
-			Map<String, Object> loanMap = new HashMap<String, Object>();
-			loanMap.put("coCd", paramMap.get("coCd"));
-			loanMap.put("clntCd", paramMap.get("clntCd"));
-			loanMap.put("prdtGrp", prdtGrp);
-			loanMap.put("trstDt", paramMap.get("dlvrDttm"));
-			long bilgVatAmt = (long) Math.floor(totAmt * bilgVatPer / 100);
-			loanMap.put("totAmt", totAmt + bilgVatAmt);
-			loanList.add(loanMap);
-		}
-		/* 그룹별 여신 리스트 생성 end */
-		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -569,6 +539,36 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		
 		ar01Mapper.updateCancel(paramMap);
+		
+		/* 그룹별 여신 리스트 생성 start */
+		List<Map<String, Object>> loanList = new ArrayList<Map<String,Object>>();
+		
+		// 그룹별 금액 Map 
+		Map<String, Object> grpAmtMap = new LinkedHashMap<String, Object>();
+		for(Map<String, String> detailMap : detailList) {
+			String prdtGrp = bm01Mapper.selectProductGroup(detailMap.get("prdtCd"));
+			if(grpAmtMap.containsKey(prdtGrp)) {
+				grpAmtMap.put(prdtGrp, (Long) grpAmtMap.get(prdtGrp) + Long.parseLong(detailMap.get("realShipAmt")));
+			}else {
+				grpAmtMap.put(prdtGrp, Long.parseLong(detailMap.get("realShipAmt")));
+			}
+		}
+		
+		// 여신 Map
+		int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+		for(Map.Entry<String, Object> entry : grpAmtMap.entrySet()) {
+			String prdtGrp = entry.getKey();
+			Long totAmt = (Long) entry.getValue();
+			Map<String, Object> loanMap = new HashMap<String, Object>();
+			loanMap.put("coCd", paramMap.get("coCd"));
+			loanMap.put("clntCd", paramMap.get("clntCd"));
+			loanMap.put("prdtGrp", prdtGrp);
+			loanMap.put("trstDt", paramMap.get("dlvrDttm"));
+			long bilgVatAmt = (long) Math.floor(totAmt * bilgVatPer / 100);
+			loanMap.put("totAmt", totAmt + bilgVatAmt);
+			loanList.add(loanMap);
+		}
+		/* 그룹별 여신 리스트 생성 end */
 		
 		// 그룹별 여신 리스트를 순회하며 여신 원복
 		for(Map<String, Object> loanMap : loanList) {
