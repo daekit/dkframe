@@ -20,5 +20,9 @@ public interface AR05Svc {
 	int deleteEtrdps(Map<String, String> paramMap);
 
 	boolean checkEtrdpsClose(Map<String, String> paramMap);
+
+	int selectEtrdpsMapCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectEtrdpsMap(Map<String, String> paramMap);
 	
 }

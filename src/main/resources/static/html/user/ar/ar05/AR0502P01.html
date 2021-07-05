@@ -51,7 +51,7 @@
 						<tr>
 							<th class="hit">구분</th>
 							<td>
-								<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable(); selectEtrdpsDtlList();"  msg="구분" required>
+								<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable(); selectEtrdpsDtlList(); setSummary();"  msg="구분" required>
 									<option value="">선택</option>
 								</select>
 							</td>
@@ -83,7 +83,7 @@
 						<tr>	
 							<th class="hit">금액</th>
 							<td>
-								<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" msg="금액"  comma required >
+								<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''; resetTable();" msg="금액"  comma required >
 							</td>
 							<th class="hit">제품그룹</th>
 							<td>
@@ -206,14 +206,14 @@
 						<th class="tc">프로젝트</th>
 						<th class="tc">결제방법</th>
 						<th class="tc">수급조건</th>
-						<th class="tc">결제일</th>
+						<th class="tc">결제예정일</th>
 						<th class="tc">채권금액</th>
 						<th class="tc">수금액</th>
 					</tr>
 					<!-- // -->
 					<tr class="detailRow" name="tableEtrdps">
 						<td>
-							<input type="checkbox" name="detailChkBox" onchange="setEtrdpsAmt(this)">
+							<input type="checkbox" name="detailChkBox" onchange="setEtrdpsAmt(this); setTot();">
 							<input type="hidden" name="prjctSeq">
 							<input type="hidden" name="coCd">
 							<input type="hidden" name="trstClntCd">
@@ -241,7 +241,7 @@
 							<input class="tc" name="clmnDivNm" type="text" readonly>
 						</td>
 						<td>
-							<input class="tc" name="clmnDay" type="text" readonly>
+							<input class="tc" name="expDay" type="text" readonly>
 						</td>
 						<td>
 							<input class="tr" name="bilgTot" type="text" readonly comma>
@@ -701,14 +701,40 @@
 	
 	function setTot(){
 		var totEtrdpsAmt = 0;
+		var etrdpsAmt = deleteCommaStr($("#etrdpsData #etrdpsAmt").val());
 		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) {
-			var etrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val()));
-			if(!etrdpsAmt){
-				etrdpsAmt = 0;
+			if($(elem).find("input[name='detailChkBox']").prop("checked")){
+				var tableEtrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val()));
+				if(!tableEtrdpsAmt){
+					tableEtrdpsAmt = 0;
+				}
+				if(etrdpsAmt > Number(totEtrdpsAmt) + Number(tableEtrdpsAmt)){
+					console.log("OK");
+					totEtrdpsAmt += tableEtrdpsAmt;
+				} else {
+					console.log("NO");
+					$(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
+					totEtrdpsAmt = etrdpsAmt;
+				}
 			}
-			totEtrdpsAmt += etrdpsAmt;
 		});
 		
 		$("#totEtrdpsAmt").text(addCommaStr(totEtrdpsAmt));
+	}
+	
+	function resetTable(){
+		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) {
+			$(elem).find("input[name='detailChkBox']").prop("checked", false);
+			$(elem).find("input[name='etrdpsAmt']").val("");
+		});
+		setTot();
+	}
+	
+	function setSummary(){
+		if($("#etrdpsTyp option:selected").attr("data-rprc") == "SELPCH1"){
+			$("#sumry").val("월분 물품대 지급");
+		} else{
+			$("#sumry").val("월분 물품대 입금");
+		}
 	}
 </script>
