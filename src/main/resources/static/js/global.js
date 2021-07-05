@@ -489,7 +489,12 @@ function telNumberFormatter(elem){
 // 사업자 등록번호 포맷 변경
 function crnFormatter(elem){
 	onlyDecimal(elem);
-	$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
+	if($(elem).val().length <= 10){
+		$(elem).val($(elem).val().replace(/(\d{3})(\d{2})(\d{5})/g, "$1-$2-$3"));
+	}else{
+	// 개인사업자일경우 주민번호
+		$(elem).val($(elem).val().substr(0, 6) + "-" + $(elem).val().substr(6, 7));
+	}
 }
 
 // 콤마 제거
