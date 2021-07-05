@@ -261,7 +261,7 @@ public class AR01SvcImpl implements AR01Svc {
 			// 커플러일 경우 별도 단가 데이터 저장
 			if(detailMap.get("prdtDiv").contains("PRDTDIV22")) {
 				detailMap.put("coCd", paramMap.get("coCd"));
-				detailMap.put("clntCd", paramMap.get("clntCd"));
+				detailMap.put("clntCd", clntCd);
 				detailMap.put("selpchCd", "SELPCH2");
 				detailMap.put("prdtDt", paramMap.get("reqDt"));
 				detailMap.put("prdtUpr", detailMap.get("realShipUpr"));
