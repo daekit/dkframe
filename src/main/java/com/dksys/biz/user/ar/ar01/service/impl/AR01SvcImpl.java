@@ -252,6 +252,8 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		/* 여신 체크 end */
 		
+		String clntCd = paramMap.get("clntCd");
+		String clntNm = paramMap.get("clntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.put("userId", paramMap.get("userId"));
@@ -286,8 +288,8 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
 			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
 			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
-			paramMap.put("clntCd",      paramMap.get("clntCd"));
-			paramMap.put("clntNm",      paramMap.get("clntNm"));
+			paramMap.put("clntCd",      clntCd);
+			paramMap.put("clntNm",      clntNm);
 			paramMap.put("prdtSpec", 	detailMap.get("prdtSpec"));	
 			paramMap.put("prdtSize", 	detailMap.get("prdtSize"));		
 			paramMap.put("trspTypCd", 	"TRSPTYP1"); // 정상매출
