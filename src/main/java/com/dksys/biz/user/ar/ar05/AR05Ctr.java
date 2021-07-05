@@ -114,4 +114,16 @@ public class AR05Ctr {
 		}
     	return "jsonView";
     }
+	
+	// 입금 매핑정보
+    @PostMapping("/selectEtrdpsMap")
+    public String selectEtrdpsMap(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = ar05Svc.selectEtrdpsMapCount(paramMap);
+    	PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> etrDpsList = ar05Svc.selectEtrdpsMap(paramMap);
+    	model.addAttribute("etrDpsList", etrDpsList);
+        return "jsonView";
+    }
 }

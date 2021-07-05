@@ -301,4 +301,14 @@ public class AR05SvcImpl implements AR05Svc {
 		}
 		return false;
 	}
+	
+	@Override
+	public int selectEtrdpsMapCount(Map<String, String> paramMap) {
+		return ar05Mapper.selectEtrdpsMapCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectEtrdpsMap(Map<String, String> paramMap) {
+		return ar05Mapper.selectEtrdpsMap(paramMap);
+	}
 }

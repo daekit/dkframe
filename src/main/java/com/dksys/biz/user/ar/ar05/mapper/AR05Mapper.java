@@ -48,4 +48,8 @@ public interface AR05Mapper {
 	
 	int deleteEtrdpsDtl(Map<String, String> paramMap);
 	
+	int selectEtrdpsMapCount(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectEtrdpsMap(Map<String, String> paramMap);
+	
 }
