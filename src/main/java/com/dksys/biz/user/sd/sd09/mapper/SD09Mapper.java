@@ -43,6 +43,10 @@ public interface SD09Mapper {
 	
 	int deleteSiteTrans(Map<String, String> paramMap);
 	
+	int deleteSiteDtl(Map<String, String> paramMap);
+	
+	int deleteSiteTDtl(Map<String, String> paramMap);
+	
 	String selectSiteCdFind(Map<String, String> paramMap);
 
 	Map<String, String> selectClntFromWh(Map<String, String> paramMap);

@@ -134,9 +134,9 @@
 	            </colgroup>
 
 	            <tr>
-	            	<th class="hit">가공공장</th>
+	            	<th>가공공장</th>
 	            	<td>
-	            		<select id="whCd" name="whCd" data-kind="WH" required>
+	            		<select id="whCd" name="whCd" data-kind="WH">
 	                    	<option value="">선택</option>
 	                    </select>
 	            	</td>
@@ -295,7 +295,8 @@
 					</td>
 				</tr>
 			</table>
-			<table id="detailTb">
+			<div class="ofx_s" style="width: 100%;">
+			  <table id="detailTb">
 				<colgroup>
 					<col width="3%">
 					<col width="20%">
@@ -314,16 +315,17 @@
 					<th class="tc" title="철근:가공단가, 기타:판매단가">판매단가</th>
 					<th class="tc" title="철근:매입단가, 기타:매입단가">매입단가</th>
 				</tr>
-				<!-- // -->
-				<tr class="detailRow" name="tableCd">
+				</table>
+			    <table id="frameTable" style="display: none;">
+					<tr class="detailRow" name="tableCd">
 					<td>
-						<input type="checkbox" name="detailChkBox">
+						<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox('D');">
 						<input type="hidden" name="siteSeq">
 						<input type="hidden" name="prjctSeq">
 					</td>
 					<td>
 						<div class="search_form">
-							<select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV" onchange="prdtDivCombo(this);" required="required" msg="제품구분">
+							<select id="prdtDivCd" name="prdtDivCd" data-kind="PRDTDIV" onchange="prdtDivCombo(this);" msg="제품구분">
 								<option value="">선택</option>
 							</select>
 						</div>
@@ -366,7 +368,9 @@
 					</td>
 				</tr>
 			</table>
-			<table id="trnsTb">
+			
+			<div class="ofx_s" style="width: 100%;">
+			 <table id="trnsTb">
 				<colgroup>
 					<col width="3%">
 					<col width="20%">
@@ -379,13 +383,14 @@
 					<th class="tc">단위</th>
 					<th class="tc title="단위에 따라 단가 혹은 금액">운송비</th>
 				</tr>
-				<!-- // -->
-				<tr class="transRow" name="transCd">
+			</table>	
+			<table id="transFrameTable" style="display: none;">
+				<tr class="transRow" id= "transDetailRow" name="transCd">
 					<td>
-						<input type="checkbox" name="transChkBox">
+						<input type="checkbox" name="transChkBox" onclick="ctrlAllChkBox('T');">
 						<input type="hidden"   name="siteTransSeq"></td>
 					<td>
-							<input class="tr" id="truckWt" name="truckWt" type="text" required="required" msg="차량 중량" onkeyup="onlyNumber(this)" comma>
+						<input class="tr" id="truckWt" name="truckWt" msg="차량 중량" onkeyup="onlyNumber(this)" comma>
 					</td>
 					<td>
 						<div class="search_form">
@@ -399,6 +404,7 @@
 					</td>
 				</tr>
 			</table>
+			</div>
             <table>
             	<tr>
 	            	<th>비고</th>
@@ -407,6 +413,8 @@
 	                </td>
 	            </tr> 
             </table>
+            
+            
             
 		    <br>
 		    <!-- 하단 버튼 -->
@@ -521,7 +529,6 @@
 		var siteInfo = obj.siteInfo;
 		var siteDtl = obj.siteDtl;
 		var siteTrans = obj.siteTrans
-		
 		//메인정보 세팅
 		$.each(siteInfo, function(key, value){
 			var itemValue = value;
@@ -552,29 +559,42 @@
 		$('#popForm #clntNm').prop("readonly", true);
 		$('#popForm #prjctNm').prop("readonly", true);
 		
-		//상세정보 세팅
-		$.each(siteDtl, function(idx, item){
-			if(idx != 0) addNewRow();
-			$('#detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", false);			
-			setSitePrdtDtail(idx, item);
-			//프로젝트에서 생선된 항목은 여기서는 지울수 없다.
-			//단 매입단가는 수정이 가능하다.
-			if($('#detailTb tr.detailRow').eq(idx).find('[name="prjctSeq"]').val()){				
-				$('#detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", true)
-				$('#detailTb tr.detailRow').eq(idx).find('[name="pchsCplrUpr"]').prop("disabled", false)
-			}
-		});;
+		//제품상세 세팅
+		$.each(siteDtl, function(idx, obj){
+			var $addedRow = addNewRow();
+			$.each($addedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
+				if(itemValue){
+					if($(elem).is('[comma]')){
+						itemValue = addCommaStr(itemValue);
+					}
+					$(elem).val(itemValue);
+				}
+				if($('#cplrUntpcDiv #detailTb tr.detailRow').eq(idx).find('[name="prjctSeq"]').val()){				
+					$('#cplrUntpcDiv #detailTb tr.detailRow').eq(idx).find('input, select').prop("disabled", true)
+					$('#cplrUntpcDiv #detailTb tr.detailRow').eq(idx).find('[name="pchsCplrUpr"]').prop("disabled", false)
+				}
+			});
+		});
 		
-		//상세정보 세팅
-		$.each(siteTrans, function(idx, item){
-			if(idx != 0) transAddNewRow();
-			$('#trnsTb tr.transRow').eq(idx).find('input, select').prop("disabled", false);			
-			setSiteTransDetail(idx, item);
+		//운반비상세 세팅
+	    $.each(siteTrans, function(idx, obj){
+			var $transAddedRow = transAddNewRow();
+			$.each($transAddedRow.find('[name]'), function(idx, elem){
+				var itemValue = obj[elem.name];
+				if(itemValue){
+					if($(elem).is('[comma]')){
+						itemValue = addCommaStr(itemValue);
+					}
+					$(elem).val(itemValue);
+				}
+				//$('#cplrUntpcDiv #trnsTb tr.transRow').eq(idx).find('input, select').prop("disabled", false);			
+			});
 		});
 	}
 	
 	function insertSite() {
-		if(inputValidation($('[required]'))) {
+		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/sd/sd09/insertSite", formData, function(data){
 				alert(data.resultMessage);           
@@ -585,7 +605,7 @@
 	}
 	
 	function updateSite() {
-		if(inputValidation($('[required]'))) {
+		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
 			filePostAjax("/user/sd/sd09/updateSite", formData, function(data){
 				alert(data.resultMessage);           
@@ -735,9 +755,10 @@
 	
 	//list 행추가
 	function addNewRow() {
-		var row = $("#detailTb > tbody:last > tr:last").clone();
-		$("#detailTb > tbody:last").append(row);
-		$.each($(row).find(':input'), function(){
+		var $detailRow = $('#cplrUntpcDiv #frameTable tr[class="detailRow"]').clone();
+		$('#cplrUntpcDiv #detailTb tbody').append($detailRow[0]);
+		
+		$.each($detailRow.find(':input'), function(){
 			if($(this).attr("name") == "prdtDivCd"){
 				this.value = 'PRDTDIV11';
  				prdtDivCombo(this);
@@ -745,25 +766,30 @@
 				this.value = '';
 				this.checked = '';
 			}
+			 
+			if($(this).attr("name") == "prdtDivCd"){
+				$(this).prop("required", "required");
+			}
 			
 			$(this).prop("disabled", false);
 		});
-		return $("tr[name='tableCd']:last")[0];
+		return $detailRow;
 	}
-	
-
 	
 	// 운반비 list 행추가
 	function transAddNewRow() {
-		var row = $("#trnsTb > tbody:last > tr:last").clone();
-		$("#trnsTb > tbody:last").append(row);
-		$.each($(row).find(':input'), function(){
-			
+		var $transDetailRow = $('#cplrUntpcDiv #transFrameTable tr[name="transCd"]').clone();
+		$('#cplrUntpcDiv #trnsTb tbody').append($transDetailRow[0]);
+		$.each($transDetailRow.find(':input'), function(){
 			$(this).prop("disabled", false);
 			this.value = '';
 			this.checked = '';
 		});
-		return $("tr[name='trnsTb']:last")[0];
+		if($(this).attr("name") == "truckWt"){
+			$(this).prop("required", "required");
+		}
+		
+		return $transDetailRow;
 	}
 	
 	//list 행삭제	+ DB 삭제
@@ -784,9 +810,6 @@
  				$(elem).closest('.detailRow').remove();
 			}
 		});		
-		deleteAjax("/user/sd/sd09/deleteSitePrdt", detailArr, null, function (data){
-			alert(data.resultMessage);
-		})
 	}
 	
 	//list 행삭제	+ DB 삭제
@@ -804,9 +827,6 @@
  				$(elem).closest('.transRow').remove();
 			}
 		});		
-		deleteAjax("/user/sd/sd09/deleteSiteTrans", transArr, null, function (data){
-			alert(data.resultMessage);
-		})
 	}
 	//제품
 	function prdtDivCombo(elem){
@@ -952,7 +972,6 @@
 				"whCd" : whCd
 		}
 		postAjax("/user/sd/sd09/selectClntFromWh", formData, null, function(data){
-			console.log(data)
 			$("#popForm #clntCd").val(data.result.clntCd);
 			$("#popForm #clntNm").val(data.result.clntNm);
 		});

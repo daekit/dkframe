@@ -51,7 +51,7 @@ public class SD09SvcImpl implements SD09Svc {
 		String siteCd = sd09Mapper.selectSiteCd(paramMap); 
 		paramMap.put("siteCd", siteCd);
 		sd09Mapper.insertSite(paramMap);
-
+		
 		//  이하의 2가지는 공장에서 현장 등록 및 수정시 사용함.  SD0902P01
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
@@ -84,9 +84,36 @@ public class SD09SvcImpl implements SD09Svc {
 
 	@Override
 	public int updateSite(Map<String, String> paramMap) {
-		updateSitePrdt(paramMap);
-		updateSiteTrans(paramMap);
-
+		sd09Mapper.deleteSiteDtl(paramMap);
+		sd09Mapper.deleteSiteTDtl(paramMap);
+		
+		//  이하의 2가지는 공장에서 현장 등록 및 수정시 사용함.  SD0902P01
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> dtlParam = gson.fromJson(paramMap.get("detailArr"), dtlMap);
+        if(dtlParam != null) {        	
+			for(Map<String, String> dtl : dtlParam) {
+				dtl.put("coCd",    paramMap.get("coCd"));
+				dtl.put("prjctCd", paramMap.get("prjctCd"));
+				dtl.put("siteCd",  paramMap.get("siteCd"));
+				dtl.put("userId",  paramMap.get("userId"));
+				dtl.put("pgmId",   paramMap.get("pgmId"));
+				sd09Mapper.insertSitePrdt(dtl);		
+			}
+        }
+		gson = new GsonBuilder().disableHtmlEscaping().create();
+		Type transMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+		List<Map<String, String>> transParam = gson.fromJson(paramMap.get("transArr"), transMap);
+        if(transParam != null) {        	 
+			for(Map<String, String> trans : transParam) {
+				trans.put("coCd",    paramMap.get("coCd"));
+				trans.put("prjctCd", paramMap.get("prjctCd"));
+				trans.put("siteCd",  paramMap.get("siteCd"));
+				trans.put("userId",  paramMap.get("userId"));
+				trans.put("pgmId",   paramMap.get("pgmId"));
+				sd09Mapper.insertSiteTrans(trans);		
+			}
+        }
 		return sd09Mapper.updateSite(paramMap);
 	}
 
