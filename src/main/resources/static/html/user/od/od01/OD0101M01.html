@@ -80,7 +80,7 @@
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required" onChange="ordrgGridView.setData(0);">
+	                 	<select id="coCd_S" data-kind="CO" required="required" onchange="setByCoCd(this.value); ordrgGridView.setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -135,6 +135,14 @@
 							<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv_S" onchange="ordrgGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
+					 </td>
+	              </tr>
+	              <tr>
+	             	 <th>판매법인</th>
+					 <td>
+						<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="ordrgGridView.setData(0);">
+							<option value="">전체</option>
+						</select>
 					 </td>
 	              </tr>
 	            </table>
@@ -256,6 +264,7 @@
 					"prdtGrp" : $("#prdtGrp_S").val(),
 					"prdtDiv" : $("#prdtDiv_S").val(),
 					"dirtrsYn" : $("#dirtrsYn_S").val(),
+					"taxivcCoprt" : $("#taxivcCoprt").val(),
 					"pageNo" : _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val()
 				}
@@ -322,6 +331,7 @@
 		mainDefaultLoad("매입관리", "발주서관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
+		setByCoCd($("#coCd_S").val());
 		$("#reqDtFrom").val(lastWeek());
 		$("#reqDtTo").val(dateToStr(new Date()));
 		$('#reqDtFrom, #reqDtTo').datepicker({
@@ -458,4 +468,12 @@
 			//callReport(rptName, arg, 750, 900);
 		});
 	}
+	
+
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
 </script>
