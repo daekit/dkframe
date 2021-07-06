@@ -522,23 +522,6 @@ public class AR02SvcImpl implements AR02Svc {
 	}
 	
 	@Override
-	public boolean creditDeposit(Map<String, Object> paramMap) {
-		try {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("loanCd", 'M');
-			map.put("clntCd", paramMap.get("clntCd"));
-			map.put("coCd", paramMap.get("coCd"));
-			map.put("iTrDt", paramMap.get("dlvrDttm").toString().replace("-", ""));
-			map.put("amt", Integer.parseInt((String) paramMap.get("creditAmt")));
-			ar02Mapper.callCreditLoan(map);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
 	public List<Map<String, String>> selectSellSumList(Map<String, String> paramMap) {
 		return ar02Mapper.selectSellSumList(paramMap);
 	}
