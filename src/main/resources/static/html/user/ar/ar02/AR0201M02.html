@@ -95,7 +95,7 @@
 							<input type="hidden" id="clntCd_S" data-search="clntCd">
 							<div class="search_form">
 								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? subGridView.setData(0) : ''">
-								<a onclick="openClntSearch();">
+								<a onclick="openClntSearch('N');">
 									<i class="i_search_w"></i>
 								</a>
 							</div>
@@ -192,10 +192,20 @@
 						</td>
 					</tr>
 					<tr>
+		                <th>매입거래처</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="pchsClntCd" data-search="pchsClntCd" name="pchsClntCd">
+								<input type="text" id="pchsClntNm" data-search="pchsClntNm" msg="매입거래처" onkeyup="event.keyCode == 8 ? pchsClntCd.value = '' : event.keyCode == 13 ? subGridView.setData(0) : ''">
+								<a onclick="openClntSearch('P');">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
 						<th>비고</th>
 						<td>
 							<input type="text" id="trspRmk_S" data-search="trspRmk" onkeyup="event.keyCode == 13 ? subGridView.setData(0) : ''">
-		                </td>
+		                </td>	
 					</tr>
 				</table>
 			</div>
@@ -490,11 +500,17 @@
 	}
 
 	// 거래처 검색
-	function openClntSearch() {
+	function openClntSearch(type) {
 		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd_S').val(row.clntCd);
-			$('#clntNm_S').val(row.clntNm);	
+			if(type == "N") {
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);	
+			}else {
+				$('#pchsClntCd').val(row.clntCd);
+				$('#pchsClntNm').val(row.clntNm);	
+			}
+			subGridView.setData(0);
 		});
 	}
 	
