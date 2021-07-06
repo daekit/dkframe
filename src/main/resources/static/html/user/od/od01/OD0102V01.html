@@ -134,13 +134,13 @@
 				<tr>
 					<th>매입비고</th>
 					<td colspan="5">
-						<textarea class="form-control" id="ordrgRmk" name="ordrgRmk" style="height: 60px;" maxlength="500"></textarea>
+						<textarea class="form-control" id="ordrgRmk" name="ordrgRmk" style="height: 60px;" maxlength="500" readonly></textarea>
 					</td>
 				</tr>
 				<tr>
 					<th>매출비고</th>
 					<td colspan="5">
-						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500"></textarea>
+						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500" readonly></textarea>
 					</td>
 				</tr>
 			</table>
@@ -350,6 +350,7 @@
 			<i class="fas fa-print"></i>납품서
 		</button>
 		<button id="actionBtn" onclick="updateOrderModal();" authchk>수정</button>
+		<button id="rmkUpdateBtn" onclick="updateOrdrgRmk();" style="background-color: green;" authchk>비고수정</button>
 		<button id="ordrgYnBtnP" onclick="updateConfirm('P');" authchk>매입확정</button>
 		<button id="ordrgYnBtnS" onclick="updateConfirm('S');" authchk>매출확정</button>
 		<button id="ordrgYnBtnA" onclick="updateConfirm('A');" authchk>일괄확정</button>
@@ -400,6 +401,7 @@
 	$(document).ready(function() {
 		selectOrdrgInfo();
 		authChk("OD0101M01");
+		$('#rmkUpdateBtn').hide();
 	});
 	
 	function selectOrdrgInfo() {
@@ -485,9 +487,13 @@
 		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
 		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#ordrgView #dirtrsYn").val() == 'N')) {
 			$("#ordrgView #ordrgYnBtnA").hide();
-			$("#ordrgView #actionBtn").hide();   // 수정버턴
+			$("#ordrgView #actionBtn").hide();
+			
+			// 비고를 수정 가능하도록 처리
+			$('#ordrgRmk').prop("readonly", false);
+			$('#dlvrRmk').prop("readonly", false);
+			$('#rmkUpdateBtn').show();
 		}
-		
 	}
 	
 	function addDetailRow() {
@@ -566,6 +572,21 @@
 			paramObj.actionType = "U";
 			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, "", paramObj);			
 		}, 500);
+	}
+	
+	function updateOrdrgRmk(){
+		var paramObj = {
+			"ordrgSeq": $('#ordrgSeq').val(),
+			"ordrgRmk": $('#ordrgRmk').val(),
+			"dlvrRmk": $('#dlvrRmk').val()
+		}
+		
+		putAjax("/user/od/od01/updateOrdrgRmk", paramObj, null, function(data){
+			alert(data.resultMessage);           
+			if(data.resultCode == 200){
+				ordrgGridView.setData(ordrgGridView.target.page.currentPage);
+			}
+		});
 	}
 
 	function updateConfirm(type) {

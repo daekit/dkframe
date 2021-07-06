@@ -93,6 +93,19 @@ public class OD01Ctr {
     	return "jsonView";
     }
     
+    @PutMapping(value = "/updateOrdrgRmk")
+    public String updateOrdrgRmk(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		od01Svc.updateOrdrgRmk(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+    
     @PutMapping(value = "/updateConfirm")
     public String updateConfirm(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {

@@ -25,6 +25,8 @@ public interface OD01Svc {
 	
 	int updateOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
+	void updateOrdrgRmk(Map<String, String> paramMap);
+	
 	int deleteOrdrg(Map<String, String> paramMap);
 	
 	void updateConfirm(Map<String, String> paramMap) throws Exception;

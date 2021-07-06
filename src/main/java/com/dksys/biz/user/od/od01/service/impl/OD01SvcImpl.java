@@ -211,6 +211,11 @@ public class OD01SvcImpl implements OD01Svc {
 	}
 	
 	@Override
+	public void updateOrdrgRmk(Map<String, String> paramMap) {
+		od01Mapper.updateOrdrgRmk(paramMap);
+	}
+	
+	@Override
 	public int deleteOrdrg(Map<String, String> paramMap) {
 		int result = od01Mapper.deleteOrdrg(paramMap);
 		result += od01Mapper.deleteOrdrgDetail(paramMap);
