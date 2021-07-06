@@ -1,0 +1,206 @@
+<div class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div class="popup_table">
+		<form id="siteInsertForm">
+			<input type="hidden" id="pgmId" name="pgmId" value="siteInsert">
+			<table>
+				<colgroup>
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<tr>
+					<th class="hit">회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO" msg="회사" onchange="setByCoCd(this.value);" required></select>
+					</td>
+					<th>매출처</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd"> 
+							<input type="text" id="clntNm" name="clntNm" disabled> 
+							<a onclick="openThirdClntSearch();"><i class="i_search_w"></i></a>
+						</div>
+					</td>
+					<th>영업담당자</th>
+					<td>
+						<input type="hidden" id="mngId" name="mngId">
+						<div class="search_form">
+							<input type="text" id="mngNm" name="mngNm" readonly> 
+							<a onclick="openThridUserTree();"><i class="i_search_w"></i> </a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>가공공장</th>
+					<td>
+						<select id="whCd" name="whCd" data-kind="WH">
+							<option value="">선택</option>
+						</select>
+					</td>
+					<th class="hit">현장명</th>
+					<td>
+						<input type="hidden" id="siteCd" name="siteCd">
+						<input type="text" id="siteNm" name="siteNm" maxLength="50" required>
+					</td>
+					<th>현장담당자</th>
+					<td>
+						<input type="text" id="siteMngNm" name="siteMngNm" maxLength="25">
+					</td>
+				</tr>
+				<tr>
+					<th>프로젝트</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd" value="0">
+							<input type="text" id="prjctNm" name="prjctNm" disabled>
+							<a onclick="openThirdPrjctSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>
+					<th>판매지역</th>
+					<td>
+						<select data-kind="SALESAREA" id="salesAreaCd" name="salesAreaCd">
+							<option value="">전체</option>
+						</select>
+					</td>
+					<th>전화번호</th>
+					<td style="border-left: 0px !important;">
+						<input type="text" id="telNo" name="telNo" onKeyUp="telNumberFormatter(this);" maxLength="13">
+					</td>
+				</tr>
+				<tr>
+					<th>주소</th>
+					<td>
+						<div class="search_form">
+							<input type="text" id="siteAddrZip" name="siteAddrZip" readonly>
+							<a onclick="openDaumPostcode();"><i class="i_search_w"></i></a>
+						</div>
+					</td>
+					<td colspan="2">
+						<input type="text" id="siteAddr" name="siteAddr" placeholder="선택 주소지" readonly></td>
+					<td colspan="2">
+						<input type="text" id="siteAddrSub" name="siteAddrSub" placeholder="상세 주소 입력" maxLength="50">
+					</td>
+				</tr>
+				<tr>
+					<th>비고</th>
+					<td colspan="5">
+						<textarea class="form-control" id="rmk" name="rmk" style="height: 120px;" maxlength="500"></textarea>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<br>
+	<!-- 하단 버튼 -->
+	<div class="popup_bottom_btn">
+		<button id="siteActionBtn" onclick="insertSite();">등록</button>
+		<button class="close_btn" onclick="modalStack.close();">닫기</button>
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		setCommonSelect($("#siteInsertForm select[data-kind]"));
+		setInit();
+	});
+	
+	function setInit() {
+		$("#siteInsertForm #coCd").val(modalStack.last().paramObj.coCd);
+		$("#siteInsertForm #clntCd").val(modalStack.last().paramObj.clntCd);
+		$("#siteInsertForm #clntNm").val(modalStack.last().paramObj.clntNm);
+		setByCoCd($("#siteInsertForm #coCd").val());
+	}
+	
+	// 창고 set
+	function setByCoCd(value){
+		$('#siteInsertForm #whCd').data("desc", value);
+		$('#siteInsertForm #whCd option:not([value=""])').remove()
+		setCommonSelect($('#siteInsertForm #whCd'));
+	}
+	
+	function openThirdClntSearch(){
+		openThirdModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#siteInsertForm #clntCd').val(row.clntCd);
+			$('#siteInsertForm #clntNm').val(row.clntNm);
+			
+			var paramObj = {
+				"coCd": $('#siteInsertForm #coCd').val(),
+				"clntCd": row.clntCd
+			}
+			
+			postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {
+				if(data.mngInfo != null) {
+					$('#siteInsertForm #mngId').val(data.mngInfo.salesEmpId);
+					$('#siteInsertForm #mngNm').val(data.mngInfo.salesEmpNm);	
+				}
+			});
+		});
+	}
+	
+	// 프로젝트 검색
+	function openThirdPrjctSearch() {
+		openThirdModal("/static/html/cmn/modal/prjctSearch.html", 600, 420, "프로젝트 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#siteInsertForm #prjctCd").val(row.prjctCd);
+			$("#siteInsertForm #prjctNm").val(row.prjctNm);
+			$("#siteInsertForm #siteAddrZip").val(row.prjctAddrZip);
+			$("#siteInsertForm #siteAddr").val(row.prjctAddr);
+			$("#siteInsertForm #siteAddrSub").val(row.prjctAddrSub);
+		});
+	}
+		
+	// 영업담당자 검색
+	function openThridUserTree() {
+		var paramObj = {
+			"coCd" : "GUM",
+			"userId": $('#siteInsertForm #mngId').val(),
+			"useYn": "Y"
+		};
+		
+		openThirdModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#siteInsertForm #mngId').val(checkedNode.id);
+			$('#siteInsertForm #mngNm').val(checkedNode.text);
+		});
+	}
+	
+	// 주소 검색
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				// 우편번호
+				$('#siteInsertForm #siteAddrZip').val(data.zonecode);
+				$('#siteInsertForm #siteAddr').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+			}
+		}).open();
+	}
+	
+	function insertSite() {
+		if(inputValidation($('#siteInsertForm [required]'))) {
+			var formData = makeSiteData();
+			filePostAjax("/user/sd/sd09/insertSite", formData, function(data){
+				alert(data.resultMessage);
+				$("#siteCd").val(data.siteCd);
+				$("#siteNm").val($('#siteInsertForm #siteNm').val());
+				modalStack.close();
+			});
+		}
+	}
+	
+	function makeSiteData(){
+		//콤마 제거
+		$.each($('#siteInsertForm input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+
+		var formData = new FormData($("#siteInsertForm")[0]);
+		formData.append("userId", jwt.userId);
+		return formData;
+	}
+</script>
