@@ -95,7 +95,7 @@
 						<td>
 							<input type="hidden" id="clntCd_S" data-search="clntCd">
 							<div class="search_form">
-								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? subGridView.setData(0) : ''">
+								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
 								<a onclick="openClntSearch();">
 									<i class="i_search_w"></i>
 								</a>
@@ -155,12 +155,12 @@
 						onclick="insertProjectModal('C');"
 						style="height: 30px; line-height: 28px;" authchk>+</a> <a
 						onclick="deleteProject();"
-						style="height: 30px; line-height: 28px;" authchk>-</a>  --><a
-						onclick="excelDown();"
-						style="height: 30px; line-height: 28px; width: 90px;"><i
-						class="fas fa-file-excel"></i> 엑셀다운로드</a>
+						style="height: 30px; line-height: 28px;" authchk>-</a>  -->
+					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;">
+						<i class="fas fa-file-excel"></i> 엑셀다운로드
+					</a>
 				</div>
-				<select id="recordCnt" class="prae_select"
+				<select id="recordCnt" class="prae_select" data-search="recordCnt" 
 					onchange="gridView.setData(0);">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
@@ -241,8 +241,8 @@
 		            {key: "prjctNm", 	label: "프로젝트명",    	align: "left",    width: 240},
 		            {key: "siteNm",   	label: "현장",       	align: "left",  width: 150},
 		            {key: "pchsClntNm",label: "매입처",   		align: "left",   width: 100},
-		            {key: "whNm",   	label: "가공공장",      	align: "left",  width: 100},
-		            {key: "totWt",     	label: "총중량(TON)",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+		            {key: "whNm",   	label: "창고",      	align: "left",  width: 100},
+		            {key: "totWt",     	label: "총중량",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
 		             {key: "sumNu",	    label: "현재누계", 			align: "right", width: 80},
 		            {key: "totRem",   	label: "잔량",   			align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
 		             {key: "rkrhdtnfid",	label: "가공수량", 			align: "right", width: 80},
@@ -317,7 +317,7 @@
 			            {key: "siteNm",   	label: "현장",       	align: "left",  width: 150},
 			            {key: "pchsClntNm",label: "매입처",   		align: "left",   width: 100},
 			            {key: "whNm",   	label: "가공공장",      	align: "left",  width: 100},
-			            {key: "totWt",     	label: "총중량(TON)",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+			            {key: "totWt",     	label: "총중량",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
 			             {key: "sumNu",	    label: "현재누계", 			align: "right", width: 80},
 			            {key: "totRem",   	label: "잔량",   			align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
 			             {key: "rkrhdtnfid",	label: "가공수량", 			align: "right", width: 80},
@@ -397,7 +397,6 @@
 			"userId" : jwt.userId,
 			"pgmId" : "SD0501M01"
 		}
-		console.log(formData);
 		postAjax("/user/sd/sd05/selectConfirmCount", formData, null, function(data){
 			if(data.result == 0) {
 				if(confirm("삭제하시겠습니까?")){
@@ -447,7 +446,26 @@
 	}
 	
 	function excelDown() {
-		var formData = {
+		var paramObj = {"pageNo": 1};
+		$.each($('#main_area [data-search]'), function(idx, elem){
+			var searchValue = elem.value;
+			if($(elem).is('[date]')){
+				searchValue = deleteHyphenStr(searchValue);
+			}
+			paramObj[$(elem).data('search')] = searchValue;
+		});
+		postAjax("/user/ar/ar13/selectPrjtMngTernKey", paramObj, null, function(data){
+			var list = data.resultList;
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("가공턴키 실적 관리"+todayDate+".xls");
+		});
+	/* 	var formData = {
 				"coCd"        : $("#coCd_S").val(),
 				"strtDt"      : $("#strtDt_S").val().replace(/\-/g,''),
 				"endDt"       : $("#endDt_S").val().replace(/\-/g,''),
@@ -467,7 +485,7 @@
 				});
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("프로젝트목록"+todayDate+".xls");
-			});	
+			});	 */
 	}	
 
 	function setReportMain() {
