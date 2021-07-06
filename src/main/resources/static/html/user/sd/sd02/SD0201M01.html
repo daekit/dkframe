@@ -144,8 +144,10 @@
 </body>
 </html>
 <script type="text/javascript">
-	var deptBool = true;
+	var deptBool  = true;
 	var salesBool = true;
+	var coBool    = true;
+	var colspanCnt = 3;
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
@@ -156,6 +158,7 @@
 			this.target.setConfig({
 		    	showRowSelector: true,
 		    	multipleSelect: false,
+		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
 		        	align: "center", 
@@ -173,7 +176,7 @@
 		            	by: ["clntDivNm"],
 		            	columns: [
 		                    {
-		                        label: function () { return "소 계"; }, colspan: 4
+		                        label: function () { return "소 계"; }, colspan: colspanCnt
 		                    },
 		                    {key: "planWt", collector: "sum", formatter: "money", align: "right"},
 		                    {key: "trstN", 	collector: "sum", formatter: "money", align: "right"},
@@ -183,7 +186,7 @@
 		        },
 		        footSum: [
 			    	[
-			    		{label: "총계", colspan:4, align:"center"},
+			    		{label: "총계", colspan:colspanCnt, align:"center"},
 			    		{key:"planWt", collector: "sum", formatter:"money", align: "right"},
 	                    {key: "trstN", collector: "sum", formatter:"money", align: "right"},
 			    		{key: "trstY", collector: "sum", formatter:"money", align: "right"}
@@ -205,10 +208,11 @@
 		        
 		        columns: [
 		        	{key: "planSeq",     label: "계획번호",    align: "center",  hidden:true},
+		        	{key: "coNm",        label: "회사",    align: "center", width: "9%", hidden: coBool},
 		        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%", hidden: deptBool},
 		        	{key: "planSalesNm", label: "담당자",    align: "center", width: "9%",hidden: salesBool},
 		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
-		            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
+// 		            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
 		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
 		            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
 		            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
@@ -265,6 +269,7 @@
 			        target: $('[data-ax5grid="excel-grid"]'),
 			        columns: [
 					        	{key: "planSeq",     label: "계획번호",    align: "center",  hidden:true},
+					        	{key: "coNm",        label: "회사",    align: "center", width: "9%"},
 					        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%"},
 					        	{key: "planSalesNm", label: "담당자",    align: "center", width: "9%"},
 					        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
@@ -309,12 +314,23 @@
 	// 검색
 	
 	function dtlSearch(){
-		var salesMngNm =  $("#salesMngNm_S").val();
-		var planDeptId =  $("#deptId_S").val();
+		var salesMngNm  = $("#salesMngNm_S").val();
+		var planDeptId  = $("#deptId_S").val();
 		var planDeptNm  = $("#deptNm_S").val();
+		var coCd        = $("#coCd").val();
+		
+		var tempColspanCnt = 3;
+		
+		if(coCd){
+			 coBool = false;
+			 tempColspanCnt = tempColspanCnt + 1;
+		}else{
+			coBool = true;
+		}	
 		
 		if(planDeptNm){
 			 deptBool = false;
+			 tempColspanCnt = tempColspanCnt + 1;
 		}else{
 			deptBool = true;
 		}
@@ -323,11 +339,14 @@
 	    if($('#mngShowYn').is(":checked") || salesMngNm){
 	    	 mngShow = 'Y';
 			 salesBool = false;
+			 tempColspanCnt = tempColspanCnt + 1;
 		}else{
 	    	 mngShow = 'N';
 			 salesBool = true;
 		}
-			
+	    
+	    colspanCnt  = tempColspanCnt;
+		
 		gridView.initView().setData(0);
 	}
 	//사용자 검색

@@ -32,13 +32,13 @@
                 	<input id="planYm" name="planYm" type="month" readonly="readonly" required="required">
                 </td>
 			</tr>
-			 <tr>
-                <th class="">판매지역</th>
-                <td>                                
-                    <select id="selesAreaCd" name="selesAreaCd" data-kind="SALESAREA">
-                    </select>
-                </td>
-            </tr>
+<!-- 			 <tr> -->
+<!--                 <th class="">판매지역</th> -->
+<!--                 <td>                                 -->
+<!--                     <select id="selesAreaCd" name="selesAreaCd" data-kind="SALESAREA"> -->
+<!--                     </select> -->
+<!--                 </td> -->
+<!--             </tr> -->
             <tr>
             <th>거래처</th>
                 <td class="drctArea">
@@ -123,6 +123,7 @@
 	        <input type="hidden" id="userId" name="userId">
 		    <input type="hidden" id="pgmId" name="pgmId" value="SD0101M01">
 		    <input type="hidden" id="planSeq" name="planSeq">
+		    <input type="hidden" id="selesAreaCd" name="selesAreaCd" value="SALESAREA99">
         </form>
     </div>
     <!-- 하단 버튼 -->
@@ -190,24 +191,32 @@
 		$(".detailSell select").prop("disabled", true);
 		$(".detailMakr select").prop("disabled", true);
 		$('#detailTb select[name="selpchCd"]').val($('#selpchCd').val());
-		
+
+		debugger;
 		var row = gridView.target.getList("selected")[0];
 		var formData = {
-			"planSeq" : row.planSeq
+// 				"planSeq" : row.planSeq
+				"coCd"        : row.coCd,
+				"planYm"      : $('#planYm').val(),
+				"selpchCd"    : $("#selpchCd_S").val(),
+				"planDeptCd"  : row.plabDeptId,
+				"planSalesId" : row.planSalesId,
+				"clntCd"      : row.clntCd,
+				"prdtDiv"     : row.prdtDiv
 		}
 		
-		if (row.planSeq){
+// 		if (row.planSeq){
 			postAjax("/user/sd/sd02/selectPlanInfo", formData, null, function(data){
 				setPlanInfo(data.result);
 			});
-		}
+// 		}
 	}
 	
 	function setPlanInfo(obj){
 		var estInfo = obj;
 		//메인정보 세팅
 		$.each(estInfo, function(key, value){
-			$('#'+key).val(value);
+			$('.popup_area #'+key).val(value);
 			if(key == "planYm" && value.length <= 6){
 		    	var planYm = value;
 		    	var planYm2 = planYm.substr(0,4)+"-"+planYm.substr(4.2);
@@ -260,20 +269,20 @@
 				deleteComma(elem);
 			});
 			var formData = {
-					"coCd" : $('#detailTb select[name="coCd"]').val(),
-					"selpchCd" : $('#detailTb select[name="selpchCd"]').val(),
-					"planYm" : $('#detailTb input[name="planYm"]').val(),
-					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
-					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
-					"prdtGrp" : $('#detailTb select[name="prdtGrp"]').val(),
-					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
-					"planWt" : deleteCommaStr($('#detailTb input[name="planWt"]').val()),
-					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
+					"coCd"        : $('#detailTb select[name="coCd"]').val(),
+					"selpchCd"    : $('#detailTb select[name="selpchCd"]').val(),
+					"planYm"      : $('#detailTb input[name="planYm"]').val(),
+					"selesAreaCd" : $("#selesAreaCd").val(),             // $('#detailTb select[name="selesAreaCd"]').val(),
+					"clntCd"      : $('#detailTb input[name="clntCd"]').val(),
+					"prdtGrp"     : $('#detailTb select[name="prdtGrp"]').val(),
+					"prdtDiv"     : $('#detailTb select[name="prdtDiv"]').val(),
+					"planWt"      : deleteCommaStr($('#detailTb input[name="planWt"]').val()),
+					"prdtStkn"    : $('#detailTb select[name="prdtStkn"]').val(),
 					"planSalesId" : $('#detailTb input[name="salesMng"]').val(),
-					"panDeptId" : $('#detailTb input[name="deptId"]').val(),
-					"rmk" : $('#detailTb textarea[name="rmk"]').val(),
- 					"userId" : jwt.userId,
-					"pgmId" : $("#pgmId").val()
+					"panDeptId"   : $('#detailTb input[name="deptId"]').val(),
+					"rmk"         : $('#detailTb textarea[name="rmk"]').val(),
+ 					"userId"      : jwt.userId,
+					"pgmId"       : $("#pgmId").val()
 			}
 			postAjax("/user/sd/sd02/insertPlan", formData, null, function(data){	
 				alert(data.resultMessage);           
@@ -289,16 +298,18 @@
 				deleteComma(elem);
 			});
 			var formData = {
-					"planSeq" : $('#planSeq').val(),
-					"selesAreaCd" : $('#detailTb select[name="selesAreaCd"]').val(),
-					"clntCd" : $('#detailTb input[name="clntCd"]').val(),
-					"prdtGrp" : $('#detailTb select[name="prdtGrp"]').val(),
-					"prdtDiv" : $('#detailTb select[name="prdtDiv"]').val(),
-					"planWt" : $('#detailTb input[name="planWt"]').val(),
-					"prdtStkn" : $('#detailTb select[name="prdtStkn"]').val(),
-					"rmk" : $('#detailTb textarea[name="rmk"]').val(),
- 					"userId" : jwt.userId,
-					"pgmId" : $("#pgmId").val()
+					"planSeq"     : $('#planSeq').val(),
+					"selesAreaCd" : $("#selesAreaCd").val(),         // $('#detailTb select[name="selesAreaCd"]').val(),
+					"clntCd"      : $('#detailTb input[name="clntCd"]').val(),
+					"prdtGrp"     : $('#detailTb select[name="prdtGrp"]').val(),
+					"prdtDiv"     : $('#detailTb select[name="prdtDiv"]').val(),
+					"planWt"      : $('#detailTb input[name="planWt"]').val(),
+					"prdtStkn"    : $('#detailTb select[name="prdtStkn"]').val(),
+					"planSalesId" : $('#detailTb input[name="salesMng"]').val(),
+					"panDeptId"   : $('#detailTb input[name="deptId"]').val(),
+					"rmk"         : $('#detailTb textarea[name="rmk"]').val(),
+ 					"userId"      : jwt.userId,
+					"pgmId"       : $("#pgmId").val()
 			}
 			putAjax("/user/sd/sd02/updatePlan", formData, null, function(data){
 				alert(data.resultMessage);           

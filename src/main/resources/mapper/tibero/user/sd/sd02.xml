@@ -27,15 +27,17 @@
 			SELECT
 					ROWNUM AS RNUM, D.*
 			FROM(
-				SELECT T1.PLAN_SEQ
-				    ,  T1.CO_CD
-					 , BM02.CLNT_DIV_CD
+				SELECT 
+					  BM02.CLNT_DIV_CD
+					 <if test="coCd != null and !coCd.equals('')">
+				     ,  T1.CO_CD
+					 , FN_CM05M01_CD_TO_NM(T1.CO_CD) CO_NM
+				       </if>
 				    ,  T1.CLNT_CD
 				    ,  T1.PRDT_DIV
-				    ,  T1.SALES_AREA_CD
-					 , FN_CM05M01_CD_TO_NM(T1.CO_CD) CO_NM
+<!-- 				    ,  T1.SALES_AREA_CD -->
 					 , FN_CM05M01_CD_TO_NM(BM02.CLNT_DIV_CD) CLNT_DIV_NM
-					 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM
+<!-- 					 , FN_CM05M01_CD_TO_NM(SALES_AREA_CD) SALES_AREA_NM -->
 					 , FN_CM05M01_CD_TO_NM(T1.PRDT_DIV) PRDT_DIV_NM
 					 , NVL(BM02.CLNT_NM, '기타') CLNT_NM
 				    , SUM(NVL(T1.PLAN_WT,0)) AS PLAN_WT
@@ -47,6 +49,7 @@
 					 <if test="mngShow != null and !mngShow.equals('')">
 					  ,T1.PLAN_SALES_ID
 					  ,T1.PLAN_SALES_NM
+<!-- 					  ,T1.PLAN_SEQ -->
 					 </if>
 					 <if test="planDeptId != null and !planDeptId.equals('')">
 					  ,T1.PLAN_DEPT_ID
@@ -62,7 +65,7 @@
 				   	   , S.CO_CD
 				       , S.CLNT_CD 
 				       , TRIM(S.PRDT_DIV) PRDT_DIV
-				       , NVL(S.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD
+<!-- 				       , NVL(S.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD -->
 				       , S.PLAN_YM
 <!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
 					  <if test="mngShow != null and !mngShow.equals('')">
@@ -147,7 +150,7 @@
 				   	   , S.CO_CD
 				       , S.CLNT_CD 
 				       , TRIM(S.PRDT_DIV)
-				       , NVL(S.SALES_AREA_CD, 'SALESAREA99')
+<!-- 				       , NVL(S.SALES_AREA_CD, 'SALESAREA99') -->
 				       , S.PLAN_YM
 <!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
 					  <if test="mngShow != null and !mngShow.equals('')">
@@ -166,7 +169,7 @@
 				       , AR02.CO_CD
 				       , AR02.TRST_CLNT_CD
 				       , TRIM(AR02.PRDT_DIV) PRDT_DIV 
-				       , NVL(AR02.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD 
+<!-- 				       , NVL(AR02.SALES_AREA_CD, 'SALESAREA99') SALES_AREA_CD  -->
 				       , SUBSTRING(AR02.TRST_DT, 0, 6) TRST_DT
 <!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
 					 <if test="mngShow != null and !mngShow.equals('')">
@@ -247,8 +250,9 @@
 										ORDER SIBLINGS BY SORT_NO
 									) B)
 					  </if>
-				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV) ,
-				         NVL(AR02.SALES_AREA_CD, 'SALESAREA99') , SUBSTRING(AR02.TRST_DT, 0, 6) 
+				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV)
+<!-- 				         , NVL(AR02.SALES_AREA_CD, 'SALESAREA99')  -->
+				         , SUBSTRING(AR02.TRST_DT, 0, 6) 
 <!-- 					    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
 						 <if test="mngShow != null and !mngShow.equals('')">
 					     , AR02.SALES_MNG 
@@ -262,17 +266,20 @@
 					    </if>
 				) T1
 			   LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = T1.CLNT_CD
-			  GROUP BY T1.PLAN_SEQ
-				    ,  T1.CO_CD
-					 , BM02.CLNT_DIV_CD
+			  GROUP BY			  
+					   BM02.CLNT_DIV_CD
+					 <if test="coCd != null and !coCd.equals('')">
+					 , T1.CO_CD
+					 </if>
 				    ,  T1.CLNT_CD
 				    ,  T1.PRDT_DIV
-				    ,  T1.SALES_AREA_CD
+<!-- 				    ,  T1.SALES_AREA_CD -->
 				    , NVL(BM02.CLNT_NM, '기타')
 <!-- 				    <if test="planSalesNm != null and !planSalesNm.equals('')"> -->
 					 <if test="mngShow != null and !mngShow.equals('')">
 					  ,T1.PLAN_SALES_ID
 					  ,T1.PLAN_SALES_NM
+<!-- 					  ,ST1.PLAN_SEQ -->
 					 </if>
 					 <if test="planDeptId != null and !planDeptId.equals('')">
 					  ,T1.PLAN_DEPT_ID
@@ -289,7 +296,12 @@
 					  T1.PLAN_SALES_ID,
 					  T1.PLAN_SALES_NM,
 					 </if>
-				 T1.CO_CD, BM02.CLNT_DIV_CD,SALES_AREA_CD, T1.PRDT_DIV, T1.CLNT_CD 
+					 <if test="coCd != null and !coCd.equals('')">
+						 T1.CO_CD,
+					 </if> 
+					 BM02.CLNT_DIV_CD,
+<!-- 				 SALES_AREA_CD, -->
+					 T1.PRDT_DIV, T1.CLNT_CD 
 		    ) D
 	</select>
 	
@@ -312,7 +324,33 @@
 		LEFT OUTER JOIN TB_BM02M01 B
 	       ON T.CLNT_CD = B.CLNT_CD
 		WHERE 1=1
+		 <if test="mngShow != null and !mngShow.equals('')">
 		  AND PLAN_SEQ = #{planSeq}
+		  </if>
+		   <if test="coCd != null and !coCd.equals('')">
+		   AND T.CO_CD = #{coCd}
+		  </if>
+		   <if test="planYm != null and !planYm.equals('')">
+		   AND T.PLAN_YM = REPLACE(#{planYm},'-', '')
+		  </if>
+		   <if test="selpchCd != null and !selpchCd.equals('')">
+		   AND T.SELPCH_CD = #{selpchCd}
+		  </if>
+		   <if test="planDeptCd != null and !planDeptCd.equals('')">
+		   AND T.PAN_DEPT_ID = #{planDeptCd}
+		  </if>
+		   <if test="planSalesId != null and !planSalesId.equals('')">
+		   AND T.PLAN_SALES_ID = #{planSalesId}
+		  </if>
+		   <if test="clntCd != null and !clntCd.equals('')">
+		   AND T.CLNT_CD = #{clntCd}
+		  </if>
+		   <if test="prdtDiv != null and !prdtDiv.equals('')">
+		   AND T.PRDT_DIV = #{prdtDiv}
+		  </if>
+		   <if test="selesAreaCd != null and !selesAreaCd.equals('')">
+		   AND T.SALES_AREA_CD = #{selesAreaCd}
+		  </if>
 	</select>
 	
 	<insert id="insertPlan">
@@ -366,6 +404,8 @@
 			PRDT_DIV  = #{prdtDiv},
 			PRDT_STKN = #{prdtStkn},
 			PLAN_WT   = #{planWt},
+			PAN_DEPT_ID   = #{panDeptId},
+			PLAN_SALES_ID = #{planSalesId},
 			RMK       = #{rmk},
 			UDT_ID    = #{userId},
 			UDT_PGM   = #{pgmId},
