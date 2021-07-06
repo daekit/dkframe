@@ -79,6 +79,19 @@ public class AR01Ctr {
     	return "jsonView";
     }
 	
+	@PutMapping(value = "/updateShipRmk")
+    public String updateShipRmk(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		ar01Svc.updateShipRmk(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+	
 	@PutMapping(value = "/updateConfirm")
     public String updateConfirm(@RequestParam Map<String, String> paramMap, ModelMap model) {
 		try {

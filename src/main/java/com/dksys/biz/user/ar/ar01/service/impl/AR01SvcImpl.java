@@ -200,6 +200,11 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		return result;
 	}
+	
+	@Override
+	public void updateShipRmk(Map<String, String> paramMap) {
+		ar01Mapper.updateShipRmk(paramMap);
+	}
 
 	//출하확정 수정시 updateConfirmToMes도 같이 수정해주어야함.
 	@Override

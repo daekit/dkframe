@@ -29,6 +29,8 @@ public interface AR01Mapper {
 	List<Map<String, String>> getOrderDetail(Map<String, Object> paramMap);
 
 	int updateShip(Map<String, String> paramMap);
+	
+	int updateShipRmk(Map<String, String> paramMap);
 
 	int updateConfirm(Map<String, String> paramMap);
 

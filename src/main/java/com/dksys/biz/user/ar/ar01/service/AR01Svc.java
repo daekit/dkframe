@@ -20,6 +20,8 @@ public interface AR01Svc {
 	Map<String, Object> getOrderInfo(Map<String, Object> paramMap);
 	
 	int updateShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
+	
+	void updateShipRmk(Map<String, String> paramMap);
 
 	void updateConfirm(Map<String, String> paramMap) throws Exception;
 	
