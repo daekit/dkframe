@@ -84,12 +84,11 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th class="hit">등록기간</th>
+						<th>판매법인</th>
 						<td>
-							<div class="date_input">
-								<input type="text" class="input_calendar" id="strtDt_S" data-search="strtDt" autocomplete="off" msg="조회시작일자" onchange="dateValidation();" required>
-								<span>~</span>
-								<input type="text" class="input_calendar" id="endDt_S" data-search="endDt" autocomplete="off" msg="조회종료일자" onchange="dateValidation();" required>							</div>
+							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+							</select>
 						</td>
 						<th>거래처</th>
 						<td>
@@ -109,11 +108,15 @@
 		                 		<option value="">전체</option>
 		                 	</select>
 		                </td>
-						<th>판매법인</th>
+		                <th>영업담당자</th>
 						<td>
-							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
-								<option value="">전체</option>
-							</select>
+							<div class="search_form">
+								<input type="hidden" id="salesMng_S" data-search="salesMng">
+								<input type="text" id="salesMngNm_S" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="openUserSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
 						</td>
 						<th>현장명</th>
 						<td>
@@ -125,22 +128,6 @@
 								</a>
 							</div>
 						</td>
-					</tr>
-					<tr>
-						<th>영업담당자</th>
-						<td>
-							<div class="search_form">
-								<input type="hidden" id="salesMng_S" data-search="salesMng">
-								<input type="text" id="salesMngNm_S" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
-								<a onclick="openUserSearch();">
-									<i class="i_search_w"></i>
-								</a>
-							</div>
-						</td>
-						<!-- <th class>수주유형</th>
-						<td><select id="ordTyp_S" data-kind="ORDTYP" onchange="gridView.setData(0);">
-								<option value="">전체</option>
-						</select></td> -->
 					</tr>
 				</table>
 			</div>
@@ -230,42 +217,25 @@
 			    	[
 			    		{label: "총계", colspan:7, align:"center"},
 			    		{key:"totWt", collector: "sum", formatter:"money", align: "right"},
-			    		{key: "sumNu", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "totRem", collector: "sum", formatter:"money", align: "right"}
+			    		{key: "totCell", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totRem", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "realTrstWt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "prcsnWt", collector: "sum", formatter:"money", align: "right"}
 	                ]
 			    ],
 		        columns: [
-		            {key: "coNm",     	label: "회사",        	align: "center", width: 100},
-		            {key: "mngNm",   	label: "담당자",       	align: "center",  width: 90},
+		            {key: "coNm",     	label: "회사",        	align: "center",  width: 110},
+		            {key: "mngNm",   	label: "담당자",       	align: "center",  width: 110},
 		            {key: "clntNm",   	label: "거래처",       	align: "left",    width: 160},
-		            {key: "prjctNm", 	label: "프로젝트명",    	align: "left",    width: 240},
-		            {key: "siteNm",   	label: "현장",       	align: "left",  width: 150},
-		            {key: "pchsClntNm",label: "매입처",   		align: "left",   width: 100},
-		            {key: "whNm",   	label: "창고",      	align: "left",  width: 100},
-		            {key: "totWt",     	label: "총중량",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
-		             {key: "sumNu",	    label: "현재누계", 			align: "right", width: 80},
-		            {key: "totRem",   	label: "잔량",   			align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
-		             {key: "rkrhdtnfid",	label: "가공수량", 			align: "right", width: 80},
-		             {key: "prcsnUpr",	label: "매출가공단가", 			align: "right", width: 80},
-		             {key: "prcsnPrc",	label: "가공공급가", 			align: "right", width: 80},
-		             {key: "totCell",  	label: "출하량",   		align: "right",   width: 100, formatter: "money"},
-		            /* {key: "strtDt",	    label: "시작일", 			align: "center", width: 80},
-		            {key: "endDt",    	label: "종료일", 			align: "center", width: 80},
-		            {key: "makrNm",    	label: "제조사",       	align: "center",  width: 80},
-		            {key: "tnkeyYn",    label: "제강턴키",     	align: "center",  width: 80,styleClass: function () {
-	                     return (this.item.tnkeyYn == "Y") ? "grid-font-red":"";}},
-                    {key: "tnkeyCfYn",  label: "턴키확정",     	align: "center",  width: 80,styleClass: function () {
-		                 return (this.item.tnkeyCfYn == "Y") ? "grid-font-red":"";}},
-		            {key: "dcDivNm",   	label: "철근할인구분명",    align: "center",  width: 80},
-		            {key: "prdtUpr",   	label: "철근할인단가",      	align: "cente r",  width: 80},
-		            {key: "shopClntNm", label: "샵업체명",        	align: "center",  width: 80},
-		            {key: "shopUpr",   	label: "샵단가",      	align: "center",  width: 80},
-		            {key: "ctrtRmk",    label: "계약비고",       	align: "center",  width: 80},
-		            {key: "cplrYn",   	label: "커플러유무",      	align: "center",  width: 80,styleClass: function () {
-	                     return (this.item.cplrYn == "Y") ? "grid-font-red":"";}},	        
-	                     {key: "tnkeyCfYn",  label: "턴키확정",     	align: "center",  width: 80,styleClass: function () {
-		                 return (this.item.tnkeyCfYn == "Y") ? "grid-font-red":"";}},           
-		            {key: "creatDttm",  label: "등록일",      	align: "center",  width: 80} */
+		            {key: "prjctNm", 	label: "프로젝트명",    	align: "left",    width: 260},
+		            {key: "siteNm",   	label: "현장",       	align: "left",    width: 171},
+		            {key: "pchsClntNm",label: "매입처",   		align: "left",    width: 120},
+		            {key: "whNm",   	label: "창고",        	align: "left",    width: 120},
+		            {key: "totWt",     	label: "총중량",   	    align: "right",   width: 120, styleClass:"grid-cell-blue", formatter: "money"},
+		            {key: "totCell",  	label: "현재누계",   	align: "right",   width: 120, formatter: "money"},
+		            {key: "totRem",   	label: "잔량",   		align: "right",   width: 120, styleClass:"grid-cell-blue", formatter: "money"},
+		            {key: "realTrstWt",	label: "자재중량", 		align: "right",   width: 120, formatter: "money"},
+		            {key: "prcsnWt",	label: "가공중량", 		align: "right",   width: 120, formatter: "money"}
 		        ]
 			});
 			return this;
@@ -454,6 +424,8 @@
 			}
 			paramObj[$(elem).data('search')] = searchValue;
 		});
+		
+		paramObj.recordCnt = 99999999;
 		postAjax("/user/ar/ar13/selectPrjtMngTernKey", paramObj, null, function(data){
 			var list = data.resultList;
 			excelView.target.setData({
