@@ -50,4 +50,9 @@ public interface SD05Mapper {
 	List<Map<String, String>> prdtSpecCombo(Map<String, String> param);
 
 	Map<String, String> selectMakerPchsClntCd(Map<String, String> paramMap);
+	
+	int selectPrjtMngTernKeyCount(Map<String, String> param);
+	
+	List<Map<String, String>> selectPrjtMngTernKey(Map<String, String> param);
+	
 }

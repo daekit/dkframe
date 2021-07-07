@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<style>
+		.grid-cell-blue {
+			background: #dcf0f8;
+		}
+		
+		.add_btn_small {
+			display: inline-block;
+			float: right;
+			padding: 0px;
+		}
+		
+		.add_btn_small a {
+			display: inline-block;
+			width: 33px;
+			height: 20px;
+			line-height: 20px;
+			text-align: center;
+			bShip: 1px solid #dbdbdb;
+			color: #444;
+			background: #ffffff;
+			box-shadow: 1px 1px rgba(0, 0, 0, 0.15);
+		}
+	</style>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css">
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css">
+	<link rel="stylesheet" href="/static/css/gnb.css">
+	<link rel="stylesheet" href="/static/css/main.css">
+	<link rel="stylesheet" href="/static/css/sub.css">
+	<link rel="stylesheet" href="/static/css/common.css">
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();"><button class="bg_gray">초기화</button></a> 
+					<a onclick="gridView.setData(0);"><button class="bg_gray">검 색</button></a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="contents search">
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type03">
+					<tr>
+						<th class="hit">회사</th>
+						<td>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value);" required msg="회사">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th class="hit">등록기간</th>
+						<td>
+							<div class="date_input">
+								<input type="text" class="input_calendar" id="strtDt_S" data-search="strtDt" autocomplete="off" msg="조회시작일자" onchange="dateValidation();" required>
+								<span>~</span>
+								<input type="text" class="input_calendar" id="endDt_S" data-search="endDt" autocomplete="off" msg="조회종료일자" onchange="dateValidation();" required>							</div>
+						</td>
+						<th>거래처</th>
+						<td>
+							<input type="hidden" id="clntCd_S" data-search="clntCd">
+							<div class="search_form">
+								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="openClntSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>창고</th>
+						<td>
+		                 	<select id="whCd_S" data-kind="WH" data-search="whCd" onchange="gridView.setData(0);">
+		                 		<option value="">전체</option>
+		                 	</select>
+		                </td>
+						<th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>현장명</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="siteCd_S" data-search="siteCd">
+								<input type="text" id="siteNm_S" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="openSiteSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>영업담당자</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="salesMng_S" data-search="salesMng">
+								<input type="text" id="salesMngNm_S" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+								<a onclick="openUserSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+						<!-- <th class>수주유형</th>
+						<td><select id="ordTyp_S" data-kind="ORDTYP" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+						</select></td> -->
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+					<!-- <a onclick="setReportMain();"
+						style="height: 30px; line-height: 28px; width: 80px;"
+						title="수주내역서를 출력합니다."><i class="fas fa-print"></i>출력</a> <a
+						onclick="insertProjectModal('C');"
+						style="height: 30px; line-height: 28px;" authchk>+</a> <a
+						onclick="deleteProject();"
+						style="height: 30px; line-height: 28px;" authchk>-</a>  -->
+					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;">
+						<i class="fas fa-file-excel"></i> 엑셀다운로드
+					</a>
+				</div>
+				<select id="recordCnt" class="prae_select" data-search="recordCnt" 
+					onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999">전체</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="contents">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}"
+				style="height: 680px; width: 100%"></div>
+			<div data-ax5grid="excel-grid" data-ax5grid-config="{}"
+				style="display: none;"></div>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null; 
+	
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: true,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center", 
+		        	selector: true
+		        },
+		        body: {
+		        	 onClick: function () {
+		                this.self.select(this.dindex);
+		            },
+		            onDBLClick: function () {}, 
+	            mergeCells : ["mngNm", "prjctNm"],
+		        },
+		        grouping: {
+	            	by: ["mngNm"],
+	            	columns: [
+	            		{label: "소계", colspan:4, align:"center"},
+	                    {key: "totWt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "totCell", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totRem", collector: "sum", formatter:"money", align: "right"}
+	                ]
+	            },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+ 		        footSum: [
+			    	[
+			    		{label: "총계", colspan:7, align:"center"},
+			    		{key:"totWt", collector: "sum", formatter:"money", align: "right"},
+			    		{key: "sumNu", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totRem", collector: "sum", formatter:"money", align: "right"}
+	                ]
+			    ],
+		        columns: [
+		            {key: "coNm",     	label: "회사",        	align: "center", width: 100},
+		            {key: "mngNm",   	label: "담당자",       	align: "center",  width: 90},
+		            {key: "clntNm",   	label: "거래처",       	align: "left",    width: 160},
+		            {key: "prjctNm", 	label: "프로젝트명",    	align: "left",    width: 240},
+		            {key: "siteNm",   	label: "현장",       	align: "left",  width: 150},
+		            {key: "pchsClntNm",label: "매입처",   		align: "left",   width: 100},
+		            {key: "whNm",   	label: "창고",      	align: "left",  width: 100},
+		            {key: "totWt",     	label: "총중량",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+		             {key: "sumNu",	    label: "현재누계", 			align: "right", width: 80},
+		            {key: "totRem",   	label: "잔량",   			align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+		             {key: "rkrhdtnfid",	label: "가공수량", 			align: "right", width: 80},
+		             {key: "prcsnUpr",	label: "매출가공단가", 			align: "right", width: 80},
+		             {key: "prcsnPrc",	label: "가공공급가", 			align: "right", width: 80},
+		             {key: "totCell",  	label: "출하량",   		align: "right",   width: 100, formatter: "money"},
+		            /* {key: "strtDt",	    label: "시작일", 			align: "center", width: 80},
+		            {key: "endDt",    	label: "종료일", 			align: "center", width: 80},
+		            {key: "makrNm",    	label: "제조사",       	align: "center",  width: 80},
+		            {key: "tnkeyYn",    label: "제강턴키",     	align: "center",  width: 80,styleClass: function () {
+	                     return (this.item.tnkeyYn == "Y") ? "grid-font-red":"";}},
+                    {key: "tnkeyCfYn",  label: "턴키확정",     	align: "center",  width: 80,styleClass: function () {
+		                 return (this.item.tnkeyCfYn == "Y") ? "grid-font-red":"";}},
+		            {key: "dcDivNm",   	label: "철근할인구분명",    align: "center",  width: 80},
+		            {key: "prdtUpr",   	label: "철근할인단가",      	align: "cente r",  width: 80},
+		            {key: "shopClntNm", label: "샵업체명",        	align: "center",  width: 80},
+		            {key: "shopUpr",   	label: "샵단가",      	align: "center",  width: 80},
+		            {key: "ctrtRmk",    label: "계약비고",       	align: "center",  width: 80},
+		            {key: "cplrYn",   	label: "커플러유무",      	align: "center",  width: 80,styleClass: function () {
+	                     return (this.item.cplrYn == "Y") ? "grid-font-red":"";}},	        
+	                     {key: "tnkeyCfYn",  label: "턴키확정",     	align: "center",  width: 80,styleClass: function () {
+		                 return (this.item.tnkeyCfYn == "Y") ? "grid-font-red":"";}},           
+		            {key: "creatDttm",  label: "등록일",      	align: "center",  width: 80} */
+		        ]
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			firstGrid = this.target;
+			var paramObj = {"pageNo": _pageNo + 1};
+			if(inputValidation($('input[required]'))){
+				$.each($('#main_area [data-search]'), function(idx, elem){
+					var searchValue = elem.value;
+					if($(elem).is('[date]')){
+						searchValue = deleteHyphenStr(searchValue);
+					}
+					paramObj[$(elem).data('search')] = searchValue;
+				});
+				postAjax("/user/ar/ar13/selectPrjtMngTernKey", paramObj, null, function(data){
+					var list = data.resultList;
+					firstGrid.setData({
+						list : list,
+						page : {
+							currentPage   : _pageNo,
+							pageSize      : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages    : data.paginationInfo.totalPageCount
+						}
+					});
+				});
+			}
+		}
+	}
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        footSum: [
+				    	[
+				    		{label: "총계", colspan:7, align:"center"},
+				    		{key:"totWt", collector: "sum", formatter:"money", align: "right"},
+				    		{key: "sumNu", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "totRem", collector: "sum", formatter:"money", align: "right"}
+		                ]
+				    ],
+			        columns: [
+			            {key: "coNm",     	label: "회사",        	align: "center", width: 100},
+			            {key: "mngNm",   	label: "담당자",       	align: "center",  width: 90},
+			            {key: "clntNm",   	label: "거래처",       	align: "left",    width: 160},
+			            {key: "prjctNm", 	label: "프로젝트명",    	align: "left",    width: 240},
+			            {key: "siteNm",   	label: "현장",       	align: "left",  width: 150},
+			            {key: "pchsClntNm",label: "매입처",   		align: "left",   width: 100},
+			            {key: "whNm",   	label: "가공공장",      	align: "left",  width: 100},
+			            {key: "totWt",     	label: "총중량",   	align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+			             {key: "sumNu",	    label: "현재누계", 			align: "right", width: 80},
+			            {key: "totRem",   	label: "잔량",   			align: "right",   width: 100, styleClass:"grid-cell-blue", formatter: "money"},
+			             {key: "rkrhdtnfid",	label: "가공수량", 			align: "right", width: 80},
+			             {key: "prcsnUpr",	label: "매출가공단가", 			align: "right", width: 80},
+			             {key: "prcsnPrc",	label: "가공공급가", 			align: "right", width: 80},
+			             {key: "totCell",  	label: "출하량",   		align: "right",   width: 100, formatter: "money"},
+			            /* {key: "strtDt",	    label: "시작일", 			align: "center", width: 80},
+			            {key: "endDt",    	label: "종료일", 			align: "center", width: 80},
+			            {key: "makrNm",    	label: "제조사",       	align: "center",  width: 80},
+			            {key: "tnkeyYn",    label: "제강턴키",     	align: "center",  width: 80,styleClass: function () {
+		                     return (this.item.tnkeyYn == "Y") ? "grid-font-red":"";}},
+	                    {key: "tnkeyCfYn",  label: "턴키확정",     	align: "center",  width: 80,styleClass: function () {
+			                 return (this.item.tnkeyCfYn == "Y") ? "grid-font-red":"";}},
+			            {key: "dcDivNm",   	label: "철근할인구분명",    align: "center",  width: 80},
+			            {key: "prdtUpr",   	label: "철근할인단가",      	align: "cente r",  width: 80},
+			            {key: "shopClntNm", label: "샵업체명",        	align: "center",  width: 80},
+			            {key: "shopUpr",   	label: "샵단가",      	align: "center",  width: 80},
+			            {key: "ctrtRmk",    label: "계약비고",       	align: "center",  width: 80},
+			            {key: "cplrYn",   	label: "커플러유무",      	align: "center",  width: 80,styleClass: function () {
+		                     return (this.item.cplrYn == "Y") ? "grid-font-red":"";}},	        
+		                     {key: "tnkeyCfYn",  label: "턴키확정",     	align: "center",  width: 80,styleClass: function () {
+			                 return (this.item.tnkeyCfYn == "Y") ? "grid-font-red":"";}},           
+			            {key: "creatDttm",  label: "등록일",      	align: "center",  width: 80} */
+			        ]
+			    });
+				return this;
+			}
+		}		
+	$(document).ready(function() {
+		mainDefaultLoad("매출관리", "가공턴키 실적 관리");
+		setCommonSelect($("#main_area select[data-kind]"));
+		$("#coCd_S").val(jwt.coCd);
+		setByCoCd($("#coCd_S").val());
+		
+		//$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
+		//$('#endDt_S').datepicker("setDate", new Date());
+		$("#strtDt_S").val(before30day());
+		$("#endDt_S").val(after30day());
+		
+		// 종료일
+		$('#strtDt_S, #endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+		});
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+		gridView.initView().setData(0);
+		excelView.initView();
+		//권한관리
+		authChk('AR1301M01');
+	})
+	
+	
+	/*수정 or 등록 버튼 클릭시*/
+	function insertProjectModal(type) {
+		actionType = type;
+		
+		if ( actionType == 'U' && selectGridValidation(firstGrid))
+			return;
+		openModal("/static/html/user/sd/sd05/SD0502P01.html", 1300, 850, "");
+	}
+	
+	/* function updateProjectModal(type) {
+		if (selectGridValidation(firstGrid)) return;
+		actionType = type;
+		openModal("/static/html/user/sd/sd05/SD0501P2.html", 1000, 700, "프로젝트 수정");
+	} */ 
+	
+	/*삭제 버튼 클릭시*/
+	function deleteProject() {
+		var row = gridView.target.getList("selected")[0];
+		var formData = {
+			"prjctCd" : row.prjctCd,
+			"coCd" : row.coCd,
+			"userId" : jwt.userId,
+			"pgmId" : "SD0501M01"
+		}
+		postAjax("/user/sd/sd05/selectConfirmCount", formData, null, function(data){
+			if(data.result == 0) {
+				if(confirm("삭제하시겠습니까?")){
+					putAjax("/user/sd/sd05/deleteProject", formData, null, function(data){
+						if(data.resultCode == 200){
+							alert(data.resultMessage);
+							gridView.setData(0);
+						}
+					});
+				}
+			} else {
+				alert("삭제할 수 없는 데이터 입니다.");	
+			}
+		});
+	}
+	
+	function openDaumPostcode() {
+		new daum.Postcode({
+			oncomplete:function(data){
+				$('#prjctAddrZip').val(data.zonecode);
+				$('#prjctAddr').val((data.roadAddress || data.address) + ' ' + data.buildingName);
+			}
+		}).open();
+	}
+	
+	function initSearch() {
+		$(".contents.search input[type='text']").val("");
+		$("#searchType option").eq(0).prop("selected", true);
+		$("#strtDt_S").val(lastWeek());
+		$("#endDt_S").val(dateToStr(new Date()));
+		$("#coCd_S").val(jwt.coCd);
+		gridView.initView().setData(0);
+	}
+
+	// 현장 검색
+	function openSiteSearch() {
+		var paramObj = {
+			"coCd": $('#coCd_S').val(),
+			"insertYn": "N"
+		};
+		
+		openModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
+			var row = grid.target.getList("selected")[0];
+			$("#siteCd_S").val(row.siteCd);
+			$("#siteNm_S").val(row.siteNm);
+		});
+	}
+	
+	function excelDown() {
+		var paramObj = {"pageNo": 1};
+		$.each($('#main_area [data-search]'), function(idx, elem){
+			var searchValue = elem.value;
+			if($(elem).is('[date]')){
+				searchValue = deleteHyphenStr(searchValue);
+			}
+			paramObj[$(elem).data('search')] = searchValue;
+		});
+		postAjax("/user/ar/ar13/selectPrjtMngTernKey", paramObj, null, function(data){
+			var list = data.resultList;
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("가공턴키 실적 관리"+todayDate+".xls");
+		});
+	/* 	var formData = {
+				"coCd"        : $("#coCd_S").val(),
+				"strtDt"      : $("#strtDt_S").val().replace(/\-/g,''),
+				"endDt"       : $("#endDt_S").val().replace(/\-/g,''),
+				"searchType"  : $("#searchType").val(),
+				"searchValue" : $("#searchValue").val(),
+				"pageNo"      : 1,
+				"recordCnt"   : 9999999
+			}
+			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
+				var list = data.sd0501m01;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("프로젝트목록"+todayDate+".xls");
+			});	 */
+	}	
+
+	function setReportMain() {
+		var row = gridView.target.getList("selected")[0];
+		if ( row == ""){
+			return;
+		}
+		var fileName = "SD0501R01.jrf";
+		var arg = "coCd#"			+ row.coCd
+		         + "#prjctCd#"		+ row.prjctCd
+		         + "#";
+		callReport(fileName, arg, "1050", "700");
+	}
+
+	// 영업담당자 검색
+	function openUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM", // $('#coCd_S').val(),
+			"userId": $('#salesMng_S').val(),
+			"useYn": "Y"
+		};
+
+		openModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng_S').val(checkedNode.id);
+			$('#salesMngNm_S').val(checkedNode.text);
+		});
+	}
+
+	// 창고, 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #whCd_S').data("desc", value);
+		$('#main_area #whCd_S option:not([value=""])').remove()
+		setCommonSelect($('#main_area #whCd_S'));
+		// 창고와 판매법인은 같이 바귐.		
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
+	
+	// 거래처 검색
+	function openClntSearch() {
+		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm_S').val(row.clntNm);	
+		});
+	}
+</script>

@@ -211,6 +211,11 @@ public class OD01SvcImpl implements OD01Svc {
 	}
 	
 	@Override
+	public void updateOrdrgRmk(Map<String, String> paramMap) {
+		od01Mapper.updateOrdrgRmk(paramMap);
+	}
+	
+	@Override
 	public int deleteOrdrg(Map<String, String> paramMap) {
 		int result = od01Mapper.deleteOrdrg(paramMap);
 		result += od01Mapper.deleteOrdrgDetail(paramMap);
@@ -294,8 +299,7 @@ public class OD01SvcImpl implements OD01Svc {
         		for(Map<String, Object> loanMap : loanList) {
         			long diffLoan = ar02Svc.checkLoan(loanMap);
         			if(diffLoan < 0) {
-        				String prdtGrpNm = bm01Mapper.selectProductGroupNm(loanMap.get("prdtGrp").toString());
-        	        	thrower.throwCreditLoanException(prdtGrpNm, diffLoan);
+        	        	thrower.throwCreditLoanException(loanMap.get("prdtGrp").toString(), diffLoan);
         	        }
         		}
         		/* 여신 체크 end */
@@ -497,8 +501,7 @@ public class OD01SvcImpl implements OD01Svc {
 	    		for(Map<String, Object> loanMap : loanList) {
 	    			long diffLoan = ar02Svc.checkLoan(loanMap);
 	    			if(diffLoan < 0) {
-	    				String prdtGrpNm = bm01Mapper.selectProductGroupNm(loanMap.get("prdtGrp").toString());
-	    	        	thrower.throwCreditLoanException(prdtGrpNm, diffLoan);
+	    	        	thrower.throwCreditLoanException(loanMap.get("prdtGrp").toString(), diffLoan);
 	    	        }else {
 	    	        	// 여신 차감후 음수 return시 롤백 
 	    	        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);

@@ -338,8 +338,9 @@
 			<button id="reportBtn" onclick="setReportPopup();" title="제품만 출력합니다.">
 				<i class="fas fa-print"></i>납품서
 			</button>
-			<button id="recptYnBtn" onclick="updateRecptYnPopup();" authchk>접수</button>
 			<button id="actionBtn" onclick="updateShipModal();" authchk>수정</button>
+			<button id="rmkUpdateBtn" onclick="updateShipRmk();" style="background-color: green;" authchk>비고수정</button>
+			<button id="recptYnBtn" onclick="updateRecptYnPopup();" authchk>접수</button>
 			<button id="shipYnBtn" onclick="updateConfirm();" authchk>출하처리</button>
 			<button id="cancelBtn" onclick="updateCancel();" style="background-color: red;" authchk>출하취소</button>
 			<button class="close_btn" onclick="modalStack.close();">닫기</button>
@@ -387,6 +388,7 @@
 	$(document).ready(function() {
 		selectShipInfo();
 		authChk("AR0101M01");
+		$('#shipView #rmkUpdateBtn').hide();
 	});
 	
 	function selectShipInfo() {
@@ -463,6 +465,11 @@
 		// 확정된 상세가 없을경우 취소버튼 hide
 		if(shipInfo.confirmCnt == 0){
 			$("#shipView #cancelBtn").hide();
+			
+			// 비고를 수정 가능하도록 처리
+			$('#shipView #dlvrRmk').prop("readonly", false);
+			$('#shipView #shipRmk').prop("readonly", false);
+			$('#shipView #rmkUpdateBtn').show();
 		}
 	}
 	
@@ -538,6 +545,21 @@
 			paramObj.actionType = "U";
 			openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 780, "", paramObj);
 		}, 500);
+	}
+	
+	function updateShipRmk(){
+		var paramObj = {
+			"shipSeq": $('#shipView #shipSeq').val(),
+			"dlvrRmk": $('#shipView #dlvrRmk').val(),
+			"shipRmk": $('#shipView #shipRmk').val()
+		}
+		
+		putAjax("/user/ar/ar01/updateShipRmk", paramObj, null, function(data){
+			alert(data.resultMessage);           
+			if(data.resultCode == 200){
+				shipGridView.setData(shipGridView.target.page.currentPage);
+			}
+		});
 	}
 	
 	function updateRecptYnPopup() {

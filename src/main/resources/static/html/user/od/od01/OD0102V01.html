@@ -12,10 +12,6 @@
 			<input type="hidden" id="whClntCd"    name="whClntCd">
 			<input type="hidden" id="whType"      name="whType">
 			<input type="hidden" id="odrCreatDiv" name="odrCreatDiv">
-			
-			<!--재고주체가 자사인경우 거래처 창고의 거래처-->
-<!-- 			<input type="hidden" id="trspTypCd"   name="trspTypCd" value="TRSPTYP1"> -->
-			<!--정상거래로 인식-->
 			<input type="hidden" id="prjctCd"     name="prjctCd"> 
 			<input type="hidden" id="prjctNm"     name="prjctNm">
 			<table>
@@ -354,6 +350,7 @@
 			<i class="fas fa-print"></i>납품서
 		</button>
 		<button id="actionBtn" onclick="updateOrderModal();" authchk>수정</button>
+		<button id="rmkUpdateBtn" onclick="updateOrdrgRmk();" style="background-color: green;" authchk>비고수정</button>
 		<button id="ordrgYnBtnP" onclick="updateConfirm('P');" authchk>매입확정</button>
 		<button id="ordrgYnBtnS" onclick="updateConfirm('S');" authchk>매출확정</button>
 		<button id="ordrgYnBtnA" onclick="updateConfirm('A');" authchk>일괄확정</button>
@@ -404,6 +401,7 @@
 	$(document).ready(function() {
 		selectOrdrgInfo();
 		authChk("OD0101M01");
+		$('#ordrgView #rmkUpdateBtn').hide();
 	});
 	
 	function selectOrdrgInfo() {
@@ -462,10 +460,10 @@
 		// 첨부파일 그리드 set
 		ordrgFileGridView.initView().setData();
 		
-// 		// 매입확정된 상세가 없을경우 취소버튼 hide
-// 		if(orderInfo.confirmCntP == 0){
-// 			$("#cancelBtnP").hide();
-// 		}
+		// 매입확정된 상세가 없을경우 취소버튼 hide
+		if(orderInfo.confirmCntP == 0){
+			$("#cancelBtnP").hide();
+		}
 
 		// 직송이 아니거나 매출 확정된 상세가 없을경우 취소버튼 hide
 		if(orderInfo.confirmCntS == 0 || $("#ordrgView #dirtrsYn").val() == 'N'){
@@ -489,9 +487,13 @@
 		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
 		if(orderInfo.ordrgYn == "Y"  && (orderInfo.shipYn  == "Y" || $("#ordrgView #dirtrsYn").val() == 'N')) {
 			$("#ordrgView #ordrgYnBtnA").hide();
-			$("#ordrgView #actionBtn").hide();   // 수정버턴
+			$("#ordrgView #actionBtn").hide();
+			
+			// 비고를 수정 가능하도록 처리
+			$('#ordrgView ordrgRmk').prop("readonly", false);
+			$('#ordrgView #dlvrRmk').prop("readonly", false);
+			$('#ordrgView #rmkUpdateBtn').show();
 		}
-		
 	}
 	
 	function addDetailRow() {
@@ -570,6 +572,21 @@
 			paramObj.actionType = "U";
 			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, "", paramObj);			
 		}, 500);
+	}
+	
+	function updateOrdrgRmk(){
+		var paramObj = {
+			"ordrgSeq": $('#ordrgView #ordrgSeq').val(),
+			"ordrgRmk": $('#ordrgView #ordrgRmk').val(),
+			"dlvrRmk": $('#ordrgView #dlvrRmk').val()
+		}
+		
+		putAjax("/user/od/od01/updateOrdrgRmk", paramObj, null, function(data){
+			alert(data.resultMessage);           
+			if(data.resultCode == 200){
+				ordrgGridView.setData(ordrgGridView.target.page.currentPage);
+			}
+		});
 	}
 
 	function updateConfirm(type) {
@@ -723,8 +740,10 @@
 		var paramObj = modalStack.last().paramObj;
 		var detailListLen = $('#ordrgView #detailTable tr[name="detailRow"]').length;
 		var fileName = "AR0101R02.jrf";
-		var arg = "coCd#"		+ paramObj.coCd_R
-	         + "#clntCd#"		+  paramObj.clntCd_R
+		var coCd = $('#coCd').val();
+		var clntCd = $('#clntCd').val(); 
+		var arg = "coCd#"		+ coCd
+	         + "#clntCd#"		+  clntCd
 	         + "#ordrgSeq#"		+  paramObj.ordrgSeq
 	         + "#";
 		
