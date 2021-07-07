@@ -388,216 +388,76 @@
 	<select id="selectSellCount" parameterType="Map" resultType="int">
 	 	SELECT 
 			COUNT(*)
-	   FROM (
-			SELECT
-				A.*,
-				ROWNUM AS RNUM
-			FROM
-			(
-			 	SELECT 
-					T.CO_CD,
-				    T.TRST_CERTI_NO,
-				    T.SELPCH_CD,
-				    FN_CM05M01_CD_TO_NM(T.SELPCH_CD) AS SELPCH_NM,
-				    T.TAXIVC_COPRT,
-				    FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-				    TO_CHAR(TO_DATE(T.TRST_DT), 'YYYY-MM-DD') AS TRST_DT,
-				    BM02M01.SELL_VAT_CD,
-				    NVL((SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = BM02M01.SELL_VAT_CD), 10) AS SELL_VAT, 
-				    NVL(SD05M01.CLMN_DIV_CD, BM02M01.SELL_CLMN_DIV_CD) AS PCHS_CLMN_DIV_CD,
-		   			CASE WHEN SD05M01.CLMN_DIV_CD IS NULL THEN FN_CM05M01_CD_TO_NM(BM02M01.SELL_CLMN_DIV_CD) || ' ' || 
-                                           NVL2(BM02M01.SELL_CLMN_DAY,FN_CM05M01_CD_TO_NM(BM02M01.SELL_CLMN_DAY)||'일','')  || 
-                                           FN_CM05M01_CD_TO_NM(BM02M01.SELL_PMNT_MTD_CD)
-					     ELSE FN_CM05M01_CD_TO_NM(SD05M01.CLMN_DIV_CD)
-					     END AS PCHS_CLMN_DIV_NM ,
-		   			CASE
-				    	WHEN CM05M01.CODE_RPRC = 'MON' THEN TO_CHAR(LAST_DAY(ADD_MONTHS(TRUNC(TO_DATE(T.TRST_DT),'MM'), CM05M01.CODE_ETC) -1), 'YYYY-MM-DD')
-				    	WHEN CM05M01.CODE_RPRC = 'DAY' THEN TO_CHAR(TO_DATE(T.TRST_DT) -1 + CM05M01.CODE_ETC, 'YYYY-MM-DD')
-				    END AS PCHS_CLMN_DAY,
-				 	T.TRST_CLNT_CD,
-				    T.TRST_CLNT_CD AS CLNT_CD,
-				    T.TRST_PRDT_CD,
-				    T.TRST_PRDT_CD AS PRDT_CD,
-				    BM01M01.PRDT_NM,
-				    BM01M01.PRDT_GRP,
-				    FN_CM05M01_CD_TO_NM(BM01M01.PRDT_GRP) PRDT_GRP_NM,
-				    T.OWNER_CD,
-				    FN_CM05M01_CD_TO_NM(T.OWNER_CD) AS OWNER_NM,
-				    T.IMP_YN,
-				    T.TYP_CD,
-				    FN_CM05M01_CD_TO_NM(T.TYP_CD) AS TYP_NM,
-				    T.TRSP_TYP_CD,
-				    FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM,
-				    T.TRST_RPRC_SEQ,
-				    T.TRST_DTL_SEQ,
-				    T.PRDT_LEN,
-				    T.ODR_NO,
-				    T.SALES_MNG,
-				    CM06M01.NAME AS SALES_MNG_NM,
-				    CM06M01.DEPT_ID AS DEPT_ID,
-				    (SELECT DEPT_NM FROM TB_CM04M01 WHERE DEPT_ID = CM06M01.DEPT_ID) AS DEPT_NM,
-				    T.PRJCT_CD,
-				    SD05M01.PRJCT_NM,
-				    T.MAKR_CD,
-				    FN_CM05M01_CD_TO_NM(T.MAKR_CD) AS MAKR_NM,
-				    T.WH_CD,
-				    FN_CM05M01_CD_TO_NM(T.WH_CD) AS WH_NM,
-				    T.MNG_TEL,
-				    TO_CHAR(T.DLVR_DTTM, 'YYYY-MM-DD') AS DLVR_DTTM,
-				    T.DIRTRS_YN,
-				    T.PRDT_DIV,
-				    T.PRDT_STKN,
-				    FN_CM05M01_CD_TO_NM(T.PRDT_STKN) AS PRDT_STKN_NM,
-				    T.PRDT_SIZE,
-				    NVL(FN_CM05M01_CD_TO_NM(T.PRDT_SIZE), T.PRDT_SIZE) AS PRDT_SIZE_NM,
-				    T.PRDT_UNIT,
-				    T.PRDT_UPR,
-				    T.STOCK_UPR,
-				    T.PCHS_UPR,
-				    T.SELL_UPR,
-				    T.TRST_QTY,
-				    T.TRST_WT,
-				    T.TRST_UPR,
-				    T.TRST_AMT,
-				    T.REAL_TRST_QTY,
-				    T.REAL_TRST_WT,
-				    T.REAL_TRST_UPR,
-				    T.REAL_TRST_AMT,
-				    T.BILG_QTY,
-				    T.BILG_WT,
-				    T.BILG_UPR,
-				    T.BILG_AMT,
-				    NVL(T.TRST_DC_AMT, '0') AS TRST_DC_AMT,
-				    NVL(T.ETC_AMT, '0') AS ETC_AMT,
-				    T.TRSP_RMK,
-				    NVL(T.TRANS_AMT, '0') AS TRANS_AMT,
-				    T.SHIP_VEH_NO,
-				    T.CLNT_NM,
-				    T.BILG_CERT_NO,
-				    CASE WHEN T.BILG_CERT_NO IS NOT NULL THEN 'Y' ELSE 'N' END BILG_YN,
-				    <![CDATA[ CASE WHEN T.BILG_AMT < 0 THEN 'Y' ELSE 'N' END RETURN_YN,]]>
-				    NVL(T.LOSS_RATE, '0') AS LOSS_RATE,
-				    T.ODR_CREAT_DIV,
-				    T.ETC_FIELD1,
-				    T.ETC_FIELD2,
-				    T.ETC_FIELD3,
-				    T.CREAT_ID,
-				    T.CREAT_PGM,
-				    TO_CHAR(T.CREAT_DTTM, 'yyyy-MM-dd') AS CREAT_DTTM,
-				    T.UDT_ID,
-				    T.UDT_PGM,
-				    TO_CHAR(T.UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
-				    T.SALES_AREA_CD,
-				    T.SITE_CD,
-				    SD09M01.SITE_NM,
-				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
-				    	OD01M01.CLNT_CD AS PCHS_CLNT_CD,
-					    (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = OD01M01.CLNT_CD) AS PCHS_CLNT_NM, 
-				    </if>
-				    <if test="selpchCd != 'SELPCH2' and selpchCd != 'SELPCH4'">
-				    	'' AS PCHS_CLNT_CD,
-					    '' AS PCHS_CLNT_NM, 
-				    </if>
-				    T.BILG_VAT_AMT,
-				    T.BILG_VAT_AMT + T.BILG_AMT AS TOT_AMT, 
-				    T.PRDT_SPEC,
-				    T.RFF_AEA,
-				    T.ORGN_TAX_BILG_NO,
-				    T.RFF_APG,
-				    T.SHIP_CNT
-				    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
-						, OD01M01.SELL_CLNT_CD AS SELL_CLNT_CD
-						, (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE OD01M01.SELL_CLNT_CD = BM02.CLNT_CD) AS SELL_CLNT_NM
-					</if>
-				FROM 
-					TB_AR02M01 T
-					LEFT JOIN TB_BM01M01 BM01M01 ON T.TRST_PRDT_CD = BM01M01.PRDT_CD
-					LEFT JOIN TB_BM02M01 BM02M01 ON T.TRST_CLNT_CD = BM02M01.CLNT_CD
-					LEFT JOIN TB_SD05M01 SD05M01 ON T.PRJCT_CD = SD05M01.PRJCT_CD
-					LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
-					LEFT JOIN TB_CM05M01 CM05M01 ON NVL(SD05M01.CLMN_DIV_CD, BM02M01.SELL_CLMN_DIV_CD) = CM05M01.CODE_ID
-					LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
-					LEFT JOIN TB_OD01M01 OD01M01 ON T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ 	
-			 	WHERE 
-			 		SELPCH_CD = #{selpchCd}
-				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
-				    	AND T.CREAT_PGM LIKE 'OD'||'%' 
-				    </if>
-					<if test="coCd != null and !coCd.equals('')">
-						AND T.CO_CD = #{coCd}				
-					</if>
-					<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-						AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
-					</if>
-					<if test="clntCd != null and !clntCd.equals('')">
-						AND T.TRST_CLNT_CD = #{clntCd}
-					</if>
-					<if test="clntNm != null and !clntNm.equals('')">
-						AND T.CLNT_NM LIKE '%${clntNm}%'
-					</if>
-					<if test="prdtDiv != null and !prdtDiv.equals('')">
-						AND T.PRDT_DIV = #{prdtDiv}				
-					</if>
-					<if test="prdtSpec != null and !prdtSpec.equals('')">
-						AND T.PRDT_SPEC LIKE '%${prdtSpec}%'
-					</if>
-					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-						AND T.TAXIVC_COPRT = #{taxivcCoprt}				
-					</if>
-					<if test="dirtrsYn != null and !dirtrsYn.equals('')">
-						AND T.DIRTRS_YN = #{dirtrsYn}				
-					</if>
-					<if test="typCd != null and !typCd.equals('')">
-						AND T.TYP_CD = #{typCd}				
-					</if>
-					<if test="prjctCd != null and !prjctCd.equals('')">
-						AND T.PRJCT_CD = #{prjctCd}				
-					</if>
-					<if test="siteCd != null and !siteCd.equals('')">
-						AND T.SITE_CD = #{siteCd}				
-					</if>
-					<if test="siteNm != null and !siteNm.equals('')">
-						AND SD09M01.SITE_NM LIKE '%'|| #{siteNm} || '%'				
-					</if>
-					<if test="pdsk != null and !pdsk.equals('')">
-						AND T.PRDT_STKN = #{pdsk}				
-					</if>
-					<if test="bilgYn != null and !bilgYn.equals('')">
-						<choose>
-							<when test='bilgYn == "Y"'>
-								AND T.BILG_CERT_NO IS NOT NULL 		
-							</when>
-							<otherwise>
-								AND T.BILG_CERT_NO IS NULL 
-							</otherwise>
-						</choose>
-					</if>
-					<if test="salesMng != null and !salesMng.equals('')">
-						AND T.SALES_MNG = #{salesMng}				
-					</if>
-					<if test="salesMngNm != null and !salesMngNm.equals('')">
-						AND CM06M01.NAME LIKE '%'|| #{salesMngNm} || '%'				
-					</if>
-					<if test="whCd != null and !whCd.equals('')">
-						AND T.WH_CD = #{whCd}
-					</if>
-					<if test="trspRmk != null and !trspRmk.equals('')">
-						AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
-					</if>
-					<if test="prdtGrp != null and !prdtGrp.equals('')">
-						AND BM01M01.PRDT_GRP = #{prdtGrp}
-					</if>
-					<if test="trspTypCd != null and !trspTypCd.equals('')">
-						AND T.TRSP_TYP_CD = #{trspTypCd}
-					</if>
-					<if test="pchsClntCd != null and !pchsClntCd.equals('')">
-						AND OD01M01.PCHS_CLNT_CD = #{pchsClntCd}
-					</if>
-			) A
-		)
-		WHERE 1=1
-			<if test="pchsClntNm != null and !pchsClntNm.equals('')">
-				AND PCHS_CLNT_NM LIKE '%'|| #{pchsClntNm} || '%'
+		FROM 
+			TB_AR02M01 T
+			LEFT JOIN TB_BM01M01 BM01M01 ON T.TRST_PRDT_CD = BM01M01.PRDT_CD
+			LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
+			LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
+	 	WHERE 
+	 		SELPCH_CD = #{selpchCd}
+			<if test="coCd != null and !coCd.equals('')">
+				AND T.CO_CD = #{coCd}				
+			</if>
+			<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+				AND T.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND T.TRST_CLNT_CD = #{clntCd}
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND T.CLNT_NM LIKE '%${clntNm}%'
+			</if>
+			<if test="prdtDiv != null and !prdtDiv.equals('')">
+				AND T.PRDT_DIV = #{prdtDiv}				
+			</if>
+			<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				AND T.TAXIVC_COPRT = #{taxivcCoprt}				
+			</if>
+			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+				AND T.DIRTRS_YN = #{dirtrsYn}				
+			</if>
+			<if test="typCd != null and !typCd.equals('')">
+				AND T.TYP_CD = #{typCd}				
+			</if>
+			<if test="prjctCd != null and !prjctCd.equals('')">
+				AND T.PRJCT_CD = #{prjctCd}				
+			</if>
+			<if test="siteCd != null and !siteCd.equals('')">
+				AND T.SITE_CD = #{siteCd}				
+			</if>
+			<if test="siteNm != null and !siteNm.equals('')">
+				AND SD09M01.SITE_NM LIKE '%'|| #{siteNm} || '%'				
+			</if>
+			<if test="pdsk != null and !pdsk.equals('')">
+				AND T.PRDT_STKN = #{pdsk}				
+			</if>
+			<if test="bilgYn != null and !bilgYn.equals('')">
+				<choose>
+					<when test='bilgYn == "Y"'>
+						AND T.BILG_CERT_NO IS NOT NULL 		
+					</when>
+					<otherwise>
+						AND T.BILG_CERT_NO IS NULL 
+					</otherwise>
+				</choose>
+			</if>
+			<if test="salesMng != null and !salesMng.equals('')">
+				AND T.SALES_MNG = #{salesMng}				
+			</if>
+			<if test="salesMngNm != null and !salesMngNm.equals('')">
+				AND CM06M01.NAME LIKE '%'|| #{salesMngNm} || '%'				
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+				AND T.WH_CD = #{whCd}
+			</if>
+			<if test="trspRmk != null and !trspRmk.equals('')">
+				AND T.TRSP_RMK LIKE '%'|| #{trspRmk} || '%'
+			</if>
+			<if test="prdtGrp != null and !prdtGrp.equals('')">
+				AND BM01M01.PRDT_GRP = #{prdtGrp}
+			</if>
+			<if test="trspTypCd != null and !trspTypCd.equals('')">
+				AND T.TRSP_TYP_CD = #{trspTypCd}
 			</if>
 	</select>
 	
@@ -707,14 +567,6 @@
 				    T.SALES_AREA_CD,
 				    T.SITE_CD,
 				    SD09M01.SITE_NM,
-				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
-				    	OD01M01.CLNT_CD AS PCHS_CLNT_CD,
-					    (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = OD01M01.CLNT_CD) AS PCHS_CLNT_NM, 
-				    </if>
-				    <if test="selpchCd != 'SELPCH2' and selpchCd != 'SELPCH4'">
-				    	'' AS PCHS_CLNT_CD,
-					    '' AS PCHS_CLNT_NM, 
-				    </if>
 				    T.BILG_VAT_AMT,
 				    T.BILG_VAT_AMT + T.BILG_AMT AS TOT_AMT, 
 				    T.PRDT_SPEC,
@@ -734,12 +586,11 @@
 					LEFT JOIN TB_SD09M01 SD09M01 ON T.SITE_CD = SD09M01.SITE_CD
 					LEFT JOIN TB_CM05M01 CM05M01 ON NVL(SD05M01.CLMN_DIV_CD, BM02M01.SELL_CLMN_DIV_CD) = CM05M01.CODE_ID
 					LEFT JOIN TB_CM06M01 CM06M01 ON T.SALES_MNG = CM06M01.ID
-					LEFT JOIN TB_OD01M01 OD01M01 ON T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ 	
+					<if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
+						LEFT JOIN TB_OD01M01 OD01M01 ON T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ	
+					</if>
 			 	WHERE 
 			 		SELPCH_CD = #{selpchCd}
-				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
-				    	AND T.CREAT_PGM LIKE 'OD'||'%' 
-				    </if>
 					<if test="coCd != null and !coCd.equals('')">
 						AND T.CO_CD = #{coCd}				
 					</if>
@@ -807,20 +658,13 @@
 					<if test="trspTypCd != null and !trspTypCd.equals('')">
 						AND T.TRSP_TYP_CD = #{trspTypCd}
 					</if>
-					<if test="pchsClntCd != null and !pchsClntCd.equals('')">
-						AND OD01M01.PCHS_CLNT_CD = #{pchsClntCd}
-					</if>
 					ORDER BY TRST_DT DESC, T.CLNT_NM, T.TYP_CD, TRST_PRDT_CD, T.PRDT_STKN, T.PRDT_SIZE, T.PRDT_LEN
 			) A
 		)
-		WHERE 1=1
-			<if test="pchsClntNm != null and !pchsClntNm.equals('')">
-				AND PCHS_CLNT_NM LIKE '%'|| #{pchsClntNm} || '%'
-			</if>
-			<if test='pageYn != null and pageYn.equals("Y")'>
-				 
-				AND RNUM BETWEEN #{firstIndex} AND #{lastIndex}
-			</if>
+		<if test='pageYn != null and pageYn.equals("Y")'>
+			WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+		</if>
 	</select>
 	
 	<update id="updatePchsSell" parameterType="Map">
