@@ -1060,12 +1060,12 @@
 	
 	<select id="selectBilgInfoUpdate" parameterType="Map" resultType="CamelMap">
 		SELECT 
-			CO_CD,
-	        TAXIVC_COPRT AS TAXIVC_COPRT_CD,
+			T.CO_CD,
+	        T.TAXIVC_COPRT AS TAXIVC_COPRT_CD,
 	        (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = TAXIVC_COPRT) AS TAXIVC_COPRT,
 	        TRST_CLNT_CD AS CLNT_CD,
-	        CLNT_NM,
-	        SELPCH_CD,	        
+	        B.CLNT_NM,
+	        T.SELPCH_CD,	        
 	        SUM(TRST_QTY) AS TRST_QTY,
 	        NVL(SUM(TRST_WT), 0) AS TRST_WT,
 	        SUM(TRST_UPR) AS TRST_UPR,
@@ -1097,9 +1097,9 @@
 	        #{userId} AS TAX_CREAT_ID,
 	        #{userNm} AS TAX_CREAT_NM
 		FROM TB_AR02M01 T LEFT OUTER JOIN TB_BM02M01 B
-		                              ON T.TRST_CLNT_CD = B.CNLT_CD
+		                              ON T.TRST_CLNT_CD = B.CLNT_CD
 		WHERE BILG_CERT_NO = #{bilgCertNo}
-		GROUP BY CO_CD, TAXIVC_COPRT, TRST_CLNT_CD, SELPCH_CD, CLNT_NM
+		GROUP BY T.CO_CD, T.TAXIVC_COPRT, T.TRST_CLNT_CD, T.SELPCH_CD, B.CLNT_NM, B.SELL_PAY_DIV_CD, B.SELL_VAT_CD
 	</select>
 	
 	<update id="updatePchsSellBilg" parameterType="Map">
