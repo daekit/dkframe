@@ -64,6 +64,7 @@
 			#{salesAreaCd},
 			#{mngTel},
 			#{dlvrDttm},
+			#{realDlvrDttm},
 			#{dirtrsYn},
 			#{dlvrRmk},
 			#{addrZip},
@@ -192,7 +193,12 @@
 	 	 	    ON BM02.CLNT_CD = AR01.CLNT_CD
 	 	WHERE 1=1
 	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-			AND AR01.DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+	 		AND 
+			(
+				AR01.DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+				OR
+				AR01.REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+			)
 		</if>
 		<if test="coCd != null and !coCd.equals('')">
 			AND AR01.CO_CD = #{coCd}				
@@ -242,6 +248,7 @@
 		        FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) AS SALES_AREA_NM,
 		        T.MNG_TEL,
 		        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+		        TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS REAL_DLVR_DTTM,
 		        T.DIRTRS_YN,
 		        T.DLVR_RMK,
 		        T.ADDR_ZIP,
@@ -291,7 +298,12 @@
 			 	   ON BM02.CLNT_CD = AR01.CLNT_CD
 			 	WHERE 1=1
 			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-					AND AR01.DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+			 		AND 
+					(
+						AR01.DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+						OR
+						AR01.REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+					)
 				</if>
 				<if test="coCd != null and !coCd.equals('')">
 					AND AR01.CO_CD = #{coCd}		
@@ -323,7 +335,7 @@
 				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 					AND AR01.TAXIVC_COPRT= #{taxivcCoprt}				
 				</if>
-				ORDER BY DLVR_DTTM DESC, SHIP_SEQ DESC
+				ORDER BY DLVR_DTTM DESC, REAL_DLVR_DTTM DESC, SHIP_SEQ DESC
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -354,6 +366,8 @@
 	        FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) AS SALES_AREA_NM,
 	        T.MNG_TEL,
 	        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+	        TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS REAL_DLVR_DTTM,
+	        TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') || ' / ' || TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS CAT_DLVR_DTTM,
 	        T.DIRTRS_YN,
 	        T.DLVR_RMK,
 	        T.ADDR_ZIP,
@@ -564,41 +578,44 @@
 	</select>
 	
 	<update id="updateShip" parameterType="Map">
-		UPDATE TB_AR01M01
+		UPDATE 
+			TB_AR01M01
 		SET
-		    CLNT_CD       = #{clntCd}, 
-			PRJCT_CD      = #{prjctCd}, 
-			WH_CD         = #{whCd}, 
-			TYP_CD        = #{typCd}, 
-			OWNER_CD      = #{ownerCd}, 
-			SALES_AREA_CD = #{salesAreaCd},
-			MNG_TEL       = #{mngTel}, 
-			DIRTRS_YN     = #{dirtrsYn}, 
-			DLVR_DTTM     = #{dlvrDttm}, 
-			DLVR_RMK      = #{dlvrRmk}, 
-			ADDR_ZIP      = #{addrZip}, 
-			ADDR_MAIN     = #{addrMain}, 
-			ADDR_SUB      = #{addrSub}, 
-			SHIP_RMK      = #{shipRmk}, 
-			SHIP_TOT_QTY  = #{shipTotQty},
-			SHIP_TOT_WT   = #{shipTotWt},
-			SHIP_TOT_AMT  = #{shipTotAmt},
-			REAL_TOT_QTY  = #{realTotQty},
-			REAL_TOT_WT   = #{realTotWt},
-			REAL_TOT_AMT  = #{realTotAmt},
-			TRANS_AMT     = #{transAmt}, 
-			TRANS_SEQ     = #{transSeq}, 
-			SALES_MNG     = #{salesMng},
-			SALES_DEPT    = (SELECT DEPT_ID FROM TB_CM06M01 WHERE ID = #{salesMng}),
-			UDT_ID        = #{userId}, 
-			UDT_PGM       = #{pgmId}, 
-			UDT_DTTM      = SYSDATE,
-			ODR_SEQ		  = #{odrSeq},
-			ORDRG_SEQ     = #{ordrgSeq},
-			SITE_CD       = #{siteCd},
-			TAXIVC_COPRT  = #{taxivcCoprt},
-			SHIP_CNT      = #{shipCnt}
-		WHERE SHIP_SEQ = #{shipSeq}
+		    CLNT_CD        = #{clntCd}, 
+			PRJCT_CD       = #{prjctCd}, 
+			WH_CD          = #{whCd}, 
+			TYP_CD         = #{typCd}, 
+			OWNER_CD       = #{ownerCd}, 
+			SALES_AREA_CD  = #{salesAreaCd},
+			MNG_TEL        = #{mngTel}, 
+			DIRTRS_YN      = #{dirtrsYn}, 
+			DLVR_DTTM      = #{dlvrDttm}, 
+			REAL_DLVR_DTTM = #{realDlvrDttm}, 
+			DLVR_RMK       = #{dlvrRmk}, 
+			ADDR_ZIP       = #{addrZip}, 
+			ADDR_MAIN      = #{addrMain}, 
+			ADDR_SUB       = #{addrSub}, 
+			SHIP_RMK       = #{shipRmk}, 
+			SHIP_TOT_QTY   = #{shipTotQty},
+			SHIP_TOT_WT    = #{shipTotWt},
+			SHIP_TOT_AMT   = #{shipTotAmt},
+			REAL_TOT_QTY   = #{realTotQty},
+			REAL_TOT_WT    = #{realTotWt},
+			REAL_TOT_AMT   = #{realTotAmt},
+			TRANS_AMT      = #{transAmt}, 
+			TRANS_SEQ      = #{transSeq}, 
+			SALES_MNG      = #{salesMng},
+			SALES_DEPT     = (SELECT DEPT_ID FROM TB_CM06M01 WHERE ID = #{salesMng}),
+			UDT_ID         = #{userId}, 
+			UDT_PGM        = #{pgmId}, 
+			UDT_DTTM       = SYSDATE,
+			ODR_SEQ		   = #{odrSeq},
+			ORDRG_SEQ      = #{ordrgSeq},
+			SITE_CD        = #{siteCd},
+			TAXIVC_COPRT   = #{taxivcCoprt},
+			SHIP_CNT       = #{shipCnt}
+		WHERE 
+			SHIP_SEQ = #{shipSeq}
 	</update>
 	
 	<update id="updateShipRmk" parameterType="Map">
