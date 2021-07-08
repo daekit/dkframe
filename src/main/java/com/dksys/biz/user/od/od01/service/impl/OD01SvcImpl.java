@@ -11,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper;
@@ -403,7 +402,7 @@ public class OD01SvcImpl implements OD01Svc {
 				
 				od01Mapper.updateConfirmDetail(detailMap);
 				//매입, 매입금액이 없는 경우 매입내역 등록 안함.
-				double bilgAmtPchs     =  Double.parseDouble(detailMap.get("realDlvrAmt"));
+				double bilgAmtPchs =  Double.parseDouble(detailMap.get("realDlvrAmt"));
 				if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
 					paramMap.put("clntCd", clntCd);
 			    	ar02Mapper.insertPchsSell(paramMap);

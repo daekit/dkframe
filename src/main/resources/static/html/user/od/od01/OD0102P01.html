@@ -256,6 +256,7 @@
 						<input type="hidden" name="ordrgDtlSeq">
 						<input type="hidden" name="odrDtlSeq">
 						<input type="hidden" name="ordrgProcId">
+						<input type="hidden" name="ordrgProcNm">
 				        <input type="hidden" name="reqSeq">     <!-- 구매요청 번호 -->
 						<input type="hidden" name="reqDtlSeq">  <!-- 구매요청 상세번호 -->
 						
@@ -267,15 +268,15 @@
 						<input type="hidden" name="prdtErqkYn">
 						<input type="hidden" name="prdtCoilYn">
 						
-						<input type="hidden" name="pchsUpr">
-						<input type="hidden" name="sellUpr">
-						<input type="hidden" name="stockUpr">
-						<input type="hidden" name="prdtUpr">
+						<input type="hidden" name="pchsUpr" value="0">
+						<input type="hidden" name="sellUpr" value="0">
+						<input type="hidden" name="stockUpr" value="0">
+						<input type="hidden" name="prdtUpr" value="0">
 						
-						<input type="hidden" name="realDlvrQty">
-						<input type="hidden" name="realDlvrWt">
-						<input type="hidden" name="realDlvrUpr">
-						<input type="hidden" name="realDlvrAmt">
+						<input type="hidden" name="realDlvrQty" value="0">
+						<input type="hidden" name="realDlvrWt" value="0">
+						<input type="hidden" name="realDlvrUpr" value="0">
+						<input type="hidden" name="realDlvrAmt" value="0">
 						<td>
 							<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
 						</td>
@@ -301,26 +302,26 @@
 							<input type="text" class="tc" name="prdtSpec">
 						</td>
 						<td>
-							<input type="text" class="tr" name="prdtLen">
+							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this);" comma>
 						</td>
 						<td>
 							<input type="hidden" name="prdtUnit">
 							<input type="text" class="tc" name="prdtUnitNm" readonly>
 						</td>
 						<td>
-							<input type="text" class="tr" name="ordrgQty" onkeyup="onlyNumber(this); calOdrWt(this); countAmt(this);" msg="수량" comma required>
+							<input type="text" class="tr" name="ordrgQty" value="0" msg="수량" onkeyup="onlyNumber(this); calOdrWt(this); countAmt(this);" comma required>
 						</td>
 						<td>
-							<input type="text" class="tr" name="ordrgWt" onkeyup="onlyNumber(this); countAmt(this);" msg="중량" comma required>
+							<input type="text" class="tr" name="ordrgWt" value="0" msg="중량" onkeyup="onlyNumber(this); countAmt(this);" comma required>
 						</td>
 						<td>
-							<input type="text" class="tr" name="bdCnt" onkeyup="onlyNumber(this);" msg="번들" comma>
+							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this);" comma>
 						</td>
 						<td>
-							<input type="text" class="tr" name="ordrgUpr" onkeyup="onlyNumber(this); countAmt(this);" comma>
+							<input type="text" class="tr" name="ordrgUpr" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma>
 						</td>
 						<td>
-							<input type="text" class="tr" name="shipUpr" onkeyup="onlyNumber(this); countAmt(this);" comma>
+							<input type="text" class="tr" name="shipUpr" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma>
 						</td>
 						<td>
 							<input type="text" class="tr" name="ordrgAmt" value="0" onkeyup="onlyNumber(this); copyAmt(this); countTot(this);" comma readonly>
@@ -1195,10 +1196,9 @@
 		countTot();
 	}
 	
-	// 재고관리 대상이 아닐경우 금액만 입력시 realDlvrUpr, realDlvrAmt에 값 복사
+	// 재고관리 대상이 아닐경우 발주금액만 입력시 realDlvrAmt에 값 복사
 	function copyAmt(elem){
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
-		$targetRow.find('input[name="realDlvrUpr"]').val(deleteCommaStr($targetRow.find('input[name="ordrgUpr"]').val()));
 		$targetRow.find('input[name="realDlvrAmt"]').val(deleteCommaStr($targetRow.find('input[name="ordrgAmt"]').val()));
 	}
 	
