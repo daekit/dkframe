@@ -276,32 +276,32 @@ public class AR01SvcImpl implements AR01Svc {
 			// 매출정보 insert
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			paramMap.putAll(detailMap);
-			paramMap.put("trstDt", 		paramMap.get("dlvrDttm").replace("-", ""));
-			paramMap.put("pchsUpr", 	"0");
-			paramMap.put("sellUpr",     detailMap.get("realShipUpr"));
-			paramMap.put("stockUpr",    detailMap.get("stockUpr"));
-			paramMap.put("trstQty",     detailMap.get("shipQty"));
-			paramMap.put("trstWt",      detailMap.get("shipWt"));
-			paramMap.put("trstUpr",     detailMap.get("shipUpr"));
-			paramMap.put("trstAmt",     detailMap.get("shipAmt"));
-			paramMap.put("realTrstQty", detailMap.get("realShipQty"));
-			paramMap.put("realTrstWt",  detailMap.get("realShipWt"));
-			paramMap.put("realTrstUpr", detailMap.get("realShipUpr"));
-			paramMap.put("realTrstAmt", detailMap.get("realShipAmt"));
-			paramMap.put("bilgQty",     detailMap.get("realShipQty"));
-			paramMap.put("bilgWt",      detailMap.get("realShipWt"));
-			paramMap.put("bilgUpr",     detailMap.get("realShipUpr"));
-			paramMap.put("bilgAmt",     detailMap.get("realShipAmt"));
-			paramMap.put("clntCd",      clntCd);
-			paramMap.put("clntNm",      clntNm);
-			paramMap.put("prdtSpec", 	detailMap.get("prdtSpec"));	
-			paramMap.put("prdtSize", 	detailMap.get("prdtSize"));		
-			paramMap.put("trspTypCd", 	"TRSPTYP1"); // 정상매출
-			paramMap.put("trstRprcSeq", detailMap.get("shipSeq"));		
-			paramMap.put("trstDtlSeq", 	detailMap.get("shipDtlSeq"));				  	
-			paramMap.put("odrNo", 		paramMap.get("odrSeq"));
-			paramMap.put("makrCd", 	    detailMap.get("makrCd"));
-			paramMap.put("trspRmk", 	paramMap.get("shipRmk"));
+			paramMap.put("trstDt", 		 paramMap.get("dlvrDttm").replace("-", ""));
+			paramMap.put("pchsUpr", 	 "0");
+			paramMap.put("sellUpr",      detailMap.get("realShipUpr"));
+			paramMap.put("stockUpr",     detailMap.get("stockUpr"));
+			paramMap.put("trstQty",      detailMap.get("shipQty"));
+			paramMap.put("trstWt",       detailMap.get("shipWt"));
+			paramMap.put("trstUpr",      detailMap.get("shipUpr"));
+			paramMap.put("trstAmt",      detailMap.get("shipAmt"));
+			paramMap.put("realTrstQty",  detailMap.get("realShipQty"));
+			paramMap.put("realTrstWt",   detailMap.get("realShipWt"));
+			paramMap.put("realTrstUpr",  detailMap.get("realShipUpr"));
+			paramMap.put("realTrstAmt",  detailMap.get("realShipAmt"));
+			paramMap.put("bilgQty",      detailMap.get("realShipQty"));
+			paramMap.put("bilgWt",       detailMap.get("realShipWt"));
+			paramMap.put("bilgUpr",      detailMap.get("realShipUpr"));
+			paramMap.put("bilgAmt",      detailMap.get("realShipAmt"));
+			paramMap.put("clntCd",       clntCd);
+			paramMap.put("clntNm",       clntNm);
+			paramMap.put("prdtSpec", 	 detailMap.get("prdtSpec"));	
+			paramMap.put("prdtSize", 	 detailMap.get("prdtSize"));		
+			paramMap.put("trspTypCd", 	 "TRSPTYP1"); // 정상매출
+			paramMap.put("trstRprcSeq",  detailMap.get("shipSeq"));		
+			paramMap.put("trstDtlSeq", 	 detailMap.get("shipDtlSeq"));				  	
+			paramMap.put("odrNo", 		 paramMap.get("odrSeq"));
+			paramMap.put("makrCd", 	     detailMap.get("makrCd"));
+			paramMap.put("trspRmk", 	 paramMap.get("shipRmk"));
 			// 부가세
 			long bilgVatAmt = (long) Math.floor(Long.parseLong(detailMap.get("realShipAmt")) * bilgVatPer / 100);
 			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
