@@ -151,6 +151,14 @@ th {
 	                 	</select>
 	                </td>
               	 </tr>
+	              <tr>
+	              	<th>판매법인</th>
+					 <td>
+						<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.initView().setData(0);">
+							<option value="">전체</option>
+						</select>
+					 </td>
+              	 </tr>
 	            </table>
 	        </div>
 	    </div>
@@ -279,7 +287,8 @@ th {
 				"siteNm" : $("#siteNm_S").val(),
 				"bilgYn" : $("#bilgYn_S").val(),
 				"typCd" : $("#typCd_S").val(),
-				"prdtGrp" : $("#prdtGrp_S").val()
+				"prdtGrp" : $("#prdtGrp_S").val(),
+				"taxivcCoprt" : $("#taxivcCoprt").val()
 			}
 			postAjax("/user/ar/ar02/selectSellSumList", formData, null, function(data){
 				var list = data.resultList;
@@ -331,6 +340,7 @@ th {
 		mainDefaultLoad("매입관리", "품목별 매입매출집계");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
+		setByCoCd($("#coCd_S").val());
 		$("#reqDtFrom").val(getMonth("S"));
 		$("#reqDtTo").val(getMonth("E"));
 		$('#reqDtFrom, #reqDtTo').datepicker({
@@ -479,6 +489,13 @@ th {
 			$('#clntCd_S').val(row.clntCd);
 			$('#clntNm_S').val(row.clntNm);	
 		});
+	}
+	
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
 	}
 	
 // 	function insertSellModal(type){
