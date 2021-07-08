@@ -692,12 +692,26 @@
 	}
 	
 	function setEtrdpsAmt(elem){
+		
+		
+		
+		
 		if($(elem).prop("checked")){
 			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
-			$targetRow.find('input[name="etrdpsAmt"]').val($targetRow.find('input[name="bilgTot"]').val());
+			if($targetRow.find('input[name="pmntMtdNm"]').val() && $targetRow.find('input[name="clmnDivCd"]').val()){
+				$targetRow.find('input[name="etrdpsAmt"]').val($targetRow.find('input[name="bilgTot"]').val());
+			} else {
+				if($targetRow.find('input[name="prjctCd"]').val() != 0 ){
+					alert("프로젝트 관리 화면에서 결제방법과 수금조건을 설정해주세요.");
+				} else {
+					alert("거래처 화면에서 결제방법과 수금조건을 설정해주세요.");
+				}
+				$(elem).prop("checked", false);
+				return false;
+			}
 		} else {
 			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
-			$targetRow.find('input[name="etrdpsAmt"]').val();
+			$targetRow.find('input[name="etrdpsAmt"]').val("0");
 		}
 	}
 	
