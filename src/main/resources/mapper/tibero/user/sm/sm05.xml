@@ -14,8 +14,10 @@
 				     T.CO_CD
 					,T.TRST_CLNT_CD
 					,T.CLNT_NM
+					<if test='mngShow=="Y"'>
 					,T.SALES_MNG
 					,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
+					</if>
 					,T.PRDT_DIV
 					,SUM(BILG_WT) AS BILG_WT 
 					,SUM(BILG_AMT) AS BILG_AMT
@@ -76,11 +78,15 @@
 				<if test="prdtGrp != null and !prdtGrp.equals('')">
 					AND BM01.PRDT_GRP = #{prdtGrp}
 				</if>
-				GROUP BY T.CO_CD, TRST_CLNT_CD, CLNT_NM, SALES_MNG,T.PRDT_DIV
+				GROUP BY T.CO_CD, TRST_CLNT_CD, CLNT_NM
+					<if test='mngShow=="Y"'>
+					 ,SALES_MNG
+					 </if>
+					 ,T.PRDT_DIV
 				ORDER BY T.CO_CD, TRST_CLNT_CD
 			) D
 			<where>
-			<if test= "salesMngNm != null and !salesMngNm.equals('')">
+			<if test='salesMngNm != null and !salesMngNm.equals("") and mngShow=="Y"'>	
 			  D.SALES_MNG_NM LIKE '%' || #{salesMngNm} ||'%'
 			  </if>
 			</where>
@@ -101,10 +107,12 @@
 					--,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD) AS CLNT_NM
 					,FN_CM05M01_CD_TO_NM((SELECT CLNT_DIV_CD FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD)) AS CLNT_DIV_NM
 					,T.CLNT_NM
+					<if test='mngShow=="Y"'>
 					,T.SALES_MNG
+					,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
+					</if>
 					,T.PRDT_DIV
 					,FN_CM05M01_CD_TO_NM(T.PRDT_DIV) AS PRDT_DIV_NM
-					,(SELECT NAME FROM TB_CM06M01 WHERE ID = T.SALES_MNG) AS SALES_MNG_NM
 					,SUM(BILG_WT) AS BILG_WT 
 					,SUM(BILG_AMT) AS BILG_AMT
 					,SUM(BILG_VAT_AMT) AS BILG_VAT_AMT 
@@ -164,11 +172,15 @@
 				<if test="prdtGrp != null and !prdtGrp.equals('')">
 					AND BM01.PRDT_GRP = #{prdtGrp}
 				</if>
-				GROUP BY T.CO_CD , TRST_CLNT_CD, CLNT_NM, SALES_MNG,T.PRDT_DIV
+				GROUP BY T.CO_CD , TRST_CLNT_CD, CLNT_NM
+					<if test='mngShow=="Y"'>
+					 ,SALES_MNG
+					 </if>
+				 	,T.PRDT_DIV
 				ORDER BY T.CO_CD,TRST_CLNT_CD
 			) D
 			<where>
-			<if test= "salesMngNm != null and !salesMngNm.equals('')">
+			<if test='salesMngNm != null and !salesMngNm.equals("") and mngShow=="Y"'>			
 			  D.SALES_MNG_NM LIKE '%' || #{salesMngNm} ||'%'
 			  </if>
 			</where>

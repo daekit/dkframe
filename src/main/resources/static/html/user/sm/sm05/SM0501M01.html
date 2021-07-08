@@ -173,7 +173,11 @@
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	              </tr>
+            	    <th>담당자 조회여부</th>
+	                <td>
+	                     <input type="checkbox" id="mngShowYn" name="mngShowYn"  style="width: 100%;" onchange="dtlSearch();">
+	                </td>
+	         </tr>            
             </table>
           </div>
     </div>
@@ -205,6 +209,8 @@
 </body>
 </html>
 <script type="text/javascript">
+	var salesBool  = false;
+	var colspanCnt = 5;
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
@@ -227,9 +233,9 @@
 		        	 onClick: function () {
  		                this.self.select(this.dindex);
 		            },
-		            onDBLClick: function () {
-		            	insertUpdatePrdtAcins("U");
-		            }, 
+// 		            onDBLClick: function () {
+// 		            //	insertUpdatePrdtAcins("U");
+// 		            }, 
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -245,7 +251,7 @@
 		        },
 		        footSum: [
 			    	[
-			    		{label: "합 계", colspan:5, align:"center"},
+			    		{label: "합 계", colspan: colspanCnt, align:"center"},
 			    		{key:"bilgWt", collector: "sum", formatter:"money", align: "right"},
 			    		{key: "bilgAmt", collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgVatAmt", collector: "sum", formatter:"money", align: "right"},
@@ -257,7 +263,7 @@
 		            {key: "clntNm",     label: "거래처",   align: "left", width: "180px"},
 		            {key: "clntDivNm",  label: "구분",   align: "left", width: "130px"},
 		            {key: "prdtDivNm",  label: "구분",   align: "left", width: "130px"},
-		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
+		            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px",hidden: salesBool},
 		            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
 		            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
 		            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
@@ -275,6 +281,9 @@
 					var tempElem = $('[data-search]')[i];
 					paramObj[$(tempElem).data("search")] = $(tempElem).val();
 				}
+		       // 담당자 조회 여부
+				paramObj.mngShow = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
+				
 				postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
 					var list = data.resultList;
 					targetObj.setData({
@@ -323,6 +332,7 @@
 			//autoclose : true
 		});
 		$('#bilgCertNo_S').hide();
+		$('#mngShowYn').prop("checked",true);
 		gridView.initView().setData(0);
 		excelView.initView();
 		authChk();
@@ -382,15 +392,7 @@
 		}
 	}
 	
-	
-	/*수정 or 등록 버튼 클릭시*/
-	function insertUpdatePrdtAcins(type) {
-		actionType = type;
-		if ( actionType == 'U' && selectGridValidation(firstGrid)){
-			return;
-		}
-		openModal("/static/html/user/sm/sm04/SM0401P01.html", 400, 650, "");
-	}
+
 	
 	//거래처 검색
 	function clntSearch() {
@@ -484,7 +486,30 @@
 			});	
 		}
 	}	
-
+	//담당자 검색 조건
+	
+	function dtlSearch(){
+		var salesMngNm  = $("#salesMngNm_S").val();
+		var planDeptId  = $("#deptId_S").val();
+		var planDeptNm  = $("#deptNm_S").val();
+		var coCd        = $("#coCd").val();
+		
+		var tempColspanCnt = 5;
+		
+	    if($('#mngShowYn').is(":checked") || salesMngNm){
+	    	 mngShow = 'Y';
+			 salesBool = false;
+			 tempColspanCnt = tempColspanCnt + 1;
+		}else{
+	    	 mngShow = 'N';
+			 salesBool = true;
+		}
+	    
+	    colspanCnt  = tempColspanCnt;
+		
+		gridView.initView().setData(0);
+	}
+	
 	function setReportMain() {
 		    
 		var fileName = "SM0501R01.jrf";
