@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button type="button" class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="gridView.setData(0);">
+						<button type="button" class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search">
+			<input type="hidden" id="selectedData" name="selectedData"/>
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type03">
+					<tr>
+						<th class="hit">회사</th>
+						<td>
+							<select data-kind="CO" data-search="coCd"  required="required" onchange="setWareHouse(this.value);">
+							<!--  	<option value="">전체</option>   -->
+							</select>
+						</td>
+						<th>기준일자</th>
+		                <td>
+		                    <div class="date_input">
+		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
+		                    </div>
+		                </td>
+		                <th>제강사</th>
+						<td>
+							<input type="hidden" data-search="pchsClntCd" id="pchsClntCd">
+							<div class="search_form" style="width: 50%;">
+								<input type="text" data-search="pchsClntNm" id="pchsClntNm" onkeyup="event.keyCode == 8 ? pchsClntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
+								<a onclick="openSecondClntSearch();"><i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>제품</th>
+						<td>
+			                <input type="hidden" data-search="prdtCd" id="prdtCd">
+							<div class="search_form" style="width: 50%;">
+								<input type="text" data-search="prdtNm" id="prdtNm" onkeyup="event.keyCode == 8 ? prdtCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
+								<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+						<th>제강턴키여부</th>
+		                <td>
+		                	<input type="checkbox" id="tnKeyYn" onchange="gridView.setData(0);" checked>
+		                </td>
+					</tr>
+					<!-- <tr>
+						<th>프로젝트</th>
+						<td>
+							<div class="search_form" style="width: 50%;">
+							<input type="hidden" data-search="prjctCd" id="prjctCd">
+								<input type="text" data-search="prjctNm" id="prjctNm"> 
+								<a onclick="openSecondPrjctSearch();"><i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+					</tr> -->
+				</table>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <!-- <a onclick="setReportMain('STOCK');" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 일재고현황</a>
+	                <a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 입출고현황</a> -->
+					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>			
+				<select class="prae_select" data-search="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999">전체</option>
+				</select> 
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	var odrSeq = null;
+	var odrDtlSeqArr = [];
+	var gridView = {
+		initView : function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : false,
+				multipleSelect : false,
+				sortable : true,
+				target : $('[data-ax5grid="first-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+		            mergeCells : ["prdtDivNm","whNm","prdtNm","ownerNm","clntNm","typNm"],
+					onClick : function() {
+						this.self.select(this.dindex);
+					},
+					onDBLClick : function() {
+						/* $("#selectedData").val(gridView.target.getList("selected"));
+						openModal("/static/html/user/rd/rd05/RD0501V01.html", 1400, 680, ""); */
+					}
+				},
+				footSum: [
+			    	[
+			    		{label: "총계", colspan:4, align:"center"},
+	                    {key: "bfrStockQty", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "selpch1Qty",  collector: "sum", formatter:"money", align: "right"},
+			        	{key: "inMoveQty",   collector: "sum", formatter:"money", align: "right"},
+			        	{key: "selpch2Qty",	 collector: "sum", formatter:"money", align: "right"},
+			        	{key: "outMoveQty",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "stockQty",    collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
+				page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						gridView.setData(this.page.selectPage);
+					}
+				},
+				columns: [
+					{key: "coCd", hidden: true},
+					{key: "prdtCd", hidden: true},
+					{key: "whCd", hidden: true},
+					{key: "ownerCd", hidden: true},
+					{key: "typCd", hidden: true},
+					{key: "makrCd", hidden: true},
+					{key: "clntCd", hidden: true},
+					{key: "closeYm", hidden: true},
+					{key: "baseDt", hidden: true},
+					{key: "prjctCd", hidden: true},
+					{key: "prjctNm", hidden: true},
+					{key: "prdtDiv", hidden: true},
+					{key: "prdtSpec", hidden: true},
+					{key: "prdtSize", hidden: true},
+					{key: "prdtLen", hidden: true},
+		          	{key: "pchsClntNm", 	    label: "제강사",   align: "left",  width: 100},
+		            {key: "prdtNm",    		label: "제품",    align: "left",    width: 140},
+		        	{key: "prdtSpec",   		label: "스펙",   align: "left",    width: 60},
+		        	{key: "prdtSize",   	 	label: "길이",    align: "left",    width: 140},
+		        	{key: "bfrStockQty",    label: "전월재고",    align: "right", width: 100, formatter: "money"},
+		        	{key: "selpch1Qty",     label: "입고",  	  align: "right",   width:100, formatter: "money"},
+		        	{key: "inMoveQty",      label: "이동입고",   align: "right",   width:100, formatter: "money"},
+		        	{key: "selpch2Qty",	    label: "출고", 		align: "right", width:100, formatter: "money"},
+		        	{key: "outMoveQty",     label: "이동출고",   align: "right",   width:100, formatter: "money"},
+		        	{key: "stockQty",  		label: "현재고",    align: "right", width: 100, formatter: "money"},
+		        ]
+			});
+			return this;
+		},
+		
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo" : _pageNo + 1};
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+
+			// 제강사턴키여부 조건 추가
+			if($('#tnKeyYn').is(':checked')){
+				paramObj.tnKeyYn = "Y";
+			}else{
+				paramObj.tnKeyYn = "N";
+			}
+			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
+			console.log('@@paramObj L ', paramObj);
+			
+			postAjax("/user/sm/sm08/selectRcvpayTnKeyDailyList", paramObj, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+					footSum: [
+						[
+				    		{label: "총계", colspan:4, align:"center"},
+		                    {key: "bfrStockQty", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "selpch1Qty",  collector: "sum", formatter:"money", align: "right"},
+				        	{key: "inMoveQty",   collector: "sum", formatter:"money", align: "right"},
+				        	{key: "selpch2Qty",	 collector: "sum", formatter:"money", align: "right"},
+				        	{key: "outMoveQty",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "stockQty",    collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+						{key: "coCd", hidden: true},
+						{key: "prdtCd", hidden: true},
+						{key: "whCd", hidden: true},
+						{key: "ownerCd", hidden: true},
+						{key: "typCd", hidden: true},
+						{key: "makrCd", hidden: true},
+						{key: "clntCd", hidden: true},
+						{key: "closeYm", hidden: true},
+						{key: "baseDt", hidden: true},
+						{key: "prjctCd", hidden: true},
+						{key: "prjctNm", hidden: true},
+						{key: "prdtDiv", hidden: true},
+						{key: "prdtSpec", hidden: true},
+						{key: "prdtSize", hidden: true},
+						{key: "prdtLen", hidden: true},
+			          	{key: "pchsClntNm", 	    label: "제강사",   align: "left",  width: '15%'},
+			            {key: "prdtNm",    		label: "제품",    align: "left",    width: '25%'},
+			        	{key: "prdtSpec",   		label: "스펙",   align: "left",    width: '5%'},
+			        	{key: "prdtSize",   	 	label: "길이",    align: "left",    width: '5%'},
+			        	{key: "bfrStockQty",    label: "전월재고",    align: "right", width: '10%', formatter: "money"},
+			        	{key: "selpch1Qty",     label: "입고",  	  align: "right",   width:'10%', formatter: "money"},
+			        	{key: "inMoveQty",      label: "이동입고",   align: "right",   width:'8%', formatter: "money"},
+			        	{key: "selpch2Qty",	    label: "출고", 		align: "right", width:'8%', formatter: "money"},
+			        	{key: "outMoveQty",     label: "이동출고",   align: "right",   width:'8%', formatter: "money"},
+			        	{key: "stockQty",  		label: "현재고",    align: "right", width: '8%', formatter: "money"},
+			        ]
+			    });
+				return this;
+			}
+		}
+	$(document).ready(function() {
+		// 페이지 타이틀 set
+		mainDefaultLoad("재고관리", "제강사 턴키 재고 관리");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		setWareHouse(jwt.coCd);
+		
+		// 기준년월
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		 
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+		
+		$('#baseDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+		});
+		// grid init
+		gridView.initView().setData(0);
+		excelView.initView();
+		authChk();
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+
+		// 조건초기화
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		// 기간
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		$('#baseDt').datepicker("setDate", new Date());
+		
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		setWareHouse(jwt.coCd);
+		
+		// 재검색
+		gridView.setData(0);
+	}
+
+	// 주문 상세
+	function openOrderDetail(actionType) {
+		this.actionType = actionType;
+		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
+	}
+	
+	// 거래처 검색
+	function openSecondClntSearch(type) {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#pchsClntCd').val(row.clntCd);
+			$('#pchsClntNm').val(row.clntNm);
+		});
+	}
+	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd"    : $('[data-search="coCd"]').val(),
+			"selpchCd": "SELPCH2",
+			"impYn"   : $('[data-search="impYn"]').val(),
+			"clntCd"  : $('[data-search="clntCd"]').val(),
+			"prjctCd" : $("#prjctCd").val(),
+			"useYn": "Y"
+		};
+				
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prdtCd").val(row.prdtCd);
+			$("#prdtNm").val(row.prdtNm);
+		});
+	}
+	
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+			$('#addrZip').val(row.prjctAddrZip);
+			$('#addrMain').val(row.prjctAddr);
+			$('#addrSub').val(row.prjctAddrSub);
+		});
+	}
+	
+	function excelDown() {
+		var targetObj = this.target;
+		
+		var paramObj = {"pageNo" : 1};
+		
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		paramObj["recordCnt"] = 9999999;
+		paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
+		
+		postAjax("/user/sm/sm08/selectRcvpayTnKeyDailyList", paramObj, null, function(data) {
+			var list = data.resultList;				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+            	var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel($('#baseDt').val()+"일 제강사 턴키 재고 관리_"+todayDate+".xls");
+			});	
+	}	
+	
+	// 창고 set
+	function setWareHouse(value){
+
+		$('[data-search="whCd"]').data("desc", value);
+		$('[data-search="whCd"] option:not([value=""])').remove()
+		setCommonSelect($('[data-search="whCd"]'));
+	}
+	
+    //출력
+	function setReportMain(type) {
+
+		var fileName = "RD0501R01.jrf";
+		
+	   if (type =='STOCK'){
+		  fileName = "RD0501R02.jrf";  //일재고 현황
+	   }
+			var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
+			         + "#baseDt#"		+ $('[data-search="baseDt"]').val().replace(/\-/g,'')
+			         + "#whCd#"			+$('[data-search="whCd"]').val()
+			         + "#";
+			callReport(fileName, arg, "1050", "700");
+		
+	}
+</script>
