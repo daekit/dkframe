@@ -14,7 +14,12 @@
 			AND ODR_SEQ = #{odrSeq}				
 		</if>
 	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-			AND DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+			AND 
+			(
+				DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+				OR
+				REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+			)
 		</if>
 	 	<if test="coCd != null and !coCd.equals('')">
 			AND CO_CD = #{coCd}				
@@ -78,6 +83,7 @@
 	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM
 	            ,T.MNG_TEL
 	            ,TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM
+	            ,TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS REAL_DLVR_DTTM
 	            ,T.DLVR_RMK
 	            ,T.DIRTRS_YN
 	            ,T.ADDR_ZIP
@@ -136,7 +142,12 @@
 					AND ODR_SEQ = #{odrSeq}				
 				</if>
 			 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-					AND DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}		
+					AND 
+					(
+						DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+						OR
+						REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+					)		
 				</if>			 		
 			 	<if test="coCd != null and !coCd.equals('')">
 					AND CO_CD = #{coCd}				
@@ -193,7 +204,7 @@
 										   </if>
 										   )
 			   </if>			
-				ORDER BY DLVR_DTTM DESC, ORDRG_SEQ DESC
+				ORDER BY DLVR_DTTM DESC, REAL_DLVR_DTTM DESC, ORDRG_SEQ DESC
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
@@ -222,6 +233,8 @@
             (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM,
             T.MNG_TEL,
             TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM,
+            TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS REAL_DLVR_DTTM,
+            TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') || ' / ' || TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS CAT_DLVR_DTTM,
             T.DLVR_RMK,
             T.DIRTRS_YN,
             T.ADDR_ZIP,
@@ -465,6 +478,7 @@
 		    SELL_CLNT_CD,
 		    MNG_TEL,
 		    DLVR_DTTM,
+		    REAL_DLVR_DTTM,
 		    DIRTRS_YN,
 		    ADDR_ZIP,
 		    ADDR_MAIN,
@@ -509,6 +523,7 @@
 		    #{sellClntCd},
 		    #{mngTel},
 		    #{dlvrDttm},
+		    #{realDlvrDttm},
 		    #{dirtrsYn},
 		    #{addrZip},
 		    #{addrMain},
@@ -645,6 +660,7 @@
 		    SELL_CLNT_CD           = #{sellClntCd},
 		    MNG_TEL                = #{mngTel},
 		    DLVR_DTTM              = #{dlvrDttm},
+		    REAL_DLVR_DTTM         = #{realDlvrDttm},
 		    DIRTRS_YN              = #{dirtrsYn},
 		    ADDR_ZIP               = #{addrZip},
 		    ADDR_MAIN              = #{addrMain},
