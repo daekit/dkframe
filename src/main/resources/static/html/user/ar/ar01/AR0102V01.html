@@ -118,16 +118,21 @@
 						</td>
 					</tr>
 					<tr>
-						<th>납기 비고<br>(내부용)
+						<th>
+							납기비고
+							<button type="button" class="fs-12" style="padding: 3px 5px; margin-left: 10px; border-radius: 3px; height: 26px; vertical-align: baseline;" onclick="updateShipRmk(this);">저장</button>
 						</th>
 						<td colspan="5">
-							<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500" readonly></textarea>
+							<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500"></textarea>
 						</td>
 					</tr>
 					<tr>
-						<th>출하 비고</th>
+						<th>
+							출하비고
+							<button type="button" class="fs-12" style="padding: 3px 5px; margin-left: 10px; border-radius: 3px; height: 26px; vertical-align: baseline;" onclick="updateShipRmk(this);">저장</button>
+						</th>
 						<td colspan="5">
-							<textarea class="form-control" id="shipRmk" name="shipRmk" style="height: 60px;" maxlength="500" readonly></textarea>
+							<textarea class="form-control" id="shipRmk" name="shipRmk" style="height: 60px;" maxlength="500"></textarea>
 						</td>
 					</tr>
 				</table>
@@ -194,7 +199,7 @@
 						<input type="hidden" name="shipDtlSeq"> 
 						<input type="hidden" name="odrDtlSeq"> 
 						
-<!-- 						<input type="hidden" name="shipYn"> -->
+				   <!-- <input type="hidden" name="shipYn"> -->
 						<input type="hidden" name="shipProcId">
 						
 						<input type="hidden" name="prdtDiv">
@@ -208,7 +213,6 @@
 						<input type="hidden" name="sellUpr">
 						<input type="hidden" name="stockUpr">
 						<input type="hidden" name="prdtUpr">
-						<input type="hidden" name="bilgVatAmt"> <!-- 부가세 -->
 						
 						<input type="hidden" name="realShipQty">
 						<input type="hidden" name="realShipWt">
@@ -339,7 +343,6 @@
 				<i class="fas fa-print"></i>납품서
 			</button>
 			<button id="actionBtn" onclick="updateShipModal();" authchk>수정</button>
-			<button id="rmkUpdateBtn" onclick="updateShipRmk();" style="background-color: green;" authchk>비고수정</button>
 			<button id="recptYnBtn" onclick="updateRecptYnPopup();" authchk>접수</button>
 			<button id="shipYnBtn" onclick="updateConfirm();" authchk>출하처리</button>
 			<button id="cancelBtn" onclick="updateCancel();" style="background-color: red;" authchk>출하취소</button>
@@ -388,7 +391,6 @@
 	$(document).ready(function() {
 		selectShipInfo();
 		authChk("AR0101M01");
-		$('#shipView #rmkUpdateBtn').hide();
 	});
 	
 	function selectShipInfo() {
@@ -465,11 +467,6 @@
 		// 확정된 상세가 없을경우 취소버튼 hide
 		if(shipInfo.confirmCnt == 0){
 			$("#shipView #cancelBtn").hide();
-			
-			// 비고를 수정 가능하도록 처리
-			$('#shipView #dlvrRmk').prop("readonly", false);
-			$('#shipView #shipRmk').prop("readonly", false);
-			$('#shipView #rmkUpdateBtn').show();
 		}
 	}
 	
@@ -547,12 +544,12 @@
 		}, 500);
 	}
 	
-	function updateShipRmk(){
+	function updateShipRmk(btnElem){
+		var rmkElem = $(btnElem).closest('th').next().find('textarea')[0];
 		var paramObj = {
-			"shipSeq": $('#shipView #shipSeq').val(),
-			"dlvrRmk": $('#shipView #dlvrRmk').val(),
-			"shipRmk": $('#shipView #shipRmk').val()
+			"shipSeq": $('#shipView #shipSeq').val()
 		}
+		paramObj[rmkElem.name] = rmkElem.value;
 		
 		putAjax("/user/ar/ar01/updateShipRmk", paramObj, null, function(data){
 			alert(data.resultMessage);           

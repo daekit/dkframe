@@ -493,8 +493,8 @@
 	}
 
 	function setReportMain(type) {
+      var row = shipGridView.target.getList("selected");
       if(type == 'SHIP'){
-  		    var row = shipGridView.target.getList("selected");
   			if(row[0] == undefined || row.length == 0) {
   				alert("출력할 납품서를 선택하세요!");		
   				return;
@@ -528,18 +528,39 @@
 			});
 			
 		}else{
+			var shipSeqArr = "";
+			var flag = false;
+			$.each(row, function(idx, obj) {
+				if (!flag){
+					flag = true;
+					shipSeqArr = obj.shipSeq;
+				} else {
+					shipSeqArr = shipSeqArr + "," + obj.shipSeq;
+				}
+			});
+			if (!flag) {
+				alert("발행대상이 선택되지 않았습니다.");
+				return;
+			}
+			
 			var fileName = "AR0101R01.jrf";
 			var arg = "selPchCd#SELPCH2" 
-			         + "#coCd#"			+ $('#coCd_S').val()
-			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
-			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
-			         + "#clntCd#"		+ $('#clntCd_S').val()
-			         + "#clntNm#"		+ $('#clntNm_S').val()
-			         + "#shipYn#"		+ $('#shipYn_S').val()
-			         + "#whCd#"			+ $('#whCd_S').val()
-			         + "#typCd#"		+ $('#typCd_S').val()
-			         + "#typNm#"		+ $('#typCd_S option:selected').text()
-			         + "#";
+		         + "#coCd#"			+ $('#coCd_S').val()
+		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+		         + "#clntCd#"		+ $('#clntCd_S').val()
+		         + "#clntNm#"		+ $('#clntNm_S').val()
+		         + "#shipYn#"		+ $('#shipYn_S').val()
+		         + "#whCd#"			+ $('#whCd_S').val()
+		         + "#typCd#"		+ $('#typCd_S').val()
+		         + "#typNm#"		+ $('#typCd_S option:selected').text()
+		         + "#shipSeqArr#"	+ shipSeqArr
+		         + "#";
+//          출하요청서 그리드에서 선택된건만 출력하게 변경 요청
+// 			var arg = "selPchCd#SELPCH2" 
+// 		         + "#coCd#"			+ $('#coCd_S').val()
+// 		         + "#shipSeqArr#"	+ shipSeqArr
+// 		         + "#";
 			callReport(fileName, arg, "1050", "700");
 		}
 	}

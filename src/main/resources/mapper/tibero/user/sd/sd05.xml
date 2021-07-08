@@ -581,35 +581,16 @@
 	 		COUNT(*) 
 	 	 FROM (
 				SELECT
-						ROWNUM AS RNUM, D.*
-						,FN_CM05M01_CD_TO_NM(D.CO_CD) AS CO_NM
-						,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = D.SITE_CD) AS SITE_NM
-						,TO_NUMBER(D.TOT_WT) / 1000 AS TOT_WT
-						,FN_CM05M01_CD_TO_NM(D.WH_CD) AS WH_NM
-	                    ,(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = D.PCHS_CLNT_CD) AS PCHS_CLNT_NM
-	                    ,(SELECT MAX(TNKEY_CF_YN) FROM TB_SD09M01 SD09 WHERE D.PRJCT_CD = SD09.PRJCT_CD ) AS  TNKEY_CF_YN
-						,NVL(D.TOT_WT,0) - NVL(D.TOT_CELL,0) AS TOT_REM 
+						D.CO_CD
 				FROM(		
 				SELECT
 					 A.CO_CD 
-					,A.CLNT_CD 
-					,B.CLNT_NM
-					,A.PRJCT_CD 
-					,A.PRJCT_NM
-					,E.SITE_CD 
-					,A.PRCSN_UPR 
-					,A.WH_CD 
-                    ,A.PCHS_CLNT_CD 
-					,A.MNG_ID 
-					,C.NAME AS MNG_NM
-					,A.TNKEY_YN
-					,SUM(TOT_WT) AS TOT_WT
-					,NVL((SELECT SUM(REAL_TRST_WT)/1000 FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2' GROUP BY PRJCT_CD),0) AS TOT_CELL --잔량
-			    FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C, TB_SD09D01 E
+			   FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C, TB_SD09D01 E
 				WHERE A.CLNT_CD = B.CLNT_CD(+)
 				 AND  A.MNG_ID = C.ID(+)
 				 AND  A.PRJCT_CD = E.PRJCT_CD(+)
 				 AND  A.USE_YN = 'Y'
+		 		 AND A.CO_CD = 'GUM'
 				 <if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
 				 </if>
@@ -622,12 +603,6 @@
 				 <if test= "clntNm != null and !clntNm.equals('')">
 		 			AND B.CLNT_NM LIKE '%${clntNm}%'
 				 </if>
-				<if test="strtDt != null and !strtDt.equals('')">
-				 	AND ( A.CREAT_DTTM >= #{strtDt})
-				</if>
-				<if test="endDt != null and !endDt.equals('')">
-				 	<![CDATA[AND ( A.CREAT_DTTM <= to_timestamp(to_date(#{endDt}, 'YYYY-MM-DD')+1)    )]]>
-				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
 				</if>
@@ -692,13 +667,22 @@
 					,A.MNG_ID 
 					,C.NAME AS MNG_NM
 					,A.TNKEY_YN
+					,NVL((SELECT SUM(AR02M01.REAL_TRST_WT) FROM TB_AR02M01 AR02M01 
+					  WHERE A.PRJCT_CD = AR02M01.PRJCT_CD 
+					  AND TO_DATE(TRST_DT, 'YYYY-MM-DD') = SYSDATE 
+					  GROUP BY PRJCT_CD, TRST_DT), 0) AS REAL_TRST_WT -- 거래날짜 오늘 기준 자재 중량
+					,NVL((SELECT SUM(AR02M01.PRCSN_WT) FROM TB_AR02M01 AR02M01 
+					  WHERE A.PRJCT_CD = AR02M01.PRJCT_CD 
+					  AND TO_DATE(TRST_DT, 'YYYY-MM-DD') = SYSDATE 
+					  GROUP BY PRJCT_CD, TRST_DT), 0) AS PRCSN_WT    -- 거래날짜 오늘 기준  가공 중량
 					,SUM(TOT_WT) AS TOT_WT
 					,NVL((SELECT SUM(REAL_TRST_WT)/1000 FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2' GROUP BY PRJCT_CD),0) AS TOT_CELL --잔량
-			    FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C, TB_SD09D01 E
+			   FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C, TB_SD09D01 E
 				WHERE A.CLNT_CD = B.CLNT_CD(+)
 				 AND  A.MNG_ID = C.ID(+)
 				 AND  A.PRJCT_CD = E.PRJCT_CD(+)
 				 AND  A.USE_YN = 'Y'
+		 		 AND A.CO_CD = 'GUM'
 				 <if test= "coCd != null and !coCd.equals('')">
 		 			AND A.CO_CD = #{coCd}
 				 </if>
@@ -711,12 +695,6 @@
 				 <if test= "clntNm != null and !clntNm.equals('')">
 		 			AND B.CLNT_NM LIKE '%${clntNm}%'
 				 </if>
-				<if test="strtDt != null and !strtDt.equals('')">
-				 	AND ( A.CREAT_DTTM >= #{strtDt})
-				</if>
-				<if test="endDt != null and !endDt.equals('')">
-				 	<![CDATA[AND ( A.CREAT_DTTM <= to_timestamp(to_date(#{endDt}, 'YYYY-MM-DD')+1)    )]]>
-				</if>
 				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
 					AND ${searchType} LIKE '%${searchValue}%'
 				</if>

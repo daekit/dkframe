@@ -95,7 +95,7 @@
 							<input type="hidden" id="clntCd_S" data-search="clntCd">
 							<div class="search_form">
 								<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? mainGridView.setData(0) : ''">
-								<a onclick="openClntSearch();">
+								<a onclick="openClntSearch('N');">
 									<i class="i_search_w"></i>
 								</a>
 							</div>
@@ -192,6 +192,16 @@
 						</td>
 					</tr>
 					<tr>
+						<th>매입거래처</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="pchsClntCd" data-search="pchsClntCd" name="pchsClntCd">
+								<input type="text" id="pchsClntNm" data-search="pchsClntNm" msg="매입거래처" onkeyup="event.keyCode == 8 ? pchsClntCd.value = '' : event.keyCode == 13 ? mainGridView.setData(0) : ''">
+								<a onclick="openClntSearch('P');">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
 						<th>비고</th>
 						<td>
 							<input type="text" id="trspRmk_S" data-search="trspRmk" onkeyup="event.keyCode == 13 ? mainGridView.setData(0) : ''">
@@ -386,6 +396,7 @@
 		          	{key: "bilgCertNo",     label: "청구번호",	    align: "center", 	width: 70},
 		        	{key: "salesMngNm",	    label: "담당자", 		align: "center", 	width: 80},
 		          	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
+		          	{key: "pchsClntNm",    	 	label: "매입거래처명",		align: "left", 		width: 120},
 		        	{key: "siteNm",         label: "현장명",		align: "left",		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		          	{key: "prdtNm",    	 	label: "제품",        align: "left", 		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "prdtStknNm",     label: "강종",  		align: "center", 	width: 80,  styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
@@ -419,7 +430,7 @@
 			        ],
 		        footSum: [
 			    	[
-			    		{label: "총계", 	    align:"center",	  colspan:11},
+			    		{label: "총계", 	    align:"center",	  colspan:12},
 	                    {key: "bilgQty", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgWt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "bilgUpr" 														   },
@@ -599,11 +610,17 @@
 	}
 
 	// 거래처 검색
-	function openClntSearch() {
+	function openClntSearch(type) {
 		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd_S').val(row.clntCd);
-			$('#clntNm_S').val(row.clntNm);	
+			if(type == "N") {
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);	
+			}else {
+				$('#pchsClntCd').val(row.clntCd);
+				$('#pchsClntNm').val(row.clntNm);	
+			}
+			mainGridView.setData(0);
 		});
 	}
 	
@@ -841,8 +858,12 @@
 			return;
 		}
 		if(list[0].bilgCertNo != undefined) {
-			url = "/user/ar/ar04/updateBilg";
-			bilgCertNo = list[0].bilgCertNo
+
+			alert("기 확정건입니다.");
+			return;
+			
+// 			url = "/user/ar/ar04/updateBilg";
+// 			bilgCertNo = list[0].bilgCertNo
 		}
 		var formData = {
 			"trstCertiNoList" : trstCertiNoArr,
