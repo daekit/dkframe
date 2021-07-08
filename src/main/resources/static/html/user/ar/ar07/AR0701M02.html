@@ -114,6 +114,7 @@
 		initView : function(closeYm) {
 			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			var closeYm0 = $("#closeYm").val().replace(/\-/g,'');
 			
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
@@ -173,10 +174,18 @@
 		        	{key: "sellClmnDivNm", 		 label: "결제조건", 	 align: "left",   width: 120},
 		        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "right",   width: 60},
 		        	{key: "sellPmntMtdNm",  	 label: "방법", 		 align: "center",   width: 60},
-		        	{key: "pre3CreditAmt",		 label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 잔액",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 잔액",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "curCreditAmt", 		 label: closeYm  +" 잔액",  align: "right",   width: 140, formatter: "money"},
+		        	{key: "pre3CreditAmt",		 label: "전월잔액",     align: "right",   width: 140, formatter: "money",
+		        				styleClass: function () {return (this.item.pre3PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},		        		
+		        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140, hidden: true},
+		        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 잔액",  align: "right",   width: 140, formatter: "money",
+		        				styleClass: function () {return (this.item.pre2PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},	
+		        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140, hidden: true},
+		        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 잔액",  align: "right",   width: 140, formatter: "money",
+		        				styleClass: function () {return (this.item.pre1PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},	
+		        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140, hidden: true},
+		        	{key: "curCreditAmt", 		 label: closeYm  +" 잔액",  align: "right",   width: 140, formatter: "money",
+		        				styleClass: function () {return (this.item.pre0PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},	
+		        	{key: "curPchsClmnDay",      label: closeYm  +"결제에정일",  align: "right",   width: 140, hidden: true},
 		        	{key: "curTrmendCreditAmt",  label: "합계",    	 align: "right",   width: 140, formatter: "money"},
 		        	
 		        	{key: "unsetlBilAmt",   	 label: "미결제어음",    align: "right",   width: 140, formatter: "money"},
@@ -251,9 +260,13 @@
 			        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "left",   width: 60},
 			        	{key: "sellPmntMtdNm",  	 label: "방법", 		 align: "center",   width: 60},
 			        	{key: "pre3CreditAmt",		 label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140},
 			        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 잔액",  align: "right",   width: 140, formatter: "money"},
+			        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140},
 			        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 잔액",  align: "right",   width: 140, formatter: "money"},
+			        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140},
 			        	{key: "curCreditAmt", 		 label: closeYm  +" 잔액",  align: "right",   width: 140, formatter: "money"},
+			        	{key: "curPchsClmnDay",      label: closeYm  +"결제에정일",  align: "right",   width: 140},
 			        	{key: "curTrmendCreditAmt",  label: "합계",    	 align: "right",   width: 140, formatter: "money"},
 			        	
 			        	{key: "unsetlBilAmt",   	 label: "미결제어음",    align: "right",   width: 140, formatter: "money"},
