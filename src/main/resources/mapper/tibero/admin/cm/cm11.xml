@@ -29,9 +29,9 @@
 			     FROM  TB_CM05M01
 				WHERE  CODE_KIND = 'PRDTDIV'
 				  AND  USE_YN  = 'Y') C
-			   LEFT OUTER JOIN (SELECT PRDT_DIV, sum(plan_wt) plan_wt FROM  TB_SD01M01 B 
-		                  WHERE B.PLAN_YM = #{searchYm} AND SELPCH_CD = 'SELPCH2'
-		                  GROUP BY PRDT_DIV) ON CODE_ID = PRDT_DIV 
+			   LEFT OUTER JOIN (SELECT NVL(PRDT_DIV,'PRDTDIV99') PRDT_DIV, sum(plan_wt) plan_wt FROM  TB_SD01M01 B 
+		                  WHERE B.PLAN_YM = '202107' AND SELPCH_CD = 'SELPCH2'
+		                  GROUP BY NVL(PRDT_DIV,'PRDTDIV99')) ON CODE_ID = PRDT_DIV
 				LEFT OUTER JOIN (SELECT
 						B.PRDT_DIV
 							 , TRST_QTY
@@ -44,7 +44,7 @@
 						   AND TRST_DT BETWEEN  #{searchYm} || '01' AND #{searchYm} || '31'
 						   AND A.SELPCH_CD  = 'SELPCH2') T
 						   ON T.PRDT_DIV = C.CODE_ID 
-		WHERE TRST_QTY != 0 OR  REAL_TRST_QTY != 0
+		WHERE PLAN_WT != 0 OR  REAL_TRST_QTY != 0
 		 GROUP BY CODE_ID, CODE_NM, SORT_NO
 		 ORDER BY SORT_NO 
 		)
