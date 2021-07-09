@@ -310,7 +310,7 @@
 			            {key: "clntNm",     label: "거래처",   align: "left", width: "130px"},
 			            {key: "clntDivNm",  label: "구분",   align: "left", width: "130px"},
 			            {key: "prdtDivNm",  label: "구분",   align: "left", width: "130px"},
-			            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px"},
+			            {key: "salesMngNm", label: "담당자명",   align: "center", width: "110px",hidden: salesBool},
 			            {key: "bilgWt",     label: "중량(KG)", align: "right", width: "80px", formatter: "money"},
 			            {key: "bilgAmt",    label: "공급가액",  align: "right", width: "100px", formatter: "money"},
 			            {key: "bilgVatAmt", label: "부가세액",  align: "right", width: "100px", formatter: "money"},
@@ -391,8 +391,6 @@
 			$('#bilgCertNo_S').hide();
 		}
 	}
-	
-
 	
 	//거래처 검색
 	function clntSearch() {
@@ -499,10 +497,10 @@
 	    if($('#mngShowYn').is(":checked") || salesMngNm){
 	    	 mngShow = 'Y';
 			 salesBool = false;
-			 tempColspanCnt = tempColspanCnt + 1;
 		}else{
 	    	 mngShow = 'N';
 			 salesBool = true;
+			 tempColspanCnt = tempColspanCnt - 1;
 		}
 	    
 	    colspanCnt  = tempColspanCnt;
@@ -511,16 +509,24 @@
 	}
 	
 	function setReportMain() {
-		    
-		var fileName = "SM0501R01.jrf";
+	    
+		var mngShowYn = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
+		if(mngShowYn == 'Y'){
+			var fileName = "SM0501R01.jrf";
+		}else{
+			var fileName = "SM0501R02.jrf"; // 담당자 제거한 집계
+		}
+		
 		var arg = "selPchCd#"		+$('#selpch').val() 
 		         + "#coCd#"			+$('#coCd').val()
 		         + "#fromDt#"		+$('#startDt').val().replace(/\-/g,'')
 		         + "#toDt#"			+$('#endDt').val().replace(/\-/g,'')
-		         + "#salesMng#"		+$('#salesMng').val()
+     		     + "#salesMng#"		+$('#salesMng').val()
 		         + "#salesMngNm#"	+$('#salesMngNm').val()
 		         + "#clntCd#"		+$('#clntCd').val()
 		         + "#clntNm#"		+$('#clntNm').val()
+		         + "#prdtGrp#"		+$('#prdtGrp').val()
+		         + "#prdtGrpNm#"	+$('#prdtGrp option:selected').text()
 		         + "#prdtDiv#"		+$('#prdtDiv').val()
 		         + "#prdtDivNm#"	+$('#prdtDiv option:selected').text()
 		         + "#prdtStkn#"		+$('#prdtStkn').val()
