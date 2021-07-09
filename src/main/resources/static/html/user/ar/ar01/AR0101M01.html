@@ -141,6 +141,7 @@
 	                <a onclick="updateRecptYnGrid();" style="height: 30px; line-height: 28px; width: 40px;" authchk> 접수</a>
 	                <a onclick="insertShipModal();" style="height: 30px; line-height: 28px;" authchk>+</a>
 	                <a onclick="deleteShip();" style="height: 30px; line-height: 28px;" authchk>-</a>
+	                <a onclick="copyShipModal();" style="height: 30px; line-height: 28px; width: 50px;" authChk>생성</a>
 					<a onclick="setReportMain('SHIP');" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
 					<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="계산서 발행건만 출력합니다."><i class="fas fa-print"></i> 출하요청서출력</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -375,6 +376,29 @@
 		shipGridView.initView().setData(0);
 	}
 
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input[type='text']").val("");
+		$("#coCd_S").val(jwt.coCd);
+		setWareHouse(jwt.coCd);
+		$("#reqDtFrom").val(lastWeek());
+		$("#reqDtTo").val(dateToStr(new Date()));
+		$('#reqDtFrom, #reqDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+// 			autoclose : true
+		});
+		shipGridView.initView().setData(0);
+	}
+	
+	function insertShipModal(){
+		var paramObj = {
+			"actionType": "C",
+			"coCd": $('#coCd_S').val()
+		};
+		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 780, "", paramObj);
+	}
+	
 	function deleteShip() {
 		var row = shipGridView.target.getList("selected")[0];
 		var formData = {
@@ -397,28 +421,14 @@
 		});
 		
 	}
-
-	function initSearch() {
-		$(".contents.search select").val("");
-		$(".contents.search input[type='text']").val("");
-		$("#coCd_S").val(jwt.coCd);
-		setWareHouse(jwt.coCd);
-		$("#reqDtFrom").val(lastWeek());
-		$("#reqDtTo").val(dateToStr(new Date()));
-		$('#reqDtFrom, #reqDtTo').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-// 			autoclose : true
-		});
-		shipGridView.initView().setData(0);
-	}
 	
-	function insertShipModal(){
-		var paramObj = {
-			"actionType": "C",
-			"coCd": $('#coCd_S').val()
-		};
-		openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 780, "", paramObj);
+	function copyShipModal(){
+		if(checkGridRow(shipGridView.target, "single")) {
+			var checkedObj = shipGridView.target.getList("selected")[0];
+			var paramObj = {"actionType": "P"};
+			paramObj.shipSeq = checkedObj.shipSeq;
+			openModal("/static/html/user/ar/ar01/AR0102P01.html", 1300, 780, "", paramObj);
+		}
 	}
 	
 	function viewShipModal(shipSeq) {

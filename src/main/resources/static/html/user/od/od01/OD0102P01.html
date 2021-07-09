@@ -123,7 +123,7 @@
 						<td>
 							<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);" maxlength=13>
 						</td>
-						<th class="hit">출하 / 실출하 일자</th>
+						<th class="hit">매출 / 실출하 일자</th>
 						<td>
 							<input type="text" class="input_calendar" style="width: 45% !important; display: inline-block !important;" id="dlvrDttm" name="dlvrDttm" autocomplete="off" msg="출하일자" date required>
 							<span>&nbsp;&nbsp;/&nbsp;&nbsp;</span>
@@ -492,6 +492,13 @@
 			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
 			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
 			$('#ordrgPopup #actionOdBtn').text("등록");
+		}else if(actionType == "P"){
+			$('#ordrgPopup #odrCreatDiv').val("ERP");
+			$('#ordrgPopup #reqDt').val(moment(new Date()).format("YYYYMMDD"));
+			selectOrdrgInfo(modalStack.last().paramObj.ordrgSeq);
+			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
+			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
+			$('#ordrgPopup #actionOdBtn').text("등록");
 		}else if(actionType == "U"){
 			selectOrdrgInfo(modalStack.last().paramObj.ordrgSeq);
 			$('#ordrgPopup #actionOdBtn').on("click", function(){updateOrdrg();});
@@ -533,6 +540,7 @@
 	}
 	
 	function setOrdrgInfo(obj) {
+		var actionType = modalStack.last().paramObj.actionType;
 		var fileInfo = obj.fileList;
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
@@ -566,93 +574,97 @@
 			}
 		});
 		
-		// 상세정보 세팅
-		$.each(orderDetail, function(idx, obj){
-			var $addedRow = addDetailRow();
-			$.each($addedRow.find('[name]'), function(idx, elem){
-				var itemValue = obj[elem.name];
-				if(itemValue){
-					if($(elem).is('[comma]')){
-						itemValue = addCommaStr(itemValue);
+		if(actionType == "U"){
+			// 상세정보 세팅
+			$.each(orderDetail, function(idx, obj){
+				var $addedRow = addDetailRow();
+				$.each($addedRow.find('[name]'), function(idx, elem){
+					var itemValue = obj[elem.name];
+					if(itemValue){
+						if($(elem).is('[comma]')){
+							itemValue = addCommaStr(itemValue);
+						}
+						$(elem).val(itemValue);
+						
+						//색상 지정
+						if(elem.name == "ordrgYn" && itemValue == 'N') { //red
+							$(elem).css({"color": "red"});
+						}
+						if(elem.name == "shipYn" && orderInfo.dirtrsYn == "Y" && itemValue == "N") { //red
+							$(elem).css({"color": "red"});
+						}
 					}
-					$(elem).val(itemValue);
-					
-					//색상 지정
-					if(elem.name == "ordrgYn" && itemValue == 'N') { //red
-						$(elem).css({"color": "red"});
-					}
-					if(elem.name == "shipYn" && orderInfo.dirtrsYn == "Y" && itemValue == "N") { //red
-						$(elem).css({"color": "red"});
-					}
-				}
-			});
-			
-			if(obj.prdtStockCd == "N"){
-			// 재고관리 대상이 아니면 dom 변경
-				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
-				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
-				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
-				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
-				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
-				// 재고관리 대상이 아닐경우 금액 수정 가능
-				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
-				$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
-				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-				$addedRow.find('input[name="ordrgQty"]').prop("required", false);
-				$addedRow.find('input[name="ordrgWt"]').prop("required", false);
-			}
-			
-			if(obj.ordrgYn == "Y"){
-			// 매입이 확정되었으면 dom 변경
-				$addedRow.find('a').remove();
-				$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
-				$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
-				$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
-				$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
-				$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
-				$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
-				$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
-			}
-			
-			if((obj.ordrgYn == "Y" && obj.shipYn =="Y") || (orderInfo.dirtrsYn == "N" && obj.ordrgYn == "Y")) {
-			// 매입매출이 모두 확정되었거나 || 직송이 아니면서 매입이 확정되었으면 종료된건임
-				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-				$addedRow.find('input').prop("readonly", true);
-				$addedRow.find('a').remove();
-			}else {
-			// CASE1: 직송Y(YN, NN) CASE2: 직송N(NN)
-                // 직송이 아니면 매출단가/금액은 수정대상이 아님.
-				if(orderInfo.dirtrsYn == "N"){  
-					$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
-					$addedRow.find('input[name="shipAmt"]').prop("readonly", true);
-				}
-			}
-		});
-		countTot();
-		
-		if(fileInfo){
-		// 주문에서 열릴때 주문에 등록한 파일은 유지하지 않는다.
-			$.each(fileInfo, function(idx, obj){
-				ordrgFileArr.push({
-					"fileKey" : obj.fileKey,
-			      	"fileName" : obj.fileName,
-			      	"fileType" : obj.fileType,
-			      	"fileSize" : obj.fileSize,
-			      	"file" : obj
 				});
+				
+				if(obj.prdtStockCd == "N"){
+				// 재고관리 대상이 아니면 dom 변경
+					$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+					$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+					$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
+					// 재고관리 대상이 아닐경우 금액 수정 가능
+					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", false);
+					$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+					// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+					$addedRow.find('input[name="ordrgQty"]').prop("required", false);
+					$addedRow.find('input[name="ordrgWt"]').prop("required", false);
+				}
+				
+				if(obj.ordrgYn == "Y"){
+				// 매입이 확정되었으면 dom 변경
+					$addedRow.find('a').remove();
+					$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+					$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+					$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
+					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
+				}
+				
+				if((obj.ordrgYn == "Y" && obj.shipYn =="Y") || (orderInfo.dirtrsYn == "N" && obj.ordrgYn == "Y")) {
+				// 매입매출이 모두 확정되었거나 || 직송이 아니면서 매입이 확정되었으면 종료된건임
+					$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+					$addedRow.find('input').prop("readonly", true);
+					$addedRow.find('a').remove();
+				}else {
+				// CASE1: 직송Y(YN, NN) CASE2: 직송N(NN)
+	                // 직송이 아니면 매출단가/금액은 수정대상이 아님.
+					if(orderInfo.dirtrsYn == "N"){  
+						$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
+						$addedRow.find('input[name="shipAmt"]').prop("readonly", true);
+					}
+				}
 			});
-			// 첨부파일 그리드 set
-			ordrgFileGridView.setData();
-		}
+			countTot();
+			
+			if(fileInfo){
+			// 주문에서 열릴때 주문에 등록한 파일은 유지하지 않는다.
+				$.each(fileInfo, function(idx, obj){
+					ordrgFileArr.push({
+						"fileKey" : obj.fileKey,
+				      	"fileName" : obj.fileName,
+				      	"fileType" : obj.fileType,
+				      	"fileSize" : obj.fileSize,
+				      	"file" : obj
+					});
+				});
+				// 첨부파일 그리드 set
+				ordrgFileGridView.setData();
+			}
 
-		if(orderInfo.dirtrsYn == "Y"){			
-			if(orderInfo.ordrgYn == "Y" && orderInfo.shipYn =="Y" ) {
-				$('#ordrgPopup #actionOdBtn').hide();
+			if(orderInfo.dirtrsYn == "Y"){			
+				if(orderInfo.ordrgYn == "Y" && orderInfo.shipYn =="Y" ) {
+					$('#ordrgPopup #actionOdBtn').hide();
+				}
+			} else {
+				if(orderInfo.ordrgYn == "Y") {
+					$('#ordrgPopup #actionOdBtn').hide();
+				}
 			}
-		} else {
-			if(orderInfo.ordrgYn == "Y") {
-				$('#ordrgPopup #actionOdBtn').hide();
-			}
+		}else if(actionType == "P"){
+			$('#ordrgSeq').val("");
 		}
 	}
 	

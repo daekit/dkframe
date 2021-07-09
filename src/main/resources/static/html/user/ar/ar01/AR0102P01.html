@@ -109,7 +109,7 @@
 						<td>
 							<input type="text" id="mngTel" name="mngTel" onkeyup="telNumberFormatter(this);">
 						</td>
-						<th class="hit">출하 / 실출하 일자</th>
+						<th class="hit">매출 / 실출하 일자</th>
 						<td>
 							<input type="text" class="input_calendar" style="width: 45% !important; display: inline-block !important;" id="dlvrDttm" name="dlvrDttm" autocomplete="off" msg="출하일자" date required>
 							<span>&nbsp;&nbsp;/&nbsp;&nbsp;</span>
@@ -466,6 +466,13 @@
 			$('#shipPopup #actionArBtn').on("click", function(){insertShip();});
 			$('#shipPopup .tit_contents .tit').text("출하요청서 등록");
 			$('#shipPopup #actionArBtn').text("등록");
+		} else if(actionType == "P"){
+			$('#shipPopup #odrCreatDiv').val("ERP");
+			$('#shipPopup #reqDt').val(moment(new Date()).format("YYYYMMDD"));
+			selectShipInfo(modalStack.last().paramObj.shipSeq);
+			$('#shipPopup #actionArBtn').on("click", function(){insertShip();});
+			$('#shipPopup .tit_contents .tit').text("출하요청서 등록");
+			$('#shipPopup #actionArBtn').text("등록");
 		} else if(actionType == "U"){
 			selectShipInfo(modalStack.last().paramObj.shipSeq);
 			$('#shipPopup #actionArBtn').on("click", function(){updateShip();});
@@ -496,6 +503,7 @@
 	}
 	
 	function setShipInfo(obj) {
+		var actionType = modalStack.last().paramObj.actionType;
 		var fileInfo = obj.fileList;
 		var shipInfo = obj.shipInfo;
 		var shipDetail = obj.shipDetail;
@@ -524,67 +532,71 @@
 			}
 		});
 		
-		// 상세정보 세팅
-		$.each(shipDetail, function(idx, obj){
-			var $addedRow = addDetailRow();
-			$.each($addedRow.find('[name]'), function(idx, elem){
-				var itemValue = obj[elem.name];
-				if(itemValue){
-					if($(elem).is('[comma]')){
-						itemValue = addCommaStr(itemValue);
+		if(actionType == "U"){
+			// 상세정보 세팅
+			$.each(shipDetail, function(idx, obj){
+				var $addedRow = addDetailRow();
+				$.each($addedRow.find('[name]'), function(idx, elem){
+					var itemValue = obj[elem.name];
+					if(itemValue){
+						if($(elem).is('[comma]')){
+							itemValue = addCommaStr(itemValue);
+						}
+						$(elem).val(itemValue);
 					}
-					$(elem).val(itemValue);
-				}
+					
+					if(elem.name == "impYn"){
+						setByImpYn(elem);
+					}
+				});
 				
-				if(elem.name == "impYn"){
-					setByImpYn(elem);
-				}
-			});
-			
-			// 확정여부에 따른 dom 변경
-			if(obj.shipYn == "Y") {
-				$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
-				$addedRow.find('input').prop("readonly", true);
-				$addedRow.find('a').remove();
-				// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
-				$addedRow.find('input[name="shipQty"]').prop("required", false);
-				$addedRow.find('input[name="shipWt"]').prop("required", false);
-			}else{
-				// 재고관리에 따른 dom 변경
-				if(obj.prdtStockCd == "N"){
-					$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
-					$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
-					$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
-					$addedRow.find('input[name="shipQty"]').prop("readonly", true);
-					$addedRow.find('input[name="shipWt"]').prop("readonly", true);
-					// 재고관리 대상이 아닐경우 금액 수정 가능
-					$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+				// 확정여부에 따른 dom 변경
+				if(obj.shipYn == "Y") {
+					$addedRow.find('input[name="detailChkBox"]').prop("disabled", true);
+					$addedRow.find('input').prop("readonly", true);
+					$addedRow.find('a').remove();
 					// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
 					$addedRow.find('input[name="shipQty"]').prop("required", false);
 					$addedRow.find('input[name="shipWt"]').prop("required", false);
+				}else{
+					// 재고관리에 따른 dom 변경
+					if(obj.prdtStockCd == "N"){
+						$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
+						$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
+						$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
+						$addedRow.find('input[name="shipQty"]').prop("readonly", true);
+						$addedRow.find('input[name="shipWt"]').prop("readonly", true);
+						// 재고관리 대상이 아닐경우 금액 수정 가능
+						$addedRow.find('input[name="shipAmt"]').prop("readonly", false);
+						// 재고관리 대상이 아닐경우 수량 필수 입력값 제외 (수량, 중량)
+						$addedRow.find('input[name="shipQty"]').prop("required", false);
+						$addedRow.find('input[name="shipWt"]').prop("required", false);
+					}
 				}
-			}
-		});
-		countTot();
-		
-		if(fileInfo){
-		// 주문에서 열릴때 주문에 등록한 파일은 유지하지 않는다.
-			$.each(fileInfo, function(idx, obj){
-				shipFileArr.push({
-					"fileKey" : obj.fileKey,
-			      	"fileName" : obj.fileName,
-			      	"fileType" : obj.fileType,
-			      	"fileSize" : obj.fileSize,
-			      	"file" : obj
-				});
 			});
-			// 첨부파일 그리드 set
-			shipFileGridView.setData();
-		}
-		
-		// 전체 출하확정시 수정버튼 hide
-		if(shipInfo.shipYn == "Y") {
-			$('#shipPopup #actionArBtn').hide();
+			countTot();
+			
+			if(fileInfo){
+			// 주문에서 열릴때 주문에 등록한 파일은 유지하지 않는다.
+				$.each(fileInfo, function(idx, obj){
+					shipFileArr.push({
+						"fileKey" : obj.fileKey,
+				      	"fileName" : obj.fileName,
+				      	"fileType" : obj.fileType,
+				      	"fileSize" : obj.fileSize,
+				      	"file" : obj
+					});
+				});
+				// 첨부파일 그리드 set
+				shipFileGridView.setData();
+			}
+			
+			// 전체 출하확정시 수정버튼 hide
+			if(shipInfo.shipYn == "Y") {
+				$('#shipPopup #actionArBtn').hide();
+			}
+		}else if(actionType == "P"){
+			$('#shipSeq').val("");
 		}
 	}
 	
@@ -1015,7 +1027,6 @@
 		$('#shipPopup #realTotWt').val(shipTotWt);
 		$('#shipPopup #realTotAmt').val(shipTotAmt);
 		$('#shipPopup #totEpctPal').val(addCommaStr(totEpctPal));
-
 	}
 	
 	function setFile(elem){
