@@ -100,9 +100,17 @@
 						</td>
 					</tr>
 					<tr>
-						<th class>수주유형</th>
+					 	<th>프로젝트</th>
+		                <td>
+		                    <input type="hidden" id="prjctCd" name="prjctCd">
+			                <div class="search_form" style="width: 100%;">
+					            <input type="text" id="prjctNm" name="prjctNm" onchange="gridView.setData(0);">
+					            <a id="btnPrjct" onclick="openSecondPrjctSearch();" tall><i class="i_search_w"></i></a>
+				            </div>
+		                </td>
+						<th>수주유형</th>
 						<td><select id="ordTyp_S" data-kind="ORDTYP" onchange="gridView.setData(0);">
-								<option value="">전체</option>
+								<option value="">전체</ㄴoption>
 						</select></td>
 					</tr>
 				</table>
@@ -229,6 +237,8 @@
 					"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
 					"searchType" : $("#searchType").val(),
 					"searchValue" : $("#searchValue").val(),
+					"prjctNm" : $("#prjctNm").val(),
+					"prjctCd" : $("#prjctCd").val(),
 					"ordTyp" : $('#ordTyp_S').val()
 				}
 				postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
@@ -452,5 +462,23 @@
 		         + "#prjctCd#"		+ row.prjctCd
 		         + "#";
 		callReport(fileName, arg, "1050", "700");
+	}
+	
+	
+	// 프로젝트 검색
+	function openSecondPrjctSearch(type) {
+		var paramObj = {
+			"coCd"   : $("#coCd").val(), 
+			"clntCd" : "",
+			"clntNm" : "",
+			"prjctNm": ""
+		}
+		
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+		gridView.setData(0);
 	}
 </script>
