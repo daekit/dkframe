@@ -157,6 +157,7 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;" authchk>+</a>
 	                <a onclick="deleteOrder();" style="height: 30px; line-height: 28px;" authChk>-</a>
+	                <a onclick="copyOrderModal();" style="height: 30px; line-height: 28px; width: 50px;" authChk>생성</a>
 	                <a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
@@ -176,7 +177,6 @@
             <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
 	    </div>
 	</div>
-		
 </body>
 </html>
 
@@ -282,49 +282,48 @@
 			}
 		}
 	}
-
 	
 	var excelView = {
-			initView: function(){
-				this.target = new ax5.ui.grid();
-				this.target.setConfig({
-			        target: $('[data-ax5grid="excel-grid"]'),
-					columns: [
-						{key: "ordrgSeq",      label: "발주일련번호", hidden: true},
-			        	{key: "dlvrDttm",      label: "출하일자",     align: "center",  width: 80},
-			        	{key: "realDlvrDttm",  label: "실출하일자",   align: "center",  width: 80},
-			            {key: "dirtrsYn",      label: "직송",         align: "center",  width: 50},
-			        	{key: "ordrgYn",       label: "매입",         align: "center",  width: 50, styleClass: function () {return (this.item.ordrgYn == "N") ? "grid-font-red-bold":"";}},
-			        	{key: "shipYn",        label: "매출",         align: "center",  width: 50, styleClass: function () {return (this.item.shipYn == "N" && this.item.dirtrsYn == "Y") ? "grid-font-red-bold":"";}},
-			        	{key: "typNm",         label: "판매유형",     align: "center",  width: 80},
-			            {key: "clntNm",        label: "매입거래처",   align: "left",    width: 150},
-			        	{key: "sellClntNm",    label: "매출거래처",   align: "left",    width: 150},
-			        	{key: "prjctNm",       label: "프로젝트",     hidden: true},
-			        	{key: "siteNm",        label: "현장",         align: "left",    width: 150},
-			        	{key: "mngTel",        label: "담당자연락처", align: "center",  width: 100},
-			        	{key: "makrNm",        label: "제조사",       align: "center",  width: 80},
-			        	{key: "whNm",          label: "창고",         align: "left",    width: 100},
-			        	{key: "totQty",        label: "수량(Kg)",     align: "right",   width: 80,  formatter: "money"},
-			        	{key: "totWt",         label: "중량(Kg)",     align: "right",   width: 80,  formatter: "money"},
-			        	{key: "totAmt",        label: "발주금액",     align: "right",   width: 100, formatter: "money"},
-			        	{key: "ordrgRmk",      label: "비고",         align: "left",    width: 200},
-			        	{key: "salesMngNm",    label: "발주담당자",   align: "center",  width: 80},
-			          	{key: "reqDt",         label: "요청일자",     align: "center",  width: 80},
-			        	{key: "impYn",         label: "수입",         align: "center",  width: 50},
-			        	{key: "addr",          label: "착지주소",     align: "left",    width: 150}
-			        ],
-			        footSum: [
-				    	[
-				    		{label: "총계", 	align:"center",	  colspan:12},
-		                    {key: "totQty", 	collector: "sum", formatter:"money", align: "right"},
-		                    {key: "totWt", 		collector: "sum", formatter:"money", align: "right"},
-		                    {key: "totAmt", 	collector: "sum", formatter:"money", align: "right"}
-				    	]
-				    ]
-			    });
-				return this;
-			}
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		        target: $('[data-ax5grid="excel-grid"]'),
+				columns: [
+					{key: "ordrgSeq",      label: "발주일련번호", hidden: true},
+		        	{key: "dlvrDttm",      label: "출하일자",     align: "center",  width: 80},
+		        	{key: "realDlvrDttm",  label: "실출하일자",   align: "center",  width: 80},
+		            {key: "dirtrsYn",      label: "직송",         align: "center",  width: 50},
+		        	{key: "ordrgYn",       label: "매입",         align: "center",  width: 50, styleClass: function () {return (this.item.ordrgYn == "N") ? "grid-font-red-bold":"";}},
+		        	{key: "shipYn",        label: "매출",         align: "center",  width: 50, styleClass: function () {return (this.item.shipYn == "N" && this.item.dirtrsYn == "Y") ? "grid-font-red-bold":"";}},
+		        	{key: "typNm",         label: "판매유형",     align: "center",  width: 80},
+		            {key: "clntNm",        label: "매입거래처",   align: "left",    width: 150},
+		        	{key: "sellClntNm",    label: "매출거래처",   align: "left",    width: 150},
+		        	{key: "prjctNm",       label: "프로젝트",     hidden: true},
+		        	{key: "siteNm",        label: "현장",         align: "left",    width: 150},
+		        	{key: "mngTel",        label: "담당자연락처", align: "center",  width: 100},
+		        	{key: "makrNm",        label: "제조사",       align: "center",  width: 80},
+		        	{key: "whNm",          label: "창고",         align: "left",    width: 100},
+		        	{key: "totQty",        label: "수량(Kg)",     align: "right",   width: 80,  formatter: "money"},
+		        	{key: "totWt",         label: "중량(Kg)",     align: "right",   width: 80,  formatter: "money"},
+		        	{key: "totAmt",        label: "발주금액",     align: "right",   width: 100, formatter: "money"},
+		        	{key: "ordrgRmk",      label: "비고",         align: "left",    width: 200},
+		        	{key: "salesMngNm",    label: "발주담당자",   align: "center",  width: 80},
+		          	{key: "reqDt",         label: "요청일자",     align: "center",  width: 80},
+		        	{key: "impYn",         label: "수입",         align: "center",  width: 50},
+		        	{key: "addr",          label: "착지주소",     align: "left",    width: 150}
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 	align:"center",	  colspan:12},
+	                    {key: "totQty", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totWt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totAmt", 	collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ]
+		    });
+			return this;
 		}
+	}
 	
 	$(document).ready(function() {
 		//순서 맨 처음
@@ -376,6 +375,15 @@
 			}
 		});
 	}
+	
+	function copyOrderModal(){
+		if(checkGridRow(ordrgGridView.target, "single")) {
+			var checkedObj = ordrgGridView.target.getList("selected")[0];
+			var paramObj = {"actionType": "P"};
+			paramObj.ordrgSeq = checkedObj.ordrgSeq;
+			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, "", paramObj);
+		}
+	}
 
 	function initSearch() {
 		$(".contents.search select").val("");
@@ -425,7 +433,8 @@
 			var todayDate = new Date().format('yyyyMMddHHmmss');
 			excelView.target.exportExcel("발주서목록_"+todayDate+".xls");
 		});	
-	}		
+	}
+	
 	function setReportMain() {
 	    var row = ordrgGridView.target.getList("selected");
 	    
@@ -463,7 +472,6 @@
 			//callReport(rptName, arg, 750, 900);
 		});
 	}
-	
 
 	// 판매법인 set
 	function setByCoCd(value){
