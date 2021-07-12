@@ -37,15 +37,15 @@
 							A.CLNT_CD,
 							A.CLNT_NM,
 							A.BASIS_CDTLN_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG01_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG02_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG04_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG05_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0)) AS CDTLN_AMT
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG01_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG02_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG04_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG05_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0))) AS CDTLN_AMT
 			        FROM TB_BM02M01 A
 						INNER JOIN TB_BM02D02 B
 					             ON  B.CLNT_CD = A.CLNT_CD 
-					             AND B.USE_YN = 'Y'
+<!-- 					             AND B.USE_YN = 'Y' -->
 <!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
 					             <if test="coCd !=null and !coCd.equals('')">
 				     	          AND B.CO_CD = #{coCd} 
@@ -78,8 +78,8 @@
 				) AS a
 				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
-	         WHERE TOT_LOAN_AMT != 0
-	         AND CDTLN_AMT  != 0
+<!-- 	         WHERE TOT_LOAN_AMT != 0 -->
+<!-- 	         AND CDTLN_AMT  != 0 -->
 			 ORDER BY a.LINK_GRP_CLNT_NM 
 		
 		
@@ -125,15 +125,15 @@
 							A.CLNT_CD,
 							A.CLNT_NM,
 							A.BASIS_CDTLN_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG01_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG02_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG04_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0)) AS PLDG05_AMT,
-							SUM(decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0)) AS CDTLN_AMT
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG01_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG02_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG04_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG05_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0))) AS CDTLN_AMT
 			        FROM TB_BM02M01 A
 						INNER JOIN TB_BM02D02 B
 					             ON  B.CLNT_CD = A.CLNT_CD
-					             AND B.USE_YN = 'Y'
+<!-- 					             AND B.USE_YN = 'Y' -->
 <!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
 					             <if test="coCd !=null and !coCd.equals('')">
 				     	         AND B.CO_CD = #{coCd} 
@@ -166,8 +166,8 @@
 				) AS a
 				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
-	         WHERE TOT_LOAN_AMT != 0
-	         AND CDTLN_AMT  != 0
+<!-- 	         WHERE TOT_LOAN_AMT != 0 -->
+<!-- 	         AND CDTLN_AMT  != 0 -->
 			 ORDER BY a.LINK_GRP_CLNT_NM 
 		)
 		WHERE  RNUM BETWEEN #{firstIndex} AND #{lastIndex}
