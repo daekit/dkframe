@@ -231,6 +231,7 @@
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail('Detail');" authchk><i class="fas fa-print"></i>명세서</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail('Sumary');" authchk><i class="fas fa-print"></i>집계표</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportMain();"><i class="fas fa-print"></i>일보출력</a>
+					<a style="height: 30px; line-height: 28px; width: 110px;" onclick="setReportMain('CLNT');"><i class="fas fa-print"></i>일보(거래처)출력</a>
 					<a style="height: 30px; line-height: 28px;" onclick="insertSellModal('C');" authchk>+</a>
 					<a style="height: 30px; line-height: 28px;" onclick="deleteSell();" authchk>-</a>
 					<a style="height: 30px; line-height: 28px; width: 90px;" onclick="excelDown();"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
@@ -934,31 +935,59 @@
 		}
 	}
 	
-	function setReportMain() {
+	function setReportMain(type) {
 		if ($('#coCd_S').val() == "") {
 			alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
 			return;
 		}
-		
-		var fileName = "AR0201R01.jrf";
-		var arg = "selPchCd#SELPCH2" 
-		         + "#coCd#"			+ $('#coCd_S').val()
-		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
-		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
-		         + "#clntCd#"		+ $('#clntCd_S').val()
-		         + "#clntNm#"		+ $('#clntNm_S').val()
-		         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
-		         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
-		         + "#estCoprt#"		+ $('#estCoprt_S').val()	
-		         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
-		         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
-		         + "#siteCd#"		+ $('#siteCd_S').val()
-		         + "#siteNm#"		+ $('#siteNm_S').val()
-		         + "#typCd#"		+ $('#typCd_S').val()
-		         + "#typNm#"		+ $('#typCd_S option:selected').text()
-		         + "#bilg#"			+ $('#bilgYn_S').val()
-		         + "#";
-		callReport(fileName, arg, 1040, 720);
+		if(type == 'CLNT'){
+			var fileName = "AR0201R05.jrf";
+			openSecondModal("/static/html/user/ar/ar02/AR0202P04.html", 600, 200, "거래처 일보 출력 선택", null, function (showYn, showYnRmk) {
+				var arg = "selPchCd#SELPCH2" 
+			         + "#coCd#"			+ $('#coCd_S').val()
+			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#clntCd#"		+ $('#clntCd_S').val()
+			         + "#clntNm#"		+ $('#clntNm_S').val()
+			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+			         + "#siteCd#"		+ $('#siteCd_S').val()
+			         + "#siteNm#"		+ $('#siteNm_S').val()
+			         + "#typCd#"		+ $('#typCd_S').val()
+			         + "#typNm#"		+ $('#typCd_S option:selected').text()
+			         + "#bilg#"			+ $('#bilgYn_S').val()
+			         + "#showYn#"		+ showYn
+			         + "#showYnRmk#"	+ showYnRmk
+			         + "#";
+				callReport(fileName, arg, 1040, 720);
+			});
+			
+			
+		}else{
+			
+			var fileName = "AR0201R01.jrf";
+			var arg = "selPchCd#SELPCH2" 
+			         + "#coCd#"			+ $('#coCd_S').val()
+			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#clntCd#"		+ $('#clntCd_S').val()
+			         + "#clntNm#"		+ $('#clntNm_S').val()
+			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+			         + "#siteCd#"		+ $('#siteCd_S').val()
+			         + "#siteNm#"		+ $('#siteNm_S').val()
+			         + "#typCd#"		+ $('#typCd_S').val()
+			         + "#typNm#"		+ $('#typCd_S option:selected').text()
+			         + "#bilg#"			+ $('#bilgYn_S').val()
+			         + "#";
+			callReport(fileName, arg, 1040, 720);
+		}
 	}
 	
 	function insertSellModal(type) {
