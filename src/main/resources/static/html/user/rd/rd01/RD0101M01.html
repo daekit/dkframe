@@ -218,16 +218,23 @@
 		            {key: "reqDt", 		label: "발주일자", 	align: "center", width: 80},
 		            {key: "clntNm", 	label: "거래처", 		align: "left", width: 120},
 		        	{key: "siteNm", 	label: "현장", 	align: "left", width: 160},
-		        	{key: "prjctNm", 	label: "프로젝트", 	align: "left", width: 160},
+// 		        	{key: "prjctNm", 	label: "프로젝트", 	align: "left", width: 160},
 		        	{key: "whNm", 		label: "창고", 		align: "center", width: 100},
 		        	{key: "typNm", 		label: "판매유형", 	align: "center", width: 70},
-		        	{key: "makrNm", 	label: "제조사", 		align: "left", width: 120},
+// 		        	{key: "makrNm", 	label: "제조사", 		align: "left", width: 120},
 		        	{key: "impYn", 		label: "수입", 	align: "center", width: 60},
 		        	{key: "totQty", 	label: "수량", 		align: "right", width: 120, formatter: "money"},
 		        	{key: "totWt", 		label: "중량", 		align: "right", width: 120, formatter: "money"},
-		        	{key: "transAmt", 	label: "운송비", 		align: "right", width: 120, formatter: "money"},
-		        	{key: "salesMng", 	label: "영업담당자", 	align: "center", width: 100},
-		        	{key: "ordrgRmk", 	label: "비고", 		align: "left", width: 200}
+		        	{key: "acmltDlvrQty",	label: "입고량", 		align: "right", width: 120, formatter: "money"},
+		        	{key: "remainDlvrQty",	label: "미입고량", 	align: "right", width: 120, 
+		        		formatter: function(){
+		        		return ax5.util.number(this.item.totQty - this.item.acmltDlvrQty   , { "money":true})
+		        	}
+		        		},
+		        	{key: "salesMngNm",	label: "영업담당자", 	align: "center", width: 100},
+		        	{key: "ordrgRmk", 	label: "비고", 		align: "left", width: 200},
+		        	{key: "salesMng", 	label: "영업담당자", 	align: "center", width: 100,hidden:true},
+		        	{key: "transAmt", 	label: "운송비", 		align: "right", width: 120, formatter: "money",hidden:true},
 		        ],
 		        footSum: [
 			    	[
@@ -306,12 +313,14 @@
 		          	{key: "prdtNm", 		label: "제품", 			align: "left", width: 160},
 		            {key: "ordrgQty", 		label: "발주수량", 		align: "right", width: 120, formatter: "money"},
 		            {key: "ordrgWt", 		label: "발주중량", 		align: "right", width: 120, formatter: "money"},
-		            {key: "realDlvrQty", 	label: "입고수량", 		align: "right", width: 120, formatter: "money"},
-		            {key: "realDlvrWt", 	label: "입고중량", 		align: "right", width: 120, formatter: "money"},
+// 		            {key: "realDlvrQty", 	label: "입고수량", 		align: "right", width: 120, formatter: "money"},
+// 		            {key: "realDlvrWt", 	label: "입고중량", 		align: "right", width: 120, formatter: "money"},
+		            {key: "acmltDlvrQty",   label: "입고수량", 		align: "right", width: 120, formatter: "money"},
+		            {key: "acmltDlvrWt",    label: "입고중량", 		align: "right", width: 120, formatter: "money"},
 		        	{key: "prdtLen", 		label: "길이", 			align: "right", width: 120, formatter: "money"},
 		        	{key: "prdtUnitNm", 	label: "단위", 			align: "center", width: 80},
-		        	{key: "ordrgProcNm", 	label: "입고담당자", 		align: "center", width: 100},
-		        	{key: "ordrgProcDttm", 	label: "입고완료일자", 		align: "center", width: 100}
+		        	{key: "ordrgProcNm", 	label: "발주완료담당자",		align: "center", width: 100},
+		        	{key: "ordrgProcDttm", 	label: "발주완료일자", 		align: "center", width: 100}
 		        ],
 		        footSum: [
 			    	[
@@ -338,6 +347,8 @@
 			return this;
 		},
 		setData : function(_pageNo) {
+			
+		
 			var targetObj = this.target;
 			var paramObj = {
 				"pageNo" : _pageNo + 1,

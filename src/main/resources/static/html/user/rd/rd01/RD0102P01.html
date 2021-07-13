@@ -82,9 +82,9 @@
 				<td colspan="3">
 					<input type="text" id="siteNm" readonly> 
 				</td>
-				<th>입고처리완료일자</th>
+				<th class="hit">입고일자</th>
 				<td>
-					<input id="ordrgProcDttm" type="text" readonly>
+					<input type="text" class="input_calendar" style="width: 100% !important; display: inline-block !important;" id="realDlvrDttm" name="realDlvrDttm" autocomplete="off" msg="입고일자" date required>
 				</td>
 			</tr>
 			<tr>
@@ -109,6 +109,7 @@
 				<col width="10%">
 				<col width="10%">
 				<col width="10%">
+				<col width="10%">
 			</colgroup>
 			<tr>
 				<td colspan="9" style="text-align: LEFT; border-right: 0;">※상세내역</td>
@@ -122,14 +123,19 @@
 				<th class="tc">길이</th>
 				<th class="tc">발주수량</th>
 				<th class="tc">누적입고량</th>
-				<th class="tc">입고예정량</th>
+				<th class="tc">미입고량</th>
+				<th class="tc">입고량</th>
 			</tr>
 		</table>
 		<table id="frameTable" style="display: none;">
 			<tr name="detailRow">
+				<input type="hidden" name="ordrgSeq"> 
 				<input type="hidden" name="ordrgDtlSeq"> 
 				<input type="hidden" name="ordrgUpr">
 				<input type="hidden" name="realDlvrUpr">
+				<input type="hidden" name="ordrgWt"> 
+				<input type="hidden" name="acmltDlvrWt"> 
+				<input type="hidden" name="realDlvrQty"> 
 				<input type="hidden" name="prdtCnvrsnWt"> 
 				<td>
 					<input type="checkbox" name="detailChkBox">
@@ -144,7 +150,7 @@
 					<input type="text" class="tc" name="prdtSpec" readonly>
 				</td>
 				<td>
-					<input type="text" class="tc" name="prdtUnit" readonly>
+					<input type="text" class="tc" name="prdtUnitNm" readonly>
 				</td>
 				<td>
 					<input type="text" class="tr" name="prdtLen" comma readonly>
@@ -153,7 +159,10 @@
 					<input type="text" class="tr" name="ordrgQty" comma readonly>
 				</td>
 				<td>
-					<input type="text" class="tr" name="realDlvrQty" comma readonly>
+					<input type="text" class="tr" name="acmltDlvrQty" comma readonly>
+				</td>
+				<td>
+					<input type="text" class="tr" name="remainDlvrQty" comma readonly>
 				</td>
 				<td>
 					<input type="text" class="tr" name="intendDlvrQty" onkeyup="onlyNumber(this); countTot();" comma>
@@ -175,7 +184,7 @@
 					<input type="text" class="tc" name="prdtSpec" readonly>
 				</td>
 				<td>
-					<input type="text" class="tc" name="prdtUnit" readonly>
+					<input type="text" class="tc" name="prdtUnitNm" readonly>
 				</td>
 				<td>
 					<input type="text" class="tr" name="prdtLen" comma readonly>
@@ -184,7 +193,10 @@
 					<input type="text" class="tr" name="ordrgQty" comma readonly>
 				</td>
 				<td>
-					<input type="text" class="tr" name="realDlvrQty" comma readonly>
+					<input type="text" class="tr" name="acmltDlvrQty" comma readonly>
+				</td>
+				<td>
+					<input type="text" class="tr" name="remainDlvrQty" comma readonly>
 				</td>
 				<td>
 					<input type="text" class="tr" name="intendDlvrQty" comma readonly>
@@ -202,11 +214,14 @@
 				<col width="10%">
 				<col width="10%">
 				<col width="10%">
+				<col width="10%">
 			</colgroup>
 			<tr>
 				<th class="tc" colspan="6">합계</th>
 				<td class="tr" id="totOrdrgQty"></td>
-				<td class="tr" id="totRealDlvrQty"></td>
+<!-- 				<td class="tr" id="totRealDlvrQty"></td> -->
+				<td class="tr" id="totDlvrQty"></td>
+				<td class="tr" id="totRemainDlvrQty"></td>
 				<td class="tr" id="totIntendDlvrQty"></td>
 			</tr>
 		</table>
@@ -260,6 +275,15 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		
+		// 출하일자 datepicker bind
+		$('.popup_area #realDlvrDttm').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date());
+		
 		// 공통코드 SelectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
 		selectOrderInfo();
@@ -267,7 +291,7 @@
 		authChk("RD0101M01");
 	});
 	
-	function selectOrderInfo() {
+	function selectOrderInfo() {		
 		var row = inRsltsGridView.target.getList("selected")[0];
 		var paramObj = {"ordrgSeq": row.ordrgSeq, "reqDt": deleteHyphenStr(row.reqDt)};
 		postAjax("/user/od/od01/selectOrdrgInfo", paramObj, null, function(data) {
@@ -289,11 +313,12 @@
 		// 상세정보 세팅
 		$.each(result.orderDetail, function(idx, obj) {
 			var $addedRow = null;
-			if(obj.ordrgYn == "N") {
+			// 입고 확정이 된 경우에도 입고가 될수 있다... 입고량을 초과하는 경우에는 입고량이 발주량을 초괴할 수 없게 한다.
+// 			if(obj.ordrgYn == "N") {
 				$addedRow = addDetailRow();
-			} else {
-				$addedRow = addFixedRow();
-			}
+// 			} else {
+// 				$addedRow = addFixedRow();
+// 			}
 			
 			for(var i=0;i<$addedRow.find('[name]').length;i++){
 				var detailItem = $addedRow.find('[name]')[i];
@@ -305,6 +330,19 @@
 					detailItem.value = itemValue;
 				}
 			}
+			
+			debugger;
+            // 잔여량 계산
+			var ordrgQty      = $addedRow.find("[name='ordrgQty']").val();
+			var acmltDlvrQty       = $addedRow.find("[name='acmltDlvrQty']").val();
+			var remainDlvrQty = Number(deleteCommaStr(ordrgQty)) - Number(deleteCommaStr(acmltDlvrQty));
+			var ordrgWt       = $addedRow.find("[name='ordrgWt']").val();
+			var acmltDlvrWt        = $addedRow.find("[name='acmltDlvrWt']").val();
+			var remainDlvrWt  = Number(deleteCommaStr(ordrgWt)) - Number(deleteCommaStr(acmltDlvrWt));
+			
+			$addedRow.find("[name='remainDlvrQty']").val(addCommaStr(remainDlvrQty));
+			
+			
 		});
 		countTot();
 		
@@ -329,23 +367,31 @@
 	}
 	
 	function countTot() {
-		var totOrdrgQty = 0;
-		var totRealDlvrQty = 0;
+		var totOrdrgQty      = 0;
+		var totRealDlvrQty   = 0;
+		var totRemainDlvrQty = 0;
+		var totDlvrQty       = 0;
 		var totIntendDlvrQty = 0;
 		
 		$.each($('#detailTable tr[name="detailRow"]'), function(idx, elem) {
-			var ordrgQty = $(elem).find("input[name='ordrgQty']").val();
-			var realDlvrQty = $(elem).find("input[name='realDlvrQty']").val();
+			var ordrgQty      = $(elem).find("input[name='ordrgQty']").val();
+			var realDlvrQty   = $(elem).find("input[name='realDlvrQty']").val();
+			var dlvrQty       = $(elem).find("input[name='dlvrQty']").val();
 			var intendDlvrQty = $(elem).find("input[name='intendDlvrQty']").val();
 			
-			totOrdrgQty += Number(deleteCommaStr(ordrgQty));
-			totRealDlvrQty += Number(deleteCommaStr(realDlvrQty));
+			totOrdrgQty      += Number(deleteCommaStr(ordrgQty));
+			totRealDlvrQty   += Number(deleteCommaStr(realDlvrQty));
+			totDlvrQty       += Number(deleteCommaStr(dlvrQty));
 			totIntendDlvrQty += Number(deleteCommaStr(intendDlvrQty));
 		});
 		
+		totRemainDlvrQty = totOrdrgQty - totDlvrQty;
+		
 		$("#totOrdrgQty").text(addCommaStr(totOrdrgQty));
 		$("#totRealDlvrQty").text(addCommaStr(totRealDlvrQty));
+		$("#totDlvrQty").text(addCommaStr(totDlvrQty));
 		$("#totIntendDlvrQty").text(addCommaStr(totIntendDlvrQty));
+		$("#totRemainDlvrQty").text(addCommaStr(totRemainDlvrQty));
 	}
 	
 	function inOutPrdt(inOutType){
@@ -370,49 +416,62 @@
 			var ordrgObj = {};
 			if($(elem).find('[name="detailChkBox"]').is(':checked')){
 				var ordrgDtlSeq = $(elem).find('[name="ordrgDtlSeq"]').val();
-				
-				var realDlvrQty = Number(deleteCommaStr($(elem).find('[name="realDlvrQty"]').val()));
+
+// 				var realDlvrQty   = Number(deleteCommaStr($(elem).find('[name="realDlvrQty"]').val()));
+				var dlvrQty       = Number(deleteCommaStr($(elem).find('[name="acmltDlvrQty"]').val()));
 				var intendDlvrQty = Number(deleteCommaStr($(elem).find('[name="intendDlvrQty"]').val()));
 				
 				var prdtCnvrsnWt = Number($(elem).find('[name="prdtCnvrsnWt"]').val());
-				var realDlvrWt = 0;
+				var realDlvrWt   = 0;
+				var intendDlvrWt = 0;
 				
-				var ordrgUpr = Number($(elem).find('[name="ordrgUpr"]').val());
-				var realDlvrUpr = Number($(elem).find('[name="realDlvrUpr"]').val());
-				var realDlvrAmt = 0;
+// 				var ordrgUpr = Number($(elem).find('[name="ordrgUpr"]').val());
+// 				var realDlvrUpr = Number($(elem).find('[name="realDlvrUpr"]').val());
+// 				var realDlvrAmt = 0;
 				
 				// 유효성 check
 				if(inOutType == "in"){
-					realDlvrQty = realDlvrQty + intendDlvrQty;
+// 					realDlvrQty = realDlvrQty + intendDlvrQty;
+					dlvrQty = dlvrQty + intendDlvrQty;
 				}else if(inOutType == "out"){
-					realDlvrQty = realDlvrQty - intendDlvrQty;
-					if(realDlvrQty < 0){
+// 					realDlvrQty = realDlvrQty - intendDlvrQty;
+					dlvrQty = dlvrQty - intendDlvrQty;
+//					if(realDlvrQty < 0){
+					if(dlvrQty < 0){
 						isValid = false;
 						alert("누적입고량 보다 많은 수량을 취소할 수 없습니다.");
 					}
 				}
 				
 				// 실중량
-				realDlvrWt = realDlvrQty * prdtCnvrsnWt;
+// 				realDlvrWt = realDlvrQty * prdtCnvrsnWt;
+				intendDlvrWt     = intendDlvrQty * prdtCnvrsnWt;
 				
-				// 실납품금액
-				if(realDlvrUpr){
-					// 실납품단가가 있을때 (실납품금액 = 계산된 수량 * 실납품단가)
-					realDlvrAmt = realDlvrQty * realDlvrUpr;
-				}else{
-					// 실납품단가가 없을때 (실납품금액 = 계산된 수량 * 발주단가)
-					realDlvrAmt = realDlvrQty * ordrgUpr;
-					// 실납품단 0일때 발주단가로 update
-					realDlvrUpr = ordrgUpr;
-				}
+// 				// 실납품금액
+// 				if(realDlvrUpr){
+// 					// 실납품단가가 있을때 (실납품금액 = 계산된 수량 * 실납품단가)
+// 					realDlvrAmt = realDlvrQty * realDlvrUpr;
+// 				}else{
+// 					// 실납품단가가 없을때 (실납품금액 = 계산된 수량 * 발주단가)
+// 					realDlvrAmt = realDlvrQty * ordrgUpr;
+// 					// 실납품단 0일때 발주단가로 update
+// 					realDlvrUpr = ordrgUpr;
+// 				}
 				
-				ordrgObj.ordrgDtlSeq = ordrgDtlSeq;
-				ordrgObj.realDlvrQty = realDlvrQty;
-				ordrgObj.realDlvrWt = realDlvrWt;
-				ordrgObj.realDlvrUpr = realDlvrUpr;
-				ordrgObj.realDlvrAmt = realDlvrAmt;
-				ordrgObj.userId = jwt.userId;
-				ordrgObj.pgmId = "RD0102P01";
+				ordrgObj.ordrgSeq      = $(elem).find('[name="ordrgSeq"]').val();
+				ordrgObj.dlvrDttm      = $('.popup_area #realDlvrDttm').val();
+				ordrgObj.ordrgDtlSeq   = ordrgDtlSeq;
+				ordrgObj.ordrgQty      = Number(deleteCommaStr($(elem).find('[name="ordrgQty"]').val()));
+				ordrgObj.ordrgWt       = Number(deleteCommaStr($(elem).find('[name="ordrgWt"]').val()));
+// 				ordrgObj.realDlvrQty   = realDlvrQty;
+// 				ordrgObj.realDlvrWt    = realDlvrWt;
+				ordrgObj.realDlvrQty   = intendDlvrQty;  // 입고수량
+				ordrgObj.realDlvrWt    = intendDlvrWt;
+// 				ordrgObj.realDlvrUpr   = realDlvrUpr;
+// 				ordrgObj.realDlvrAmt   = realDlvrAmt;
+				ordrgObj.userId        = jwt.userId;
+				ordrgObj.pgmId         = "RD0102P01";
+				ordrgObj.odrCreatDiv   = 'OD';
 				ordrgObjArr.push(ordrgObj);
 			}
 		});
@@ -426,18 +485,27 @@
 						inRsltsDtlGridView.setData(0);
 						
 						if($(elem).find('[name="detailChkBox"]').is(":checked")){
-							var ordrgQty = Number(deleteCommaStr($(elem).find('[name="ordrgQty"]').val()));
-							var realDlvrQty = Number(deleteCommaStr($(elem).find('[name="realDlvrQty"]').val()));
+							var ordrgQty      = Number(deleteCommaStr($(elem).find('[name="ordrgQty"]').val()));
+							var realDlvrQty   = Number(deleteCommaStr($(elem).find('[name="realDlvrQty"]').val()));
+							var dlvrQty       = Number(deleteCommaStr($(elem).find('[name="dlvrQty"]').val()));
 							var intendDlvrQty = Number(deleteCommaStr($(elem).find('[name="intendDlvrQty"]').val()));
 							
+// 							if(inOutType == "in"){
+// 								realDlvrQty = realDlvrQty + intendDlvrQty;
+// 							} else if (inOutType == "out"){
+// 								realDlvrQty = realDlvrQty - intendDlvrQty;
+// 							}
 							if(inOutType == "in"){
-								realDlvrQty = realDlvrQty + intendDlvrQty;
+								dlvrQty = dlvrQty + intendDlvrQty;
 							} else if (inOutType == "out"){
-								realDlvrQty = realDlvrQty - intendDlvrQty;
+								dlvrQty = dlvrQty - intendDlvrQty;
 							}
 							
+
 							$(elem).find('[name="realDlvrQty"]').val(addCommaStr(realDlvrQty));
-							$(elem).find('[name="intendDlvrQty"]').val(addCommaStr(ordrgQty-realDlvrQty));
+							$(elem).find('[name="dlvrQty"]').val(addCommaStr(dlvrQty));
+							$(elem).find('[name="remainDlvrQty"]').val(addCommaStr(ordrgQty-dlvrQty));
+							$(elem).find('[name="intendDlvrQty"]').val('');
 						}
 					});
 					countTot();
