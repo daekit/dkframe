@@ -117,9 +117,9 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <!-- <a onclick="copyPlan();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;" authchk>전월복사</a>
+	                <a onclick="copyPlan();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;" authchk>전월복사</a>
 	                <a onclick="insertUpdatePlan('C');" style="height: 30px; line-height: 28px;" authchk>+</a>
-	                <a onclick="deletePlan();" style="height: 30px; line-height: 28px;" authchk>-</a> -->
+	                <a onclick="deletePlan();" style="height: 30px; line-height: 28px;" authchk>-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 <!-- 				<select class="prae_select" onchange="gridView.setData(0);" id="recordCnt">
@@ -157,7 +157,7 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
-		    	multipleSelect: false,
+		    	multipleSelect: true,
 		    	sortable: true,
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
@@ -168,17 +168,13 @@
 		        	 onClick: function () {
 		                this.self.select(this.dindex);
 		            },
-		            mergeCells : ["clntDivNm","salesAreaNm","prdtDivNm"],
-		            grouping: {
-		            	by: ["clntDivNm"],
-		            	columns: [
-		                    {
-		                        label: function () { return "소 계"; }, colspan: colspanCnt
-		                    },
-		                    {key: "planWt", collector: "sum", formatter: "money", align: "right"},
-		                    {key: "trstN", 	collector: "sum", formatter: "money", align: "right"},
-		                    {key: "trstY",  collector: "sum", formatter: "money", align: "right"}
-		                ]
+		            onDBLClick: function () {
+						var list = gridView.target.getList("selected");
+						$.each(list, function(idx, obj){
+							gridView.target.select(obj.__index);
+						});
+						this.self.select(this.dindex);
+		            	insertUpdatePlan("U");
 		            },
 		        },
 		        footSum: [
@@ -188,28 +184,16 @@
 	                    {key: "trstN", collector: "sum", formatter:"money", align: "right"},
 			    		{key: "trstY", collector: "sum", formatter:"money", align: "right"}
 			    	]
-			    ],
+			    ],	
 		        page: {
 		            display: false,
-/*		            navigationItemCount: 9,
-		            height: 30,
-		            display: true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	gridView.setData(this.page.selectPage);
-		            }
-*/		        },
-		        
+		        },
 		        columns: [
 		        	{key: "planSeq",     label: "계획번호",    align: "center",  hidden:true},
 		        	{key: "coNm",        label: "회사",    align: "center", width: "9%", hidden: coBool},
 		        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%", hidden: deptBool},
 		        	{key: "planSalesNm", label: "담당자",    align: "center", width: "9%",hidden: salesBool},
 		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
-// 		            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
 		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
 		            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
 		            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
@@ -218,9 +202,8 @@
 		            	{key: "trstY", label: "수입",     align: "right", width: "9%", formatter: "money"}
 			        ]},
 		            {key: "trstAvg", label: "달성율", align: "right", width: "9%"},
-		            {key: "rmk", label: "비고", align: "center", width: "22%"},
-		            {key: "planSalesId", label: "담당자", align: "center", width: "22%"},
-		            /* {key: "planSalesNm", label: "담당자", align: "center", width: "22%"}, */
+		            {key: "rmk", label: "비고", align: "center", width: "15%"},
+		            {key: "planSalesId", label: "담당자", align: "center", width: "10%"},
 		        ]
 		    });
 			return this;
@@ -238,23 +221,11 @@
 					"planDeptNm"   : $("#deptNm_S").val(),
 					"prdtGrp"      : $("#prdtGrp_S").val(),
 					"mngShow"      : $('#mngShowYn').is(":checked") ? 'Y' : 'N'
-				//	"pageNo" : _pageNo + 1,
-				//	"recordCnt" : $("#recordCnt").val() 
 				}
-				postAjax("/user/sd/sd02/selectSellList", formData, null, function(data){
+				postAjax("/user/sd/sd02/selectSellListInd", formData, null, function(data){
+					console.log(data);
 					var list = data.sellList;
 					firstGrid.setData(list);
-/*					firstGrid.setData({
-						list : list
-						page : {
-							currentPage : _pageNo,
-							pageSize : data.paginationInfo.pageSize,
-							totalElements : data.paginationInfo.totalRecordCount,
-							totalPages : data.paginationInfo.totalPageCount
-						}
-
-					});
-*/					
 				});
 			}
 		} 
@@ -290,7 +261,7 @@
 	
 	//화면로드시
 	$(document).ready(function() {
-		mainDefaultLoad("영업관리", "판매 계획 조회");
+		mainDefaultLoad("영업관리", "판매 계획 관리(개인)");
 		$("#userId").val(jwt.userId);
 		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
 		setCommonSelect($("#main_area select[data-kind]"));
@@ -420,13 +391,27 @@
 	}
 	
 	function deletePlan() {
+		
+
+		var list = gridView.target.getList("selected");
+		var planSeqArr = [];
+		var isPlanWt = true;
+		$.each(list, function(idx, obj){	
+			if(obj.planWt == 0){
+				isPlanWt = false;
+				return;
+			}
+			planSeqArr.push(obj.planSeq);
+		});
+	
 		var row = gridView.target.getList("selected")[0];
-		var formData = {
-			"planSeq" : row.planSeq
-		}
-		if(row.planWt == 0){
+		if(!isPlanWt){
 			alert("계획등록 자료가 아닙니다.");
 			return;
+		}
+		var formData = {
+			"planSeqArr" : planSeqArr,
+			"type1" : row.type1
 		}
 		if(confirm("삭제하시겠습니까?")){
 			deleteAjax("/user/sd/sd02/deletePlan", formData, null, function(data){
@@ -454,7 +439,7 @@
 			//	"pageNo" : _pageNo + 1,
 			//	"recordCnt" : $("#recordCnt").val() 
 			}
-			postAjax("/user/sd/sd02/selectSellList", formData, null, function(data){
+			postAjax("/user/sd/sd02/selectSellListInv", formData, null, function(data){
 				var list = data.sellList;
 				excelView.target.setData(list);
 			

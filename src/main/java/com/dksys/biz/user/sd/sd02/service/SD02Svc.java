@@ -21,8 +21,10 @@ public interface SD02Svc {
 
 	public int deleteCopy(Map<String, String> param);
 	
-	int deletePlan(Map<String, String> paramMap);
+	int deletePlan(Map<String, Object> paramMap);
 	
 	public List<Map<String, String>> selectSellDailyRep(Map<String, String> param);
+	
+	public List<Map<String, String>> selectSellListInd(Map<String, String> param);
 
 }
