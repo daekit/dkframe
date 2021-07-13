@@ -58,13 +58,11 @@ public class PP01SvcImpl implements PP01Svc {
 		// 출하상세 insert
 		List<Map<String, String>> detailList = gson.fromJson(paramMap.get("detailArr"), mapList);
 		for(Map<String, String> detailMap : detailList) {
-			System.out.println(paramMap);
 			detailMap.put("odrSeq", paramMap.get("odrSeq"));
 			detailMap.put("worksCd", paramMap.get("worksCd"));
 			detailMap.put("mesOrdNo", paramMap.get("mesOrdNo"));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
-			System.out.println(detailMap);
 			result = pp01Mapper.insertOrderDetail(detailMap);
 			result = pp01Mapper.insertMesOrderDetail(detailMap);
 		}
