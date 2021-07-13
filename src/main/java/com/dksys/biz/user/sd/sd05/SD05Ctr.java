@@ -30,11 +30,9 @@ public class SD05Ctr {
 	
 	@PostMapping(value = "/selectProjectList")
     public String selectProjectList(@RequestBody Map<String, String> param, ModelMap model) {
-		System.out.println(param);
 		int totalCnt = sd05Svc.selectProjectCount(param);
 		PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
-    	System.out.println(param);
 		List<Map<String, String>> sd0501m01 = sd05Svc.selectProjectList(param);
 		model.addAttribute("sd0501m01", sd0501m01);
         return "jsonView";
@@ -107,7 +105,6 @@ public class SD05Ctr {
 	
 	@PutMapping(value = "/deleteProject")
 	public String deleteProject(@RequestBody Map<String, String> param, ModelMap model) {
-		System.out.println(param);
 		sd05Svc.deleteProject(param);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
@@ -129,7 +126,6 @@ public class SD05Ctr {
 	
 	@PostMapping(value = "/selectPrdtDivCd")
 	public String selectPrdtDivCd(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		System.out.println("-----------------------------------------");
 		List<Map<String, String>> codeInfoList = sd05Svc.selectPrdtDivCd(paramMap);
 		model.addAttribute("codeInfoList", codeInfoList);
 		return "jsonView";

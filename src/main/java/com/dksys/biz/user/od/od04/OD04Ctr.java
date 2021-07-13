@@ -32,10 +32,7 @@ public class OD04Ctr {
     public String selectReqList(@RequestBody Map<String, String> param, ModelMap model) {
 		int reqCnt = od04Svc.selectReqListCount(param);
 		PaginationInfo paginationInfo = new PaginationInfo(param, reqCnt);
-		System.out.println("REQ LIST");
-		System.out.println(param);
 		List<Map<String, String>> resultList = od04Svc.selectReqList(param);
-		System.out.println(resultList);
     	model.addAttribute("paginationInfo", paginationInfo);
     	
 		model.addAttribute("resultList", resultList);
@@ -44,9 +41,7 @@ public class OD04Ctr {
 	
 	@PostMapping(value = "/selectReq")
     public String selectReqInfo(@RequestBody Map<String, String> param, ModelMap model) {
-		System.out.println(param);
 		Map<String, Object> result = od04Svc.selectReq(param);
-		System.out.println(result);
 		model.addAttribute("result", result);
         return "jsonView";
     }

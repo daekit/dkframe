@@ -36,7 +36,6 @@ public class RD05Ctr {
     	int totalCnt = rd05Svc.selectRcvpayDailyDtlCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
-    	System.out.println(paramMap);
     	List<Map<String, String>> resultList = rd05Svc.selectRcvpayDailyDtlList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
