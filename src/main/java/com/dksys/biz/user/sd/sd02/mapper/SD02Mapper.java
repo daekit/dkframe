@@ -22,7 +22,9 @@ public interface SD02Mapper {
 	
 	int deleteCopy(Map<String, String> param);
 	
-	int deletePlan(Map<String, String> paramMap);
+	int deletePlan(String paramMap);
 	
 	List<Map<String, String>> selectSellDailyRep(Map<String, String> param);
+	
+	List<Map<String, String>> selectSellListInd(Map<String, String> param);
 }

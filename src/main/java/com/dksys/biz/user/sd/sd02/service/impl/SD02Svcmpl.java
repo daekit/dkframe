@@ -1,5 +1,7 @@
 package com.dksys.biz.user.sd.sd02.service.impl;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.sd.sd02.mapper.SD02Mapper;
 import com.dksys.biz.user.sd.sd02.service.SD02Svc;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -53,13 +58,23 @@ public class SD02Svcmpl implements SD02Svc {
     }
     
     @Override
-	public int deletePlan(Map<String, String> paramMap) {
-    	return sd02Mapper.deletePlan(paramMap);
+	public int deletePlan(Map<String, Object> paramMap) {
+		List<String> list = (List<String>) paramMap.get("planSeqArr");
+
+		for (int i = 0; i < list.size(); i++) {
+			sd02Mapper.deletePlan(list.get(i));
+		}
+    	return 0;
 		 
 	}
 
 	@Override
 	public List<Map<String, String>> selectSellDailyRep(Map<String, String> param) {
 		return sd02Mapper.selectSellDailyRep(param);
+	}
+
+	@Override
+	public List<Map<String, String>> selectSellListInd(Map<String, String> param) {
+		return sd02Mapper.selectSellListInd(param);
 	}
 }
