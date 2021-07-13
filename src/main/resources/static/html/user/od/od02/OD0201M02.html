@@ -210,6 +210,7 @@
 					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-file-signature"></i>매입확정</a>
 					<a onclick="updateBilgCancel();" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-window-close"></i>확정취소</a>
 					<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 70px;" title="계산서 발행건만 출력합니다." authchk><i class="fas fa-print"></i> 일보출력</a>
+					<a onclick="setReportMain('CLNT');"style="height: 30px; line-height: 28px; width: 110px;" ><i class="fas fa-print"></i>일보(거래처)출력</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;" authchk>+</a>
 					<a onclick="deleteSell();" style="height: 30px; line-height: 28px;" authchk>-</a>
 					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -736,30 +737,58 @@
 		}
 	}
 
-	function setReportMain() {
-		
-		var fileName = "OD0201R01.jrf";
-		var arg = "selPchCd#SELPCH1" 
-		         + "#coCd#"			+ $('#coCd_S').val()
-		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
-		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
-		         + "#clntCd#"		+ $('#clntCd_S').val()
-		         + "#clntNm#"		+ $('#clntNm_S').val()
-		         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
-		         + "#prdtGrp#"		+ $('#prdtGrp').val()
-		         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
-		         + "#estCoprt#"		+ $('#estCoprt_S').val()	
-		         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
-		         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
-		         + "#siteCd#"		+ $('#siteCd_S').val()
-		         + "#siteNm#"		+ $('#siteNm_S').val()
-		         + "#typCd#"		+ $('#typCd_S').val()
-		         + "#typNm#"		+ $('#typCd_S option:selected').text()
-		         + "#bilg#"			+ $('#bilgYn_S').val()
-		         + "#";
-		
-		
-		callReport(fileName, arg, 900, 680);
+	function setReportMain(type) {
+		if(type == 'CLNT'){
+			var fileName = "OD0201R02.jrf";
+			openSecondModal("/static/html/user/od/od02/OD0202P04.html", 600, 200, "거래처 일보 출력 선택", null, function (showYn, showYnRmk) {
+				var arg =  "selPchCd#SELPCH1" 
+			         + "#coCd#"			+ $('#coCd_S').val()
+			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#clntCd#"		+ $('#clntCd_S').val()
+			         + "#clntNm#"		+ $('#clntNm_S').val()
+			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+			         + "#prdtGrp#"		+ $('#prdtGrp').val()
+			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+			         + "#siteCd#"		+ $('#siteCd_S').val()
+			         + "#siteNm#"		+ $('#siteNm_S').val()
+			         + "#typCd#"		+ $('#typCd_S').val()
+			         + "#typNm#"		+ $('#typCd_S option:selected').text()
+			         + "#bilg#"			+ $('#bilgYn_S').val()
+			         + "#showYn#"		+ showYn
+			         + "#showYnRmk#"	+ showYnRmk
+			         + "#";
+				callReport(fileName, arg, 1040, 720);
+			});
+			
+			
+		}else{
+			var fileName = "OD0201R01.jrf";
+			var arg = "selPchCd#SELPCH1" 
+			         + "#coCd#"			+ $('#coCd_S').val()
+			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#clntCd#"		+ $('#clntCd_S').val()
+			         + "#clntNm#"		+ $('#clntNm_S').val()
+			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+			         + "#prdtGrp#"		+ $('#prdtGrp').val()
+			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+			         + "#siteCd#"		+ $('#siteCd_S').val()
+			         + "#siteNm#"		+ $('#siteNm_S').val()
+			         + "#typCd#"		+ $('#typCd_S').val()
+			         + "#typNm#"		+ $('#typCd_S option:selected').text()
+			         + "#bilg#"			+ $('#bilgYn_S').val()
+			         + "#";
+			
+			
+			callReport(fileName, arg, 900, 680);
+		}
 	}
 	
 	function excelDown() {
