@@ -80,7 +80,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select id="coCd_S" data-kind="CO" onchange="gridView.setData(0);" required msg="회사">
+							<select id="coCd_S" data-kind="CO" onchange="setByCoCd(this.value); gridView.setData(0);" required msg="회사">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -100,18 +100,32 @@
 						</td>
 					</tr>
 					<tr>
-					 	<th>프로젝트</th>
-		                <td>
-		                    <input type="hidden" id="prjctCd" name="prjctCd">
-			                <div class="search_form" style="width: 100%;">
-					            <input type="text" id="prjctNm" name="prjctNm" onchange="gridView.setData(0);">
-					            <a id="btnPrjct" onclick="openSecondPrjctSearch();" tall><i class="i_search_w"></i></a>
-				            </div>
-		                </td>
+						<th>제품그룹</th>
+						<td>
+		                 	<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp_S" onchange="gridView.setData(0);">
+		                 		<option value="">전체</option>
+		                 	</select>
+			            </td>
+					 	<th>판매법인</th>
+						<td>
+						  <select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+						 	 <option value="">전체</option>
+						  </select>
+						</td>
 						<th>수주유형</th>
 						<td><select id="ordTyp_S" data-kind="ORDTYP" onchange="gridView.setData(0);">
 								<option value="">전체</ㄴoption>
 						</select></td>
+					</tr>
+					<tr>
+						<th>프로젝트</th>
+		                <td>
+		                    <input type="hidden" id="prjctCd_S" name="prjctCd_S">
+			                <div class="search_form" style="width: 100%;">
+					            <input type="text" id="prjctNm_S" name="prjctNm_S" onkeyup="event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+					            <a id="btnPrjct" onclick="openSecondPrjctSearch();" tall><i class="i_search_w"></i></a>
+				            </div>
+		                </td>
 					</tr>
 				</table>
 			</div>
@@ -237,8 +251,10 @@
 					"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
 					"searchType" : $("#searchType").val(),
 					"searchValue" : $("#searchValue").val(),
-					"prjctNm" : $("#prjctNm").val(),
-					"prjctCd" : $("#prjctCd").val(),
+					"prjctNm" : $("#prjctNm_S").val(),
+					"prjctCd" : $("#prjctCd_S").val(),
+					"prdtGrp" : $("#prdtGrp_S").val(),
+					"taxivcCoprt" : $("#taxivcCoprt").val(),
 					"ordTyp" : $('#ordTyp_S').val()
 				}
 				postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
@@ -342,7 +358,7 @@
 		mainDefaultLoad("영업관리", "프로젝트 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		
+		setByCoCd($("#coCd_S").val());
 		//$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
 		//$('#endDt_S').datepicker("setDate", new Date());
 		
@@ -476,9 +492,17 @@
 		
 		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
 			var row = tree.target.getList("selected")[0];
-			$("#prjctCd").val(row.prjctCd);
-			$("#prjctNm").val(row.prjctNm);
+			$("#prjctCd_S").val(row.prjctCd);
+			$("#prjctNm_S").val(row.prjctNm);
 		});
 		gridView.setData(0);
 	}
+	
+
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
 </script>
