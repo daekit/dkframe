@@ -250,6 +250,9 @@
 										ORDER SIBLINGS BY SORT_NO
 									) B)
 					  </if>
+					  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					     AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
+					  </if>
 				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV)
 <!-- 				         , NVL(AR02.SALES_AREA_CD, 'SALESAREA99')  -->
 				         , SUBSTRING(AR02.TRST_DT, 0, 6) 
@@ -498,7 +501,7 @@
 		    , SUM(NVL(T1.DAY_AMT,0)) AS DAY_AMT
 		    , SUM(NVL(T1.MON_WT,0)) AS MON_WT
 		    , SUM(NVL(T1.MON_AMT,0)) AS MON_AMT
-		    , CASE WHEN SUM(NVL(T1.PLAN_WT,0)) != 0 THEN SUM(NVL(T1.MON_WT,0)) / SUM(NVL(T1.PLAN_WT,0)) * 100
+		    , CASE WHEN SUM(NVL(T1.PLAN_WT,0)) != 0 THEN ROUND(SUM(NVL(T1.MON_WT,0)) / SUM(NVL(T1.PLAN_WT,0)) * 100, 0)
 		    	   ELSE 0 END RATE_WT
 		  FROM 
 		 (
@@ -688,6 +691,13 @@
 		    , NVL(BM02.CLNT_NM, '기타')
 		 ORDER BY T1.CO_CD, T1.PRDT_DIV, BM02.CLNT_DIV_CD, T1.CLNT_CD 
     ) D
+     WHERE 1=1
+    <if test="clntCd != null and !clntCd.equals('')">
+  	    AND D.CLNT_CD = #{clntCd}
+    </if>
+    <if test="clntNm != null and !clntNm.equals('')">
+  	    AND D.CLNT_NM like '%'||#{clntNm}||'%' -->
+    </if>
 	</select>
 	
 	<select id="selectSellListInd" parameterType="Map" resultType="CamelMap">

@@ -72,8 +72,16 @@
 					<input type="text" class="input_calendar" id="planDt" data-search="planDt" autocomplete="off" date>
                	  <!-- <input id="planYm" name="planYm" type="month" onchange="gridView.setData(0);"> -->
               </td>
-              <th></th>
-              <td></td>
+              <th>거래처</th>
+			  <td>
+					<input type="hidden" id="clntCd_S" data-search="clntCd">
+					<div class="search_form">
+						<input type="text" id="clntNm_S" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+						<a onclick="openClntSearch();">
+							<i class="i_search_w"></i>
+						</a>
+					</div>
+			  </td>
             </tr>
             <tr>
 	            <th class="hit">판매유형</th>
@@ -151,7 +159,6 @@
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		            	insertUpdatePlan("U");
 		            }, 
 		            mergeCells : ["coNm","prdtDivNm","clntDivNm"],
 		            grouping: {
@@ -218,13 +225,14 @@
 		            	gridView.setData(this.page.selectPage);
 		            }
 */		        },
-		        
 		        columns: [
 		        	{key: "planSeq",   label: "계획번호",    align: "center",  hidden:true},
+		        	{key: "planSalesId",   label: "판매자아이디",    align: "center",  hidden:true},
+		        	{key: "planDeptCd",   label: "판매자부서",    align: "center",  hidden:true},
 		            {key: "coNm", label: "회사", align: "center", width: "9%"},
 		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
 		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
-		            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
+		            {key: "clntNm",      label: "거래처", align: "left", width: "16%"},
 		            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
 		            {label: "실적",  columns:[
 			            {key: "dayWt", label: "조회일자실적",     align: "right", width: "9%", formatter: "money"},
@@ -247,6 +255,8 @@
 					"planDt"  : $("#planDt").val(),
 					"planDeptId"  : $("#deptId_S").val(),
 					"prdtGrp"  : $("#prdtGrp_S").val(),
+					"clntCd"  : $("#clntCd_S").val(),
+					"clntNm"  : $("#clntNm_S").val(),
 				//	"pageNo" : _pageNo + 1,
 				//	"recordCnt" : $("#recordCnt").val() 
 				}
@@ -340,14 +350,6 @@
 			$('#deptNm_S').val(checkedNode.text);
 			gridView.initView().setData(0);
 		});
-	}
-		
-	function insertUpdatePlan(type){
-		actionType = type;
-		if ( actionType == 'U' && selectGridValidation(firstGrid)){
-			return;
-		}
-		openModal("/static/html/user/sd/sd02/SD0201P01.html", 400, 600," ");
 	}
 	
 	function initSearch() {

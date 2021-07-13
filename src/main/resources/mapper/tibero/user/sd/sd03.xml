@@ -11,7 +11,9 @@
 			SELECT
 				COUNT(*)
 			FROM 
-				TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
+				TB_SD03M01 A, TB_SD03D01 B
+				LEFT JOIN TB_BM01M01 D ON B.PRDT_CD = D.PRDT_CD
+				, TB_CM06M01 C
 			WHERE 1=1
 				AND A.EST_NO = B.EST_NO(+)
 				AND A.SALES_EMP_ID = C.ID
@@ -29,6 +31,12 @@
 			</if>
 			<if test= "winbdYn != null and !winbdYn.equals('')">
 			 	AND A.WINBD_YN = #{winbdYn}
+			</if>
+			<if test= "prdtGrp != null and !prdtGrp.equals('')">
+			 	AND D.PRDT_GRP = #{prdtGrp}
+			</if>
+			<if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+			 	AND A.EST_COPRT = #{taxivcCoprt}
 			</if>
 			GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM
 		)
@@ -67,7 +75,9 @@
 					A.WINBD_YN,
 					nvl2(A.WINBD_DT,TO_CHAR(TO_DATE(A.WINBD_DT, 'YYYYMMDD'),'YYYY-MM-DD'),'') AS WINBD_DT
 				FROM 
-					TB_SD03M01 A, TB_SD03D01 B, TB_CM06M01 C
+					TB_SD03M01 A, TB_SD03D01 B
+					LEFT JOIN TB_BM01M01 D ON B.PRDT_CD = D.PRDT_CD
+					, TB_CM06M01 C
 				WHERE 
 					1=1
 					AND A.EST_NO = B.EST_NO(+)
@@ -86,6 +96,12 @@
 				</if>
 				<if test= "winbdYn != null and !winbdYn.equals('')">
 				 	AND A.WINBD_YN = #{winbdYn}
+				</if>
+				<if test= "prdtGrp != null and !prdtGrp.equals('')">
+				 	AND D.PRDT_GRP = #{prdtGrp}
+				</if>
+				<if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
+				 	AND A.EST_COPRT = #{taxivcCoprt}
 				</if>
 				GROUP BY A.EST_NO, A.CO_CD, A.EST_DT, A.EST_COPRT, A.EST_CLNT_CD, A.EST_CLNT_NM, A.EST_RPRC, A.SALES_EMP_ID, A.BIZ_TEL_NO, A.BIZ_FAX_NO, A.BIZ_FAX_NO, A.MNG_EMAIL, A.PRJCT_NM, A.RMK, C.NAME, A.CREAT_PGM, A.WINBD_YN, WINBD_DT
 				ORDER BY EST_DT DESC, EST_NO DESC

@@ -89,14 +89,12 @@
 	                  	<a onclick="openUserTree();"><i class="i_search_w"></i></a>
 	                  </div>
 	              </td>
-	              <th>부서</th>
-	              <td>
-	              	<input type="hidden" id="deptId_S" name="deptId" style="width: 73%;">
-	                  <div class="search_form">
-	                  <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" onkeyup="event.keyCode == 8 ? deptId_S.value = '' : event.keyCode == 13 ? dtlSearch() : ''">
-	                  	<a onclick="openDeptTree();"><i class="i_search_w"></i></a>
-	                  </div>
-	              </td>
+	              <th>판매법인</th>
+				  <td>
+					<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="dtlSearch();">
+						<option value="">전체</option>
+					</select>
+				  </td>
 	              <th>제품그룹</th>
 	              <td>
 	                <select id="prdtGrp_S" name="prdtGrp_S" data-kind="PRDTGRP" style="width: 100%;" onchange="dtlSearch();">
@@ -108,6 +106,14 @@
                 <th>담당자 조회여부</th>
 	              <td>
 	                <input type="checkbox" id="mngShowYn" name="mngShowYn"  style="width: 100%;" onchange="dtlSearch();">
+	              </td>
+	              <th>부서</th>
+	              <td>
+	              	<input type="hidden" id="deptId_S" name="deptId" style="width: 73%;">
+	                  <div class="search_form">
+	                  <input type="text" id="deptNm_S" name="deptNm" style="width: 100%;" onkeyup="event.keyCode == 8 ? deptId_S.value = '' : event.keyCode == 13 ? dtlSearch() : ''">
+	                  	<a onclick="openDeptTree();"><i class="i_search_w"></i></a>
+	                  </div>
 	              </td>
             </tr>
             </table>
@@ -237,6 +243,7 @@
 					"planDeptId"   : $("#deptId_S").val(),
 					"planDeptNm"   : $("#deptNm_S").val(),
 					"prdtGrp"      : $("#prdtGrp_S").val(),
+					"taxivcCoprt"  : $("#taxivcCoprt").val(),
 					"mngShow"      : $('#mngShowYn').is(":checked") ? 'Y' : 'N'
 				//	"pageNo" : _pageNo + 1,
 				//	"recordCnt" : $("#recordCnt").val() 
@@ -295,6 +302,7 @@
 		document.getElementById('planYm').value= new Date().toISOString().slice(0, 7);
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd").val(jwt.coCd);
+		setByCoCd($("#coCd").val());
 		$("#selpchCd_S").val("SELPCH2");
 		/* $('#planYm').datepicker({
 			format : "yyyy-mm",
@@ -464,4 +472,10 @@
 		}
 	}
 	
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
 </script>
