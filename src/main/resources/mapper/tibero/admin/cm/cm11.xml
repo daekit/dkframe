@@ -18,8 +18,8 @@
 		SELECT CODE_NM AS PRDT_DIV_NM
 		     , CODE_ID 
 		     , SORT_NO
-		     , ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY
-			 , ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY
+		     , ROUND(ROUND(SUM(TRST_WT)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY
+			 , ROUND(ROUND(SUM(REAL_TRST_WT) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY
 			 , ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT
 			 , ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			 , ROUND(ROUND(max(PLAN_WT) /1000, 0) / #{searchUnit}, 0) PLAN_WT
@@ -34,8 +34,8 @@
 		                  GROUP BY NVL(PRDT_DIV,'PRDTDIV99')) ON CODE_ID = PRDT_DIV
 				LEFT OUTER JOIN (SELECT
 						B.PRDT_DIV
-							 , TRST_QTY
-							 , REAL_TRST_QTY 
+							 , TRST_WT
+							 , REAL_TRST_WT 
 							 , TRST_AMT
 							 , REAL_TRST_AMT
 						  FROM TB_AR02M01 A
@@ -44,7 +44,7 @@
 						   AND TRST_DT BETWEEN  #{searchYm} || '01' AND #{searchYm} || '31'
 						   AND A.SELPCH_CD  = 'SELPCH2') T
 						   ON T.PRDT_DIV = C.CODE_ID 
-		WHERE PLAN_WT != 0 OR  REAL_TRST_QTY != 0
+		WHERE PLAN_WT != 0 OR  REAL_TRST_WT != 0
 		 GROUP BY CODE_ID, CODE_NM, SORT_NO
 		 ORDER BY SORT_NO 
 		)
@@ -60,8 +60,8 @@
 	<select id="selectClntSelpch2List" resultType="CamelMap">
 	SELECT CODE_ID,
 		   CODE_NM CLNT_NM,
-		   nvl(TRST_QTY,0) TRST_QTY,
-		   nvl(REAL_TRST_QTY,0) REAL_TRST_QTY,
+		   nvl(TRST_WT,0) TRST_QTY,
+		   nvl(REAL_TRST_WT,0) REAL_TRST_QTY,
 		   nvl(TRST_AMT,0) TRST_AMT,
 		   nvl(REAL_TRST_AMT,0) REAL_TRST_AMT,
 	 	   nvl(PLAN_WT,0) PLAN_WT
@@ -72,8 +72,8 @@
 			WHERE  CODE_KIND = 'CO'
 			  AND  USE_YN  = 'Y') C	  
 	 LEFT OUTER JOIN (SELECT CO_CD,
-				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
-				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
+				   ROUND(ROUND(SUM(TRST_WT)      /1000, 0) / #{searchUnit}, 0)    TRST_WT,
+				   ROUND(ROUND(SUM(REAL_TRST_WT) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_WT,
 				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
 				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			  FROM TB_AR02M01 
@@ -92,8 +92,8 @@
 	<select id="selectClntSelpch2List2" resultType="CamelMap">
 	SELECT TRST_CLNT_CD,
 		   CLNT_NM CLNT_NM,
-		   nvl(TRST_QTY,0) TRST_QTY,
-		   nvl(REAL_TRST_QTY,0) REAL_TRST_QTY,
+		   nvl(TRST_WT,0) TRST_QTY,
+		   nvl(REAL_TRST_WT,0) REAL_TRST_QTY,
 		   nvl(TRST_AMT,0) TRST_AMT,
 		   nvl(REAL_TRST_AMT,0) REAL_TRST_AMT,
 	 	   nvl(PLAN_WT,0) PLAN_WT
@@ -102,8 +102,8 @@
 		     FROM  TB_BM02M01
 			WHERE  USE_YN  = 'Y') C	  
 	 INNER JOIN (SELECT TRST_CLNT_CD,
-				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
-				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
+				   ROUND(ROUND(SUM(TRST_WT)      /1000, 0) / #{searchUnit}, 0)    TRST_WT,
+				   ROUND(ROUND(SUM(REAL_TRST_WT) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_WT,
 				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
 				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			  FROM TB_AR02M01 
@@ -129,8 +129,8 @@
 	<select id="selectClntSelpch1List" resultType="CamelMap">
 	SELECT CODE_ID,
 		   CODE_NM CLNT_NM,
-		   nvl(TRST_QTY,0) TRST_QTY,
-		   nvl(REAL_TRST_QTY,0) REAL_TRST_QTY,
+		   nvl(TRST_WT,0) TRST_QTY,
+		   nvl(REAL_TRST_WT,0) REAL_TRST_QTY,
 		   nvl(TRST_AMT,0) TRST_AMT,
 		   nvl(REAL_TRST_AMT,0) REAL_TRST_AMT,
 	 	   nvl(PLAN_WT,0) PLAN_WT
@@ -141,8 +141,8 @@
 			WHERE  CODE_KIND = 'CO'
 			  AND  USE_YN  = 'Y') C	  
 	 LEFT OUTER JOIN (SELECT CO_CD,
-				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
-				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
+				   ROUND(ROUND(SUM(TRST_WT)      /1000, 0) / #{searchUnit}, 0)    TRST_WT,
+				   ROUND(ROUND(SUM(REAL_TRST_WT) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_WT,
 				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
 				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			  FROM TB_AR02M01 
@@ -161,8 +161,8 @@
 	<select id="selectClntSelpch1List2" resultType="CamelMap">
 	SELECT TRST_CLNT_CD,
 		   CLNT_NM CLNT_NM,
-		   nvl(TRST_QTY,0) TRST_QTY,
-		   nvl(REAL_TRST_QTY,0) REAL_TRST_QTY,
+		   nvl(TRST_WT,0) TRST_QTY,
+		   nvl(REAL_TRST_WT,0) REAL_TRST_QTY,
 		   nvl(TRST_AMT,0) TRST_AMT,
 		   nvl(REAL_TRST_AMT,0) REAL_TRST_AMT,
 	 	   nvl(PLAN_WT,0) PLAN_WT
@@ -171,8 +171,8 @@
 		     FROM  TB_BM02M01
 		     WHERE CLNT_DIV_CD = 'CLNTDIV01' ) C  
 	 INNER JOIN (SELECT TRST_CLNT_CD,
-				   ROUND(ROUND(SUM(TRST_QTY)      /1000, 0) / #{searchUnit}, 0)    TRST_QTY,
-				   ROUND(ROUND(SUM(REAL_TRST_QTY) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_QTY,
+				   ROUND(ROUND(SUM(TRST_WT)      /1000, 0) / #{searchUnit}, 0)    TRST_WT,
+				   ROUND(ROUND(SUM(REAL_TRST_WT) /1000, 0) / #{searchUnit}, 0)    REAL_TRST_WT,
 				   ROUND(SUM(TRST_AMT)      /1000000, 0) TRST_AMT,
 				   ROUND(SUM(REAL_TRST_AMT) /1000000, 0) REAL_TRST_AMT
 			  FROM TB_AR02M01 
@@ -185,7 +185,7 @@
 	                   AND SELPCH_CD = 'SELPCH1'
 	                  GROUP BY CLNT_CD) B 
 	         ON C.CLNT_CD = B.CLNT_CD
-	ORDER BY T.REAL_TRST_QTY DESC
+	ORDER BY T.REAL_TRST_WT DESC
 	</select>
 	
 	<select id="selectFacList" resultType="CamelMap">
