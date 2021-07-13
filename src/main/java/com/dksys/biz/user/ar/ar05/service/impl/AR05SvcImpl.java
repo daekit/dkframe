@@ -55,7 +55,6 @@ public class AR05SvcImpl implements AR05Svc {
 		
 		Map<String, String> etrdpsData = ar05Mapper.selectEtrdpsInfo(paramMap);
 		returnMap.put("etrdpsData", etrdpsData);
-		System.out.println(returnMap);
 		String bilNo = etrdpsData.get("bilNo");
 		if(bilNo != null && !"".equals(bilNo)) {
 			paramMap.put("bilNo", bilNo);
@@ -191,7 +190,6 @@ public class AR05SvcImpl implements AR05Svc {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
 		List<Map<String, String>> dtlParam = gson.fromJson((String)paramMap.get("detailArr"), dtlMap);
-		System.out.println(dtlParam);
 
 		for(Map<String, String> dtl : dtlParam) {
 			dtl.put("userId",  etrdpsData.get("userId"));
@@ -204,13 +202,11 @@ public class AR05SvcImpl implements AR05Svc {
 			if(billData != null) {
 				dtl.put("exprtnDt",billData.get("exprtnDt")); //	종료일	어음계정일 경우 : 만기일
 			}
-			System.out.println(dtl);
 			ar05Mapper.updateEtrdpsDtl(dtl);
 			ar05Mapper.insertEtrdpsDtl(dtl);
 		}
 		if((Boolean)paramMap.get("isAdvPay").equals(true)) {
 			etrdpsData.put("diffAmt", paramMap.get("diffAmt").toString());
-			System.out.println(etrdpsData);
 			ar05Mapper.insertAdvPay(etrdpsData);
 		}
 		return result;
