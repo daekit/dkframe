@@ -90,7 +90,7 @@ public class SD02Ctr {
     }
     
     @DeleteMapping(value = "/deletePlan")
-    public String deleteEst(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    public String deleteEst(@RequestBody Map<String, Object> paramMap, ModelMap model) {
     	sd02svc.deletePlan(paramMap);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
@@ -103,5 +103,12 @@ public class SD02Ctr {
     	model.addAttribute("sellList", sellList);
         return "jsonView";
     }
-    
+
+    @PostMapping(value = "/selectSellListInd")
+    public String selectSellListInv(@RequestBody Map<String, String> param, ModelMap model) {
+
+    	List<Map<String, String>> sellList = sd02svc.selectSellListInd(param);
+    	model.addAttribute("sellList", sellList);
+        return "jsonView";
+    }
 }
