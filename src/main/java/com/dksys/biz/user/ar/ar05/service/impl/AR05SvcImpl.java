@@ -197,6 +197,7 @@ public class AR05SvcImpl implements AR05Svc {
 			dtl.put("userId",  etrdpsData.get("userId"));
 			dtl.put("pgmId",   etrdpsData.get("pgmId"));
 			dtl.put("etrdpsSeq", etrdpsData.get("etrdpsSeq"));
+			dtl.put("etrdpsDt", etrdpsData.get("etrdpsDt"));
 			if(dtl.get("prdtGrp").isEmpty()) {
 				dtl.put("prdtGrp", etrdpsData.get("prdtGrp"));
 			}
