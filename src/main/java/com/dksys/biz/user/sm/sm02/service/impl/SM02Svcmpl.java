@@ -233,8 +233,9 @@ public class SM02Svcmpl implements SM02Svc {
 			 detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
 			 /*
 			 * 제강사 턴키 재고이동 순서
-			 * 1) 기존 재고마스터 가공 데이터 차감
-			 * 2) 기존 재고마스터 가공 데이터 차감한 만큼 유통재고 추가
+			 * update > select 트랜잭션이슈로 1,2 순서 변경
+			 * 1) 기존 재고마스터 가공 데이터 차감한 만큼 유통재고 추가
+			 * 2) 기존 재고마스터 가공 데이터 차감
 			 * 3) 재고이동 이력 유통재고 추가
 			 * 4) MES 재고 추가
 			 * */
@@ -248,11 +249,10 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("stdUpr",    selectedStock.get("stdUpr"));
 			detailMap.put("pchsUpr",   selectedStock.get("pchsUpr"));
 			detailMap.put("sellUpr",   selectedStock.get("sellUpr"));
-			//1) 기존 재고마스터 가공 데이터 차감 
-			sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
-			detailMap.put("typCd",   "SELLTYPE1");
-			//2) 기존 재고마스터 가공 데이터 차감한 만큼 유통재고 추가
+			//1) 기존 재고마스터 가공 데이터 차감한 만큼 유통재고 추가
 			sm02Mapper.sm03UpdateInsertStockMove(detailMap); 
+			//2) 기존 재고마스터 가공 데이터 차감 
+			sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
 			//3) 재고이동 이력 유통 추가
 			sm02Mapper.sm03InsertStockMove(detailMap);
 			//4) MES 재고 추가 
