@@ -89,18 +89,32 @@
                 </td>
               </tr>
 			  <tr>
-                <th>제품구분</th>
-                <td>
-                  <select id= "prdtDiv"  data-kind="PRDTDIV" onchange="gridView.setData(0);" data-search="prdtDiv">
-                  	<option value="">전체</option>
+			    <th>제품그룹</th>
+			    <td>
+                  <select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp_S" onchange="gridView.setData(0);">
+                   	 <option value="">전체</option>
                   </select>
                 </td>
+                <th>판매법인</th>
+				<td>
+					<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
                 <th>낙찰여부</th>
                 <td>
                   <select id= "winbdYn_S"  data-kind="WINBDYN" onchange="gridView.setData(0);" data-search="winbdYn">
                   	<option value="">전체</option>
                   	<option value="Y">낙찰</option>
                   	<option value="N">미낙찰</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+            	<th>제품구분</th>
+                <td>
+                  <select id= "prdtDiv"  data-kind="PRDTDIV" onchange="gridView.setData(0);" data-search="prdtDiv">
+                  	<option value="">전체</option>
                   </select>
                 </td>
               </tr>
@@ -207,15 +221,17 @@
 			firstGrid = this.target;
 			if(inputValidation($('input[required]'))){
 				var formData = {
-					"coCd" 		  : $('#coCd_S').val(),	
-					"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
-					"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
-					"prdtDiv"   : $("#prdtDiv").val(),
-					"searchValue" : $("#searchValue_S").val(),
-					"searchName"  : $("#searchName_S").val(),
-					"winbdYn"  : $("#winbdYn_S").val(),
-					"pageNo" : _pageNo + 1,
-					"recordCnt" : $("#recordCnt").val() 
+					"coCd" 		    : $('#coCd_S').val(),	
+					"strtDt"        : $("#strtDt_S").val().replace(/\-/g,''),
+					"endDt"         : $("#endDt_S").val().replace(/\-/g,''),
+					"prdtDiv"       : $("#prdtDiv").val(),
+					"taxivcCoprt"   : $("#taxivcCoprt").val(),
+					"prdtGrp"     : $("#prdtGrp_S").val(),
+					"searchValue"   : $("#searchValue_S").val(),
+					"searchName"    : $("#searchName_S").val(),
+					"winbdYn"       : $("#winbdYn_S").val(),
+					"pageNo"        : _pageNo + 1,
+					"recordCnt"     : $("#recordCnt").val() 
 				}
 				
 				postAjax("/user/sd/sd03/selectEstList", formData, null, function(data){
@@ -240,6 +256,7 @@
 		mainDefaultLoad("영업관리", "견적서 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
+		setByCoCd($("#coCd_S").val());
 		$("#strtDt_S").val(lastWeek());
 		$("#endDt_S").val(dateToStr(new Date()));
 		
@@ -336,8 +353,13 @@
 			        + "imgPrt#" + imgPrt + "#";
 			callReport(rptName, arg, 750, 900);
 		});
-		
-	
 	}	
 	
+
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
 </script>

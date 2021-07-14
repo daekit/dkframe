@@ -27,6 +27,20 @@
 				<if test="ordTyp != null and !ordTyp.equals('')">
 					AND A.ORD_TYP = #{ordTyp}
 				</if>
+				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					AND A.COPRT_CD LIKE '%${taxivcCoprt}%'
+				</if>
+				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					AND A.COPRT_CD = #{taxivcCoprt}
+				</if>
+				<if test="prdtGrp != null and !prdtGrp.equals('')">
+					AND A.PRJCT_CD IN (SELECT DISTINCT PRJCT_CD          -- 제품 구분을 통해 프로젝트 조회
+								 		 FROM TB_SD05D01
+									   WHERE PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+															FROM TB_BM01M01
+														   WHERE PRDT_GRP = #{prdtGrp}) --제품 그룹을 통해 제품 구분 조회
+								)
+				</if>
 	</select>
 	
 	<select id="selectProjectList" parameterType="Map" resultType="CamelMap">
@@ -139,6 +153,17 @@
 				</if>
 				<if test="prjctNm != null and !prjctNm.equals('')">
 					AND A.PRJCT_NM LIKE '%${prjctNm}%'
+				</if>
+				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					AND A.COPRT_CD = #{taxivcCoprt}
+				</if>
+				<if test="prdtGrp != null and !prdtGrp.equals('')">
+					AND A.PRJCT_CD IN (SELECT DISTINCT PRJCT_CD          -- 제품 구분을 통해 프로젝트 조회
+								 		 FROM TB_SD05D01
+									   WHERE PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+															FROM TB_BM01M01
+														   WHERE PRDT_GRP = #{prdtGrp}) --제품 그룹을 통해 제품 구분 조회
+								)
 				</if>
 				ORDER BY  A.STRT_DT DESC
 			) D
