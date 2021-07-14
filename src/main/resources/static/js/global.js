@@ -81,7 +81,8 @@ ModalStack.prototype.close = function(){
 var modalStack = new ModalStack();
 
 var ubiprefix = "";
-switch (jwt.serverType){
+if(jwt){
+	switch (jwt.serverType){
     case "real" :
         ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
         break;
@@ -93,6 +94,7 @@ switch (jwt.serverType){
         break;
     default :
         ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+	}
 }
 
 var openModal = function(url, width, height, title, paramObj, callback) {
