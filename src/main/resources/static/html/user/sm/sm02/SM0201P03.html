@@ -93,6 +93,9 @@
 								<th colspan="2" class="hit">판매유형</th>
 								<td colspan="3"><select id="searchDtlType"
 									data-kind="SELLTYPE" required msg="판매유형"></select></td>
+								<th colspan="2">총이동<br>중량</th>
+								<td colspan="3"><input id="moveWtAll" value="0" required msg="총이동중량">
+								</td>
 							</tr>
 							<tr>
 								<th colspan="2" class="hit">이동일자</th>
@@ -126,6 +129,7 @@
 	var actionType = null;
 	var searchGrid = null;
 	var insertOK = false;
+	var moveWtAll = 0;
 
 	var gridView1 = {
 		initView : function() {
@@ -138,13 +142,15 @@
 						target : $('[data-ax5grid="search-grid"]'),
 						header : {
 							align : "center",
-							selector : true
+							selector : false
 						},
 						body : {
 							onClick : function() {
 								var idx = this.self.select(this.dindex);
+								clickChkBox();
 							},
-							onDBLClick : function() {},
+							onDBLClick : function() {
+							},
 							onDataChanged : function() {
 								/* 체크 선택 안됨 현상으로 인한 getList 후 저장 */
 								var list = searchGrid.getList();
@@ -154,6 +160,8 @@
 								var idx = this.self.select(this.dindex);
 								idx.list = list;
 								this.self.repaint();
+								clickChkBox();
+								
 							}
 						},
 						page : {
@@ -169,9 +177,11 @@
 							}
 						},
 						columns : [ 
+							{key : "trstClntCd", label : "거래처코드", align : "left", width : 100, hidden : "true"},
 							{key : "stokSeq", label : "시퀀스", align : "center", width : 100, hidden : "true"}, 
 							{key : "coNm", label : "출고회사", align : "center", width : 100, hidden : "true" }, 
 							{key : "listGb", label : "구분", align : "center", width : 45}, 
+							{key : "trstDt", label : "입고일자", align : "center", width : 90}, 
 							{key : "whNm", label : "출고지", align : "center", width : 90}, 
 							{key : "ownerNm", label : "주체", align : "center", width : 50}, 
 							{key : "typNm", label : "유형", align : "center", width : 50}, 
@@ -181,8 +191,8 @@
 							{key : "prdtSpec", label : "스펙", align : "left", width : 70}, 
 							{key : "prdtSize", label : "사이즈", align : "left", width : 60}, 
 							{key : "prdtLen", label : "길이", align : "left", width : 60}, 
-							{key : "realTrstQty", label : "입고 수량", align : "right", width : 100, formatter : "money"}, 
-							{key : "realTrstWt", label : "입고 중량(KG)", align : "right", width : 100, formatter : "money"}, 
+							{key : "realTrstQty", label : "현 재고(입고) 수량", align : "right", width : 120, formatter : "money"}, 
+							{key : "realTrstWt", label : "현 재고(입고) 중량(KG)", align : "right", width : 140, formatter : "money"}, 
 							{key : "moveQty", label : "이동 수량", align : "right", width : 100, formatter : "money", editor : {type : "text"}, styleClass : "grid-cell-blue"}, 
 							{key : "moveWt", label : "이동 중량(KG)", align : "right", width : 100, formatter : "money"}, 
 							{key : "prdtCnvrsnWt", label : "변환중량", align : "right", width : 120, formatter : "money", hidden : true}, 
@@ -212,19 +222,19 @@
 				"pageNo" : _pageNo + 1
 			}
 			postAjax("/user/sm/sm02/selectStockTernKeykMovePchList",formData,null,
-					function(data) {
-						var list = data.smsmDtlList;
-						searchGrid
-						.setData({
-							list : list,
-							page : {
-								currentPage : _pageNo,
-								pageSize : data.paginationInfo.pageSize,
-								totalElements : data.paginationInfo.totalRecordCount,
-								totalPages : data.paginationInfo.totalPageCount
-							}
-						});
-					});
+			 function(data) {
+				var list = data.smsmDtlList;
+				searchGrid
+				.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
 		}
 	}
 
@@ -247,13 +257,16 @@
 		authChk("SM0201M01");
 		
 		var list = gridView1.target.list;
+		
 		for(var i=0;i<list.length;i++){
-			console.log('@@@@@list[i] : ', list[i]);
 			list[i].realTrstQty = list[i].realTrstQty
 			list[i].moveWt = list[i].moveQty * list[i].prdtCnvrsnWt
 		}
 		
-
+		/* $("div.checkBox").change( function() {
+			$(this).css("background-color", "yellow");
+		});
+		 */
 	})
 	//출고, 입고지 set
 	function setDtlInOutWhCd() {
@@ -265,6 +278,13 @@
 
 	function insertUpdateMove() {
 
+		//프로젝트 선택 안햇 을 경우
+		var prjtVal = $('#prjctNm').val();
+		if (prjtVal == '') {
+			alert('프로젝트 입력 후 재고이동이 가능합니다.');
+			return false;
+		}
+		
 		if (inputValidation($('input[required]'))) {
 			var formData = makeFormData();
 			if (!formData) {
@@ -294,6 +314,7 @@
 
 			formData["detailArr2"] = JSON.stringify(formData2);
 			var detailArr = searchGrid.getList("selected");
+			console.log('@@ dtatailArr : ', detailArr);
 			formData["detailArr"] = JSON.stringify(detailArr);
 			putAjax("/user/sm/sm02/insertUpdateTernKeyStockMove", formData,
 					null, function(data) {
@@ -443,4 +464,18 @@
 
 		setCommonSelect($('#searchDtlWhCd'));
 	}
+	
+	function clickChkBox() {
+		var selectedRows = gridView1.target.getList("selected");
+		if(selectedRows.length > 0){
+			moveWtAll = 0;
+			for(var i=0;i<selectedRows.length;i++){
+				moveWtAll += Number(selectedRows[i].moveWt);
+			}
+			$("#moveWtAll").val(moveWtAll);
+		}else {
+			$("#moveWtAll").val(0);
+		}
+	}
+	
 </script>
