@@ -25,6 +25,8 @@ public interface SM02Svc {
 	
 	public int sm02UpdateTernKeyStockMst(Map<String, String> param);
 	
+	public int sm02UpdateTernKeyPchMst(Map<String, String> param);
+	
 	public int selectStockTernKeykMovePchListCount(Map<String, String> param);
 	
 	public List<Map<String, String>> selectStockTernKeykMovePchList(Map<String, String> param);
@@ -38,13 +40,14 @@ public interface SM02Svc {
 	
 	public int sm01UpdateInsertStockMove(Map<String, String> param);
 	
-	
 	public int insertUpdateTernKeyStockMove(Map<String, String> param);
 
 	public int sm01UpdateInsertBarterStockMove(Map<String, String> param);
 	
 	public int sm03UpdateInsertStockMove(Map<String, String> param);
 
+	public int sm03UpdateInsertStockByPchMove(Map<String, String> param);
+	
 	boolean checkStockClose(Map<String, String> paramMap);
 	
 	

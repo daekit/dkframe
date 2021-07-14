@@ -83,10 +83,20 @@ public class SM02Svcmpl implements SM02Svc {
 	public int sm02UpdateTernKeyStockMst(Map<String, String> param) {
 		return sm02Mapper.sm02UpdateTernKeyStockMst(param);
 	}
+	
+	@Override
+	public int sm02UpdateTernKeyPchMst(Map<String, String> param) {
+		return sm02Mapper.sm02UpdateTernKeyPchMst(param);
+	}
 
 	@Override
 	public int sm03UpdateInsertStockMove(Map<String, String> param) {
 		return sm02Mapper.sm03UpdateInsertStockMove(param);
+	}
+	
+	@Override
+	public int sm03UpdateInsertStockByPchMove(Map<String, String> param) {
+		return sm02Mapper.sm03UpdateInsertStockByPchMove(param);
 	}
 	
 	@Override
@@ -234,8 +244,8 @@ public class SM02Svcmpl implements SM02Svc {
 			 /*
 			 * 제강사 턴키 재고이동 순서
 			 * update > select 트랜잭션이슈로 1,2 순서 변경
-			 * 1) 기존 재고마스터 가공 데이터 차감한 만큼 유통재고 추가
-			 * 2) 기존 재고마스터 가공 데이터 차감
+			 * 1) 기존 재고마스터/매출거래 가공 데이터 차감 
+			 * 2) 기존 재고마스터/매출거래 가공 데이터 차감한 만큼 재고마스터 유통재고 추가
 			 * 3) 재고이동 이력 유통재고 추가
 			 * 4) MES 재고 추가
 			 * */
@@ -246,14 +256,28 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("stockQty",  selectedStock.get("stockQty"));
 			detailMap.put("stockWt",   selectedStock.get("stockWt"));
 			detailMap.put("stockUpr",  selectedStock.get("stockUpr"));
+			detailMap.put("stockAmt",  selectedStock.get("stockAmt"));
 			detailMap.put("stdUpr",    selectedStock.get("stdUpr"));
 			detailMap.put("pchsUpr",   selectedStock.get("pchsUpr"));
 			detailMap.put("sellUpr",   selectedStock.get("sellUpr"));
-			//1) 기존 재고마스터 가공 데이터 차감한 만큼 유통재고 추가
-			sm02Mapper.sm03UpdateInsertStockMove(detailMap); 
-			//2) 기존 재고마스터 가공 데이터 차감 
-			sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
+			detailMap.put("proprtStockQty",   selectedStock.get("proprtStockQty"));
+				
+			//1) 기존 재고마스터/매출거래 가공 데이터 차감 
+			//2) 기존 재고마스터/매출거래 가공 데이터 차감한 만큼 재고마스터 유통재고 추가
+			if(detailMap.get("trstCertiNo") != null) { // 매입 정보이면 매출 거래 마스터 데이터 차감
+				sm02Mapper.sm02UpdateTernKeyPchMst(detailMap);
+				int isStockValid = sm02Mapper.checkVaildStockByPch(detailMap);
+				if(isStockValid > 0) { // 매출거래 정보로 재고 마스터로 조회 시 있으면 update 아니
+					sm02Mapper.sm03UpdateStockByPchMove(detailMap);
+				}else {
+					sm02Mapper.sm03insertStockByPchMove(detailMap);
+				}
+			}else {                                    // 매입 정보가 아니면 재고 마스터 가공 데이터 차감
+				sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
+				sm02Mapper.sm03UpdateInsertStockMove(detailMap); 
+			}
 			//3) 재고이동 이력 유통 추가
+			detailMap.put("typCd",   "SELLTYPE2");
 			sm02Mapper.sm03InsertStockMove(detailMap);
 			//4) MES 재고 추가 
 		}

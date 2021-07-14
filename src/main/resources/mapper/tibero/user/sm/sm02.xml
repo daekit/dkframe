@@ -147,102 +147,6 @@
 		SELECT
 			COUNT(*)
 			FROM (
-			   SELECT
-						ROWNUM AS RNUM, D.*
-				FROM(		
-					SELECT T1.* 
-					FROM
-					(SELECT 
-						'TYPE2' AS T_TYPE
-						, A.CO_CD
-						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
-						, A.WH_CD
-						, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
-						, A.MAKR_CD
-						, A.OWNER_CD
-						, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
-						, A.TYP_CD
-						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
-						, A.SELPCH_CD
-						, A.PRJCT_CD
-						, TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'),'YYYY-MM-DD') AS TRST_DT
-						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
-						, A.TRST_CLNT_CD
-						,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
-						, A.TRST_PRDT_CD
-						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
-						, A.PRDT_SPEC
-						, A.PRDT_LEN
-						, A.PRDT_SIZE
-						, A.IMP_YN
-						, A.REAL_TRST_QTY 
-						, A.REAL_TRST_WT
-						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
-						, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
-						FROM TB_AR02M01 A
-							LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
-						WHERE A.SELPCH_CD = 'SELPCH1'
-							AND A.TYP_CD = 'SELLTYPE2'
-							AND A.PRJCT_CD IS NOT NULL
-					UNION ALL
-					SELECT
-						'TYPE2' AS T_TYPE
-						, B.CO_CD AS CO_CD
-						, FN_CM05M01_CD_TO_NM(B.CO_CD) AS CO_NM
-						, B.WH_CD
-						, FN_CM05M01_CD_TO_NM(B.WH_CD) WH_NM
-						, B.MAKR_CD
-						, B.OWNER_CD
-						, FN_CM05M01_CD_TO_NM(B.OWNER_CD) AS OWNER_NM
-						, B.TYP_CD AS TYP_CD
-						, FN_CM05M01_CD_TO_NM(B.TYP_CD) AS TYP_NM
-						, B.TYP_CD AS SELPCH_CD
-						, B.PRJCT_CD AS PRJCT_CD
-						, '-' AS TRST_DT
-						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = B.PRJCT_CD ) AS PRJCT_NM
-						, B.CLNT_CD AS TRST_CLNT_CD
-						,(SELECT CLNT_NM FROM TB_BM02M01 TT1 WHERE TT1.CLNT_CD = B.CLNT_CD) AS TRST_CLNT_NM
-						, B.PRDT_CD AS TRST_PRDT_CD
-						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = B.PRDT_CD) AS TRST_PRDT_NM
-						, B.PRDT_SPEC
-						, B.PRDT_LEN
-						, B.PRDT_SIZE
-						, B.IMP_YN
-						, B.STOCK_WT AS  REAL_TRST_WT
-						, B.STOCK_QTY AS REAL_TRST_QTY
-						, FN_CM05M01_CD_TO_NM(B.IMP_YN) AS IMP_NM
-						, E.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
-						FROM TB_SM01M01 B
-							LEFT JOIN TB_BM01M01 E ON B.PRJCT_CD = E.PRDT_CD
-						WHERE B.TYP_CD = 'SELLTYPE2') T1
-						WHERE 1 = 1
-						    AND PRJCT_CD IS NOT NULL
-						<if test="coCd != null and !coCd.equals('')">
-							AND CO_CD = #{coCd}
-						</if>
-						<if test="whCd != null and !whCd.equals('')">
-							AND WH_CD = #{whCd}
-						 </if>
-						 <if test="trstClntCd != null and !trstClntCd.equals('')">
-							AND TRST_CLNT_CD = #{trstClntCd}
-						</if>
-					     <if test="prjctCd != null and !prjctCd.equals('')">
-							AND PRJCT_CD = #{prjctCd}
-						</if>
-			) D
-			WHERE 1 = 1 
-		     <if test="prjctNm != null and !prjctNm.equals('')">
-				AND D.PRJCT_NM LIKE '%'|| #{prjctNm} ||'%'
-			</if>
-		    <if test="trstClntNm != null and !trstClntNm.equals('')">
-				AND D.TRST_CLNT_NM LIKE '%'|| #{trstClntNm} ||'%'
-			</if>
-			)
-	</select>	
-	
-	<select id="selectStockTernKeykMovePchList" parameterType="Map" resultType="CamelMap">
-		SELECT *
-			FROM(
 				SELECT
 						ROWNUM AS RNUM, D.*
 				FROM(		
@@ -272,12 +176,12 @@
 						, A.PRDT_LEN
 						, A.PRDT_SIZE
 						, A.IMP_YN
-						, A.REAL_TRST_WT
 						, A.REAL_TRST_QTY 
-						, ABS(A.REAL_TRST_QTY)*NVL(C.PRDT_CNVRSN_WT,1) AS MOVE_WT
-						, ABS(A.REAL_TRST_QTY) AS MOVE_QTY
+						, A.REAL_TRST_WT
+						, (ABS(A.REAL_TRST_QTY)*NVL(C.PRDT_CNVRSN_WT,1)) AS  MOVE_WT
+						, ABS(A.REAL_TRST_QTY) AS  MOVE_QTY 
 						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
-						, NVL(C.PRDT_CNVRSN_WT,1) AS PRDT_CNVRSN_WT -- 널이면 1
+						, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
 						, TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD HH24:MI') AS UDT_DTTM
 						FROM TB_AR02M01 A
 							LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
@@ -323,15 +227,18 @@
 						, B.IMP_YN
 						, B.STOCK_WT AS  REAL_TRST_WT
 						, B.STOCK_QTY AS REAL_TRST_QTY
-						, (ABS(B.STOCK_QTY)*NVL(E.PRDT_CNVRSN_WT,1)) AS  MOVE_WT
+						, (ABS(B.STOCK_QTY)*NVL(C.PRDT_CNVRSN_WT,1)) AS  MOVE_WT
 						, ABS(B.STOCK_QTY) AS  MOVE_QTY 
 						, FN_CM05M01_CD_TO_NM(B.IMP_YN) AS IMP_NM
-						, NVL(E.PRDT_CNVRSN_WT,1) AS PRDT_CNVRSN_WT -- 널이면 1
+						, NVL(C.PRDT_CNVRSN_WT,1) AS PRDT_CNVRSN_WT -- 널이면 1
 						, TO_CHAR(B.UDT_DTTM, 'YYYY-MM-DD HH24:MI') AS UDT_DTTM
-						FROM TB_SM01M01 B
-							LEFT JOIN TB_BM01M01 E ON B.PRJCT_CD = E.PRDT_CD
-						WHERE B.TYP_CD = 'SELLTYPE2'
-						    AND PRJCT_CD IS NOT NULL
+						  FROM TB_SM01M01 B, TB_BM01M01 C, TB_BM02M01 E, TB_CM05M01 D
+						 WHERE  B.PRDT_CD = C.PRDT_CD
+						   AND B.CLNT_CD = E.CLNT_CD(+)
+						   AND C.PRDT_STKN = D.CODE_ID
+						   AND B.STOCK_QTY != 0
+						   AND B.TYP_CD = 'SELLTYPE2'
+						   AND B.PRJCT_CD IS NOT NULL
 						<if test="coCd != null and !coCd.equals('')">
 							AND B.CO_CD = #{coCd}
 						</if>
@@ -349,13 +256,140 @@
 						ORDER BY TRST_PRDT_NM DESC
 			) D
 			WHERE 1 = 1 
-		    <if test="prjctNm != null and !prjctNm.equals('')">
+		     <if test="prjctNm != null and !prjctNm.equals('')">
 				AND D.PRJCT_NM LIKE '%'|| #{prjctNm} ||'%'
 			</if>
 		    <if test="trstClntNm != null and !trstClntNm.equals('')">
 				AND D.TRST_CLNT_NM LIKE '%'|| #{trstClntNm} ||'%'
 			</if>
-			ORDER BY D.TRST_DT DESC, D.PRJCT_NM
+		)
+	</select>	
+	
+	<select id="selectStockTernKeykMovePchList" parameterType="Map" resultType="CamelMap">
+		SELECT *
+			FROM(
+				SELECT
+						ROWNUM AS RNUM, D.*
+				FROM(		
+					SELECT T1.* 
+					FROM
+					(SELECT 
+						'TYPE2' AS T_TYPE
+						,'매입' AS LIST_GB
+						, A.TRST_CERTI_NO
+						, null AS STOK_SEQ
+						, A.CO_CD
+						, FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+						, A.WH_CD
+						, FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+						, A.MAKR_CD
+						, A.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(A.OWNER_CD) AS OWNER_NM
+						, A.TYP_CD
+						, FN_CM05M01_CD_TO_NM(A.TYP_CD) AS TYP_NM
+						, A.SELPCH_CD
+						, A.PRJCT_CD
+						, TO_CHAR(TO_DATE(A.TRST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+						, A.TRST_CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.TRST_CLNT_CD) AS TRST_CLNT_NM
+						, A.TRST_PRDT_CD
+						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = A.TRST_PRDT_CD) AS TRST_PRDT_NM
+						, A.PRDT_SPEC
+						, A.PRDT_LEN
+						, A.PRDT_SIZE
+						, A.IMP_YN
+						, A.REAL_TRST_WT
+						, A.REAL_TRST_QTY 
+						, A.REAL_TRST_AMT
+						, (ABS(A.REAL_TRST_QTY)*NVL(C.PRDT_CNVRSN_WT,1)) AS  MOVE_WT
+						, ABS(A.REAL_TRST_QTY) AS  MOVE_QTY 
+						, FN_CM05M01_CD_TO_NM(A.IMP_YN) AS IMP_NM
+						, C.PRDT_CNVRSN_WT AS PRDT_CNVRSN_WT
+						, TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD HH24:MI') AS UDT_DTTM
+						FROM TB_AR02M01 A
+							LEFT JOIN TB_BM01M01 C ON A.TRST_PRDT_CD = C.PRDT_CD
+						WHERE A.SELPCH_CD = 'SELPCH1'
+							AND A.TYP_CD = 'SELLTYPE2'
+							AND A.PRJCT_CD IS NOT NULL
+							<if test="coCd != null and !coCd.equals('')">
+								AND A.CO_CD = #{coCd}
+							</if>
+							<if test="whCd != null and !whCd.equals('')">
+								AND A.WH_CD = #{whCd}
+							 </if>
+							 <if test="trstClntCd != null and !trstClntCd.equals('')">
+								AND A.TRST_CLNT_CD = #{trstClntCd}
+							</if>
+						     <if test="prjctCd != null and !prjctCd.equals('')">
+								AND A.PRJCT_CD = #{prjctCd}
+							</if>
+					UNION ALL
+					SELECT
+						'TYPE2' AS T_TYPE
+						,'이동' AS LIST_GB
+						, null AS TRST_CERTI_NO
+						, B.STOK_SEQ
+						, B.CO_CD AS CO_CD
+						, FN_CM05M01_CD_TO_NM(B.CO_CD) AS CO_NM
+						, B.WH_CD
+						, FN_CM05M01_CD_TO_NM(B.WH_CD) WH_NM
+						, B.MAKR_CD
+						, B.OWNER_CD
+						, FN_CM05M01_CD_TO_NM(B.OWNER_CD) AS OWNER_NM
+						, B.TYP_CD AS TYP_CD
+						, FN_CM05M01_CD_TO_NM(B.TYP_CD) AS TYP_NM
+						, B.TYP_CD AS SELPCH_CD
+						, B.PRJCT_CD AS PRJCT_CD
+						, '-' AS TRST_DT
+						, (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = B.PRJCT_CD ) AS PRJCT_NM
+						, B.CLNT_CD AS TRST_CLNT_CD
+						,(SELECT CLNT_NM FROM TB_BM02M01 TT1 WHERE TT1.CLNT_CD = B.CLNT_CD) AS TRST_CLNT_NM
+						, B.PRDT_CD AS TRST_PRDT_CD
+						,(SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = B.PRDT_CD) AS TRST_PRDT_NM
+						, B.PRDT_SPEC
+						, B.PRDT_LEN
+						, B.PRDT_SIZE
+						, B.IMP_YN
+						, B.STOCK_WT AS  REAL_TRST_WT
+						, B.STOCK_QTY AS REAL_TRST_QTY
+						, B.STOCK_AMT AS REAL_TRST_AMT
+						, (ABS(B.STOCK_QTY)*NVL(C.PRDT_CNVRSN_WT,1)) AS  MOVE_WT
+						, ABS(B.STOCK_QTY) AS  MOVE_QTY 
+						, FN_CM05M01_CD_TO_NM(B.IMP_YN) AS IMP_NM
+						, NVL(C.PRDT_CNVRSN_WT,1) AS PRDT_CNVRSN_WT -- 널이면 1
+						, TO_CHAR(B.UDT_DTTM, 'YYYY-MM-DD HH24:MI') AS UDT_DTTM
+						  FROM TB_SM01M01 B, TB_BM01M01 C, TB_BM02M01 E, TB_CM05M01 D
+						 WHERE  B.PRDT_CD = C.PRDT_CD
+						   AND B.CLNT_CD = E.CLNT_CD(+)
+						   AND C.PRDT_STKN = D.CODE_ID
+						   AND B.STOCK_QTY != 0
+						   AND B.TYP_CD = 'SELLTYPE2'
+						   AND B.PRJCT_CD IS NOT NULL
+						<if test="coCd != null and !coCd.equals('')">
+							AND B.CO_CD = #{coCd}
+						</if>
+						<if test="whCd != null and !whCd.equals('')">
+							AND B.WH_CD = #{whCd}
+						 </if>
+						 <if test="trstClntCd != null and !trstClntCd.equals('')">
+							AND B.CLNT_CD = #{trstClntCd}
+						</if>
+					     <if test="prjctCd != null and !prjctCd.equals('')">
+							AND B.PRJCT_CD = #{prjctCd}
+						</if>
+						) T1
+						WHERE 1 = 1
+						ORDER BY TRST_PRDT_NM DESC
+			) D
+			WHERE 1 = 1 
+		     <if test="prjctNm != null and !prjctNm.equals('')">
+				AND D.PRJCT_NM LIKE '%'|| #{prjctNm} ||'%'
+			</if>
+		    <if test="trstClntNm != null and !trstClntNm.equals('')">
+				AND D.TRST_CLNT_NM LIKE '%'|| #{trstClntNm} ||'%'
+			</if>
+			ORDER BY D.TRST_DT DESC, D.PRJCT_NM DESC
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
@@ -507,6 +541,22 @@
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
+	<select id="checkVaildStockByPch" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+		FROM TB_SM01M01
+		   WHERE TYP_CD = 'SELLTYPE1'
+			AND CO_CD     = #{sCoCd}
+			AND WH_CD     = #{sWhCd}
+			AND OWNER_CD  = #{ownerCd}
+			AND CLNT_CD   = #{trstClntCd}
+			AND PRJCT_CD   = #{sPrjctCd}
+			AND PRDT_CD  = #{sPrdtCd}
+			AND PRDT_SIZE = #{prdtSize}
+			AND PRDT_SPEC = #{prdtSpec}
+			AND PRDT_LEN  = #{prdtLen}
+			AND IMP_YN    = #{impYn}
+	</select>
+	
 	<update id="sm02UpdateTernKeyStockMst" parameterType="Map">
 		UPDATE TB_SM01M01
 		SET STOCK_QTY = #{stockQty}-#{moveQty}
@@ -522,6 +572,16 @@
 			AND PRDT_SPEC = #{prdtSpec}
 			AND PRDT_LEN  = #{prdtLen}
 			AND IMP_YN    = #{impYn}
+	</update>
+	
+	<update id="sm02UpdateTernKeyPchMst" parameterType="Map">
+		UPDATE TB_AR02M01
+		SET REAL_TRST_QTY = #{realTrstQty}-#{moveQty}
+		   ,REAL_TRST_WT  = #{realTrstWt}-#{moveWt} 
+		WHERE CO_CD = #{coCd}
+		    AND TRST_CERTI_NO = #{trstCertiNo}
+		    AND TYP_CD = 'SELLTYPE2'
+		    AND SELPCH_CD = 'SELPCH1'
 	</update>
 	
 	<update id="sm01UpdateStockMove" parameterType="Map">
@@ -927,7 +987,7 @@
 			   #{pgmId}, 
 			   SYSDATE 
 		   FROM TB_SM01M01
-		   WHERE TYP_CD = 'SELLTYPE1'
+		   WHERE TYP_CD = 'SELLTYPE2'
 			AND CO_CD     = #{sCoCd}
 			AND WH_CD     = #{sWhCd}
 			AND OWNER_CD  = #{ownerCd}
@@ -948,7 +1008,7 @@
 		  AND NVL(A.PRDT_SIZE,0) = NVL(S.PRDT_SIZE,0)
 		  AND NVL(A.PRDT_SPEC,0) = NVL(S.PRDT_SPEC,0)
 		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0)
-		  AND S.TYP_CD = 'SELLTYPE1'
+		  AND A.TYP_CD = 'SELLTYPE1'
 		)
 		WHEN MATCHED THEN 
 			UPDATE SET   ( STOCK_QTY )= ( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY FROM TB_SM01M01 
@@ -1010,6 +1070,72 @@
 		   #{pgmId}, 
 		   SYSDATE)
 	</update>
+	
+	<update id="sm03UpdateStockByPchMove" parameterType="Map">
+		UPDATE TB_SM01M01 A 
+		SET  STOCK_QTY=( SELECT STOCK_QTY + #{moveQty} AS STOCK_QTY 
+		                  FROM TB_SM01M01 
+		 	              WHERE STOK_SEQ   = A.STOK_SEQ )
+		    ,STOCK_WT=( SELECT STOCK_WT + #{moveWt} AS STOCK_WT 
+		                 FROM TB_SM01M01
+					     WHERE STOK_SEQ   = A.STOK_SEQ ) 
+	</update>
+	
+	<insert id="sm03insertStockByPchMove" parameterType="Map">
+		INSERT INTO TB_SM01M01
+		(
+		   STOK_SEQ,
+		   CO_CD,
+		   WH_CD,
+		   PRDT_CD,
+		   PRDT_SIZE,
+		   PRDT_SPEC,
+		   PRDT_LEN,
+		   OWNER_CD,
+		   CLNT_CD,
+		   TYP_CD,
+		   MAKR_CD,
+		   PRJCT_CD,
+		   IMP_YN,
+		   STOCK_QTY,
+		   STOCK_WT,
+		   STOCK_UPR,
+		   STOCK_AMT,
+		   STD_UPR,
+		   PCHS_UPR,
+		   SELL_UPR,
+		   PROPRT_STOCK_QTY,
+		   STOCK_CHG_CD,
+		   CREAT_ID,
+		   CREAT_PGM, 
+		   UDT_DTTM
+		)VALUES(
+		   TB_SM01M01_SQ01.NEXTVAL, 
+		   #{coCd},
+		   #{whCd},
+		   #{trstPrdtCd},
+		   #{prdtSize},
+		   #{prdtSpec},
+		   #{prdtLen},
+		   #{ownerCd},
+		   #{trstClntCd},
+		   'SELLTYPE1',
+		   #{makrCd},
+		   #{prjctCd},
+		   #{impYn},
+		   #{moveQty},
+		   #{moveWt},
+		   #{stockUpr},
+		   #{stockAmt},
+		   #{stdUpr},
+		   #{pchsUpr},
+		   #{realTrstAmt},
+		   #{proprtStockQty},
+		   'STOCKCHG06',
+		   #{userId},
+		   #{pgmId}, 
+		   SYSDATE)
+	</insert>
 	
 	<insert id="sm03InsertStockMove" parameterType="Map">
 		INSERT INTO TB_SM02M01
