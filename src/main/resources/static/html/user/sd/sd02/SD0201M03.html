@@ -104,12 +104,6 @@
 	                </select>
 	              </td>
             </tr>
-            <tr>
-                <th>담당자 조회여부</th>
-	              <td>
-	                <input type="checkbox" id="mngShowYn" name="mngShowYn"  style="width: 100%;" onchange="dtlSearch();">
-	              </td>
-            </tr>
             </table>
           </div>
     </div>
@@ -190,9 +184,9 @@
 		        },
 		        columns: [
 		        	{key: "planSeq",     label: "계획번호",    align: "center",  hidden:true},
-		        	{key: "coNm",        label: "회사",    align: "center", width: "9%", hidden: coBool},
-		        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%", hidden: deptBool},
-		        	{key: "planSalesNm", label: "담당자",    align: "center", width: "9%",hidden: salesBool},
+		        	{key: "coNm",        label: "회사",    align: "center", width: "9%"},
+		        	{key: "planDeptNm",  label: "부서",    align: "center", width: "9%"},
+		        	{key: "planSalesNm", label: "담당자명",    align: "center", width: "9%"},
 		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
 		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
 		            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
@@ -356,6 +350,13 @@
 		if ( actionType == 'U' && selectGridValidation(firstGrid)){
 			return;
 		}
+		if(actionType == "U"){
+			var row = gridView.target.getList("selected")[0];
+			if(!row.planSeq){
+				alert("계획등록 자료가 아닙니다.");
+				return;
+			}
+		}
 		openModal("/static/html/user/sd/sd02/SD0201P01.html", 400, 600," ");
 	}
 	
@@ -397,7 +398,7 @@
 		var planSeqArr = [];
 		var isPlanWt = true;
 		$.each(list, function(idx, obj){	
-			if(obj.planWt == 0){
+			if(!obj.planSeq){
 				isPlanWt = false;
 				return;
 			}
