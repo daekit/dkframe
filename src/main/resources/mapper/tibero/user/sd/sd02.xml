@@ -324,7 +324,7 @@
 		LEFT OUTER JOIN TB_BM02M01 B
 	       ON T.CLNT_CD = B.CLNT_CD
 		WHERE 1=1
-		 <if test="mngShow != null and !mngShow.equals('')">
+		 <if test="planSeq != null and !planSeq.equals('')">
 		  AND PLAN_SEQ = #{planSeq}
 		  </if>
 		   <if test="coCd != null and !coCd.equals('')">
@@ -351,6 +351,7 @@
 		   <if test="selesAreaCd != null and !selesAreaCd.equals('')">
 		   AND T.SALES_AREA_CD = #{selesAreaCd}
 		  </if>
+		  ORDER BY PLAN_SEQ
 	</select>
 	
 	<insert id="insertPlan">
@@ -697,10 +698,8 @@
 				SELECT 
 					  BM02.CLNT_DIV_CD
 					 , PLAN_SEQ
-					 <if test="coCd != null and !coCd.equals('')">
 				     , T1.CO_CD
 					 , FN_CM05M01_CD_TO_NM(T1.CO_CD) CO_NM
-				       </if>
 				    ,  T1.CLNT_CD
 				    ,  T1.PRDT_DIV
 					 , FN_CM05M01_CD_TO_NM(BM02.CLNT_DIV_CD) CLNT_DIV_NM
@@ -711,30 +710,20 @@
 				    , NVL(T1.TRST_N,0) AS TRST_N
 				    , CASE WHEN NVL(T1.PLAN_WT,0) != 0 THEN ((NVL(T1.TRST_N,0) + NVL(T1.TRST_Y,0)) / NVL(T1.PLAN_WT,0)) * 100 
 				    		ELSE 0 END AS TRST_RATE
-					 <if test="mngShow != null and !mngShow.equals('')">
 					  ,T1.PLAN_SALES_ID
 					  ,T1.PLAN_SALES_NM
-					 </if>
-					 <if test="planDeptId != null and !planDeptId.equals('')">
 					  ,T1.PLAN_DEPT_ID
-					 </if>
-					 <if test="planDeptNm != null and !planDeptNm.equals('')">
 					 , T1.PLAN_DEPT_NM
-					 </if>
 				  FROM 
 				  (SELECT SD01.PLAN_SEQ
 				  	   , NVL(SD01.CO_CD, AR02.CO_CD) CO_CD
 				  	   , NVL(SD01.CLNT_CD, AR02.TRST_CLNT_CD) CLNT_CD
 				  	   , NVL(SD01.PRDT_DIV, AR02.PRDT_DIV) PRDT_DIV
 				  	   , SD01.PLAN_YM
-				  	   , SD01.PLAN_SALES_ID
-				  	   , SD01.PLAN_SALES_NM
-				       <if test="planDeptId != null and !planDeptId.equals('')">
+				  	   , NVL(SD01.PLAN_SALES_ID, AR02.SALES_MNG)  PLAN_SALES_ID
+				  	   , NVL(SD01.PLAN_SALES_NM, AR02.NAME) PLAN_SALES_NM
 				  	   , NVL(SD01.PLAN_DEPT_ID, AR02.DEPT_ID) PLAN_DEPT_ID
-				  	   </if>
-				       <if test="planDeptNm != null and !planDeptNm.equals('')">
 				  	   , NVL(SD01.PLAN_DEPT_NM, AR02.DEPT_NM) PLAN_DEPT_NM
-				  	   </if>
 				  	   , SD01.PLAN_WT
 				  	   , AR02.TRST_Y
 				  	   , AR02.TRST_N
@@ -746,16 +735,10 @@
 				       , S.CLNT_CD 
 				       , TRIM(S.PRDT_DIV) PRDT_DIV
 				       , S.PLAN_YM
-					  <if test="mngShow != null and !mngShow.equals('')">
 					    ,S.PLAN_SALES_ID
 					    , CM06.NAME AS PLAN_SALES_NM
-					  </if>
-				       <if test="planDeptId != null and !planDeptId.equals('')">
 					    ,S.PAN_DEPT_ID AS PLAN_DEPT_ID
-					  </if>
-				       <if test="planDeptNm != null and !planDeptNm.equals('')">
 					    ,CM04.DEPT_NM AS PLAN_DEPT_NM
-					  </if>
 				       , S.PLAN_WT PLAN_WT
 				       , 0 TRST_Y
 				       , 0 TRST_N
@@ -829,16 +812,10 @@
 				       , AR02.TRST_CLNT_CD
 				       , TRIM(AR02.PRDT_DIV) PRDT_DIV 
 				       , SUBSTRING(AR02.TRST_DT, 0, 6) TRST_DT
-					 <if test="mngShow != null and !mngShow.equals('')">
 					   , AR02.SALES_MNG 
 					   , CM06.NAME
-					  </if>
-				       <if test="planDeptId != null and !planDeptId.equals('')">
 					   , CM06.DEPT_ID
-					  </if>
-					  <if test="planDeptNm != null and !planDeptNm.equals('')">
 					    ,CM04.DEPT_NM
-					  </if>
 					   , 0 AS PLAN_WT 
 				       , SUM(DECODE(AR02.IMP_YN, 'Y', AR02.REAL_TRST_QTY)) TRST_Y
 				       , SUM(DECODE(AR02.IMP_YN, 'N', AR02.REAL_TRST_QTY)) TRST_N
@@ -907,16 +884,10 @@
 					  </if>
 				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV)
 				         , SUBSTRING(AR02.TRST_DT, 0, 6) 
-						 <if test="mngShow != null and !mngShow.equals('')">
 					     , AR02.SALES_MNG 
 					     , CM06.NAME
-					    </if>
-					    <if test="planDeptId != null and !planDeptId.equals('')">
 						 , CM06.DEPT_ID
-						</if>
-						<if test="planDeptNm != null and !planDeptNm.equals('')">
 					     , CM04.DEPT_NM
-					    </if>
 					    ) AR02
 			ON SD01.CO_CD = AR02.CO_CD
 			AND SD01.CLNT_CD = AR02.TRST_CLNT_CD
@@ -924,19 +895,14 @@
 				) T1
 			   LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = T1.CLNT_CD
 				 ORDER BY 
-				 <if test="planDeptNm != null and !planDeptNm.equals('')">
 					  T1.PLAN_DEPT_NM ,
-					 </if>
-					 <if test="mngShow != null and !mngShow.equals('')">
 					  T1.PLAN_SALES_ID,
 					  T1.PLAN_SALES_NM,
-					 </if>
-					 <if test="coCd != null and !coCd.equals('')">
 						 T1.CO_CD,
-					 </if> 
 					 BM02.CLNT_DIV_CD,
 					 T1.PRDT_DIV, T1.CLNT_CD 
 		    ) D
+		    ORDER BY CO_CD, CLNT_DIV_CD, PRDT_DIV, CLNT_CD
 	</select>
 </mapper>
 
