@@ -705,13 +705,39 @@
 
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			// 정발행의 경우 rffgn1 : 01, rffAea : null 인 건만 가능
-			if((obj.rffGn1Cd != "01" && obj.rffAeaCd)  || obj.bgm1225Cd != 'BGM12259'){
-				if((obj.rffAeaCd != "03")){ //obj.rffGn1Cd != "02" && 
+			/* if((obj.rffGn1Cd != "01")){ // 세금계산서 종류가 세금계산서면 pass 
+				if((obj.bgm1225Cd != 'BGM12259' && obj.rffAeaCd != "03")){ // 최초발행(BGM12259)이 아닐 경우 rffAeaCd가 환입(03)이어야 pass 아닐 경우 종류 확인 alert
+					arrGnChk = false;
+					alert("세금계산서 종류를 확인 해 주세요.");
+					return false;
+				} 
+				if(obj.rffGn1Cd == "02 " && !obj.rffAeaCd){ // 수정세금계산서인데 수정사유코드(rffAeaCd)가 없을 경우 사유 확인 alert
+					arrGnChk = false;
+					alert("수정 세금 계산서 사유를 확인 해 주세요.");
+					return false;
+				}
+			} else { // 세금계산서일 경우
+				if((obj.rffAeaCd == "03" && (obj.bgm1225Cd != 'BGM12254' || obj.bgm1225Cd != 'BGM12253'))){ // 환입
 					arrGnChk = false;
 					alert("세금계산서 종류를 확인 해 주세요.");
 					return false;
 				}
+			} */ //20210715 주석처리 아래 로직으로 변경
+			
+			if(obj.bgm1225Cd == 'BGM12259') { //'BGM12259' 문서전송구분 최초 발행 “9”
+				if(obj.rffGn1Cd != "01") {    //세금계산서(01)가 아니면 수정사유가 반드시 있어야 함
+					if (!obj.rffAeaCd) {
+						arrGnChk = false;
+						alert("세금계산서 종류를 확인 해 주세요.");
+						return false;
+					}
+				}
+			} else if ( obj.rffAeaCd != "03") { //'BGM12254,BGM12253,BGM12251'정정(4)/삭제(3)/철회(1) 발행 시 환입(03)만 처리 아니면 오류처리
+				arrGnChk = false;
+				alert("세금계산서 종류를 확인 해 주세요.");
+				return false;
 			}
+				
 			
 			//e-Mail 체크
 			if(!obj.taxRcvEmail){
