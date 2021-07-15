@@ -73,7 +73,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String ard5006 = trstCertiNoList.size() > 1 ? arParam.get("prdtNm") + " 외 " + (trstCertiNoList.size() - 1) + "건"
 				: arParam.get("prdtNm");
 		bilgDetail.put("bilgCertNo", bilgCertNo);
-		bilgDetail.put("moa95004", DateUtil.getCurrentYyyymmdd());
+		bilgDetail.put("moa95004", arParam.get("trstDt"));
 		bilgDetail.put("ard5006", ard5006);
 		bilgDetail.put("ard113a", arParam.get("trstPrdtCd"));
 		bilgDetail.put("mea106154", arParam.get("prdtUnitNm"));
@@ -247,7 +247,6 @@ public class AR04SvcImpl implements AR04Svc {
 				insertKladdi(msgId, taxHdParam);
 			}
 
-			msgId++;
 			if (bilgInfo.get("rffGn1").equals("RFFGN101")) {// 계산서 번호가 있고 수정 세금계산서가 아닌경우 기존 BGM1004 사용
 				if (bilgInfo.get("taxBilgNo").isEmpty()) {
 					bgm1004 = ar04Mapper.selectBgmSeq();
@@ -262,6 +261,7 @@ public class AR04SvcImpl implements AR04Svc {
 			taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
 			taxHdParam.put("rffAea", bilgInfo.get("rffAea"));
 			// 세금계산서 발행
+			msgId++;
 			xmlMsgId = ar04Mapper.selectMsgId(msgId);
 			taxHdParam.put("bgm1004", bgm1004);
 			taxHdParam.put("xmlMsgId", xmlMsgId);
