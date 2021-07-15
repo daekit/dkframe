@@ -398,17 +398,24 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Override
 	public void insertSalesDivision(List<Map<String, String>> paramList) throws Exception{
-		// 여신체크
-		long totAmt = 0;
+		
+		Map<String, String> baseMap = paramList.get(0);
+		// 마감 체크
+		if(!ar02Svc.checkSellClose(baseMap)) {
+    		thrower.throwCommonException("sellClose");
+		}
+		
+		/* 여신체크 start */
 		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("coCd", baseMap.get("coCd"));
+		loanMap.put("clntCd", baseMap.get("divClntCd"));
+		loanMap.put("prdtGrp", baseMap.get("prdtGrp"));
+		loanMap.put("trstDt", baseMap.get("trstDt"));
+		
+		// 분할 총금액 계산
+		long totAmt = 0;
 		for(int i=0;i<paramList.size();i++) {
 			Map<String, String> paramMap = paramList.get(i);
-			if(i == 0) {
-				loanMap.put("coCd", paramMap.get("coCd"));
-				loanMap.put("clntCd", paramMap.get("divClntCd"));
-				loanMap.put("prdtGrp", paramMap.get("prdtGrp"));
-				loanMap.put("trstDt", paramMap.get("trstDt"));
-			}
 			totAmt += Long.parseLong(paramMap.get("divTotAmt"));
 		}
 		loanMap.put("totAmt", totAmt);
@@ -417,6 +424,7 @@ public class AR02SvcImpl implements AR02Svc {
 		if(diffLoan < 0) {
 			thrower.throwCreditLoanException("", diffLoan);
 		}
+		/* 여신체크 end */
 		
 		for(Map<String, String> paramMap : paramList) {
 			// paramList 순회하며 넘어온값 그대로 update
