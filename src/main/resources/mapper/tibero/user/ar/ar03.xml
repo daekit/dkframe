@@ -37,6 +37,9 @@
 		<if test= "procYn != null and !procYn.equals('')">
  			AND A.PROC_YN = #{procYn}
 		</if>
+		<if test= "prdtGrp != null and !prdtGrp.equals('')">
+ 			AND A.PRDT_GRP = #{prdtGrp}
+		</if>
 		</where>
 	</select>
 	
@@ -71,6 +74,8 @@
 						,A.PROC_YN
 						,A.TRANS_RMK
 						,A.ODR_CREAT_DIV
+						,A.PRDT_GRP
+						,FN_CM05M01_CD_TO_NM(A.PRDT_GRP) AS PRDT_GRP_NM
 						,A.CREAT_ID
 						,A.CREAT_PGM
 						,A.CREAT_DTTM
@@ -130,7 +135,7 @@
 		 			AND A.TAXIVC_COPRT = #{taxivcCoprt}
 				</if>
 				<if test= "prdtGrp != null and !prdtGrp.equals('')">
-		 			AND A.TAXIVC_COPRT = #{prdtGrp}
+		 			AND A.PRDT_GRP = #{prdtGrp}
 				</if>
 				</where>
 			ORDER BY A.TRANS_DT,A.SITE_CD,A.TRANS_CO
@@ -147,7 +152,8 @@
 			(SELECT CLNT_NM  FROM TB_BM02M01 C WHERE T.CLNT_CD  = C.CLNT_CD) AS CLNT_NM,
 			(SELECT PRJCT_NM FROM TB_SD05M01 P WHERE P.PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM,			
 			(SELECT SITE_NM  FROM TB_SD09M01 S WHERE S.SITE_CD  = T.SITE_CD) AS SITE_NM,
-			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
+			FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
+			FN_CM05M01_CD_TO_NM(T.PRDT_GRP) AS PRDT_GRP_NM
 		FROM TB_AR03M01 T
 		 LEFT JOIN TB_BM02M01 B ON T.CLNT_CD = B.CLNT_CD
 		WHERE 1=1
@@ -249,7 +255,8 @@
 			CREAT_DTTM,
 			SITE_CD,
 			TAXIVC_COPRT,
-			SHIP_VEH_NO
+			SHIP_VEH_NO,
+			PRDT_GRP
 		)VALUES(
 			#{transSeq},
 			#{coCd},
@@ -272,7 +279,8 @@
 			SYSDATE,
 			#{siteCd},
 			#{taxivcCoprt, jdbcType=VARCHAR},
-			#{shipVehNo, jdbcType=VARCHAR}
+			#{shipVehNo, jdbcType=VARCHAR},
+			#{prdtGrp, jdbcType=VARCHAR}
 		)
 	</insert>
 	
@@ -300,6 +308,7 @@
 			,UDT_DTTM  = SYSDATE
 			,TAXIVC_COPRT = #{taxivcCoprt, jdbcType=VARCHAR}
 			,SHIP_VEH_NO  = #{shipVehNo, jdbcType=VARCHAR}
+			,PRDT_GRP     = #{prdtGrp, jdbcType=VARCHAR}
 		WHERE
 			TRANS_SEQ = #{transSeq}
 	</update>
