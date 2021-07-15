@@ -1353,10 +1353,15 @@
 			<if test="taxBilgYn != null and !taxBilgYn.equals('')">
 				<choose>
 					<when test='taxBilgYn == "Y"'>
-						AND ORGN_TAX_BILG_NO IS NOT NULL
+					   AND #{taxBilgYn} = (SELECT 'Y' FROM  TB_AR04M01 AR04 WHERE AR04.BILG_CERT_NO = A.BILG_CERT_NO 
+					                                                        AND   AR04.TAX_BILG_NO IS NOT NULL AND  ROWNUM = 1 )
+<!-- 						AND ORGN_TAX_BILG_NO IS NOT NULL -->
 					</when>
 					<otherwise>
-						AND ORGN_TAX_BILG_NO IS NULL
+					 AND #{taxBilgYn} = (SELECT 'N' FROM  TB_AR04M01 AR04 WHERE AR04.BILG_CERT_NO = A.BILG_CERT_NO 
+					                                                        AND   AR04.TAX_BILG_NO IS  NULL AND  ROWNUM = 1 )
+					                                                        
+<!-- 						AND ORGN_TAX_BILG_NO IS NULL -->
 					</otherwise>
 				</choose>
 			</if>
