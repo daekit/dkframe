@@ -39,6 +39,11 @@
 			<if test="rmk != null and !rmk.equals('')">
 				AND T.RMK LIKE '%'|| #{rmk} || '%'
 			</if>
+			<if test="prdtGrp != null and !prdtGrp.equals('')">
+				AND T.PRDT_CD IN (SELECT DISTINCT PRDT_CD
+								   FROM TB_BM01M01
+							      WHERE PRDT_GRP = #{prdtGrp})
+			</if>
 	</select>
 
 	<select id="selectPchsSellList" resultType="CamelMap">
@@ -123,6 +128,11 @@
 					</if>
 					<if test="rmk != null and !rmk.equals('')">
 						AND T.RMK LIKE '%'|| #{rmk} || '%'
+					</if>
+					<if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND T.PRDT_CD IN (SELECT DISTINCT PRDT_CD
+									   FROM TB_BM01M01
+								      WHERE PRDT_GRP = #{prdtGrp})
 					</if>
 				ORDER BY T.CO_CD, T.TAXIVC_COPRT_CD, T.TRST_DT, T.CLNT_NM, CLNT_CD, T.SELPCH_CD
 			) A
