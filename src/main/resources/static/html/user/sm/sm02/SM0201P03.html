@@ -286,41 +286,40 @@
 		}
 		
 		if (inputValidation($('input[required]'))) {
-			var formData = makeFormData();
-			if (!formData) {
-				return;
-			} /* valid check */
-
-			var formData = $("#popForm").serializeObject();
-			var formData2 = {
-				"sCoCd" : $("#searchDtlOutCoCd").val(), // 출고회사가 바뀌면 매입매출고 처리함.
-				"sWhCd" : $("#searchDtlWhCd").val(),
-				"sTransDt" : $("#sTransDt").val(),
-				"sRmk" : $("#searchRmk").val(),
-				"sellType" : $("#searchDtlType").val(),
-				"sPrjctCd" : $("#prjctCd").val(),
-				"sPrdtCd" : $("#searchMovePrdtCd").val(),
-				"sPrdtSpec" : $("#searchMovePrdtSpec").val(),
-				"sPrdtSize" : $("#searchMovePrdtSize").val(),
-				"sPrdtLen" : $("#searchMovePrdtLen").val()
+			if(confirm("선택한 제품과 총이동 중량을 확인해주세요. \n재고이동 하시겠습니까?")){
+				var formData = makeFormData();
+				if (!formData) {
+					return;
+				} /* valid check */
+				var formData = $("#popForm").serializeObject();
+				var formData2 = {
+					"sCoCd" : $("#searchDtlOutCoCd").val(), // 출고회사가 바뀌면 매입매출고 처리함.
+					"sWhCd" : $("#searchDtlWhCd").val(),
+					"sTransDt" : $("#sTransDt").val(),
+					"sRmk" : $("#searchRmk").val(),
+					"sellType" : $("#searchDtlType").val(),
+					"sPrjctCd" : $("#prjctCd").val(),
+					"sPrdtCd" : $("#searchMovePrdtCd").val(),
+					"sPrdtSpec" : $("#searchMovePrdtSpec").val(),
+					"sPrdtSize" : $("#searchMovePrdtSize").val(),
+					"sPrdtLen" : $("#searchMovePrdtLen").val()
+				}
+				// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+				var mngPrdtLen = '';
+				if ($('#sWhType').val() == "WHDIV01") {
+					mngPrdtLen = 8;
+				}
+				formData.mngPrdtLen = mngPrdtLen;
+				formData["detailArr2"] = JSON.stringify(formData2);
+				var detailArr = searchGrid.getList("selected");
+				formData["detailArr"] = JSON.stringify(detailArr);
+				putAjax("/user/sm/sm02/insertUpdateTernKeyStockMove", formData,
+						null, function(data) {
+							alert(data.resultMessage);
+							gridView.setData(0);
+							modalStack.close();
+						})
 			}
-
-			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
-			var mngPrdtLen = '';
-			if ($('#sWhType').val() == "WHDIV01") {
-				mngPrdtLen = 8;
-			}
-			formData.mngPrdtLen = mngPrdtLen;
-
-			formData["detailArr2"] = JSON.stringify(formData2);
-			var detailArr = searchGrid.getList("selected");
-			formData["detailArr"] = JSON.stringify(detailArr);
-			putAjax("/user/sm/sm02/insertUpdateTernKeyStockMove", formData,
-					null, function(data) {
-						alert(data.resultMessage);
-						gridView.setData(0);
-						modalStack.close();
-					})
 		}
 	}
 
