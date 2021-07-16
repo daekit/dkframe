@@ -20,8 +20,8 @@
 					 , IMP_YN
 					 , PRJCT_CD
 				--	 , PRDT_SIZE
-				--	 , PRDT_SPEC
-				--	 , PRDT_LEN
+					 , PRDT_SPEC
+					 , PRDT_LEN
 					 , PRDT_NM
 					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
 					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
@@ -64,6 +64,7 @@
 					   , TB_BM01M01 BM01 
 					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD
    		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ SM01.STOCK_QTY  !=  0 OR SM01.STOCK_WT !=  0 ]]> )
 					  <if test="coCd != null and !coCd.equals('')">
 					  	AND SM01.CO_CD = #{coCd}			
 					  	</if>	
@@ -96,6 +97,7 @@
 					   , TB_BM01M01 BM01 
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
    		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ AR02.REAL_TRST_QTY  !=  0 OR AR02.REAL_TRST_WT !=  0 ]]> )
 					  <if test="coCd != null and !coCd.equals('')">
 							AND AR02.CO_CD   = #{coCd}				
 						</if>
@@ -142,6 +144,7 @@
 					 INNER JOIN  TB_BM01M01 BM01 
 							ON	SM02.PRDT_CD   = BM01.PRDT_CD
 					WHERE  SUBSTRING(SM02.TRST_DT , 0, 6) = REPLACE(#{closeYm}, '-', '')
+   		 			    AND ( <![CDATA[ SM02.MOVE_QTY  !=  0 OR SM02.MOVE_WT !=  0 ]]> )  
 					  <if test="coCd != null and !coCd.equals('')">
 							AND SM02.OUT_CO_CD   = #{coCd}				
 						</if>
@@ -186,6 +189,7 @@
 					 INNER JOIN  TB_BM01M01 BM01 
 							ON	SM02.PRDT_CD   = BM01.PRDT_CD
 				   WHERE  SUBSTRING(SM02.TRST_DT,0,6) = REPLACE(#{closeYm}, '-', '')
+   		 			    AND ( <![CDATA[ SM02.MOVE_QTY  !=  0 OR SM02.MOVE_WT !=  0 ]]> )  
 					  <if test="coCd != null and !coCd.equals('')">
 						  AND SM02.OUT_CO_CD   = #{coCd}				
 						</if>
@@ -254,8 +258,8 @@
 						 , IMP_YN
 						 , PRJCT_CD
 					--	 , PRDT_SIZE
-					--	 , PRDT_SPEC
-					--	 , PRDT_LEN
+						 , PRDT_SPEC
+						 , PRDT_LEN
 						 , PRDT_NM
 						 , IMP_YN	
 			) A
@@ -282,8 +286,8 @@
 					 , IMP_YN
 					 , PRJCT_CD
 				--	 , PRDT_SIZE
-				--	 , PRDT_SPEC
-				--	 , PRDT_LEN
+					 , PRDT_SPEC
+					 , PRDT_LEN
 					 , PRDT_NM
 					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
 					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
@@ -299,7 +303,14 @@
 					 , SUM(NVL(OUT_MOVE_QTY, 0))  OUT_MOVE_QTY
 					 , SUM(NVL(IN_MOVE_QTY, 0))   IN_MOVE_QTY
 					 , SUM(CASE WHEN CLOSE_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN NVL(BFR_STOCK_QTY, 0) + NVL(SELPCH1_QTY, 0) - NVL(SELPCH2_QTY, 0)+ NVL(IN_MOVE_QTY, 0) - NVL(OUT_MOVE_QTY, 0)
-					 		ELSE NVL(STOCK_QTY, 0) END) STOCK_QTY
+					 		ELSE NVL(STOCK_QTY, 0) END) STOCK_QTY					 
+					 , SUM(NVL(BFR_STOCK_WT, 0)) BFR_STOCK_WT
+					 , SUM(NVL(SELPCH1_WT, 0)) SELPCH1_WT
+					 , SUM(NVL(SELPCH2_WT, 0)) SELPCH2_WT
+					 , SUM(NVL(OUT_MOVE_WT, 0))  OUT_MOVE_WT
+					 , SUM(NVL(IN_MOVE_WT, 0))   IN_MOVE_WT
+					 , SUM(CASE WHEN CLOSE_YM = TO_CHAR(SYSDATE, 'YYYYMM') THEN NVL(BFR_STOCK_WT, 0) + NVL(SELPCH1_WT, 0) - NVL(SELPCH2_WT, 0)+ NVL(IN_MOVE_WT, 0) - NVL(OUT_MOVE_WT, 0)
+					 		ELSE NVL(STOCK_WT, 0) END) STOCK_WT
 				FROM(
 					SELECT REPLACE(#{closeYm}, '-', '')	 AS CLOSE_YM
 						 , SM01.WH_CD
@@ -322,10 +333,17 @@
 						 , 0 AS  OUT_MOVE_QTY
 						 , 0 AS  IN_MOVE_QTY
 						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),SM01.STOCK_QTY,0) AS STOCK_QTY -- 현재고
+						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),0,SM01.STOCK_WT) AS BFR_STOCK_WT
+						 , 0 AS  SELPCH1_WT
+						 , 0 AS  SELPCH2_WT
+						 , 0 AS  OUT_MOVE_WT
+						 , 0 AS  IN_MOVE_WT
+						 , DECODE(SM01.CLOSE_YM,REPLACE(#{closeYm}, '-', ''),SM01.STOCK_WT,0) AS STOCK_WT -- 현재고
 					FROM TB_SM01D01 SM01
 					   , TB_BM01M01 BM01 
 					  WHERE SM01.PRDT_CD   = BM01.PRDT_CD		  
    		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ SM01.STOCK_QTY  !=  0 OR SM01.STOCK_WT !=  0 ]]> )  
 					  <if test="coCd != null and !coCd.equals('')">
 					  	AND SM01.CO_CD = #{coCd}			
 					  	</if>	
@@ -354,10 +372,17 @@
 						 , 0 AS  OUT_MOVE_QTY
 						 , 0 AS  IN_MOVE_QTY
 						 , 0 AS STOCK_QTY -- 현재고
+						 , 0 AS BFR_STOCK_WT
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_WT)) AS  SELPCH1_WT
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_WT)) AS  SELPCH2_WT
+						 , 0 AS  OUT_MOVE_WT
+						 , 0 AS  IN_MOVE_WT
+						 , 0 AS STOCK_WT -- 현재고
 				 FROM TB_AR02M01 AR02
 					   , TB_BM01M01 BM01 
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD					  
    		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ AR02.REAL_TRST_QTY  !=  0 OR AR02.REAL_TRST_WT !=  0 ]]> )  
 					  <if test="coCd != null and !coCd.equals('')">
 							AND AR02.CO_CD   = #{coCd}				
 						</if>
@@ -400,10 +425,17 @@
 						 , SUM(NVL(MOVE_QTY,0))  AS OUT_MOVE_QTY
 						 , 0 AS IN_MOVE_QTY
 						 , 0 AS STOCK_QTY
+						 , 0 AS BFR_STOCK_WT
+						 , 0 AS SELPCH1_WT
+						 , 0 AS SELPCH2_WT
+						 , SUM(NVL(MOVE_WT,0))  AS OUT_MOVE_WT
+						 , 0 AS IN_MOVE_WT
+						 , 0 AS STOCK_WT
 					FROM TB_SM02M01 SM02
 					 INNER JOIN  TB_BM01M01 BM01 
 							ON	SM02.PRDT_CD   = BM01.PRDT_CD
 					WHERE  SUBSTRING(SM02.TRST_DT , 0, 6) = REPLACE(#{closeYm}, '-', '')
+   		 			    AND ( <![CDATA[ MOVE_QTY  !=  0 OR MOVE_WT !=  0 ]]> )  
 					  <if test="coCd != null and !coCd.equals('')">
 							AND SM02.OUT_CO_CD   = #{coCd}				
 						</if>
@@ -444,10 +476,17 @@
 						 , 0 AS OUT_MOVE_QTY
 						 , SUM(NVL(MOVE_QTY,0)) AS IN_MOVE_QTY
 						 , 0 AS STOCK_QTY
+						 , 0 AS BFR_STOCK_WT
+						 , 0 AS SELPCH1_WT
+						 , 0 AS SELPCH2_WT
+						 , 0 AS OUT_MOVE_WT
+						 , SUM(NVL(MOVE_WT,0)) AS IN_MOVE_WT
+						 , 0 AS STOCK_WT
 					FROM TB_SM02M01 SM02
 					 INNER JOIN  TB_BM01M01 BM01 
 							ON	SM02.PRDT_CD   = BM01.PRDT_CD
 				   WHERE  SUBSTRING(SM02.TRST_DT,0,6) = REPLACE(#{closeYm}, '-', '')
+   		 			    AND ( <![CDATA[ MOVE_QTY  !=  0 OR MOVE_WT !=  0 ]]> )  
 					  <if test="coCd != null and !coCd.equals('')">
 						  AND SM02.OUT_CO_CD   = #{coCd}				
 						</if>
@@ -516,8 +555,8 @@
 						 , IMP_YN
 						 , PRJCT_CD
 					--	 , PRDT_SIZE
-					--	 , PRDT_SPEC
-					--	 , PRDT_LEN
+						 , PRDT_SPEC
+						 , PRDT_LEN
 						 , PRDT_NM
 						 , IMP_YN	
 			) A
