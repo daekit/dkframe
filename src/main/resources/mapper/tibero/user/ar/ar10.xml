@@ -40,9 +40,9 @@
 				AND T.RMK LIKE '%'|| #{rmk} || '%'
 			</if>
 			<if test="prdtGrp != null and !prdtGrp.equals('')">
-				AND T.PRDT_CD IN (SELECT DISTINCT PRDT_CD
-								   FROM TB_BM01M01
-							      WHERE PRDT_GRP = #{prdtGrp})
+				AND T.PRDT_NM IN (SELECT DISTINCT PRDT_NM
+							   FROM TB_BM01M01
+						      WHERE PRDT_GRP = #{prdtGrp})
 			</if>
 	</select>
 
@@ -130,7 +130,7 @@
 						AND T.RMK LIKE '%'|| #{rmk} || '%'
 					</if>
 					<if test="prdtGrp != null and !prdtGrp.equals('')">
-						AND T.PRDT_CD IN (SELECT DISTINCT PRDT_CD
+						AND T.PRDT_NM IN (SELECT DISTINCT PRDT_NM
 									   FROM TB_BM01M01
 								      WHERE PRDT_GRP = #{prdtGrp})
 					</if>
@@ -178,6 +178,11 @@
 						<if test="rmk != null and !rmk.equals('')">
 							AND RMK LIKE '%'|| #{rmk} || '%'
 						</if>
+						<if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND PRDT_NM IN (SELECT DISTINCT PRDT_NM
+										   FROM TB_BM01M01
+									      WHERE PRDT_GRP = #{prdtGrp})
+		 				 </if>
 						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUBSTR(TRST_DT,1,6)
 					)
 					SELECT CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUM(BILG_TOT_AMT) TOT_AMT, SUM(CNT) TOT_CNT,
@@ -255,6 +260,11 @@
 						<if test="rmk != null and !rmk.equals('')">
 							AND RMK LIKE '%'|| #{rmk} || '%'
 						</if>
+						<if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND PRDT_NM IN (SELECT DISTINCT PRDT_NM
+										   FROM TB_BM01M01
+									      WHERE PRDT_GRP = #{prdtGrp})
+		 				 </if>
 						 GROUP BY CO_CD, TAXIVC_COPRT_CD, SELPCH_CD, CLNT_NM, CLNT_CD, SUBSTR(TRST_DT,1,6)
 					)
 					SELECT 

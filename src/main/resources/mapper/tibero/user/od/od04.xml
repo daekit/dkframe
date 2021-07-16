@@ -35,6 +35,13 @@
 			   <if test="impYn != null and !impYn.equals('')">
 			   AND A.IMP_YN = #{impYn}
 			   </if>
+			   <if test="prdtGrp != null and !prdtGrp.equals('')">
+			   AND REQ_SEQ IN (SELECT REQ_SEQ FROM TB_OD02D01 
+						   	  		WHERE PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+														FROM TB_BM01M01
+													   WHERE PRDT_GRP = #{prdtGrp}) --제품 그룹을 통해 제품 구분 조회
+							)
+				</if>
 	</select>
 	
 	<select id="selectReqList" parameterType="Map" resultType="CamelMap">
@@ -106,6 +113,13 @@
 						   <if test="impYn != null and !impYn.equals('')">
 						   AND A.IMP_YN = #{impYn}
 						   </if>
+						   <if test="prdtGrp != null and !prdtGrp.equals('')">
+						   AND REQ_SEQ IN (SELECT REQ_SEQ FROM TB_OD02D01 
+									   	  		WHERE PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+																	FROM TB_BM01M01
+																   WHERE PRDT_GRP = #{prdtGrp}) --제품 그룹을 통해 제품 구분 조회
+										)
+							</if>
 					   </where>
 			) D
 		)

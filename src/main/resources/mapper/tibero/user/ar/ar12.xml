@@ -105,6 +105,11 @@
 			<if test="selpchCd != null and !selpchCd.equals('')">
 				AND SELPCH_CD = #{selpchCd}
 			</if>
+			<if test="prdtGrp != null and !prdtGrp.equals('')">
+				AND PRDT_NM IN (SELECT DISTINCT PRDT_NM
+							   FROM TB_BM01M01
+						      WHERE PRDT_GRP = #{prdtGrp})
+			</if>
 			
 			UNION ALL
 			
@@ -178,6 +183,11 @@
 						<if test="selpchCd != null and !selpchCd.equals('')">
 							AND SELPCH_CD = #{selpchCd}
 						</if>
+						<if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND PRDT_NM IN (SELECT DISTINCT PRDT_NM
+										   FROM TB_BM01M01
+									      WHERE PRDT_GRP = #{prdtGrp})
+						</if>
 						GROUP BY CO_CD
 			
 				UNION ALL
@@ -233,7 +243,6 @@
 					GROUP BY CO_CD
 			) GROUP BY CO_CD	  
 			<![CDATA[ HAVING  (SUM(SELL_AMT) - SUM(PCHS_AMT)) <> 0	]]>					
-
 		)
 		SELECT
 			*

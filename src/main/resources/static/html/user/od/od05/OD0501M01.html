@@ -85,7 +85,7 @@ th {
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" data-search="coCd" required="required" onchange="gridView.initView().setData(0);">
+	                 	<select id="coCd_S" data-kind="CO" data-search="coCd" required="required" onchange="setByCoCd(this.value); gridView.initView().setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
@@ -121,21 +121,7 @@ th {
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	              	<th>제품유형</th>
-	                <td>
-	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv" required="required" onchange="gridView.initView().setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
-	              </tr>
-	              <tr>
-	              	<th>판매유형</th>
-	                <td>
-	                 	<select id="typCd_S" data-kind="SELLTYPE" data-search="typCd" onchange="gridView.initView().setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
-	                <th>계산발급여부</th>
+	              	<th>계산발급여부</th>
 	                <td>
 	                 	<select id="taxBilgYn_S" data-search="taxBilgYn" onchange="gridView.initView().setData(0);">
 		                	<option value="">전체</option>
@@ -143,10 +129,32 @@ th {
 		                  	<option value="N">N</option>
 		                </select>
 	                </td>
+	              </tr>
+	              <tr>
+	              	<th>판매법인</th>
+					<td>
+						<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.initView().setData(0);">
+							<option value="">전체</option>
+						</select>
+					</td>
+	                <th>제품유형</th>
+	                <td>
+	                 	<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv" required="required" onchange="gridView.initView().setData(0);">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
 	                <th>현장구분</th>
 		                <td>
 		                	<input type="checkbox" id="siteDivYn" data-search="siteDivYn" checked>
 		                </td>
+              	 </tr>
+              	 <tr>
+	              	<th>판매유형</th>
+	                <td>
+	                 	<select id="typCd_S" data-kind="SELLTYPE" data-search="typCd" onchange="gridView.initView().setData(0);">
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
               	 </tr>
 	            </table>
 	        </div>
@@ -335,7 +343,7 @@ th {
 		mainDefaultLoad("매입관리", "매입/매출 일일보고서");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		
+		setByCoCd(jwt.coCd);
 		// 시작일 (현재날짜의 월 첫일)
 		$('#reqDtFrom').datepicker({
 			format : "yyyy-mm-dd",
@@ -432,4 +440,11 @@ th {
 			excelView.target.exportExcel("매입_매출 일일보고서_"+todayDate+".xls");
 		})
 	}	
+
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+	}
 </script>

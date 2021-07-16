@@ -36,8 +36,6 @@ public interface SM02Mapper {
 
 	int sm02UpdateTernKeyStockMst(Map<String, String> param);
 	
-	int sm02UpdateTernKeyPchMst(Map<String, String> param);
-	
 	int sm01UpdateStockMove(Map<String, String> param);
 
 	int sm01UpdateInsertStockMove(Map<String, String> detailMap);
@@ -50,14 +48,12 @@ public interface SM02Mapper {
 	
 	int sm02InsertBarterStockMove(Map<String, String> param);
 	
-	int sm03UpdateInsertStockMove(Map<String, String> param);
-	
-	int sm03UpdateInsertStockByPchMove(Map<String, String> param);
-	
-	int sm03insertStockByPchMove(Map<String, String> param);
+	int sm03insertStockMst(Map<String, String> param);
 	
 	int sm03UpdateStockByPchMove(Map<String, String> param);
 
-	int checkVaildStockByPch(Map<String, String> param);
+	int checkVaildStockByDetail(Map<String, String> param);
+	
+	int sm03UpdateTernKeyYN(Map<String, String> param);
 	
 }
