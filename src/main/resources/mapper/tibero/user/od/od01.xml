@@ -5,58 +5,72 @@
 	
 	<select id="selectOrdrgCount" parameterType="Map" resultType="int">
 		SELECT 
-	 		COUNT(*) 
-	 	FROM TB_OD01M01 OD01
-		INNER JOIN TB_BM02M01  BM02
-		  	    ON BM02.CLNT_CD = OD01.CLNT_CD
-	 	WHERE 1=1
-	 	<if test="odrSeq != null and !odrSeq.equals('')">
-			AND ODR_SEQ = #{odrSeq}				
-		</if>
-	 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-			AND 
-			(
-				DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
-				OR
-				REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
-			)
-		</if>
-	 	<if test="coCd != null and !coCd.equals('')">
-			AND CO_CD = #{coCd}				
-		</if>
-		<if test="ownerCd != null and !ownerCd.equals('')">
-			AND OWNER_CD = #{ownerCd}			
-		</if>
-		<if test="typCd != null and !typCd.equals('')">
-			AND TYP_CD = #{typCd}				
-		</if>
-		<if test="clntCd != null and !clntCd.equals('')">
-			AND BM02.CLNT_CD = #{clntCd}				
-		</if>
-		<if test="clntNm != null and !clntNm.equals('')">
-			AND BM02.CLNT_NM like '%${clntNm}%'	
-		</if>					
-		<if test="dirtrsYn != null and !dirtrsYn.equals('')">
-			AND DIRTRS_YN = #{dirtrsYn}				
-		</if>
-		<if test="prjctCd != null and !prjctCd.equals('')">
-			AND PRJCT_CD = #{prjctCd}				
-		</if>
-		<if test="whCd != null and !whCd.equals('')">
-			AND WH_CD = #{whCd}
-		</if>
-		<if test="makrCd != null and !makrCd.equals('')">
-			AND MAKR_CD = #{makrCd}
-		</if>
-		<if test="impYn != null and !impYn.equals('')">
-			AND IMP_YN = #{impYn}
-		</if>
-		<if test="ordrgYn != null and !ordrgYn.equals('')">
-			AND ORDRG_YN = #{ordrgYn}
-		</if>
-		<if test="shipYn != null and !shipYn.equals('')">
-			AND SHIP_YN = #{shipYn}
-		</if>
+	 		COUNT(*)
+	 	FROM (
+	 	    SELECT OD01.ODR_SEQ
+	            ,OD01.SELL_CLNT_CD
+	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = OD01.SELL_CLNT_CD) AS SELL_CLNT_NM
+		 	FROM TB_OD01M01 OD01
+			INNER JOIN TB_BM02M01  BM02
+			  	    ON BM02.CLNT_CD = OD01.CLNT_CD
+		 	WHERE 1=1
+		 	<if test="odrSeq != null and !odrSeq.equals('')">
+				AND ODR_SEQ = #{odrSeq}				
+			</if>
+		 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+				AND 
+				(
+					DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+					OR
+					REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+				)
+			</if>
+		 	<if test="coCd != null and !coCd.equals('')">
+				AND CO_CD = #{coCd}				
+			</if>
+			<if test="ownerCd != null and !ownerCd.equals('')">
+				AND OWNER_CD = #{ownerCd}			
+			</if>
+			<if test="typCd != null and !typCd.equals('')">
+				AND TYP_CD = #{typCd}				
+			</if>
+			<if test="clntCd != null and !clntCd.equals('')">
+				AND BM02.CLNT_CD = #{clntCd}				
+			</if>
+			<if test="clntNm != null and !clntNm.equals('')">
+				AND BM02.CLNT_NM like '%${clntNm}%'	
+			</if>
+			<if test="sellClntCd != null and !sellClntCd.equals('')">
+				AND SELL_CLNT_CD = #{sellClntCd}				
+			</if>
+			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
+				AND DIRTRS_YN = #{dirtrsYn}				
+			</if>
+			<if test="prjctCd != null and !prjctCd.equals('')">
+				AND PRJCT_CD = #{prjctCd}				
+			</if>
+			<if test="whCd != null and !whCd.equals('')">
+				AND WH_CD = #{whCd}
+			</if>
+			<if test="makrCd != null and !makrCd.equals('')">
+				AND MAKR_CD = #{makrCd}
+			</if>
+			<if test="impYn != null and !impYn.equals('')">
+				AND IMP_YN = #{impYn}
+			</if>
+			<if test="ordrgYn != null and !ordrgYn.equals('')">
+				AND ORDRG_YN = #{ordrgYn}
+			</if>
+			<if test="shipYn != null and !shipYn.equals('')">
+				AND SHIP_YN = #{shipYn}
+			</if>
+		) T
+			<where>
+			    <if test="sellClntNm != null and !sellClntNm.equals('')">
+			        AND T.SELL_CLNT_NM LIKE '%' || #{sellClntNm} || '%'
+			    </if>
+			</where>
+			
 	</select>
 	
 	<select id="selectOrdrgList" parameterType="Map" resultType="camelMap">
@@ -67,7 +81,7 @@
 	            ,T.CO_CD
 	            ,TO_CHAR(TO_DATE(REQ_DT), 'YYYY-MM-DD') AS REQ_DT
 	            ,T.CLNT_CD
-	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+	            ,T.CLNT_NM
 	            ,T.PRJCT_CD
 	            ,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
 	            ,T.MAKR_CD
@@ -80,7 +94,7 @@
 	            ,T.IMP_YN
 	            ,T.SALES_AREA_CD
 	            ,T.SELL_CLNT_CD
-	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM
+	            ,T.SELL_CLNT_NM
 	            ,T.MNG_TEL
 	            ,TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM
 	            ,TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS REAL_DLVR_DTTM
@@ -136,7 +150,10 @@
 	            ,(SELECT COUNT(*) FROM TB_OD01D01 WHERE ORDRG_SEQ = T.ORDRG_SEQ) AS D01CNT
 			FROM 
 			(
-			 	SELECT OD01.* FROM TB_OD01M01 OD01
+			 	SELECT OD01.* 			 	
+		             , BM02.CLNT_NM
+		             ,(SELECT B.CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = OD01.SELL_CLNT_CD) AS SELL_CLNT_NM
+	            FROM TB_OD01M01 OD01
 			 	INNER JOIN TB_BM02M01  BM02
 			 	   ON BM02.CLNT_CD = OD01.CLNT_CD
 			 	WHERE 1=1
@@ -165,6 +182,9 @@
 				</if>
 				<if test="clntNm != null and !clntNm.equals('')">
 					AND BM02.CLNT_NM like '%${clntNm}%'	
+				</if>
+				<if test="sellClntCd != null and !sellClntCd.equals('')">
+					AND SELL_CLNT_CD = #{sellClntCd}				
 				</if>					
 				<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 					AND DIRTRS_YN = #{dirtrsYn}				
@@ -208,6 +228,11 @@
 			   </if>			
 				ORDER BY DLVR_DTTM DESC, REAL_DLVR_DTTM DESC, ORDRG_SEQ DESC
 			) T
+			<where>
+			    <if test="sellClntNm != null and !sellClntNm.equals('')">
+			        AND SELL_CLNT_NM LIKE '%' || #{sellClntNm} || '%'
+			    </if>
+			</where>
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
