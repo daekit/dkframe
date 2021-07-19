@@ -114,8 +114,28 @@ public class AR05Ctr {
 		}
     	return "jsonView";
     }
+	// 입금 매칭 정보 삭제 
 	
-	// 입금 매핑정보
+	@PutMapping("/calcelMatch")
+    public String calcelMatch(@RequestBody Map<String, String> paramMap, ModelMap model) {
+
+		try {
+			int result = ar05Svc.calcelMatch(paramMap);
+			if(result == 500){
+				model.addAttribute("resultCode", 500);
+		    	model.addAttribute("resultMessage", messageUtils.getMessage("etrdpsClose"));
+			}else {
+		    		model.addAttribute("resultCode", 200);
+		    		model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+			}
+		}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }	
+	
+	// 입금 매칭정보
     @PostMapping("/selectEtrdpsMap")
     public String selectEtrdpsMap(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	int totalCnt = ar05Svc.selectEtrdpsMapCount(paramMap);

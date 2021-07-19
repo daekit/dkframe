@@ -18,6 +18,8 @@ public interface AR05Svc {
 	int updateEtrdps(Map<String, Object> paramMap);
 
 	int deleteEtrdps(Map<String, String> paramMap);
+	
+	int calcelMatch(Map<String, String> paramMap);
 
 	boolean checkEtrdpsClose(Map<String, String> paramMap);
 

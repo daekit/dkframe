@@ -234,6 +234,36 @@ public class AR05SvcImpl implements AR05Svc {
 		  
 		  // 입금은 금액수정이 없음으로 한도에 반영안함.
 		  
+		  // 매핑을 수정할 경우 사용
+
+		  if ("C".equals(paramMap.get("calcelMatchType"))) {
+			  
+			  Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			  Type dtlMap = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
+			  List<Map<String, String>> dtlParam = gson.fromJson((String)paramMap.get("detailArr"), dtlMap);
+			  
+			  for(Map<String, String> dtl : dtlParam) {
+				  dtl.put("userId",  etrdpsData.get("userId"));
+				  dtl.put("pgmId",   etrdpsData.get("pgmId"));
+				  dtl.put("etrdpsSeq", etrdpsData.get("etrdpsSeq"));
+				  dtl.put("etrdpsDt", etrdpsData.get("etrdpsDt"));
+				  if(dtl.get("prdtGrp").isEmpty()) {
+					  dtl.put("prdtGrp", etrdpsData.get("prdtGrp"));
+				  }
+				  if(billData != null) {
+					  dtl.put("exprtnDt",billData.get("exprtnDt")); //	종료일	어음계정일 경우 : 만기일
+				  }
+				  ar05Mapper.updateEtrdpsDtl(dtl);
+				  ar05Mapper.insertEtrdpsDtl(dtl);
+			  }
+			  if((Boolean)paramMap.get("isAdvPay").equals(true)) {
+				  etrdpsData.put("diffAmt", paramMap.get("diffAmt").toString());
+				  ar05Mapper.insertAdvPay(etrdpsData);
+			  }
+			  
+		  }
+		  
+		  
 		  return result;
 		 
 	}
@@ -264,13 +294,24 @@ public class AR05SvcImpl implements AR05Svc {
 		if(etrdpsInfo.get("bilNo") != null) {
 			// 결제방법이 어음일때 어음 삭제
 			paramMap.put("bilNo", etrdpsInfo.get("bilNo"));
-			ar05Mapper.deleteBill(paramMap);
+			ar05Mapper.deleteBill(paramMap);          // 어음삭제
 		}
-		ar05Mapper.updateEtrdpsDtlDelete(paramMap);
-		ar05Mapper.deleteEtrdpsDtl(paramMap);
-		result = ar05Mapper.deleteEtrdps(paramMap);
+		ar05Mapper.updateEtrdpsDtlDelete(paramMap);  // 매출에 매핑 금액 삭제, ETRDPS_YN = 'N', ETRDPS_AMT = 0
+		ar05Mapper.deleteEtrdpsDtl(paramMap);        // TB_AR05D02 삭제
+		result = ar05Mapper.deleteEtrdps(paramMap);  // 입금 삭제
 		return result;
 	}
+
+	
+	@Override
+	public int calcelMatch(Map<String, String> paramMap) {
+		int result = 0;		
+		ar05Mapper.updateEtrdpsDtlDelete(paramMap);  // 매출에 매핑 금액 삭제, ETRDPS_YN = 'N', ETRDPS_AMT = 0
+		result = ar05Mapper.deleteEtrdpsDtl(paramMap);    // TB_AR05D02 삭제
+		return result;
+	}
+	
+	
 	
 	@Override
 	public boolean checkEtrdpsClose(Map<String, String> paramMap) {
@@ -289,7 +330,7 @@ public class AR05SvcImpl implements AR05Svc {
 				return true;
 			}
 		}
-		// 마지막 마감일체츠하여 그 이전이면 수정불가
+		// 마지막 마감일체크ㅡ하여 그 이전이면 수정불가
 		if(sd07resultMax != null) {
 			int maxEtrdpsCloseDay = Integer.parseInt(sd07resultMax.get("maxEtrdpsCloseDay").replace("-", ""));		
 			if( maxEtrdpsCloseDay > Integer.parseInt(etrdpsDt)) {
