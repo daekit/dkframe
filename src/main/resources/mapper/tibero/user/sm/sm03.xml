@@ -26,15 +26,23 @@
 			<if test="typCd != null and !typCd.equals('')">
 				AND SM01.TYP_CD = #{typCd}
 			</if>
-<!-- 			<if test="makrCd != null and !makrCd.equals('')"> -->
-<!-- 				AND SM01.MAKR_CD = #{makrCd} -->
-<!-- 			</if> -->
+<!-- 					<if test="makrCd != null and !makrCd.equals('')"> -->
+<!-- 						AND SM01.MAKR_CD = #{makrCd} -->
+<!-- 					</if> -->
 			<if test="prdtNm != null and !prdtNm.equals('')">
 				AND BM01.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+			</if> 
+			<if test="prdtGrp != null and !prdtGrp.equals('')">
+				AND BM01.PRDT_GRP = #{prdtGrp}
 			</if>
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND BM02.CLNT_NM LIKE '%' || #{clntNm} || '%'
 			</if>
+			<!-- <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				AND #{taxivcCoprt} = (SELECT SD05.COPRT_CD 
+								FROM TB_SD05M01 SD05
+								WHERE SD05.PRJCT_CD = SM01.PRJCT_CD)
+			</if> 판매법인 -->
 	</select>
 
 	 <select id="selectStockList" resultType="CamelMap">
@@ -95,10 +103,18 @@
 <!-- 					</if> -->
 					<if test="prdtNm != null and !prdtNm.equals('')">
 						AND BM01.PRDT_NM LIKE '%' || #{prdtNm} || '%'
+					</if> 
+					<if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND BM01.PRDT_GRP = #{prdtGrp}
 					</if>
 					<if test="clntNm != null and !clntNm.equals('')">
 						AND BM02.CLNT_NM LIKE '%' || #{clntNm} || '%'
 					</if>
+					<!-- <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						AND #{taxivcCoprt} = (SELECT SD05.COPRT_CD 
+										FROM TB_SD05M01 SD05
+										WHERE SD05.PRJCT_CD = SM01.PRJCT_CD)
+					</if> 판매법인 -->
 				ORDER BY UDT_DTTM DESC
 			) A
 		)

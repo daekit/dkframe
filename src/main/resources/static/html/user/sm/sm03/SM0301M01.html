@@ -62,7 +62,7 @@
 					<tr>
 						<th>회사</th>
 		                <td>
-		                    <select data-kind="CO"  data-search="coCd">
+		                    <select data-kind="CO"  data-search="coCd"  onchange="gridView.setData(0);">
 		                  	  <option value="">선택</option>
 		                    </select>
 		                </td>
@@ -100,6 +100,18 @@
 						<td>
 							<input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13){gridView.setData(0);}">
 						</td>
+						<th>제품그룹</th>
+						<td>
+							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<!-- <th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td> -->
 					</tr>
 				</table>
 			</div>
@@ -242,6 +254,7 @@
 		mainDefaultLoad("재고관리", "외주 재고 현황 관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$('[data-search="coCd"]').val(jwt.coCd);
+		setByCoCd(jwt.coCd);
 		
 		// 검색조건 이벤트 bind
 		$('select[data-search]').on("change", function(){
@@ -271,5 +284,12 @@
 			var todayDate = new Date().format('yyyyMMddHHmmss');
 			excelView.target.exportExcel("재고현황관리_"+todayDate+".xls")
 		});	
+	}
+	
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
 	}
 </script>

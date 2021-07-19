@@ -61,7 +61,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" id="coCd" name="coCd"  data-search="coCd"  required="required">
+							<select data-kind="CO" id="coCd" name="coCd"  data-search="coCd"  onchange="setByCoCd(this.value); gridView.initView(closeYm.value).setData(0);" required="required">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -77,6 +77,20 @@
 			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 			              </div>
 		                </td>
+					</tr>
+					<tr>
+						<th>제품그룹</th>
+						<td>
+							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="subGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="subGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -165,7 +179,7 @@
 					{key: "clntCd",  			 hidden: true},
 		        	{key: "closeYm",  			 label: "년월",       align: "center",  width: 80, hidden: true},
 		        	{key: "clntNm",  			 label: "거래처",      align: "left",   width: 140},
-		        	{key: "prdtGrpNm", 			 label: "구분",   	 align: "left",   width: 80},
+		        	{key: "prdtGrpNm", 			 label: "그룹",   	 align: "center",   width: 80},
 		        	{key: "prjctNm",  			 label: "프로젝트",    align: "left",   width: 140},
 		        	{key: "salesEmpId",   		 label: "담당자",      align: "center",   width: 100, hidden: true},
 		        	{key: "salesEmpNm",  		 label: "담당자",      align: "center",   width: 80},
@@ -293,7 +307,7 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
-
+		setByCoCd(jwt.coCd);
 		// 기준년월
 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		
@@ -341,11 +355,11 @@
 				"coCd"    : $("#coCd").val(),
 				"clntCd"  : $("#clntCd").val(),
 				"clntNm"  : $("#clntNm").val(),
+				"prdtGrp"  : $("#prdtGrp_S").val(),
+				"taxivcCoprt"  : $("#taxivcCoprt").val(),
 				"pageNo"  :  1, 
 				"recordCnt" : 9999999
 				}
-		
-		
 // 		for(var i=0;i<$('[data-search]').length;i++){
 // 			var tempElem = $('[data-search]')[i];
 // 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
@@ -363,5 +377,12 @@
 				excelView.target.exportExcel("채권조회(연체현황)_"+todayDate+".xls");
 			});	
 	}	
+	
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+	}
 	
 </script>

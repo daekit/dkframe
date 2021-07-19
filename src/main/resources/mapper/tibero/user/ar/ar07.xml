@@ -25,151 +25,136 @@
 	<select id="selectMtClosCditCount" resultType="int">
 		SELECT COUNT(*)
 			FROM
-			(
-				SELECT
-	                   CO_CD
-			         , CLNT_NM
-					 , SELL_PAY_DIV_CD
-			  	     , SELL_CLMN_DIV_CD
-			  	     , SELL_PMNT_MTD_CD
-		  		     , SELL_VAT_CD
-		  		     , SELL_CLMN_DAY
-					 , ETRDPS_YM
-					 , CLOSE_YM
-					 , CLNT_CD
-					 , SUM(BASIS_AMT)          AS BASIS_AMT          <!-- 당월 기초 -->
-					 , SUM(CLMN_AMT)           AS CLMN_AMT           <!-- 당월입금 -->
-					 , SUM(TOT_AMT)            AS TOT_AMT            <!-- 당월 매출채권 -->
-<!-- 					 , SUM(TRMEND_AMT)         AS TRMEND_AMT         당월기말 -->
-					 , SUM(BFR_BASIS_AMT)      AS BFR_BASIS_AMT      <!-- 전월기초 -->
-					 , SUM(CLOSE_YM1_CLMN_AMT) AS CLOSE_YM1_CLMN_AMT <!-- 전월수금 -->
-				     , SUM(CLOSE_YM1_TOT_AMT)  AS CLOSE_YM1_TOT_AMT  <!-- 전월매출 -->
-					 , SUM(CLOSE_YM1)          AS CLOSE_YM1          <!-- 전월기말	 -->		      
-					 , SUM(BASIS_CREDIT_AMT)   AS BASIS_CREDIT_AMT   <!-- 전전월기초 -->
-					 , SUM(CLOSE_YM2_CLMN_AMT) AS CLOSE_YM2_CLMN_AMT <!-- 전전월수금 -->
-					 , SUM(CLOSE_YM2_TOT_AMT)  AS CLOSE_YM2_TOT_AMT  <!-- 전전월매출 -->
-					 , SUM(CLOSE_YM2)          AS CLOSE_YM2
-			        FROM (
-						SELECT  1 AS TYPE1  <!--- 당월 입금 -->
-					     , AR05.CO_CD
-			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
+			(SELECT   ROWNUM AS RNUM
+		              , A.*
+		  		      , FN_CM05M01_CD_TO_NM(A.CO_CD)  AS  CO_NM
+		  		      , FN_CM05M01_CD_TO_NM(A.PRDT_GRP)  AS PRDT_GRP_NM
+		  		      , (SELECT PRJCT_NM FROM  TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
+		  		      , FN_CM05M01_CD_TO_NM(A.SELL_PAY_DIV_CD)  AS  SELL_PAY_DIV_NM
+	    			  , FN_CM05M01_CD_TO_NM(A.SELL_CLMN_DIV_CD) AS  SELL_CLMN_DIV_NM
+		              , FN_CM05M01_CD_TO_NM(A.SELL_PMNT_MTD_CD) AS  SELL_PMNT_MTD_NM
+		              , FN_CM05M01_CD_TO_NM(A.SELL_VAT_CD)      AS  SELL_VAT_NM
+		              , A.TAXIVC_COPRT
+		              , FN_CM05M01_CD_TO_NM(A.TAXIVC_COPRT)      AS  TAXIVC_COPRT_NM
+		              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT	               
+		              , F_CREDIT_LOAN_PRDTGRP('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
+					  , F_CREDIT_LOAN_PRDTGRP('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN 
+	
+		         FROM (
+		            SELECT
+		                   CO_CD
+				         , CLNT_NM
+				         , PRDT_GRP
+				         , PRJCT_CD
+						 , SELL_PAY_DIV_CD
+				  	     , SELL_CLMN_DIV_CD
+				  	     , SELL_PMNT_MTD_CD
 			  		     , SELL_VAT_CD
+			  		     , TAXIVC_COPRT
 			  		     , SELL_CLMN_DAY
-						 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
-						 , SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) CLOSE_YM
-						 , AR05.CLNT_CD
-						 , 0 AS BASIS_AMT   <!--  당월 기초 -->
-						 , SUM(ETRDPS_AMT) CLMN_AMT <!--- 당월입금 -->
-						 , 0 AS TOT_AMT           <!-- 당월 매출채권 -->
-						 , 0 AS TRMEND_AMT <!-- 당월기말 -->
-						 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
-						 , 0 AS CLOSE_YM1_CLMN_AMT   <!--전월수금 -->
-					     , 0 AS CLOSE_YM1_TOT_AMT    <!--전월매출 -->
-						 , 0 AS CLOSE_YM1   <!--  전월 기말	 -->		      
-						 , 0 AS BASIS_CREDIT_AMT  <!-- 전전월기초 -->
-						 , 0 AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
-						 , 0 AS CLOSE_YM2_TOT_AMT    <!--전전월매출	 -->
-						 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
-					  FROM TB_AR05M01 AR05
-					  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
-					  WHERE ETRDPS_TYP IN ('ETRDPS01','ETRDPS03') 					  
-					  <if test="coCd != null and !coCd.equals('')">
-					  AND AR05.CO_CD = #{coCd}				
-					  </if>	
-					  <if test="clntCd != null and !clntCd.equals('')">
-					  AND C.CLNT_CD = #{clntCd}				
-					  </if>			
-					   <if test="closeYm != null and !closeYm.equals('')">
-					  AND SUBSTRING(ETRDPS_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')
-					  </if>
-					  <if test="clntNm != null and !clntNm.equals('')">
-					   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
-					  </if>
-					  GROUP BY AR05.CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) 					  
-			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
-			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
-				   UNION 
-					SELECT   2 AS TYPE1  <!--- 당월 매출 -->
-					     , AR02.CO_CD
-			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
-			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
-						 , SUBSTRING(TRST_DT, 0, 6) TRST_YM	
-						 , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2) CLOSE_YM	
-						 , TRST_CLNT_CD AS CLNT_CD 
-						 , 0 AS BASIS_AMT   <!--  당월 기초 -->
-						 , 0 AS CLMN_AMT   <!-- 당월수금 -->
-						 , SUM(NVL(BILG_AMT, 0 ) + NVL(BILG_VAT_AMT, 0)) AS TOT_AMT           <!-- 당월 매출채권 -->
-						 , 0 AS TRMEND_AMT <!-- 당월기말 -->
-						 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
-						 , 0 AS CLOSE_YM1_CLMN_AMT   <!--전월수금 -->
-					     , 0 AS CLOSE_YM1_TOT_AMT    <!--전월매출 -->
-						 , 0 AS CLOSE_YM1   <!--  전월 기말 -->			      
-						 , 0 AS BASIS_CREDIT_AMT  <!-- 전전월기초 -->
-						 , 0 AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
-						 , 0 AS CLOSE_YM2_TOT_AMT    <!--전전월매출	 -->
-						 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
-					  FROM TB_AR02M01 AR02
-					  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD 
-					  WHERE SELPCH_CD = 'SELPCH2'				  
-					  <if test="coCd != null and !coCd.equals('')">
-					  AND AR02.CO_CD = #{coCd}				
-					  </if>	
-					  <if test="clntCd != null and !clntCd.equals('')">
-					  AND C.CLNT_CD = #{clntCd}				
-					  </if>	
-					  <if test="clntNm != null and !clntNm.equals('')">
-					   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
-					  </if>			
-					   <if test="closeYm != null and !closeYm.equals('')">
-					  AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')	
-					  </if>
-					  GROUP BY AR02.CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
-			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
-			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
-					UNION  
-					  SELECT  3 AS TYPE1  <!--- 당월 매출 -->
-					     , C.CO_CD
-			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
-			  		     , SELL_VAT_CD
-			  		     , SELL_CLMN_DAY
-					     , REPLACE(#{closeYm}, '-', '') AS ETRDPS_YM
-				         , SUBSTRING(REPLACE(#{closeYm}, '-', ''), 0, 4) || '-' || SUBSTRING(REPLACE(#{closeYm}, '-', ''), 5,2) CLOSE_YM
-					     , C.CLNT_CD	
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0)))  BASIS_AMT  <!-- 당월기초 -->
-						 , 0 CLMN_AMT  <!-- 당월수금 -->
-						 , 0 TOT_AMT   <!-- 당월매출 -->
-						 , 0 TRMEND_AMT <!-- 당월기말 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.BASIS_CREDIT_AMT, 0)))  BFR_BASIS_AMT  <!-- 전월기초 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.CELL_CLMN_AMT, 0)))     CLOSE_YM1_CLMN_AMT   <!--전월수금 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.CELL_TOT_AMT, 0)))      CLOSE_YM1_TOT_AMT    <!--전월매출 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM1  <!-- 전월기말		 -->			      
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.BASIS_CREDIT_AMT, 0)))  BASIS_CREDIT_AMT  <!-- 전전월기초 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.CELL_CLMN_AMT, 0)))     CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.CELL_TOT_AMT, 0)))      CLOSE_YM2_TOT_AMT    <!--전전월매출 -->
-					     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
-				  	 FROM TB_AR07M01 C
-					  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD 
-					  <where>
+						 , ETRDPS_YM
+						 , CLOSE_YM
+						 , CLNT_CD
+						 , SUM(BASIS_AMT)          AS BASIS_AMT          <!-- 당월 기초 -->
+						 , SUM(CLMN_AMT)           AS CLMN_AMT           <!-- 당월입금 -->
+						 , SUM(TOT_AMT)            AS TOT_AMT            <!-- 당월 매출채권 -->
+	<!-- 					 , SUM(TRMEND_AMT)         AS TRMEND_AMT         당월기말 -->
+						 , SUM(BFR_BASIS_AMT)      AS BFR_BASIS_AMT      <!-- 전월기초 -->
+						 , SUM(CLOSE_YM1_CLMN_AMT) AS CLOSE_YM1_CLMN_AMT <!-- 전월수금 -->
+					     , SUM(CLOSE_YM1_TOT_AMT)  AS CLOSE_YM1_TOT_AMT  <!-- 전월매출 -->
+						 , SUM(CLOSE_YM1)          AS CLOSE_YM1          <!-- 전월기말	 -->		      
+						 , SUM(BASIS_CREDIT_AMT)   AS BASIS_CREDIT_AMT   <!-- 전전월기초 -->
+						 , SUM(CLOSE_YM2_CLMN_AMT) AS CLOSE_YM2_CLMN_AMT <!-- 전전월수금 -->
+						 , SUM(CLOSE_YM2_TOT_AMT)  AS CLOSE_YM2_TOT_AMT  <!-- 전전월매출 -->
+						 , SUM(CLOSE_YM2)          AS CLOSE_YM2
+				        FROM (
+							SELECT  1 AS TYPE1  <!--- 당월 입금 -->
+						     , AR05.CO_CD
+				             , BM02.CLNT_NM
+				             , AR05.PRDT_GRP
+						     , AR05.PRJCT_CD
+						     , BM02.SELL_PAY_DIV_CD
+				  		     , AR05.SELL_CLMN_DIV_CD
+				  		     , AR05.SELL_PMNT_MTD_CD
+				  		     , BM02.SELL_VAT_CD
+				  		     , BM02.COPRT_NO AS TAXIVC_COPRT
+				  		     , AR05.SELL_CLMN_DAY
+							 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
+							 , SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) CLOSE_YM
+							 , AR05.CLNT_CD
+							 , 0 AS BASIS_AMT   <!--  당월 기초 -->
+							 , SUM(ETRDPS_AMT) CLMN_AMT <!--- 당월입금 -->
+							 , 0 AS TOT_AMT           <!-- 당월 매출채권 -->
+							 , 0 AS TRMEND_AMT <!-- 당월기말 -->
+							 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
+							 , 0 AS CLOSE_YM1_CLMN_AMT   <!--전월수금 -->
+						     , 0 AS CLOSE_YM1_TOT_AMT    <!--전월매출 -->
+							 , 0 AS CLOSE_YM1   <!--  전월 기말	 -->		      
+							 , 0 AS BASIS_CREDIT_AMT  <!-- 전전월기초 -->
+							 , 0 AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
+							 , 0 AS CLOSE_YM2_TOT_AMT    <!--전전월매출	 -->
+							 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
+						  FROM TB_AR05D02 AR05
+						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
+						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 					  
 						  <if test="coCd != null and !coCd.equals('')">
-						  AND C.CO_CD = #{coCd}				
+						  AND AR05.CO_CD = #{coCd}				
+						  </if>	
+						  <if test="clntCd != null and !clntCd.equals('')">
+						  AND C.CLNT_CD = #{clntCd}				
+						  </if>			
+						   <if test="closeYm != null and !closeYm.equals('')">
+						  AND SUBSTRING(ETRDPS_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')
+						  </if>
+						  <if test="clntNm != null and !clntNm.equals('')">
+						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+						  </if>
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						   AND AR05.PRDT_GRP = #{prdtGrp}
+						  </if>
+						  GROUP BY AR05.CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) 					  
+				             , BM02.CLNT_NM
+				             , AR05.PRDT_GRP
+						     , AR05.PRJCT_CD
+						     , BM02.SELL_PAY_DIV_CD
+				  		     , AR05.SELL_CLMN_DIV_CD
+				  		     , AR05.SELL_PMNT_MTD_CD
+				  		     , BM02.SELL_VAT_CD
+				  		     , BM02.COPRT_NO
+				  		     , AR05.SELL_CLMN_DAY
+					   UNION 
+						SELECT   2 AS TYPE1  <!--- 당월 매출 -->
+						     , AR02.CO_CD
+				             , BM02.CLNT_NM
+				             , (SELECT PRDT_GRP FROM TB_BM01M01 BM01 WHERE BM01.PRDT_CD = AR02.TRST_PRDT_CD ) AS PRDT_GRP
+						     , AR02.PRJCT_CD
+						     , SELL_PAY_DIV_CD
+				  		     , NVL(SD05.CLMN_DIV_CD, SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_CD
+				  		     , NVL(SD05.PMNT_MTD_CD, SELL_PMNT_MTD_CD) AS SELL_PMNT_MTD_CD
+				  		     , SELL_VAT_CD
+				  		     , TAXIVC_COPRT
+				  		     , NVL(SD05.CLMN_DAY, SELL_CLMN_DAY) AS SELL_CLMN_DAY
+							 , SUBSTRING(TRST_DT, 0, 6) TRST_YM	
+							 , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2) CLOSE_YM	
+							 , TRST_CLNT_CD AS CLNT_CD 
+							 , 0 AS BASIS_AMT   <!--  당월 기초 -->
+							 , 0 AS CLMN_AMT   <!-- 당월수금 -->
+							 , SUM(NVL(BILG_AMT, 0 ) + NVL(BILG_VAT_AMT, 0)) AS TOT_AMT           <!-- 당월 매출채권 -->
+							 , 0 AS TRMEND_AMT <!-- 당월기말 -->
+							 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
+							 , 0 AS CLOSE_YM1_CLMN_AMT   <!--전월수금 -->
+						     , 0 AS CLOSE_YM1_TOT_AMT    <!--전월매출 -->
+							 , 0 AS CLOSE_YM1   <!--  전월 기말 -->			      
+							 , 0 AS BASIS_CREDIT_AMT  <!-- 전전월기초 -->
+							 , 0 AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
+							 , 0 AS CLOSE_YM2_TOT_AMT    <!--전전월매출	 -->
+							 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
+						  FROM TB_AR02M01 AR02
+						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD
+						  LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR02.PRJCT_CD
+						  WHERE SELPCH_CD = 'SELPCH2'				  
+						  <if test="coCd != null and !coCd.equals('')">
+						  AND AR02.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
 						  AND C.CLNT_CD = #{clntCd}				
@@ -177,32 +162,108 @@
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						  </if>			
-						  <if test="closeYm != null and !closeYm.equals('')">
-						   AND  C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM')
-					       		                 AND TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM')
-		                  </if>
-	                 </where>
-				    GROUP BY C.CO_CD
-					     , C.CLNT_CD
-			             , BM02.CLNT_NM
-					     , SELL_PAY_DIV_CD
-			  		     , SELL_CLMN_DIV_CD
-			  		     , SELL_PMNT_MTD_CD
+						   <if test="closeYm != null and !closeYm.equals('')">
+						   AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')	
+						  </if>
+						  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						   AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
+						  </if>
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						   AND AR02.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+											FROM TB_BM01M01
+										    WHERE PRDT_GRP = #{prdtGrp}
+				  						   )
+						  </if>
+						  GROUP BY AR02.CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
+				             , BM02.CLNT_NM
+				             , AR02.TRST_PRDT_CD
+						     , AR02.PRJCT_CD
+						     , SELL_PAY_DIV_CD
+				  		     , NVL(SD05.CLMN_DIV_CD, SELL_CLMN_DIV_CD)
+				  		     , NVL(SD05.PMNT_MTD_CD, SELL_PMNT_MTD_CD)
+				  		     , SELL_VAT_CD
+				  		     , TAXIVC_COPRT
+				  		     , NVL(SD05.CLMN_DAY, SELL_CLMN_DAY)
+						UNION  
+						  SELECT  3 AS TYPE1  <!--- 전월 매출 -->
+						     , C.CO_CD
+				             , BM02.CLNT_NM
+				             , C.PRDT_GRP
+						     , C.PRJCT_CD
+						     , SELL_PAY_DIV_CD
+				  		     , SELL_CLMN_DIV_CD
+				  		     , SELL_PMNT_MTD_CD
+				  		     , SELL_VAT_CD
+				  		     , TAXIVC_COPRT
+				  		     , SELL_CLMN_DAY
+						     , REPLACE(#{closeYm}, '-', '') AS ETRDPS_YM
+					         , SUBSTRING(REPLACE(#{closeYm}, '-', ''), 0, 4) || '-' || SUBSTRING(REPLACE(#{closeYm}, '-', ''), 5,2) CLOSE_YM
+						     , C.CLNT_CD	
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0)))  BASIS_AMT  <!-- 당월기초 -->
+							 , 0 CLMN_AMT  <!-- 당월수금 -->
+							 , 0 TOT_AMT   <!-- 당월매출 -->
+							 , 0 TRMEND_AMT <!-- 당월기말 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.BASIS_CREDIT_AMT, 0)))  BFR_BASIS_AMT  <!-- 전월기초 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.CELL_CLMN_AMT, 0)))     CLOSE_YM1_CLMN_AMT   <!--전월수금 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.CELL_TOT_AMT, 0)))      CLOSE_YM1_TOT_AMT    <!--전월매출 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM1  <!-- 전월기말		 -->			      
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.BASIS_CREDIT_AMT, 0)))  BASIS_CREDIT_AMT  <!-- 전전월기초 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.CELL_CLMN_AMT, 0)))     CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.CELL_TOT_AMT, 0)))      CLOSE_YM2_TOT_AMT    <!--전전월매출 -->
+						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
+					  	 FROM TB_AR07M01 C
+						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD 
+						  <where>
+							  <if test="coCd != null and !coCd.equals('')">
+							  AND C.CO_CD = #{coCd}				
+							  </if>	
+							  <if test="clntCd != null and !clntCd.equals('')">
+							  AND C.CLNT_CD = #{clntCd}				
+							  </if>	
+							  <if test="clntNm != null and !clntNm.equals('')">
+							   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+							  </if>			
+							  <if test="closeYm != null and !closeYm.equals('')">
+							   AND  C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM')
+						       		                 AND TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM')
+			                  </if>
+			                  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+							   AND TAXIVC_COPRT = #{taxivcCoprt}
+							  </if>
+							  <if test="prdtGrp != null and !prdtGrp.equals('')">
+							   AND PRDT_GRP = #{prdtGrp}
+							  </if>
+			                 </where>
+					    GROUP BY C.CO_CD
+						     , C.CLNT_CD
+				             , BM02.CLNT_NM
+				             , C.PRDT_GRP
+						     , C.PRJCT_CD
+						     , SELL_PAY_DIV_CD
+				  		     , SELL_CLMN_DIV_CD
+				  		     , SELL_PMNT_MTD_CD
+				  		     , SELL_VAT_CD
+				  		     , TAXIVC_COPRT
+				  		     , SELL_CLMN_DAY
+				     )
+				     GROUP BY
+				   		   CO_CD
+				         , CLNT_NM
+				         , PRDT_GRP
+				         , PRJCT_CD
+						 , SELL_PAY_DIV_CD
+				  	     , SELL_CLMN_DIV_CD
+				  	     , SELL_PMNT_MTD_CD
 			  		     , SELL_VAT_CD
+			  		     , TAXIVC_COPRT
 			  		     , SELL_CLMN_DAY
-			     )
-			     GROUP BY
-			   		   CO_CD
-			         , CLNT_NM
-					 , SELL_PAY_DIV_CD
-			  	     , SELL_CLMN_DIV_CD
-			  	     , SELL_PMNT_MTD_CD
-		  		     , SELL_VAT_CD
-		  		     , SELL_CLMN_DAY
-					 , ETRDPS_YM
-					 , CLOSE_YM
-					 , CLNT_CD
-		) A
+						 , ETRDPS_YM
+						 , CLOSE_YM
+						 , CLNT_CD
+						 
+						      
+				) A
+		)
 	</select>
 	
 	<select id="selectMtClosCditList" resultType="CamelMap">
@@ -293,8 +354,8 @@
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						  </if>
-						  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-						   AND BM02.COPRT_NO = #{taxivcCoprt}
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						   AND AR05.PRDT_GRP = #{prdtGrp}
 						  </if>
 						  GROUP BY AR05.CO_CD, SUBSTRING(ETRDPS_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) 					  
 				             , BM02.CLNT_NM
@@ -347,10 +408,16 @@
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						  </if>			
 						   <if test="closeYm != null and !closeYm.equals('')">
-						  AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')	
+						   AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')	
 						  </if>
 						  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-						   AND TAXIVC_COPRT = #{taxivcCoprt}
+						   AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
+						  </if>
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						   AND AR02.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+											FROM TB_BM01M01
+										    WHERE PRDT_GRP = #{prdtGrp}
+				  						   )
 						  </if>
 						  GROUP BY AR02.CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
 				             , BM02.CLNT_NM
@@ -407,6 +474,9 @@
 			                  </if>
 			                  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 							   AND TAXIVC_COPRT = #{taxivcCoprt}
+							  </if>
+							  <if test="prdtGrp != null and !prdtGrp.equals('')">
+							   AND PRDT_GRP = #{prdtGrp}
 							  </if>
 			                 </where>
 					    GROUP BY C.CO_CD
@@ -649,6 +719,12 @@
 		<if test= "clntCd != null and !clntCd.equals('')">
 		AND  AR07.CLNT_CD = #{clntCd}
 		</if>
+		<if test="prdtGrp != null and !prdtGrp.equals('')">
+		AND AR07.PRDT_GRP = #{prdtGrp}
+		</if>
+		<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+		AND AR07.TAXIVC_COPRT = #{taxivcCoprt}
+		</if>
 		GROUP BY AR07.CO_CD
 		       ,AR07.CLNT_CD 
 		       ,BM02.CLNT_NM
@@ -664,11 +740,7 @@
 		       
 	) AS AR07
 		LEFT JOIN TB_CM05M01 CM05M01 ON  AR07.SELL_CLMN_DIV_CD = CM05M01.CODE_ID
-
 	</select>
-
-
-
 </mapper>
 
 

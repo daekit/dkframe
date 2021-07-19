@@ -84,7 +84,7 @@
               <tr>
                 <th>회사</th>
                 <td>
-                  <select id="coCd" data-kind="CO" data-search="coCd" onchange="gridView.setData(0);">
+                  <select id="coCd" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); gridView.setData(0);">
                     <option value="">전체</option>
                   </select>
                 </td>
@@ -134,11 +134,11 @@
 	            </td>
               </tr>
               <tr>
-                <th>제품유형</th>
-                <td>
-                  <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="prdtStknChange(this);gridView.setData(0);">
-                    <option value="">전체</option>
-                  </select>
+              	<th>제품그룹</th>
+				<td>
+                 	<select id="prdtGrp" data-kind="PRDTGRP"  data-search="prdtGrp" onchange="gridView.setData(0);">
+                 		<option value="">전체</option>
+                 	</select>
                 </td>
                 <th>강종</th>
                 <td>
@@ -166,14 +166,19 @@
 		        
               </tr>
               <tr>
-              
-					<th>제품그룹</th>
-					<td>
-	                 	<select id="prdtGrp" data-kind="PRDTGRP"  data-search="prdtGrp" onchange="gridView.setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
-	              </tr>
+				  <th>제품유형</th>
+                  <td>
+                    <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="prdtStknChange(this);gridView.setData(0);">
+                      <option value="">전체</option>
+                    </select>
+                  </td>
+	              <th>판매법인</th>
+				  <td>
+					 <select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+						<option value="">전체</option>
+					 </select>
+				  </td>
+             </tr>
             </table>
           </div>
     </div>
@@ -347,6 +352,7 @@
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
 		$("#coCd").val(jwt.coCd);
+		setByCoCd(jwt.coCd);
 		$("#startDt").val(getMonth("S"));
 		$("#endDt").val(getMonth("E"));
 		//재검색
@@ -520,5 +526,12 @@
 //	alert(arg);	   
       
 		callReport(fileName, arg, 750, 900);
-	}		
+	}
+
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+	}
 </script>

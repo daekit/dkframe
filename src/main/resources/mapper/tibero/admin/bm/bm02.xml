@@ -9,7 +9,19 @@
 		FROM (	SELECT BM02.*,		
                      nvl2(LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = BM02.LINK_GRP_CLNT_CD),BM02.CLNT_NM ) AS LINK_GRP_CLNT_NM
 				FROM
-					TB_BM02M01 BM02			             
+					TB_BM02M01 BM02		
+					LEFT OUTER JOIN (
+					  SELECT CLNT_CD
+					  FROM TB_BM02D02 BMD02D
+					  WHERE USE_YN = 'Y'
+					 <if test="coCd != null and !coCd.equals('')">
+					       AND CO_CD =  #{coCd}
+					  </if>
+					  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND PRDT_GRP = #{prdtGrp}
+					  </if>
+					  GROUP BY CLNT_CD
+					  ) D02  ON D02.CLNT_CD = BM02.CLNT_CD	             
 				<where>
 					<if test="useYn != null and !useYn.equals('')">
 						BM02.USE_YN = #{useYn}
@@ -169,6 +181,9 @@
 					  WHERE USE_YN = 'Y'
 					 <if test="coCd != null and !coCd.equals('')">
 					       AND CO_CD =  #{coCd}
+					  </if>
+					  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND PRDT_GRP = #{prdtGrp}
 					  </if>
 					  GROUP BY CLNT_CD
 					  ) D02  ON D02.CLNT_CD = A.CLNT_CD
