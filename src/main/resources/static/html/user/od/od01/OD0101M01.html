@@ -87,9 +87,9 @@
 	                <th class= "hit">기간</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation();">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off" onchange="dateValidation();">
+	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off">
 	                    </div>
 	                </td>
 	                <th>재고주체</th>
@@ -348,14 +348,34 @@
 		mainDefaultLoad("매입관리", "발주서관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		setByCoCd($("#coCd_S").val());
-		$("#reqDtFrom").val(lastWeek());
-		$("#reqDtTo").val(dateToStr(new Date()));
-		$('#reqDtFrom, #reqDtTo').datepicker({
+		setByCoCd(jwt.coCd);
+		
+		$('#reqDtFrom').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-// 			autoclose : true
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).subtract(7, "day").toDate())
+		.on("changeDate", function(){
+			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#reqDtFrom').datepicker("setDate", new Date($('#reqDtTo').val()));
+			}
 		});
+		
+		$('#reqDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date())
+		.on("changeDate", function(){
+			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#reqDtTo').datepicker("setDate", new Date($('#reqDtFrom').val()));
+			}
+		});
+		
 		ordrgGridView.initView().setData(0);
 		excelView.initView();
 		
@@ -404,11 +424,18 @@
 	}
 
 	function initSearch() {
+		// datepicker를 제외한 select, input 값 모두 초기화
 		$(".contents.search select").val("");
-		$(".contents.search input[type='text']").val("");
+		$(".contents.search input[type='text']:not(.input_calendar)").val("");
+		
+		// 회사 초기화
 		$("#coCd_S").val(jwt.coCd);
-		$("#reqDtFrom").val(lastWeek());
-		$("#reqDtTo").val(dateToStr(new Date()));
+		setByCoCd(jwt.coCd);
+		
+		// 날짜 초기화
+		$('#reqDtFrom').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
+		$('#reqDtTo').datepicker("setDate", new Date());
+		
 		// 재검색
 		ordrgGridView.setData(0);
 	}
@@ -499,7 +526,7 @@
 	// 판매법인 set
 	function setByCoCd(value){
 		$('#main_area #taxivcCoprt').data("rprc", value);
-		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		$('#main_area #taxivcCoprt option:not([value=""])').remove();
 		setCommonSelect($('#main_area #taxivcCoprt'));  
 	} 
 </script>

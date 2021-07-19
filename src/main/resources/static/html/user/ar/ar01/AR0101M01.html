@@ -79,16 +79,16 @@
 	              <tr>
 	              	<th class= "hit">회사</th>
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required" onchange="setByCoCd(this.value); setWareHouse(this.value); shipGridView.setData(0);">
+	                 	<select id="coCd_S" data-kind="CO" required="required" onchange="setByCoCd(this.value); shipGridView.setData(0);">
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
 	                <th class= "hit">기간</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation();">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off" onchange="dateValidation();">
+	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off">
 	                    </div>
 	                </td>
 	              	<th class= "hit">판매유형</th>
@@ -290,82 +290,102 @@
 	}
 	
 	var excelView = {
-			initView: function(){
-				this.target = new ax5.ui.grid();
-				this.target.setConfig({
-			        target: $('[data-ax5grid="excel-grid"]'),
-			        columns: [
-			        	{key: "coCd", 			label: "회사",			hidden: true},
-			        	{key: "shipSeq", 		label: "출하지시번호",		hidden: true},
-			        	{key: "d01Cnt", 		label: "출하지시상세번호",	hidden: true},
-			        	{key: "dlvrDttm",   	label: "출하일자", 		align: "center",   width: 80},
-			        	{key: "realDlvrDttm",   label: "실출하일자", 		align: "center",   width: 80},
-			        	{key: "shipYn",     	label: "출하",   			align: "center",   width: 50, styleClass: function () {return (this.item.shipYn == "N") ? "grid-font-red-bold":"";}},
-			        	{key: "recptYn",        label: "접수",   			align: "center",   width: 50, styleClass: function () {return (this.item.recptYn == "N") ? "grid-font-red":"";}},
-			          	{key: "whNm",           label: "창고",   			align: "center",   width: 140},
-			            {key: "clntNm",         label: "거래처",  		align: "left",     width: 140},
-			            {key: "siteNm",         label: "현장명",  		align: "left",     width: 160},
-			        	{label: "출하요청",  columns:[
-			          		{key: "shipTotQty", label: "수량",	align: "right",  width: 80,  formatter: "money" },
-				          	{key: "shipTotWt",  label: "중량",	align: "right",  width: 80,  formatter: "money" },
-				          	{key: "shipTotAmt", label: "총금액",	align: "right",  width: 90,  formatter: "money" }
-			          	]},
-			          	{label: "실 출하",  columns:[
-			          		{key: "realTotQty", label: "수량",  	align: "right",  width: 80,  formatter: "money" },
-				          	{key: "realTotWt",  label: "중량",  	align: "right",  width: 80,  formatter: "money" },
-				          	{key: "realTotAmt", label: "총금액",	align: "right",  width: 90,  formatter: "money" }
-			          	]},
-			          	{key: "shipDttm",    	label: "출하완료일", 	  	align: "center",	width: 80},
-			        	{key: "odrCreatDiv", 	label: "오더구분",  	  	align: "center", 	width: 80},
-			          	{key: "coNm",     	 	label: "회사",   		  	align: "center", 	width: 100},
-			          	{key: "typNm",    	 	label: "판매유형", 		align: "center", 	width: 80},
-			          	{key: "dirtrsYn",    	label: "직송여부", 		align: "center", 	width: 80},
-			          	{key: "ownerNm",     	label: "재고주체", 		align: "center", 	width: 80},
-			          	{key: "salesMngNm",  	label: "영업 담당자", 	  	align: "center", 	width: 80},
-			          	{key: "siteNm",   	 	label: "현장명", 		  	align: "left", 		width: 120},
-			          	{key: "whNm",    	 	label: "출하창고", 		align: "center", 	width: 120},
-			          	{key: "taxivcCoprtNm",  label: "계산서 발행법인", 	align: "center", 	width: 120},
-			          	{key: "salesAreaNm",    label: "판매지역", 		align: "center", 	width: 80},
-			          	{key: "mngTel",    		label: "착지 연락처",  	  	align: "center", 	width: 120},
-			          	{key: "odrSeq",    		label: "주문번호", 		align: "center", 	width: 80},
-			          	{key: "transAmt",    	label: "운송비", 		  	align: "right", 	width: 80,	formatter: "money"},
-			          	{key: "shipCnt",    	label: "운송지수", 		align: "center", 	width: 80},
-			          	{key: "addrZip",    	label: "착지주소", 		align: "center", 	width: 80},
-			          	{key: "dlvrRmk",    	label: "납기비고(내부용)",	align: "left", 		width: 120},
-			          	{key: "shipRmk",    	label: "출하비고", 		align: "left", 		width: 150}
-			        ],
-			        footSum: [
-				    	[
-				    		{label: "총계", 	    align:"center",	  colspan:7},
-		                    {key: "shipTotQty", 	collector: "sum", formatter:"money", align: "right"},
-		                    {key: "shipTotWt", 		collector: "sum", formatter:"money", align: "right"},
-		                    {key: "shipTotAmt", 	collector: "sum", formatter:"money", align: "right"},
-				    		{key: "realTotQty", 	collector: "sum", formatter:"money", align: "right"},
-				    		{key: "realTotWt", 		collector: "sum", formatter:"money", align: "right"},
-				    		{key: "realTotAmt", 	collector: "sum", formatter:"money", align: "right"}
-				    		
-				    	]
-				    ]
-			    });
-				return this;
-			}
-		}	
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		        target: $('[data-ax5grid="excel-grid"]'),
+		        columns: [
+		        	{key: "coCd", 			label: "회사",			hidden: true},
+		        	{key: "shipSeq", 		label: "출하지시번호",		hidden: true},
+		        	{key: "d01Cnt", 		label: "출하지시상세번호",	hidden: true},
+		        	{key: "dlvrDttm",   	label: "출하일자", 		align: "center",   width: 80},
+		        	{key: "realDlvrDttm",   label: "실출하일자", 		align: "center",   width: 80},
+		        	{key: "shipYn",     	label: "출하",   			align: "center",   width: 50, styleClass: function () {return (this.item.shipYn == "N") ? "grid-font-red-bold":"";}},
+		        	{key: "recptYn",        label: "접수",   			align: "center",   width: 50, styleClass: function () {return (this.item.recptYn == "N") ? "grid-font-red":"";}},
+		          	{key: "whNm",           label: "창고",   			align: "center",   width: 140},
+		            {key: "clntNm",         label: "거래처",  		align: "left",     width: 140},
+		            {key: "siteNm",         label: "현장명",  		align: "left",     width: 160},
+		        	{label: "출하요청",  columns:[
+		          		{key: "shipTotQty", label: "수량",	align: "right",  width: 80,  formatter: "money" },
+			          	{key: "shipTotWt",  label: "중량",	align: "right",  width: 80,  formatter: "money" },
+			          	{key: "shipTotAmt", label: "총금액",	align: "right",  width: 90,  formatter: "money" }
+		          	]},
+		          	{label: "실 출하",  columns:[
+		          		{key: "realTotQty", label: "수량",  	align: "right",  width: 80,  formatter: "money" },
+			          	{key: "realTotWt",  label: "중량",  	align: "right",  width: 80,  formatter: "money" },
+			          	{key: "realTotAmt", label: "총금액",	align: "right",  width: 90,  formatter: "money" }
+		          	]},
+		          	{key: "shipDttm",    	label: "출하완료일", 	  	align: "center",	width: 80},
+		        	{key: "odrCreatDiv", 	label: "오더구분",  	  	align: "center", 	width: 80},
+		          	{key: "coNm",     	 	label: "회사",   		  	align: "center", 	width: 100},
+		          	{key: "typNm",    	 	label: "판매유형", 		align: "center", 	width: 80},
+		          	{key: "dirtrsYn",    	label: "직송여부", 		align: "center", 	width: 80},
+		          	{key: "ownerNm",     	label: "재고주체", 		align: "center", 	width: 80},
+		          	{key: "salesMngNm",  	label: "영업 담당자", 	  	align: "center", 	width: 80},
+		          	{key: "siteNm",   	 	label: "현장명", 		  	align: "left", 		width: 120},
+		          	{key: "whNm",    	 	label: "출하창고", 		align: "center", 	width: 120},
+		          	{key: "taxivcCoprtNm",  label: "계산서 발행법인", 	align: "center", 	width: 120},
+		          	{key: "salesAreaNm",    label: "판매지역", 		align: "center", 	width: 80},
+		          	{key: "mngTel",    		label: "착지 연락처",  	  	align: "center", 	width: 120},
+		          	{key: "odrSeq",    		label: "주문번호", 		align: "center", 	width: 80},
+		          	{key: "transAmt",    	label: "운송비", 		  	align: "right", 	width: 80,	formatter: "money"},
+		          	{key: "shipCnt",    	label: "운송지수", 		align: "center", 	width: 80},
+		          	{key: "addrZip",    	label: "착지주소", 		align: "center", 	width: 80},
+		          	{key: "dlvrRmk",    	label: "납기비고(내부용)",	align: "left", 		width: 120},
+		          	{key: "shipRmk",    	label: "출하비고", 		align: "left", 		width: 150}
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", 	    align:"center",	  colspan:7},
+	                    {key: "shipTotQty", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "shipTotWt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "shipTotAmt", 	collector: "sum", formatter:"money", align: "right"},
+			    		{key: "realTotQty", 	collector: "sum", formatter:"money", align: "right"},
+			    		{key: "realTotWt", 		collector: "sum", formatter:"money", align: "right"},
+			    		{key: "realTotAmt", 	collector: "sum", formatter:"money", align: "right"}
+			    		
+			    	]
+			    ]
+		    });
+			return this;
+		}
+	}	
 	$(document).ready(function() {
 		//순서 맨 처음
 		mainDefaultLoad("매출관리", "출하요청관리");
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
-		setByCoCd($("#coCd_S").val());
-		setWareHouse(jwt.coCd);
-		$("#reqDtFrom").val(lastWeek());
-		$("#reqDtTo").val(dateToStr(new Date()));
-		$('#reqDtFrom, #reqDtTo').datepicker({
+		setByCoCd(jwt.coCd);
+		
+		$('#reqDtFrom').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-// 			autoclose : true
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).subtract(7, "day").toDate())
+		.on("changeDate", function(){
+			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#reqDtFrom').datepicker("setDate", new Date($('#reqDtTo').val()));
+			}
 		});
+		
+		$('#reqDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date())
+		.on("changeDate", function(){
+			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#reqDtTo').datepicker("setDate", new Date($('#reqDtFrom').val()));
+			}
+		});
+		
 		shipGridView.initView().setData(0);
 		excelView.initView();
+		
 		authChk();
 	})
 	
@@ -375,18 +395,20 @@
 	}
 
 	function initSearch() {
+		// datepicker를 제외한 select, input 값 모두 초기화
 		$(".contents.search select").val("");
-		$(".contents.search input[type='text']").val("");
+		$(".contents.search input[type='text']:not(.input_calendar)").val("");
+		
+		// 회사 초기화
 		$("#coCd_S").val(jwt.coCd);
-		setWareHouse(jwt.coCd);
-		$("#reqDtFrom").val(lastWeek());
-		$("#reqDtTo").val(dateToStr(new Date()));
-		$('#reqDtFrom, #reqDtTo').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-// 			autoclose : true
-		});
-		shipGridView.initView().setData(0);
+		setByCoCd(jwt.coCd);
+		
+		// 날짜 초기화
+		$('#reqDtFrom').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
+		$('#reqDtTo').datepicker("setDate", new Date());
+		
+		// 재검색
+		shipGridView.setData(0);
 	}
 	
 	function insertShipModal(){
@@ -573,18 +595,14 @@
 		}
 	}
 	
-	// 창고 set
-	function setWareHouse(value){
-		$('#whCd_S').data("desc", value);
-	//	$('#whCd_S').empty();
-		$('#whCd_S option:not([value=""])').remove()
-		setCommonSelect($('#whCd_S'));
-	}	
-	
-	// 판매법인 set		
+	// 창고, 판매법인 set		
 	function setByCoCd(value){
+		$('#main_area #whCd_S').data("desc", value);
+		$('#main_area #whCd_S option:not([value=""])').remove();
+		setCommonSelect($('#main_area #whCd_S'));
+		
 		$('#main_area #taxivcCoprt').data("rprc", value);
-		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		$('#main_area #taxivcCoprt option:not([value=""])').remove();
 		setCommonSelect($('#main_area #taxivcCoprt'));  
 	} 
 </script>
