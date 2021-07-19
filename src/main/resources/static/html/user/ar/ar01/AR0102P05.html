@@ -1,0 +1,234 @@
+<div id="allocVehlPopup" class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div id="arViewDiv">
+		<div class="tit_contents">
+			<h4 class="tit">배차현황 조회</h4>
+		</div>
+		<div class="popup_table">
+			<input type="file" id="file" style="display: none" multiple="multiple" onchange="setFile(this);" />
+			<form id="popForm">
+				<input type="hidden" id="pgmId"    name="pgmId" value="AR0201P05">
+				<input type="hidden" id="shipReq"  name="shipReq"> 
+			</form>
+		</div>
+		<br>
+		<!-- 테이블 -->
+		<div class="popup_table">
+			<table>
+				<tr>
+					<td colspan="3" class="tl" style="border-right: 0;">※상세 배차내역</td>
+					<td colspan="14">
+						<div class="add_btn">
+							<a onclick="openThirdAllocVehlSearch();">+</a>
+							<a onclick="removeDetailRow();">-</a>
+						</div>
+					</td>
+				</tr>
+			</table>
+			<div class="ofx_s" style="width: 100%;">
+				<table id="detailTable" style="width: 600px;">
+					<colgroup>
+						<col width="2%">
+						<col width="10%">  <!-- 운송일자 -->
+						<col width="5%">  <!-- 차수 -->
+						<col width="15%"> <!-- 운송사 -->
+						<col width="15%">  <!-- 차량번호 -->
+						<col width="10%">  <!-- 중량-->
+						<col width="5%">  <!-- 출력 -->
+					</colgroup>
+					<tr>
+						<th class="tc" style="padding: 3px;"> 
+							<input type="checkbox" id="allChkBox" onchange="ctrlDetailChkBox(this);">
+						</th>
+						<th class="tc pd0">운송일자</th>
+						<th class="tc pd0">차수</th>
+						<th class="tc">차량번호</th>
+						<th class="tc">중량</th>
+						<th class="tc">출력</th>
+					</tr>
+				</table>
+				<table id="frameTable" style="display: none;">
+					<tr name="detailRow">
+						<input type="hidden" name="allocSeq">    <!-- 배차번호  -->
+						<input type="hidden" name="coCd">
+						<input type="hidden" name="estCoprt">
+						<input type="hidden" name="rprcSeq">
+				        <input type="hidden" name="transCreatDiv">    
+						<input type="hidden" name="clntCd">
+						<input type="hidden" name="prjctCd">
+						<input type="hidden" name="siteCd">
+						<input type="hidden" name="mngTel">
+						<input type="hidden" name="salesMng">
+						<input type="hidden" name="salesDept">
+						<input type="hidden" name="whCd">
+						<input type="hidden" name="desCd">
+						<input type="hidden" name="desNm">
+						<input type="hidden" name="drivrNm">
+						<input type="hidden" name="transSeq">
+						<input type="hidden" name="transAmt">
+						<td>
+							<input type="checkbox" name="detailChkBox" onclick="ctrlAllChkBox();">
+						</td>
+						<td>
+							<input type="text" class="tc" name="allocDt" readonly>
+						</td>
+						<td>
+							<input type="text" class="tc" name="transCo" readonly>
+						</td>
+						<td>
+							<input type="text" class="tc" name="shipVehNo">
+						</td>
+						<td>
+							<input type="text" class="tc" name="shipCnt">
+						</td>
+						<td>
+							<input type="text" class="tr" name="shipWt" onkeyup="onlyNumber(this);" comma>
+						</td>
+						<td>
+							<button id="reportBtn" onclick="setReportPopup();" title="제품만 출력합니다.">
+								<i class="fas fa-print"></i>납품서
+							</button>
+						</td>
+		
+					</tr>
+				</table>
+				<table style="width: 600px;">
+					<colgroup>
+						<col width="2%">
+						<col width="10%">  <!-- 운송일자 -->
+						<col width="5%">  <!-- 차수 -->
+						<col width="15%"> <!-- 운송사 -->
+						<col width="15%">  <!-- 차량번호 -->
+						<col width="10%">  <!-- 중량-->
+						<col width="5%">  <!-- 출력 -->
+					</colgroup>
+					<tr>
+						<th class="tc" colspan="4">합계</th>
+						<td>
+							<input class="tr" type="text" id="totShipWt" name="totShipWt" comma readonly>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<br>
+		<!-- 하단 버튼 -->
+		<div class="popup_bottom_btn">
+<!-- 			<button id="actionOdBtn" authchk></button> -->
+			<button class="close_btn" onclick="modalStack.close();">닫기</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var targetRow = null;
+	var ordrgFileArr = [];
+	var deleteFileArr = [];
+
+	
+	$(document).ready(function() {
+				
+		selectAllocVehlInfo(modalStack.last().paramObj.coCd, modalStack.last().paramObj.shipSeq);
+
+		authChk("AR0101M01");
+	});
+	
+	function selectAllocVehlInfo(coCd, shipSeq) {
+		var paramObj = {
+				  "coCd" : coCd,
+				  "shipSeq" : shipSeq};
+		
+		postAjaxSync("/user/od/od01/selectAllocVehlInfo", paramObj, null, function(data){
+			setAllocVehlInfo(data.result);
+		});
+	}
+
+	function setOrdrgInfo(obj) {
+		var allocVehlDetail = obj.AllocVehlDetail;
+		
+		// 상세정보 세팅
+			$.each(allocVehlDetail, function(idx, obj){
+				var $addedRow = addDetailRow();
+				$.each($addedRow.find('[name]'), function(idx, elem){
+					var itemValue = obj[elem.name];
+					if(itemValue){
+						if($(elem).is('[comma]')){
+							itemValue = addCommaStr(itemValue);
+						}
+						$(elem).val(itemValue);	
+					}
+				});
+			});
+			countTot();
+			
+	}
+	
+	function addDetailRow() {
+		var $detailRow = $('#allocVehlPopup #frameTable tr[name="detailRow"]').clone();
+		$('#allocVehlPopup #detailTable tbody').append($detailRow[0]);
+		return $detailRow;
+	}
+	
+	function removeDetailRow(){
+		var $checkedDetails = $('#allocVehlPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
+		if($checkedDetails.length > 0){
+			$.each($checkedDetails, function(idx, elem){
+				$(elem).closest('tr[name="detailRow"]').remove();
+			});
+			countTot();
+		}else{
+			alert("삭제할 상세내역을 선택해주세요.");
+		}
+	}
+
+
+	function countTot() {
+		var totShipWt = 0;
+		
+		$.each($('#allocVehlPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
+			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val())) || 0;
+			
+			totShipWt += shipWt;
+		});
+		
+		$('#allocVehlPopup #totShipWt').val(addCommaStr(totShipWt));
+	}
+	
+	// 배차실행화면 호출 
+    function openThirdAllocVehlSearch() {
+
+		var paramObj= {
+				"coCd": $('#allocVehlPopup #coCd').val(),
+				"shipSeq": $('#allocVehlPopup #shipSeq').val()
+			};
+		openThirdModal("/static/html/user/ar/ar01/AR0102P06.html", 1600, 600, "배차", paramObj,"");
+    	
+    }
+	
+	function setReportPopup() {
+		var flag = false;
+		var fileName = "AR0101R02.jrf";
+		var detailListLen = $('#allocView #detailTable tr[name="detailRow"]').length;
+		var arg = "coCd#"		+ $('#allocVehlPopup #coCd').val()
+	         + "#clntCd#"		+ $('#allocVehlPopup #clntCd').val()
+	         + "#shipSeq#"		+ $('#allocVehlPopup #shipSeq').val()
+	         + "#";
+		openSecondModal("/static/html/user/ar/ar01/AR0102P04.html", 600, 200, "납품서 출력 선택", null, function (rptName) {
+			if(rptName == 'STD') {
+				if (detailListLen > 6) {
+					fileName = "AR0101R03.jrf";
+				}else {
+					fileName = 'AR0101R02.jrf';
+				}	
+			}else {
+				if (detailListLen > 4) {
+					fileName = "AR0101R05.jrf";
+				}else {
+					fileName = 'AR0101R04.jrf';
+				}	
+			}
+			callReport(fileName, arg, "1050", "700");
+		});
+		//callReport(fileName, arg, "1050", "700");
+	}
+	
+
+</script>
