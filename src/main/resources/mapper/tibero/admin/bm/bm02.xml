@@ -49,11 +49,16 @@
 					</if>
 				</where>
 		     ) T
-				<where>
-					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">
-					    LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
+				<!--  WHERE 1=1
+					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
+						AND LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
 					</if>
-				</where>
+					<if test='loanAmtYn != null and !loanAmtYn.equals("") and loanAmtYn.equals("Y")'>	
+						AND T.TOT_LOAN_AMT > 0 
+					</if>
+					<if test='loanAmtYn != null and !loanAmtYn.equals("") and !loanAmtYn.equals("Y")'>	
+						AND T.TOT_LOAN_AMT = 0 
+					</if> -->
 	</select>
 	
 	<select id="selectClntList" resultType="CamelMap">
@@ -220,11 +225,16 @@
 					ORDER BY A.LINK_GRP_CLNT_CD, A.CLNT_CD
 				</if>
 			) T
-				<where>
+			   WHERE 1=1
 					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
-						 LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
+						AND LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
 					</if>
-				</where>
+					<if test='loanAmtYn != null and !loanAmtYn.equals("") and loanAmtYn.equals("Y")'>	
+						AND T.TOT_LOAN_AMT > 0 
+					</if>
+					<if test='loanAmtYn != null and !loanAmtYn.equals("") and !loanAmtYn.equals("Y")'>	
+						AND T.TOT_LOAN_AMT = 0 
+					</if>
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}

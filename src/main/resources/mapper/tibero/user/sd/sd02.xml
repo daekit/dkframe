@@ -814,7 +814,11 @@
 					            AND ( S.SELPCH_CD = #{selpchCd}  OR SELPCH_CD = 'SELPCH4' )
 				            </otherwise>
 			             </choose>
-			           </if>	) SD01
+			           </if>
+			           <if test="clntCd != null and !clntCd.equals('')">
+					  	    AND S.CLNT_CD = #{clntCd}
+					    </if>
+					    	) SD01
 			       FULL OUTER JOIN
 				   (SELECT '2' type1
 				   	   , 0 AS PLAN_SEQ 
@@ -892,6 +896,9 @@
 										ORDER SIBLINGS BY SORT_NO
 									) B)
 					  </if>
+					  <if test="clntCd != null and !clntCd.equals('')">
+					  	  AND AR02.TRST_CLNT_CD = #{clntCd}
+					   </if>
 				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV)
 				         , SUBSTRING(AR02.TRST_DT, 0, 6) 
 					     , AR02.SALES_MNG 
@@ -912,6 +919,9 @@
 					 BM02.CLNT_DIV_CD,
 					 T1.PRDT_DIV, T1.CLNT_CD 
 		    ) D
+		    <if test="clntNm != null and !clntNm.equals('')">
+		  	    WHERE D.CLNT_NM like '%'||#{clntNm}||'%'
+		    </if>
 		    ORDER BY CO_CD, CLNT_DIV_CD, PRDT_DIV, CLNT_CD
 	</select>
 </mapper>

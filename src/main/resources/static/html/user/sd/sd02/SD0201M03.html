@@ -104,6 +104,16 @@
 	                </select>
 	              </td>
             </tr>
+            <tr>
+	            <th>거래처</th>
+	            <td>
+	              <input type="hidden" id="clntCd_S">
+	              <div class="search_form" style="width: 50%;">
+	              <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? dtlSearch() : ''">
+	           	  <a onclick="openClntSearch();"><i class="i_search_w"></i></a>
+	           </div>
+	            </td>
+            </tr>
             </table>
           </div>
     </div>
@@ -189,7 +199,7 @@
 		        	{key: "planSalesNm", label: "담당자명",    align: "center", width: "9%"},
 		        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
 		            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
-		            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
+		            {key: "clntNm",      label: "거래처", align: "left", width: "16%"},
 		            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
 		            {label: "실적",  columns:[
 			            {key: "trstN", label: "국산",     align: "right", width: "9%", formatter: "money"},
@@ -214,6 +224,8 @@
 					"planDeptId"   : $("#deptId_S").val(),
 					"planDeptNm"   : $("#deptNm_S").val(),
 					"prdtGrp"      : $("#prdtGrp_S").val(),
+					"clntCd"      : $("#clntCd_S").val(),
+					"clntNm"      : $("#clntNm_S").val(),
 					"mngShow"      : $('#mngShowYn').is(":checked") ? 'Y' : 'N'
 				}
 				postAjax("/user/sd/sd02/selectSellListInd", formData, null, function(data){
@@ -237,7 +249,7 @@
 					        	{key: "clntDivNm",   label: "구분",    align: "center", width: "9%"},
 					            {key: "salesAreaNm", label: "판매지역", align: "center", width: "9%"},
 					            {key: "prdtDivNm",   label: "품목",   align: "left", width: "9%"},
-					            {key: "clntNm",      label: "거래선", align: "left", width: "16%"},
+					            {key: "clntNm",      label: "거래처", align: "left", width: "16%"},
 					            {key: "planWt",      label: "계획(Kg)",   align: "right", width: "9%", formatter: "money"},
 					            {label: "실적",  columns:[
 						            {key: "trstN", label: "국산",     align: "right", width: "9%", formatter: "money"},
@@ -429,13 +441,15 @@
 		if(inputValidation($('input[required]'))){
 			var formData = {
 				"coCd" : $("#coCd").val(),
-				"selpchCd" : $("#selpchCd_S").val(),
-				"planYm"  : $("#planYm").val(),
+				"selpchCd"     : $("#selpchCd_S").val(),
+				"planYm"       : $("#planYm").val(),
 				"planSalesId"  : $("#salesMng_S").val(),
 				"planSalesNm"  : $("#salesMngNm_S").val(),
 				"planDeptId"   : $("#deptId_S").val(),
 				"planDeptNm"   : $("#deptNm_S").val(),
-				"prdtGrp"  : $("#prdtGrp_S").val(),
+				"prdtGrp"      : $("#prdtGrp_S").val(),
+				"clntCd"      : $("#clntCd_S").val(),
+				"clntNm"      : $("#clntNm_S").val(),
 				"mngShow"      : $('#mngShowYn').is(":checked") ? 'Y' : 'N'
 			//	"pageNo" : _pageNo + 1,
 			//	"recordCnt" : $("#recordCnt").val() 
@@ -448,6 +462,16 @@
 				excelView.target.exportExcel("판매계획_"+todayDate+".xls");
 			});	
 		}
+	}
+	
+	
+	// 거래처 검색
+	function openClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);
+		});
 	}
 	
 </script>
