@@ -415,9 +415,14 @@ th {
 				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
 				"selpchCd" : $("#selpch_S").val(),
 				"clntCd" : $("#clntCd_S").val(),
+				"clntNm" : $("#clntNm_S").val(),
 				"prdtDiv" : $("#prdtDiv_S").val(),
-				"prjctCd" : $("#prjctCd_S").val(),
-				"typCd" : $("#typCd_S").val()
+				"siteCd" : $("#siteCd_S").val(),
+				"siteNm" : $("#siteNm_S").val(),
+				"bilgYn" : $("#bilgYn_S").val(),
+				"typCd" : $("#typCd_S").val(),
+				"prdtGrp" : $("#prdtGrp_S").val(),
+				"taxivcCoprt" : $("#taxivcCoprt").val()
 			}
 			postAjax("/user/ar/ar02/selectSellSumList", formData, null, function(data){
 				var list = data.resultList;
@@ -433,7 +438,6 @@ th {
 	}	
 
 	function setReportMain() {
-	
 		var fileName = "OD0301R01.jrf";
 		var arg = "selPchCd#" 	+ $('#selpch_S').val() 
 		         +"#coCd#"		+ $('#coCd_S').val()
@@ -447,7 +451,7 @@ th {
 		         +"#siteNm#"	+ $('#siteNm_S').val()
 		         +"#typCd#"		+ $('#typCd_S').val()
 		         +"#typNm#"		+ $('#typCd_S option:selected').text()
-		         +"#bilg#"		+ $('#bilgYn_S').val()
+		         +"#bilgYn#"		+ $('#bilgYn_S').val()
 		         +"#prdtGrp#"	+ $('#prdtGrp_S').val()
 		         +"#taxivcCoprt#"	+ $('#taxivcCoprt').val()
 		         +"#";
@@ -457,10 +461,9 @@ th {
 	function setReport_daily(type) {
 	
 		var fileName = "OD0301R02.jrf";
-		var prdtGrp = '';
-		if(type =='FE'){
+		var prdtGrp = $("#prdtGrp_S").val();
+		if(type =='FE'){ //(철재) 클릭 시 전체 조회
 			fileName = "OD0301R03.jrf";
-			prdtGrp = 'PRDTGRP1';
 		}else {
 			prdtGrp = 'PRDTGRP2';
 		}
@@ -476,14 +479,13 @@ th {
 		         +"#siteNm#"	+ $('#siteNm_S').val()
 		         +"#typCd#"		+ $('#typCd_S').val()
 		         +"#typNm#"		+ $('#typCd_S option:selected').text()
-		         +"#bilg#"		+ $('#bilgYn_S').val()
+		         +"#bilgYn#"	+ $('#bilgYn_S').val()
 		         +"#userNm#"	+ jwt.userNm
 		         +"#prdtGrp#"	+ prdtGrp
 		         +"#taxivcCoprt#"	+ $('#taxivcCoprt').val()
 		         +"#";
 
 //	alert(arg);
-		console.log('@arg : ', arg);
 		callReport(fileName, arg, "1050", "680");
 	}
 
