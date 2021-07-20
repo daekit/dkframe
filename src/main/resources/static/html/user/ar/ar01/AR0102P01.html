@@ -467,9 +467,9 @@
 			$('#shipPopup .tit_contents .tit').text("출하요청서 등록");
 			$('#shipPopup #actionArBtn').text("등록");
 		} else if(actionType == "P"){
+			selectShipInfo(modalStack.last().paramObj.shipSeq);
 			$('#shipPopup #odrCreatDiv').val("ERP");
 			$('#shipPopup #reqDt').val(moment(new Date()).format("YYYYMMDD"));
-			selectShipInfo(modalStack.last().paramObj.shipSeq);
 			$('#shipPopup #actionArBtn').on("click", function(){insertShip();});
 			$('#shipPopup .tit_contents .tit').text("출하요청서 등록");
 			$('#shipPopup #actionArBtn').text("등록");
@@ -490,14 +490,14 @@
 	
 	function selectShipInfo(shipSeq) {
 		var paramObj = {"shipSeq" : shipSeq};
-		postAjax("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
+		postAjaxSync("/user/ar/ar01/selectShipInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
 	
 	function getOrderInfo(){
 		var paramObj = modalStack.last().paramObj;
-		postAjax("/user/ar/ar01/getOrderInfo", paramObj, null, function(data){
+		postAjaxSync("/user/ar/ar01/getOrderInfo", paramObj, null, function(data){
 			setShipInfo(data.result);
 		});
 	}
@@ -1148,13 +1148,6 @@
 		// 폼데이터 생성
 		var formData = new FormData($('#shipPopup #popForm')[0]);
 
-		var typeChk = $('#shipPopup #typCd').val();
-		var siteChk = $('#shipPopup #siteCd').val();
-		if(typeChk == 'SELLTYPE2'  && siteChk == ""){
-			alert("판매유형이 가공일경우 현장은 필수입니다. 현장을 입력하세요.");
-			return false;
-		}		
-		
 		// 유저아이디 추가
 		formData.append("userId", jwt.userId);
 		
