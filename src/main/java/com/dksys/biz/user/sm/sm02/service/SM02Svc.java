@@ -43,6 +43,8 @@ public interface SM02Svc {
 	public int sm01UpdateInsertBarterStockMove(Map<String, String> param);
 	
 	boolean checkStockClose(Map<String, String> paramMap);
+
+	public int insertIfMesStockMove(Map<String, String> detailMap);
 	
 	
 }

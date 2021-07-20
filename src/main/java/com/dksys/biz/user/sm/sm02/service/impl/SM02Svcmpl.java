@@ -273,21 +273,9 @@ public class SM02Svcmpl implements SM02Svc {
 //			/* 3) 유통이동 이력 추가 */
 //			sm02Mapper.sm03InsertStockMove(detailMap);
 //			/* 4) MES 재고 이동 정보 추가 */
-//		    WH01	진천공장  J
-//		    WH05	인천공장  N
-//		    WH06	창녕공장  C
-		    if      ("WH01".equals(detail.get("sWhCd"))) { 	detailMap.put("worksCd",   "J");
-		    }else if("WH05".equals(detail.get("sWhCd"))) {  detailMap.put("worksCd",   "N");
-		    }else {                                         detailMap.put("worksCd",   "C");
-		    }
-		    if( "C".equals(detailMap.get("prdtCoilYn"))) {
-				detailMap.put("productNameCd",   "BC"); /* 코일철근 : BC */
-		    }else {
-				detailMap.put("productNameCd",   "BD"); /* 바철근 : BD */
-		    }
-			detailMap.put("moveSiteCd",   "R"); /* 유통으로이동 : R */
-		    messtockMapper.insertIfMesStockMove(detailMap); 
-		    
+
+//		    messtockMapper.insertIfMesStockMove(detailMap); 
+			insertIfMesStockMove(detailMap); 
 		    
 		}
 		return 200;
@@ -308,4 +296,24 @@ public class SM02Svcmpl implements SM02Svc {
 		return false;
 	}
 	
+	@Override
+	public int insertIfMesStockMove(Map<String, String> detailMap) {
+
+		//	    WH01	진천공장  J
+        //	    WH05	인천공장  N
+        //	    WH06	창녕공장  C
+	    if      ("WH01".equals(detailMap.get("sWhCd"))) { 	detailMap.put("worksCd",   "J");
+	    }else if("WH05".equals(detailMap.get("sWhCd"))) {  detailMap.put("worksCd",   "N");
+	    }else {                                         detailMap.put("worksCd",   "C");
+	    }
+	    if( "C".equals(detailMap.get("prdtCoilYn"))) {
+			detailMap.put("productNameCd",   "BC"); /* 코일철근 : BC */
+	    }else {
+			detailMap.put("productNameCd",   "BD"); /* 바철근 : BD */
+	    }
+		detailMap.put("moveSiteCd",   "R"); /* 유통으로이동 : R */
+
+	    messtockMapper.insertIfMesStockMove(detailMap); 
+		return 200;
+	}
 }
