@@ -53,7 +53,9 @@ public interface SM02Mapper {
 	int sm03UpdateStockByPchMove(Map<String, String> param);
 
 	int checkVaildStockByDetail(Map<String, String> param);
-	
+
 	int sm03UpdateTernKeyYN(Map<String, String> param);
 	
+	int updateTernKeyYN(Map<String, String> param);
+
 }

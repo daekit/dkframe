@@ -111,7 +111,7 @@ public class SM02Ctr {
 		return "jsonView";
 	}
     
-    //일반 재고 이동 등록
+    //제강사 턴키 재고 이동 등록
     @PutMapping("/insertUpdateTernKeyStockMove")
     public String insertUpdateTernKeyStockMove(@RequestBody Map<String, String> param, ModelMap model) {
     	System.out.println("@@@@@@@@@@@@@@@@@@@param" + param);

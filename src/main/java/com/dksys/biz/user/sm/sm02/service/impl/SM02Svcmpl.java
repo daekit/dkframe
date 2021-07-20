@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dksys.biz.user.ifsys.mes.mapper.MESSTOCKMapper;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
+import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.dksys.biz.user.sm.sm02.mapper.SM02Mapper;
 import com.dksys.biz.user.sm.sm02.service.SM02Svc;
 import com.dksys.biz.util.DateUtil;
@@ -20,12 +22,18 @@ import com.google.gson.reflect.TypeToken;
 @Service
 @Transactional("erpTransactionManager")
 public class SM02Svcmpl implements SM02Svc {
-	
+
     @Autowired
     SM02Mapper sm02Mapper;
+    
+    @Autowired
+    SM01Mapper sm01Mapper;
 
 	@Autowired
 	SD07Mapper sd07Mapper;
+	
+	@Autowired
+	MESSTOCKMapper messtockMapper;
     
 	@Override
 	public List<Map<String, String>> selectCmnCodeList(Map<String, String> param) {
@@ -216,6 +224,7 @@ public class SM02Svcmpl implements SM02Svc {
 		for (Map<String, String> detailMap : detailList) {
 			 detailMap.put("userId",    param.get("userId").toString());
 			 detailMap.put("pgmId",     param.get("pgmId").toString());
+			 detailMap.put("prdtCd",    detailMap.get("trstPrdtCd").toString());
 			 detailMap.put("sPrdtCd",   detailMap.get("trstPrdtCd").toString());
 			 detailMap.put("sPrdtSpec", detailMap.get("prdtSpec").toString());
 			 detailMap.put("sPrdtSize", detailMap.get("prdtSize").toString());
@@ -226,6 +235,9 @@ public class SM02Svcmpl implements SM02Svc {
 			 detailMap.put("sRmk",      detail.get("sRmk"));
 			 detailMap.put("sellType",  detail.get("sellType"));
 			 detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
+			 detailMap.put("prdtCd",    detailMap.get("trstPrdtCd").toString());
+			 detailMap.put("clntCd",    detailMap.get("trstClntCd").toString());
+			 
 			 /*
 			 * 제강사 턴키 재고이동 순서
 			 * 1) 상세정보를 재고장에 조회 후 가공 레코드가 있으면 UPDATE 가공 중량, 수량 -, 없으면 INSERT 가공 중량, 수량- 
@@ -235,47 +247,48 @@ public class SM02Svcmpl implements SM02Svc {
 			 * */
 			
 			// 매입정보로 재고 마스터 조회 
-			List<Map<String, String>> tempList = sm02selectTernKeyStock(detailMap);
-			Map<String, String> selectedStock = tempList.get(0);
+			Map<String, String> selectedStock = sm01Mapper.selectStockInfo(detailMap);
+			detailMap.put("stokSeq",   selectedStock.get("stokSeq"));
 			detailMap.put("stockQty",  selectedStock.get("stockQty"));
 			detailMap.put("stockWt",   selectedStock.get("stockWt"));
 			detailMap.put("stockUpr",  selectedStock.get("stockUpr"));
-			detailMap.put("stockAmt",  selectedStock.get("stockAmt"));
 			detailMap.put("stdUpr",    selectedStock.get("stdUpr"));
 			detailMap.put("pchsUpr",   selectedStock.get("pchsUpr"));
 			detailMap.put("sellUpr",   selectedStock.get("sellUpr"));
-			detailMap.put("proprtStockQty",   selectedStock.get("proprtStockQty"));
 			
 			/* AR02 매입 정보일 시 [TUNKEY_MOVE_YN] Y로 업데이트 */
 			if(detailMap.get("trstCertiNo") != null) {
 				sm02Mapper.sm03UpdateTernKeyYN(detailMap);
 			}
+			/* SM03 이동 정보일 시 [TUNKEY_MOVE_YN] Y로 업데이트 */
+			if(detailMap.get("trstNo") != null){				
+				sm02Mapper.updateTernKeyYN(detailMap);
+			}		
+
+			sm02Mapper.sm01UpdateStockMove(detailMap);        // 기존 차감.
 			
-			/* 1) 상세정보를 재고장에 조회 후 [가공] 레코드가 있으면 UPDATE 가공 중량, 수량 -, 없으면 INSERT 가공 중량, 수량- */ 
-			detailMap.put("typCd",   "SELLTYPE2"); /* set type 가공 */ 
-			int isStockValid = sm02Mapper.checkVaildStockByDetail(detailMap);
-			
-			/* SELECT 가공 record true > UPDATE, false > INSERT */
-			if(isStockValid > 0) {
-				sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
-			}else {
-				sm02Mapper.sm03insertStockMst(detailMap);
-			}
-			
-			/* 2) 상세정보로 재고장에 조회 후 [유통] 레코드가 있으면 UPDATE 유통 중량, 수량 +, 없으면 INSERT 유통 중량, 수량 + */
-			detailMap.put("typCd",   "SELLTYPE1"); /* set type 유통 */
-			isStockValid = sm02Mapper.checkVaildStockByDetail(detailMap);
-			
-			/* SELECT 유통 record true > UPDATE, false > INSERT */
-			if(isStockValid > 0) { 
-				sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);
-			}else { 
-				sm02Mapper.sm03insertStockMst(detailMap);
-			}
-			
-			/* 3) 유통이동 이력 추가 */
-			sm02Mapper.sm03InsertStockMove(detailMap);
-			/* 4) MES 재고 추가 */
+		    sm02Mapper.sm02UpdateTernKeyStockMst(detailMap);  // 신규 + 추가
+		    sm02Mapper.sm02InsertBarterStockMove(detailMap);  // 재고이동 이력
+		    
+//			/* 3) 유통이동 이력 추가 */
+//			sm02Mapper.sm03InsertStockMove(detailMap);
+//			/* 4) MES 재고 이동 정보 추가 */
+//		    WH01	진천공장  J
+//		    WH05	인천공장  N
+//		    WH06	창녕공장  C
+		    if      ("WH01".equals(detail.get("sWhCd"))) { 	detailMap.put("worksCd",   "J");
+		    }else if("WH05".equals(detail.get("sWhCd"))) {  detailMap.put("worksCd",   "N");
+		    }else {                                         detailMap.put("worksCd",   "C");
+		    }
+		    if( "C".equals(detailMap.get("prdtCoilYn"))) {
+				detailMap.put("productNameCd",   "BC"); /* 코일철근 : BC */
+		    }else {
+				detailMap.put("productNameCd",   "BD"); /* 바철근 : BD */
+		    }
+			detailMap.put("moveSiteCd",   "R"); /* 유통으로이동 : R */
+		    messtockMapper.insertIfMesStockMove(detailMap); 
+		    
+		    
 		}
 		return 200;
 	}
