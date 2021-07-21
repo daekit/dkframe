@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
-	<style>
-		.add_btn_small{
-		    display: inline-block;
-		    padding: 0px;
-		}
-		
-		.add_btn_small a {
-		    display: inline-block;
-		    width: 33px;
-		    height: 20px;
-		    line-height: 20px;
-		    text-align: center;
-		    border: 1px solid #dbdbdb;
-		    color: #444;
-		    background: #ffffff;
-		    box-shadow: 1px 1px rgba(0,0,0,0.15);
-		}
-	</style>
+<style>
+	.add_btn_small {
+		display: inline-block;
+		padding: 0px;
+	}
+	
+	.add_btn_small a {
+		display: inline-block;
+		width: 33px;
+		height: 20px;
+		line-height: 20px;
+		text-align: center;
+		border: 1px solid #dbdbdb;
+		color: #444;
+		background: #ffffff;
+		box-shadow: 1px 1px rgba(0, 0, 0, 0.15);
+	}
+</style>
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -50,116 +50,128 @@
 	<script src="/static/js/ax5/ax5modal.min.js"></script>
 	<script src="/static/js/ax5/ax5toast.min.js"></script>
 	<script src="/static/js/jstree/jstree.min.js"></script>
-	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	<script src="/static/js/global.js"></script>
 </head>
 
 <body>
 	<div id="head_area"></div>
 	<div id="top_area"></div>
-	
+
 	<div id="main_area">
 		<!-- 페이지 상단 -->
 		<div class="contents no_bg">
-	      <ul class="btn_ul">
-	        <li class="btn_r">
-		    	<a onclick="initSearch();">
-		          <button class="bg_gray">초기화</button>
-		        </a>
-		        <a onclick="ordrgGridView.setData(0);">
-		          <button class="bg_gray">검 색</button>
-		        </a>
-	        </li>
-	      </ul>
-    	</div>
-		  <!-- 검색 콘텐츠 -->
-	    <div class="contents search">
-	        <div class="">
-	            <!-- 테이블 인풋 3분할 -->
-	            <table class="table_input type03">
-	              <tr>
-	              	<th class= "hit">회사</th>
-	                <td>
-	                 	<select id="coCd_S" data-kind="CO" required="required" onchange="setByCoCd(this.value); ordrgGridView.setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
-	                <th class= "hit">기간</th>
-	                <td>
-	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off">
-	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off">
-	                    </div>
-	                </td>
-	                <th>재고주체</th>
-	                <td>
-	                 	<select id="ownerCd_S" data-kind="OWNER" onChange="ordrgGridView.setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-	                </td>
-	              </tr>
-	              <tr>
-	                <th>판매유형</th>
-	                <td>
-	                  <select id="typCd_S" data-kind="SELLTYPE" onChange="ordrgGridView.setData(0);">
-	                  	<option value="">전체</option>
-	                  </select>
-	                </td>
-	                <th>매입거래처</th>
-	                <td>
-	                  <input type="hidden" id="clntCd_S">
-	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? ordrgGridView.setData(0) : ''">
-		              	<a onclick="openClntSearch('P');"><i class="i_search_w"></i></a>
-		              </div>
-	                </td>
-	                <th>매출거래처</th>
-	                <td>
-	                  <input type="hidden" id="sellClntCd_S">
-	                  <div class="search_form" style="width: 50%;">
-		                <input type="text" id="sellClntNm_S" onkeyup="event.keyCode == 8 ? sellClntCd_S.value = '' : event.keyCode == 13 ? ordrgGridView.setData(0) : ''">
-		              	<a onclick="openClntSearch('S');"><i class="i_search_w"></i></a>
-		              </div>
-	                </td>
-	              </tr>
-	              <tr>
-	              	<th>직송구분</th>
-	                <td>
-	                  <select id="dirtrsYn_S" onChange="ordrgGridView.setData(0);">
-	                  	<option value="">전체</option>
-	                  	<option value="N">N</option>
-	                  	<option value="Y" >Y</option>
-	                  </select>
-	                </td>
-	             	 <th>제품그룹</th>
-					 <td>
-	                 	<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp_S" onchange="ordrgGridView.setData(0);">
-	                 		<option value="">전체</option>
-	                 	</select>
-		             </td>
-	             	 <th>제품유형</th>
-					 <td>
-						<select id="prdtDiv_S" data-kind="PRDTDIV" data-search="prdtDiv_S" onchange="ordrgGridView.setData(0);">
-							<option value="">전체</option>
-						</select>
-					 </td>
-	              </tr>
-	              <tr>
-	             	 <th>판매법인</th>
-					 <td>
-						<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="ordrgGridView.setData(0);">
-							<option value="">전체</option>
-						</select>
-					 </td>
-					 <th>비고</th>
-					 <td>
-						<input type="text" id="ordrgRmk_S" data-search="ordrgRmk" onkeyup="event.keyCode == 13 ? ordrgGridView.setData(0): ''">
-	                 </td>
-	              </tr>
-	            </table>
-	        </div>
-	    </div>
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="ordrgGridView.setData(0);">
+						<button class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search">
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type03">
+					<tr>
+						<th class="hit">회사</th>
+						<td>
+							<select id="coCd_S" data-kind="CO" required="required" onchange="setByCoCd(this.value); ordrgGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th class="hit">기간</th>
+						<td>
+							<div class="date_input">
+								<input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off">
+								<span>~</span> 
+								<input type="text" id="reqDtTo" class="input_calendar" autocomplete="off">
+							</div>
+						</td>
+						<th>재고주체</th>
+						<td>
+							<select id="ownerCd_S" data-kind="OWNER" onChange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th>판매유형</th>
+						<td>
+							<select id="typCd_S" data-kind="SELLTYPE" onChange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>매입거래처</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="clntCd_S">
+								<input type="text" id="clntNm_S" onkeyup="event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? ordrgGridView.setData(0) : ''">
+								<a onclick="openClntSearch('P');">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+						<th>매출거래처</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="sellClntCd_S">
+								<input type="text" id="sellClntNm_S" onkeyup="event.keyCode == 8 ? sellClntCd_S.value = '' : event.keyCode == 13 ? ordrgGridView.setData(0) : ''">
+								<a onclick="openClntSearch('S');">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>직송구분</th>
+						<td>
+							<select id="dirtrsYn_S" onChange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+								<option value="N">N</option>
+								<option value="Y">Y</option>
+							</select>
+						</td>
+						<th>제품그룹</th>
+						<td>
+							<select id="prdtGrp_S" data-kind="PRDTGRP" onchange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>제품유형</th>
+						<td>
+							<select id="prdtDiv_S" data-kind="PRDTDIV" onchange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>수입여부</th>
+						<td>
+							<select id="impYn" onchange="ordrgGridView.setData(0);">
+								<option value="">전체</option>
+								<option value="N">N</option>
+								<option value="Y">Y</option>
+							</select>
+						</td>
+						<th>비고</th>
+						<td>
+							<input type="text" id="ordrgRmk_S" onkeyup="event.keyCode == 13 ? ordrgGridView.setData(0): ''">
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
 		<!-- // 콘텐츠 -->
 
 		<!-- 콘텐츠 -->
@@ -167,12 +179,13 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-	                <a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;" authchk>+</a>
-	                <a onclick="deleteOrder();" style="height: 30px; line-height: 28px;" authChk>-</a>
-	                <a onclick="copyOrderModal();" style="height: 30px; line-height: 28px; width: 50px;" authChk>생성</a>
-	                <a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
-	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
-	            </div>
+					<a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;" authchk>+</a> 
+					<a onclick="deleteOrder();" style="height: 30px; line-height: 28px;" authChk>-</a>
+					<a onclick="copyOrderModal();" style="height: 30px; line-height: 28px; width: 50px;" authChk>생성</a>
+					<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
+					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;">
+					<i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+				</div>
 				<select id="recordCnt" class="prae_select" onchange="changeRecordCnt();">
 					<option value="10">10</option>
 					<option value="20" selected="selected">20</option>
@@ -182,16 +195,15 @@
 				</select>
 			</div>
 		</div>
-	  <!-- 콘텐츠 -->
-	    <div class="contents">
-	      <!-- 리스트 -->
-	        <div class="ax5_grid" data-ax5grid="ordrg-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%" ></div>
-            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
-	    </div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="ordrg-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%"></div>
+			<div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
 	</div>
 </body>
 </html>
-
 <script type="text/javascript">
 	var openFrom = null;
 	var ordrgGridView = {
@@ -285,7 +297,8 @@
 					"prdtGrp" : $("#prdtGrp_S").val(),
 					"prdtDiv" : $("#prdtDiv_S").val(),
 					"dirtrsYn" : $("#dirtrsYn_S").val(),
-					"taxivcCoprt" : $("#taxivcCoprt").val(),
+					"taxivcCoprt" : $("#taxivcCoprt_S").val(),
+					"impYn" : $('#impYn').val(), 
 					"ordrgRmk" : $("#ordrgRmk_S").val(),
 					"pageNo" : _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val()
@@ -530,8 +543,8 @@
 
 	// 판매법인 set
 	function setByCoCd(value){
-		$('#main_area #taxivcCoprt').data("rprc", value);
-		$('#main_area #taxivcCoprt option:not([value=""])').remove();
-		setCommonSelect($('#main_area #taxivcCoprt'));  
+		$('#main_area #taxivcCoprt_S').data("rprc", value);
+		$('#main_area #taxivcCoprt_S option:not([value=""])').remove();
+		setCommonSelect($('#main_area #taxivcCoprt_S'));  
 	} 
 </script>
