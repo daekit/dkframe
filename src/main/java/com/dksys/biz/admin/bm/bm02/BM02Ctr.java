@@ -43,7 +43,7 @@ public class BM02Ctr {
     // 거래처 정보 조회
     @PostMapping("/selectClntInfo")
     public String selectClntInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	Map<String, String> clntInfo = bm02Svc.selectClntInfo(paramMap);
+    	Map<String, Object> clntInfo = bm02Svc.selectClntInfo(paramMap);
     	model.addAttribute("clntInfo", clntInfo);
         return "jsonView";
     }

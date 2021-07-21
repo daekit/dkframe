@@ -12,7 +12,7 @@ public interface BM02Mapper {
 	
 	List<Map<String, String>> selectClntList(Map<String, String> paramMap);
 
-	Map<String, String> selectClntInfo(Map<String, String> paramMap);
+	Map<String, Object> selectClntInfo(Map<String, String> paramMap);
 	
 	int insertClnt(Map<String, String> paramMap);
 	

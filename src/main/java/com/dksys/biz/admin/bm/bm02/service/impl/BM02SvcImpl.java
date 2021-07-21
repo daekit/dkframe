@@ -38,7 +38,7 @@ public class BM02SvcImpl implements BM02Svc {
 	}
 
 	@Override
-	public Map<String, String> selectClntInfo(Map<String, String> paramMap) {
+	public Map<String, Object> selectClntInfo(Map<String, String> paramMap) {
 		return bm02Mapper.selectClntInfo(paramMap);
 	}
 	
