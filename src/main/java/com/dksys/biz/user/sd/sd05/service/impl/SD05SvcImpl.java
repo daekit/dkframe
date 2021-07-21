@@ -76,7 +76,10 @@ public class SD05SvcImpl implements SD05Svc {
 	@Override
 	public Map<String, Object> selectPrjInfo(Map<String, String> paramMap) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList",       cm08Svc.selectFileList(paramMap.get("prjctCd")));
+		Map<String, String> fileMap = new HashMap<String, String>();
+		fileMap.put("fileTrgtType", "TB_SD05M01");
+		fileMap.put("fileTrgtKey", paramMap.get("prjctCd"));
+		returnMap.put("fileList",       cm08Svc.selectFileList(fileMap));
 		returnMap.put("prjInfo",        sd05Mapper.selectPrjInfo(paramMap));
 		returnMap.put("ordDetail",      sd05Mapper.selectOrdDetail(paramMap));
 		returnMap.put("shipmentDetail", sd05Mapper.selectShipmentDetail(paramMap));

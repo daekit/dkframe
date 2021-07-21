@@ -75,7 +75,10 @@ public class OD01SvcImpl implements OD01Svc {
 	@Override
 	public Map<String, Object> selectOrdrgInfo(Map<String, String> paramMap) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("ordrgSeq")));
+		Map<String, String> fileMap = new HashMap<String, String>();
+		fileMap.put("fileTrgtType", "TB_OD01M01");
+		fileMap.put("fileTrgtKey", paramMap.get("ordrgSeq"));
+		returnMap.put("fileList", cm08Svc.selectFileList(fileMap));
 		returnMap.put("orderInfo", od01Mapper.selectOrdrgInfo(paramMap));
 		returnMap.put("orderDetail", od01Mapper.selectOrdrgDetailList(paramMap));
 		return returnMap;
@@ -165,7 +168,7 @@ public class OD01SvcImpl implements OD01Svc {
 				od04Mapper.updateReqOrdrgY(paramMap);
 			}
 		}
-		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("reqDt")+paramMap.get("ordrgSeq"), mRequest);
+		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("ordrgSeq"), mRequest);
 		return result;
 	}
 	
@@ -200,7 +203,7 @@ public class OD01SvcImpl implements OD01Svc {
 				od01Mapper.insertOrdrgDetail(detailMap);
 			}			
 		}
-		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("reqDt")+paramMap.get("ordrgSeq"), mRequest);
+		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("ordrgSeq"), mRequest);
 		String[] deleteFileArr = gson.fromJson(paramMap.get("deleteFileArr"), String[].class);
 		List<String> deleteFileList = Arrays.asList(deleteFileArr);
 		for(String fileKey : deleteFileList) {

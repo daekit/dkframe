@@ -42,7 +42,10 @@ public class OD04SvcImpl implements OD04Svc {
 	@Override
 	public Map<String, Object> selectReq(Map<String, String> param) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList", cm08Svc.selectFileList(param.get("reqDt")+param.get("reqSeq")));
+		Map<String, String> fileMap = new HashMap<String, String>();
+		fileMap.put("fileTrgtType", "TB_OD02M01");
+		fileMap.put("fileTrgtKey", param.get("reqSeq"));
+		returnMap.put("fileList", cm08Svc.selectFileList(fileMap));
 		returnMap.put("reqInfo", od04Mapper.selectReq(param));
 		returnMap.put("reqDetail", od04Mapper.selectReqDetail(param));
 		System.out.println("111");
@@ -78,13 +81,16 @@ public class OD04SvcImpl implements OD04Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			od04Mapper.insertReqDetail(detailMap);
 		}
-		cm08Svc.uploadFile("TB_OD04M01", paramMap.get("reqDt")+paramMap.get("reqSeq"), mRequest);
+		cm08Svc.uploadFile("TB_OD02M01", paramMap.get("reqSeq"), mRequest);
 		return result;
 	}
     
 	@Override
 	public int deleteReq(Map<String, String> paramMap) {
-		List<Map<String, String>> fileList = cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("reqSeq"));
+		Map<String, String> fileMap = new HashMap<String, String>();
+		fileMap.put("fileTrgtType", "TB_OD02M01");
+		fileMap.put("fileTrgtKey", paramMap.get("reqSeq"));
+		List<Map<String, String>> fileList = cm08Svc.selectFileList(fileMap);
 		for(Map<String, String> file : fileList) {
 			cm08Svc.deleteFile(file.get("fileKey"));
 		}
@@ -108,7 +114,7 @@ public class OD04SvcImpl implements OD04Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			od04Mapper.insertReqDetail(detailMap);
 		}
-		cm08Svc.uploadFile("TB_OD04M01", paramMap.get("reqDt")+paramMap.get("reqSeq"), mRequest);
+		cm08Svc.uploadFile("TB_OD02M01", paramMap.get("reqSeq"), mRequest);
 		String[] deleteFileArr = gson.fromJson(paramMap.get("deleteFileArr"), String[].class);
 		List<String> deleteFileList = Arrays.asList(deleteFileArr);
 		for(String fileKey : deleteFileList) {

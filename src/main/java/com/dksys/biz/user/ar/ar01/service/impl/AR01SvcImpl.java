@@ -126,7 +126,7 @@ public class AR01SvcImpl implements AR01Svc {
 		if(isOdr) {
 			cm08Svc.uploadFile("TB_SD04M01", paramMap.get("odrSeq"), mRequest);
 		}
-		cm08Svc.uploadFile("TB_AR01M01", paramMap.get("reqDt")+paramMap.get("shipSeq"), mRequest);
+		cm08Svc.uploadFile("TB_AR01M01", paramMap.get("shipSeq"), mRequest);
 		return result;
 	}
 
@@ -150,7 +150,10 @@ public class AR01SvcImpl implements AR01Svc {
 	@Override
 	public Map<String, Object> selectShipInfo(Map<String, String> paramMap) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		returnMap.put("fileList", cm08Svc.selectFileList(paramMap.get("reqDt")+paramMap.get("shipSeq")));
+		Map<String, String> fileMap = new HashMap<String, String>();
+		fileMap.put("fileTrgtType", "TB_AR01M01");
+		fileMap.put("fileTrgtKey", paramMap.get("shipSeq"));
+		returnMap.put("fileList", cm08Svc.selectFileList(fileMap));
 		returnMap.put("shipInfo", ar01Mapper.selectShipInfo(paramMap));
 		returnMap.put("shipDetail", ar01Mapper.selectShipDetail(paramMap));
 		return returnMap;
@@ -192,7 +195,7 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.insertShipDetail(detailMap);
 		}
-		cm08Svc.uploadFile("TB_AR01M01", paramMap.get("reqDt")+paramMap.get("shipSeq"), mRequest);
+		cm08Svc.uploadFile("TB_AR01M01", paramMap.get("shipSeq"), mRequest);
 		String[] deleteFileArr = gson.fromJson(paramMap.get("deleteFileArr"), String[].class);
 		List<String> deleteFileList = Arrays.asList(deleteFileArr);
 		for(String fileKey : deleteFileList) {
