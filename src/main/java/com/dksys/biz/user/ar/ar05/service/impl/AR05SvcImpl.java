@@ -106,7 +106,7 @@ public class AR05SvcImpl implements AR05Svc {
 /*------------------------------------------------------------------------------*/		
 		// 더존 I/F 시작
 		Map<String, Object> douzoneParam = new HashMap<String, Object>();
-		Map<String, String> clntData = bm02Mapper.selectClntInfo(etrdpsData);
+		Map<String, Object> clntData = bm02Mapper.selectClntInfo(etrdpsData);
 // 차변정리		
 		douzoneParam.put("CO_CD","");   //	회사코드	
 		douzoneParam.put("IN_DT", cdtlnData.get("etrdpsDt")); //거래일자	
