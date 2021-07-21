@@ -229,12 +229,13 @@
 			AND AR01.TAXIVC_COPRT= #{taxivcCoprt}				
 		</if>
 		<if test="prdtGrp != null and !prdtGrp.equals('')">
-			AND AR01.PRJCT_CD IN (SELECT DISTINCT SD05.PRJCT_CD         
-									  FROM TB_SD05D01 SD05
-								   WHERE SD05.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+		    AND AR01.SHIP_SEQ IN (SELECT D01.SHIP_SEQ  
+							      FROM TB_AR01D01 D01
+							      WHERE D01.PRDT_CD IN (SELECT DISTINCT PRDT_CD
 														FROM TB_BM01M01
-													   WHERE PRDT_GRP = #{prdtGrp})
-							     )
+													   WHERE PRDT_GRP = #{prdtGrp} --출하상세 PRDT_CD로 제품그룹 조회조건 추각
+							    				      )
+			                      )
 		</if>
 	</select>
 	
@@ -348,12 +349,13 @@
 					AND AR01.TAXIVC_COPRT= #{taxivcCoprt}				
 				</if>
 				<if test="prdtGrp != null and !prdtGrp.equals('')">
-					AND AR01.PRJCT_CD IN (SELECT DISTINCT SD05.PRJCT_CD         
-											  FROM TB_SD05D01 SD05
-										   WHERE SD05.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+				    AND AR01.SHIP_SEQ IN (SELECT D01.SHIP_SEQ  
+									      FROM TB_AR01D01 D01
+									      WHERE D01.PRDT_CD IN (SELECT DISTINCT PRDT_CD
 																FROM TB_BM01M01
-															   WHERE PRDT_GRP = #{prdtGrp})
-									     )
+															   WHERE PRDT_GRP = #{prdtGrp} --출하상세 PRDT_CD로 제품그룹 조회조건 추각
+									    				      )
+					                      )
 				</if>
 				ORDER BY DLVR_DTTM DESC, REAL_DLVR_DTTM DESC, SHIP_SEQ DESC
 			) T
