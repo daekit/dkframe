@@ -578,7 +578,10 @@ public class AR04SvcImpl implements AR04Svc {
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("bilgCertNo", list.get(0));
 		Map<String, String> bilgInfo = ar04Mapper.selectTaxBilg(param);
-		if (bilgInfo.get("taxBilgNo") == null && bilgInfo.get("orgnTaxBilgNo") == null) {
+		
+		// 수정세금계산서 발행 때문에 taxBilgNo는 없지만 orgnTaxBilgNo가 있는 케이스가 발생하므로 taxBilgNo만 없으면 확정취소가 되도록 변경함. - 20210721 김대연
+		// if (bilgInfo.get("taxBilgNo") == null && bilgInfo.get("orgnTaxBilgNo") == null) {
+		if (bilgInfo.get("taxBilgNo") == null) {
 			result = ar04Mapper.deleteBilgInfo(param);
 			ar02Mapper.updateBilgCancel(param);
 		}
