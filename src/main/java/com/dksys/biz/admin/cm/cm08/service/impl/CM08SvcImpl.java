@@ -39,7 +39,7 @@ public class CM08SvcImpl implements CM08Svc {
 		String year = DateUtil.getCurrentYyyy();
 		String month = DateUtil.getCurrentMm();
 		
-        String path = "C:\\upload" + File.separator + fileTrgtTyp + File.separator + year + File.separator + month + File.separator;
+        String path = "D:\\goldmoon\\upload" + File.separator + fileTrgtTyp + File.separator + year + File.separator + month + File.separator;
         for (MultipartFile mf : fileList) {
             String originFileName = mf.getOriginalFilename(); // 원본 파일 명
             long fileSize = mf.getSize(); // 파일 사이즈
@@ -72,8 +72,8 @@ public class CM08SvcImpl implements CM08Svc {
 	}
 
 	@Override
-	public List<Map<String, String>> selectFileList(String fileTrgtKey) {
-		return cm08Mapper.selectFileList(fileTrgtKey);
+	public List<Map<String, String>> selectFileList(Map<String, String> paramMap) {
+		return cm08Mapper.selectFileList(paramMap);
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public interface CM08Mapper {
 
 	int insertFile(HashMap<String, String> param);
 
-	List<Map<String, String>> selectFileList(String fileTrgtKey);
+	List<Map<String, String>> selectFileList(Map<String, String> paramMap);
 
 	Map<String, String> selectFileInfo(String fileKey);
 
