@@ -6,7 +6,21 @@
 	<select id="selectShipNCount" resultType="int">
 	SELECT COUNT(*)
 	  FROM TB_AR01M01 A
+	     , TB_AR01D01 B
 	 WHERE A.SHIP_YN = 'N'
+	   AND A.SHIP_SEQ = B.SHIP_SEQ
+	   <if test="coCd3 != null and !coCd3.equals('')">
+	   AND A.CO_CD = #{coCd3}
+	   </if>
+	   <if test="taxivcCoprt3 != null and !taxivcCoprt3.equals('')">
+	   AND A.TAXIVC_COPRT = #{taxivcCoprt3}
+	   </if>
+	   <if test="prdtGrp3 != null and !prdtGrp3.equals('')">
+	   AND B.PRDT_CD IN (SELECT DISTINCT PRDT_CD
+					     FROM TB_BM01M01
+					     WHERE PRDT_GRP = #{prdtGrp3}
+					     )
+	   </if>
 	</select>
 	
 	<select id="selectShipNList" resultType="CamelMap">
@@ -55,6 +69,15 @@
 	   <if test="coCd3 != null and !coCd3.equals('')">
 	   AND A.CO_CD = #{coCd3}
 	   </if>
+	   <if test="taxivcCoprt3 != null and !taxivcCoprt3.equals('')">
+	   AND A.TAXIVC_COPRT = #{taxivcCoprt3}
+	   </if>
+	   <if test="prdtGrp3 != null and !prdtGrp3.equals('')">
+	   AND B.PRDT_CD IN (SELECT DISTINCT PRDT_CD
+					     FROM TB_BM01M01
+					     WHERE PRDT_GRP = #{prdtGrp3}
+					     )
+	   </if>
 	   GROUP BY A.CO_CD
 			, A.REQ_DT
 			, A.CLNT_CD
@@ -94,7 +117,21 @@
 	<select id="selectOrdrgNCount" resultType="int">
 	SELECT COUNT(*)
 		  FROM TB_OD01M01 A
-		 WHERE A.ORDRG_YN = 'N'
+	    	 , TB_OD01D01 B
+	 WHERE A.ORDRG_SEQ = B.ORDRG_SEQ
+	   AND A.ORDRG_YN = 'N'
+	   <if test="coCd2 != null and !coCd2.equals('')">
+	   AND A.CO_CD = #{coCd2}
+	   </if>
+	   <if test="prdtGrp2 != null and !prdtGrp2.equals('')">
+	   AND B.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+					     FROM TB_BM01M01
+					     WHERE PRDT_GRP = #{prdtGrp2}
+					     )
+	   </if>
+	   <if test="taxivcCoprt2 != null and !taxivcCoprt2.equals('')">
+	   AND A.TAXIVC_COPRT = #{taxivcCoprt2}
+	   </if>
 	</select>
 	
 	<select id="selectOrdrgNList" resultType="CamelMap">
@@ -144,6 +181,15 @@
 	   <if test="coCd2 != null and !coCd2.equals('')">
 	   AND A.CO_CD = #{coCd2}
 	   </if>
+	   <if test="prdtGrp2 != null and !prdtGrp2.equals('')">
+	   AND B.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+					     FROM TB_BM01M01
+					     WHERE PRDT_GRP = #{prdtGrp2}
+					     )
+	   </if>
+	   <if test="taxivcCoprt2 != null and !taxivcCoprt2.equals('')">
+	   AND A.TAXIVC_COPRT = #{taxivcCoprt2}
+	   </if>
 	   GROUP BY A.CO_CD
 			 , A.REQ_DT
 			 , A.CLNT_CD
@@ -180,9 +226,20 @@
 	</select>
 	
 	<select id="selectReqNCount" resultType="int">
-	SELECT COUNT(*)
+		SELECT COUNT(*)
 		  FROM TB_OD02M01 A
-		 WHERE A.ORDRG_YN = 'N'
+		     , TB_OD02D01 B
+		 WHERE A.REQ_SEQ = B.REQ_SEQ
+		   AND A.ORDRG_YN = 'N'
+		 <if test="coCd1 != null and !coCd1.equals('')">
+		 AND A.CO_CD = #{coCd1}
+		 </if>
+		 <if test="prdtGrp1 != null and !prdtGrp1.equals('')">
+		 AND B.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+						    FROM TB_BM01M01
+						    WHERE PRDT_GRP = #{prdtGrp1}
+						    )
+		 </if>
 	</select>
 	
 	<select id="selectReqNList" resultType="CamelMap">
@@ -217,6 +274,12 @@
 		   AND A.ORDRG_YN = 'N'
 		   <if test="coCd1 != null and !coCd1.equals('')">
 		   AND A.CO_CD = #{coCd1}
+		   </if>
+		   <if test="prdtGrp1 != null and !prdtGrp1.equals('')">
+		   AND B.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+							  FROM TB_BM01M01
+						      WHERE PRDT_GRP = #{prdtGrp1}
+						      )
 		   </if>
 		   GROUP BY  A.CO_CD
 			 , A.REQ_DT

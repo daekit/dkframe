@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
+	<style>
+		.th_title{
+		    text-align: left;
+		    position: relative;
+		    color: #888888;
+		    font-size: 13px;
+		    padding: 1px 0 1px 15px;
+		    font-weight: normal;
+		}
+	</style>
+<html lang="ko">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -60,18 +71,46 @@
 						</td>
 						<td style="text-align: left;">
 							<h3 class="location"><span class="page_tit">발주 미확정 현황</span>
-								<select id="coCd2" data-kind="CO" onchange="ordrgGridView.setData();">
+								<select id="coCd2" data-kind="CO" onchange="setByCoCd(this); ordrgGridView.setData();">
 									<option value="">전체</option>
 								</select>
 							</h3> <!-- <span id="ordrgTotCnt"></span> -->
 						</td>
 						<td style="text-align: left;">
 							<h3 class="location"><span class="page_tit">출하 미확정 현황</span>
-								<select id="coCd3" data-kind="CO" onchange="shipGridView.setData();">
+								<select id="coCd3" data-kind="CO" onchange="setByCoCd(this); shipGridView.setData();">
 									<option value="">전체</option>
 								</select>
 							</h3> <!-- <span id="ordrgTotCnt"></span> -->
 						</td>
+					</tr>
+					<tr>
+						<td>
+		                <span class="th_title">제품그룹</span>
+		                <select id="prdtGrp_S1" data-kind="PRDTGRP" data-search="prdtGrp1" onchange="reqGridView.setData();" style="width:140px;margin-left: 35px;margin-bottom: 10px;">
+			                <option value="">전체</option>
+		                </select>
+		                </td>
+		                <td>
+		                <span class="th_title">판매법인</span>
+		                <select id="taxivcCoprt2" data-kind="ESTCOPRT" data-search="taxivcCoprt2" onchange="ordrgGridView.setData();" style="width:140px;margin-left: 35px;margin-bottom: 10px;">
+			                <option value="">전체</option>
+		                </select>
+		                <span class="th_title">제품그룹</span>
+		                <select id="prdtGrp_S2" data-kind="PRDTGRP" data-search="prdtGrp2" onchange="ordrgGridView.setData();" style="width:140px;margin-left: 30px;margin-bottom: 10px;">
+			                <option value="">전체</option>
+		                </select>
+		                </td>
+		                <td>
+		                <span class="th_title">판매법인</span>
+		                <select id="taxivcCoprt3" data-kind="ESTCOPRT" data-search="taxivcCoprt3" onchange="shipGridView.setData();" style="width:140px;margin-left: 35px;margin-bottom: 10px;">
+			                <option value="">전체</option>
+		                </select>
+		                <span class="th_title">제품그룹</span>
+		                <select id="prdtGrp_S3" data-kind="PRDTGRP" data-search="prdtGrp3" onchange="shipGridView.setData();" style="width:140px;margin-left: 30px;margin-bottom: 10px;">
+			                <option value="">전체</option>
+		                </select>
+		                </td>
 					</tr>
 				</thead>
 				<tbody>
@@ -157,14 +196,16 @@
 		setData : function() {
 			var targetObj = this.target;
 			var paramObj = {
-					coCd1 : $("#coCd1").val()
+					"coCd1"       : $("#coCd1").val(),
+					"prdtGrp1"     : $("#prdtGrp_S1").val()
 			};
 			postAjax("/user/cm/cm10/selectReqNList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
 					page : {
-						totalElements : data.paginationInfo.totalRecordCount
+						totalElements : list.length
+						/* totalElements : data.paginationInfo.totalRecordCount */
 					}
 				});
 			});				
@@ -221,14 +262,17 @@
 		setData : function() {
 			var targetObj = this.target;
 			var paramObj = {
-					coCd2 : $("#coCd2").val()
-					};
+					"coCd2"       : $("#coCd2").val(),
+					"prdtGrp2"     : $("#prdtGrp_S2").val(),
+					"taxivcCoprt2" : $("#taxivcCoprt2").val()
+			};
 			postAjax("/user/cm/cm10/selectOrdrgNList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
 					page : {
-						totalElements : data.paginationInfo.totalRecordCount
+						totalElements : list.length
+						/* totalElements : data.paginationInfo.totalRecordCount */
 					}
 				});
 			});				
@@ -286,14 +330,17 @@
 		setData : function(_pageNo) {
 			var targetObj = this.target;
 			var paramObj = {
-				coCd3 : $("#coCd3").val()
+					"coCd3"       : $("#coCd3").val(),
+					"prdtGrp3"     : $("#prdtGrp_S3").val(),
+					"taxivcCoprt3" : $("#taxivcCoprt3").val()
 			};
 			postAjax("/user/cm/cm10/selectShipNList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
 					page : {
-						totalElements : data.paginationInfo.totalRecordCount
+						totalElements : list.length
+						/* totalElements : data.paginationInfo.totalRecordCount */
 					}
 				});
 			});				
@@ -313,6 +360,9 @@
 		$("#coCd1").val(jwt.coCd);
 		$("#coCd2").val(jwt.coCd);
 		$("#coCd3").val(jwt.coCd);
+		
+		setByCoCd(jwt.coCd);
+		
 		ordrgGridView.initView().setData();
 		shipGridView.initView().setData();
 		reqGridView.initView().setData();
@@ -335,5 +385,35 @@
 	function viewShipModal(shipSeq) {
 		var paramObj = {'shipSeq' : shipSeq};
 		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1300, 780, "", paramObj);
+	}
+	
+	// 판매법인 set
+	function setByCoCd(data){
+		//변경한 판매법인의 아이디를 통해 coCd기준 판매법인 변경
+		var dataType = typeof data;
+		var changedId = '';
+		var gridNum = '';
+		var corptId = '';
+		var rprc = '';
+		
+		//coCd변경 시
+		if(dataType == 'object'){  
+			changedId = $(data).attr('id');
+			gridNum = changedId.charAt(changedId.length-1);
+			corptId = '#taxivcCoprt' + gridNum;	
+			rprc = data.value;
+		}else { //처음 load시
+			corptId = '#taxivcCoprt2';  //발주 현황 set
+			rprc = data;
+			$(corptId).data("rprc", rprc);
+			$(corptId +' option:not([value=""])').remove()
+			setCommonSelect($(corptId));
+			
+			corptId = '#taxivcCoprt3'; //출하 현황 set
+		}
+		
+		$(corptId).data("rprc", rprc);
+		$(corptId +' option:not([value=""])').remove()
+		setCommonSelect($(corptId));
 	}
 </script>
