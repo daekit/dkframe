@@ -77,7 +77,7 @@
 				  		     , AR05.SELL_CLMN_DIV_CD
 				  		     , AR05.SELL_PMNT_MTD_CD
 				  		     , BM02.SELL_VAT_CD
-				  		     , BM02.COPRT_NO AS TAXIVC_COPRT
+				  		     , (SELECT M01.TAXIVC_COPRT FROM TB_AR05M01 M01 WHERE M01.ETRDPS_SEQ = AR05.ETRDPS_SEQ AND ROWNUM = 1)  AS TAXIVC_COPRT
 				  		     , AR05.SELL_CLMN_DAY
 							 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
 							 , SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) CLOSE_YM
@@ -96,7 +96,7 @@
 							 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
 						  FROM TB_AR05D02 AR05
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
-						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 					  
+						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  -->
 						  <if test="coCd != null and !coCd.equals('')">
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
@@ -122,6 +122,7 @@
 				  		     , BM02.SELL_VAT_CD
 				  		     , BM02.COPRT_NO
 				  		     , AR05.SELL_CLMN_DAY
+				  		     , AR05.ETRDPS_SEQ
 					   UNION 
 						SELECT   2 AS TYPE1  <!--- 당월 매출 -->
 						     , AR02.CO_CD
@@ -322,7 +323,7 @@
 				  		     , AR05.SELL_CLMN_DIV_CD
 				  		     , AR05.SELL_PMNT_MTD_CD
 				  		     , BM02.SELL_VAT_CD
-				  		     , BM02.COPRT_NO AS TAXIVC_COPRT
+				  		     , (SELECT M01.TAXIVC_COPRT FROM TB_AR05M01 M01 WHERE M01.ETRDPS_SEQ = AR05.ETRDPS_SEQ AND ROWNUM = 1)  AS TAXIVC_COPRT
 				  		     , AR05.SELL_CLMN_DAY
 							 , SUBSTRING(ETRDPS_DT, 0, 6) ETRDPS_YM
 							 , SUBSTRING(ETRDPS_DT, 0, 4) || '-' || SUBSTRING( ETRDPS_DT, 5,2) CLOSE_YM
@@ -341,7 +342,8 @@
 							 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
 						  FROM TB_AR05D02 AR05
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
-						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 					  
+						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 
+						  AND  NVL(ETRDPS_AMT,0)<![CDATA[ != ]]> 0 					  					  
 						  <if test="coCd != null and !coCd.equals('')">
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
@@ -367,6 +369,7 @@
 				  		     , BM02.SELL_VAT_CD
 				  		     , BM02.COPRT_NO
 				  		     , AR05.SELL_CLMN_DAY
+				  		     , AR05.ETRDPS_SEQ
 					   UNION 
 						SELECT   2 AS TYPE1  <!--- 당월 매출 -->
 						     , AR02.CO_CD
