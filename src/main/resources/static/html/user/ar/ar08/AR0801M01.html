@@ -243,12 +243,12 @@
 				postAjaxSync("/admin/bm/bm02/selectClntList", formData, null, function(data){
 	 				var list     = data.clntList;	
 						clntList = list.length;
-	 				if(list.length != 1){
-	 					alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
-	 				}else{
 	 					$("#clntCd_S").val(list[0].clntCd);
-	 				}
 				});	
+				if(clntList != 1){
+					alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
+				    return false;	
+				};	
 			}
 			var formData = {
 				"coCd"         : $("#coCd_S").val(), 
@@ -420,6 +420,8 @@
 
 		if($("#dailySumYn").is(":checked"))  { dailyYn = 'Y';};
 		if($("#monthlySumYn").is(":checked")){ monthYn = 'Y';};
+
+		debugger ;
 		
 		if(clntCd =='' &&  clntNm != '' ){
 			var formData = {
@@ -432,14 +434,13 @@
 			postAjaxSync("/admin/bm/bm02/selectClntList", formData, null, function(data){
  				var list     = data.clntList;	
 					clntList = list.length;
- 				if(list.length != 1){
- 					alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
- 				}else{
  					clntCd = list[0].clntCd;
- 				}
 			});	
 		}
-	
+		if(clntList != 1){
+			alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
+		    return false;	
+		};	
 		var fileName = "AR0801R01.jrf";
 		if ( dailyYn != "Y"){
 			fileName = "AR0801R02.jrf";  // 일계 제외
