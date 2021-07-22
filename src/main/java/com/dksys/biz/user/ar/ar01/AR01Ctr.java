@@ -3,6 +3,8 @@ package com.dksys.biz.user.ar.ar01;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -17,12 +19,15 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.exc.LogicException;
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
+import com.dksys.biz.user.od.od01.OD01Ctr;
 import com.dksys.biz.util.MessageUtils;
 
 @Controller
 @RequestMapping("/user/ar/ar01")
 public class AR01Ctr {
- 
+	
+	private Logger logger = LoggerFactory.getLogger(AR01Ctr.class);
+	
 	@Autowired
 	MessageUtils messageUtils;
     
@@ -88,6 +93,7 @@ public class AR01Ctr {
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
     	}
     	return "jsonView";
     }
@@ -104,6 +110,7 @@ public class AR01Ctr {
 		}catch(Exception e) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
 		}
     	return "jsonView";
     }
@@ -120,6 +127,7 @@ public class AR01Ctr {
 		}catch(Exception e) {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
 		}
     	return "jsonView";
 	}
@@ -140,6 +148,7 @@ public class AR01Ctr {
 		}catch (Exception e) {
 			model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    		logger.error("==================== ERROR ====================", e);
 		}
     	return "jsonView";
     }

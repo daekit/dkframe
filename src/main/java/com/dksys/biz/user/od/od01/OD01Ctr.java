@@ -102,6 +102,7 @@ public class OD01Ctr {
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
     	}
     	return "jsonView";
     }
