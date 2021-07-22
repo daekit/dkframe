@@ -536,8 +536,8 @@ public class AR01SvcImpl implements AR01Svc {
 				paramMap.put("prdtLen", detailMap.get("prdtLen"));
 				paramMap.put("impYn", detailMap.get("impYn"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-				int stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(detailMap.get("realShipQty"));
-				int stockWt = Integer.parseInt(stockInfo.get("stockWt")) + Integer.parseInt(detailMap.get("realShipWt"));
+				double stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realShipQty"));
+				double stockWt = Double.parseDouble(stockInfo.get("stockWt")) + Double.parseDouble(detailMap.get("realShipWt"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
 				paramMap.put("stockWt", String.valueOf(stockWt));
 				sm01Mapper.updateStockCancel(paramMap);
