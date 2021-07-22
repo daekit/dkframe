@@ -89,7 +89,7 @@ public class AR01Ctr {
     	try {
     		ar01Svc.updateShipRmk(paramMap);
     		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

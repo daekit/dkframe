@@ -53,7 +53,9 @@ public interface AR02Mapper {
 	int updateBilgCancel(Map<String, String> param);
 	
 	int updateSalesClnt(Map<String, String> paramMap);
-
+	
+	int updateTrspRmk(Map<String, String> paramMap);
+	
 	int deleteSell(Map<String, String> paramMap);
 	
 	int deletePchsSell(Map<String, String> detailMap);

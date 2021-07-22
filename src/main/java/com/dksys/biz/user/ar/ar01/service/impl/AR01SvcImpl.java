@@ -206,7 +206,19 @@ public class AR01SvcImpl implements AR01Svc {
 	
 	@Override
 	public void updateShipRmk(Map<String, String> paramMap) {
+		// 출하요청 비고 update
 		ar01Mapper.updateShipRmk(paramMap);
+		
+		// 매출 비고 update
+		if(paramMap.containsKey("shipRmk")) {
+		// 납기비고가 아닌 매출비고를 update시
+			Map<String, String> trspRmkMap = new HashMap<String, String>();
+			trspRmkMap.put("trstRprcSeq", paramMap.get("shipSeq"));
+			trspRmkMap.put("pgmId", paramMap.get("pgmId"));
+			trspRmkMap.put("trspRmk", paramMap.get("shipRmk"));
+			trspRmkMap.put("userId", paramMap.get("userId"));
+			ar02Mapper.updateTrspRmk(trspRmkMap);
+		}
 	}
 
 	//출하확정 수정시 updateConfirmToMes도 같이 수정해주어야함.
