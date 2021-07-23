@@ -55,4 +55,6 @@ public interface SD05Mapper {
 	
 	List<Map<String, String>> selectPrjtMngTernKey(Map<String, String> param);
 	
+	int selectChkOrdrgYn(Map<String, String> param);
+	
 }

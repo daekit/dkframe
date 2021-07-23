@@ -147,4 +147,12 @@ public class SD05Ctr {
 		model.addAttribute("codeInfoList", codeInfoList);
 		return "jsonView";
 	}
+	
+	
+	@PostMapping(value = "/selectChkOrdrgYn")
+    public String selectChkOrdrgYn(@RequestBody Map<String, String> param, ModelMap model) {
+		int result = sd05Svc.selectChkOrdrgYn(param);
+		model.addAttribute("result", result);
+        return "jsonView";
+    }
 }

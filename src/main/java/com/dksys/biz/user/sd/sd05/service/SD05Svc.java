@@ -39,4 +39,6 @@ public interface SD05Svc {
 
 	public  Map<String, String> selectMakerPchsClntCd(Map<String, String> paramMap);
 
+	public  int selectChkOrdrgYn(Map<String, String> paramMap);
+
 }

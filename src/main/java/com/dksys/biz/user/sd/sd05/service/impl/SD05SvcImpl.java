@@ -69,6 +69,11 @@ public class SD05SvcImpl implements SD05Svc {
 	}
 	
 	@Override
+	public int selectChkOrdrgYn(Map<String, String> param) {
+		return sd05Mapper.selectChkOrdrgYn(param);
+	}
+	
+	@Override
 	public int selectProjectCount(Map<String, String> param) {
 		return sd05Mapper.selectProjectCount(param);
 	}
