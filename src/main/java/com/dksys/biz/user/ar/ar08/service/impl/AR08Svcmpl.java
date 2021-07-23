@@ -126,9 +126,9 @@ public class AR08Svcmpl implements AR08Svc {
 			   매출 채권 조회 시 : 당월기초 + 매출 - 수금
 			   당월 기초 + 매출 + 지급  -매입 -수금 : 잔액  	
 			*/
-			if(selpchCd == "SELPCH1") { // 매입 : 매입채권에 매입 더하고, 지급을 뺀다...미지급금을 계산
-				remaindAmt = remaindAmt + sellAmt - pchsAmt ; 				
-			}else if (selpchCd == "SELPCH2") {//매출 : 매출채권에 매출더하고, 수금을 뺀다... 미수금계산	
+			if("SELPCH1".equals(selpchCd)) { // 매입 : 매입채권에 매입 더하고, 지급을 뺀다...미지급금을 계산
+				remaindAmt = remaindAmt - sellAmt + pchsAmt ; 				
+			}else if ("SELPCH2".equals(selpchCd)) {//매출 : 매출채권에 매출더하고, 수금을 뺀다... 미수금계산	
 				remaindAmt = remaindAmt +  sellAmt - pchsAmt; 				
 			}else {//매입+매출 : 매입,매출이 합쳐진금액.. 미수금계산
 				remaindAmt = remaindAmt +  sellAmt - pchsAmt; 				

@@ -246,8 +246,7 @@
 	 					$("#clntCd_S").val(list[0].clntCd);
 				});	
 				if(clntList != 1){
-					alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
-				    return false;	
+					clntSearch();
 				};	
 			}
 			var formData = {
@@ -338,7 +337,10 @@
 
 	//거래처
 	function clntSearch() {
-		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+		var paramObj = {
+				"searchValue" :  $("#clntNm_S").val()
+		}
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$('#clntCd_S').val(row.clntCd);
 			$('#clntNm_S').val(row.clntNm);
@@ -423,7 +425,7 @@
 		if($("#monthlySumYn").is(":checked")){ monthYn = 'Y';};
 
 		
-		if(clntCd =='' &&  clntNm != '' ){
+ 		if(clntCd =='' &&  clntNm != '' ){
 			var formData = {
 					"clntCd"    : $("#clntCd_S").val(),
 					"clntNm"    : $("#clntNm_S").val(),
@@ -436,11 +438,16 @@
 					clntList = list.length;
  					clntCd = list[0].clntCd;
 			});	
+
 			if(clntList != 1){
-				alert('거래처가 1개가 아닙니다. 확인 바랍니다.');
-			    return false;	
-			};
-		}
+				clntSearch();
+				return false;
+			};		
+ 		}else if(clntCd =='' ||  clntNm == '' ) {
+			clntSearch();
+ 			return false;
+ 		}
+
 		var fileName = "AR0801R01.jrf";
 		if ( dailyYn != "Y"){
 			fileName = "AR0801R02.jrf";  // 일계 제외
