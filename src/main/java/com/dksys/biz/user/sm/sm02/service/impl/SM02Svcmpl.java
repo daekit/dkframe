@@ -97,6 +97,11 @@ public class SM02Svcmpl implements SM02Svc {
 		return sm02Mapper.sm02selectTernKeyStock(param);
 	}
 	
+	@Override
+	public int updateStockMoveRmk(Map<String, String> param) {
+		return sm02Mapper.updateStockMoveRmk(param);
+	}
+	
 	/*
 	 * @Override public int sm01CheckCnt(Map<String, Object> param) {
 	 * List<Map<String, String>> detailList = (List<Map<String, String>>)

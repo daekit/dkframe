@@ -43,12 +43,13 @@
 				AND CLOSE_YN = #{closeYn}				
 			</if>
 			<if test="prdtGrp != null and !prdtGrp.equals('')">
-				AND PRJCT_CD IN (SELECT DISTINCT PRJCT_CD          -- 제품 구분을 통해 프로젝트 조회
-							 		 FROM TB_SD05D01 
-								   WHERE PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
-														FROM TB_BM01M01
-													   WHERE PRDT_GRP = #{prdtGrp}) --제품 그룹을 통해 제품 구분 조회
-						  	    )
+				AND ODR_SEQ IN (SELECT SD04D.ODR_SEQ 
+				                  FROM TB_SD04D01 SD04D 
+				                  WHERE SD04D.PRDT_CD IN  (SELECT DISTINCT PRDT_CD
+									 					   FROM TB_BM01M01
+													       WHERE PRDT_GRP = #{prdtGrp}
+								    					  )
+								  )
 			</if>				
 			<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 				AND TAXIVC_COPRT = #{taxivcCoprt}				
@@ -148,12 +149,13 @@
 						AND CLOSE_YN = #{closeYn}				
 					</if>
 					<if test="prdtGrp != null and !prdtGrp.equals('')">
-						AND PRJCT_CD IN (SELECT DISTINCT PRJCT_CD          -- 제품 구분을 통해 프로젝트 조회
-									 		 FROM TB_SD05D01 
-										   WHERE PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
-																FROM TB_BM01M01
-															   WHERE PRDT_GRP = #{prdtGrp}) --제품 그룹을 통해 제품 구분 조회
-								  	    )
+						AND ODR_SEQ IN (SELECT SD04D.ODR_SEQ 
+						                  FROM TB_SD04D01 SD04D 
+						                  WHERE SD04D.PRDT_CD IN  (SELECT DISTINCT PRDT_CD
+											 					   FROM TB_BM01M01
+															       WHERE PRDT_GRP = #{prdtGrp}
+										    					  )
+										  )
 					</if>				
 					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 						AND TAXIVC_COPRT = #{taxivcCoprt}				

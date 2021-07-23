@@ -46,5 +46,6 @@ public interface SM02Svc {
 
 	public int insertIfMesStockMove(Map<String, String> detailMap);
 	
+	public int updateStockMoveRmk(Map<String, String> param);
 	
 }

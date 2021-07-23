@@ -198,8 +198,8 @@ th {
 	var actionType = null;
 	var firstGrid = null;
 		
-	var gridView = {	
-		initView: function(){ 
+	var gridView = {
+		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
@@ -215,11 +215,15 @@ th {
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
-		            	//updateProjectModal("U");
+		            	var row = gridView.target.getList("selected")[0];
+		            	var selectedCol = this.colIndex;
+		            	
+		            	//출고 정보 아닌 컬럼 클릭해야 상세 확인 가능
+		            	if(selectedCol > 8){
+		            		updateStockMoveModal(row);	
+		            	}
 		            }, 
-
 		            mergeCells : ["prdtNm","prdtSpec","prdtSize","prdtLen","typNm","impNm","trstDt","outWhNm","outCoNm","prjctNm"],
-
 		        },
 		        page: {
 		            navigationItemCount: 9,
@@ -482,5 +486,10 @@ th {
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
+	}
+	
+	function updateStockMoveModal(row){
+		var paramObj = row;
+		openModal("/static/html/user/sm/sm02/SM0201P04.html", 400, 550," ", paramObj);
 	}
 </script>

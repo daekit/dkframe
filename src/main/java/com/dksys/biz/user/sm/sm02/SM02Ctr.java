@@ -6,10 +6,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.user.sm.sm02.service.SM02Svc;
@@ -114,7 +117,6 @@ public class SM02Ctr {
     //제강사 턴키 재고 이동 등록
     @PutMapping("/insertUpdateTernKeyStockMove")
     public String insertUpdateTernKeyStockMove(@RequestBody Map<String, String> param, ModelMap model) {
-    	System.out.println("@@@@@@@@@@@@@@@@@@@param" + param);
 		int result = sm02svc.insertUpdateTernKeyStockMove(param);    	
 		if(result == 0) {
 			model.addAttribute("resultCode", 500);
@@ -146,4 +148,17 @@ public class SM02Ctr {
 		return "jsonView";
 	}
     
+	//재고이동 상세 비고 수정
+    @PutMapping(value = "/updateStockMoveRmk")
+	public String updateStockMoveRmk(@RequestBody Map<String, String> param, ModelMap model) {
+		try {
+			 sm02svc.updateStockMoveRmk(param);
+			 model.addAttribute("resultUpr", 200);
+			 model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+	   	}catch(Exception e) {
+		    	 model.addAttribute("resultCode", 500);
+		 		 model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+	   	}
+    	return "jsonView";
+    }
 }

@@ -58,4 +58,6 @@ public interface SM02Mapper {
 	
 	int updateTernKeyYN(Map<String, String> param);
 
+	int updateStockMoveRmk(Map<String, String> param);
+
 }
