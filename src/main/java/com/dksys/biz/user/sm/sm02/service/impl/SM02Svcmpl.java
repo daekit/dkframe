@@ -207,6 +207,7 @@ public class SM02Svcmpl implements SM02Svc {
 			}			
 			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);  // 신규 추가
 			sm02Mapper.sm02InsertBarterStockMove(detailMap);        // 재고이동 이력
+			insertIfMesStockMove(detailMap);                        // MES If 입력
 		}
 		return 200;
 		
@@ -307,17 +308,36 @@ public class SM02Svcmpl implements SM02Svc {
 		//	    WH01	진천공장  J
         //	    WH05	인천공장  N
         //	    WH06	창녕공장  C
-	    if      ("WH01".equals(detailMap.get("sWhCd"))) { 	detailMap.put("worksCd",   "J");
-	    }else if("WH05".equals(detailMap.get("sWhCd"))) {  detailMap.put("worksCd",   "N");
-	    }else {                                         detailMap.put("worksCd",   "C");
+	    if      ("WH01".equals(detailMap.get("sWhCd"))) {  detailMap.put("worksCdTo",   "J");
+	    }else if("WH05".equals(detailMap.get("sWhCd"))) {  detailMap.put("worksCdTo",   "N");
+	    }else {                                            detailMap.put("worksCdTo",   "C");
 	    }
+	    
+	    if      ("WH01".equals(detailMap.get("whCd"))) {  detailMap.put("worksCd",   "J"); detailMap.put("worksCdFrom",   "J");
+	    }else if("WH05".equals(detailMap.get("whCd"))) {  detailMap.put("worksCd",   "N"); detailMap.put("worksCdFrom",   "N");
+	    }else {                                           detailMap.put("worksCd",   "C"); detailMap.put("worksCdFrom",   "C");
+	    }
+	    
+	    
+	    
 	    if( "C".equals(detailMap.get("prdtCoilYn"))) {
 			detailMap.put("productNameCd",   "BC"); /* 코일철근 : BC */
 	    }else {
 			detailMap.put("productNameCd",   "BD"); /* 바철근 : BD */
 	    }
-		detailMap.put("moveSiteCd",   "R"); /* 유통으로이동 : R */
 
+	    String prjctCdTo   = detailMap.get("sPrjctCd");
+	    String prjctCdFrom = detailMap.get("prjctCd");
+	    if(prjctCdTo == "") {
+	    	detailMap.put("siteCdTo",   "R"); /* 유통으로이동 : R */
+	    }else {
+			detailMap.put("siteCdTo",  detailMap.get("sPrjctCd")); /* 유통으로이동 : R */
+	    }
+	    if(prjctCdFrom == "") {
+	    	detailMap.put("siteCdFrom",   "R"); /* 유통으로이동 : R */
+	    }else {
+			detailMap.put("siteCdFrom",  detailMap.get("sPrjctCd")); /* 유통으로이동 : R */
+	    }
 	    messtockMapper.insertIfMesStockMove(detailMap); 
 		return 200;
 	}
