@@ -30,9 +30,11 @@ public interface OD01Mapper {
 	
 	int updateOrdrg(Map<String, String> paramMap);
 	
-	int updateOrdrgRmk(Map<String, String> paramMap);
-
 	int updateOrdrgDetail(Map<String, String> paramMap);
+	
+	int updateSalesMng(Map<String, String> paramMap);
+	
+	int updateOrdrgRmk(Map<String, String> paramMap);
 	
 	int deleteOrdrg(Map<String, String> paramMap);
 	

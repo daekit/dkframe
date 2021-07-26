@@ -213,8 +213,34 @@ public class OD01SvcImpl implements OD01Svc {
 	}
 	
 	@Override
+	public void updateSalesMng(Map<String, String> paramMap) {
+		// 발주 담당자 update
+		od01Mapper.updateSalesMng(paramMap);
+		
+		// 매출/매입 담당자 update
+		Map<String, String> trspMap = new HashMap<String, String>();
+		trspMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
+		trspMap.put("pgmId", paramMap.get("pgmId"));
+		trspMap.put("salesMng", paramMap.get("salesMng"));
+		trspMap.put("userId", paramMap.get("userId"));
+		ar02Mapper.updateSalesMng(trspMap);
+	}
+	
+	@Override
 	public void updateOrdrgRmk(Map<String, String> paramMap) {
+		// 발주 비고 update
 		od01Mapper.updateOrdrgRmk(paramMap);
+		
+		// 매출/매입 비고 update
+		if(paramMap.containsKey("ordrgRmk")) {
+		// 매출비고가 아닌 매입비고를 update시
+			Map<String, String> trspMap = new HashMap<String, String>();
+			trspMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
+			trspMap.put("pgmId", paramMap.get("pgmId"));
+			trspMap.put("trspRmk", paramMap.get("ordrgRmk"));
+			trspMap.put("userId", paramMap.get("userId"));
+			ar02Mapper.updateTrspRmk(trspMap);
+		}
 	}
 	
 	@Override

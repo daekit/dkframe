@@ -93,12 +93,26 @@ public class OD01Ctr {
     	return "jsonView";
     }
     
+    @PutMapping(value = "/updateSalesMng")
+    public String updateSalesMng(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		od01Svc.updateSalesMng(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
+    	}
+    	return "jsonView";
+    }
+    
     @PutMapping(value = "/updateOrdrgRmk")
     public String updateOrdrgRmk(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
     		od01Svc.updateOrdrgRmk(paramMap);
     		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

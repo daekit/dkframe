@@ -1,3 +1,15 @@
+<style>
+	.th_btn{
+		margin-left: 5px; 
+		height: 14px; 
+		vertical-align: baseline;
+		display: none;
+	}
+	
+	.th_btn.on{
+		display: inline-block;
+	}
+</style>
 <div id="ordrgView" class="popup_area of_a" style="width: 100%; height: 100%;">
 	<div class="tit_contents">
 		<h4 class="tit">발주서 조회</h4>
@@ -115,10 +127,20 @@
 					<td>
 						<input type="text" id="transAmt" name="transAmt" comma readonly>
 					</td>
-					<th>영업담당자</th>
+					<th>
+						영업담당자
+						<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateSalesMng(this);">수정</a>
+						<a class="fs-12 th_btn" style="color: #3860f8;" onclick="saveSalesMng(this);">저장</a>
+						<a class="fs-12 th_btn" style="color: #f00;" onclick="cancelSalesMng(this);">취소</a>
+					</th>
 					<td>
-						<input type="hidden" id="salesMng" name="salesMng">
-						<input type="text" id="salesMngNm" name="salesMngNm" readonly>
+						<div class="search_form">
+							<input type="hidden" id="salesMng" name="salesMng" org>
+							<input type="text" id="salesMngNm" name="salesMngNm" org readonly>
+							<a onclick="openSecondUserSearch();" style="display: none;">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
 					</td>
 				</tr>
 				<tr>
@@ -136,19 +158,23 @@
 				<tr>
 					<th>
 						매입비고
-						<button type="button" class="fs-12" style="padding: 3px 5px; margin-left: 10px; border-radius: 3px; height: 26px; vertical-align: baseline;" onclick="updateOrdrgRmk(this);">저장</button>
+						<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateOrdrgRmk(this);">수정</a>
+						<a class="fs-12 th_btn" style="color: #3860f8;" onclick="saveOrdrgRmk(this);">저장</a>
+						<a class="fs-12 th_btn" style="color: #f00;" onclick="cancelOrdrgRmk(this);">취소</a>
 					</th>
 					<td colspan="5">
-						<textarea class="form-control" id="ordrgRmk" name="ordrgRmk" style="height: 60px;" maxlength="500"></textarea>
+						<textarea class="form-control" id="ordrgRmk" name="ordrgRmk" style="height: 60px;" maxlength="500" org readonly></textarea>
 					</td>
 				</tr>
 				<tr>
 					<th>
 						매출비고
-						<button type="button" class="fs-12" style="padding: 3px 5px; margin-left: 10px; border-radius: 3px; height: 26px; vertical-align: baseline;" onclick="updateOrdrgRmk(this);">저장</button>
+						<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateOrdrgRmk(this);">수정</a>
+						<a class="fs-12 th_btn" style="color: #3860f8;" onclick="saveOrdrgRmk(this);">저장</a>
+						<a class="fs-12 th_btn" style="color: #f00;" onclick="cancelOrdrgRmk(this);">취소</a>
 					</th>
 					<td colspan="5">
-						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500"></textarea>
+						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500" org readonly></textarea>
 					</td>
 				</tr>
 			</table>
@@ -426,6 +452,9 @@
 		// 메인정보 세팅
 		$.each(orderInfo, function(key, value){
 			var itemValue = value;
+			if($('#ordrgView #'+key).is('[org]')){
+				$('#ordrgView #'+key).data("org", itemValue);
+			}
 			if($('#ordrgView #'+key).is('[comma]')){
 				itemValue = addCommaStr(itemValue);
 			}
@@ -496,6 +525,134 @@
 			$("#ordrgView #ordrgYnBtnA").hide();
 			$("#ordrgView #actionBtn").hide();
 		}
+	}
+	
+	// 영업담당자 수정
+	function updateSalesMng(btnElem){
+		var $tdElem = $(btnElem).closest('th').next('td');
+		// 사용자 검색버튼 show
+		$tdElem.find('a').css("display", "inline-block");
+		// 버튼 toggle
+		toggleThBtn(btnElem);
+	}
+	
+	// 영업담당자 저장
+	function saveSalesMng(btnElem){
+		var $tdElem = $(btnElem).closest('th').next('td');
+		var salesMngElem = $tdElem.find('#salesMng')[0];
+		var paramObj = {
+			"ordrgSeq": $('#ordrgView #ordrgSeq').val(),
+			"userId": jwt.userId,
+			"pgmId": "OD0102V01"
+		}
+		paramObj[salesMngElem.name] = salesMngElem.value;
+		
+		
+		putAjax("/user/od/od01/updateSalesMng", paramObj, null, function(data){
+			alert(data.resultMessage);           
+			if(data.resultCode == 200){
+				// 원본 데이터 set
+				$.each($tdElem.find('input'), function(idx, elem){
+					$(elem).data("org", elem.value);
+				});
+				// 사용자 검색버튼 hide
+				$tdElem.find('a').css("display", "none");
+				// 버튼 toggle
+				toggleThBtn(btnElem);
+				// grid 조회
+				var targetGrid = modalStack.last().paramObj.targetGrid;
+				if(targetGrid){
+					targetGrid.setData(targetGrid.target.page.currentPage);
+				}else{
+					ordrgGridView.setData(ordrgGridView.target.page.currentPage);
+				}
+			}
+		});
+	}
+	
+	// 영업담당자 취소
+	function cancelSalesMng(btnElem){
+		var $tdElem = $(btnElem).closest('th').next('td');
+		// 원본 데이터 set
+		$.each($tdElem.find('input'), function(idx, elem){
+			$(elem).val($(elem).data("org"));
+		});
+		// 사용자 검색버튼 hide
+		$tdElem.find('a').css("display", "none");
+		// 버튼 toggle
+		toggleThBtn(btnElem);
+	}
+	
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM",
+			"userId": $('#ordrgView #salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#ordrgView #salesMng').val(checkedNode.id);
+			$('#ordrgView #salesMngNm').val(checkedNode.text);
+		});
+	}
+	
+	// 비고 수정
+	function updateOrdrgRmk(btnElem){
+		// 비고 수정모드로 변경
+		var $rmkElem = $(btnElem).closest('th').next('td').find('textarea');
+		$rmkElem.prop("readonly", false);
+		// 버튼 toggle
+		toggleThBtn(btnElem);
+	}
+	
+	// 비고 저장
+	function saveOrdrgRmk(btnElem){
+		var rmkElem = $(btnElem).closest('th').next('td').find('textarea')[0];
+		var paramObj = {
+			"ordrgSeq": $('#ordrgView #ordrgSeq').val(),
+			"userId": jwt.userId,
+			"pgmId": "OD0102V01"
+		}
+		paramObj[rmkElem.name] = rmkElem.value;
+		
+		putAjax("/user/od/od01/updateOrdrgRmk", paramObj, null, function(data){
+			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				// 원본 데이터 set
+				$(rmkElem).data("org", rmkElem.value);
+				// 비고 조회모드로 변경
+				$(rmkElem).prop("readonly", true);
+				// 버튼 toggle
+				toggleThBtn(btnElem);
+				// grid 조회
+				var targetGrid = modalStack.last().paramObj.targetGrid;
+				if(targetGrid){
+					targetGrid.setData(targetGrid.target.page.currentPage);
+				}else{
+					ordrgGridView.setData(ordrgGridView.target.page.currentPage);
+				}
+			}
+		});
+	}
+	
+	// 비고 취소
+	function cancelOrdrgRmk(btnElem){
+		var $rmkElem = $(btnElem).closest('th').next('td').find('textarea');
+		// 원본 데이터 set
+		$rmkElem.val($rmkElem.data('org'));
+		// 비고 읽기모드로 변경
+		$rmkElem.prop("readonly", true);
+		// 버튼 toggle
+		toggleThBtn(btnElem);
+	}
+	
+	// 버튼 toggle
+	function toggleThBtn(btnElem){
+		var $thElem = $(btnElem).closest('th');
+		$thElem.find('a').toggleClass('on');
 	}
 	
 	function addDetailRow() {
@@ -576,22 +733,6 @@
 		}, 500);
 	}
 	
-	function updateOrdrgRmk(btnElem){
-		var rmkElem = $(btnElem).closest('th').next().find('textarea')[0];
-		var paramObj = {
-			"ordrgSeq": $('#ordrgView #ordrgSeq').val()
-		}
-		paramObj[rmkElem.name] = rmkElem.value;
-		paramObj["userId"] = jwt.userId
-		
-		putAjax("/user/od/od01/updateOrdrgRmk", paramObj, null, function(data){
-			alert(data.resultMessage);           
-			if(data.resultCode == 200){
-				ordrgGridView.setData(ordrgGridView.target.page.currentPage);
-			}
-		});
-	}
-
 	function updateConfirm(type) {
 		var checkCount = 0;
 		var checkCountP = 0;
