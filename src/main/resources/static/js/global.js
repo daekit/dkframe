@@ -876,4 +876,7 @@ function authChk(menuUrl){
 			$(elem).hide();
 		}
 	});
+	
+	// select 회사코드 disable (감사용 임시코드)
+	$('select[data-kind="CO"]').prop("disabled", true);
 }
