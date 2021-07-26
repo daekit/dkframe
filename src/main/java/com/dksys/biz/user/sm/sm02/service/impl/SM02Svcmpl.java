@@ -173,6 +173,7 @@ public class SM02Svcmpl implements SM02Svc {
 				detailMap.put("transSeq",  param.get("transSeq"));
 			}
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
+			insertIfMesStockMove(detailMap);                 // MES If 입력
 		}
 		return 200;
 		
