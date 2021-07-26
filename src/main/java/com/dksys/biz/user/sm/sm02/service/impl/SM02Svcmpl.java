@@ -102,6 +102,11 @@ public class SM02Svcmpl implements SM02Svc {
 		return sm02Mapper.updateStockMoveRmk(param);
 	}
 	
+	@Override
+	public int updateStockMoveCaryng(Map<String, String> param) {
+		return sm02Mapper.updateStockMoveCaryng(param);
+	}
+	
 	/*
 	 * @Override public int sm01CheckCnt(Map<String, Object> param) {
 	 * List<Map<String, String>> detailList = (List<Map<String, String>>)
@@ -164,10 +169,9 @@ public class SM02Svcmpl implements SM02Svc {
 
 			// 일반재고이동 운반비 등록 시 transSeq, transAmt set
 			if(!("".equals(param.get("transSeq")) || param.get("transSeq") == null)) {
-				detailMap.put("transAmt",  param.get("moveWt"));
+				detailMap.put("transAmt",  param.get("transAmt"));
 				detailMap.put("transSeq",  param.get("transSeq"));
 			}
-			System.out.println("@detailMap : "+ detailMap.toString());
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 		}
 		return 200;
@@ -348,4 +352,5 @@ public class SM02Svcmpl implements SM02Svc {
 	    messtockMapper.insertIfMesStockMove(detailMap); 
 		return 200;
 	}
+
 }

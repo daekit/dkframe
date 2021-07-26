@@ -60,4 +60,6 @@ public interface SM02Mapper {
 
 	int updateStockMoveRmk(Map<String, String> param);
 
+	int updateStockMoveCaryng(Map<String, String> param);
+	
 }

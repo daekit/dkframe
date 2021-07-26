@@ -284,6 +284,7 @@
 			var formData = makeCaryngData();
 			var stockInfo = modalStack.last().paramObj.stockInfo;
 			var totWt = $('#transPopup #totWt').val();
+			var transAmt = $('#transPopup #transAmt').val();
 			formData.totWt = totWt;
 			// insert 운반비
 			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
@@ -295,14 +296,14 @@
 				// insert 재고 이력 
 				// set 운반비 정보 transWt, transSeq
 				stockInfo.transSeq = data.transSeq;
-				stockInfo.moveWt = totWt;
+				stockInfo.transAmt = transAmt;
 				setTimeout(function(){
 					putAjax("/user/sm/sm02/insertUpdateStockMove", stockInfo, null, function(data){
 						alert(data.resultMessage);           
 						gridView.setData(0);
 						modalStack.close();
 					});
-				}, 500);
+				}, 800);
 				
 			});
 		}
@@ -318,6 +319,13 @@
 					modalStack.close();
 				}
 			});
+			
+			putAjax("/user/sm/sm02/updateStockMoveCaryng", formData, null, function(data){
+				if(data.resultCode == 200){
+					gridView.setData(0);
+				}
+			});
+			
 		}
 	}
 	

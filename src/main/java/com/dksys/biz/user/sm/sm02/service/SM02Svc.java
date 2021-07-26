@@ -48,4 +48,6 @@ public interface SM02Svc {
 	
 	public int updateStockMoveRmk(Map<String, String> param);
 	
+	public int updateStockMoveCaryng(Map<String, String> param);
+	
 }
