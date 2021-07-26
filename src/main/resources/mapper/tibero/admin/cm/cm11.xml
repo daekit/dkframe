@@ -189,12 +189,6 @@
 	</select>
 	
 	<select id="selectFacList" resultType="CamelMap">
-		SELECT '창녕공장' FAC_NM
-	  , 0 DD_WGT --일생산량
-	  , 0 MM_WGT --월생산량 
-	  , 9000 MM_PLAN --계획목표량 
-	FROM DUAL
-	UNION ALL
 	SELECT '인천공장' FAC_NM 
 	, C.DD_WGT --일생산량
 	, C.MM_WGT --월생산량 
@@ -245,7 +239,7 @@
 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
-	       END + 8000 MM_PLAN --계획목표량 
+	       END MM_PLAN --계획목표량 
 	FROM (
 	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT
 	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT
@@ -285,7 +279,7 @@
 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
-	       END + 7800 MM_PLAN --계획목표량 
+	       END MM_PLAN --계획목표량 
 	FROM (
 	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT
 	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT
