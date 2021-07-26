@@ -30,6 +30,8 @@ public interface AR01Mapper {
 
 	int updateShip(Map<String, String> paramMap);
 	
+	int updateSalesMng(Map<String, String> paramMap);
+	
 	int updateShipRmk(Map<String, String> paramMap);
 
 	int updateConfirm(Map<String, String> paramMap);
@@ -47,5 +49,4 @@ public interface AR01Mapper {
 	int updateCancel(Map<String, String> paramMap);
 
 	int updateRecptYn(Map<String, String> detailMap);
-
 }

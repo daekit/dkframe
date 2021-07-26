@@ -1,10 +1,13 @@
 <style>
 	.th_btn{
-		padding: 3px 5px; 
-		margin-left: 10px; 
-		border-radius: 3px; 
-		height: 26px; 
+		margin-left: 5px; 
+		height: 14px; 
 		vertical-align: baseline;
+		display: none;
+	}
+	
+	.th_btn.on{
+		display: inline-block;
 	}
 </style>
 <div id="shipView" class="popup_area of_a" style="width: 100%; height: 100%;">
@@ -60,10 +63,20 @@
 						<input type="hidden" id="ownerCd" name="ownerCd">
 						<input type="text" id="ownerNm" name="ownerNm" readonly>
 					</td>
-					<th>영업담당자</th>
+					<th>
+						영업담당자
+						<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateSalesMng(this);">수정</a>
+						<a class="fs-12 th_btn" style="color: #3860f8;" onclick="saveSalesMng(this);">저장</a>
+						<a class="fs-12 th_btn" style="color: #f00;" onclick="cancelSalesMng(this);">취소</a>
+					</th>
 					<td>
-						<input type="hidden" id="salesMng" name="salesMng">
-						<input type="text" id="salesMngNm" name="salesMngNm" readonly>
+						<div class="search_form">
+							<input type="hidden" id="salesMng" name="salesMng" org>
+							<input type="text" id="salesMngNm" name="salesMngNm" org readonly>
+							<a onclick="openSecondUserSearch();" style="display: none;">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
 					</td>
 				</tr>
 				<tr>
@@ -130,19 +143,23 @@
 				<tr>
 					<th>
 						납기비고
-						<button type="button" class="fs-12 th_btn" onclick="changeToUpdate(this);" state="update">수정</button>
+						<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateShipRmk(this);">수정</a>
+						<a class="fs-12 th_btn" style="color: #3860f8;" onclick="saveShipRmk(this);">저장</a>
+						<a class="fs-12 th_btn" style="color: #f00;" onclick="cancelShipRmk(this);">취소</a>
 					</th>
 					<td colspan="5">
-						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500" rmk readonly></textarea>
+						<textarea class="form-control" id="dlvrRmk" name="dlvrRmk" style="height: 60px;" maxlength="500" org readonly></textarea>
 					</td>
 				</tr>
 				<tr>
 					<th>
 						출하비고
-						<button type="button" class="fs-12 th_btn" onclick="changeToUpdate(this);" state="update">수정</button>
+						<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateShipRmk(this);">수정</a>
+						<a class="fs-12 th_btn" style="color: #3860f8;" onclick="saveShipRmk(this);">저장</a>
+						<a class="fs-12 th_btn" style="color: #f00;" onclick="cancelShipRmk(this);">취소</a>
 					</th>
 					<td colspan="5">
-						<textarea class="form-control" id="shipRmk" name="shipRmk" style="height: 60px;" maxlength="500" rmk readonly></textarea>
+						<textarea class="form-control" id="shipRmk" name="shipRmk" style="height: 60px;" maxlength="500" org readonly></textarea>
 					</td>
 				</tr>
 			</table>
@@ -349,7 +366,7 @@
 	</div>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
-		<button style="display: none;" id="allocVehltBtn" onclick="callAllocVehltPopup();" title="배차조회.">
+		<button id="allocVehltBtn" style="display: none;" onclick="openAllocVehltPopup();" title="배차조회.">
 			<i class="fas fa-print"></i>배차
 		</button>
 		<button id="reportBtn" onclick="setReportPopup();" title="제품만 출력합니다.">
@@ -423,6 +440,11 @@
 			if($('#shipView #'+key).is('[comma]')){
 				itemValue = addCommaStr(itemValue);
 			}
+			
+			if($('#shipView #'+key).is('[org]')){
+				$('#shipView #'+key).data("org", itemValue);
+			}
+			
 			$('#shipView #'+key).val(itemValue);
 		});
 		
@@ -482,31 +504,37 @@
 		}
 	}
 	
-	function changeToUpdate(btnElem){
-		// 비고 수정모드로 변경
-		var rmkElem = $(btnElem).closest('th').next('td').find('textarea')[0];
-		$(rmkElem).prop("readonly", false);
-		// 버튼 replace
-		replaceRmkBtn(btnElem);
+	// 영업담당자 수정
+	function updateSalesMng(btnElem){
+		var $tdElem = $(btnElem).closest('th').next('td');
+		// 사용자 검색버튼 show
+		$tdElem.find('a').css("display", "inline-block");
+		toggleThBtn(btnElem);
 	}
 	
-	function updateShipRmk(btnElem){
-		// 비고 저장
-		var rmkElem = $(btnElem).closest('th').next('td').find('textarea')[0];
+	// 영업담당자 저장
+	function saveSalesMng(btnElem){
+		var $tdElem = $(btnElem).closest('th').next('td');
+		var salesMngElem = $tdElem.find('#salesMng')[0];
 		var paramObj = {
 			"shipSeq": $('#shipView #shipSeq').val(),
 			"userId": jwt.userId,
 			"pgmId": "AR0102V01"
 		}
-		paramObj[rmkElem.name] = rmkElem.value;
+		paramObj[salesMngElem.name] = salesMngElem.value;
 		
-		putAjax("/user/ar/ar01/updateShipRmk", paramObj, null, function(data){
+		
+		putAjax("/user/ar/ar01/updateSalesMng", paramObj, null, function(data){
 			alert(data.resultMessage);           
 			if(data.resultCode == 200){
-				// 비고 조회모드로 변경
-				$(rmkElem).prop("readonly", true);
-				// 버튼 replace
-				replaceRmkBtn(btnElem);
+				// 원본 데이터 set
+				$.each($tdElem.find('input'), function(idx, elem){
+					$(elem).data("org", elem.value);
+				});
+				// 사용자 검색버튼 hide
+				$tdElem.find('a').css("display", "none");
+				// 버튼 toggle
+				toggleThBtn(btnElem);
 				// grid 조회
 				var targetGrid = modalStack.last().paramObj.targetGrid;
 				if(targetGrid){
@@ -518,26 +546,89 @@
 		});
 	}
 	
-	function replaceRmkBtn(btnElem){
-		if($(btnElem).attr('state') == "update"){
-		// 수정 -> 저장
-			// 속성 변경
-			$(btnElem).attr("state", "save");
-			// 텍스트 변경
-			$(btnElem).text("저장");
-			// 이벤트 변경
-			$(btnElem).removeAttr("onclick");
-			$(btnElem).attr("onclick", "updateShipRmk(this)");
-		}else if($(btnElem).attr('state') == "save"){
-		// 저장 -> 수정
-			// 속성 변경
-			$(btnElem).attr("state", "update");
-			// 텍스트 변경
-			$(btnElem).text("수정");
-			// 이벤트 변경
-			$(btnElem).removeAttr("onclick");
-			$(btnElem).attr("onclick", "changeToUpdate(this)");
+	// 영업담당자 취소
+	function cancelSalesMng(btnElem){
+		var $tdElem = $(btnElem).closest('th').next('td');
+		// 원본 데이터 set
+		$.each($tdElem.find('input'), function(idx, elem){
+			$(elem).val($(elem).data("org"));
+		});
+		// 사용자 검색버튼 hide
+		$tdElem.find('a').css("display", "none");
+		toggleThBtn(btnElem);
+	}
+	
+	// 사용자 검색
+	function openSecondUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM",
+			"userId": $('#shipView #salesMng').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#shipView #salesMng').val(checkedNode.id);
+			$('#shipView #salesMngNm').val(checkedNode.text);
+		});
+	}
+	
+	// 비고 수정
+	function updateShipRmk(btnElem){
+		// 비고 수정모드로 변경
+		var $rmkElem = $(btnElem).closest('th').next('td').find('textarea');
+		$rmkElem.prop("readonly", false);
+		// 버튼 toggle
+		toggleThBtn(btnElem);
+	}
+	
+	// 비고 저장
+	function saveShipRmk(btnElem){
+		var rmkElem = $(btnElem).closest('th').next('td').find('textarea')[0];
+		var paramObj = {
+			"shipSeq": $('#shipView #shipSeq').val(),
+			"userId": jwt.userId,
+			"pgmId": "AR0102V01"
 		}
+		paramObj[rmkElem.name] = rmkElem.value;
+		
+		putAjax("/user/ar/ar01/updateShipRmk", paramObj, null, function(data){
+			alert(data.resultMessage);           
+			if(data.resultCode == 200){
+				// 원본 데이터 set
+				$(rmkElem).data("org", rmkElem.value);
+				// 비고 조회모드로 변경
+				$(rmkElem).prop("readonly", true);
+				// 버튼 toggle
+				toggleThBtn(btnElem);
+				// grid 조회
+				var targetGrid = modalStack.last().paramObj.targetGrid;
+				if(targetGrid){
+					targetGrid.setData(targetGrid.target.page.currentPage);
+				}else{
+					shipGridView.setData(shipGridView.target.page.currentPage);
+				}
+			}
+		});
+	}
+	
+	// 비고 취소
+	function cancelShipRmk(btnElem){
+		var $rmkElem = $(btnElem).closest('th').next('td').find('textarea');
+		// 원본 데이터 set
+		$rmkElem.val($rmkElem.data('org'));
+		// 비고 읽기모드로 변경
+		$rmkElem.prop("readonly", true);
+		// 버튼 toggle
+		toggleThBtn(btnElem);
+	}
+	
+	// 버튼 toggle
+	function toggleThBtn(btnElem){
+		var $thElem = $(btnElem).closest('th');
+		// 버튼 toggle
+		$thElem.find('a').toggleClass('on');
 	}
 	
 	function addDetailRow() {
@@ -605,25 +696,6 @@
 		});
 	}
 	
-	// 비고 상태 check
-	function checkRmkState(){
-		var isRmkSaved = true;
-		var rmkElem = null;
-		$.each($('#shipView textarea[rmk]'), function(idx, elem){
-			if(!$(elem).is('[readonly]')){
-				isRmkSaved = false;
-				rmkElem = elem;
-			}
-		});
-		
-		if(!isRmkSaved){
-			alert("비고를 저장해주세요.");
-			$(rmkElem).focus();
-		}
-		
-		return isRmkSaved;
-	}
-	
 	function updateShipModal() {
 		var paramObj = modalStack.last().paramObj;
 		modalStack.close();
@@ -663,10 +735,6 @@
 	}
 	
 	function updateConfirm() {
-		// 비고 상태 check
-		var isRmkSaved = checkRmkState();
-		if(!isRmkSaved) return false;
-		
 		var checkCount = 0;
 		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
@@ -802,11 +870,11 @@
 	}
 	
 	
-	function callAllocVehltPopup() {
+	function openAllocVehltPopup() {
 		var paramObj= {
-				"coCd": $('#shipPopup #coCd').val(),
-				"shipSeq": $('#shipView #shipSeq').val()
-			};
-		openSecondModal("/static/html/user/ar/ar01/AR0102P05.html", 600, 500, "배차현황", paramObj,"");
+			"coCd": $('#shipView #coCd').val(),
+			"shipSeq": $('#shipView #shipSeq').val()
+		};
+		openSecondModal("/static/html/user/ar/ar01/AR0102P05.html", 600, 500, "배차현황", paramObj, "");
 	}
 </script>

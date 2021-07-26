@@ -205,6 +205,20 @@ public class AR01SvcImpl implements AR01Svc {
 	}
 	
 	@Override
+	public void updateSalesMng(Map<String, String> paramMap) {
+		// 출하요청 담당자 update
+		ar01Mapper.updateSalesMng(paramMap);
+		
+		// 매출 담당자 update
+		Map<String, String> trspMap = new HashMap<String, String>();
+		trspMap.put("trstRprcSeq", paramMap.get("shipSeq"));
+		trspMap.put("pgmId", paramMap.get("pgmId"));
+		trspMap.put("salesMng", paramMap.get("salesMng"));
+		trspMap.put("userId", paramMap.get("userId"));
+		ar02Mapper.updateSalesMng(trspMap);
+	}
+	
+	@Override
 	public void updateShipRmk(Map<String, String> paramMap) {
 		// 출하요청 비고 update
 		ar01Mapper.updateShipRmk(paramMap);
@@ -212,12 +226,12 @@ public class AR01SvcImpl implements AR01Svc {
 		// 매출 비고 update
 		if(paramMap.containsKey("shipRmk")) {
 		// 납기비고가 아닌 매출비고를 update시
-			Map<String, String> trspRmkMap = new HashMap<String, String>();
-			trspRmkMap.put("trstRprcSeq", paramMap.get("shipSeq"));
-			trspRmkMap.put("pgmId", paramMap.get("pgmId"));
-			trspRmkMap.put("trspRmk", paramMap.get("shipRmk"));
-			trspRmkMap.put("userId", paramMap.get("userId"));
-			ar02Mapper.updateTrspRmk(trspRmkMap);
+			Map<String, String> trspMap = new HashMap<String, String>();
+			trspMap.put("trstRprcSeq", paramMap.get("shipSeq"));
+			trspMap.put("pgmId", paramMap.get("pgmId"));
+			trspMap.put("trspRmk", paramMap.get("shipRmk"));
+			trspMap.put("userId", paramMap.get("userId"));
+			ar02Mapper.updateTrspRmk(trspMap);
 		}
 	}
 
@@ -608,5 +622,4 @@ public class AR01SvcImpl implements AR01Svc {
 		}
 		return result;
 	}
-	
 }

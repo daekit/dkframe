@@ -84,6 +84,20 @@ public class AR01Ctr {
     	return "jsonView";
     }
 	
+	@PutMapping(value = "/updateSalesMng")
+    public String updateSalesMng(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		ar01Svc.updateSalesMng(paramMap);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+			logger.error("==================== ERROR ====================", e);
+    	}
+    	return "jsonView";
+    }
+	
 	@PutMapping(value = "/updateShipRmk")
     public String updateShipRmk(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
