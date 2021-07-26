@@ -89,8 +89,9 @@
 	      <ul class="btn_ul">
 	        <li class="btn_r">
 	          <a id="move">
-	            <button class="bg_gray" onclick = "insertTransAmt()" authchk>운송비</button>
-	            <button class="bg_gray" onclick = "insertUpdateMove()" authchk>이동</button>
+	            <button class="bg_gray" onclick = "insertUpdateMove('C')" authchk>이동</button>
+	            <!-- <button class="bg_gray" onclick = "insertTransAmt('C')" authchk>운반비</button>
+	            <button class="bg_gray" onclick = "insertUpdateMove('C')" authchk>이동</button> -->
 	          </a>
 	        </li>
 	      </ul>
@@ -409,19 +410,45 @@
 		});
 	} */
 	
-	function insertUpdateMove(){
+	function insertUpdateMove(type){
+		var modifiedArr = searchGrid.getList("modified");
+		if(modifiedArr.length < 1){
+			alert('재고 이동수량을 입력해주세요.');
+			return;
+		}
+		
 		if(inputValidation($('input[required]'))) {		
+			//재고이동 실행 체크			
+			if(!confirm("재고이동 하시겠습니까?")){
+				return;
+			}
 			var formData = makeFormData();
 			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
 			var mngPrdtLen = ''; 
 			if($('#sWhType').val() == "WHDIV01") {mngPrdtLen = 8;}
 			formData.mngPrdtLen = mngPrdtLen;
-			
-			putAjax("/user/sm/sm02/insertUpdateStockMove", formData, null, function(data){
-				alert(data.resultMessage);           
-				gridView.setData(0);
-				modalStack.close();
-			})
+			//총 이동중량 > 운반비 총중량 자동 입력
+			var moveWt = 0;
+			$.each(modifiedArr, function(idx, elem) {
+				moveWt += Number(elem.moveWt);
+			});
+			//운반비 팝업 정보 set
+			var paramObj = {
+				coCd : $('#coCd_S').val(),
+				actionType : type,
+				moveWt : moveWt
+			}
+			//재고이동전 운반비 등록 여부 체크
+			if(confirm("선택한 제품과 총이동 중량을 확인해주세요. \n운반비 등록 후 이동 하시겠습니까? \n'취소'클릭 시 입력된 재고가 이동됩니다.")){
+				paramObj.stockInfo = formData;
+				openSecondModal("/static/html/user/sm/sm02/SM0201P05.html", 800, 500, "", paramObj);
+			}else {
+				putAjax("/user/sm/sm02/insertUpdateStockMove", formData, null, function(data){
+					alert(data.resultMessage);           
+					gridView.setData(0);
+					modalStack.close();
+				})
+			}
 		}
 	}
 	
@@ -528,15 +555,5 @@
 		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
 		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
 		
-	}
-	// 운반비 등록
-	function insertTransAmt(){
-		openFrom = "SM0201P01";
-		var paramObj ={
-			transSeq :$('#transSeq').val(),
-			coCd     : $("#searchDtlOutCoCd").val()
-		}
-		if(!$('#transSeq').val()) {actionType = 'C';} 
-		openSecondModal("/static/html/cmn/modal/trspInsert.html", 800, 450, "", paramObj);
 	}
 </script>

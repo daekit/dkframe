@@ -222,6 +222,10 @@ th {
 		            	if(selectedCol > 8){
 		            		updateStockMoveModal(row);	
 		            	}
+		            	//이동일자 클릭 시 운송비정보 확인 가능
+		            	if(selectedCol == 8){
+		            		openCaryng(row);
+		            	}
 		            }, 
 		            mergeCells : ["prdtNm","prdtSpec","prdtSize","prdtLen","typNm","impNm","trstDt","outWhNm","outCoNm","prjctNm"],
 		        },
@@ -261,12 +265,12 @@ th {
 		          	]},
 		            {key: "rmk", 	  	  label: "비고", 		align: "center", width: 200},
 		            {key: "stdUpr", 	  label: "기준 단가",  align: "right",  width: 60, formatter: "money"},
-		            
 		            {key: "creatDttm", 	  label: "최종 변경일", align: "center", width: "7%", hidden : true},
 		            {key: "makrNm", 	  label: "제조사", 	align: "center", width: "7%", hidden : true},		          	
 		          	{key: "impNm",        label: "수입",     align: "center", width: 50, hidden : true},		
 		            {key: "ownerNm", 	  label: "재고주체",   align: "center", width: "7%", hidden : true},	
 		            {key: "inCoNm", 	  label: "회사",    align: "center", width: "7%", hidden : true},	
+		            {key: "transSeq", 	  label: "운반비번호", align: "center", width: "7%", hidden : true}
 		        ]
 		    });
 			return this;
@@ -492,4 +496,19 @@ th {
 		var paramObj = row;
 		openModal("/static/html/user/sm/sm02/SM0201P04.html", 400, 550," ", paramObj);
 	}
+	// open 운반비 상세 정보 팝업
+	function openCaryng(row){
+		//운반비 정보 없을 시
+		if(row.transSeq == undefined){
+			alert('등록된 운송비가 없습니다.');
+			return;
+		}
+		//운반비 팝업 정보 set
+		var paramObj = {
+			actionType : 'U',
+			transSeq : row.transSeq
+		}
+		openModal("/static/html/user/sm/sm02/SM0201P05.html", 800, 500, "", paramObj);
+	}
+	
 </script>

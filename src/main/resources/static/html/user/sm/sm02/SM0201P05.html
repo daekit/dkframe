@@ -1,0 +1,333 @@
+<div id="transPopup" class="popup_area of_a" style="width: 100%; height: 100%;">
+	<div class="tit_contents">
+		<h4 class="tit"></h4>
+	</div>
+	<div class="popup_table">
+		<!-- <input type="file" id="file" style="display:none" multiple="multiple" onchange="setFile(this);"/> -->
+		<form id="popForm">
+			<table>
+				<colgroup>
+					<col width="15%">
+					<col width="35%">
+					<col width="15%">
+					<col width="35%">
+					<col>
+				</colgroup>
+				<tr>
+					<th class="hit">운송일자</th>
+					<td>
+						<input type="text" class="input_calendar" id="transDt" name="transDt" autocomplete="off" msg="운송일자" required>
+					</td>
+					<th>회사</th>
+					<td>
+						<select id="coCd" name="coCd" data-kind="CO" onchange="setByCoCdPopup(this.value);"></select>
+					</td>
+				</tr>
+				<tr>
+					<th>운송업체</th>
+					<td class="drctArea">
+						<div class="search_form">
+							<input type="hidden" id="transCo" name="transCo">
+							<input type="text" id="transNm" name="transNm" disabled>
+							<a onclick="openSecondClntSearch('T');"><i class="i_search_w"></i></a>
+						</div>
+					</td>
+					<th>거래처</th>
+					<td class="drctArea">
+						<div class="search_form">
+							<input type="hidden" id="clntCd" name="clntCd">
+							<input type="text" id="clntNm" name="clntNm"> 
+							<a onclick="openSecondClntSearch('C');"><i class="i_search_w"></i></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>중량(KG)</th>
+					<td>
+						<input class="tr" id="totWt" name="totWt" type="text" onkeyup="onlyNumber(this);" onchange="transPrc();" comma>
+						<!-- <input class="tr" id="totWt" name="totWt" type="text" onkeyup="onlyNumber(this);" onchange="transPrc();" disabled comma> -->
+					</td>
+					<th>현 장</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="prjctCd" name="prjctCd"> 
+							<input type="hidden" id="prjctNm" name="prjctNm"> 
+							<input type="hidden" id="siteCd" name="siteCd"> 
+							<input type="text" id="siteNm" name="siteNm" disabled>
+							<a onclick="openThirdSiteSearch();"><i class="i_search_w"></i></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>도착지</th>
+					<td>
+						<input id="desCd" name="desCd" type="hidden" style="width: 100%;"> 
+						<input id="desNm" name="desNm" type="text" style="width: 100%;">
+					</td>
+					<th>착불여부</th>
+					<td>
+						<select id="arvpayYn" name="arvpayYn" data-kind="YN" onchange="changePayCo();"></select>
+					</td>
+				</tr>
+				<tr>
+					<th>상차지(창고)</th>
+					<td>
+						<select id="whCd" name="whCd" data-kind="WH">
+							<option value=""></option>
+						</select>
+					</td>
+					<th>지불회사</th>
+					<td>
+						<input id="payCo" name="payCo" type="text">
+					</td>
+				</tr>
+				<tr>
+					<th>운전기사</th>
+					<td>
+						<input id="drivrNm" name="drivrNm" type="text">
+					</td>
+					<th>차량번호</th>
+					<td>
+						<input id="shipVehNo" name="shipVehNo" type="text">
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">운송단가</th>
+					<td>
+						<input class="tr" id="transUpr" name="transUpr" type="text" onkeyup="transPrc();" msg="운송단가" required comma>
+					</td>
+					<th class="hit">매입법인</th>
+					<td>
+						<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT" msg="계산서발행법인" required>
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th class="hit">운송비</th>
+					<td>
+						<input class="tr" id="transAmt" name="transAmt" type="text" onkeyup="onlyNumber(this);" msg="운송비" required comma>
+					</td>
+					<th class="hit">제품그룹</th>
+				    <td>
+	                 	<select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" onchange="gridView.setData(0);" msg="제품그룹" required>
+	                 		<option value="">전체</option>
+	                 	</select>
+	                </td>
+				</tr>
+				<tr>
+					<th></th>
+					<td>						
+					</td>
+					<th>지불처리 완료여부</th>
+					<td>
+						<select id="procYn" name="procYn" data-kind="YN"></select>
+					</td>
+				</tr>
+				
+				<tr>
+					<th>비고</th>
+					<td colspan="5">
+						<input id="transRmk" name="transRmk" type="text">
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" id="userId" name="userId"> 
+			<input type="hidden" id="pgmId" name="pgmId" value="AR0301P01">
+			<input type="hidden" id="shipSeq" name="shipSeq">
+			<input type="hidden" id="transSeq" name="transSeq">
+		</form>
+	</div>
+	<div class="popup_bottom_btn"><button id="actionBtn" authchk>등록</button>
+		<button type="button" class="close_btn" onclick="modalStack.close();">닫기</button>
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready( function() {
+		var paramObj = modalStack.last().paramObj;
+		
+		$("#transPopup #userId").val(jwt.userId);
+		setCommonSelect($("#transPopup select[data-kind]"));
+		
+		//이동중량 set
+		$("#transPopup #totWt").val(String(paramObj.moveWt));
+		$('#transPopup #transDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		}).datepicker("setDate", new Date());
+		setInit();
+		// 권한관리
+		authChk("AR0301M01");
+		
+		
+	});
+	
+	function setInit() {
+		
+		var actionType = modalStack.last().paramObj.actionType;
+		if(actionType == "C") {
+			$('#transPopup #coCd').val(modalStack.last().paramObj.coCd);
+            // 판매법인, 창고 set
+			setByCoCdPopup($('#coCd').val());			
+			$('#transPopup #actionBtn').on("click", function(){insertCaryng();});
+			$('#transPopup .tit_contents .tit').text("운반비 등록");
+			$("#transPopup #actionBtn").text("등록");
+			$("#transPopup #arvpayYn").val("N");
+		}else if(actionType == "U"){
+			selectCaryngInfo();
+			$('#transPopup #actionBtn').on("click", function(){updateCaryng();});
+			$('#transPopup .tit_contents .tit').text("운반비 수정");
+			$('#transPopup #actionBtn').text("저장");
+		}
+		changePayCo();
+	}
+	
+	function selectCaryngInfo(){
+		var paramObj = modalStack.last().paramObj;
+		postAjaxSync("/user/ar/ar03/selectCaryngInfo", paramObj, null, function(data){
+			setCaryngInfo(data.result);
+		});
+	}
+	
+	function setCaryngInfo(obj){
+		var transInfo = obj;
+		//메인정보 세팅
+		$.each(transInfo, function(key, value){
+			var itemValue = value;
+			if($('#transPopup #'+key).is('[comma]')){
+				itemValue = addCommaStr(itemValue);
+			} 
+			$('#transPopup #'+key).val(itemValue);
+			
+			if(key == "coCd"){
+	            // 판매법인, 창고 set
+				setByCoCdPopup(value);
+			}
+			if(key=="transDt"){
+				//$('#'+key).datepicker("setDate", moment(value, 'YYYYMMDD').toDate());
+				var startDate = value;
+				var year = startDate.substring(0, 4);
+				var month = startDate.substring(4, 6);
+				var day = startDate.substring(6, 8);
+				$('#transPopup #'+key).val(year + '-' + month + '-' + day)
+			}
+		});
+	}
+	
+	function setByCoCdPopup(value){
+			
+		// 창고 set
+		$('#transPopup #whCd').data("desc", value);
+		$('#transPopup #whCd option:not([value=""])').remove();
+		setCommonSelect($('#transPopup #whCd'));
+		// 판매법인 set
+		$('#transPopup #taxivcCoprt').data("rprc", value);
+		$('#transPopup #taxivcCoprt option:not([value=""])').remove();
+		setCommonSelect($('#transPopup #taxivcCoprt'));
+	}
+	
+	//거래처
+	function openSecondClntSearch(type) {
+		openThirdModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			if(type == "T") {
+				$('#transPopup #transCo').val(row.clntCd);
+				$('#transPopup #transNm').val(row.clntNm);
+			} else {
+				$('#transPopup #clntCd').val(row.clntCd);
+				$('#transPopup #clntNm').val(row.clntNm);
+			}
+		});
+	}
+	
+	// 현장 검색
+	function openThirdSiteSearch(){
+		var paramObj = {
+			"coCd": $('#transPopup #coCd').val(),
+			"insertYn": "N"
+		};
+		openThirdModal("/static/html/cmn/modal/siteSearch.html", 700, 420, "현장 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			//var row = grid.target.getList("modified")[0];
+			$('#transPopup #prjctCd').val(row.prjctCd);
+			$('#transPopup #prjctNm').val(row.prjctNm);
+			$('#transPopup #siteCd').val(row.siteCd);
+			$('#transPopup #siteNm').val(row.siteNm);
+		});
+	}
+	
+	function changePayCo(){
+		var prvpayYn =  $("#arvpayYn").val();
+		if(prvpayYn == "N"){
+			$("#transPopup #payCo").val($('#transPopup #coCd option:selected').text());
+			$("#transPopup #taxivcCoprt").closest("td").prev().addClass("hit");
+			$("#transPopup #taxivcCoprt").prop("required", true);
+			$("#transPopup #taxivcCoprt").prop("disabled", false);
+		}else{
+			$("#transPopup #payCo").val("착불");
+			$("#transPopup #taxivcCoprt").val("");
+			$("#transPopup #taxivcCoprt").closest("td").prev().removeClass("hit");
+			$("#transPopup #taxivcCoprt").prop("required", false);
+			$("#transPopup #taxivcCoprt").prop("disabled", true);
+		}
+	}
+	
+	// transUpr입력시 transAmt에 입력
+	function transPrc(){
+		var transVal = $('#transPopup #transUpr').val();
+		$("#transPopup #transAmt").val(transVal);
+	}
+	
+	function insertCaryng() {
+		if(inputValidation($('#transPopup [required]'))) {
+			var formData = makeCaryngData();
+			var stockInfo = modalStack.last().paramObj.stockInfo;
+			var totWt = $('#transPopup #totWt').val();
+			formData.totWt = totWt;
+			// insert 운반비
+			postAjax("/user/ar/ar03/insertCaryng", formData, null, function(data){
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modalStack.close();
+				}
+				
+				// insert 재고 이력 
+				// set 운반비 정보 transWt, transSeq
+				stockInfo.transSeq = data.transSeq;
+				stockInfo.moveWt = totWt;
+				setTimeout(function(){
+					putAjax("/user/sm/sm02/insertUpdateStockMove", stockInfo, null, function(data){
+						alert(data.resultMessage);           
+						gridView.setData(0);
+						modalStack.close();
+					});
+				}, 500);
+				
+			});
+		}
+	}
+	
+	function updateCaryng() {
+		if(inputValidation($('#transPopup [required]'))) {
+			var formData = makeCaryngData();
+			putAjax("/user/ar/ar03/updateCaryng", formData, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+					modalStack.close();
+				}
+			});
+		}
+	}
+	
+	function makeCaryngData() {
+		$.each($('input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		var formData = $('#transPopup form').serializeObject();
+		formData.userId = jwt.userId;
+		formData.fromMoveStock = 'Y';
+		return formData;
+	}
+</script>

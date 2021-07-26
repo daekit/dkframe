@@ -87,6 +87,7 @@
 					<th class="hit">프로젝트명</th>
 					<td colspan="3">
 						<input id="prjctNm" name="prjctNm" type="text" style="width: 100%;" required="required" msg="프로젝트명" maxlength="50">
+						<input type="hidden" id="prjctCd" name="prjctCd">
 					</td>
 					<th>매입처</th>
 					<td class="drctArea">
@@ -126,7 +127,7 @@
 					<td class="tl">
 						<select id="makrCd" name="makrCd" data-kind="MAKR" style="width: 50%" onchange="getPchsClnt();"></select>
   						<label for="tnkeyYn">제강사턴키여부</label>
-						<input type="checkbox" id="tnkeyYn" name="tnkeyYn" onchange="getPchsClnt();">
+						<input type="checkbox" id="tnkeyYn" name="tnkeyYn" onchange="chkOrdrgVaild(); getPchsClnt();">
 					</td>
 				</tr>
 				<tr>
@@ -1377,5 +1378,21 @@
 			$("#pchsClntCd").val("");
 			$("#pchsClntNm").val("");
 		}
+	}
+	//발주된것중 미입고 여부 체크
+	function chkOrdrgVaild(){
+		var formData = {
+			prjctCd : $("#prjctCd").val()
+		};
+		var ordrgCnt = 0 
+		postAjax("/user/sd/sd05/selectChkOrdrgYn", formData, null, function(data){
+			ordrgCnt = data.result;
+			if(ordrgCnt > 0){
+				alert('등록된 발주서에 입고되지 않은 제품이있습니다.');
+				$("#tnkeyYn").prop("checked", false);
+				$("#tnkeyYn").val("N");		
+			}
+		});
+		
 	}
 </script>

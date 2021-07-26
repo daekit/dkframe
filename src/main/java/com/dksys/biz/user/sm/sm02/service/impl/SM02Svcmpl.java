@@ -160,7 +160,14 @@ public class SM02Svcmpl implements SM02Svc {
 			}else {
 				detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
 			}
-			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가			
+			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가		
+
+			// 일반재고이동 운반비 등록 시 transSeq, transAmt set
+			if(!("".equals(param.get("transSeq")) || param.get("transSeq") == null)) {
+				detailMap.put("transAmt",  param.get("moveWt"));
+				detailMap.put("transSeq",  param.get("transSeq"));
+			}
+			System.out.println("@detailMap : "+ detailMap.toString());
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 		}
 		return 200;
