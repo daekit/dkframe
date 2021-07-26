@@ -97,7 +97,7 @@
 						  FROM TB_AR05D02 AR05
 						  INNER JOIN TB_AR05M01 M01 ON M01.CO_CD = AR05.CO_CD AND M01.ETRDPS_SEQ = AR05.ETRDPS_SEQ
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
-						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  -->
+						  WHERE 'SELPCH2' =  (SELECT NVL(CODE_ETC,'SELPCH2') FROM  TB_CM05M01 WHERE CODE_ID= M01.ETRDPS_TYP)
 						  <if test="coCd != null and !coCd.equals('')">
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
@@ -218,7 +218,7 @@
 						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
 					  	 FROM TB_AR07M01 C
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD 
-						  <where>
+						  WHERE SELPCH_CD = 'SELPCH2'	
 							  <if test="coCd != null and !coCd.equals('')">
 							  AND C.CO_CD = #{coCd}				
 							  </if>	
@@ -238,7 +238,7 @@
 							  <if test="prdtGrp != null and !prdtGrp.equals('')">
 							   AND PRDT_GRP = #{prdtGrp}
 							  </if>
-			                 </where>
+							
 					    GROUP BY C.CO_CD
 						     , C.CLNT_CD
 				             , BM02.CLNT_NM
@@ -347,7 +347,8 @@
 						  FROM TB_AR05D02 AR05
 						  INNER JOIN TB_AR05M01 M01 ON M01.CO_CD = AR05.CO_CD AND M01.ETRDPS_SEQ = AR05.ETRDPS_SEQ
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
-						  WHERE 1= 1 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 
+						  WHERE 'SELPCH2' =  (SELECT NVL(CODE_ETC,'SELPCH2') FROM  TB_CM05M01 WHERE CODE_ID= M01.ETRDPS_TYP)
+						 <!-- ETRDPS_TYP IN ('ETRDPS01','ETRDPS03','ETRDPS05')  --> 
 						  AND  NVL(AR05.ETRDPS_AMT,0)<![CDATA[ != ]]> 0 					  					  
 						  <if test="coCd != null and !coCd.equals('')">
 						  AND AR05.CO_CD = #{coCd}				
@@ -469,7 +470,7 @@
 						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
 					  	 FROM TB_AR07M01 C
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD 
-						  <where>
+						  WHERE SELPCH_CD = 'SELPCH2'				  
 							  <if test="coCd != null and !coCd.equals('')">
 							  AND C.CO_CD = #{coCd}				
 							  </if>	
@@ -489,7 +490,6 @@
 							  <if test="prdtGrp != null and !prdtGrp.equals('')">
 							   AND PRDT_GRP = #{prdtGrp}
 							  </if>
-			                 </where>
 					    GROUP BY C.CO_CD
 						     , C.CLNT_CD
 				             , BM02.CLNT_NM
@@ -552,7 +552,7 @@
 					      SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
 				  	 FROM TB_AR07M01 C
 				  	 LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD
-					<where>
+				      WHERE SELPCH_CD = 'SELPCH2'				  
 					   <if test="closeYm != null and !closeYm.equals('')">
 					   AND C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM')
 				       		                 AND REPLACE(#{closeYm}, '-', '')	
@@ -566,7 +566,6 @@
 					  <if test="clntCd != null and !clntCd.equals('')">
 					  AND C.CLNT_CDD = #{clntCd}				
 					  </if>
-					</where>
 				    GROUP BY C.CO_CD,
 					      C.CLOSE_YM ,
 					      C.CLNT_CD ,
@@ -624,7 +623,7 @@
 			  	 FROM TB_AR07M01 C
 			  	 LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD  = C.CLNT_CD
 			  	 LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = C.PRJCT_CD
-				<where>
+				 WHERE SELPCH_CD = 'SELPCH2'				  
 				   <if test="closeYm != null and !closeYm.equals('')">
 				   AND C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM')
 			       		                 AND REPLACE(#{closeYm}, '-', '')	
@@ -638,7 +637,6 @@
 				  <if test="clntCd != null and !clntCd.equals('')">
 				   AND C.CLNT_CDD = #{clntCd}				
 				  </if>
-				</where>
 			    GROUP BY C.CO_CD,
 				      C.CLNT_CD ,
 				      BM02.CLNT_NM,
