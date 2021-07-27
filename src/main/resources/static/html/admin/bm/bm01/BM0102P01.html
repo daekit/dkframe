@@ -173,6 +173,8 @@
 			$('#prdtDt').datepicker("setDate", new Date());
            // 등록 시 기본값 설정
 			$("#prdtCnvrsnWt").val(1);
+			// 길이 기본값
+			$("#prdtLen").val(0);
 			 
 		}
 		
@@ -239,10 +241,18 @@
 		}
 		
 		if(insertOK) {
+			// 제품제외하고.. 강종없는 경우 이름으로 강종 대체.
+			var prdtStkn = $("#prdtStkn").val();
+			if(prdtStkn =='' || prdtStkn == null){ 
+				var prdtNm =  $('#prdtNm').val();
+				var optionHtml = '<option value="'+prdtNm+'">'+prdtNm+'</option>';
+				$("#popup_area #prdtStkn").html(optionHtml);   
+			}
+			
 			var formData = $('#frm').serializeObject();
 			formData.prdtCd = formData.prdtCd + ''; 
 			formData.prdtDt = formData.prdtDt.replace(/\-/g,'');
-			
+
 			putAjax("/admin/bm/bm01/updateMaterial", formData, null, function(data){
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
