@@ -14,7 +14,6 @@ import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar04.mapper.AR04Mapper;
 import com.dksys.biz.user.ar.ar04.service.AR04Svc;
 import com.dksys.biz.user.ar.ar06.mapper.AR06Mapper;
-import com.dksys.biz.util.DateUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -293,6 +292,7 @@ public class AR04SvcImpl implements AR04Svc {
 			result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
 
 			// 연계문서 발행
+			msgId++; // XML_MSG_ID 생성
 			insertKladdi(msgId, taxHdParam);
 		}
 		// for문 제거 end
@@ -562,6 +562,7 @@ public class AR04SvcImpl implements AR04Svc {
 			result = ar04Mapper.insertInvItemDelete(taxHdParam); // 거래명세서용 inv item insert
 
 			// 연계문서 발행
+			msgId++; // XML_MSG_ID 생성
 			insertKladdi(msgId, taxHdParam);
 			ar04Mapper.updateTrstInfo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
 		}
