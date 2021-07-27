@@ -189,113 +189,113 @@ public class AR04SvcImpl implements AR04Svc {
 		Map<String, Object> param = new HashMap<String, Object>();
 		Map<String, String> taxHdInfo = new HashMap<String, String>();
 		int msgId = 0;
-		for (int i = 0; i < list.size(); i++) {
-			//
-			String xmlMsgId = "";
-			Map<String, String> taxHdParam = new HashMap<String, String>();
-			taxHdParam.put("msgId", Integer.toString(msgId));
-			String bgm1004 = ""; // AR04 - taxBilgNo
-			String orgnTaxBilgNo = "";
-			taxHdParam.put("userId", userId);
-			taxHdParam.put("userNm", userNm);
-			taxHdParam.put("deptId", deptId);
-			taxHdParam.put("pgmId", pgmId);
-			taxHdParam.put("selectDt", selectDt); /* 세금계산서 발행일자 */
-			taxHdParam.put("bilgCertNo", list.get(i).split(",")[0]);
-			taxHdParam.put("coCd", list.get(i).split(",")[1]);
-			Map<String, String> bilgInfo = new HashMap<String, String>();
-			bilgInfo.put("taxBilgNo", "");
-			bilgInfo.putAll(ar04Mapper.selectBilgInfo(taxHdParam));
-			Map<String, String> temp = new HashMap<String, String>();
-			orgnTaxBilgNo = bilgInfo.get("taxBilgNo");
-			taxHdParam.put("orgnTaxBilgNo", "");
-			taxHdParam.put("bgm1225", "9"); // 정발행은 9
-			taxHdParam.put("invSndYn", bilgInfo.get("invSndYn"));
-			if (bilgInfo.get("rffGn1").equals("RFFGN102")
-					&& bilgInfo.get("rffAea").equals("RFFAEA01") /* && bilgInfo.get("taxBilgNo") != null */) {
-				// 수정세금계산서 취소 로직 시작
-				msgId++;
-				bgm1004 = ar04Mapper.selectBgmSeq();
-				xmlMsgId = ar04Mapper.selectMsgId(msgId);
-				taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
-				taxHdParam.put("docCode", "938"); // 세금계산서 938
-				taxHdParam.put("bgm1004", bgm1004);
-				taxHdParam.put("xmlMsgId", xmlMsgId);
-				taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
-				taxHdParam.put("rffGn1", bilgInfo.get("rffGn1"));
-				taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
-				taxHdParam.put("rffAea", bilgInfo.get("rffAea"));
-				taxHdParam.put("orgnTaxBilgNo", orgnTaxBilgNo);
-
-				result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
-				ar04Mapper.insertTaxHdCancel(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
-				ar04Mapper.insertTaxDtl(taxHdParam);
-				result = ar04Mapper.insertTaxItemCancel(taxHdParam);
-
-				// 수정거래명세서 취소 로직 시작
-				msgId++; // XML_MSG_ID 생성
-				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
-				taxHdParam.put("xmlMsgId", xmlMsgId);
-				taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
-				taxHdParam.put("docCode", "780"); // 거래명세서 780
-				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
-				result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
-				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
-				result = ar04Mapper.insertInvItemCancel(taxHdParam); // 거래명세서용 inv item insert
-
-				// 연계문서 발행
-				insertKladdi(msgId, taxHdParam);
-			}
-
-			if (bilgInfo.get("rffGn1").equals("RFFGN101")) {// 계산서 번호가 있고 수정 세금계산서가 아닌경우 기존 BGM1004 사용
-				if (bilgInfo.get("taxBilgNo").isEmpty()) {
-					bgm1004 = ar04Mapper.selectBgmSeq();
-				} else {
-					bgm1004 = bilgInfo.get("taxBilgNo");
-				}
-			} else if (!bilgInfo.get("rffGn1").equals("RFFGN101")) {// 계산서 번호가 없거나 수정 세금계산서인 경우 새로운 BGM1004 따야함
-				bgm1004 = ar04Mapper.selectBgmSeq();
-			}
-
+		
+		// for문 제거 start
+		String xmlMsgId = "";
+		Map<String, String> taxHdParam = new HashMap<String, String>();
+		taxHdParam.put("msgId", Integer.toString(msgId));
+		String bgm1004 = ""; // AR04 - taxBilgNo
+		String orgnTaxBilgNo = "";
+		taxHdParam.put("userId", userId);
+		taxHdParam.put("userNm", userNm);
+		taxHdParam.put("deptId", deptId);
+		taxHdParam.put("pgmId", pgmId);
+		taxHdParam.put("selectDt", selectDt); /* 세금계산서 발행일자 */
+		taxHdParam.put("bilgCertNo", list.get(0).split(",")[0]);
+		taxHdParam.put("coCd", list.get(0).split(",")[1]);
+		Map<String, String> bilgInfo = new HashMap<String, String>();
+		bilgInfo.put("taxBilgNo", "");
+		bilgInfo.putAll(ar04Mapper.selectBilgInfo(taxHdParam));
+		Map<String, String> temp = new HashMap<String, String>();
+		orgnTaxBilgNo = bilgInfo.get("taxBilgNo");
+		taxHdParam.put("orgnTaxBilgNo", "");
+		taxHdParam.put("bgm1225", "9"); // 정발행은 9
+		taxHdParam.put("invSndYn", bilgInfo.get("invSndYn"));
+		if (bilgInfo.get("rffGn1").equals("RFFGN102")
+				&& bilgInfo.get("rffAea").equals("RFFAEA01") /* && bilgInfo.get("taxBilgNo") != null */) {
+			// 수정세금계산서 취소 로직 시작
+			msgId++;
+			bgm1004 = ar04Mapper.selectBgmSeq();
+			xmlMsgId = ar04Mapper.selectMsgId(msgId);
+			taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
+			taxHdParam.put("docCode", "938"); // 세금계산서 938
+			taxHdParam.put("bgm1004", bgm1004);
+			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("taxBilgNo", bilgInfo.get("taxBilgNo"));
 			taxHdParam.put("rffGn1", bilgInfo.get("rffGn1"));
 			taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
 			taxHdParam.put("rffAea", bilgInfo.get("rffAea"));
-			// 세금계산서 발행
-			msgId++;
-			xmlMsgId = ar04Mapper.selectMsgId(msgId);
-			taxHdParam.put("bgm1004", bgm1004);
+			taxHdParam.put("orgnTaxBilgNo", orgnTaxBilgNo);
+
+			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
+			ar04Mapper.insertTaxHdCancel(taxHdParam); // tax bilg no 으로 bgm1004를 찾아서 금액을 -1 곱한 tax hd 를 insert
+			ar04Mapper.insertTaxDtl(taxHdParam);
+			result = ar04Mapper.insertTaxItemCancel(taxHdParam);
+
+			// 수정거래명세서 취소 로직 시작
+			msgId++; // XML_MSG_ID 생성
+			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 			taxHdParam.put("xmlMsgId", xmlMsgId);
 			taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
-			taxHdParam.put("docCode", "938"); // 세금계산서 938
+			taxHdParam.put("docCode", "780"); // 거래명세서 780
+			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+			result = ar04Mapper.insertInvHdCancel(taxHdParam); // 거래명세서용 inv Hd insert
+			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+			result = ar04Mapper.insertInvItemCancel(taxHdParam); // 거래명세서용 inv item insert
 
-			if (taxHdParam.get("invSndYn").equals("Y")) {
-				taxHdParam.put("bgm1060", "COINTX");
-			} else {
-				taxHdParam.put("bgm1060", "");
-			}
-			result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
-			result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
-			ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
-			result = ar04Mapper.insertTaxDtl(taxHdParam);
-			result = ar04Mapper.insertTaxItem(taxHdParam);
-
-			// 거래명세서 발행
-			if (taxHdParam.get("invSndYn").equals("Y")) {
-				msgId++; // XML_MSG_ID 생성
-				xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
-				taxHdParam.put("xmlMsgId", xmlMsgId);
-				taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
-				taxHdParam.put("docCode", "780"); // 거래명세서 780
-				result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
-				result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
-				result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
-				result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
-
-				// 연계문서 발행
-				insertKladdi(msgId, taxHdParam);
-			}
-			return 0;
+			// 연계문서 발행
+			insertKladdi(msgId, taxHdParam);
 		}
+
+		if (bilgInfo.get("rffGn1").equals("RFFGN101")) {// 계산서 번호가 있고 수정 세금계산서가 아닌경우 기존 BGM1004 사용
+			if (bilgInfo.get("taxBilgNo").isEmpty()) {
+				bgm1004 = ar04Mapper.selectBgmSeq();
+			} else {
+				bgm1004 = bilgInfo.get("taxBilgNo");
+			}
+		} else if (!bilgInfo.get("rffGn1").equals("RFFGN101")) {// 계산서 번호가 없거나 수정 세금계산서인 경우 새로운 BGM1004 따야함
+			bgm1004 = ar04Mapper.selectBgmSeq();
+		}
+
+		taxHdParam.put("rffGn1", bilgInfo.get("rffGn1"));
+		taxHdParam.put("rffGn2", bilgInfo.get("rffGn2"));
+		taxHdParam.put("rffAea", bilgInfo.get("rffAea"));
+		// 세금계산서 발행
+		msgId++;
+		xmlMsgId = ar04Mapper.selectMsgId(msgId);
+		taxHdParam.put("bgm1004", bgm1004);
+		taxHdParam.put("xmlMsgId", xmlMsgId);
+		taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
+		taxHdParam.put("docCode", "938"); // 세금계산서 938
+
+		if (taxHdParam.get("invSndYn").equals("Y")) {
+			taxHdParam.put("bgm1060", "COINTX");
+		} else {
+			taxHdParam.put("bgm1060", "");
+		}
+		result = ar04Mapper.insertMapoutKey(taxHdParam); // 세금계산서용 mapoutkey insert
+		result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
+		ar04Mapper.updateTaxBilgNo(taxHdParam); // taxHd에 BGM_1004를 ar04테이블에 업데이트
+		result = ar04Mapper.insertTaxDtl(taxHdParam);
+		result = ar04Mapper.insertTaxItem(taxHdParam);
+
+		// 거래명세서 발행
+		if (taxHdParam.get("invSndYn").equals("Y")) {
+			msgId++; // XML_MSG_ID 생성
+			xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
+			taxHdParam.put("xmlMsgId", xmlMsgId);
+			taxHdParam.put("docName", "VATDEC"); // 세금계산서 VATDEC
+			taxHdParam.put("docCode", "780"); // 거래명세서 780
+			result = ar04Mapper.insertMapoutKey(taxHdParam); // 거래명세서용 mapoutkey insert
+			result = ar04Mapper.insertInvHd(taxHdParam); // 거래명세서용 inv Hd insert
+			result = ar04Mapper.insertInvDtl(taxHdParam); // 거래명세서용 inv dtl insert
+			result = ar04Mapper.insertItem(taxHdParam); // 거래명세서용 inv item insert
+
+			// 연계문서 발행
+			insertKladdi(msgId, taxHdParam);
+		}
+		// for문 제거 end
+		
 		return result;
 	}
 
