@@ -548,20 +548,30 @@ public class AR01SvcImpl implements AR01Svc {
 		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
-			detailMap.put("userId", paramMap.get("userId"));
-			detailMap.put("pgmId", paramMap.get("pgmId"));
-			detailMap.put("trstRprcSeq", paramMap.get("shipSeq"));
-			detailMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));
-			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
+			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
 			
+			if("N".equals(detailMap.get("shipYn"))) {
+			// 이미 취소된 상세내역이면 취소 불가능.
+				thrower.throwCommonException("alreadyCancel");
+			}
+			
+			Map<String, String> trstMap = new HashMap<String, String>();
+			trstMap.put("trstRprcSeq", paramMap.get("shipSeq"));
+			trstMap.put("trstDtlSeq", detailMap.get("shipDtlSeq"));
+			trstMap.put("pgmId", paramMap.get("pgmId"));
+			List<Map<String, String>> bilgList = ar02Mapper.checkBilg(trstMap);
 			for (Map<String, String> map : bilgList) {
 				if(map != null && Integer.parseInt(map.get("bilgCertNo")) != 0) {
+				// 이미 전표처리가 되었으면 취소 불가능.
 					thrower.throwCommonException("bilgComplete");
 				}
 			}
 			
+			detailMap.put("USER_ID", paramMap.get("userId"));
+			detailMap.put("PGM_ID", paramMap.get("pgmId"));
 			ar01Mapper.updateCancelDetail(detailMap);
-			ar02Mapper.deletePchsSell(detailMap);
+			ar02Mapper.deletePchsSell(trstMap);
+			
 			//재고원복
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
