@@ -373,9 +373,9 @@
 			<i class="fas fa-print"></i>납품서
 		</button>
 		<button id="actionBtn" onclick="updateShipModal();" authchk>수정</button>
-		<button id="recptYnBtn" onclick="updateRecptYnPopup();" authchk>접수</button>
-		<button id="shipYnBtn" onclick="updateConfirm();" authchk>출하처리</button>
-		<button id="cancelBtn" onclick="updateCancel();" style="background-color: red;" authchk>출하취소</button>
+		<button id="recptYnBtn" onclick="updateRecptYnPopup(this);" authchk>접수</button>
+		<button id="shipYnBtn" onclick="updateConfirm(this);" authchk>출하처리</button>
+		<button id="cancelBtn" onclick="updateCancel(this);" style="background-color: red;" authchk>출하취소</button>
 		<button class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
@@ -704,7 +704,11 @@
 		}, 500);
 	}
 	
-	function updateRecptYnPopup() {
+	function updateRecptYnPopup(btnElem) {
+		// confirm
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var detailArr = [];
 		var detailObj = {};
 		detailObj["shipSeq"] = $('#shipView #shipSeq').val();
@@ -720,6 +724,8 @@
 		putAjax("/user/ar/ar01/updateRecptYn", formData, null, function(data){
 			alert(data.resultMessage);
 			if(data.resultCode == 200){
+				// 접수버튼 숨김처리
+				$("#recptYnBtn").hide();
 				// grid 조회
 				var targetGrid = modalStack.last().paramObj.targetGrid;
 				if(targetGrid){
@@ -729,11 +735,13 @@
 				}
 			}
 		});
-		
-		$("#recptYnBtn").hide();
 	}
 	
-	function updateConfirm() {
+	function updateConfirm(btnElem) {
+		// confirm
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var checkCount = 0;
 		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "N") {
@@ -767,7 +775,11 @@
 		});
 	}
 	
-	function updateCancel() {
+	function updateCancel(btnElem) {
+		// confirm
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var checkCount = 0;
 		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "Y") {
@@ -799,6 +811,10 @@
 				modalStack.close();	
 			}
 		});
+	}
+	
+	function confirmBefore(btnElem){
+		return confirm("\'"+$(btnElem).text()+"\'하시겠습니까?");
 	}
 	
 	function makeFormData(type) {
