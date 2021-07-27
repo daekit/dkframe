@@ -289,21 +289,34 @@ public class AR01SvcImpl implements AR01Svc {
 		String clntNm = paramMap.get("clntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
-			detailMap.put("userId", paramMap.get("userId"));
-			detailMap.put("pgmId", paramMap.get("pgmId"));
-			// 커플러일 경우 별도 단가 데이터 저장
-			if(detailMap.get("prdtDiv").contains("PRDTDIV22")) {
-				detailMap.put("coCd", paramMap.get("coCd"));
-				detailMap.put("clntCd", clntCd);
-				detailMap.put("selpchCd", "SELPCH2");
-				detailMap.put("prdtDt", paramMap.get("reqDt"));
-				detailMap.put("prdtUpr", detailMap.get("realShipUpr"));
-				detailMap.put("rmk", paramMap.get("shipRmk"));
-				sd08Mapper.insertCplrUntpc(detailMap);
-			}
-			ar01Mapper.updateConfirmDetail(detailMap);
-			// 매출정보 insert
 			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
+			
+			if("Y".equals(detailMap.get("shipYn"))) {
+			// 이미 확정된 상세내역이면 확정 불가능.
+				thrower.throwCommonException("alreadyConfirm");
+			}
+			
+			// 출하 확정
+			detailMap.put("SHIP_PROC_ID", paramMap.get("userId"));
+			detailMap.put("USER_ID", paramMap.get("userId"));
+			detailMap.put("PGM_ID", paramMap.get("pgmId"));
+			ar01Mapper.updateConfirmDetail(detailMap);
+			
+			// 커플러일 경우 별도 단가 데이터 저장
+			Map<String, String> coupleMap = new HashMap<String, String>();
+			if(detailMap.get("prdtDiv").contains("PRDTDIV22")) {
+				coupleMap.put("coCd", paramMap.get("coCd"));
+				coupleMap.put("clntCd", clntCd);
+				coupleMap.put("selpchCd", "SELPCH2");
+				coupleMap.put("prdtDt", paramMap.get("reqDt"));
+				coupleMap.put("prdtUpr", detailMap.get("realShipUpr"));
+				coupleMap.put("rmk", paramMap.get("shipRmk"));
+				coupleMap.put("userId", paramMap.get("userId"));
+				coupleMap.put("pgmId", paramMap.get("pgmId"));
+				sd08Mapper.insertCplrUntpc(coupleMap);
+			}
+			
+			// 매출정보 insert
 			paramMap.putAll(detailMap);
 			paramMap.put("trstDt", 		 paramMap.get("dlvrDttm").replace("-", ""));
 			paramMap.put("pchsUpr", 	 "0");
