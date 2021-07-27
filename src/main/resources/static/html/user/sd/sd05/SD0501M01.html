@@ -87,9 +87,9 @@
 						<th class="hit">등록기간</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" id="strtDt_S" autocomplete="off" msg="조회시작일자" onchange="dateValidation();" required>
+								<input type="text" class="input_calendar" id="strtDt_S" autocomplete="off" msg="조회시작일자" required>
 								<span>~</span>
-								<input type="text" class="input_calendar" id="endDt_S"  autocomplete="off" msg="조회종료일자" onchange="dateValidation();" required>
+								<input type="text" class="input_calendar" id="endDt_S"  autocomplete="off" msg="조회종료일자" required>
 							</div>
 						</td>
 						<th>거래처</th>
@@ -148,10 +148,10 @@
 				<select id="recordCnt" class="prae_select"
 					onchange="gridView.setData(0);">
 					<option value="10">10</option>
-					<option value="20" selected="selected">20</option>
+					<option value="20" >20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
-					<option value="9999999">전체</option>
+					<option value="9999999" selected>전체</option>
 				</select>
 			</div>
 		</div>
@@ -365,15 +365,34 @@
 		//$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
 		//$('#endDt_S').datepicker("setDate", new Date());
 		
-		$("#strtDt_S").val(before30day());
-		$("#endDt_S").val(after30day());
-		
-		// 종료일
-		$('#strtDt_S, #endDt_S').datepicker({
+		// 시작일 (현재날짜의 월 첫일)
+		$('#strtDt_S').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-			//autoclose : true
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#strtDt_S').val() > $('#endDt_S').val()){
+				alert("날짜를 확인해주세요");
+				$('#strtDt_S').datepicker("setDate", new Date($('#endDt_S').val()));
+			}
 		});
+		
+		// 종료일 (현재날짜의 월 말일)
+		$('#endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#strtDt_S').val() > $('#endDt_S').val()){
+				alert("날짜를 확인해주세요");
+				$('#endDt_S').datepicker("setDate", new Date($('#strtDt_S').val()));
+			}
+		});
+		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
