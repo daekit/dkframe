@@ -99,6 +99,8 @@
 			         , T.ORGPLCE_PRTN_YN
 			         , T.TAG_CTTNLEN_DP_YN
 			         , T.NAVI_ADDR
+			         , T.PRCSN_UPR
+			         , T.ETHQKP_UPR
 				  FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -165,10 +167,10 @@
 			 , T.MNG_ID
 			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM
 			 , T.ORD_TYP
-			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORD_TYP) AS ORD_TYP_NM
+			 , FN_CM05M01_CD_TO_NM(T.ORD_TYP)  AS ORD_TYP_NM
 			 , T.TNKEY_YN
 			 , T.MAKR_CD
-			 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MAKR_CD) AS MAKR_NM
+			 , FN_CM05M01_CD_TO_NM(T.MAKR_CD)  AS MAKR_NM
 			 , T.CLNT_EMAIL
 			 , T.CLNT_FAX_NO
 			 , T.OUTORD_UPR
@@ -192,6 +194,8 @@
 	         , T.ORGPLCE_PRTN_YN
 	         , T.TAG_CTTNLEN_DP_YN
 			 , T.NAVI_ADDR
+	         , T.PRCSN_UPR
+	         , T.ETHQKP_UPR
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -270,6 +274,8 @@
          , TAG_CTTNLEN_DP_YN
          , ORG_SITE_CD
 		 , NAVI_ADDR
+         , PRCSN_UPR
+         , ETHQKP_UPR
 		 ) VALUES (
 		 #{coCd}
 		 , #{siteCd}
@@ -317,7 +323,9 @@
          , NVL(#{tagCttnlenDpYn,    jdbcType=VARCHAR}, 'N')
          , #{orgSiteCd,    jdbcType=VARCHAR}
          , #{naviAddr,    jdbcType=VARCHAR}
-		 )
+         , #{prcsnUpr,    jdbcType=VARCHAR}
+         , #{ethqkpUpr,    jdbcType=VARCHAR}
+         )
 	</insert>
 	
 	<update id="updateSite" parameterType="Map">
@@ -343,7 +351,7 @@
       , MAKR_CD           = #{makrCd}
       , CLNT_EMAIL        = #{clntEmail}
       , CLNT_FAX_NO       = #{clntFaxNo}
-      , OUTORD_UPR        = #{outordUpr, jdbcType=VARCHAR}
+      , OUTORD_UPR        = #{outordUpr,      jdbcType=VARCHAR}
       , OUTORD_LOSS_RATE  = #{outordLossRate, jdbcType=VARCHAR}
       , PCHS_CLNT_CD      = #{pchsClntCd}
       , OUTORD_MNG_ID     = #{outordMngId,    jdbcType=VARCHAR}
@@ -357,10 +365,12 @@
 	  , OUTORD_TEL_NO     = #{outordTelNo,    jdbcType=VARCHAR}
   	  , SCND_WH_TEL_NO    = #{scndWhTelNo,    jdbcType=VARCHAR}
 	  , THRD_WH_TEL_NO    = #{thrdWhTelNo,    jdbcType=VARCHAR}
-      , RLLRVAL_USE_YN    = #{rllrvalUseYn,    jdbcType=VARCHAR}
-      , ORGPLCE_PRTN_YN   = #{orgplcePrtnYn,    jdbcType=VARCHAR}
-      , TAG_CTTNLEN_DP_YN = #{tagCttnlenDpYn,    jdbcType=VARCHAR}
-      , NAVi_ADDR         = #{naviAddr,    jdbcType=VARCHAR}
+      , RLLRVAL_USE_YN    = #{rllrvalUseYn,   jdbcType=VARCHAR}
+      , ORGPLCE_PRTN_YN   = #{orgplcePrtnYn,  jdbcType=VARCHAR}
+      , TAG_CTTNLEN_DP_YN = #{tagCttnlenDpYn, jdbcType=VARCHAR}
+      , NAVi_ADDR         = #{naviAddr,       jdbcType=VARCHAR}
+      , PRCSN_UPR         = NVL(#{prcsnUpr,       jdbcType=VARCHAR},PRCSN_UPR)
+      , ETHQKP_UPR        = NVL(#{ethqkpUpr,      jdbcType=VARCHAR},ETHQKP_UPR)
 	  , UDT_ID            = #{userId}
 	  , UDT_PGM           = #{pgmId}
 	  , UDT_DTTM          = SYSDATE
