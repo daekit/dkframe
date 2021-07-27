@@ -504,7 +504,7 @@ function deleteComma(elem) {
 // 원단위 콤마 추가 스트링변수용
 function addCommaStr(value) {
 	if (typeof value !== "undefined") {
-        let val = value, regExpPattern = new RegExp('([0-9])([0-9][0-9][0-9][,.])'), arrNumber = val.split('.'), returnValue;
+        let val = '' + value, regExpPattern = new RegExp('([0-9])([0-9][0-9][0-9][,.])'), arrNumber = val.split('.'), returnValue;
         arrNumber[0] += '.';
         
         do {
