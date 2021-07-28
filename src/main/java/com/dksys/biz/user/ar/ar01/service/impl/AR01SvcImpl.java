@@ -308,6 +308,7 @@ public class AR01SvcImpl implements AR01Svc {
 				coupleMap.put("coCd", paramMap.get("coCd"));
 				coupleMap.put("clntCd", clntCd);
 				coupleMap.put("selpchCd", "SELPCH2");
+				coupleMap.put("prdtCd", detailMap.get("prdtCd"));
 				coupleMap.put("prdtDt", paramMap.get("reqDt"));
 				coupleMap.put("prdtUpr", detailMap.get("realShipUpr"));
 				coupleMap.put("rmk", paramMap.get("shipRmk"));
