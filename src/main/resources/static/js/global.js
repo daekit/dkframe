@@ -3,18 +3,19 @@ if(ax5.ui.grid){
 	ax5.ui.grid.tmpl.page_status = function(){return '<span>총 {{totalElements}}건</span>';};
 	// 그리드 formatter money 커스텀
 	ax5.ui.grid.formatter["money"] = function () {
-        if (typeof this.value !== "undefined") {
-            let val = '' + this.value, regExpPattern = new RegExp('([0-9])([0-9][0-9][0-9][,.])'), arrNumber = val.split('.'), returnValue;
-            arrNumber[0] += '.';
-            
-            do {
-                arrNumber[0] = arrNumber[0].replace(regExpPattern, '$1,$2');
-            } while (regExpPattern.test(arrNumber[0]));
-            
-            return (arrNumber.length > 1) ? arrNumber[0] + String(parseFloat(Number("."+arrNumber[1]).toFixed(3))).split('.')[1] : arrNumber[0].split('.')[0];
-        } else {
-            return "";
-        }
+		if(typeof this.value == "number"){
+			this.value = String(parseFloat(this.value.toFixed(3)));
+		}
+	    let val = this.value;
+	    let regExpPattern = new RegExp('([0-9])([0-9][0-9][0-9][,.])');
+	    let arrNumber = val.split('.');
+	    arrNumber[0] += '.';
+	    
+	    do {
+	        arrNumber[0] = arrNumber[0].replace(regExpPattern, '$1,$2');
+	    } while (regExpPattern.test(arrNumber[0]));
+	    
+	    return (arrNumber.length > 1) ? arrNumber[0] + arrNumber[1] : arrNumber[0].split('.')[0];
     };
 }
 
@@ -503,18 +504,20 @@ function deleteComma(elem) {
 
 // 원단위 콤마 추가 스트링변수용
 function addCommaStr(value) {
-	if (typeof value !== "undefined") {
-        let val = '' + value, regExpPattern = new RegExp('([0-9])([0-9][0-9][0-9][,.])'), arrNumber = val.split('.'), returnValue;
-        arrNumber[0] += '.';
-        
-        do {
-            arrNumber[0] = arrNumber[0].replace(regExpPattern, '$1,$2');
-        } while (regExpPattern.test(arrNumber[0]));
-        
-        return (arrNumber.length > 1) ? arrNumber[0] + arrNumber[1].substring(0, 3) : arrNumber[0].split('.')[0];
-    } else {
-        return "";
-    }
+	if(typeof this.value == "number"){
+		value = String(parseFloat(value.toFixed(3)));
+	}
+	let val = value;
+    let regExpPattern = new RegExp('([0-9])([0-9][0-9][0-9][,.])');
+    let arrNumber = val.split('.');
+    arrNumber[0] += '.';
+    
+    do {
+        arrNumber[0] = arrNumber[0].replace(regExpPattern, '$1,$2');
+    } while (regExpPattern.test(arrNumber[0]));
+    
+    // 입력시 소수점 밑 세자리수 제한을 위하여 substring(0, 3) 필요.
+    return (arrNumber.length > 1) ? arrNumber[0] + arrNumber[1].substring(0, 3) : arrNumber[0].split('.')[0];
 }
 
 // 콤마 제거 스트링변수용
