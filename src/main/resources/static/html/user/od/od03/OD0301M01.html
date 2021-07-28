@@ -158,6 +158,12 @@ th {
 							<option value="">전체</option>
 						</select>
 					 </td>
+					 <th>Maker</th>
+					 <td>
+						<select id="makrCd_S" data-kind="MAKR" data-search="makrCd" onchange="gridView.initView().setData(0);">
+							<option value="">전체</option>
+						</select>
+					 </td>
               	 </tr>
 	            </table>
 	        </div>
@@ -466,13 +472,13 @@ th {
 		var prdtGrp = $("#prdtGrp_S").val();
 		
 		if(type =='FE'){ //(철재) 클릭 시 전체 조회
+			
+			fileName = "OD0301R03.jrf";
 			openSecondModal("/static/html/user/od/od03/OD0302P04.html", 600, 200, "가공 매출 출력 선택", null, function (rptName) {
 				/* 표준 레포트이고 6개 이상이면 다중 레포트 선택
 				*  유통 레포트이고 5개 이상이면 다중 레포트 선택 */
 					selltypeYn = rptName;	
-				debugger;
-				alert(rptName + '--' + selltypeYn);
-				
+								
 					var arg = "selPchCd#" 	+ $('#selpch_S').val() 
 			         +"#coCd#"		+ $('#coCd_S').val()
 			         +"#fromDt#"	+ $("#reqDtFrom").val().replace(/\-/g,'')
@@ -486,18 +492,17 @@ th {
 			         +"#typCd#"		+ $('#typCd_S').val()
 			         +"#typNm#"		+ $('#typCd_S option:selected').text()
 			         +"#bilgYn#"	+ $('#bilgYn_S').val()
+			         +"#makrCd#"	+ $('#makrCd_S').val()
 			         +"#userNm#"	+ jwt.userNm
 			         +"#prdtGrp#"	+ prdtGrp
 			         +"#taxivcCoprt#"	+ $('#taxivcCoprt').val()
 			         +"#selltypeYn#"	+ selltypeYn
 			         +"#";
 			
-					alert(arg);
 						callReport(fileName, arg, "1050", "680");
 			
 			});
 		
-			fileName = "OD0301R03.jrf";
 		}else {
 			prdtGrp = 'PRDTGRP2'; // 철제품  
 			var arg = "selPchCd#" 	+ $('#selpch_S').val() 
