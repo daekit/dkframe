@@ -62,16 +62,40 @@
 						<when test="clntCd != null and !clntCd.equals('')">
 							<choose>
 								<when test="prjctCd != null  and !prjctCd.equals('')">
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS ORDRG_UPR
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR_D
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR_I
+									, DECODE(T.PRDT_STOCK_CD, 'N', DECODE(T.PRDT_DIV,'PRDTDIV22'
+																		 , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)
+									                                     , 0)
+									                                     , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS ORDRG_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N', DECODE(T.PRDT_DIV,'PRDTDIV22'
+																		 , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)
+									                                     , 0)
+									                                     , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N', DECODE(T.PRDT_DIV,'PRDTDIV22'
+																		 , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)
+									                                     , 0)
+									                                     , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR_D
+									, DECODE(T.PRDT_STOCK_CD, 'N', DECODE(T.PRDT_DIV,'PRDTDIV22'
+																		 ,  NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)
+									                                     , 0)
+									                                     , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, #{prjctCd}), 0)) AS SHIP_UPR_I
 								</when>
 								<otherwise>
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)) AS ORDRG_UPR
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N',      T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR_D
-									, DECODE(T.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR_I
+									, DECODE(T.PRDT_STOCK_CD, 'N', DECODE(T.PRDT_DIV,'PRDTDIV22'
+									                               , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)
+									                               ,0)
+									                               , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), #{selpchCd}, #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)) AS ORDRG_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N',  DECODE(T.PRDT_DIV,'PRDTDIV22'
+									                                , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)
+									                                ,0)
+									                                , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   #{impYn}, T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR
+									, DECODE(T.PRDT_STOCK_CD, 'N',  DECODE(T.PRDT_DIV,'PRDTDIV22'
+									                                , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N',      T.PRDT_CD, #{clntCd}, ''), 0)
+									                                ,0)
+									                                , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N',      T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR_D
+									, DECODE(T.PRDT_STOCK_CD, 'N', DECODE(T.PRDT_DIV,'PRDTDIV22'
+									                                , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, ''), 0)
+									                                ,0)
+									                                , NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'Y',      T.PRDT_CD, #{clntCd}, ''), 0)) AS SHIP_UPR_I
 								</otherwise>
 							</choose>
 						</when>
