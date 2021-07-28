@@ -289,18 +289,35 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		$("#coCd_S").val(jwt.coCd);
 		setByCoCd($("#coCd_S").val());
-		//$('#strtDt_S').datepicker("setDate", moment(new Date()).subtract(1, "month").toDate());
-		//$('#endDt_S').datepicker("setDate", new Date());
 		
-		$("#startDt").val(before30day());
-		$("#endDt").val(dateToStr(new Date()));
-		
-		// 종료일
-		$('#startDt, #endDt').datepicker({
+		// 시작일 (현재날짜의 월 첫일)
+		$('#startDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
-			//autoclose : true
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#startDt').datepicker("setDate", new Date($('#endDt').val()));
+			}
 		});
+
+		// 종료일 (현재날짜의 월 말일)
+		$('#endDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#startDt').val() > $('#endDt').val()){
+				alert("날짜를 확인해주세요");
+				$('#endDt').datepicker("setDate", new Date($('#startDt').val()));
+			}
+		});
+		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			reqGridView.setData(0);

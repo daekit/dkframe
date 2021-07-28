@@ -145,7 +145,7 @@ th {
 	                </td>
 	                <th>현장구분</th>
 	                <td>
-	                	<input type="checkbox" id="siteDivYn" data-search="siteDivYn" onchange="changeSite(this.value); gridView.setData(0);" checked>
+	                	<input type="checkbox" id="siteDivYn" data-search="siteDivYn" onchange="gridView.setData(0);" checked>
 	                </td>
               	 </tr>
               	 <tr>
@@ -185,7 +185,6 @@ th {
 </html>
 
 <script type="text/javascript">
-	var colspanCnt = 1;
 	ax5.ui.grid.formatter["orgnTaxBilgNo"] = function () {
 		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
 		return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
@@ -238,14 +237,31 @@ th {
 		        },
 		        columns: [
 	          		{key: "pchClntNm",     label: "매입 거래처",		align: "left",	    width: 140},
-	          		{key: "prdtNm",     label: "품명",		align: "left",	    width: 140},
+	          		{key: "prdtNm",     label: "품명",		align: "left",	    width: 140,
+		        		formatter: function(){
+		        			var pchClnt = this.item.pchClntNm;
+		        			if(pchClnt == undefined){
+		        				return '';
+		        			}else {
+			        		  return this.item.prdtNm;
+		        			}
+			        	}},
 /* 	          		{key: "pchUpr",     label: "단가",		align: "right",	width: 80,	formatter: "money"}, */	
 		        	{key: "pchQty",    	label: "수량", 		align: "right", 	width: 90,	formatter: "money"},
 	          	    {key: "pchWt",    	label: "중량", 		align: "right", 	width: 90,	formatter: "money"},
 		        	{key: "pchAmt",    	label: "금액", 		align: "right", 	width: 180,	formatter: "money"},
 	        		{key: "selClntNm",  label: "매출 거래처",		align: "left",	    width: 140},
 	        		{key: "siteNm",     label: "현장명",		align: "left",	    width: 140},
-		          	{key: "prdtNm",     label: "품명",		align: "left",	    width: 140},
+		          	{key: "prdtNm",     label: "품명",		align: "left",	    width: 140 ,
+		        		formatter: function(){
+		        			var selClnt = this.item.selClntNm;
+		        			if(selClnt == undefined){
+		        			  return '';
+		        			}else {
+			        		  return this.item.prdtNm;
+		        			}
+			        	}
+	        		},
 	/* 	          	{key: "selUpr",     label: "단가",		align: "right",	width: 80,	formatter: "money"}, */
 		        	{key: "selQty",    	label: "수량", 		align: "right", 	width: 90,	formatter: "money"},
 		        	{key: "selWt",    	label: "중량", 		align: "right", 	width: 90,	formatter: "money"},
@@ -314,16 +330,53 @@ th {
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
+			        body: {
+			            mergeCells : ["pchClntNm", "selClntNm", "prdtNm"],
+			            grouping: {
+			            	by: ["pchClntNm"],
+			            	columns: [
+			                    {
+			                        label: function () { return "소 계"; }, colspan: 2
+			                    },
+					    		{key: "pchQty", collector: "sum", formatter:"money", align: "right"},
+					    		{key: "pchWt", collector: "sum", formatter:"money", align: "right"},
+			                    {key: "pchAmt", collector: "sum", formatter:"money", align: "right"},
+			                    {key: ""       							 						   },
+			                    {key: ""                            							   },
+			                    {key: ""                            							   },
+					    		{key: "selQty", collector: "sum", formatter:"money", align: "right"},
+					    		{key: "selWt", collector: "sum", formatter:"money", align: "right"},
+			                    {key: "selAmt", collector: "sum", formatter:"money", align: "right"},
+			                ]
+			            },
+			        },
 			        columns: [
 		          		{key: "pchClntNm",     label: "매입 거래처",		align: "left",	    width: 140},
-		          		{key: "prdtNm",     label: "품명",		align: "left",	    width: 140},
+		          		{key: "prdtNm",     label: "품명",		align: "left",	    width: 140,
+			        		formatter: function(){
+			        			var pchClnt = this.item.pchClntNm;
+			        			if(pchClnt == undefined){
+			        				return '';
+			        			}else {
+				        		  return this.item.prdtNm;
+			        			}
+				        	}},
 	/* 	          		{key: "pchUpr",     label: "단가",		align: "right",	width: 80,	formatter: "money"}, */	
 			        	{key: "pchQty",    	label: "수량", 		align: "right", 	width: 90,	formatter: "money"},
 		          	    {key: "pchWt",    	label: "중량", 		align: "right", 	width: 90,	formatter: "money"},
 			        	{key: "pchAmt",    	label: "금액", 		align: "right", 	width: 180,	formatter: "money"},
 		        		{key: "selClntNm",  label: "매출 거래처",		align: "left",	    width: 140},
 		        		{key: "siteNm",     label: "현장명",		align: "left",	    width: 140},
-			          	{key: "prdtNm",     label: "품명",		align: "left",	    width: 140},
+			          	{key: "prdtNm",     label: "품명",		align: "left",	    width: 140 ,
+			        		formatter: function(){
+			        			var selClnt = this.item.selClntNm;
+			        			if(selClnt == undefined){
+			        			  return '';
+			        			}else {
+				        		  return this.item.prdtNm;
+			        			}
+				        	}
+		        		},
 		/* 	          	{key: "selUpr",     label: "단가",		align: "right",	width: 80,	formatter: "money"}, */
 			        	{key: "selQty",    	label: "수량", 		align: "right", 	width: 90,	formatter: "money"},
 			        	{key: "selWt",    	label: "중량", 		align: "right", 	width: 90,	formatter: "money"},
@@ -398,6 +451,8 @@ th {
 		$("#reqDtFrom").val(getMonth("S"));
 		$("#reqDtTo").val(getMonth("E"));
 		$("#selpch_S").val("SELPCH1");
+		
+		gridView.initView().setData(0);
 	}
 
 	// 현장 검색
@@ -463,15 +518,5 @@ th {
 		$('#taxivcCoprt').data("rprc", value);
 		$('#taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt'));  
-	}
-
-	function changeSite(value){
-		console.log('@@@changeSite')
-		console.log('@@@colspanCnt : ', colspanCnt);
-		if($('#siteDivYn').is(':checked')){
-			colspanCnt = 2;
-		}else {
-			colspanCnt = 1;
-		}
 	}
 </script>

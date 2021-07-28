@@ -483,19 +483,20 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setByCoCd(jwt.coCd);
 		$('[data-search="selpchCd"]').val('SELPCH2');
-		
-		// 시작일 (시작일 기준 -7일)
+
+		// 시작일 (시작일 기준 -3개월)
 		$('#startDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		})
-		.datepicker("setDate", moment(new Date()).subtract(7, "day").toDate())
+		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
 		.on("changeDate", function(){
 			if($('#startDt').val() > $('#endDt').val()){
 				alert("날짜를 확인해주세요");
 				$('#startDt').datepicker("setDate", new Date($('#endDt').val()));
 			}
+			authChk();
 		});
 
 		// 종료일
@@ -504,7 +505,7 @@
 			language : "ko",
 			autoclose : true
 		})
-		.datepicker("setDate", new Date())
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
 		.on("changeDate", function(){
 			if($('#startDt').val() > $('#endDt').val()){
 				alert("날짜를 확인해주세요");
