@@ -1106,7 +1106,7 @@
 			A.PRDT_LEN,
 			SUM(BILG_QTY) BILG_QTY,
 			SUM(BILG_WT) BILG_WT,
-		    AVG(BILG_UPR) BILG_UPR,
+		    ROUND( AVG(BILG_UPR),2) BILG_UPR,
 		    SUM(BILG_AMT) BILG_AMT,
 		    SUM(BILG_VAT_AMT) TAX_AMT
 		FROM TB_AR02M01 A INNER JOIN TB_BM01M01 B ON A.TRST_PRDT_CD = B.PRDT_CD
@@ -1148,6 +1148,9 @@
 		</if>
 		<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 			AND A.TAXIVC_COPRT = #{taxivcCoprt}
+		</if>
+		<if test="makrCd != null and !makrCd.equals('')">
+			AND A.MAKR_CD = #{makrCd}
 		</if>
 		GROUP BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, A.MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
 		ORDER BY B.PRDT_DIV, B.PRDT_NM, A.TRST_PRDT_CD, B.PRDT_STKN, IMP_YN, A.MAKR_CD, B.PRDT_SPEC, A.PRDT_LEN
