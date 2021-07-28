@@ -1,6 +1,7 @@
 if(ax5.ui.grid){
 	// 그리드 총건수 표기 커스텀
 	ax5.ui.grid.tmpl.page_status = function(){return '<span>총 {{totalElements}}건</span>';};
+	
 	// 그리드 formatter money 커스텀
 	ax5.ui.grid.formatter["money"] = function () {
 		if (typeof this.value !== "undefined") {
