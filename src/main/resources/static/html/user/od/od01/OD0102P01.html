@@ -36,8 +36,8 @@
 						<th class="hit">직송여부</th>
 						<td>
 							<select id="dirtrsYn" name="dirtrsYn" onchange="ctrlDirtrs();" msg="직송여부" required>
-								<option value="N" selected="selected">N</option>
-								<option value="Y">Y</option>
+								<option value="Y" selected>Y</option>
+								<option value="N">N</option>
 							</select>
 						</td>
 					</tr>
@@ -486,11 +486,11 @@
 			setByCoCd($('#ordrgPopup #coCd').val());
 			setMaker($('#ordrgPopup #impYn').val());
 			$('#ordrgPopup #makrCd').val("MAKR09");
-			$('#ordrgPopup #dirtrsYn').val("Y"); 
 			$('#ordrgPopup #trspTypCd').val("TRSPTYP1");
 			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
 			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
 			$('#ordrgPopup #actionOdBtn').text("등록");
+			ctrlDirtrsMaster();
 		}else if(actionType == "P"){
 			selectOrdrgInfo(modalStack.last().paramObj.ordrgSeq);
 			$('#ordrgPopup #reqDt').val(moment(new Date()).format("YYYYMMDD"));
@@ -509,9 +509,6 @@
 			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
 			$('#ordrgPopup #actionOdBtn').text("등록");
 			$('#ordrgPopup #trspTypCd').val("TRSPTYP1");
-			//발주서 등록 시 직송여부 default Y 
-			$('#ordrgPopup #dirtrsYn').val("Y"); 
-			ctrlDirtrs();
 		}else if (actionType == "R"){ // 구매요청에서 발주서 호출할때 사용한다.
 			getReqInfo();
 			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
@@ -519,7 +516,7 @@
 			$('#ordrgPopup #actionOdBtn').text("등록");
 			$('#ordrgPopup #trspTypCd').val("TRSPTYP1");
 		}
-		ctrlDirtrsMaster();
+		
 		authChk("OD0101M01");
 	});
 	
@@ -560,14 +557,14 @@
 					setByCoCd(value);  
 				}
 				
-				// 제조사 set
-				if(key == "impYn"){
-					setMaker(value);
-				}
-				
 				// 재고주체 set
 				if(key == "typCd"){
 					setBySellType(value);  
+				}
+				
+				// 제조사 set
+				if(key == "impYn"){
+					setMaker(value);
 				}
 			}
 		});
@@ -693,10 +690,13 @@
 					$('#ordrgPopup #'+key).val(value);
 				}
 
-				
 				// 창고, 판매법인 set
 				if(key == "coCd"){
 					setByCoCd(value);  
+				}
+				
+				if(key == "typCd"){
+					setBySellType(value);
 				}
 				
 				// 제조사 set
@@ -704,10 +704,7 @@
 					setMaker(value);
 				}
 				
-				if(key == "typCd"){
-					setBySellType(value);
-				}
-				
+				// 구매요청서에서 넘어올 경우 판매법인이 없으므로 창고값에 따라 판매법인 set
 				if(key == "whCd"){
 					setTaxivcCoprt();
 				}
@@ -736,13 +733,17 @@
 		$('#ordrgPopup #whCd option:not([value=""])').remove()
 		setCommonSelect($('#ordrgPopup #whCd'));
 		
-	 		// 창고와 판매법인은 같이 바귐.		
 		$('#ordrgPopup #taxivcCoprt').data("rprc", value);
 		$('#ordrgPopup #taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#ordrgPopup #taxivcCoprt'));  
 	}
 	
 	function setBySellType(value){
+		/* 
+			메인정보 set할때 호출되는데 이때 아래에 있는  ctrlDirtrs()중 ctrlDirtrsDetail()은 호출되더라도 상세내역이 set되기 전이므로 영향이 없음.
+			단, 변경이벤트에서 호출될때는 메인정보와 상세내역까지 컨트롤 해야하기 때문에 ctrlDirtrs()중 ctrlDirtrsDetail()은 호출되어야 함.
+		*/
+		
 		// 판매유형
 		// SELLTYPE1: 유통
 		// SELLTYPE2: 가공
