@@ -188,8 +188,27 @@
 		            }, 
 		            onDataChanged: function() {
 		        		var idx = this.self.select(this.dindex);
-		        		idx.list[this.dindex].moveWt = idx.list[this.dindex].moveQty * idx.list[this.dindex].prdtCnvrsnWt
-		            	this.self.repaint();
+		        		var moveQty = idx.list[this.dindex].moveQty;
+		        		var prdtLenEdit = idx.list[this.dindex].prdtLenEdit;
+		        		//debugger;
+		        		
+		        		//num check
+		        		if((moveQty != undefined && isNaN(moveQty)) || moveQty == ''){
+		        			idx.list[this.dindex].moveQty = '';
+		        			idx.list[this.dindex].moveWt = '';
+		        			this.self.repaint();
+		        			return;
+		        		}
+		        		if(prdtLenEdit != undefined && isNaN(prdtLenEdit)){
+		        			idx.list[this.dindex].prdtLenEdit = '';
+		        			this.self.repaint();
+		        			return;
+		        		}
+		        		
+		        		if(moveQty != undefined){
+			        		idx.list[this.dindex].moveWt = idx.list[this.dindex].moveQty * idx.list[this.dindex].prdtCnvrsnWt
+			            	this.self.repaint();
+		        		}
 		            }
 		        },
 		        page: {
@@ -212,10 +231,11 @@
 		            {key: "typNm",          label: "유형",         align : "center", width : 50},
 		            {key: "prjctNm",        label: "프로젝트",	      align : "left",   width : 100},
 		            {key: "clntNm",         label: "거래처",		  align : "left",   width : 100},
-		            {key: "prdtNm",         label: "제품",		   align : "left",   width : 160},
-		          	{key: "prdtSpec",       label: "스펙",    	   align : "left",   width: 80},
+		            {key: "prdtNm",         label: "제품",		   align : "left",   width : 130},
+		          	{key: "prdtSpec",       label: "스펙",    	   align : "left",   width: 70},
 		          	{key: "prdtSize",       label: "사이즈",   	   align : "left",   width: 100},
 		          	{key: "prdtLen",        label: "길이",    	   align : "left",   width: 60},
+		          	{key: "prdtLenEdit",    label: "길이변경",    	   align : "left",   width: 70, formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		            {key: "impNm",          label: "구분",      	   align : "center", width : 60},
 		            {key: "stockQty",       label: "현 재고 수량",		align : "right",  width : 100, formatter: "money"},
 		            {key: "stockWt",        label: "현 재고 중량(KG)", align : "right",  width : 100, formatter: "money"},
@@ -412,7 +432,13 @@
 	
 	function insertUpdateMove(type){
 		var modifiedArr = searchGrid.getList("modified");
-		if(modifiedArr.length < 1){
+		//총 이동중량 > 운반비 총중량 자동 입력
+		var moveWt = 0;
+		$.each(modifiedArr, function(idx, elem) {
+			moveWt += Number(elem.moveWt);
+		});
+		
+		if(modifiedArr.length < 1 || moveWt == 0){
 			alert('재고 이동수량을 입력해주세요.');
 			return;
 		}
@@ -427,11 +453,7 @@
 			var mngPrdtLen = ''; 
 			if($('#sWhType').val() == "WHDIV01") {mngPrdtLen = 8;}
 			formData.mngPrdtLen = mngPrdtLen;
-			//총 이동중량 > 운반비 총중량 자동 입력
-			var moveWt = 0;
-			$.each(modifiedArr, function(idx, elem) {
-				moveWt += Number(elem.moveWt);
-			});
+			
 			//운반비 팝업 정보 set
 			var paramObj = {
 				coCd : $('#coCd_S').val(),

@@ -156,19 +156,28 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
 			detailMap.put("transSeq",  detail.get("transSeq"));
 			detailMap.put("transAmt",  detail.get("transAmt"));
-
+			
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
 			
 			//  가공으로 이동 시에는 길이가 8M가 된다 -- 공장에서 길이 관리가 안됨
-			if("8".equals(param.get("mngPrdtLen"))) {
+			if("8".equals(param.get("mngPrdtLen"))) {  
 				detailMap.put("sPrdtLen",  param.get("mngPrdtLen"));				
 			}else {
-				detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
+				/* 길이 변경 시
+				 * 1) 길이변경 설정 시 기존차감 진행 시 기존길이로 재고차감 
+				 * 2) 신규 추가 및 재고이동 이력은 변경된 길이 적용
+				 */
+				String prdtLenEdit = detailMap.get("prdtLenEdit");
+				if(!("".equals(prdtLenEdit)) || prdtLenEdit != null) { //길이 변경 chk
+					detailMap.put("sPrdtLen",  prdtLenEdit); 
+				}else {
+					detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
+				}
 			}
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가		
-
+			
 			// 일반재고이동 운반비 등록 시 transSeq, transAmt set
-			if(!("".equals(param.get("transSeq")) || param.get("transSeq") == null)) {
+			if(!("".equals(param.get("transSeq")) || param.get("transSeq") != null)) {
 				detailMap.put("transAmt",  param.get("transAmt"));
 				detailMap.put("transSeq",  param.get("transSeq"));
 			}
@@ -202,12 +211,12 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sWhCd",     detail.get("sWhCd"));
 			detailMap.put("sTransDt",  detail.get("sTransDt"));
 			detailMap.put("sRmk",      detail.get("sRmk"));
-			detailMap.put("sellType",  detail.get("typCd"));
-			detailMap.put("sPrjctCd",  detail.get("prjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
-			detailMap.put("sPrdtCd",   detail.get("prdtCd"));
-			detailMap.put("sPrdtSize", detail.get("prdtSize"));
-			detailMap.put("sPrdtSpec", detail.get("prdtSpec"));
-			detailMap.put("sPrdtLen",  detail.get("prdtLen"));
+			detailMap.put("sellType",  detail.get("sellType"));
+			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
+			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
+			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
+			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
+			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
 			detailMap.put("transSeq",  detail.get("transSeq"));
 			detailMap.put("transAmt",  detail.get("transAmt"));
 			
