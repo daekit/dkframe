@@ -204,6 +204,18 @@
 						<td>
 							<input type="text" id="trspRmk_S" data-search="trspRmk" onkeyup="event.keyCode == 13 ? mainGridView.setData(0) : ''">
 		                </td>
+		                <th>매출거래처</th>
+						<td>
+							<input type="hidden" id="sellClntCd_S" data-search="sellClntCd">
+							<div class="search_form">
+								<input type="text" id="sellClntNm_S" data-search="sellClntNm" onkeyup="event.keyCode == 8 ? sellClntCd_S.value = '' : event.keyCode == 13 ? subGridView.setData(0) : ''">
+								<a onclick="openClntSearch('SELL');">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+	                </tr>
+	                <tr>
 		                <th>현장구분</th>
 		                <td>
 		                	<input type="checkbox" id="siteDivYn" checked>
@@ -609,11 +621,16 @@
 	}
 	
 	// 거래처 검색
-	function openClntSearch() {
+	function openClntSearch(type) {
 		openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd_S').val(row.clntCd);
-			$('#clntNm_S').val(row.clntNm);	
+			if(type == 'SELL'){
+				$('#sellClntCd_S').val(row.clntCd);
+				$('#sellClntNm_S').val(row.clntNm);	
+			}else{
+				$('#clntCd_S').val(row.clntCd);
+				$('#clntNm_S').val(row.clntNm);	
+			}
 		});
 	}
 	
