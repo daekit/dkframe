@@ -11,7 +11,7 @@
 				<input type="hidden" id="ordrgSeq" name="ordrgSeq"> 
 				<input type="hidden" id="reqSeq"   name="reqSeq">  <!-- 구매요청번호 -->
 				<input type="hidden" id="whClntCd" name="whClntCd">
-				<input type="hidden" id="odrCreatDiv" name="odrCreatDiv">
+				<input type="hidden" id="odrCreatDiv" name="odrCreatDiv" value="ERP">
 				<!--재고주체가 자사인경우 거래처 창고의 거래처-->
 				<table>
 					<colgroup>
@@ -482,7 +482,6 @@
 		var actionType = modalStack.last().paramObj.actionType;
 		if(actionType == "C"){
 			$('#ordrgPopup #coCd').val(jwt.coCd);
-			$('#ordrgPopup #odrCreatDiv').val("ERP");
 			$('#ordrgPopup #reqDt').val(moment(new Date()).format("YYYYMMDD"));
 			setByCoCd($('#ordrgPopup #coCd').val());
 			setMaker($('#ordrgPopup #impYn').val());
@@ -494,7 +493,6 @@
 			$('#ordrgPopup #actionOdBtn').text("등록");
 		}else if(actionType == "P"){
 			selectOrdrgInfo(modalStack.last().paramObj.ordrgSeq);
-			$('#ordrgPopup #odrCreatDiv').val("ERP");
 			$('#ordrgPopup #reqDt').val(moment(new Date()).format("YYYYMMDD"));
 			$('#ordrgPopup #actionOdBtn').on("click", function(){insertOrdrg();});
 			$('#ordrgPopup .tit_contents .tit').text("발주서 등록");
@@ -712,10 +710,6 @@
 				
 				if(key == "whCd"){
 					setTaxivcCoprt();
-				}
-				// 생성구분이 다름으로 추가한다.
-				if(key == "reqCreatDiv"){
-					$('#ordrgPopup #odrCreatDiv').val(value); 
 				}
 			}
 		});
