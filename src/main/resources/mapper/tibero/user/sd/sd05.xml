@@ -86,8 +86,8 @@
 					,A.UDT_ID
 					,A.UDT_PGM
 					,TO_CHAR(A.UDT_DTTM,'YYYY-MM-DD') AS UDT_DTTM
-					,NVL((SELECT SUM(REAL_TRST_WT)/1000 FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2'),0) AS TOT_CELL
-					,NVL((SELECT SUM(PRCSN_WT)/1000     FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2'),0) AS TOT_PRCSN_WT
+					,NVL((SELECT ROUND(SUM(REAL_TRST_WT)/1000) FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2'),0) AS TOT_CELL
+					,NVL((SELECT ROUND(SUM(PRCSN_WT)/1000)     FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2'),0) AS TOT_PRCSN_WT
 					,A.ORD_TYP
 					,FN_CM05M01_CD_TO_NM(A.ORD_TYP) AS ORD_TYP_NM
 					,A.BILDNG_TYP
@@ -620,61 +620,60 @@
 						D.CO_CD
 				FROM(		
 				SELECT
-					 A.CO_CD 
-			   FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C, TB_SD09D01 E
-				WHERE A.CLNT_CD = B.CLNT_CD(+)
-				 AND  A.MNG_ID = C.ID(+)
-				 AND  A.PRJCT_CD = E.PRJCT_CD(+)
-				 AND  A.USE_YN = 'Y'
-		 		 AND A.CO_CD = 'GUM'
-				 <if test= "coCd != null and !coCd.equals('')">
-		 			AND A.CO_CD = #{coCd}
-				 </if>
-				 <if test= "whCd != null and !whCd.equals('')">
-		 			AND A.WH_CD = #{whCd}
-				 </if>
-				 <if test= "clntCd != null and !clntCd.equals('')">
-		 			AND A.CLNT_CD = #{clntCd}
-				 </if>
-				 <if test= "clntNm != null and !clntNm.equals('')">
-		 			AND B.CLNT_NM LIKE '%${clntNm}%'
-				 </if>
-				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
-					AND ${searchType} LIKE '%${searchValue}%'
-				</if>
-				<if test="ordTyp != null and !ordTyp.equals('')">
-					AND A.ORD_TYP = #{ordTyp}
-				</if>
-				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-					AND A.COPRT_CD = #{taxivcCoprt}
-				</if>
-				<if test="salesMng != null and !salesMng.equals('')">
-					AND A.MNG_ID = #{salesMng}
-				</if>
-				<if test= "salesMngNm != null and !salesMngNm.equals('')">
-		 			AND C.NAME LIKE '%${salesMngNm}%'
-				 </if>
-				<if test="siteCd != null and !siteCd.equals('')">
-					AND E.SITE_CD = #{siteCd}
-				</if>
-				 GROUP BY A.CO_CD 
-					,A.MNG_ID
-					,A.CLNT_CD 
-					,A.PRJCT_CD 
-					,B.CLNT_NM
-					,A.PRJCT_NM
-					,E.SITE_CD 
-					,A.PRCSN_UPR 
-					,A.WH_CD 
-                    ,A.PCHS_CLNT_CD  
-					,C.NAME
-					,A.TNKEY_YN
+					  SD05.CO_CD 
+					,SD05.CLNT_CD 
+					,BM02.CLNT_NM
+					,SD05.PRJCT_CD 
+					,SD05.PRJCT_NM
+			   FROM TB_SD05M01 SD05
+			   LEFT JOIN  TB_BM02M01 BM02 ON BM02.CLNT_CD  = SD05.CLNT_CD
+			   LEFT JOIN  TB_CM06M01 CM06 ON CM06.ID       = SD05.MNG_ID
+				 <where>
+					 <if test= "coCd != null and !coCd.equals('')">
+			 			AND SD05.CO_CD = #{coCd}
+					 </if>
+					 <if test= "whCd != null and !whCd.equals('')">
+			 			AND SD05.WH_CD = #{whCd}
+					 </if>
+					 <if test= "clntCd != null and !clntCd.equals('')">
+			 			AND SD05.CLNT_CD = #{clntCd}
+					 </if>
+					 <if test= "clntNm != null and !clntNm.equals('')">
+			 			AND BM02.CLNT_NM LIKE '%${clntNm}%'
+					 </if>
+					<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'
+					</if>
+					<if test="ordTyp != null and !ordTyp.equals('')">
+						AND SD05.ORD_TYP = #{ordTyp}
+					</if>
+					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						AND SD05.COPRT_CD = #{taxivcCoprt}
+					</if>
+					<if test="salesMng != null and !salesMng.equals('')">
+						AND SD05.MNG_ID = #{salesMng}
+					</if>
+					<if test= "salesMngNm != null and !salesMngNm.equals('')">
+			 			AND CM06.NAME LIKE '%${salesMngNm}%'
+					 </if>
+					<if test= "prjctNm != null and !prjctNm.equals('')">
+			 			AND SD05.PRJCT_NM LIKE '%${prjctNm}%'
+					</if>
+			   </where>
+				GROUP BY SD05.CO_CD 
+					,SD05.CLNT_CD 
+					,BM02.CLNT_NM
+					,SD05.PRJCT_CD 
+					,SD05.PRJCT_NM
+					,SD05.PRCSN_UPR 
+					,SD05.WH_CD 
+                    ,SD05.PCHS_CLNT_CD 
+					,SD05.MNG_ID 
+					,CM06.NAME
+					,SD05.TNKEY_YN     
+					,SD05.TOT_WT
 			) D
 		)
-		WHERE 1=1
-		<if test= "siteNm != null and !siteNm.equals('')">
-	 			AND SITE_NM LIKE '%${siteNm}%'
-		</if>
 	</select>
 	
 	<select id="selectPrjtMngTernKey" parameterType="Map" resultType="CamelMap">
@@ -683,7 +682,6 @@
 				SELECT
 						ROWNUM AS RNUM, D.*
 						,FN_CM05M01_CD_TO_NM(D.CO_CD) AS CO_NM
-						,(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = D.SITE_CD) AS SITE_NM
 						,TO_NUMBER(D.TOT_WT) / 1000 AS TOT_WT
 						,FN_CM05M01_CD_TO_NM(D.WH_CD) AS WH_NM
 	                    ,(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = D.PCHS_CLNT_CD) AS PCHS_CLNT_NM
@@ -691,90 +689,79 @@
 						,NVL(D.TOT_WT,0) - NVL(D.TOT_CELL,0) AS TOT_REM 
 				FROM(		
 				SELECT
-					 A.CO_CD 
-					,A.CLNT_CD 
-					,B.CLNT_NM
-					,A.PRJCT_CD 
-					,A.PRJCT_NM
-					,E.SITE_CD 
-					,A.PRCSN_UPR 
-					,A.WH_CD 
-                    ,A.PCHS_CLNT_CD 
-					,A.MNG_ID 
-					,C.NAME AS MNG_NM
-					,A.TNKEY_YN          
-					,NVL((SELECT SUM(AR02.REAL_TRST_WT) FROM TB_AR02M01 AR02
-					  WHERE A.PRJCT_CD = AR02.PRJCT_CD 
-					  AND TO_DATE(TRST_DT, 'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt} AND SELPCH_CD='SELPCH2'
-					  GROUP BY PRJCT_CD, SELPCH_CD), 0) AS REAL_TRST_WT -- 거래날짜 기준날짜 자재 중량
-					,NVL((SELECT SUM(AR02.PRCSN_WT) FROM TB_AR02M01 AR02
-					  WHERE A.PRJCT_CD = AR02.PRJCT_CD 
-					  AND TO_DATE(TRST_DT, 'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt} AND SELPCH_CD='SELPCH2'
-					  GROUP BY PRJCT_CD, SELPCH_CD), 0) AS PRCSN_WT    -- 거래날짜 기준날짜  가공 중량
-					,SUM(TOT_WT) AS TOT_WT
-					,NVL((SELECT SUM(REAL_TRST_WT)/1000 FROM TB_AR02M01 WHERE PRJCT_CD = A.PRJCT_CD and SELPCH_CD='SELPCH2' GROUP BY PRJCT_CD),0) AS TOT_CELL --잔량
-			   FROM TB_SD05M01 A, TB_BM02M01 B, TB_CM06M01 C, TB_SD09D01 E
-				WHERE A.CLNT_CD = B.CLNT_CD(+)
-				 AND  A.MNG_ID = C.ID(+)
-				 AND  A.PRJCT_CD = E.PRJCT_CD(+)
-				 AND  A.USE_YN = 'Y'
-		 		 AND A.CO_CD = 'GUM'
-				 <if test= "coCd != null and !coCd.equals('')">
-		 			AND A.CO_CD = #{coCd}
-				 </if>
-				 <if test= "whCd != null and !whCd.equals('')">
-		 			AND A.WH_CD = #{whCd}
-				 </if>
-				 <if test= "clntCd != null and !clntCd.equals('')">
-		 			AND A.CLNT_CD = #{clntCd}
-				 </if>
-				 <if test= "clntNm != null and !clntNm.equals('')">
-		 			AND B.CLNT_NM LIKE '%${clntNm}%'
-				 </if>
-				<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
-					AND ${searchType} LIKE '%${searchValue}%'
-				</if>
-				<if test="ordTyp != null and !ordTyp.equals('')">
-					AND A.ORD_TYP = #{ordTyp}
-				</if>
-				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-					AND A.COPRT_CD = #{taxivcCoprt}
-				</if>
-				<if test="salesMng != null and !salesMng.equals('')">
-					AND A.MNG_ID = #{salesMng}
-				</if>
-				<if test= "salesMngNm != null and !salesMngNm.equals('')">
-		 			AND C.NAME LIKE '%${salesMngNm}%'
-				 </if>
-				<if test="siteCd != null and !siteCd.equals('')">
-					AND E.SITE_CD = #{siteCd}
-				</if>
-				 GROUP BY A.CO_CD 
-					,A.MNG_ID
-					,A.CLNT_CD 
-					,A.PRJCT_CD 
-					,B.CLNT_NM
-					,A.PRJCT_NM
-					,E.SITE_CD 
-					,A.PRCSN_UPR 
-					,A.WH_CD 
-                    ,A.PCHS_CLNT_CD  
-					,C.NAME
-					,A.TNKEY_YN
+					 SD05.CO_CD 
+					,SD05.CLNT_CD 
+					,BM02.CLNT_NM
+					,SD05.PRJCT_CD 
+					,SD05.PRJCT_NM
+					,SD05.PRCSN_UPR 
+					,SD05.WH_CD 
+                    ,SD05.PCHS_CLNT_CD 
+					,SD05.MNG_ID 
+					,CM06.NAME AS MNG_NM
+					,SD05.TNKEY_YN     
+					,SD05.TOT_WT AS TOT_WT
+	                ,SUM(DECODE(TRST_DT,'20210701',AR02.REAL_TRST_WT,0 )) AS REAL_TRST_WT   -- 거래날짜 기준날짜 자재 중량
+                    ,SUM(DECODE(TRST_DT,'20210701',AR02.PRCSN_WT,0 ))     AS PRCSN_WT       -- 거래날짜 기준날짜  가공 중량
+					,SUM(AR02.REAL_TRST_WT)/1000  AS TOT_CELL --잔량
+			   FROM TB_SD05M01 SD05
+			   LEFT JOIN  TB_AR02M01 AR02 ON AR02.PRJCT_CD = SD05.PRJCT_CD and AR02.SELPCH_CD='SELPCH2'
+			   LEFT JOIN  TB_BM02M01 BM02 ON BM02.CLNT_CD  = SD05.CLNT_CD
+			   LEFT JOIN  TB_CM06M01 CM06 ON CM06.ID       = SD05.MNG_ID
+			   <where>
+					 <if test= "coCd != null and !coCd.equals('')">
+			 			AND SD05.CO_CD = #{coCd}
+					 </if>
+					 <if test= "whCd != null and !whCd.equals('')">
+			 			AND SD05.WH_CD = #{whCd}
+					 </if>
+					 <if test= "clntCd != null and !clntCd.equals('')">
+			 			AND SD05.CLNT_CD = #{clntCd}
+					 </if>
+					 <if test= "clntNm != null and !clntNm.equals('')">
+			 			AND BM02.CLNT_NM LIKE '%${clntNm}%'
+					 </if>
+					<if test="searchValue != null and !searchValue.equals('') and searchType != null and !searchType.equals('')">
+						AND ${searchType} LIKE '%${searchValue}%'
+					</if>
+					<if test="ordTyp != null and !ordTyp.equals('')">
+						AND SD05.ORD_TYP = #{ordTyp}
+					</if>
+					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						AND SD05.COPRT_CD = #{taxivcCoprt}
+					</if>
+					<if test="salesMng != null and !salesMng.equals('')">
+						AND SD05.MNG_ID = #{salesMng}
+					</if>
+					<if test= "salesMngNm != null and !salesMngNm.equals('')">
+			 			AND CM06.NAME LIKE '%${salesMngNm}%'
+					 </if>
+					<if test= "prjctNm != null and !prjctNm.equals('')">
+			 			AND SD05.PRJCT_NM LIKE '%${prjctNm}%'
+					</if>
+			   </where>
+				 GROUP BY SD05.CO_CD 
+					,SD05.CLNT_CD 
+					,BM02.CLNT_NM
+					,SD05.PRJCT_CD 
+					,SD05.PRJCT_NM
+					,SD05.PRCSN_UPR 
+					,SD05.WH_CD 
+                    ,SD05.PCHS_CLNT_CD 
+					,SD05.MNG_ID 
+					,CM06.NAME
+					,SD05.TNKEY_YN     
+					,SD05.TOT_WT
 			) D
 			ORDER BY  D.MNG_NM DESC, D.PRJCT_NM DESC
 		)
-		WHERE 1=1
-			<if test= "siteNm != null and !siteNm.equals('')">
-		 			AND SITE_NM LIKE '%${siteNm}%'
-			</if>
-		AND 
+		WHERE 
 			RNUM BETWEEN ${firstIndex} AND ${lastIndex}
 	</select>
 	<select id="selectChkOrdrgYn" parameterType="Map" resultType="int">
 	   SELECT COUNT(*)
 		FROM TB_OD01M01 T
 		WHERE PRJCT_CD = #{prjctCd}
-		AND ORDRG_YN = 'Y'
+		AND ORDRG_YN = 'N'
 	</select>	
 </mapper>

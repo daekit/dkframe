@@ -96,7 +96,16 @@
  									'' 
  								</otherwise> 
  							</choose> 
-							 ,REPLACE(#{baseDt},'-',''),0) AS TOT_LOAN_AMT,
+							 <choose> 
+ 								<when test="baseDt != null and !baseDt.equals('')"> 
+							     ,REPLACE(#{baseDt},'-','')
+							     </when>
+							     <otherwise> 
+ 								,TO_CHAR(SYSDATE,'YYYYMMDD') 
+ 								</otherwise> 
+ 							</choose> 
+							 
+							 ,0) AS TOT_LOAN_AMT,
 					F_CREDIT_LOAN('C', A.CLNT_CD,
  							<choose> 
  								<when test="coCd != null and !coCd.equals('')"> 
@@ -106,7 +115,17 @@
  									''
  								</otherwise> 
  							</choose> 
-							 ,REPLACE(#{baseDt},'-',''),0) AS LOAN_AMT,
+							 <choose> 
+ 								<when test="baseDt != null and !baseDt.equals('')"> 
+							     ,REPLACE(#{baseDt},'-','')
+							     </when>
+							     <otherwise> 
+ 								,TO_CHAR(SYSDATE,'YYYYMMDD') 
+ 								</otherwise> 
+ 							</choose> 
+							 
+							 
+							 ,0) AS LOAN_AMT,
 					 LINK_GRP_YN,
                      nvl(LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
                      nvl2(LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD),A.CLNT_NM )AS LINK_GRP_CLNT_NM,
