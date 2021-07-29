@@ -213,8 +213,8 @@ public class AR01SvcImpl implements AR01Svc {
 		Map<String, String> trspMap = new HashMap<String, String>();
 		trspMap.put("trstRprcSeq", paramMap.get("shipSeq"));
 		trspMap.put("pgmId", paramMap.get("pgmId"));
-		trspMap.put("salesMng", paramMap.get("salesMng"));
 		trspMap.put("userId", paramMap.get("userId"));
+		trspMap.put("salesMng", paramMap.get("salesMng"));
 		ar02Mapper.updateSalesMng(trspMap);
 	}
 	
@@ -229,8 +229,9 @@ public class AR01SvcImpl implements AR01Svc {
 			Map<String, String> trspMap = new HashMap<String, String>();
 			trspMap.put("trstRprcSeq", paramMap.get("shipSeq"));
 			trspMap.put("pgmId", paramMap.get("pgmId"));
-			trspMap.put("trspRmk", paramMap.get("shipRmk"));
 			trspMap.put("userId", paramMap.get("userId"));
+			trspMap.put("selpchCd", "SELPCH2");
+			trspMap.put("trspRmk", paramMap.get("shipRmk"));
 			ar02Mapper.updateTrspRmk(trspMap);
 		}
 	}
