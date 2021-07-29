@@ -121,6 +121,14 @@
 								</select>
 						</td>
               		</tr>
+               		<tr>
+						<th>기준일자</th>
+		                <td>
+		                    <div class="date_input">
+		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt" style="width: 100% !important;" title="여신잔액 계산일자">
+		                     </div>
+		                </td>
+              		</tr>
 				</table>
 			</div>
 		</div>
@@ -226,6 +234,8 @@
 			$.each($('#main_area [data-search]'), function(idx, elem){
 				paramObj[$(elem).data('search')] = elem.value;
 			});
+			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
+			
 			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
 				targetObj.setData({
 					list: data.clntList,
@@ -279,6 +289,19 @@
 		// 접속자 회사 set
 		$("#coCd_S").val(jwt.coCd);
 		$('[data-search="useYn"]').val("Y");
+        // 기준일자
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+
+        // 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+		
+		$('#baseDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+		});	
 		gridView.initView().setData(0);
 		excelView.initView();
 		authChk();
@@ -359,6 +382,7 @@
 			paramObj[$(elem).data('search')] = elem.value;
 		});
 		paramObj.recordCnt = 99999999;
+		paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
 		
 		postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
  			var list = data.clntList; 	

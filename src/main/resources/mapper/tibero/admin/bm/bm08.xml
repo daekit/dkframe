@@ -19,15 +19,7 @@
 				PLDG02_AMT, <!-- 보증보험 -->
 				PLDG04_AMT, <!-- 개별신용 -->
 				PLDG05_AMT, <!-- 현금 -->
-				CDTLN_AMT,
-					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
-					 WHERE B.CLNT_CD = A.CLNT_CD  
-					   AND B.USE_YN = 'Y'
-					   AND B.SELPCH_CD   = 'SELPCH2'
-					   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
-					 ) AS PLDG03_AMT,
-			    F_CREDIT_LOAN('T', A.CLNT_CD,A.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS TOT_LOAN_AMT,
-			    F_CREDIT_LOAN('C', A.CLNT_CD,A.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT
+				CDTLN_AMT
 			FROM (
 					SELECT 
 							A.USE_YN,
@@ -117,8 +109,8 @@
 					   AND B.SELPCH_CD   = 'SELPCH2'
 					   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
 					 ) AS PLDG03_AMT,
-			    F_CREDIT_LOAN('T', A.CLNT_CD,A.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS TOT_LOAN_AMT,
-			    F_CREDIT_LOAN('C', A.CLNT_CD,A.CO_CD, to_char(CURRENT_DATE,'yyyymmdd'),0) AS LOAN_AMT
+			    F_CREDIT_LOAN('T', A.CLNT_CD,A.CO_CD, REPLACE(#{baseDt},'-','') ,0) AS TOT_LOAN_AMT,
+			    F_CREDIT_LOAN('C', A.CLNT_CD,A.CO_CD, REPLACE(#{baseDt},'-','') ,0) AS LOAN_AMT
 			FROM (
 					SELECT 
 							A.USE_YN,
