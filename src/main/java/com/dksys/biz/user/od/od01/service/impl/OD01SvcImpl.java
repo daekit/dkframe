@@ -17,6 +17,7 @@ import com.dksys.biz.admin.bm.bm01.mapper.BM01Mapper;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
+import com.dksys.biz.user.ifsys.mes.mapper.MESSTOCKMapper;
 import com.dksys.biz.user.od.od01.mapper.OD01Mapper;
 import com.dksys.biz.user.od.od01.service.OD01Svc;
 import com.dksys.biz.user.od.od04.mapper.OD04Mapper;
@@ -49,9 +50,12 @@ public class OD01SvcImpl implements OD01Svc {
 
     @Autowired
     SD08Mapper sd08Mapper;
-    
+
     @Autowired
     BM01Mapper bm01Mapper;
+    
+    @Autowired
+    MESSTOCKMapper mesStockMapper;
     
     @Autowired
     AR02Svc ar02Svc;
@@ -355,10 +359,12 @@ public class OD01SvcImpl implements OD01Svc {
 				detailMap.put("selpchCd", "SELPCH1");
 				detailMap.put("prdtDt", paramMap.get("reqDt"));
 				detailMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
+				// 커플러 매입 단가 입력
 				sd08Mapper.insertCplrUntpc(detailMap);
 				if("Y".equals(paramMap.get("dirtrsYn"))) {
 					detailMap.put("selpchCd", "SELPCH2");
 					detailMap.put("clntCd", sellClntCd);
+					// 커플러 매출 단가 입력
 					sd08Mapper.insertCplrUntpc(detailMap);
 				}
 			}
@@ -410,6 +416,7 @@ public class OD01SvcImpl implements OD01Svc {
 				paramMap.put("prdtSize", detailMap.get("prdtSize"));
 				paramMap.put("prdtSpec", detailMap.get("prdtSpec"));
 				paramMap.put("prdtLen",  detailMap.get("prdtLen"));
+				// 재고 정보 세팅
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 				paramMap.put("stockChgCd", "STOCKCHG01");
 				if(stockInfo == null) {
@@ -433,19 +440,28 @@ public class OD01SvcImpl implements OD01Svc {
 			
 			// 매입 N 이면서  P 매입확정, A 일괄인 경우 매입확정 및 재고증가
 			if("N".equals(paramMap.get("ordrgYn")) && ("P".equals(paramMap.get("comfirmType"))|| "A".equals(paramMap.get("comfirmType")))) {
-				
+				// 발주 상세에 확정 Flag = 'Y 표기
 				od01Mapper.updateConfirmDetail(detailMap);
 				//매입, 매입금액이 없는 경우 매입내역 등록 안함.
 				double bilgAmtPchs =  Double.parseDouble(detailMap.get("realDlvrAmt"));
 				if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
 					paramMap.put("clntCd", clntCd);
+					
+					// 매입실적 반영 AR02
 			    	ar02Mapper.insertPchsSell(paramMap);
+			    	
+// MES 입고 전송, 단 제강사 턴키 및 공장일 경우에 한함.	
+//			    	if("Y".equals(paramMap.get("tnkeyYn")) && "WHDIV01".equals(paramMap("whTyp))){
+//			    		insertIfMesStockMove(paramMap); 
+//					}
+
 			    	if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 					{
 			    		// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
 						if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
 							paramMap.put("clntCd",  paramMap.get("whClntCd"));		
 						}
+						// 재고 반영
 						sm01Mapper.updateStockSell(paramMap);
 					}
 				}
@@ -491,7 +507,7 @@ public class OD01SvcImpl implements OD01Svc {
 
 					long bilgVatAmt2 = ar02Mapper.selectBilgVatAmt(paramMap);
 					paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
-
+                   // 발주 상세에 
 					od01Mapper.updateConfirmDetailS(detailMap);
 					ar02Mapper.insertPchsSell(paramMap);
 
@@ -699,5 +715,30 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}
 		}
+	}
+	
+	public void insertIfMesStockMove(Map<String, String> paramMap) throws Exception{
+	// 제강사 턴키의 경우 입고 이력을 MES에 전송한다.
+//	   	WH01	진천공장   J
+//    	WH05	인천공장   N
+//    	WH06	창녕공장   C
+		
+    	if("WH01".equals(paramMap.get("whCd"))) {
+    		paramMap.put("worksCd", "J");
+    	}else if("WH05".equals(paramMap.get("whcd"))) {
+    		paramMap.put("worksCd", "N"); 
+    	}else if("WH06".equals(paramMap.get("whcd"))) {
+    		paramMap.put("worksCd", "C"); 
+    	}
+    	
+    	if("Y".equals(paramMap.get("prdtCoilYn"))) {
+    		    paramMap.put("productNameCd", "BC");
+    	}else { paramMap.put("productNameCd", "BD");
+    	}
+        
+    	paramMap.put("moveWt",paramMap.get("realTrstWt")) ;
+          
+    	mesStockMapper.insertIfMesStockMove(paramMap); 	
+
 	}
 }
