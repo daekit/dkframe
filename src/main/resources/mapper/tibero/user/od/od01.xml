@@ -8,34 +8,35 @@
 	 		COUNT(*) 
 	 	FROM 
 	 		TB_OD01M01 OD01
-			INNER JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = OD01.CLNT_CD
-			LEFT JOIN TB_BM02M01 BM02S ON BM02S.CLNT_CD = OD01.SELL_CLNT_CD
+			INNER JOIN TB_BM02M01 BM02P ON BM02P.CLNT_CD = OD01.CLNT_CD
+			 LEFT JOIN TB_BM02M01 BM02S ON BM02S.CLNT_CD = OD01.SELL_CLNT_CD
+	 	     LEFT JOIN TB_SD09M01 SD09  ON SD09.SITE_CD  = OD01.SITE_CD
 	 	<where>
 	 		<if test="odrSeq != null and !odrSeq.equals('')">
-				AND ODR_SEQ = #{odrSeq}				
+				AND OD01.ODR_SEQ = #{odrSeq}				
 			</if>
 		 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 				AND 
 				(
-					DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+					OD01.DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
 					OR
-					REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+					OD01.REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
 				)		
 			</if>			 		
 		 	<if test="coCd != null and !coCd.equals('')">
-				AND CO_CD = #{coCd}				
+				AND OD01.CO_CD = #{coCd}				
 			</if>
 			<if test="ownerCd != null and !ownerCd.equals('')">
-				AND OWNER_CD = #{ownerCd}			
+				AND OD01.OWNER_CD = #{ownerCd}			
 			</if>
 			<if test="typCd != null and !typCd.equals('')">
-				AND TYP_CD = #{typCd}				
+				AND OD01.TYP_CD = #{typCd}				
 			</if>
 			<if test="clntCd != null and !clntCd.equals('')">
-				AND BM02.CLNT_CD = #{clntCd}				
+				AND BM02P.CLNT_CD = #{clntCd}				
 			</if>
 			<if test="clntNm != null and !clntNm.equals('')">
-				AND BM02.CLNT_NM like '%${clntNm}%'	
+				AND BM02P.CLNT_NM like '%${clntNm}%'	
 			</if>
 			<if test="sellClntCd != null and !sellClntCd.equals('')">
 				AND BM02S.CLNT_CD = #{sellClntCd}				
@@ -44,34 +45,37 @@
 				AND BM02S.CLNT_NM like '%${sellClntNm}%'	
 			</if>					
 			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
-				AND DIRTRS_YN = #{dirtrsYn}				
+				AND OD01.DIRTRS_YN = #{dirtrsYn}				
 			</if>
 			<if test="prjctCd != null and !prjctCd.equals('')">
-				AND PRJCT_CD = #{prjctCd}				
+				AND OD01.PRJCT_CD = #{prjctCd}				
 			</if>
 			<if test="siteCd != null and !siteCd.equals('')">
-				AND SITE_CD = #{siteCd}				
+				AND OD01.SITE_CD = #{siteCd}				
+			</if>
+			<if test="siteNm != null and !siteNm.equals('')">
+				AND SD09.SITE_NM LIKE '%' || #{siteNm} || '%'				
 			</if>
 			<if test="whCd != null and !whCd.equals('')">
-				AND WH_CD = #{whCd}
+				AND OD01.WH_CD = #{whCd}
 			</if>
 			<if test="makrCd != null and !makrCd.equals('')">
-				AND MAKR_CD = #{makrCd}
+				AND OD01.MAKR_CD = #{makrCd}
 			</if>
 			<if test="ordrgYn != null and !ordrgYn.equals('')">
-				AND ORDRG_YN = #{ordrgYn}
+				AND OD01.ORDRG_YN = #{ordrgYn}
 			</if>
 			<if test="shipYn != null and !shipYn.equals('')">
-		        AND SHIP_YN = #{shipYn}
+		        AND OD01.SHIP_YN = #{shipYn}
 	        </if>
 			<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-		        AND TAXIVC_COPRT = #{taxivcCoprt}
+		        AND OD01.TAXIVC_COPRT = #{taxivcCoprt}
 	        </if>
 	        <if test="impYn != null and !impYn.equals('')">
-				AND IMP_YN = #{impYn}
+				AND OD01.IMP_YN = #{impYn}
 			</if>
-	        <if test="ordrgRmk != null and !ordrgRmk.equals('')">
-				AND ORDRG_RMK LIKE '%${ordrgRmk}%'
+			<if test="ordrgRmk != null and !ordrgRmk.equals('')">
+				AND OD01.ORDRG_RMK LIKE '%${ordrgRmk}%'
 	        </if>
 	        <if test="(prdtDiv != null and !prdtDiv.equals('')) or (prdtGrp != null and !prdtGrp.equals(''))">
 		        AND OD01.ORDRG_SEQ IN 
@@ -81,7 +85,7 @@
 					FROM 
 						TB_OD01D01 OD01D
 						INNER JOIN TB_BM01M01 BM01  ON OD01D.PRDT_CD = BM01.PRDT_CD
-               	 	WHERE 
+                  	 	WHERE 
                    		OD01.ORDRG_SEQ = OD01D.ORDRG_SEQ
 		    			<if test="prdtDiv != null and !prdtDiv.equals('')">
 	      					AND OD01D.PRDT_DIV = #{prdtDiv}
@@ -91,7 +95,7 @@
 		   				</if>
 				)
 		   </if>
-	 	</where>
+	 	</where>			
 	</select>
 	
 	<select id="selectOrdrgList" parameterType="Map" resultType="camelMap">
@@ -102,7 +106,7 @@
 	            ,T.CO_CD
 	            ,TO_CHAR(TO_DATE(REQ_DT), 'YYYY-MM-DD') AS REQ_DT
 	            ,T.CLNT_CD
-	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+	            ,T.CLNT_NM
 	            ,T.PRJCT_CD
 	            ,(SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
 	            ,T.MAKR_CD
@@ -115,7 +119,7 @@
 	            ,T.IMP_YN
 	            ,T.SALES_AREA_CD
 	            ,T.SELL_CLNT_CD
-	            ,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SELL_CLNT_CD) AS SELL_CLNT_NM
+	            ,T.SELL_CLNT_NM
 	            ,T.MNG_TEL
 	            ,TO_CHAR(T.DLVR_DTTM, 'yyyy-MM-dd') AS DLVR_DTTM
 	            ,TO_CHAR(T.REAL_DLVR_DTTM, 'yyyy-MM-dd') AS REAL_DLVR_DTTM
@@ -173,30 +177,33 @@
 			(
 			 	SELECT 
 			 		OD01.* 
+			 	   , BM02P.CLNT_NM
+			 	   , BM02S.CLNT_NM AS SELL_CLNT_NM
 			 	FROM 
 			 		TB_OD01M01 OD01 
 			 		INNER JOIN TB_BM02M01 BM02P ON BM02P.CLNT_CD = OD01.CLNT_CD
-			 		LEFT JOIN TB_BM02M01 BM02S ON BM02S.CLNT_CD = OD01.SELL_CLNT_CD
+			 		 LEFT JOIN TB_BM02M01 BM02S ON BM02S.CLNT_CD = OD01.SELL_CLNT_CD
+			 		 LEFT JOIN TB_SD09M01 SD09  ON SD09.SITE_CD  = OD01.SITE_CD
 			 	<where>
 			 		<if test="odrSeq != null and !odrSeq.equals('')">
-						AND ODR_SEQ = #{odrSeq}				
+						AND OD01.ODR_SEQ = #{odrSeq}				
 					</if>
 				 	<if test="reqDtFrom != null and !reqDtFrom.equals('')">
 						AND 
 						(
-							DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
+							OD01.DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}
 							OR
-							REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
+							OD01.REAL_DLVR_DTTM BETWEEN #{reqDtFrom} AND #{reqDtTo}			
 						)		
 					</if>			 		
 				 	<if test="coCd != null and !coCd.equals('')">
-						AND CO_CD = #{coCd}				
+						AND OD01.CO_CD = #{coCd}				
 					</if>
 					<if test="ownerCd != null and !ownerCd.equals('')">
-						AND OWNER_CD = #{ownerCd}			
+						AND OD01.OWNER_CD = #{ownerCd}			
 					</if>
 					<if test="typCd != null and !typCd.equals('')">
-						AND TYP_CD = #{typCd}				
+						AND OD01.TYP_CD = #{typCd}				
 					</if>
 					<if test="clntCd != null and !clntCd.equals('')">
 						AND BM02P.CLNT_CD = #{clntCd}				
@@ -211,34 +218,37 @@
 						AND BM02S.CLNT_NM like '%${sellClntNm}%'	
 					</if>					
 					<if test="dirtrsYn != null and !dirtrsYn.equals('')">
-						AND DIRTRS_YN = #{dirtrsYn}				
+						AND OD01.DIRTRS_YN = #{dirtrsYn}				
 					</if>
 					<if test="prjctCd != null and !prjctCd.equals('')">
-						AND PRJCT_CD = #{prjctCd}				
+						AND OD01.PRJCT_CD = #{prjctCd}				
 					</if>
 					<if test="siteCd != null and !siteCd.equals('')">
-						AND SITE_CD = #{siteCd}				
+						AND OD01.SITE_CD = #{siteCd}				
+					</if>
+					<if test="siteNm != null and !siteNm.equals('')">
+						AND SD09.SITE_NM LIKE '%' || #{siteNm} || '%'				
 					</if>
 					<if test="whCd != null and !whCd.equals('')">
-						AND WH_CD = #{whCd}
+						AND OD01.WH_CD = #{whCd}
 					</if>
 					<if test="makrCd != null and !makrCd.equals('')">
-						AND MAKR_CD = #{makrCd}
+						AND OD01.MAKR_CD = #{makrCd}
 					</if>
 					<if test="ordrgYn != null and !ordrgYn.equals('')">
-						AND ORDRG_YN = #{ordrgYn}
+						AND OD01.ORDRG_YN = #{ordrgYn}
 					</if>
 					<if test="shipYn != null and !shipYn.equals('')">
-				        AND SHIP_YN = #{shipYn}
+				        AND OD01.SHIP_YN = #{shipYn}
 			        </if>
 					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-				        AND TAXIVC_COPRT = #{taxivcCoprt}
+				        AND OD01.TAXIVC_COPRT = #{taxivcCoprt}
 			        </if>
 			        <if test="impYn != null and !impYn.equals('')">
-						AND IMP_YN = #{impYn}
+						AND OD01.IMP_YN = #{impYn}
 					</if>
 					<if test="ordrgRmk != null and !ordrgRmk.equals('')">
-						AND ORDRG_RMK LIKE '%${ordrgRmk}%'
+						AND OD01.ORDRG_RMK LIKE '%${ordrgRmk}%'
 			        </if>
 			        <if test="(prdtDiv != null and !prdtDiv.equals('')) or (prdtGrp != null and !prdtGrp.equals(''))">
 				        AND OD01.ORDRG_SEQ IN 
@@ -259,7 +269,7 @@
 						)
 				   </if>
 			 	</where>			
-				ORDER BY DLVR_DTTM DESC, REAL_DLVR_DTTM DESC, ORDRG_SEQ DESC
+				ORDER BY OD01.DLVR_DTTM DESC, OD01.REAL_DLVR_DTTM DESC, OD01.ORDRG_SEQ DESC
 			) T
 		)
 		WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
