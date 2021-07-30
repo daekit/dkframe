@@ -43,10 +43,10 @@
 					</tr>
 					<tr>
 						<th class="hit">매입거래처</th>
-						<td>
+						<td class="pchsSearchArea">
 							<div class="search_form">
 								<input type="hidden" id="clntCd" name="clntCd">
-								<input type="text" id="clntNm" msg="매입거래처" readonly required">
+								<input type="text" id="clntNm" name="clntNm" msg="매입거래처" readonly required">
 								<a onclick="openSecondClntSearch('PUR');">
 									<i class="i_search_w"></i>
 								</a>
@@ -96,11 +96,11 @@
 							</select>
 						</td>
 						<th>현장명</th>
-						<td>
+						<td class="siteSearchArea">
 							<div class="search_form">
 								<input type="hidden" id="prjctCd" name="prjctCd"> 
 								<input type="hidden" id="siteCd" name="siteCd">
-								<input type="text" id="siteNm" name="siteNm" readonly> 
+								<input type="text" id="siteNm" name="siteNm" onkeyup="event.keyCode == 8 ? clearSiteValue() : event.keyCode == 13 ? openOdSiteSearch() : ''">
 								<a onclick="openOdSiteSearch();">
 									<i class="i_search_w"></i>
 								</a>
@@ -414,6 +414,8 @@
 </div>
 <script type="text/javascript">
 	var targetRow = null;
+	var changeFlagPchs = 'N'; // 수정시 확정된건이 있으면 수정 불가 항목 지정 용도
+	var changeFlagSell = 'N'; // 수정시 확정된건이 있으면 수정 불가 항목 지정 용도
 	var ordrgFileArr = [];
 	var deleteFileArr = [];
 	var ordrgFileGridView = {
@@ -585,6 +587,13 @@
 						if(elem.name == "ordrgYn" && itemValue == 'N') { //red
 							$(elem).css({"color": "red"});
 						}
+						// 확정된 내용이 하나라도 있으면 수정불가
+						if(elem.name == "ordrgYn"   && itemValue == 'Y'){
+							changeFlagPchs = 'Y';
+						}
+						if(elem.name == "shipYn"  && itemValue == 'Y'){
+							changeFlagSell = 'Y';
+						}
 						if(elem.name == "shipYn" && orderInfo.dirtrsYn == "Y" && itemValue == "N") { //red
 							$(elem).css({"color": "red"});
 						}
@@ -606,17 +615,25 @@
 					$addedRow.find('input[name="ordrgWt"]').prop("required", false);
 				}
 				
-				if(obj.ordrgYn == "Y"){
-				// 매입이 확정되었으면 dom 변경
+				if(obj.ordrgYn == "Y" || obj.shipYn == "Y"){
+				// 매입/매출이 확정되었으면 dom 변경
 					$addedRow.find('a').remove();
 					$addedRow.find('input[name="prdtSize"]').prop("readonly", true);
 					$addedRow.find('input[name="prdtSpec"]').prop("readonly", true);
 					$addedRow.find('input[name="prdtLen"]').prop("readonly", true);
 					$addedRow.find('input[name="ordrgQty"]').prop("readonly", true);
 					$addedRow.find('input[name="ordrgWt"]').prop("readonly", true);
-					$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
-					$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
 				}
+				if(obj.ordrgYn == "Y"){
+					// 매입이 확정되었으면 dom 변경
+						$addedRow.find('input[name="ordrgUpr"]').prop("readonly", true);
+						$addedRow.find('input[name="ordrgAmt"]').prop("readonly", true);
+					}
+				if(obj.shipYn == "Y"){
+					// 매출이 확정되었으면 dom 변경
+						$addedRow.find('input[name="shipUpr"]').prop("readonly", true);
+						$addedRow.find('input[name="shipAmt"]').prop("readonly", true);
+					}
 				
 				if((obj.ordrgYn == "Y" && obj.shipYn =="Y") || (orderInfo.dirtrsYn == "N" && obj.ordrgYn == "Y")) {
 				// 매입매출이 모두 확정되었거나 || 직송이 아니면서 매입이 확정되었으면 종료된건임
@@ -660,6 +677,10 @@
 			}
 		}else if(actionType == "P"){
 			$('#ordrgSeq').val("");
+		}
+		
+		if(changeFlagPchs == 'Y' || changeFlagSell == 'Y'){
+			modifyAllowedFlase();
 		}
 	}
 	
@@ -733,6 +754,7 @@
 		$('#ordrgPopup #whCd option:not([value=""])').remove()
 		setCommonSelect($('#ordrgPopup #whCd'));
 		
+	 		// 창고와 판매법인은 같이 바귐.		
 		$('#ordrgPopup #taxivcCoprt').data("rprc", value);
 		$('#ordrgPopup #taxivcCoprt option:not([value=""])').remove()
 		setCommonSelect($('#ordrgPopup #taxivcCoprt'));  
@@ -854,6 +876,13 @@
 	
 	// 거래처 검색
 	function openSecondClntSearch(type) {
+		if(type == "PUR" && changeFlagPchs == "Y"){
+			alert('매입 확정된 내용을전부 취소 후에 수정하십시요. 기 확정건과 상이한 현장은 수정이 불가합니다.');
+			return false;
+		}else if(type == "SELL" && changeFlagSell == "Y"){
+			alert('매출 확정된 내용을전부 취소 후에 수정하십시요. 기 확정건과 상이한 현장은 수정이 불가합니다.');
+			return false;
+		}
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			if(type == "PUR") {
@@ -895,12 +924,24 @@
 	
 	// 현장 검색
 	function openOdSiteSearch() {
+		var changeFlag = 'N';
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="ordrgYn"]').val() == "Y" || $(elem).find('input[name="shipYn"]').val() == "Y") {
+				changeFlag = 'Y';
+			}
+		});
+		if(changeFlag == 'Y'){
+			alert('발주 확정된 내용을전부 취소 후에 수정하십시요. 기 확정건과 상이한 현장은 수정이 불가합니다.');
+			return false;
+		}
+		
 		var paramObj = {
 			"coCd": $('#ordrgPopup #coCd').val(),
 			"clntCd": $('#ordrgPopup #sellClntCd').val(), 
 			"clntNm": $('#ordrgPopup #sellClntNm').val(),
 			"insertYn": "Y",
-			"isClntReq": "N"
+			"isClntReq": "N",
+			"siteNm"   : $('#ordrgPopup #siteNm').val(),
 		}
 		
 		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
@@ -947,6 +988,7 @@
 			    $('#ordrgPopup #dirtrsYn').prop("disabled", false);
 				$('#ordrgPopup #ownerCd').prop("disabled", true); 
 			}
+			ctrlDirtrsMaster();
 		});
 	}
 	
@@ -1074,6 +1116,9 @@
 	// 제품 검색
 	function openSecondPrdtSearch(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
+
+		var shipYn = $targetRow.find('input[name=shipYn]').val();
+		var ordrgYn = $targetRow.find('input[name=ordrgYn]').val();
 		
 		// selpchCd - SELPCH1: 매입
 		var paramObj = {
@@ -1414,5 +1459,41 @@
 		formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
 		
 		return formData;
+	}
+	
+	function clearSiteValue() {
+		if(changeFlagPchs == 'Y' || changeFlagSell == 'Y' ){
+			alert('발주 확정된 내용을전부 취소 후에 수정하십시요. 기 확정건과 상이한 현장은 수정이 불가합니다.');
+			return false;
+		}else{
+			$('#ordrgPopup #siteCd').val('');
+			$('#ordrgPopup #prjctCd').val('');
+		}
+	}
+	
+	function modifyAllowedFlase() {
+		
+		$('#ordrgPopup #coCd').prop("disabled", true);
+		$('#ordrgPopup #clntNm').prop("disabled", true);
+		$('#ordrgPopup #trspTypCd').prop("disabled", true);
+		$('#ordrgPopup #makrCd').prop("disabled", true);
+		$('#ordrgPopup #impYn').prop("disabled", true);
+		$('#ordrgPopup #typCd').prop("disabled", true);
+		$('#ordrgPopup #whCd').prop("disabled", true);
+		$('#ordrgPopup #siteNm').prop("disabled", true);
+		$('#ordrgPopup #taxivcCoprt').prop("disabled", true);
+		$('#ordrgPopup #salesMngNm').prop("disabled", true);
+		$('#ordrgPopup #prjctCd').prop("disabled", true);
+		$('#ordrgPopup #ownerCd').prop("disabled", true);
+		
+		if(changeFlagSell == 'Y'){
+			$('#ordrgPopup #dirtrsYn').prop("disabled", true);
+			$('#ordrgPopup #sellClntNm').prop("disabled", true);
+			$('#ordrgPopup .drctArea a').removeAttr("onclick");
+		}
+		if(changeFlagPchs == 'Y'){
+			$('#ordrgPopup .pchsSearchArea a').removeAttr("onclick");
+		}
+		$('#ordrgPopup .siteSearchArea a').removeAttr("onclick");
 	}
 </script>
