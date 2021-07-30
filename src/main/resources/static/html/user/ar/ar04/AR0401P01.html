@@ -51,9 +51,9 @@
 							<option value="">선택</option>
 						</select>
 					</td>
-					<th id="rffAeaTh" class="hit">전자세금계산서 수정사유 코드</th>
+					<th id="rffAeaTh">전자세금계산서 수정사유 코드</th>
 					<td>
-						<select id="rffAea" name="rffAea" data-kind="RFFAEA" required disabled>
+						<select id="rffAea" name="rffAea" data-kind="RFFAEA" disabled>
 							<option value="">선택</option>
 						</select>
 					</td>
@@ -92,7 +92,7 @@
 					<td>
 						<div class="search_form">
 							<input type="hidden" id="taxRcvSn" name="taxRcvSn">
-							<input type="text" id="taxRcvNm" name="taxRcvNm" required readonly> 
+							<input type="text" id="taxRcvNm" name="taxRcvNm" required> 
 							<a id="btnRcv" onclick="rcvNmSearch();"><i class="i_search_w"></i></a>
 						</div>
 					</td>
@@ -373,8 +373,17 @@
 			onlyNumber(elem);
 		});
 		
+		
+		// 공급받는자 담당자의 승인여부 : 현재는 사용안함 bypass
 		if(obj.taxAdmsYn == "Y"){
 			$("#popForm #rffAea").prop("disabled", false);
+		}
+		
+		// 수정세금계산서 수정사유 코드 필수값 설정
+		if(obj.rffGn1 == "RFFGN102"){
+			$('#rffAeaTh').addClass("hit");
+			$('#rffAea').prop("required", true);
+			$('#rffAea').prop("disabled", false);
 		}
 		
 		if(obj.sndYn == "Y" && obj.cseqRcvYn == "Y"){
@@ -387,7 +396,6 @@
 			$("#popForm #taxRcvFax").prop("disabled", false);
 			$("#popForm #taxRcvTel").prop("disabled", false);
 			$("#popForm #taxMoblphon").prop("disabled", false);
-			$("#popForm #rffAea").prop("disabled", false);
 		}
 		
 		if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
