@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>	
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button type="button" class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="gridView.setData(0);">
+						<button type="button" class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search">
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type04">
+					<tr>
+						<th>회사</th>
+						<td>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setWareHouse(this.value); gridView.setData(0);"></select>
+						</td>
+<!-- 						<th>기준일자</th> -->
+<!-- 		                <td> -->
+<!-- 		                    <div class="date_input"> -->
+<!-- 		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt"> -->
+<!-- 		                    </div> -->
+<!-- 		                </td> -->
+						<th>창고구분</th>
+		                <td>
+		                 	<select id ="whCd_S" data-kind="WH"  onchange="gridView.setData(0);" data-search="whCd">
+		  						<option value="">전체</option>
+		                    </select>
+		                </td>
+		                <th></th>
+		                <td></td>
+					</tr>
+					
+				</table>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+					<a onclick="reCalcStock();" style="font-size:100%; width:70px; height: 30px; line-height: 28px;" authchk>재계산</a>
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select class="prae_select" data-search="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999">전체</option>
+				</select> 
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 655px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	var odrSeq = null;
+	var odrDtlSeqArr = [];
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;
+	
+	
+	var gridView = {
+		initView: function(){
+			
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+		    	showRowSelector: false,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center",
+		        	selector: false
+		        },       
+		        body: {
+		        	onClick: function () {
+		                this.self.select(this.dindex); 
+		                
+		            },
+		            onDBLClick: function () {
+		            	row = gridView.target.getList("selected")[0];
+		            	//location.href="SM0102M01.html?coCd=" + row.coCd + "&whCd=" + row.whCd + "&ownerCd=" + row.ownerCd
+		            	//		+ "&clntNm=" + row.clntNm + "&typCd=" + row.typCd + "&makrCd=" + row.makrCd + "&prdtNm=" + row.prdtNm;
+		            	
+		            	var url = "SM0102M01.html?coCd=" + $("#CO").val() + "&whCd=" +  row.whCd + "&ownerCd=" + row.ownerCd
+		            			+ "&clntNm=" + row.clntNm + "&typCd=" + row.typCd + "&prjctCd=" + row.prjctCd 
+		            			+ "&prdtNm=" + row.prdtNm + "&prdtDiv=" + row.prdtDiv + "&procDttm=" + row.procDttm;
+		            	var win = window.open(url, '_blank');
+		                win.focus();
+		            },
+
+		            mergeCells : ["prdtNm","prdtSpec","prdtSize","prdtLen","typNm","impNm","whNm","ownerNm","clntNm","prjctNm"],
+
+		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display: true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        }, 
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan:9, align:"center"},
+			    		{key:"stockQty", collector: "sum", formatter:"money", align: "right"},
+			    		{key:"stockWt",  collector: "sum", formatter:"money", align: "right"},
+			    		{key:"stockUpr", collector: "avg", formatter:"money", align: "right"},
+			    		{key:"stockAmt", collector: "sum", formatter:"money", align: "right"},
+			          	{key:"stdUpr",   collector: "avg", formatter:"money", align: "right"},
+			          	{key:"pchsUpr",  collector: "avg", formatter:"money", align: "right"},
+			          	{key:"sellUpr",  collector: "avg", formatter:"money", align: "right"},
+			    	]
+			    ],		        
+		        columns: [
+		          	{key: "prdtNm",       label: "제품",    align: "left",   width: 150},
+		          	{key: "prdtSpec",     label: "규격",    align: "left",   width: 100},
+		          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 100},
+// 		          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
+		          	{key: "prdtDiv",      label: "제품구분",    align: "left",   width: 60, hidden:true},
+		          	{key: "typCd",        label: "판매유형", align: "center", width: 60, hidden:true},
+		          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
+		          	{key: "impNm",        label: "수입",    align: "center", width: 50},
+		        	{key: "whCd",         label: "창고",    align: "center", width: 90, hidden:true},
+		        	{key: "whNm",         label: "창고",    align: "center", width: 90},
+		        	{key: "ownerCd",       label: "구분",    align: "center", width: 90, hidden:true},
+		          	{key: "ownerNm",      label: "구분",    align: "center", width: 60},
+		          	{key: "clntCd",       label: "재고주체", align: "left",   width: 120, hidden:true},
+		          	{key: "clntNm",       label: "재고주체", align: "left",   width: 120},
+		          	{key: "prjctCd",	  label: "프로젝트", align: "left",   width: 130, hidden:true},
+		          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 130},
+		          	{label: "재고",  columns:[
+		          		{key: "stockQty", label: "수량"    , align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+		          		{key: "stockWt" , label: "중량(KG)", align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+			          	{key: "stockUpr", label: "단가",     align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+			          	{key: "stockAmt", label: "금액",     align: "right", width: 90 , styleClass:"grid-cell-blue", formatter:"money" }
+		          	]},
+		          	{key: "stdUpr",     label: "기준 단가", align: "right", width: 90, formatter:"money" },
+//		          	{key: "stockChgNm", label: "재고<br/>변동사유", align: "center", width: 80},
+		          	{key: "pchsUpr", label: "최종<br/>매입 단가", align: "right", width: 90, formatter:"money" },
+		          	{key: "sellUpr", label: "최종<br/>매출 단가", align: "right", width: 90, formatter:"money" },
+		          	{key: "udtDttm", label: "최종<br/>변경일", align: "center", width: 90},
+		          	
+		          	
+		        ]
+		    });
+			return this;
+		}, 
+		setData: function(_pageNo) {
+			
+			firstGrid = this.target;
+		
+			var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"whCd" : $("#whCd_S").val(),
+				"pageNo" : _pageNo + 1, 
+				"recordCnt" : $("#recordCnt").val()
+			}
+			
+			postAjax("/user/sm/sm01/selectStockList", formData, null, function(data){
+				var list = data.stockList;
+				
+				firstGrid.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+			          	{key: "prdtNm",       label: "제품",    align: "left",   width: 150},
+			          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 100},
+			          	{key: "prdtSize",     label: "사이즈",   align: "left",   width: 100},
+// 			          	{key: "prdtLen",      label: "길이",    align: "left",   width: 60},
+			          	{key: "typNm",        label: "판매유형", align: "center", width: 60},
+			          	{key: "impNm",        label: "수입",    align: "center", width: 50},
+			        	{key: "whNm",         label: "창고",    align: "center", width: 90},
+			          	{key: "ownerNm",      label: "구분",    align: "center", width: 60},
+			          	{key: "clntNm",       label: "재고주체", align: "left",   width: 120},
+			          	{key: "prjctNm",	  label: "프로젝트", align: "left",   width: 130},
+			          	{label: "재고",  columns:[
+			          		{key: "stockQty", label: "수량(KG)", align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockUpr", label: "단가",     align: "right", width: 90, styleClass:"grid-cell-blue", formatter:"money" },
+				          	{key: "stockAmt", label: "금액",     align: "right", width: 90 , styleClass:"grid-cell-blue", formatter:"money" }
+			          	]},
+			          	{key: "stdUpr",     label: "기준 단가", align: "right", width: 90, formatter:"money" },
+//			          	{key: "stockChgNm", label: "재고<br/>변동사유", align: "center", width: 80},
+			          	{key: "pchsUpr", label: "최종<br/>매입 단가", align: "right", width: 90, formatter:"money" },
+			          	{key: "sellUpr", label: "최종<br/>매출 단가", align: "right", width: 90, formatter:"money" },
+			          	{key: "udtDttm", label: "최종<br/>변경일", align: "center", width: 90},
+				  	]
+			    });
+				return this;
+			}
+		}
+	$(document).ready(function() {
+		// 페이지 타이틀 set
+		mainDefaultLoad("재고관리", "실시간 재고 정리");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$('#coCd_S').val(jwt.coCd);
+		
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		setWareHouse(jwt.coCd);
+		
+// 		// 기준년월
+// // 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
+// 		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		 
+// 		// 검색조건 이벤트 bind
+// 		$('[data-search]').on("change", function(){
+// 			gridView.setData(0);
+// 		});
+		
+// 		$('#baseDt').datepicker({
+// 				format : "yyyy-mm-dd",
+// 				language : "ko",
+// 				autoclose : true
+// 		});
+		
+		
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+
+		// grid init
+		gridView.initView().setData(0);
+		excelView.initView();
+		
+		//권한체크
+		authChk();
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+
+		// 조건초기화
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		// 접속자 회사 set
+		$('#coCd_S').val(jwt.coCd);
+		// 거래처 초기화
+		$('#clntCd_S').val("");
+		$('#clntNm_S').val("");
+
+		// 사용여부 set
+		$('#useYn_S').val("Y");
+		
+		// 재검색
+		gridView.setData(0);
+	}
+
+	
+	function reCalcStock() {
+		var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"whCd" : $("#whCd_S").val()
+			}
+			
+		postAjax("/user/sm/sm01/reCalcStock", formData, null, function(data){
+			
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					modalStack.close();
+				    gridView.setData(0);
+				}
+			});
+	}
+
+	function excelDown() {
+		var formData = {
+				"coCd" : $("#coCd_S").val(),
+				"whCd" : $("#whCd_S").val(),
+				"pageNo" :  1, 
+				"recordCnt" : 100000
+			}
+			
+		postAjax("/user/sm/sm01/selectStockList", formData, null, function(data){
+				var list = data.stockList;
+				
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("재고현황관리_"+todayDate+".xls")
+			});	
+	}	
+
+	// 창고 set
+	function setWareHouse(value){
+
+		$('[data-search="whCd"]').data("desc", value);
+		$('[data-search="whCd"] option:not([value=""])').remove()
+		setCommonSelect($('[data-search="whCd"]'));
+	}
+</script>
