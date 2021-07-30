@@ -56,6 +56,7 @@
 		<!-- 검색 콘텐츠 -->
 		<div class="contents search">
 			<div class="">
+				<input type="hidden" id="pgmId" name="pgmId" value="SM1001M01"> 
 				<!-- 테이블 인풋 3분할 -->
 				<table class="table_input type04">
 					<tr>
@@ -75,8 +76,12 @@
 		  						<option value="">전체</option>
 		                    </select>
 		                </td>
-		                <th></th>
-		                <td></td>
+						<th>기준일자</th>
+		                <td>
+		                    <div class="date_input">
+		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
+		                    </div>
+		                </td>
 					</tr>
 					
 				</table>
@@ -90,7 +95,7 @@
 					<a onclick="reCalcStock();" style="font-size:100%; width:70px; height: 30px; line-height: 28px;" authchk>재계산</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
-				<select class="prae_select" data-search="recordCnt">
+				<select class="prae_select" id= "recordCnt" data-search="recordCnt">
 					<option value="10">10</option>
 					<option value="20" selected>20</option>
 					<option value="50">50</option>
@@ -280,20 +285,20 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setWareHouse(jwt.coCd);
 		
-// 		// 기준년월
-// // 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
-// 		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		// 기준년월
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		 
-// 		// 검색조건 이벤트 bind
-// 		$('[data-search]').on("change", function(){
-// 			gridView.setData(0);
-// 		});
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
 		
-// 		$('#baseDt').datepicker({
-// 				format : "yyyy-mm-dd",
-// 				language : "ko",
-// 				autoclose : true
-// 		});
+		$('#baseDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+		});
 		
 		
 		// 검색조건 이벤트 bind
@@ -306,7 +311,7 @@
 		excelView.initView();
 		
 		//권한체크
-		authChk();
+		authChk('SM10001M01');
 	});
 	
 	// 검색조건 초기화
@@ -330,11 +335,14 @@
 	
 	function reCalcStock() {
 		var formData = {
-				"coCd" : $("#coCd_S").val(),
-				"whCd" : $("#whCd_S").val()
+				"coCd"   : $("#coCd_S").val(),
+				"whCd"   : $("#whCd_S").val(),
+				"baseDt" : $("#baseDt").val(),
+				"userId" : jwt.userId,
+				"pgmId"  : $("#pgmId").val()
 			}
 			
-		postAjax("/user/sm/sm01/reCalcStock", formData, null, function(data){
+		postAjax("/user/sm/sm10/reCalcStock", formData, null, function(data){
 			
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
