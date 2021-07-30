@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<style>
+.grid-cell-blue {
+	background: #dcf0f8;
+}
+</style>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<link rel="stylesheet" href="/static/css/gnb.css" />
+<link rel="stylesheet" href="/static/css/main.css" />
+<link rel="stylesheet" href="/static/css/sub.css" />
+<link rel="stylesheet" href="/static/css/common.css" />
+<script src="/static/js/jquery-3.5.1.min.js"></script>
+<script src="/static/js/jquery.serializeObject.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+<script src="/static/js/ax5/ax5core.min.js"></script>
+<script src="/static/js/ax5/ax5grid.min.js"></script>
+<script src="/static/js/ax5/ax5mask.min.js"></script>
+<script src="/static/js/ax5/ax5modal.min.js"></script>
+<script src="/static/js/ax5/ax5toast.min.js"></script>
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script src="/static/js/global.js"></script>
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button type="button" class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="getStockInfo(this);">
+						<button class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search">
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type04">
+					<tr>
+						<th>회사</th>
+						<td>
+							<select id="CO" data-kind="CO" onchange="setWareHouse(this.value); getStockInfo();" data-search="coCd"></select>
+						</td>
+						<th>창고</th>
+						<td>
+							<select id="WH" data-kind="WH" data-search="wh" onchange="getStockInfo();">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>재고주체</th>
+						<td>
+							<select id="OWNER" data-kind="OWNER" data-search="owner" onchange="getStockInfo();">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>거래처</th>
+						<td>
+							<input type="hidden" data-search="clntCd" id="clntCd">
+							<input type="text" id="clntNm"  data-search="clntNm" onkeypress="if(event.keyCode == 13)"  onchange="getStockInfo();">
+						</td>
+					</tr>
+
+					<tr>
+						<th>판매유형</th>
+						<td><!--  -->
+							<select id="SELLTYPE" data-kind="SELLTYPE" onchange="setBySellType(this.value); getStockInfo();" data-search="selType">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>제품그룹</th>
+						<td>
+							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="getStockInfo();">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>제품</th>
+						<td>
+							<input type="hidden" data-search="prdtCd" id="prdtCd">
+							<div class="search_form" style="width: 50%;">
+								<input type="text" id="prdtNm" onkeypress="if(event.keyCode == 13)"  onchange="getStockInfo();"> 
+									<a onclick="openSecondPrdtSearch(this); ">
+										<i class="i_search_w"></i> 
+									</a>
+							</div>
+						</td>
+						<th>프로젝트</th>
+						<td>
+							<div class="search_form" style="width: 60%;">
+								<input type="hidden" data-search="prjctCd" id="prjctCd">
+								<input type="text" data-search="prjctNm" id="prjctNm" onkeyup="if(event.keyCode == 13){getStockInfo();}">
+									<a onclick="openSecondPrjctSearch();">
+										<i class="i_search_w"></i>
+									</a>
+							</div>
+						</td>
+					</tr>
+					
+					<tr>
+						<th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="getStockInfo();">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>제품구분</th>
+						<td>
+							<select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" data-search="prdtDiv" onchange="getStockInfo();">
+								<option value="">전체</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		
+		<!-- // 콘텐츠 -->
+		<div class="ofx_s" style="width: 100%;">
+			<div class="contents no_bg">
+				<ul class="btn_ul">
+					<li class="btn_r">
+						<a onclick="updateStockInfo()">
+							<button type="button" class="bg_gray">저장</button>
+						</a>
+					</li>
+				</ul>
+			</div>
+			
+			<table id="headTable" style="width: 1700px;">
+				<colgroup>
+					<col width=10> <!-- 체크박스 -->
+					<col width=70> <!-- 제품명 -->
+					<col width=30> <!-- 규격 -->
+					<col width=30> <!-- 사이즈-->
+					<col width=65> <!-- 길이 -->
+					<col width=65> <!-- 중량 -->
+					<col width=65> <!-- 판매유형-->
+					<col width=30> <!-- 수입 -->
+					<col width=65> <!-- 창고 -->
+					<col width=30> <!-- 구분 -->
+					<col width=78> <!-- 재고주체 -->
+					<col width=72> <!-- 프로젝트 -->
+					<col width=70> <!-- 비고 -->
+				</colgroup>
+				<tr>
+					<th class="tc" style="padding: 3px;">
+					</th>
+					<th class="tc">제품명</th>
+					<th class="tc">규격</th>
+					<th class="tc">사이즈</th>
+					<th class="tc">길이</th>
+					<th class="tc">중량(KG)</th>
+					<th class="tc">판매유형</th>
+					<th class="tc">수입</th>
+					<th class="tc">창고</th>
+					<th class="tc">구분</th>
+					<th class="tc">재고주체</th>
+					<th class="tc">프로젝트</th>
+					<th class="tc">비고</th>
+				</tr>
+			</table>
+			
+			<table id="removeactionDetailTable "style= width : 1700px;">
+				<colgroup>
+					<col width=10>
+					<col width=70>
+						<!-- 제품명 -->
+			</table>
+			<table id="actionDetailTable" style="width: 1700px;">
+				<colgroup>
+					<col width=10> <!-- 체크박스 -->
+					<col width=70=> <!-- 제품명 -->
+					<col width=30> <!-- 규격 -->
+					<col width=30> <!-- 사이즈-->
+					<col width=65> <!-- 길이 -->
+					<col width=65> <!-- 중량 -->
+					<col width=65> <!-- 판매유형-->
+					<col width=30> <!-- 수입 -->
+					<col width=65> <!-- 창고 -->
+					<col width=30> <!-- 구분 -->
+					<col width=78> <!-- 재고주체 -->
+					<col width=72> <!-- 프로젝트 -->
+					<col width=70> <!-- 비고 -->
+				</colgroup>
+			<tr>
+				<th class="tc" style="padding: 3px;">
+				</th>
+				<th class="tc">제품명</th>
+				<th class="tc">규격</th>
+				<th class="tc">사이즈</th>
+				<th class="tc">길이</th>
+				<th class="tc">중량(KG)</th>
+				<th class="tc">판매유형</th>
+				<th class="tc">수입</th>
+				<th class="tc">창고</th>
+				<th class="tc">구분</th>
+				<th class="tc">재고주체</th>
+				<th class="tc">프로젝트</th>
+				<th class="tc">비고</th>
+			</tr>
+		</table>
+			<table id="frameTable" style="display: none;">
+				<tr name="detailRow">
+					<td>
+						<input type="checkbox" name="detailChkBox" onclick="readCheckFunction(this);" org>
+					</td>
+					
+					<!-- 제품명 -->
+					<td>
+						<input type="text" class="tc" name="prdtNm" org readonly tochange >
+					</td>
+
+					<!-- 규격 -->
+					<td>
+						<input type="text" class="tc" name="prdtSpec" org readonly tochange>
+					</td>
+
+					<!-- 사이즈 -->
+					<td>
+						<input type="text" class="tr" name="prdtSize" onkeyup="onlyNumber(this);" org readonly tochange>
+					</td>
+
+					<!-- 길이 -->
+					<td>
+						<input type="text" class="tc" name="prdtLen" onkeyup="onlyNumber(this);" org readonly tochange>
+					</td>
+
+					<!-- 중량 -->
+					<td>
+						<input type="text" class="tr" name="stockWt" org readonly tochange>
+					</td>
+
+					<!-- 판매유형 -->
+					<td>
+						<input type="text" class="tr" name="typNm" org readonly tochange>
+					</td>
+
+					<!-- 수입 -->
+					<td>
+						<input type="text" class="tr" name="impNm" org readonly tochange>
+					</td>
+
+					<!-- 창고 -->
+					<td>
+						<input type="text" class="tr" name="whNm" org readonly tochange>
+					</td>
+
+					<!-- 구분 -->
+					<td>
+						<input type="text" class="tr" name="ownerNm" org readonly tochange>
+					</td>
+
+					<!-- 재고주체 -->
+					<td>
+						<input type="text" class="tr" name="clntNm" org readonly tochange>
+					</td>
+
+					<!-- 프로젝트 -->
+					<td>
+						<input type="text" class="tr" name="prjctNm" org readonly tochange>
+					</td>
+
+					<!-- 비고 -->
+					<td>
+						<input type="text" name="" org readonly tochange>
+				</tr>
+			</table>
+
+			<table style="width: 1700px;">
+				<colgroup>
+					<col width=34"> <!-- 체크박스 -->
+					<col width=78> <!-- 제품명 -->
+					<col width=78> <!-- 규격 -->
+					<col width=78> <!-- 사이즈-->
+					<col width=65> <!-- 길이 -->
+					<col width=65> <!-- 중량 -->
+					<col width=65> <!-- 판매유형-->
+					<col width=65> <!-- 수입 -->
+					<col width=65> <!-- 창고 -->
+					<col width=78> <!-- 구분 -->
+					<col width=78> <!-- 재고주체 -->
+					<col width=78> <!-- 프로젝트 -->
+					<col width=100> <!-- 비고 -->
+				</colgroup>
+				<tr>
+					<th class="tc" colspan="6">합계</th>
+					<td>
+						<input class="tr" type="text" id="shipTotQty" name="shipTotQty" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="shipTotWt" name="shipTotWt" comma readonly>
+					</td>
+					<td>-</td>
+					<td>-</td>
+					<td>
+						<input class="tr" type="text" id="shipTotAmt" name="shipTotAmt" comma readonly>
+					</td>
+					<td>
+						<input class="tr" type="text" id="totEpctPal" name="totEpctPal" comma readonly>
+					</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		//페이지 타이틀 set
+		mainDefaultLoad("재고관리", "재고수정");
+		setCommonSelect($("#main_area select[data-kind]"));
+		getStockInfo();
+		authChk();
+	});
+
+	function getStockInfo() {
+		//조건
+		var paramObj = {
+			pageNo : 1,
+			recordCnt : 99999,
+			useYn : "Y"
+		};
+		
+		$.each($('#main_area [data-search]'), function(idx, elem){
+			var searchValue = elem.value;
+			if($(elem).is('[date]')){
+				searchValue = deleteHyphenStr(searchValue);
+			}
+			paramObj[$(elem).data('search')] = searchValue;
+		});
+
+		// 데이터 초기화
+		$("#main_area #actionDetailTable tbody *").remove();
+		postAjax("/user/sm/sm09/selectStockList", paramObj, null,
+				function(data) {
+					var list = data.stockList;
+					setStockInfo(list);
+				});
+	}
+	
+	function setStockInfo(obj) {
+		var stockList = obj;
+		$.each(stockList, function(idx, obj) {
+			var $addedRow = addDetailRow();
+			$.each($addedRow.find('[name]'), function(idx, elem) {
+				var itemValue = obj[elem.name];
+				if (itemValue) {
+					$(elem).val(itemValue);
+				}
+			});
+		});
+	}
+	
+	// 체크 저장 안하고 취소                      
+	function cancelStockInfo(csElem){
+		debugger;
+		var $eElem = $(csElem).closest('tr').next('td').find('org');
+		debugger;
+		$eElem.val($eElem.data('org'));
+		$.each($eElem.find('[name]'), function(idx, elem) {
+			var itemValue = csElem[elem.name];
+			if (itemValue) {                                                                    
+				$(elem).val(itemValue);
+			}
+		});
+		debugger;
+	}
+	
+	// 저장
+	function updateStockInfo() {
+		
+	}
+	
+	// 제품 검색
+	function openSecondPrdtSearch(elem) {
+		// selpchCd - SELPCH2: 매출
+		var paramObj = {
+			"coCd" : $('#coCd').val(),
+			"selpchCd" : "SELPCH2",
+			"impYn" : "Y",
+			"clntCd" : "1",
+			"prdrCd" : $('#prdrCd').val(),
+			"prdrNm" : $('#prdrNm').val(),
+			"prjctCd" : $("#prjctCd").val(),
+			"clntCd" : "1",
+			"useYn" : "Y"
+		};
+	
+		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prdtCd").val(row.prdtCd);
+			$("#prdtNm").val(row.prdtNm);
+		});
+	}
+	
+	// 프로젝트 검색
+	function openSecondPrjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+	}
+
+	//Row 추가
+	function addDetailRow() {
+		var $detailRow = $('#main_area #frameTable tr[name="detailRow"]')
+				.clone();
+		$('#main_area #actionDetailTable tbody').append($detailRow[0]);
+		//ctrlAllChkBox();
+		return $detailRow;
+	}
+
+	//창고 set
+	function setWareHouse(value) {
+		//창고 법인별 설정
+		$('#WH').data(value);
+		$('#WH').empty();
+		$('#WH').append('<option value="">전체</option>');
+		setCommonSelect($('#WH'));
+	}
+
+	
+	
+	//체크 박스 동작
+	function readCheckFunction(elem) {
+		$targetRow = $(elem).closest('tr[name="detailRow"]');
+ 		if ($(elem).is(':checked')) {
+			$targetRow.find('input[tochange]').prop("readonly", false);
+		} else {
+			$targetRow.find('input[tochange]').prop("readonly", true);
+			debugger;
+			cancelStockInfo();
+		}	
+ }
+</script>
