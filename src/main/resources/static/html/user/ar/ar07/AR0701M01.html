@@ -69,13 +69,12 @@
 						<td>
 							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;">
 						</td>
-						<th>거래처</th>
-						<td>
-		                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
-		                  <div class="search_form" style="width: 50%;">
-			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(closeYm.value).setData(0) : ''">
-			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
-			              </div>
+						<th class="hit">구분</th>
+		                <td>
+		               	  <select id="selpchCd" style="width: 100%;" data-search="selpchCd" onchange="gridView.setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
+		               	  <option value="SELPCH1">매입</option>
+						  <option value="SELPCH2" selected>매출</option>
+		               	  </select>
 		                </td>
 					</tr>
 					</tr>
@@ -91,6 +90,14 @@
 								<option value="">전체</option>
 							</select>
 						</td>
+						<th>거래처</th>
+						<td>
+		                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
+		                  <div class="search_form" style="width: 50%;">
+			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(closeYm.value).setData(0) : ''">
+			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+			              </div>
+		                </td>
 					</tr>
 				</table>
 			</div>
@@ -215,7 +222,10 @@
 				var tempElem = $('[data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
-			                        
+			
+			console.log('@@paramObj : ', paramObj);
+			console.log('@@selpchCd : ', paramObj.selpchCd);
+			
 			postAjax("/user/ar/ar07/selectMtClosCditList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
