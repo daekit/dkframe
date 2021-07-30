@@ -758,6 +758,7 @@
 		var trstCertiNoArr = [];
 		var bilgCertNo = null;
 		var coFlag = false;
+		var sumAmt = 0;
 		$.each(list, function(idx, obj) {
 			if (idx > 0) {
 				if(list[idx].bilgYn != list[idx-1].bilgYn) {
@@ -780,7 +781,7 @@
 			if (idx > 0) {
 				if(list[idx].returnYn != list[idx-1].returnYn) {
 					returnFlag = true;
-					return false;
+// 					return false;
 				}
 			}
 			if (idx > 0) {
@@ -790,7 +791,10 @@
 				}
 			}
 			trstCertiNoArr.push(obj.trstCertiNo);
+			
+			sumAmt += Number( list[idx].bilgAmt );
 		});
+				
 		if (flag) {
 			alert("발행유무가 동일한 건끼리 가능합니다.");
 			return;
@@ -803,7 +807,7 @@
 			alert("동일한 거래처끼리만 전표발행이 가능합니다.");
 			return;
 		}
-		if (returnFlag) {
+		if (returnFlag && sumAmt < 0) {
 			alert("반품은 반품끼리만 발행가능합니다.");
 			return;
 		}
