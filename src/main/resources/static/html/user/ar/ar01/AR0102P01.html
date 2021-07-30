@@ -75,7 +75,7 @@
 					</tr>
 					<tr>
 						<th>현장명</th>
-						<td>
+						<td class="siteSearchArea">
 							<div class="search_form">
 								<input type="hidden" id="prjctCd" name="prjctCd">
 								<input type="hidden" id="siteCd" name="siteCd">
@@ -391,6 +391,7 @@
 </div>
 <script type="text/javascript">
 	var targetRow = null;
+	var changeFlagSell = 'N'; // 수정시 확정된건이 있으면 수정 불가 항목 지정 용도
 	var shipFileArr = [];
 	var deleteFileArr = [];
 	var shipFileGridView = {
@@ -546,6 +547,10 @@
 					if(elem.name == "impYn"){
 						setByImpYn(elem);
 					}
+					// 확정된 내용이 하나라도 있으면 수정불가
+					if(elem.name == "shipYn"  && itemValue == 'Y'){
+						changeFlagSell = 'Y';
+					}
 				});
 				
 				// 확정여부에 따른 dom 변경
@@ -593,6 +598,12 @@
 			if(shipInfo.shipYn == "Y") {
 				$('#shipPopup #actionArBtn').hide();
 			}
+			
+			//  수정모드일경우 수정 가능 항목 설정
+			if(changeFlagSell == 'Y'){
+				modifyAllowedFlase();
+			}
+		
 		}else if(actionType == "P"){
 			$('#shipSeq').val("");
 		}
@@ -1191,4 +1202,21 @@
 		
 		return formData;
 	}
+	// 수정시 항목 컨트롤
+	function modifyAllowedFlase() {
+		
+		$('#shipPopup #coCd').prop("disabled", true);
+		$('#shipPopup #typCd').prop("disabled", true);
+		$('#shipPopup #clntNm').prop("disabled", true);
+		$('#shipPopup #siteNm').prop("disabled", true);
+		$('#shipPopup #ownerCd').prop("disabled", true);
+		$('#shipPopup #whCd').prop("disabled", true);
+		$('#shipPopup #taxivcCoprt').prop("disabled", true);
+		$('#shipPopup #salesMngNm').prop("disabled", true);
+		
+//		$('#shipPopup #trspTypCd').prop("disabled", true);
+
+		$('#shipPopup .siteSearchArea a').removeAttr("onclick");
+	}
+	
 </script>
