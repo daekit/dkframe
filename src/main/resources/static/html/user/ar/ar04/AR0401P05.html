@@ -57,11 +57,22 @@
 		.datepicker("setDate", modalStack.last().paramObj.selectDt);
 		
 		authChk("AR0401M01");
-	})
+	});
 
 	function setSelectDt(){
-		modalStack.last().callback($("#selectDt").val().replace(/\-/g,''));
-		modalStack.close();
+		if(checkIssueDate()){
+	 		modalStack.last().callback($("#selectDt").val().replace(/\-/g,''));
+	 		modalStack.close();
+		}
 	}
-
+	
+	function checkIssueDate(){
+		var isValid = true;
+		if(moment($('#selectDt').val()).isAfter(new Date())){
+		// 발행일이 현재일보다 이후 날짜이면 return false;
+			alert("발행일은 현재일보다 이후 날짜로 선택할 수 없습니다.");
+			isValid = false;
+		}
+		return isValid;
+	}
 </script>
