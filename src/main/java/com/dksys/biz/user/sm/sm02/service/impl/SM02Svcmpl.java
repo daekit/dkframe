@@ -154,8 +154,8 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("sPrdtSpec", detailMap.get("prdtSpec"));
 			detailMap.put("sPrdtSize", detailMap.get("prdtSize"));
 			detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
-			detailMap.put("transSeq",  detail.get("transSeq"));
-			detailMap.put("transAmt",  detail.get("transAmt"));
+			detailMap.put("transSeq",  param.get("transSeq"));
+			detailMap.put("transAmt",  param.get("transAmt"));
 			
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
 			
@@ -175,7 +175,6 @@ public class SM02Svcmpl implements SM02Svc {
 				}
 			}
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가		
-			
 			// 일반재고이동 운반비 등록 시 transSeq, transAmt set
 			if(!("".equals(param.get("transSeq")) || param.get("transSeq") != null)) {
 				detailMap.put("transAmt",  param.get("transAmt"));
@@ -349,16 +348,23 @@ public class SM02Svcmpl implements SM02Svc {
 
 	    String prjctCdTo   = detailMap.get("sPrjctCd");
 	    String prjctCdFrom = detailMap.get("prjctCd");
-	    if(prjctCdTo == "") {
+	    
+	    if("".equals(prjctCdTo)) {
 	    	detailMap.put("siteCdTo",   "R"); /* 유통으로이동 : R */
 	    }else {
 			detailMap.put("siteCdTo",  detailMap.get("sPrjctCd")); /* 유통으로이동 : R */
 	    }
-	    if(prjctCdFrom == "") {
+	    if("".equals(prjctCdFrom)) {
 	    	detailMap.put("siteCdFrom",   "R"); /* 유통으로이동 : R */
 	    }else {
-			detailMap.put("siteCdFrom",  detailMap.get("sPrjctCd")); /* 유통으로이동 : R */
+			detailMap.put("siteCdFrom",  detailMap.get("prjctCd")); /* 유통으로이동 : R */
 	    }
+	    
+	    String supCustCdFrom = detailMap.get("clntCd");
+	    String supCustCdTo   = detailMap.get("clntCd");
+	    detailMap.put("supCustCdFrom",  supCustCdFrom); /* set 재고 주인 */
+	    detailMap.put("supCustCdTo",  supCustCdTo);     /* set 이동 재고 주인 */
+	    
 	    messtockMapper.insertIfMesStockMove(detailMap); 
 		return 200;
 	}
