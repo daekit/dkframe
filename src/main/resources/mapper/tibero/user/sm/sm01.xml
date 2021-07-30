@@ -354,14 +354,15 @@
 			<if test="prdtSpec != null and !prdtSpec.equals('')">
 				AND A.PRDT_SPEC = #{prdtSpec}
 			</if>
-			<choose>
-			   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
-				AND A.PRDT_LEN  = #{mngPrdtLen}
-			   </when>
-			   <when test="prdtLen != null and !prdtLen.equals('')">	
-				AND A.PRDT_LEN  = #{prdtLen}				   
-			   </when>
-			</choose>			
+<!-- 길이 관리 안함.			 -->
+<!-- 			<choose> -->
+<!-- 			   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			        -->
+<!-- 				AND A.PRDT_LEN  = #{mngPrdtLen} -->
+<!-- 			   </when> -->
+<!-- 			   <when test="prdtLen != null and !prdtLen.equals('')">	 -->
+<!-- 				AND A.PRDT_LEN  = #{prdtLen}				    -->
+<!-- 			   </when> -->
+<!-- 			</choose>			 -->
 	</select>
 	
 	<update id="updateStockSell" parameterType="Map">
@@ -383,15 +384,16 @@
 				</if>
 				<if test="prdtSpec != null and !prdtSpec.equals('')">
 					AND PRDT_SPEC = #{prdtSpec}	
-				</if>			
-				<choose>
-				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
-					AND A.PRDT_LEN  = #{mngPrdtLen}
-				   </when>
-				   <when test="prdtLen != null and !prdtLen.equals('')">	
-					AND A.PRDT_LEN  = #{prdtLen}				   
-				   </when>
-				</choose>
+				</if>	
+<!-- 				길이는 관리 대상이 아님으로 제거한다.		 -->
+<!-- 				<choose> -->
+<!-- 				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			        -->
+<!-- 					AND A.PRDT_LEN  = #{mngPrdtLen} -->
+<!-- 				   </when> -->
+<!-- 				   <when test="prdtLen != null and !prdtLen.equals('')">	 -->
+<!-- 					AND A.PRDT_LEN  = #{prdtLen}				    -->
+<!-- 				   </when> -->
+<!-- 				</choose> -->
 				
 			)
 		WHEN MATCHED THEN
@@ -459,17 +461,19 @@
 				SYSDATE,
 				#{prdtSize, jdbcType=VARCHAR},
 				#{prdtSpec, jdbcType=VARCHAR},
-				<choose>
-				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
-					#{mngPrdtLen}
-				   </when>
-				   <when test="prdtLen != null and !prdtLen.equals('')">	
-					#{prdtLen}				   
-				   </when>
-				   <otherwise>
-				    0
-				   </otherwise>
-				</choose>
+				8
+<!-- 				길이는 관리대상이 아님으로 제거함 -->
+<!-- 				<choose> -->
+<!-- 				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			        -->
+<!-- 					#{mngPrdtLen} -->
+<!-- 				   </when> -->
+<!-- 				   <when test="prdtLen != null and !prdtLen.equals('')">	 -->
+<!-- 					#{prdtLen}				    -->
+<!-- 				   </when> -->
+<!-- 				   <otherwise> -->
+<!-- 				    0 -->
+<!-- 				   </otherwise> -->
+<!-- 				</choose> -->
 			)
 	</update>
 	
@@ -491,15 +495,16 @@
 			</if>
 			<if test="prdtSpec != null and !prdtSpec.equals('')">
 				AND PRDT_SPEC = #{prdtSpec}	
-			</if>			
-				<choose>
-				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			       
-					AND PRDT_LEN  = #{mngPrdtLen}
-				   </when>
-				   <when test="prdtLen != null and !prdtLen.equals('')">	
-					AND PRDT_LEN  = #{prdtLen}				   
-				   </when>
-				</choose>
+			</if>	
+<!-- 			길이는 관리대상이 아님으로 제거함.		 -->
+<!-- 				<choose> -->
+<!-- 				   <when test="mngPrdtLen != null and !mngPrdtLen.equals('')">			        -->
+<!-- 					AND PRDT_LEN  = #{mngPrdtLen} -->
+<!-- 				   </when> -->
+<!-- 				   <when test="prdtLen != null and !prdtLen.equals('')">	 -->
+<!-- 					AND PRDT_LEN  = #{prdtLen}				    -->
+<!-- 				   </when> -->
+<!-- 				</choose> -->
 	</update>
 	
 	<update id="updateStockUpr" parameterType="Map">
@@ -520,5 +525,7 @@
 					       AND NVL(D.PRDT_LEN ,0)   = NVL(M.PRDT_LEN ,0)
 						),M.STOCK_UPR)	
 	</update>
-	
+
+   
+   	
 </mapper>
