@@ -86,6 +86,34 @@ public class SD07Ctr {
     	}
     	return "jsonView";
 	}
+    
+    @PostMapping(value = "/excuteCloseDeleteCreate")
+    public String excuteCloseDeleteCreate(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		sd07Svc.excuteCreditDeleteClose(paramMap);
+    		model.addAttribute("chkCount", paramMap.get("chkCount"));
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+    
+    @PostMapping(value = "/excuteCloseDeletePurch")
+    public String excuteCloseDeletePurch(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		sd07Svc.excuteCreditDeleteClosePur(paramMap);
+    		model.addAttribute("chkCount", paramMap.get("chkCount"));
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("excute"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
 
     @PostMapping(value = "/selectCloseYmList")
 	public String selectCloseYmList(@RequestBody Map<String, String> paramMap, ModelMap model) {

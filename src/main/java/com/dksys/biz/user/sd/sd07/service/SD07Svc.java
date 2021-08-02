@@ -16,6 +16,10 @@ public interface SD07Svc {
 	void excuteCreditClosePur(Map<String, String> paramMap);
 	
 	List<Map<String, String>> selectCloseYmList(Map<String, String> paramMap);
+
+	void excuteCreditDeleteClose(Map<String, String> paramMap);
+
+	void excuteCreditDeleteClosePur(Map<String, String> paramMap);
 	
 
 }
