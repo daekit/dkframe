@@ -349,55 +349,71 @@ public class OD01SvcImpl implements OD01Svc {
 		String sellClntNm = paramMap.get("sellClntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
-            detailMap.put("reqSeq", paramMap.get("reqSeq"));
+			detailMap.putAll(od01Mapper.selectOrdrgDetailInfo(detailMap));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
+			
+			if("P".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
+				if("Y".equals(detailMap.get("ordrgYn"))) {
+				// 이미 매입확정된 상세내역이면 매입확정 불가능
+					thrower.throwCommonException("alreadyConfirm");
+				}
+			}
+			
+			if ("Y".equals(paramMap.get("dirtrsYn"))){
+				if("S".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
+					if("Y".equals(detailMap.get("shipYn"))) {
+					// 이미 매출확정된 상세내역이면 매출확정 불가능
+						thrower.throwCommonException("alreadyConfirm");
+					}
+				}
+			}
+			
 			//커플러일 경우 별도 단가 데이터 저장
-			if(detailMap.get("prdtStkn").contains("PDSKCP")) {
-				detailMap.put("coCd", paramMap.get("coCd"));
-				detailMap.put("clntCd", clntCd);
-				detailMap.put("selpchCd", "SELPCH1");
-				detailMap.put("prdtDt", paramMap.get("reqDt"));
-				detailMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
+			Map<String, String> coupleMap = new HashMap<String, String>();
+			if(detailMap.get("prdtDiv").contains("PRDTDIV22")) {
+				coupleMap.put("coCd", paramMap.get("coCd"));
+				coupleMap.put("clntCd", clntCd);
+				coupleMap.put("selpchCd", "SELPCH1");
+				coupleMap.put("prdtCd", detailMap.get("prdtCd"));
+				coupleMap.put("prdtDt", paramMap.get("reqDt"));
+				coupleMap.put("prdtUpr", detailMap.get("realDlvrUpr"));
+				coupleMap.put("rmk", paramMap.get("ordrgRmk"));
+				coupleMap.put("userId", paramMap.get("userId"));
+				coupleMap.put("pgmId", paramMap.get("pgmId"));
 				// 커플러 매입 단가 입력
 				sd08Mapper.insertCplrUntpc(detailMap);
 				if("Y".equals(paramMap.get("dirtrsYn"))) {
-					detailMap.put("selpchCd", "SELPCH2");
-					detailMap.put("clntCd", sellClntCd);
+					coupleMap.put("clntCd", sellClntCd);
+					coupleMap.put("selpchCd", "SELPCH2");
+					coupleMap.put("prdtUpr", detailMap.get("shipUpr"));
+					coupleMap.put("rmk", paramMap.get("dlvrRmk"));
 					// 커플러 매출 단가 입력
-					sd08Mapper.insertCplrUntpc(detailMap);
+					sd08Mapper.insertCplrUntpc(coupleMap);
 				}
 			}
 
 			//매출매입 데이터 세팅
-			Map<String, String> detailMap2 = od01Mapper.selectOrdrgDetailInfo(detailMap);
-
-			paramMap.put("prdtSpec",    "");
-			paramMap.put("prdtSize",    "");
-			paramMap.put("prdtLen",    "");
-			
-			paramMap.putAll(detailMap2);
-			detailMap.putAll(detailMap2);
-			
+			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd",    "SELPCH1");
 			paramMap.put("trstDt",       paramMap.get("dlvrDttm").replace("-", ""));
-			paramMap.put("pchsUpr",      detailMap2.get("realDlvrUpr"));
-			paramMap.put("stockUpr",     detailMap2.get("stockUpr"));
-			paramMap.put("trstQty",      detailMap2.get("ordrgQty"));
-			paramMap.put("trstWt",       detailMap2.get("ordrgWt"));
-			paramMap.put("trstUpr",      detailMap2.get("ordrgUpr"));
-			paramMap.put("trstAmt",      detailMap2.get("ordrgAmt"));
-			paramMap.put("realTrstQty",  detailMap2.get("realDlvrQty"));
-			paramMap.put("realTrstWt",   detailMap2.get("realDlvrWt"));
-			paramMap.put("realTrstUpr",  detailMap2.get("realDlvrUpr"));
-			paramMap.put("realTrstAmt",  detailMap2.get("realDlvrAmt"));
-			paramMap.put("bilgQty",      detailMap2.get("realDlvrQty"));
-			paramMap.put("bilgWt",       detailMap2.get("realDlvrWt"));
-			paramMap.put("bilgUpr",      detailMap2.get("realDlvrUpr"));
-			paramMap.put("bilgAmt",      detailMap2.get("realDlvrAmt"));
-			paramMap.put("clntNm",       detailMap2.get("clntNm"));
-			paramMap.put("trstRprcSeq",  detailMap2.get("ordrgSeq"));		
-			paramMap.put("trstDtlSeq",   detailMap2.get("ordrgDtlSeq"));				  	
+			paramMap.put("pchsUpr",      detailMap.get("realDlvrUpr"));
+			paramMap.put("stockUpr",     detailMap.get("stockUpr"));
+			paramMap.put("trstQty",      detailMap.get("ordrgQty"));
+			paramMap.put("trstWt",       detailMap.get("ordrgWt"));
+			paramMap.put("trstUpr",      detailMap.get("ordrgUpr"));
+			paramMap.put("trstAmt",      detailMap.get("ordrgAmt"));
+			paramMap.put("realTrstQty",  detailMap.get("realDlvrQty"));
+			paramMap.put("realTrstWt",   detailMap.get("realDlvrWt"));
+			paramMap.put("realTrstUpr",  detailMap.get("realDlvrUpr"));
+			paramMap.put("realTrstAmt",  detailMap.get("realDlvrAmt"));
+			paramMap.put("bilgQty",      detailMap.get("realDlvrQty"));
+			paramMap.put("bilgWt",       detailMap.get("realDlvrWt"));
+			paramMap.put("bilgUpr",      detailMap.get("realDlvrUpr"));
+			paramMap.put("bilgAmt",      detailMap.get("realDlvrAmt"));
+			paramMap.put("clntNm",       detailMap.get("clntNm"));
+			paramMap.put("trstRprcSeq",  detailMap.get("ordrgSeq"));		
+			paramMap.put("trstDtlSeq",   detailMap.get("ordrgDtlSeq"));				  	
 			paramMap.put("odrNo", paramMap.get("odrSeq"));
 			paramMap.put("clntCd", clntCd);
 			paramMap.put("clntNm", clntNm);
