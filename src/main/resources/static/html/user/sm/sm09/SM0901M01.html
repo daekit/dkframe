@@ -136,13 +136,12 @@
 			<div class="contents no_bg">
 				<ul class="btn_ul">
 					<li class="btn_r">
-						<a onclick="updateStockInfo()">
+						<a onclick="updateStockInfo();">
 							<button type="button" class="bg_gray">저장</button>
 						</a>
 					</li>
 				</ul>
 			</div>
-			
 			
 			<div class="contents">
 				<div class="popup_area">
@@ -215,72 +214,73 @@
 				</table>
 				<table id="frameTable" style="display: none;">
 					<tr name="detailRow">
+						<input type="hidden" id="stokSeq" name="stokSeq">
 						<td class="tc">
 							<input type="checkbox" name="detailChkBox" onclick="readCheckFunction(this);" org>
 						</td>
 						
 						<!-- 제품명 -->
 						<td>
-							<input type="text" class="tc" name="prdtNm" org readonly tochange >
+							<input type="text" class="tc" name="prdtNm" org readonly>
 						</td>
 	
 						<!-- 규격 -->
 						<td>
-							<input type="text" class="tc" name="prdtSpec" org readonly tochange>
+							<input type="text" class="tc" name="prdtSpec" org readonly>
 						</td>
 	
 						<!-- 사이즈 -->
 						<td>
-							<input type="text" class="tr" name="prdtSize" onkeyup="onlyNumber(this);" org readonly tochange>
+							<input type="text" class="tr" name="prdtSize" onkeyup="onlyNumber(this);" org tochange comma readonly>
 						</td>
 	
 						<!-- 길이 -->
 						<td>
-							<input type="text" class="tc" name="prdtLen" onkeyup="onlyNumber(this);" org readonly tochange>
+							<input type="text" class="tc" name="prdtLen" onkeyup="onlyNumber(this);" org tochange comma readonly>
 						</td>
 	
 						<!-- 중량 -->
 						<td>
-							<input type="text" class="tr" name="stockWt" org readonly tochange>
+							<input type="text" class="tr" name="stockWt" onkeyup="onlyNumber(this);" org tochange comma readonly>
 						</td>
 	
 						<!-- 판매유형 -->
 						<td>
-							<input type="text" class="tr" name="typNm" org readonly tochange>
+							<input type="text" class="tr" name="typNm" org tochange readonly>
 						</td>
 	
 						<!-- 수입 -->
 						<td>
-							<input type="text" class="tr" name="impNm" org readonly tochange>
+							<input type="text" class="tr" name="impNm" org tochange readonly>
 						</td>
 	
 						<!-- 창고 -->
 						<td>
-							<input type="text" class="tr" name="whNm" org readonly tochange>
+							<input type="text" class="tr" name="whNm" org tochange readonly>
 						</td>
 	
 						<!-- 구분 -->
 						<td>
-							<input type="text" class="tr" name="ownerNm" org readonly tochange>
+							<input type="text" class="tr" name="ownerNm" org readonly>
 						</td>
 	
 						<!-- 재고주체 -->
 						<td>
-							<input type="text" class="tr" name="clntNm" org readonly tochange>
+							<input type="text" class="tr" name="clntNm" org readonly>
 						</td>
 	
 						<!-- 프로젝트 -->
 						<td>
-							<input type="text" class="tr" name="prjctNm" org readonly tochange>
+							<input type="text" class="tr" name="prjctNm" org readonly>
 						</td>
 	
 						<!-- 비고 -->
 						<td>
-							<input type="text" name="" org readonly tochange>
+							<input type="text" name="" org tochange readonly>
 					</tr>
 				</table>
 	
-				<table>
+				<table id="totalTable">
 					<colgroup>
 						<col width=10> <!-- 체크박스 -->
 						<col width=70> <!-- 제품명 -->
@@ -296,9 +296,16 @@
 						<col width=72> <!-- 프로젝트 -->
 						<col width=70> <!-- 비고 -->
 					</colgroup>
-					<tr>
-						<th class="tc" colspan="5">합계</th>
-						<td></td>
+					<tr name="totRow">
+						<th class="tc" colspan="2">합계</th>
+						<td class="tc">-</td>
+						<td class="tc">-</td>
+						<td>
+							<input class="tr" type="text" id="totStockQty" name="totStockQty" comma readonly>
+						</td>
+						<td>
+							<input class="tr" type="text" id="totStockWt" name="totStockWt" comma readonly>
+						</td>
 						<td class="tc">-</td>
 						<td class="tc">-</td>
 						<td class="tc">-</td>
@@ -355,7 +362,13 @@
 			$.each($addedRow.find('[name]'), function(idx, elem) {
 				var itemValue = obj[elem.name];
 				if (itemValue) {
+					// 콤마 적용
+					if($(elem).is('[comma]')){
+						itemValue = addCommaStr(itemValue);
+					}
+					
 					$(elem).val(itemValue);
+					
 					// set org data 
 					if($(elem).is('[org]')){ 
 						$(elem).data("org", itemValue);
@@ -363,19 +376,45 @@
 				}
 			});
 		});
-	}
-	
-	// 체크 저장 안하고 취소                      
-	function cancelStockInfo(targetRow){
-		//reset Data
-		$.each(targetRow.find('input'), function(idx, elem){
-			$(elem).val($(elem).data('org'));
-		});
+		countTot()
 	}
 	
 	// 저장
 	function updateStockInfo() {
+		var detailArr = [];
+		$.each($('#actionDetailTable tr[name="detailRow"]'), function(idx, elem){
+			//if(type == "CONFIRM") {
+			if($(elem).find("input[name='detailChkBox']").is(":checked") ) {  //&& $(elem).find("input[name='ordrgYn']").val() == "N"
+				var detailObj = {};
+				$.each($(elem).find('[name]'), function(idx, elem){
+					var itemValue = elem.value;
+					if($(elem).is('[comma]')){
+						itemValue = deleteCommaStr(itemValue);
+					}
+					detailObj[elem.name] = itemValue;
+				});
+				detailObj.userId = jwt.userId;
+				detailObj.pgmId = "SM0901M01";
+				detailArr.push(detailObj);
+			}
+		});
 		
+		putAjax("/user/sm/sm09/updateStockInfo", detailArr, null, function(data){
+			if(data.resultCode == 200){
+				// 재검색
+				alert("저장완료");
+			}
+		});
+	}
+	
+	//합계
+	function countTot() {
+		var totStockWt = 0;
+		$.each($('#actionDetailTable tr[name="detailRow"]'), function(idx, elem){
+			var stockWt = Number(deleteCommaStr($(elem).find('[name="stockWt"]').val()));
+			totStockWt  += stockWt;
+		});
+		$('#totalTable #totStockWt').val(addCommaStr(totStockWt));
 	}
 	
 	// 제품 검색
@@ -427,10 +466,15 @@
 	function readCheckFunction(elem) {
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
  		if ($(elem).is(':checked')) {
+ 			// dom ctrl
 			$targetRow.find('input[tochange]').prop("readonly", false);
 		} else {
-			cancelStockInfo($targetRow);
+			// dom ctrl
 			$targetRow.find('input[tochange]').prop("readonly", true);
+			// reset Data
+			$.each($targetRow.find('input'), function(idx, elem){
+				$(elem).val($(elem).data('org'));
+			});
 		}	
- }
+ 	}
 </script>

@@ -17,8 +17,6 @@ public class SM09Svcmpl implements SM09Svc {
     @Autowired
     SM09Mapper sm09Mapper;
 
- 
-
 	@Override
 	public int selectStockListCount(Map<String, String> param) {
 		return sm09Mapper.selectStockListCount(param);
@@ -29,22 +27,10 @@ public class SM09Svcmpl implements SM09Svc {
 		return sm09Mapper.selectStockList(param);
 	}
 
-//	@Override
-//	public List<Map<String, String>> selectPrdtStockList(Map<String, String> param) {
-//		return sm09Mapper.selectPrdtStockList(param);
-//	}
-
 	@Override
-	public int selectStockHistoryListCount(Map<String, String> param) {
-		return sm09Mapper.selectStockHistoryListCount(param);
+	public void updateStockInfo(List<Map<String, String>> paramList) {
+		for(Map<String, String> paramMap : paramList) {
+			sm09Mapper.updateStockInfo(paramMap);
+		}
 	}
-
-	@Override
-	public List<Map<String, String>> selectStockHistoryList(Map<String, String> param) {
-		return sm09Mapper.selectStockHistoryList(param);
-	}
-
-	
-
-
 }

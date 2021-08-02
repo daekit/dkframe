@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -37,16 +38,17 @@ public class SM09Ctr {
         return "jsonView";
     }
     
-  //selectStockHistoryList 재고 변동 이력 리스트 조회 
-    @PostMapping("/selectStockHistoryList")
-    public String selectStockHistoryList(@RequestBody Map<String, String> param, ModelMap model) {
-    	int totalCnt = sm09svc.selectStockHistoryListCount(param);
-    	PaginationInfo paginationInfo = new PaginationInfo(param, totalCnt);
-    	model.addAttribute("paginationInfo", paginationInfo);
-    
-    	List<Map<String, String>> stockList = sm09svc.selectStockHistoryList(param);
-    	model.addAttribute("stockList", stockList);
-        return "jsonView";
+    @PutMapping("/updateStockInfo")
+    public String updateStockInfo(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+    	try {
+    		sm09svc.updateStockInfo(paramList);
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
     }
    
 }
