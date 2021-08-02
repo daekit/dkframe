@@ -250,7 +250,7 @@
 			        target: $('[data-ax5grid="excel-grid"]'),
 					footSum: [
 				    	[
-				    		{label: "합계",     colspan:4, align:"center"},
+				    		{label: "합계",     colspan:5, align:"center"},
 		                    {key: "basisCreditAmt",  collector: "sum", formatter:"money", align: "right"},
 		                    {key: "closeYm2TotAmt",   collector: "sum", formatter:"money", align: "right"},
 		                    {key: "closeYm2ClmnAmt",    collector: "sum", formatter:"money", align: "right"},
@@ -272,6 +272,7 @@
 			          	{key: "coNm",            label: "회사",    align: "left",     width: 80},
 			       // 	{key: "closeYm",         label: "년월",     align: "center",  width: 80},
 			        	{key: "clntNm",          label: "거래처",    align: "left",   width: 140},
+			        	{key: "crnNo",           label: "사업자번호",    align: "left",   width: 140},
 			        	{key: "prdtGrpNm",       label: "구분",    align: "left",   width: 80},
 			        	{key: "prjctNm",         label: "프로젝트",    align: "left",   width: 140},
 			        	{key: "basisCreditAmt",  label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
@@ -349,12 +350,12 @@
 
 	function excelDown() {
 		excelView.initView(closeYm.value);
-		var paramObj = {"pageNo" : 1, "recordCnt"   : 9999999 };
+		var paramObj = {"pageNo" : 1};
 		for(var i=0;i<$('[data-search]').length;i++){
 			var tempElem = $('[data-search]')[i];
 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
 		}
-		
+		paramObj.recordCnt = 9999999; 
 		postAjax("/user/ar/ar07/selectMtClosCditList", paramObj, null, function(data) {
 			var list = data.resultList;
 				excelView.target.setData({
@@ -364,7 +365,7 @@
 					}
 				});
 				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("월마감채권목록_"+todayDate+".xls");
+				excelView.target.exportExcel("매출채권조회_"+todayDate+".xls");
 			});	
 	}	
 
