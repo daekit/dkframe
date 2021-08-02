@@ -276,7 +276,7 @@
 						  , SM02.IN_PRDT_LEN			 
 				) T
 				WHERE 1 = 1
-							AND T.CO_CD = 'GUM'	
+							AND T.CO_CD = #{coCd}	
 				  GROUP BY CO_CD
 					 , WH_CD
 					 , OWNER_CD
@@ -311,14 +311,13 @@
 			   STOCK_Wt,
 			   STOCK_CHG_CD
 		   FROM TB_SM01M01_TEMP TEMP
-		   <where>
+		   WHERE ( STOCK_QTY  != 0 OR STOCK_Wt != 0)
 		  		<if test="coCd != null and !coCd.equals('')">
 					AND TEMP.CO_CD = #{coCd}				
 				</if>	
 				<if test="whCd != null and !whCd.equals('')">
 					AND TEMP.WH_CD = #{whCd}				
 				</if>
-		   </where> 
               ) S 
 		ON (
 			  A.CO_CD     = S.CO_CD
