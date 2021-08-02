@@ -338,10 +338,18 @@ public class SM02Svcmpl implements SM02Svc {
 	    }else {                                           detailMap.put("worksCd",   "C"); detailMap.put("worksCdFrom",   "C");
 	    }
 	    
-	    
-	    
-	    if( "C".equals(detailMap.get("prdtCoilYn"))) {
-			detailMap.put("productNameCd",   "BC"); /* 코일철근 : BC */
+	    /*
+	     * 코일 여부 Y일 시 
+	     * 1) SET 코일철근(param -> productNameCd) : BC
+	     * 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입
+	     * */
+	    if( "Y".equals(detailMap.get("prdtCoilYn"))) {
+			detailMap.put("productNameCd",   "BC"); /* 1) 코일철근 : BC */
+		
+			String spec = detailMap.get("sPrdtSpec");
+			if (spec != null && spec.length() > 0 && spec.charAt(spec.length() - 1) == 'C') { 
+				detailMap.put("sPrdtSpec", spec.substring(0, spec.length() - 1)); /* 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입 */
+		    }
 	    }else {
 			detailMap.put("productNameCd",   "BD"); /* 바철근 : BD */
 	    }
