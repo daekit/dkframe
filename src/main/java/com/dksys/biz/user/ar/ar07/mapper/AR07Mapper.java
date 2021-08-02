@@ -20,4 +20,6 @@ public interface AR07Mapper {
 
 	List<Map<String, String>> selectMtCloseCditPreList(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectEtrdpsSellList(Map<String, String> paramMap);
+
 }

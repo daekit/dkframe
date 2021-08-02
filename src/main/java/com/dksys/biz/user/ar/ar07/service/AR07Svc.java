@@ -16,5 +16,7 @@ public interface AR07Svc {
 	public int selectMtClosCditPreCount(Map<String, String> paramMap);
 
 	public List<Map<String, String>> selectMtCloseCditPreList(Map<String, String> paramMap);
+
+	public List<Map<String, String>> selectEtrdpsSellList(Map<String, String> paramMap);
 	
 }

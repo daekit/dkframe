@@ -57,5 +57,19 @@ public class AR07Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+	
+	
+    @PostMapping(value = "/selectEtrdpsSellList")
+	public String selectEtrdpsSellList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+
+    	List<Map<String, String>> resultList = new ArrayList<Map<String, String>>();
+    	
+    	resultList = ar07Svc.selectEtrdpsSellList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
+    
+    
     
 }

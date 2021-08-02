@@ -109,5 +109,10 @@ public class AR07SvcImpl implements AR07Svc {
 		return ar07Mapper.selectMtCloseCditPreList(paramMap) ; 
 	}
 
+	@Override
+	public List<Map<String, String>> selectEtrdpsSellList(Map<String, String> paramMap) {
+		// TODO Auto-generated method stub
+		return ar07Mapper.selectEtrdpsSellList(paramMap) ; 
+	}
 	
 }

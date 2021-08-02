@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button type="button" class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="gridView.setData(0);">
+						<button type="button" class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search" id="searchDiv">
+			<input type="hidden" id="selectedData" name="selectedData"/>
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type03">
+					<tr>
+						<th class="hit">회사</th>
+						<td>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); gridView.setData(0);" required msg="회사">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th class="hit">기준년월</th>
+						<td>
+							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;">
+						</td>
+						<th class="hit">구분</th>
+		                <td>
+		               	  <select id="selpchCd" style="width: 100%;" data-search="selpchCd" onchange="gridView.setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
+		               	  <option value="SELPCH1">매입</option>
+						  <option value="SELPCH2" selected>매출</option>
+		               	  </select>
+		                </td>
+					</tr>
+					</tr>
+						<th>판매법인</th>
+						<td>
+						  <select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+						 	 <option value="">전체</option>
+						  </select>
+						</td>
+						<th>제품그룹</th>
+						<td>
+							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="gridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>거래처</th>
+						<td>
+		                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
+		                  <div class="search_form" style="width: 50%;">
+			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(closeYm.value).setData(0) : ''">
+			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+			              </div>
+		                </td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select class="prae_select" data-search="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999">전체</option>
+				</select> 
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 680px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	var odrSeq = null;
+	var odrDtlSeqArr = [];
+	
+	var gridView = {
+		initView : function(closeYm) {
+			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : false,
+				multipleSelect : false,
+				sortable : true,
+		    	frozenColumnIndex: 4,
+				target : $('[data-ax5grid="first-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					mergeCells : ["clntNm","prdtGrpNm"],
+					onClick : function() {
+						this.self.select(this.dindex);
+					}
+				},
+				footSum: [
+			    	[
+			    		{label: "합계",     colspan:4, align:"center"},
+	                    {key: "basisCrediClnttAmt",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "closeYm2TotAmt",   collector: "sum", formatter:"money", align: "right"},
+	                    {key: "closeYm2ClmnAmt",    collector: "sum", formatter:"money", align: "right"},
+	                    {key: "closeYm2CreditAmt", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "closeYm1TotAmt",   collector: "sum", formatter:"money", align: "right"},
+	                    {key: "closeYm1ClmnAmt",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "closeYm1CreditAmt",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "clmnAmt",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "totAmt",  collector: "sum", formatter:"money", align: "right"},
+			        	{key: "curCreditAmt", 	 collector: "sum", formatter:"money", align: "right"},
+	                    {key: "trmendAmt",  collector: "sum", formatter:"money", align: "right"},
+ 	                    {key: "basisAmt",  collector: "sum", formatter:"money", align: "right"},
+ 		        	    {key: "curClmnAmt", 	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "crdtLmt",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
+				page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						gridView.setData(this.page.selectPage);
+					}
+				},
+				columns: [
+					{key: "coCd",            hidden: true},
+					{key: "clntCd",          hidden: true},
+		          	{key: "coNm",            label: "회사",    align: "left",     width: 80},
+		       // 	{key: "closeYm",         label: "년월",     align: "center",  width: 80},
+		        	{key: "clntNm",          label: "거래처",    align: "left",   width: 140},
+		        	{key: "prdtGrpNm",       label: "그룹",    align: "center",   width: 80},
+		        	{key: "prjctNm",         label: "프로젝트",    align: "left",   width: 140},
+		        	{key: "basisCrediClnttAmt",  label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "closeYm2TotAmt",  label: closeYm2 +" 매출",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "closeYm2ClmnAmt", label: closeYm2 +" 수금",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "closeYm2CreditAmt",        label: closeYm2 +" 잔액",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "closeYm1TotAmt",  label: closeYm1 +" 매출",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "closeYm1ClmnAmt", label: closeYm1 +" 수금",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "closeYm1CreditAmt",  		 label: closeYm1 +" 잔액",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "clmnAmt", 	     label: closeYm  +" 수금",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "totAmt",  	     label: closeYm  +" 매출",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "curCreditAmt", 		 label: closeYm  +" 잔액",  	  align: "right",   width: 140, formatter: "money"},
+		        	{key: "trmendAmt", 		 label: "미수금 총액",  	  align: "right",   width: 140, formatter: "money"},
+ 		        	{key: "basisAmt", 		 label: "기초",     align: "right",   width: 140, formatter: "money"},
+ 		        	{key: "curClmnAmt", 		 label: "당월입금",     align: "right",   width: 140, formatter: "money"},
+		        	{key: "crdtLmt",	     label: "여신한도",  align: "right",   width: 140, formatter: "money"},
+		        	{key: "crdtLoan",	     label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
+		        	{key: "sellPayDivNm",    label: "지급구분",  align: "center",   width: 60},
+		        	{key: "sellClmnDivNm",   label: "결제조건",  align: "left",   width: 100},
+		        	{key: "sellPmntMtdNm",   label: "결제방법",  align: "center",   width: 60},
+		        	{key: "sellVatNm",       label: "부가세",  align: "left",   width: 140}
+		        	
+		        ]
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo" : _pageNo + 1};
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+			
+			console.log('@@paramObj : ', paramObj);
+			console.log('@@selpchCd : ', paramObj.selpchCd);
+			
+			postAjax("/user/ar/ar07/selectEtrdpsSellList", paramObj, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						totalElements : list.length
+						
+// 						currentPage : _pageNo,
+// 						pageSize : data.paginationInfo.pageSize,
+// 						totalElements : data.paginationInfo.totalRecordCount,
+// 						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	var excelView = {
+			initView: function(closeYm){
+				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+					footSum: [
+				    	[
+				    		{label: "합계",     colspan:4, align:"center"},
+		                    {key: "basisCreditAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "closeYm2TotAmt",   collector: "sum", formatter:"money", align: "right"},
+		                    {key: "closeYm2ClmnAmt",    collector: "sum", formatter:"money", align: "right"},
+		                    {key: "closeYm2", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "closeYm1TotAmt",   collector: "sum", formatter:"money", align: "right"},
+		                    {key: "closeYm1ClmnAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "closeYm1",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "trmendAmt",  collector: "sum", formatter:"money", align: "right"},
+// 		                    {key: "basisAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "clmnAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "totAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "crdtLmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"}
+				    	]
+				    ],
+					columns: [
+						{key: "coCd",            hidden: true},
+						{key: "clntCd",          hidden: true},
+			          	{key: "coNm",            label: "회사",    align: "left",     width: 80},
+			       // 	{key: "closeYm",         label: "년월",     align: "center",  width: 80},
+			        	{key: "clntNm",          label: "거래처",    align: "left",   width: 140},
+			        	{key: "prdtGrpNm",       label: "구분",    align: "left",   width: 80},
+			        	{key: "prjctNm",         label: "프로젝트",    align: "left",   width: 140},
+			        	{key: "basisCreditAmt",  label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "closeYm2TotAmt",  label: closeYm2 +" 매출",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "closeYm2ClmnAmt", label: closeYm2 +" 수금",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "closeYm2",        label: closeYm2 +" 잔액",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "closeYm1TotAmt",  label: closeYm1 +" 매출",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "closeYm1ClmnAmt", label: closeYm1 +" 수금",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "closeYm1",  		 label: closeYm1 +" 잔액",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "trmendAmt", 		 label: closeYm  +" 잔액",  align: "right",   width: 140, formatter: "money"},
+// 			        	{key: "basisAmt", 		 label: "기초",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "clmnAmt", 	     label: "수금",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "totAmt",  	     label: "매출",     align: "right",   width: 140, formatter: "money"},
+			        	{key: "crdtLmt",	     label: "여신한도",  align: "right",   width: 140, formatter: "money"},
+			        	{key: "crdtLoan",	     label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
+			        	{key: "sellPayDivNm",    label: "지급구분",  align: "center",   width: 60},
+			        	{key: "sellClmnDivNm",   label: "결제조건",  align: "left",   width: 100},
+			        	{key: "sellPmntMtdNm",   label: "결제방법",  align: "center",   width: 60},
+			        	{key: "sellVatNm",       label: "부가세",  align: "left",   width: 140}
+			        ]
+			    });
+				return this;
+			}
+		}
+	$(document).ready(function() {
+
+		
+		//  월별 매출 - 입금일과 매핑되는 매출일자를 기주으로 입금합계 = 월별 매출분에 대한 채권 현황	
+		
+		// 페이지 타이틀 set
+		mainDefaultLoad("채권관리", "매출채권조회(수금기준))");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		setByCoCd(jwt.coCd);
+		// 기준년월
+		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			gridView.setData(0);
+		});
+		
+		
+		// grid init
+		gridView.initView(closeYm.value).setData(0);
+		excelView.initView(closeYm.value);
+		
+		authChk();
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+
+		// 조건초기화
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		// 기간
+		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		
+		// 재검색
+		gridView.setData(0);
+	}
+	
+	// 거래처 검색
+	function clntSearch() {
+
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);	
+		});
+	//	openModal("/static/html/user/ar/ar07/AR0701P01.html", 500, 420, "거래처 검색");
+	}
+
+	function excelDown() {
+
+		excelView.initView(closeYm.value);
+		var paramObj = {"pageNo" : 1, "recordCnt"   : 9999999 };
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		
+		postAjax("/user/ar/ar07/selectEtrdpsSellList", paramObj, null, function(data) {
+			var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("월마감채권목록_"+todayDate+".xls");
+			});	
+	}	
+
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
+</script>
