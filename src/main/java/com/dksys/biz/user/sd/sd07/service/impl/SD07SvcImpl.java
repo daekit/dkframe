@@ -73,6 +73,22 @@ public class SD07SvcImpl implements SD07Svc {
 			sd07Mapper.insertCreditClosePur(paramMap);
 //		}
 	}
+	
+	@Override
+	public void excuteCreditDeleteClose(Map<String, String> paramMap) {
+		paramMap.put("errCode", "200");	
+		paramMap.put("Message", "");	
+		paramMap.put("chkCount", "0");	
+		sd07Mapper.deleteCreditClose(paramMap);
+	}
+	
+	@Override
+	public void excuteCreditDeleteClosePur(Map<String, String> paramMap) {
+		paramMap.put("errCode", "200");	
+		paramMap.put("Message", "");	
+		paramMap.put("chkCount", "0");		
+		sd07Mapper.deleteCreditClose(paramMap);
+	}
 
 	@Override
 	public List<Map<String, String>> selectCloseYmList(Map<String, String> paramMap) {

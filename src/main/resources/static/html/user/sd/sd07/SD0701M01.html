@@ -90,6 +90,8 @@
 					<a style="width:80px;" onclick="saveClose();" authchk>저장</a>
 				</div>
 				<div class="add_btn_small pdl10">
+					<a style="width:100px;" onclick="excuteCloseDeleteCreate();" authchk>전월매출마감삭제</a>
+					<a style="width:100px;" onclick="excuteCloseDeletePurch();"  authchk>전월매입마감삭제</a>
 					<a style="width:80px;" onclick="excuteCloseStock();"  authchk>재고마감실행</a>
 					<a style="width:80px;" onclick="excuteCloseCreate();" authchk>매출마감실행</a>
 					<a style="width:80px;" onclick="excuteClosePurch();"  authchk>매입마감실행</a>
@@ -559,7 +561,6 @@
 				}
 			}
 		});
-		
 	}
 	// 매입마감실행
 	function excuteClosePurch(){
@@ -570,7 +571,7 @@
 			"pgmId": "SD0701M01",
 			'selpchCd' : 'SELPCH1'
 		}
-
+		
 		postAjaxSync("/user/sd/sd07/excuteCreditClosePur", paramObj, null, function(data){
 			if(data.chkCount != '0'){				
 				alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
@@ -586,6 +587,69 @@
 				}
 			}
 		});
+	}
+	
+	// 매출 마감실행 삭제
+	function excuteCloseDeleteCreate(){
+		var newDate = new Date();
+		//date format YYYYMM
+		var closeYm = newDate.getFullYear() + ('0' + (newDate.getMonth())).slice(-2);
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"closeYm": closeYm,
+			"userId": jwt.userId,
+			"pgmId": "SD0701M01",
+			'selpchCd' : 'SELPCH2'
+		}
 		
+		// 삭제 confirm
+		if(confirm("전월 " + ('0' + (newDate.getMonth())).slice(-2) + "월 데이터를 삭제하시겠습니까?")){
+			postAjaxSync("/user/sd/sd07/excuteCloseDeleteCreate", paramObj, null, function(data){
+				if(data.chkCount != '0'){				
+					alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+					return;
+				}else{				
+					if(data.resultCode == 200){
+						gridView.setData();
+						$('span[name="salesStatus"]').text("완료");
+						$('span[name="salesStatus"]').addClass("complete");
+					}else{
+						$('span[name="salesStatus"]').text("실패");
+						$('span[name="salesStatus"]').addClass("fail");
+					}
+				}
+			});
+		}
+	}
+	// 매입마감실행 삭제
+	function excuteCloseDeletePurch(){
+		var newDate = new Date();
+		var closeYm = newDate.getFullYear() + ('0' + (newDate.getMonth())).slice(-2);
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"closeYm": closeYm,
+			"userId": jwt.userId,
+			"pgmId": "SD0701M01",
+			'selpchCd' : 'SELPCH1'
+		}
+		
+		// 삭제 confirm
+		if(confirm("전월 " + ('0' + (newDate.getMonth())).slice(-2) + "월 데이터를 삭제하시겠습니까?")){
+			postAjaxSync("/user/sd/sd07/excuteCloseDeletePurch", paramObj, null, function(data){
+				if(data.chkCount != '0'){				
+					alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+					return;
+				}else{				
+					if(data.resultCode == 200){
+						gridView.setData();
+						$('span[name="purchsStatus"]').text("완료");
+						$('span[name="purchsStatus"]').addClass("complete");
+					}else{
+						$('span[name="purchsStatus"]').text("실패");
+						$('span[name="purchsStatus"]').addClass("fail");
+					}
+				}
+			});
+		}
 	}
 </script>
