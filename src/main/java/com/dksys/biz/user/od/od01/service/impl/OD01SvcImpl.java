@@ -644,8 +644,15 @@ public class OD01SvcImpl implements OD01Svc {
 				// 매입이 Y && (P 매입취소 || A 일괄 취소)
 				if("Y".equals(detailMap.get("ordrgYn")) && ("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))){
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					stockQty = Double.parseDouble(stockInfo.get("stockQty")) - Double.parseDouble(detailMap.get("realDlvrQty"));
-					stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  - Double.parseDouble(detailMap.get("realDlvrWt"));
+					if(stockInfo == null) {
+						stockQty =  -1* Double.parseDouble(detailMap.get("realDlvrQty"));
+						stockWt  =  -1* Double.parseDouble(detailMap.get("realDlvrWt"));
+						
+					}else {
+						
+						stockQty = Double.parseDouble(stockInfo.get("stockQty")) - Double.parseDouble(detailMap.get("realDlvrQty"));
+						stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  - Double.parseDouble(detailMap.get("realDlvrWt"));
+					}
 					paramMap.put("stockQty", String.valueOf(stockQty));					
 					paramMap.put("stockWt" , String.valueOf(stockWt));					
 				    sm01Mapper.updateStockCancel(paramMap);
@@ -655,8 +662,15 @@ public class OD01SvcImpl implements OD01Svc {
 				if("Y".equals(paramMap.get("dirtrsYn")) && "Y".equals(detailMap.get("shipYn")) &&
 				  ("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))) {
 					stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realDlvrQty"));
-					stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("realDlvrWt"));
+					if(stockInfo == null) {
+						stockQty = Double.parseDouble(detailMap.get("realDlvrQty"));
+						stockWt  = Double.parseDouble(detailMap.get("realDlvrWt"));
+						
+					}else {
+						
+						stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realDlvrQty"));
+						stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("realDlvrWt"));
+					}
 					paramMap.put("stockQty", String.valueOf(stockQty));
 					paramMap.put("stockWt" , String.valueOf(stockWt));
 					sm01Mapper.updateStockCancel(paramMap);
