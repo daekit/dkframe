@@ -946,6 +946,27 @@
 		
 		openSecondModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
 			var row = grid.target.getList("selected")[0];
+			if(row.ordTyp == "ORDTYP02"){
+				$('#ordrgPopup #typCd').val("SELLTYPE2"); // 가공
+				$('#ordrgPopup #dirtrsYn').val("N"); // 직송  
+				$('#ordrgPopup #ownerCd').val("OWNER1"); // 재고주체  
+				$('#ordrgPopup #dirtrsYn').prop("disabled", true);
+				$('#ordrgPopup #ownerCd').prop("disabled", true);  
+			} else if (row.ordTyp == "ORDTYP03"){
+				$('#ordrgPopup #typCd').val("SELLTYPE4"); // 임가공
+				$('#ordrgPopup #dirtrsYn').val("N");      // 직송 
+				$('#ordrgPopup #ownerCd').val("");        // 재고주체  
+			    $('#ordrgPopup #dirtrsYn').prop("disabled", true);
+				$('#ordrgPopup #ownerCd').prop("disabled", false);
+			}else{
+				$('#ordrgPopup #typCd').val("SELLTYPE1"); // 유통
+				$('#ordrgPopup #dirtrsYn').val("Y");      // 직송 
+				$('#ordrgPopup #ownerCd').val("OWNER1");        // 재고주체  
+			    $('#ordrgPopup #dirtrsYn').prop("disabled", false);
+				$('#ordrgPopup #ownerCd').prop("disabled", true); 
+			}
+			ctrlDirtrsMaster();
+			
 			$('#ordrgPopup #siteCd').val(row.siteCd);
 			$('#ordrgPopup #siteNm').val(row.siteNm);
 			$('#ordrgPopup #prjctCd').val(row.prjctCd);
@@ -969,26 +990,6 @@
 				$('#ordrgPopup #taxivcCoprt').val(row.taxivcCoprt);
 			}
 			
-			if(row.ordTyp == "ORDTYP02"){
-				$('#ordrgPopup #typCd').val("SELLTYPE2"); // 가공
-				$('#ordrgPopup #dirtrsYn').val("N"); // 직송  
-				$('#ordrgPopup #ownerCd').val("OWNER1"); // 재고주체  
-				$('#ordrgPopup #dirtrsYn').prop("disabled", true);
-				$('#ordrgPopup #ownerCd').prop("disabled", true);  
-			} else if (row.ordTyp == "ORDTYP03"){
-				$('#ordrgPopup #typCd').val("SELLTYPE4"); // 임가공
-				$('#ordrgPopup #dirtrsYn').val("N");      // 직송 
-				$('#ordrgPopup #ownerCd').val("");        // 재고주체  
-			    $('#ordrgPopup #dirtrsYn').prop("disabled", true);
-				$('#ordrgPopup #ownerCd').prop("disabled", false);
-			}else{
-				$('#ordrgPopup #typCd').val("SELLTYPE1"); // 유통
-				$('#ordrgPopup #dirtrsYn').val("Y");      // 직송 
-				$('#ordrgPopup #ownerCd').val("OWNER1");        // 재고주체  
-			    $('#ordrgPopup #dirtrsYn').prop("disabled", false);
-				$('#ordrgPopup #ownerCd').prop("disabled", true); 
-			}
-			ctrlDirtrsMaster();
 		});
 	}
 	
