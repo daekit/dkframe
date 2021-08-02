@@ -290,17 +290,17 @@ public class AR01SvcImpl implements AR01Svc {
 		String clntNm = paramMap.get("clntNm");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
-			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
+			detailMap.putAll(ar01Mapper.selectShipDetailInfo(detailMap));
+			detailMap.put("shipProcId", paramMap.get("userId"));
+			detailMap.put("userId", paramMap.get("userId"));
+			detailMap.put("pgmId", paramMap.get("pgmId"));
 			
 			if("Y".equals(detailMap.get("shipYn"))) {
-			// 이미 확정된 상세내역이면 확정 불가능.
+			// 이미 확정된 상세내역이면 확정 불가능
 				thrower.throwCommonException("alreadyConfirm");
 			}
 			
 			// 출하 확정
-			detailMap.put("SHIP_PROC_ID", paramMap.get("userId"));
-			detailMap.put("USER_ID", paramMap.get("userId"));
-			detailMap.put("PGM_ID", paramMap.get("pgmId"));
 			ar01Mapper.updateConfirmDetail(detailMap);
 			
 			// 커플러일 경우 별도 단가 데이터 저장
@@ -550,7 +550,7 @@ public class AR01SvcImpl implements AR01Svc {
 		
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
-			detailMap = ar01Mapper.selectShipDetailInfo(detailMap);
+			detailMap.putAll(ar01Mapper.selectShipDetailInfo(detailMap));
 			
 			if("N".equals(detailMap.get("shipYn"))) {
 			// 이미 취소된 상세내역이면 취소 불가능.
@@ -569,8 +569,8 @@ public class AR01SvcImpl implements AR01Svc {
 				}
 			}
 			
-			detailMap.put("USER_ID", paramMap.get("userId"));
-			detailMap.put("PGM_ID", paramMap.get("pgmId"));
+			detailMap.put("userId", paramMap.get("userId"));
+			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.updateCancelDetail(detailMap);
 			ar02Mapper.deletePchsSell(trstMap);
 			
