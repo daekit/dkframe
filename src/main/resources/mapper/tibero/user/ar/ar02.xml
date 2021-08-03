@@ -1251,26 +1251,32 @@
 	<select id="selectSellSaleCount" parameterType="Map" resultType="int">
 		SELECT COUNT(*)
 		FROM (
-			SELECT
-			ROWNUM AS RNUM, A.*
-			FROM (SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO,
+			SELECT PCH_CLNT,
+					SEL_CLNT,
+					(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = PCH_CLNT) PCH_CLNT_NM,
+					(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = SEL_CLNT) SEL_CLNT_NM,
 					PRDT_NM,
-					TRST_PRDT_CD,
-					MAX(T.PRDT_SPEC) AS PRDT_SPEC,
-					MAX(T.PRDT_STKN) AS PRDT_STKN,
-					MAX(T.PRDT_LEN) AS PRDT_LEN,
-					MAX(T.PCH_TRSP_RMK) AS PCH_TRSP_RMK,
-					MAX(T.SEL_TRSP_RMK) AS SEL_TRSP_RMK,
-					DECODE(PRDT_NM,'운반비(철근)','운반비', FN_CM05M01_CD_TO_NM(MAX(T.PRDT_STKN))) AS PRDT_STKN_NM,
-					MAX(PCH_CLNT) PCH_CLNT,
-					MAX(PCH_CLNT_NM) PCH_CLNT_NM,
+					<choose>
+						<when test='siteDivYn != null and siteDivYn == "Y"'>
+							SITE_CD,
+							SITE_NM,
+						</when>
+						<otherwise>
+							MAX(SITE_NM) SITE_NM,
+						</otherwise>
+					</choose>
+					MAX(PRDT_SPEC),
+					MAX(PRDT_STKN),
+					MAX(PRDT_LEN),
+					MAX(PCH_TRSP_RMK),
+					MAX(SEL_TRSP_RMK),
+					MAX(PRDT_STKN_NM),
+					MAX(SEL_CLMN),
 					SUM(PCH_QTY) PCH_QTY,
 					SUM(PCH_WT) PCH_WT,
 					SUM(PCH_UPR) PCH_UPR,
 					SUM(PCH_AMT) PCH_AMT,
 					SUM(PCH_VAT_AMT) PCH_VAT_AMT,
-					MAX(SEL_CLNT) SEL_CLNT,
-					MAX(SEL_CLNT_NM) SEL_CLNT_NM,
 					SUM(SEL_QTY) SEL_QTY,
 					SUM(SEL_WT) SEL_WT,
 					SUM(SEL_UPR) SEL_UPR,
@@ -1278,96 +1284,124 @@
 					SUM(SEL_VAT_AMT) SEL_VAT_AMT,
 					SUM(SEL_AMT)-SUM(PCH_AMT) "이익액",
 					max(SEL_CLMN) SEL_CLMN
-					<if test='siteDivYn != null and siteDivYn == "Y"'>
-					    ,max(SITE_CD) SITE_CD,
-						 max(SITE_NM) SITE_NM
-					</if>
-					FROM (
-						SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, TRST_PRDT_CD, SELPCH_CD ,
-						TRST_CLNT_CD , BILG_QTY , BILG_WT , BILG_UPR , BILG_AMT , BILG_VAT_AMT,
-						A.PRDT_SPEC, A.PRDT_STKN,A.PRDT_LEN,
-						decode(SELPCH_CD,'SELPCH1',TRST_CLNT_CD) AS PCH_CLNT,
-						decode(SELPCH_CD,'SELPCH1',B.CLNT_NM) AS PCH_CLNT_NM,
-						decode(SELPCH_CD,'SELPCH1',BILG_QTY) AS PCH_QTY,
-						decode(SELPCH_CD,'SELPCH1',BILG_WT) AS PCH_WT,
-						decode(SELPCH_CD,'SELPCH1',BILG_UPR) AS PCH_UPR,
-						decode(SELPCH_CD,'SELPCH1',BILG_AMT) AS PCH_AMT,
-						decode(SELPCH_CD,'SELPCH1',BILG_VAT_AMT) AS PCH_VAT_AMT,
-						decode(SELPCH_CD,'SELPCH1',TRSP_RMK) AS PCH_TRSP_RMK,
-						decode(SELPCH_CD,'SELPCH2',TRST_CLNT_CD) AS SEL_CLNT,
-						decode(SELPCH_CD,'SELPCH2',B.CLNT_NM) AS SEL_CLNT_NM,
-						decode(SELPCH_CD,'SELPCH2',BILG_QTY) AS SEL_QTY,
-						decode(SELPCH_CD,'SELPCH2',BILG_WT) AS SEL_WT,
-						decode(SELPCH_CD,'SELPCH2',BILG_UPR) AS SEL_UPR,
-						decode(SELPCH_CD,'SELPCH2',BILG_AMT) AS SEL_AMT,
-						decode(SELPCH_CD,'SELPCH2',BILG_VAT_AMT) AS SEL_VAT_AMT,
-						decode(SELPCH_CD,'SELPCH2',TRSP_RMK) AS SEL_TRSP_RMK,
-						decode(SELPCH_CD,'SELPCH2',FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD))
-						SEL_CLMN
-						<if test='siteDivYn != null and siteDivYn == "Y"'>
-							,decode(SELPCH_CD,'SELPCH2',A.SITE_CD) SITE_CD,
-							decode(SELPCH_CD,'SELPCH2',(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD)) SITE_NM
-						</if>
-						FROM TB_AR02M01 A INNER JOIN TB_BM02M01 B ON B.CLNT_CD=A.TRST_CLNT_CD
-						INNER JOIN TB_BM01M01 D ON A.TRST_PRDT_CD=D.PRDT_CD
-						LEFT OUTER JOIN TB_SD09M01 E ON A.CO_CD = E.CO_CD AND A.SITE_CD = E.SITE_CD
-						WHERE 1=1
-						<if test="coCd != null and !coCd.equals('')">
-							AND A.CO_CD = #{coCd}
-						</if>
-						<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-							AND A.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
-						</if>
-						<if test="typCd != null and !typCd.equals('')">
-							AND A.TYP_CD = #{typCd}
-						</if>
-						<if test="prdtDiv != null and !prdtDiv.equals('')">
-							AND A.PRDT_DIV = #{prdtDiv}
-						</if>
-						<if test="taxBilgYn != null and !taxBilgYn.equals('')">
-							<choose>
-								<when test='taxBilgYn == "Y"'>
-									AND #{taxBilgYn} = (SELECT 'Y' FROM TB_AR04M01 AR04 WHERE
-									AR04.BILG_CERT_NO = A.BILG_CERT_NO
-									AND AR04.TAX_BILG_NO IS NOT NULL AND ROWNUM = 1 )
-								</when>
-								<otherwise>
-									AND #{taxBilgYn} = (SELECT 'N' FROM TB_AR04M01 AR04 WHERE
-									AR04.BILG_CERT_NO = A.BILG_CERT_NO
-									AND AR04.TAX_BILG_NO IS NULL AND ROWNUM = 1 )
-								</otherwise>
-							</choose>
-						</if>
-						<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-							AND A.TAXIVC_COPRT = #{taxivcCoprt}
-						</if>
-						) T INNER JOIN TB_BM01M01 B ON TRST_PRDT_CD = B.PRDT_CD
-						<where>
-							<if test="prdtGrp != null and !prdtGrp.equals('')">
-								AND B.PRDT_GRP = #{prdtGrp}
+			FROM
+			(
+				SELECT
+				ROWNUM AS RNUM, A.*
+				,(SELECT SITE_NM FROM TB_SD09M01 SD09 WHERE SD09.SITE_CD = A.SITE_CD) SITE_NM
+				FROM (SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO,
+						PRDT_NM,
+						TRST_PRDT_CD,
+						SITE_CD,
+						MAX(T.PRDT_SPEC) AS PRDT_SPEC,
+						MAX(T.PRDT_STKN) AS PRDT_STKN,
+						MAX(T.PRDT_LEN) AS PRDT_LEN,
+						MAX(T.PCH_TRSP_RMK) AS PCH_TRSP_RMK,
+						MAX(T.SEL_TRSP_RMK) AS SEL_TRSP_RMK,
+						DECODE(PRDT_NM,'운반비(철근)','운반비', FN_CM05M01_CD_TO_NM(MAX(T.PRDT_STKN))) AS PRDT_STKN_NM,
+						MAX(PCH_CLNT) PCH_CLNT,
+						MAX(PCH_CLNT_NM) PCH_CLNT_NM,
+						SUM(PCH_QTY) PCH_QTY,
+						SUM(PCH_WT) PCH_WT,
+						SUM(PCH_UPR) PCH_UPR,
+						SUM(PCH_AMT) PCH_AMT,
+						SUM(PCH_VAT_AMT) PCH_VAT_AMT,
+						MAX(SEL_CLNT) SEL_CLNT,
+						MAX(SEL_CLNT_NM) SEL_CLNT_NM,
+						SUM(SEL_QTY) SEL_QTY,
+						SUM(SEL_WT) SEL_WT,
+						SUM(SEL_UPR) SEL_UPR,
+						SUM(SEL_AMT) SEL_AMT,
+						SUM(SEL_VAT_AMT) SEL_VAT_AMT,
+						SUM(SEL_AMT)-SUM(PCH_AMT) "이익액",
+						max(SEL_CLMN) SEL_CLMN
+						FROM (
+							SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, TRST_PRDT_CD, SELPCH_CD ,
+							TRST_CLNT_CD , BILG_QTY , BILG_WT , BILG_UPR , BILG_AMT , BILG_VAT_AMT,
+							A.PRDT_SPEC, A.PRDT_STKN,A.PRDT_LEN, A.SITE_CD,
+							decode(SELPCH_CD,'SELPCH1',TRST_CLNT_CD) AS PCH_CLNT,
+							decode(SELPCH_CD,'SELPCH1',B.CLNT_NM) AS PCH_CLNT_NM,
+							decode(SELPCH_CD,'SELPCH1',BILG_QTY) AS PCH_QTY,
+							decode(SELPCH_CD,'SELPCH1',BILG_WT) AS PCH_WT,
+							decode(SELPCH_CD,'SELPCH1',BILG_UPR) AS PCH_UPR,
+							decode(SELPCH_CD,'SELPCH1',BILG_AMT) AS PCH_AMT,
+							decode(SELPCH_CD,'SELPCH1',BILG_VAT_AMT) AS PCH_VAT_AMT,
+							decode(SELPCH_CD,'SELPCH1',TRSP_RMK) AS PCH_TRSP_RMK,
+							decode(SELPCH_CD,'SELPCH2',TRST_CLNT_CD) AS SEL_CLNT,
+							decode(SELPCH_CD,'SELPCH2',B.CLNT_NM) AS SEL_CLNT_NM,
+							decode(SELPCH_CD,'SELPCH2',BILG_QTY) AS SEL_QTY,
+							decode(SELPCH_CD,'SELPCH2',BILG_WT) AS SEL_WT,
+							decode(SELPCH_CD,'SELPCH2',BILG_UPR) AS SEL_UPR,
+							decode(SELPCH_CD,'SELPCH2',BILG_AMT) AS SEL_AMT,
+							decode(SELPCH_CD,'SELPCH2',BILG_VAT_AMT) AS SEL_VAT_AMT,
+							decode(SELPCH_CD,'SELPCH2',TRSP_RMK) AS SEL_TRSP_RMK,
+							decode(SELPCH_CD,'SELPCH2',FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD)) AS SEL_CLMN,
+							decode(SELPCH_CD,'SELPCH2',(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD)) AS SITE_NM
+							FROM TB_AR02M01 A INNER JOIN TB_BM02M01 B ON B.CLNT_CD=A.TRST_CLNT_CD
+							INNER JOIN TB_BM01M01 D ON A.TRST_PRDT_CD=D.PRDT_CD
+							LEFT OUTER JOIN TB_SD09M01 E ON A.CO_CD = E.CO_CD AND A.SITE_CD = E.SITE_CD
+							WHERE 1=1
+							<if test="coCd != null and !coCd.equals('')">
+								AND A.CO_CD = #{coCd}
 							</if>
-						</where>
-						GROUP BY TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, PRDT_NM, TRST_PRDT_CD
-						ORDER BY PCH_CLNT_NM, PRDT_NM, TRST_PRDT_CD, SEL_CLNT_NM
-						<if test='siteDivYn != null and siteDivYn == "Y"'>
-							, SITE_NM
-						</if>
-			) A	
-			<where>
-				<if test="clntCd != null and !clntCd.equals('')">
-					AND (PCH_CLNT = #{clntCd} OR SEL_CLNT = #{clntCd})
-				</if>
-				<if test="clntNm != null and !clntNm.equals('')">
-					AND (PCH_CLNT_NM LIKE '%'|| #{clntNm} ||'%' OR SEL_CLNT_NM LIKE
-					'%'|| #{clntNm} ||'%')
-				</if>
-				<if test="siteCd != null and !siteCd.equals('')">
-					AND SITE_CD = #{siteCd}
-				</if>
-				<if test="siteNm != null and !siteNm.equals('')">
-					AND SITE_NM LIKE '%'|| #{siteNm} || '%'
-				</if>
-			</where>
+							<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+								AND A.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
+							</if>
+							<if test="typCd != null and !typCd.equals('')">
+								AND A.TYP_CD = #{typCd}
+							</if>
+							<if test="prdtDiv != null and !prdtDiv.equals('')">
+								AND A.PRDT_DIV = #{prdtDiv}
+							</if>
+							<if test="taxBilgYn != null and !taxBilgYn.equals('')">
+								<choose>
+									<when test='taxBilgYn == "Y"'>
+										AND #{taxBilgYn} = (SELECT 'Y' FROM TB_AR04M01 AR04 WHERE
+										AR04.BILG_CERT_NO = A.BILG_CERT_NO
+										AND AR04.TAX_BILG_NO IS NOT NULL AND ROWNUM = 1 )
+									</when>
+									<otherwise>
+										AND #{taxBilgYn} = (SELECT 'N' FROM TB_AR04M01 AR04 WHERE
+										AR04.BILG_CERT_NO = A.BILG_CERT_NO
+										AND AR04.TAX_BILG_NO IS NULL AND ROWNUM = 1 )
+									</otherwise>
+								</choose>
+							</if>
+							<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+								AND A.TAXIVC_COPRT = #{taxivcCoprt}
+							</if>
+							) T INNER JOIN TB_BM01M01 B ON TRST_PRDT_CD = B.PRDT_CD
+							<where>
+								<if test="prdtGrp != null and !prdtGrp.equals('')">
+									AND B.PRDT_GRP = #{prdtGrp}
+								</if>
+							</where>
+							GROUP BY TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, PRDT_NM, TRST_PRDT_CD, SITE_CD
+							ORDER BY PCH_CLNT_NM, PRDT_NM, TRST_PRDT_CD, SEL_CLNT_NM
+				) A	
+				<where>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND (PCH_CLNT = #{clntCd} OR SEL_CLNT = #{clntCd})
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND (PCH_CLNT_NM LIKE '%'|| #{clntNm} ||'%' OR SEL_CLNT_NM LIKE
+						'%'|| #{clntNm} ||'%')
+					</if>
+					<if test="siteCd != null and !siteCd.equals('')">
+						AND SITE_CD = #{siteCd}
+					</if>
+				</where>
+			)
+			<if test="siteNm != null and !siteNm.equals('')">
+				WHERE SITE_NM LIKE '%'|| #{siteNm} || '%'
+			</if>
+			GROUP BY PCH_CLNT,
+					 SEL_CLNT,
+					 PRDT_NM
+					 <if test='siteDivYn != null and siteDivYn == "Y"'>
+					 ,SITE_CD
+					 ,SITE_NM
+					</if>
 		)
 	</select>
 <!-- 
@@ -1499,30 +1533,33 @@
 	</select>   -->
 
 	<select id="selectSellSaleList" parameterType="Map" resultType="CamelMap">
-	SELECT
-	*
-	FROM
-	(
 		SELECT
-		ROWNUM AS RNUM, A.*
-		FROM (SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO,
+				PCH_CLNT,
+				SEL_CLNT,
+				(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = PCH_CLNT) PCH_CLNT_NM,
+				(SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = SEL_CLNT) SEL_CLNT_NM,
 				PRDT_NM,
-				TRST_PRDT_CD,
-				MAX(T.PRDT_SPEC) AS PRDT_SPEC,
-				MAX(T.PRDT_STKN) AS PRDT_STKN,
-				MAX(T.PRDT_LEN) AS PRDT_LEN,
-				MAX(T.PCH_TRSP_RMK) AS PCH_TRSP_RMK,
-				MAX(T.SEL_TRSP_RMK) AS SEL_TRSP_RMK,
-				DECODE(PRDT_NM,'운반비(철근)','운반비', FN_CM05M01_CD_TO_NM(MAX(T.PRDT_STKN))) AS PRDT_STKN_NM,
-				MAX(PCH_CLNT) PCH_CLNT,
-				MAX(PCH_CLNT_NM) PCH_CLNT_NM,
+				<choose>
+					<if test='siteDivYn != null and siteDivYn == "Y"'>
+						SITE_CD,
+						SITE_NM,
+					</if>
+					<otherwise>
+						MAX(SITE_NM) SITE_NM,
+					</otherwise>
+				</choose>
+				MAX(PRDT_SPEC),
+				MAX(PRDT_STKN),
+				MAX(PRDT_LEN),
+				MAX(PCH_TRSP_RMK),
+				MAX(SEL_TRSP_RMK),
+				MAX(PRDT_STKN_NM),
+				MAX(SEL_CLMN),
 				SUM(PCH_QTY) PCH_QTY,
 				SUM(PCH_WT) PCH_WT,
 				SUM(PCH_UPR) PCH_UPR,
 				SUM(PCH_AMT) PCH_AMT,
 				SUM(PCH_VAT_AMT) PCH_VAT_AMT,
-				MAX(SEL_CLNT) SEL_CLNT,
-				MAX(SEL_CLNT_NM) SEL_CLNT_NM,
 				SUM(SEL_QTY) SEL_QTY,
 				SUM(SEL_WT) SEL_WT,
 				SUM(SEL_UPR) SEL_UPR,
@@ -1530,102 +1567,128 @@
 				SUM(SEL_VAT_AMT) SEL_VAT_AMT,
 				SUM(SEL_AMT)-SUM(PCH_AMT) "이익액",
 				max(SEL_CLMN) SEL_CLMN
-				<if test='siteDivYn != null and siteDivYn == "Y"'>
-				    ,max(SITE_CD) SITE_CD,
-					 max(SITE_NM) SITE_NM
-				</if>
-				FROM (
-					SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, TRST_PRDT_CD, SELPCH_CD ,
-					TRST_CLNT_CD , BILG_QTY , BILG_WT , BILG_UPR , BILG_AMT , BILG_VAT_AMT,
-					A.PRDT_SPEC, A.PRDT_STKN,A.PRDT_LEN,
-					decode(SELPCH_CD,'SELPCH1',TRST_CLNT_CD) AS PCH_CLNT,
-					decode(SELPCH_CD,'SELPCH1',B.CLNT_NM) AS PCH_CLNT_NM,
-					decode(SELPCH_CD,'SELPCH1',BILG_QTY) AS PCH_QTY,
-					decode(SELPCH_CD,'SELPCH1',BILG_WT) AS PCH_WT,
-					decode(SELPCH_CD,'SELPCH1',BILG_UPR) AS PCH_UPR,
-					decode(SELPCH_CD,'SELPCH1',BILG_AMT) AS PCH_AMT,
-					decode(SELPCH_CD,'SELPCH1',BILG_VAT_AMT) AS PCH_VAT_AMT,
-					decode(SELPCH_CD,'SELPCH1',TRSP_RMK) AS PCH_TRSP_RMK,
-					decode(SELPCH_CD,'SELPCH2',TRST_CLNT_CD) AS SEL_CLNT,
-					decode(SELPCH_CD,'SELPCH2',B.CLNT_NM) AS SEL_CLNT_NM,
-					decode(SELPCH_CD,'SELPCH2',BILG_QTY) AS SEL_QTY,
-					decode(SELPCH_CD,'SELPCH2',BILG_WT) AS SEL_WT,
-					decode(SELPCH_CD,'SELPCH2',BILG_UPR) AS SEL_UPR,
-					decode(SELPCH_CD,'SELPCH2',BILG_AMT) AS SEL_AMT,
-					decode(SELPCH_CD,'SELPCH2',BILG_VAT_AMT) AS SEL_VAT_AMT,
-					decode(SELPCH_CD,'SELPCH2',TRSP_RMK) AS SEL_TRSP_RMK,
-					decode(SELPCH_CD,'SELPCH2',FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD))
-					SEL_CLMN
-					<if test='siteDivYn != null and siteDivYn == "Y"'>
-						,decode(SELPCH_CD,'SELPCH2',A.SITE_CD) SITE_CD,
-						decode(SELPCH_CD,'SELPCH2',(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD)) SITE_NM
-					</if>
-					FROM TB_AR02M01 A INNER JOIN TB_BM02M01 B ON B.CLNT_CD=A.TRST_CLNT_CD
-					INNER JOIN TB_BM01M01 D ON A.TRST_PRDT_CD=D.PRDT_CD
-					LEFT OUTER JOIN TB_SD09M01 E ON A.CO_CD = E.CO_CD AND A.SITE_CD = E.SITE_CD
-					WHERE 1=1
-					<if test="coCd != null and !coCd.equals('')">
-						AND A.CO_CD = #{coCd}
-					</if>
-					<if test="reqDtFrom != null and !reqDtFrom.equals('')">
-						AND A.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
-					</if>
-					<if test="typCd != null and !typCd.equals('')">
-						AND A.TYP_CD = #{typCd}
-					</if>
-					<if test="prdtDiv != null and !prdtDiv.equals('')">
-						AND A.PRDT_DIV = #{prdtDiv}
-					</if>
-					<if test="taxBilgYn != null and !taxBilgYn.equals('')">
-						<choose>
-							<when test='taxBilgYn == "Y"'>
-								AND #{taxBilgYn} = (SELECT 'Y' FROM TB_AR04M01 AR04 WHERE
-								AR04.BILG_CERT_NO = A.BILG_CERT_NO
-								AND AR04.TAX_BILG_NO IS NOT NULL AND ROWNUM = 1 )
-							</when>
-							<otherwise>
-								AND #{taxBilgYn} = (SELECT 'N' FROM TB_AR04M01 AR04 WHERE
-								AR04.BILG_CERT_NO = A.BILG_CERT_NO
-								AND AR04.TAX_BILG_NO IS NULL AND ROWNUM = 1 )
-							</otherwise>
-						</choose>
-					</if>
-					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-						AND A.TAXIVC_COPRT = #{taxivcCoprt}
-					</if>
-					) T INNER JOIN TB_BM01M01 B ON TRST_PRDT_CD = B.PRDT_CD
-					<where>
-						<if test="prdtGrp != null and !prdtGrp.equals('')">
-							AND B.PRDT_GRP = #{prdtGrp}
+		FROM
+		(
+			SELECT
+			ROWNUM AS RNUM, A.*
+			,(SELECT SITE_NM FROM TB_SD09M01 SD09 WHERE SD09.SITE_CD = A.SITE_CD) SITE_NM
+			FROM (SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO,
+					PRDT_NM,
+					TRST_PRDT_CD,
+					SITE_CD,
+					MAX(T.PRDT_SPEC) AS PRDT_SPEC,
+					MAX(T.PRDT_STKN) AS PRDT_STKN,
+					MAX(T.PRDT_LEN) AS PRDT_LEN,
+					MAX(T.PCH_TRSP_RMK) AS PCH_TRSP_RMK,
+					MAX(T.SEL_TRSP_RMK) AS SEL_TRSP_RMK,
+					DECODE(PRDT_NM,'운반비(철근)','운반비', FN_CM05M01_CD_TO_NM(MAX(T.PRDT_STKN))) AS PRDT_STKN_NM,
+					MAX(PCH_CLNT) PCH_CLNT,
+					MAX(PCH_CLNT_NM) PCH_CLNT_NM,
+					SUM(PCH_QTY) PCH_QTY,
+					SUM(PCH_WT) PCH_WT,
+					SUM(PCH_UPR) PCH_UPR,
+					SUM(PCH_AMT) PCH_AMT,
+					SUM(PCH_VAT_AMT) PCH_VAT_AMT,
+					MAX(SEL_CLNT) SEL_CLNT,
+					MAX(SEL_CLNT_NM) SEL_CLNT_NM,
+					SUM(SEL_QTY) SEL_QTY,
+					SUM(SEL_WT) SEL_WT,
+					SUM(SEL_UPR) SEL_UPR,
+					SUM(SEL_AMT) SEL_AMT,
+					SUM(SEL_VAT_AMT) SEL_VAT_AMT,
+					SUM(SEL_AMT)-SUM(PCH_AMT) "이익액",
+					max(SEL_CLMN) SEL_CLMN
+					FROM (
+						SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, TRST_PRDT_CD, SELPCH_CD ,
+						TRST_CLNT_CD , BILG_QTY , BILG_WT , BILG_UPR , BILG_AMT , BILG_VAT_AMT,
+						A.PRDT_SPEC, A.PRDT_STKN,A.PRDT_LEN, A.SITE_CD,
+						decode(SELPCH_CD,'SELPCH1',TRST_CLNT_CD) AS PCH_CLNT,
+						decode(SELPCH_CD,'SELPCH1',B.CLNT_NM) AS PCH_CLNT_NM,
+						decode(SELPCH_CD,'SELPCH1',BILG_QTY) AS PCH_QTY,
+						decode(SELPCH_CD,'SELPCH1',BILG_WT) AS PCH_WT,
+						decode(SELPCH_CD,'SELPCH1',BILG_UPR) AS PCH_UPR,
+						decode(SELPCH_CD,'SELPCH1',BILG_AMT) AS PCH_AMT,
+						decode(SELPCH_CD,'SELPCH1',BILG_VAT_AMT) AS PCH_VAT_AMT,
+						decode(SELPCH_CD,'SELPCH1',TRSP_RMK) AS PCH_TRSP_RMK,
+						decode(SELPCH_CD,'SELPCH2',TRST_CLNT_CD) AS SEL_CLNT,
+						decode(SELPCH_CD,'SELPCH2',B.CLNT_NM) AS SEL_CLNT_NM,
+						decode(SELPCH_CD,'SELPCH2',BILG_QTY) AS SEL_QTY,
+						decode(SELPCH_CD,'SELPCH2',BILG_WT) AS SEL_WT,
+						decode(SELPCH_CD,'SELPCH2',BILG_UPR) AS SEL_UPR,
+						decode(SELPCH_CD,'SELPCH2',BILG_AMT) AS SEL_AMT,
+						decode(SELPCH_CD,'SELPCH2',BILG_VAT_AMT) AS SEL_VAT_AMT,
+						decode(SELPCH_CD,'SELPCH2',TRSP_RMK) AS SEL_TRSP_RMK,
+						decode(SELPCH_CD,'SELPCH2',FN_CM05M01_CD_TO_NM(B.SELL_CLMN_DIV_CD)) AS SEL_CLMN,
+						decode(SELPCH_CD,'SELPCH2',(SELECT SITE_NM FROM TB_SD09M01 WHERE SITE_CD = A.SITE_CD)) AS SITE_NM
+						FROM TB_AR02M01 A INNER JOIN TB_BM02M01 B ON B.CLNT_CD=A.TRST_CLNT_CD
+						INNER JOIN TB_BM01M01 D ON A.TRST_PRDT_CD=D.PRDT_CD
+						LEFT OUTER JOIN TB_SD09M01 E ON A.CO_CD = E.CO_CD AND A.SITE_CD = E.SITE_CD
+						WHERE 1=1
+						<if test="coCd != null and !coCd.equals('')">
+							AND A.CO_CD = #{coCd}
 						</if>
-					</where>
-					GROUP BY TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, PRDT_NM, TRST_PRDT_CD
-					ORDER BY PCH_CLNT_NM, PRDT_NM, TRST_PRDT_CD, SEL_CLNT_NM
-					<if test='siteDivYn != null and siteDivYn == "Y"'>
-						, SITE_CD
-						, SITE_NM
+						<if test="reqDtFrom != null and !reqDtFrom.equals('')">
+							AND A.TRST_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
+						</if>
+						<if test="typCd != null and !typCd.equals('')">
+							AND A.TYP_CD = #{typCd}
+						</if>
+						<if test="prdtDiv != null and !prdtDiv.equals('')">
+							AND A.PRDT_DIV = #{prdtDiv}
+						</if>
+						<if test="taxBilgYn != null and !taxBilgYn.equals('')">
+							<choose>
+								<when test='taxBilgYn == "Y"'>
+									AND #{taxBilgYn} = (SELECT 'Y' FROM TB_AR04M01 AR04 WHERE
+									AR04.BILG_CERT_NO = A.BILG_CERT_NO
+									AND AR04.TAX_BILG_NO IS NOT NULL AND ROWNUM = 1 )
+								</when>
+								<otherwise>
+									AND #{taxBilgYn} = (SELECT 'N' FROM TB_AR04M01 AR04 WHERE
+									AR04.BILG_CERT_NO = A.BILG_CERT_NO
+									AND AR04.TAX_BILG_NO IS NULL AND ROWNUM = 1 )
+								</otherwise>
+							</choose>
+						</if>
+						<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+							AND A.TAXIVC_COPRT = #{taxivcCoprt}
+						</if>
+						) T INNER JOIN TB_BM01M01 B ON TRST_PRDT_CD = B.PRDT_CD
+						<where>
+							<if test="prdtGrp != null and !prdtGrp.equals('')">
+								AND B.PRDT_GRP = #{prdtGrp}
+							</if>
+						</where>
+						GROUP BY TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO, PRDT_NM, TRST_PRDT_CD, SITE_CD
+						ORDER BY PCH_CLNT_NM, PRDT_NM, TRST_PRDT_CD, SEL_CLNT_NM
+				) A	
+				<where>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND (PCH_CLNT = #{clntCd} OR SEL_CLNT = #{clntCd})
 					</if>
-		) A	
-		<where>
-			<if test="clntCd != null and !clntCd.equals('')">
-				AND (PCH_CLNT = #{clntCd} OR SEL_CLNT = #{clntCd})
-			</if>
-			<if test="clntNm != null and !clntNm.equals('')">
-				AND (PCH_CLNT_NM LIKE '%'|| #{clntNm} ||'%' OR SEL_CLNT_NM LIKE
-				'%'|| #{clntNm} ||'%')
-			</if>
-			<if test="siteCd != null and !siteCd.equals('')">
-				AND SITE_CD = #{siteCd}
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND (PCH_CLNT_NM LIKE '%'|| #{clntNm} ||'%' OR SEL_CLNT_NM LIKE
+						'%'|| #{clntNm} ||'%')
+					</if>
+					<if test="siteCd != null and !siteCd.equals('')">
+						AND SITE_CD = #{siteCd}
+					</if>
+				</where>
+			)
+			WHERE 1=1
+			<if test='pageYn != null and pageYn.equals("Y")'>
+				AND RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 			</if>
 			<if test="siteNm != null and !siteNm.equals('')">
 				AND SITE_NM LIKE '%'|| #{siteNm} || '%'
 			</if>
-		</where>
-	)
-	<if test='pageYn != null and pageYn.equals("Y")'>
-		WHERE
-		RNUM BETWEEN #{firstIndex} AND #{lastIndex}
-	</if>
+			GROUP BY PCH_CLNT,
+					 SEL_CLNT,
+					 PRDT_NM
+					 <if test='siteDivYn != null and siteDivYn == "Y"'>
+					 ,SITE_CD
+					 ,SITE_NM
+					</if>
 	</select>  
 
 	<select id="selectSellPchSumCount" parameterType="Map" resultType="int">
