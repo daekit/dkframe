@@ -105,6 +105,15 @@
 			         , TO_CHAR(T.CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
 					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.UDT_ID) AS UDT_NM
 					 , TO_CHAR(T.UDT_DTTM, 'YYYY-MM-DD') UDT_DTTM
+					 ,TO_CHAR(TO_DATE(T.STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS STRT_DT
+					 ,TO_CHAR(TO_DATE(T.END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS END_DT
+					 , T.BILDNG_TYP
+					 , FN_CM05M01_CD_TO_NM(T.BILDNG_TYP) BILDNG_TYP_NM
+					 , T.ENGRK_TYP
+					 , FN_CM05M01_CD_TO_NM(T.ENGRK_TYP) ENGRK_TYP_NM
+					 , T.SHOP_CLNT_CD
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SHOP_CLNT_CD) AS SHOP_CLNT_NM
+					 , T.SHOP_UPR
 				   FROM TB_SD09M01 T
 				  LEFT OUTER JOIN TB_SD05M01 SD05
 				        ON SD05.PRJCT_CD = T.PRJCT_CD
@@ -200,6 +209,17 @@
 			 , T.NAVI_ADDR
 	         , T.PRCSN_UPR
 	         , T.ETHQKP_UPR
+			 , T.STRT_DT
+			 , T.END_DT
+			 ,TO_CHAR(TO_DATE(T.STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS STRT_DT2
+			 ,TO_CHAR(TO_DATE(T.END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS END_DT2
+			 , T.BILDNG_TYP
+			 , FN_CM05M01_CD_TO_NM(T.BILDNG_TYP) BILDNG_TYP_NM
+			 , T.ENGRK_TYP
+			 , FN_CM05M01_CD_TO_NM(T.ENGRK_TYP) ENGRK_TYP_NM
+			 , T.SHOP_CLNT_CD
+			 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SHOP_CLNT_CD) AS SHOP_CLNT_NM
+			 , T.SHOP_UPR
 		  FROM TB_SD09M01 T
 		 WHERE CO_CD = #{coCd}
 		   AND SITE_CD = #{siteCd}) T
@@ -280,35 +300,41 @@
 		 , NAVI_ADDR
          , PRCSN_UPR
          , ETHQKP_UPR
+         , STRT_DT
+         , END_DT
+         , BILDNG_TYP
+         , ENGRK_TYP
+         , SHOP_CLNT_CD
+         , SHOP_UPR
 		 ) VALUES (
 		 #{coCd}
 		 , #{siteCd}
 		 , #{clntCd}
 		 , #{prjctCd}
 		 , #{siteNm}
-		 , #{siteAbbrNm, jdbcType=VARCHAR}
+		 , #{siteAbbrNm,     jdbcType=VARCHAR}
 		 , #{siteAddrZip}
 		 , #{siteAddr}
 		 , #{siteAddrSub}
 		 , #{siteMngNm}
 		 , #{telNo}
-		 , NVL(#{useYn, jdbcType=VARCHAR}, 'Y')
+		 , NVL(#{useYn,      jdbcType=VARCHAR}, 'Y')
 		 , #{rmk}
 		 , #{salesAreaCd}
 		 , #{userId}
 		 , #{pgmId} 
 		 , SYSDATE
 		 , #{whCd} 
-		 , #{scndWhCd,   jdbcType=VARCHAR} 
-		 , #{thrdWhCd,   jdbcType=VARCHAR} 
+		 , #{scndWhCd,       jdbcType=VARCHAR} 
+		 , #{thrdWhCd,       jdbcType=VARCHAR} 
 		 , #{mngId}
 		 ,NVL((SELECT MAX(SITE_MES_CD) FROM TB_SD09M01 B WHERE WH_CD = #{whCd}),0) + 1
-		 , #{ordTyp,     jdbcType=VARCHAR}
-         , #{tnkeyYn,    jdbcType=VARCHAR}
-         , #{makrCd,     jdbcType=VARCHAR}
-         , #{clntEmail,  jdbcType=VARCHAR}
-         , #{clntFaxNo,  jdbcType=VARCHAR}
-         , #{outordUpr,  jdbcType=VARCHAR}
+		 , #{ordTyp,         jdbcType=VARCHAR}
+         , #{tnkeyYn,        jdbcType=VARCHAR}
+         , #{makrCd,         jdbcType=VARCHAR}
+         , #{clntEmail,      jdbcType=VARCHAR}
+         , #{clntFaxNo,      jdbcType=VARCHAR}
+         , #{outordUpr,      jdbcType=VARCHAR}
          , #{outordLossRate, jdbcType=VARCHAR}
          , #{pchsClntCd,     jdbcType=VARCHAR}
          , #{outordMngId,    jdbcType=VARCHAR}
@@ -323,12 +349,18 @@
   		 , #{scndWhTelNo,    jdbcType=VARCHAR}
 		 , #{thrdWhTelNo,    jdbcType=VARCHAR}
          , NVL(#{rllrvalUseYn,    jdbcType=VARCHAR}, 'N')
-         , NVL(#{orgplcePrtnYn,    jdbcType=VARCHAR}, 'N')
-         , NVL(#{tagCttnlenDpYn,    jdbcType=VARCHAR}, 'N')
-         , #{orgSiteCd,    jdbcType=VARCHAR}
-         , #{naviAddr,    jdbcType=VARCHAR}
-         , #{prcsnUpr,    jdbcType=VARCHAR}
-         , #{ethqkpUpr,    jdbcType=VARCHAR}
+         , NVL(#{orgplcePrtnYn,   jdbcType=VARCHAR}, 'N')
+         , NVL(#{tagCttnlenDpYn,  jdbcType=VARCHAR}, 'N')
+         , #{orgSiteCd,     jdbcType=VARCHAR}
+         , #{naviAddr,      jdbcType=VARCHAR}
+         , #{prcsnUpr,      jdbcType=VARCHAR}
+         , #{ethqkpUpr,     jdbcType=VARCHAR}
+         , REPLACE(#{strtDt, jdbcType=VARCHAR}, '-', '')
+         , REPLACE(#{endDt , jdbcType=VARCHAR}, '-', '')
+         , #{bildngTyp,     jdbcType=VARCHAR}
+         , #{engrkTyp,      jdbcType=VARCHAR}
+         , #{shopClntCd,    jdbcType=VARCHAR}
+         , #{shopUpr,       jdbcType=VARCHAR}
          )
 	</insert>
 	
@@ -373,8 +405,14 @@
       , ORGPLCE_PRTN_YN   = #{orgplcePrtnYn,  jdbcType=VARCHAR}
       , TAG_CTTNLEN_DP_YN = #{tagCttnlenDpYn, jdbcType=VARCHAR}
       , NAVi_ADDR         = #{naviAddr,       jdbcType=VARCHAR}
-      , PRCSN_UPR         = NVL(#{prcsnUpr,       jdbcType=VARCHAR},PRCSN_UPR)
-      , ETHQKP_UPR        = NVL(#{ethqkpUpr,      jdbcType=VARCHAR},ETHQKP_UPR)
+      , PRCSN_UPR         = NVL(#{prcsnUpr,   jdbcType=VARCHAR},PRCSN_UPR)
+      , ETHQKP_UPR        = NVL(#{ethqkpUpr,  jdbcType=VARCHAR},ETHQKP_UPR)
+      , STRT_DT           = REPLACE(#{strtDt, jdbcType=VARCHAR}, '-', '')
+      , END_DT            = REPLACE(#{endDt , jdbcType=VARCHAR}, '-', '')
+      , BILDNG_TYP        = #{bildngTyp,      jdbcType=VARCHAR}
+      , ENGRK_TYP         = #{engrkTyp,       jdbcType=VARCHAR}
+      , SHOP_CLNT_CD      = #{shopClntCd,     jdbcType=VARCHAR}
+      , SHOP_UPR          = #{shopUpr,        jdbcType=VARCHAR}
 	  , UDT_ID            = #{userId}
 	  , UDT_PGM           = #{pgmId}
 	  , UDT_DTTM          = SYSDATE
