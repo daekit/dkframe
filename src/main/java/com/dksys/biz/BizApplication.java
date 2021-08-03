@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BizApplication {
 
 	public static void main(String[] args) {
-		System.setProperty("spring.profiles.active", "local");
+		System.setProperty("spring.profiles.active", "prod");
 		SpringApplication.run(BizApplication.class, args);
 	}
 
