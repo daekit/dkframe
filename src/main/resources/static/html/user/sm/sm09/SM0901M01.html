@@ -68,13 +68,13 @@
 						</td>
 						<th>창고</th>
 						<td>
-							<select id="WH" data-kind="WH" data-search="whCd" onchange="getStockInfo();">
+							<select id="whCd" data-kind="WH" data-search="whCd" onchange="getStockInfo();">
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>재고주체</th>
 						<td>
-							<select id="OWNER" data-kind="OWNER" data-search="ownerCd" onchange="getStockInfo();">
+							<select id="ownerCd" data-kind="OWNER" data-search="ownerCd" onchange="getStockInfo();">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -88,7 +88,7 @@
 					<tr>
 						<th>판매유형</th>
 						<td><!--  -->
-							<select id="SELLTYPE" data-kind="SELLTYPE" onchange="getStockInfo();" data-search="typCd">
+							<select id="typCd" data-kind="SELLTYPE" onchange="getStockInfo();" data-search="typCd">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -159,7 +159,6 @@
 						<col width=30> <!-- 구분 -->
 						<col width=78> <!-- 재고주체 -->
 						<col width=72> <!-- 프로젝트 -->
-						<col width=70> <!-- 비고 -->
 					</colgroup>
 					<tr>
 						<th class="tc" style="padding: 3px;">
@@ -175,7 +174,6 @@
 						<th class="tc">구분</th>
 						<th class="tc">재고주체</th>
 						<th class="tc">프로젝트</th>
-						<th class="tc">비고</th>
 					</tr>
 				</table>
 
@@ -193,10 +191,9 @@
 						<col width=30> <!-- 구분 -->
 						<col width=78> <!-- 재고주체 -->
 						<col width=72> <!-- 프로젝트 -->
-						<col width=70> <!-- 비고 -->
 					</colgroup>
 					<tr>
-						<th class="tc" style="">
+						<th class="tc">
 						</th>
 						<th class="tc">제품명</th>
 						<th class="tc">규격</th>
@@ -209,7 +206,6 @@
 						<th class="tc">구분</th>
 						<th class="tc">재고주체</th>
 						<th class="tc">프로젝트</th>
-						<th class="tc">비고</th>
 					</tr>
 				</table>
 				<table id="frameTable" style="display: none;">
@@ -246,17 +242,17 @@
 	
 						<!-- 판매유형 -->
 						<td>
-							<input type="text" class="tr" name="typNm" org tochange readonly>
+							<select id="typCd" name="typCd" data-kind="SELLTYPE" dochange disabled></select>
 						</td>
 	
 						<!-- 수입 -->
 						<td>
-							<input type="text" class="tr" name="impNm" org tochange readonly>
+							<select id="impYn" name="impYn" data-kind="YN" dochange disabled></select>
 						</td>
 	
 						<!-- 창고 -->
 						<td>
-							<input type="text" class="tr" name="whNm" org tochange readonly>
+							<select id="whCd" name="whCd" data-kind="WH" org dochange disabled></select>
 						</td>
 	
 						<!-- 구분 -->
@@ -274,9 +270,6 @@
 							<input type="text" class="tr" name="prjctNm" org readonly>
 						</td>
 	
-						<!-- 비고 -->
-						<td>
-							<input type="text" name="" org tochange readonly>
 					</tr>
 				</table>
 	
@@ -294,7 +287,6 @@
 						<col width=30> <!-- 구분 -->
 						<col width=78> <!-- 재고주체 -->
 						<col width=72> <!-- 프로젝트 -->
-						<col width=70> <!-- 비고 -->
 					</colgroup>
 					<tr name="totRow">
 						<th class="tc" colspan="2">합계</th>
@@ -306,7 +298,6 @@
 						<td>
 							<input class="tr" type="text" id="totStockWt" name="totStockWt" comma readonly>
 						</td>
-						<td class="tc">-</td>
 						<td class="tc">-</td>
 						<td class="tc">-</td>
 						<td class="tc">-</td>
@@ -343,6 +334,7 @@
 			if($(elem).is('[date]')){
 				searchValue = deleteHyphenStr(searchValue);
 			}
+			
 			paramObj[$(elem).data('search')] = searchValue;
 		});
 
@@ -361,6 +353,12 @@
 			var $addedRow = addDetailRow();
 			$.each($addedRow.find('[name]'), function(idx, elem) {
 				var itemValue = obj[elem.name];
+				if(elem.name=='typCd'){
+					console.log('@elem.name', elem.name);
+					console.log('$(elem)', $(elem));
+					console.log('itemValue', itemValue);
+					$(elem).val(itemValue);
+				}
 				if (itemValue) {
 					// 콤마 적용
 					if($(elem).is('[comma]')){
@@ -403,6 +401,7 @@
 			if(data.resultCode == 200){
 				// 재검색
 				alert("저장완료");
+				getStockInfo();
 			}
 		});
 	}
@@ -468,9 +467,11 @@
  		if ($(elem).is(':checked')) {
  			// dom ctrl
 			$targetRow.find('input[tochange]').prop("readonly", false);
+			$targetRow.find('select[dochange]').prop("disabled", false);
 		} else {
 			// dom ctrl
 			$targetRow.find('input[tochange]').prop("readonly", true);
+			$targetRow.find('select[dochange]').prop("disabled", true);
 			// reset Data
 			$.each($targetRow.find('input'), function(idx, elem){
 				$(elem).val($(elem).data('org'));
