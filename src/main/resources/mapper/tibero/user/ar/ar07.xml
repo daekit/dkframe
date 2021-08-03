@@ -787,6 +787,7 @@
 	                  , CLOSE_YM2_TOT_AMT - CLOSE_YM2_CLMN_AMT AS CLOSE_YM2_CREDIT_AMT <!-- 전전월 채권 -->
 	                  , BASIS_CREDIT_AMT - ( ETRDPS_ALL_AMT - CLMN_AMT - CLOSE_YM1_CLMN_AMT - CLOSE_YM2_CLMN_AMT ) AS BASIS_CREDIT_CLNT_AMT <!-- 전전월 기초 채권 - 전전월 이전 입금 -->
                       , BASIS_AMT + TOT_AMT - CUR_CLMN_AMT AS TRMEND_AMT <!--  미수금총액  -->
+                      , ETRDPS_ALL_AMT - CLMN_AMT - CLOSE_YM1_CLMN_AMT - CLOSE_YM2_CLMN_AMT AS NOT_MAPPNG_AMT  <!--  매출과 매핑되지 않은 수금금액 -->
 		         FROM (
 		            SELECT
 		                   CO_CD
@@ -799,8 +800,8 @@
 			  		     , SELL_VAT_CD
 			  		     , TAXIVC_COPRT
 			  		     , SELL_CLMN_DAY
-						 , ETRDPS_YM
-						 , CLOSE_YM
+<!-- 						 , ETRDPS_YM -->
+<!-- 						 , CLOSE_YM -->
 						 , CLNT_CD
 						 , SUM(BASIS_AMT)          AS BASIS_AMT          <!-- 당월 기초 -->
 						 , SUM(CLMN_AMT)           AS CLMN_AMT           <!-- 당월입금 -->
@@ -832,7 +833,7 @@
 							 , SUBSTRING(AR05.TRST_DT, 0, 4) || '-' || SUBSTRING(AR05.TRST_DT, 5,2) CLOSE_YM
 							 , AR05.CLNT_CD
 							 , 0 AS BASIS_AMT   <!--  당월 기초 -->
-							 , SUM( DECODE(SUBSTRING(AR05.TRST_DT,0,6), TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), 0), 'YYYYMM') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLMN_AMT <!--- 당월입금 -->		      
+							 , SUM( DECODE(SUBSTRING(AR05.TRST_DT,0,6), REPLACE(#{closeYm}, '-', '') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLMN_AMT <!--- 당월입금 -->		      
                              , 0 AS TOT_AMT           <!-- 당월 매출채권 -->
 							 , 0 AS TRMEND_AMT <!-- 당월기말 -->
 							 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
@@ -1026,8 +1027,6 @@
 			  		     , SELL_VAT_CD
 			  		     , TAXIVC_COPRT
 			  		     , SELL_CLMN_DAY
-						 , ETRDPS_YM
-						 , CLOSE_YM
 						 , CLNT_CD
 						 
 						      
