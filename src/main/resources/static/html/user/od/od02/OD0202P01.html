@@ -144,7 +144,7 @@
 					<th class="hit" name="toggleReq">매입단가</th>
 					<td>
 						<input type="hidden" name="realTrstUpr"> 
-						<input type="text" class="tr" name="bilgUpr" value="0" msg="매입단가" onkeyup="onlyNumber(this); countAmt(this);" required comma>
+						<input type="text" class="tr" name="bilgUpr" value="0" msg="매입단가" onkeyup="onlyNumber(this); if(this.value == ''){this.value = '0'}  countAmt(this);" required comma>
 					</td>
 					<th>제품기준단가</th>
 					<td>
@@ -154,7 +154,7 @@
 				<tr>
 					<th>할인금액</th>
 					<td>
-						<input type="text" class="tr" name="trstDcAmt" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma minus>
+						<input type="text" class="tr" name="trstDcAmt" value="0" onkeyup="onlyNumber(this); if(this.value == ''){this.value = '0'} countAmt(this);" comma minus>
 					</td>
 					<th>운송비</th>
 					<td>
@@ -168,12 +168,12 @@
 				<tr>
 					<th>기타금액</th>
 					<td>
-						<input type="text" class="tr" name="etcAmt" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma minus>
+						<input type="text" class="tr" name="etcAmt" value="0" onkeyup="onlyNumber(this);  if(this.value == ''){this.value = '0'} countAmt(this);" comma minus>
 					</td>
 					<th>매입금액</th>
 					<td>
 						<input type="hidden" name="realTrstAmt" readonly="readonly" minus>
-						<input type="text" class="tr" name="bilgAmt" value="0" onkeyup="onlyNumber(this); countBilgAmt(this);" readonly comma minus>
+						<input type="text" class="tr" name="bilgAmt" value="0" onkeyup="onlyNumber(this);  if(this.value == ''){this.value = '0'} countBilgAmt(this);" readonly comma minus>
 					</td>
 				</tr>
 				<tr>
@@ -477,13 +477,13 @@
 	
 	function countBilgAmt(el) {
 		
-		var bilgQty   = $("input[name='bilgQty']").val();
-		var bilgUpr   = $("input[name='bilgUpr']").val();
-		var trstDcAmt = $("input[name='trstDcAmt']").val();
-		var bilgAmt   = $("input[name='bilgAmt']").val();
+		var bilgQty   = Number(deleteCommaStr($("input[name='bilgQty']").val()));
+		var bilgUpr   = Number(deleteCommaStr($("input[name='bilgUpr']").val()));
+		var trstDcAmt = Number(deleteCommaStr($("input[name='trstDcAmt']").val()));
+		var bilgAmt   = Number(deleteCommaStr($("input[name='bilgAmt']").val()));
 
-		$("input[name='trstAmt']").val((deleteCommaStr(bilgAmt) + deleteCommaStr(trstDcAmt)));
-		$("input[name='realTrstAmt']").val((deleteCommaStr(bilgAmt) + deleteCommaStr(trstDcAmt)));
+		$("input[name='trstAmt']").val(bilgAmt + trstDcAmt);
+		$("input[name='realTrstAmt']").val(bilgAmt + trstDcAmt);
 		
 	}
 	
