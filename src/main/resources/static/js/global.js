@@ -455,19 +455,31 @@ function inputValidation(inputList) {
 // 양수, 음수, 소수점 포함 원단위 포맷 적용
 function onlyNumber(elem){
 	var regExp = /^(-?)([0-9]*)(\.?[0-9]*)([^0-9]*)/g;
-	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2$3")));
+	if(elem.value.trim()){
+		$(elem).val(addCommaStr(deleteCommaStr($(elem).val().replace(regExp, "$1$2$3"))));
+	}else{
+		$(elem).val(0);
+	}
 }
 
 // 양수, 음수 포함 원단위 포맷 적용
 function onlyInteger(elem){
 	var regExp = /^(-?)([0-9]*)([^0-9]*)/g;
-	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1$2")));
+	if(elem.value.trim()){
+		$(elem).val(addCommaStr(deleteCommaStr($(elem).val().replace(regExp, "$1$2"))));
+	}else{
+		$(elem).val(0);
+	}
 }
 
 //양수 원단위 포맷 적용
 function onlyPositive(elem){
 	var regExp = /^([0-9]*)([^0-9]*)/g;
-	$(elem).val(addCommaStr(deleteCommaStr($(elem).val()).replace(regExp, "$1")));
+	if(elem.value.trim()){
+		$(elem).val(addCommaStr(deleteCommaStr($(elem).val().replace(regExp, "$1"))));
+	}else{
+		$(elem).val(0);
+	}
 }
 
 //0-9(십진수)만 허용
