@@ -328,14 +328,34 @@ public class SM02Svcmpl implements SM02Svc {
 		//	    WH01	진천공장  J
         //	    WH05	인천공장  N
         //	    WH06	창녕공장  C
-	    if      ("WH01".equals(detailMap.get("sWhCd"))) {  detailMap.put("worksCdTo",   "J");
-	    }else if("WH05".equals(detailMap.get("sWhCd"))) {  detailMap.put("worksCdTo",   "N");
-	    }else {                                            detailMap.put("worksCdTo",   "C");
+		
+//		WH06	창녕공장	    WH	GGS	WHDIV01	ESTCOPRT5
+//		WH13	지지스틸창녕공장	WH	GUM	WHDIV03	ESTCOPRT1
+//		WH29	지지엠창녕	    WH	GGM	WHDIV02	ESTCOPRT4
+//		WH32	지지스틸창녕공장	WH	GGM	WHDIV03	ESTCOPRT4
+		
+//		WH05	인천공장	    WH	GUM	WHDIV01	ESTCOPRT1
+//		WH20	금문인천공장	WH	GGM	WHDIV03	ESTCOPRT4
+		
+//		WH01	진천공장	    WH	GUM	WHDIV01	ESTCOPRT1
+//		WH19	금문진천공장	WH	GGM	WHDIV03	ESTCOPRT4
+//		WH41	진천공장2	    WH	GUM	WHDIV01	ESTCOPRT1
+		
+		
+		
+	    if      ("WH01".equals(detailMap.get("sWhCd")) || "WH19".equals(detailMap.get("sWhCd"))|| "WH41".equals(detailMap.get("sWhCd")) ) {  detailMap.put("worksCdTo",   "J");
+	    }else if("WH05".equals(detailMap.get("sWhCd")) || "WH20".equals(detailMap.get("sWhCd")))                                          {  detailMap.put("worksCdTo",   "N");
+	    }else if("WH06".equals(detailMap.get("sWhCd")) || "WH13".equals(detailMap.get("sWhCd")) || "WH29".equals(detailMap.get("sWhCd")) || "WH32".equals(detailMap.get("sWhCd"))) {       
+	    	   detailMap.put("worksCdTo",   "C");
+	      
 	    }
 	    
-	    if      ("WH01".equals(detailMap.get("whCd"))) {  detailMap.put("worksCd",   "J"); detailMap.put("worksCdFrom",   "J");
-	    }else if("WH05".equals(detailMap.get("whCd"))) {  detailMap.put("worksCd",   "N"); detailMap.put("worksCdFrom",   "N");
-	    }else {                                           detailMap.put("worksCd",   "C"); detailMap.put("worksCdFrom",   "C");
+	    if      ("WH01".equals(detailMap.get("whCd")) || "WH19".equals(detailMap.get("whCd"))|| "WH41".equals(detailMap.get("whCd"))) {
+	                                                      detailMap.put("worksCd",   "J"); detailMap.put("worksCdFrom",   "J");
+	    }else if("WH05".equals(detailMap.get("whCd")) || "WH20".equals(detailMap.get("whCd")) ) {
+	    	                                              detailMap.put("worksCd",   "N"); detailMap.put("worksCdFrom",   "N");
+	    }else if("WH06".equals(detailMap.get("whCd")) || "WH13".equals(detailMap.get("whCd")) || "WH29".equals(detailMap.get("whCd")) || "WH32".equals(detailMap.get("whCd"))){
+	    	                                              detailMap.put("worksCd",   "C"); detailMap.put("worksCdFrom",   "C");
 	    }
 	    
 	    /*
@@ -348,7 +368,7 @@ public class SM02Svcmpl implements SM02Svc {
 		
 			String spec = detailMap.get("sPrdtSpec");
 			if (spec != null && spec.length() > 0 && spec.charAt(spec.length() - 1) == 'C') { 
-				detailMap.put("sPrdtSpec", spec.substring(0, spec.length() - 1)); /* 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입 */
+				detailMap.put("dimsCd", spec.substring(0, spec.length() - 1)); /* 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입 */
 		    }
 	    }else {
 			detailMap.put("productNameCd",   "BD"); /* 바철근 : BD */
