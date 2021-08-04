@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dksys.biz.config.YamlReader;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar04.mapper.AR04Mapper;
 import com.dksys.biz.user.ar.ar04.service.AR04Svc;
@@ -30,6 +31,9 @@ public class AR04SvcImpl implements AR04Svc {
 
 	@Autowired
 	AR06Mapper ar06Mapper;
+	
+	@Autowired
+	YamlReader yamlReader;
 
 	@SuppressWarnings("all")
 	@Override
@@ -178,6 +182,7 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHd(Map<String, Object> paramMap) {
 		int result = 0;
+		String loginId = yamlReader.getKlnet().getLoginId();
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -193,6 +198,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("loginId", loginId);
 		String bgm1004 = ""; // AR04 - taxBilgNo
 		String orgnTaxBilgNo = "";
 		taxHdParam.put("userId", userId);
@@ -305,6 +311,7 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHdUpdate(Map<String, Object> paramMap) {
 		int result = 0;
+		String loginId = yamlReader.getKlnet().getLoginId();
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -320,6 +327,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("loginId", loginId);
 		String bgm1004 = "";
 		String orgnTaxBilgNo = "";
 		taxHdParam.put("userId", userId);
@@ -397,6 +405,7 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHdReSend(Map<String, Object> paramMap) {
 		int result = 0;
+		String loginId = yamlReader.getKlnet().getLoginId();
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -411,6 +420,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("loginId", loginId);
 		String bgm1004 = "";
 		taxHdParam.put("userId", userId);
 		taxHdParam.put("userNm", userNm);
@@ -466,6 +476,7 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHdCancel(Map<String, Object> paramMap) {
 		int result = 0;
+		String loginId = yamlReader.getKlnet().getLoginId();
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -478,6 +489,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("loginId", loginId);
 		String bgm1004 = "";
 
 		taxHdParam.put("userId", userId);
@@ -658,10 +670,12 @@ public class AR04SvcImpl implements AR04Svc {
 
 	int insertKladdi(int msgId, Map<String, String> param) {
 		int result = 0;
-
+		String loginId = yamlReader.getKlnet().getLoginId();
+		
 		// 연계문서 발행
 		String xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 		param.put("xmlMsgId", xmlMsgId);
+		param.put("loginId", loginId);
 		param.put("docName", "KLADDI"); // 연계문서 KLADDI
 		param.put("docCode", "6KQ"); // 문서코드 6KQ
 		result = ar04Mapper.insertMapoutKey(param); // 연계문서 mapoutkey insert
