@@ -1,6 +1,7 @@
 package com.dksys.biz.user.od.od01.service.impl;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -503,15 +504,16 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("realTrstUpr", detailMap.get("shipUpr"));
 					paramMap.put("bilgUpr", detailMap.get("shipUpr"));
 
-					// 재고돤리 대상이 아닌 매출의 경우 물량 부문이 0으로 정리됨.
+					// 재고관리 대상이 아닌 매출의 경우 물량 부문이 0으로 정리됨.
 					if (detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) {
-						double trstQty = Double.parseDouble(detailMap.get("ordrgQty"));
-						double realDlvrQty = Double.parseDouble(detailMap.get("realDlvrQty"));
-						double shipUpr = Double.parseDouble(detailMap.get("shipUpr"));
-
-						int trstAmt = (int) Math.floor(shipUpr * trstQty);
-						int realTrstAmt = (int) Math.floor(shipUpr * realDlvrQty);
-						int bilgAmt = (int) Math.floor(shipUpr * realDlvrQty);
+						BigDecimal trstQty = new BigDecimal(detailMap.get("ordrgQty"));
+						BigDecimal realDlvrQty = new BigDecimal(detailMap.get("realDlvrQty"));
+						BigDecimal shipUpr = new BigDecimal(detailMap.get("shipUpr"));
+						
+						int trstAmt = (int) Math.floor(shipUpr.multiply(trstQty).doubleValue());
+						int realTrstAmt = (int) Math.floor(shipUpr.multiply(realDlvrQty).doubleValue());
+						int bilgAmt = (int) Math.floor(shipUpr.multiply(realDlvrQty).doubleValue());
+						
 						paramMap.put("trstAmt", String.valueOf(trstAmt));
 						paramMap.put("realTrstAmt", String.valueOf(realTrstAmt));
 						paramMap.put("bilgAmt", String.valueOf(bilgAmt));
