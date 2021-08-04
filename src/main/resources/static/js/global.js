@@ -890,3 +890,8 @@ function authChk(menuUrl){
 		}
 	});
 }
+
+// 버튼 컨펌
+function confirmBefore(btnElem){
+	return confirm("\'"+$(btnElem).text()+"\'하시겠습니까?");
+}

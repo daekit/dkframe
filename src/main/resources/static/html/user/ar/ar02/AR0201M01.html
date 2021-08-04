@@ -256,8 +256,8 @@
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="openSalesDivision();" authchk><i class="fas fa-divide"></i>매출분할</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="sellCal();" authchk><i class="fas fa-calculator"></i>매출정산</a>
 					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertSellModal('U');" authchk><i class="fas fa-window-close"></i>반품</a> 
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="insertBilg();" authchk><i class="fas fa-file-signature"></i>매출확정</a>
-					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="updateBilgCancel();" authchk><i class="fas fa-trash"></i>확정취소</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="insertBilg(this);" authchk><i class="fas fa-file-signature"></i>매출확정</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="updateBilgCancel(this);" authchk><i class="fas fa-trash"></i>확정취소</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail('Detail');" authchk><i class="fas fa-print"></i>거래명세서</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportDetail('Sumary');" authchk><i class="fas fa-print"></i>집계명세표</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setReportMain();" title="검색조건으로 출력합니다."><i class="fas fa-print"></i>일보출력</a>
@@ -413,6 +413,8 @@
 		            {key: "realDlvrDttm",   label: "운송일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		          	{key: "bilgCertNo",     label: "청구번호",	    align: "center", 	width: 70},
+		          	{key: "ordrgSeq",     	label: "발주번호",	    align: "center", 	width: 70},
+		          	{key: "shipSeq",     	label: "출하번호",	    align: "center", 	width: 70},
 		        	{key: "salesMngNm",	    label: "담당자", 		align: "center", 	width: 80},
 		          	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		          	{key: "pchsClntNm",    	label: "매입거래처명",  align: "left", 		width: 120},
@@ -517,6 +519,8 @@
 		            {key: "realDlvrDttm",   label: "운송일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		          	{key: "bilgCertNo",     label: "청구번호",	    align: "center", 	width: 70},
+		          	{key: "ordrgSeq",     	label: "발주번호",	    align: "center", 	width: 70},
+		          	{key: "shipSeq",     	label: "출하번호",	    align: "center", 	width: 70},
 		        	{key: "salesMngNm",	    label: "담당자", 		align: "center", 	width: 80},
 		          	{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 		          	{key: "pchsClntNm",    	label: "매입거래처명",  align: "left", 		width: 120},
@@ -852,7 +856,10 @@
 		}
 	}
 	
-	function insertBilg() {
+	function insertBilg(btnElem) {
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var url = "/user/ar/ar04/insertBilg";
 		var flag = false;
 		var clntFlag = false;
@@ -917,7 +924,10 @@
 		});
 	}
 	
-	function updateBilgCancel() {
+	function updateBilgCancel(btnElem) {
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var flag = false;
 		var bilgFlag = false;
 		var list = subGridView.target.getList("selected");

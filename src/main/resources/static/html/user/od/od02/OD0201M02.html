@@ -225,8 +225,8 @@
 				<div class="add_btn_small pdl10">
 					<a onclick="sellCal();" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-calculator"></i>매입정산</a> 
 					<a onclick="insertSellModal('U');" style="height: 30px; line-height: 28px; width: 50px;" authchk><i class="fas fa-window-close"></i>반입</a>
-					<a onclick="insertBilg();" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-file-signature"></i>매입확정</a>
-					<a onclick="updateBilgCancel();" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-window-close"></i>확정취소</a>
+					<a onclick="insertBilg(this);" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-file-signature"></i>매입확정</a>
+					<a onclick="updateBilgCancel(this);" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-window-close"></i>확정취소</a>
 					<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 70px;" title="계산서 발행건만 출력합니다." authchk><i class="fas fa-print"></i> 일보출력</a>
 					<a onclick="setReportMain('CLNT');"style="height: 30px; line-height: 28px; width: 110px;" ><i class="fas fa-print"></i>일보(거래처)출력</a>
 					<a onclick="insertSellModal('C');" style="height: 30px; line-height: 28px;" authchk>+</a>
@@ -305,6 +305,7 @@
 		            {key: "realDlvrDttm",   label: "운송일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		          	{key: "bilgCertNo",     label: "매입번호",	    align: "center", 	width: 70},
+		          	{key: "ordrgSeq",     	label: "발주번호",	    align: "center", 	width: 70},
 		        	{key: "salesMngNm",	    label: "담당자",   		align: "center", 	width: 80},
 		          	{key: "clntNm",    	 	label: "매입거래처명",	align: "left", 		width: 120},
 		          	{key: "prdtNm",    	 	label: "제품",	        align: "left", 		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
@@ -417,6 +418,7 @@
 		            {key: "realDlvrDttm",   label: "운송일자",  	align: "center",   	width: 80},
 		        	{key: "typNm", 		    label: "유형",  		align: "center", 	width: 60},
 		          	{key: "bilgCertNo",     label: "매입번호",	    align: "center", 	width: 70},
+		          	{key: "ordrgSeq",     	label: "발주번호",	    align: "center", 	width: 70},
 		        	{key: "salesMngNm",	    label: "담당자",   		align: "center", 	width: 80},
 		          	{key: "clntNm",    	 	label: "매입거래처명",	align: "left", 		width: 120},
 		          	{key: "prdtNm",    	 	label: "제품",	        align: "left", 		width: 140, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
@@ -699,7 +701,10 @@
 		}
 	}
 	
-	function insertBilg() {
+	function insertBilg(btnElem) {
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var url = "/user/ar/ar04/insertBilg";
 		var flag = false;
 		var clntFlag = false;
@@ -762,7 +767,10 @@
 		});
 	}
 	
-	function updateBilgCancel() {
+	function updateBilgCancel(btnElem) {
+		var isConfirmed = confirmBefore(btnElem);
+		if(!isConfirmed) return false;
+		
 		var flag = false;
 		var bilgFlag = false;
 		var list = subGridView.target.getList("selected");
