@@ -169,12 +169,12 @@
 					A.UDT_PGM,
 					A.LINK_GRP_YN,
                     A.LINK_GRP_CLNT_CD,
-					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
+					NVL((SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
 					 WHERE B.CLNT_CD = A.CLNT_CD  
 					   AND B.USE_YN = 'Y'
 					   AND B.SELPCH_CD   = 'SELPCH2'
 					   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
-					 ) AS COMMON_CREDIT_SECURITY,  
+					 ),0) AS COMMON_CREDIT_SECURITY,  
                     D02.REAL_SECURITY,          <!-- 부동산 -->
 					D02.GUARNTEE_SECURITY,      <!-- 보증보험 -->
 					D02.EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
@@ -280,6 +280,12 @@
 			CLNT_RMK, USE_YN,
 			LINK_GRP_YN,
             LINK_GRP_CLNT_CD,
+            NVL((SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
+			 WHERE B.CLNT_CD = A.CLNT_CD  
+			   AND B.USE_YN = 'Y'
+			   AND B.SELPCH_CD   = 'SELPCH2'
+			   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
+			 ),0) AS COMMON_CREDIT_SECURITY,  
             (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD ) AS LINK_GRP_CLNT_NM,
 			A.PCHS_CLMN_DAY,    <!-- 매입 수금일자 -->
 	        A.PCHS_CLMN_RMK,    <!-- 매입 수금비고-->
