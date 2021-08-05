@@ -265,8 +265,6 @@
 				"recordCnt"    : 999999999 // $("#recordCnt").val()
 			}
 			
-			console.log('@formData : ', formData);
-			
 			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
 				var list = data.resultList;
 				//firstGrid.setData(list);
@@ -387,33 +385,54 @@
 	}
 	
 	function excelDown() {
-		var formData = {
-				"coCd"         : $("#coCd_S").val(), 
-				"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
-				"prdtGrp"      : $("#prdtGrp_S").val(),
-				"clntCd"       : $("#clntCd_S").val(),
-				"clntNm"       : $("#clntNm_S").val(),
-				"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
-				"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
-				"selpchCd"     : $("#selpch_S").val(),
-				"bilgYn"       : $("#bilgYn").val(),
-				"dailySumYn"   : dailySumYn,
-				"monthlySumYn" : monthlySumYn,
-				"pageNo"       : 1, //_pageNo + 1,
-				"recordCnt"    : 999999999 // $("#recordCnt").val()
-			}
-			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
- 				var list = data.resultList;	
-                excelView.target.setData(list);
-// 				excelView.target.setData({
-// 					list : list,
-// 					page : {
-// 						totalElements : list.length,
-// 					}
-//				});
-				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("거래처 외상매입/매출_"+todayDate+".xls");
+		
+		var dailySumYn = 'N';
+		var monthlySumYn = 'N';
+		var clntCd   = $("#clntCd_S").val();
+		var clntNm   = $("#clntNm_S").val();
+		if($("#dailySumYn").is(":checked"))  { dailySumYn = 'Y';};
+		if($("#monthlySumYn").is(":checked")){ monthlySumYn = 'Y';};
+		
+		firstGrid = this.target;
+		// 거래처 명만 있을 경우 거래처가 2개 이상인지 확인.
+		if(clntCd =='' &&  clntNm != '' ){
+			var formData = {
+					"clntCd"    : $("#clntCd_S").val(),
+					"clntNm"    : $("#clntNm_S").val(),
+					"useYn"     : 'Y',
+					"pageNo"    : 1,
+					"recordCnt" : 9999999
+				}
+			postAjaxSync("/admin/bm/bm02/selectClntList", formData, null, function(data){
+ 				var list     = data.clntList;	
+					clntList = list.length;
+ 					$("#clntCd_S").val(list[0].clntCd);
 			});	
+			if(clntList != 1){
+				clntSearch();
+			};	
+		}
+		var formData = {
+			"coCd"         : $("#coCd_S").val(), 
+			"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
+			"prdtGrp"      : $("#prdtGrp_S").val(),
+			"clntCd"       : $("#clntCd_S").val(),
+			"clntNm"       : $("#clntNm_S").val(),
+			"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
+			"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
+			"selpchCd"     : $("#selpch_S").val(),
+			"bilgYn"       : $("#bilgYn").val(),
+			"dailySumYn"   : dailySumYn,
+			"monthlySumYn" : monthlySumYn,
+			"pageNo"       : 1, //_pageNo + 1,
+			"recordCnt"    : 999999999 // $("#recordCnt").val()
+		}
+		postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
+				var list = data.resultList;	
+               excelView.target.setData(list);
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("거래처 원장_"+todayDate+".xls");
+		});	
 	}
 	
 	function setByCoCd(value){		
