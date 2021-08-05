@@ -1076,13 +1076,12 @@
 	
 	function removeDetailRow(){
 		var isValid = true;
-		var $checkedDetails = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
-		if($checkedDetails.length > 0){
+		var $checkedDetailRows = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked').closest('tr[name="detailRow"]');
+		if($checkedDetailRows.length > 0){
 			// 매입|매출 확정여부 check
-			$.each($checkedDetails, function(idx, elem){
-				var $detailRow = $(elem).closest('tr[name="detailRow"]');
-				var ordrgYn = $detailRow.find('input[name="ordrgYn"]').val();
-				var shipYn = $detailRow.find('input[name="shipYn"]').val();
+			$.each($checkedDetailRows, function(idx, elem){
+				var ordrgYn = $(elem).find('input[name="ordrgYn"]').val();
+				var shipYn = $(elem).find('input[name="shipYn"]').val();
 				if(ordrgYn == "Y" || shipYn == "Y"){
 					isValid = false;
 				}
@@ -1090,7 +1089,7 @@
 			
 			if(isValid){
 			// 유효한 동작이면 삭제
-				$checkedDetails.closest('tr[name="detailRow"]').remove();
+				$checkedDetailRows.remove();
 				countTot();
 				ctrlAllChkBox();
 			}else{
