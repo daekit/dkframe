@@ -1075,13 +1075,28 @@
 	}
 	
 	function removeDetailRow(){
+		var isValid = true;
 		var $checkedDetails = $('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:checked');
 		if($checkedDetails.length > 0){
+			// 매입|매출 확정여부 check
 			$.each($checkedDetails, function(idx, elem){
-				$(elem).closest('tr[name="detailRow"]').remove();
+				var $detailRow = $(elem).closest('tr[name="detailRow"]');
+				var ordrgYn = $detailRow.find('input[name="ordrgYn"]').val();
+				var shipYn = $detailRow.find('input[name="shipYn"]').val();
+				if(ordrgYn == "Y" || shipYn == "Y"){
+					isValid = false;
+				}
 			});
-			countTot();
-			ctrlAllChkBox();
+			
+			if(isValid){
+			// 유효한 동작이면 삭제
+				$checkedDetails.closest('tr[name="detailRow"]').remove();
+				countTot();
+				ctrlAllChkBox();
+			}else{
+			// 유효하지 않은 동작이면 alert
+				alert("매입 또는 매출이 확정된 건이 포함되어있습니다.");
+			}
 		}else{
 			alert("삭제할 상세내역을 선택해주세요.");
 		}
