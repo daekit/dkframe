@@ -690,13 +690,13 @@
 	  	  , FN_CM05M01_CD_TO_NM(AR07.PRDT_GRP)  AS PRDT_GRP_NM
 	      ,F_CREDIT_LOAN_PRDTGRP('T',AR07.CLNT_CD,AR07.CO_CD,AR07.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LMT   -- 총여신금액
 		  ,F_CREDIT_LOAN_PRDTGRP('C',AR07.CLNT_CD,AR07.CO_CD,AR07.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{closeYm},'-',''), 'YYYYMM')), 'YYYYMMDD'),0) AS CRDT_LOAN  -- 여신잔액
-		  ,(SELECT SUM(ETRDPS_AMT) FROM TB_AR05M01 AR05 
+		  ,NVL((SELECT SUM(ETRDPS_AMT) FROM TB_AR05M01 AR05 
 		           INNER JOIN TB_AR05D01 AR05D  
 		                 ON AR05D.CO_CD = AR05.CO_CD AND AR05D.CLNT_CD = AR05.CLNT_CD AND AR05D.BIL_NO = AR05.BIL_NO
 		         WHERE AR05.ETRDPS_DT  <![CDATA[<= ]]>TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')
 		           AND AR05D.EXPRTN_DT <![CDATA[>  ]]>TO_CHAR(LAST_DAY(TO_DATE(#{closeYm},'YYYYMM')),'YYYYMMDD')
 		           AND AR05.CO_CD = AR07.CO_CD
-		           AND AR05.CLNT_CD = AR07.CLNT_CD) AS UNSETL_BIL_AMT -- 미결제어음
+		           AND AR05.CLNT_CD = AR07.CLNT_CD),0) AS UNSETL_BIL_AMT -- 미결제어음
 		   ,(SELECT SUM(NVL(PLDG_AMT,0) /100 * NVL(PLDG_RCOGN_RATE,1)) 
 		       FROM TB_BM02D02 BM02D02
 		      WHERE BM02D02.CLNT_CD = AR07.CLNT_CD AND BM02D02.CO_CD = AR07.CO_CD AND BM02D02.USE_YN = 'Y'
@@ -754,14 +754,20 @@
 				           ,AR07.CO_CD
 					       ,AR07.CLNT_CD 
 					       ,BM02.CLNT_NM
-					       ,AR07.PRDT_GRP
-					        ,CASE
+					       ,CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN ''
+							    	ELSE AR07.PRDT_GRP END 
+					        AS PRDT_GRP
+					       ,CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
 							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
 							    	     THEN 0
-							    	ELSE AR07.PRJCT_CD
-					         END AS PRJCT_CD
+							    	ELSE AR07.PRJCT_CD END 
+							AS PRJCT_CD
 					       ,NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY) AS SELL_CLMN_DAY
 					       ,BM02.SELL_CLMN_RMK
 					       ,BM02.SELL_PAY_DIV_CD
@@ -802,7 +808,12 @@
 					GROUP BY AR07.CO_CD
 					       ,AR07.CLNT_CD 
 					       ,BM02.CLNT_NM
-					       ,AR07.PRDT_GRP
+					       ,CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN ''
+							    	ELSE AR07.PRDT_GRP END 
 					       ,CASE
 							    	WHEN NVL(SD05.CLMN_DAY,NVL(BM02.SELL_CLMN_DAY,0))  = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -823,7 +834,13 @@
 							     , AR05.CO_CD
 					             , AR05.CLNT_CD 
 					             , BM02.CLNT_NM
-					             , AR05.PRDT_GRP
+					             , CASE
+							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN ''
+							    	ELSE AR05.PRDT_GRP END
+					              AS PRDT_GRP
 					             , CASE
 							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -871,7 +888,12 @@
 						  GROUP BY AR05.CO_CD
 					             , AR05.CLNT_CD 
 					             , BM02.CLNT_NM
-					             , AR05.PRDT_GRP
+					             , CASE
+							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN ''
+							    	ELSE AR05.PRDT_GRP END
 					             , CASE
 							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -889,7 +911,13 @@
 							     , AR02.CO_CD
 								 , TRST_CLNT_CD AS CLNT_CD 
 				            	 , BM02.CLNT_NM
-					             , (SELECT PRDT_GRP FROM TB_BM01M01 BM01 WHERE BM01.PRDT_CD = AR02.TRST_PRDT_CD ) AS PRDT_GRP
+							     , CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN ''
+							    	ELSE BM01.PRDT_GRP END
+					               AS PRDT_GRP
 							     , CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -914,8 +942,9 @@
 				 		         , 0 AS CUR_CELL_CLMN_AMT       <!-- 현재월 수금--> 
 						         , 0  AS CUR_TRMEND_CREDIT_AMT  <!-- 현재월 채권잔액 -->
 							  FROM TB_AR02M01 AR02
-							  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD
-							  LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR02.PRJCT_CD
+							  INNER JOIN TB_BM01M01 BM01 ON BM01.PRDT_CD = AR02.TRST_PRDT_CD
+							   LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD
+							   LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR02.PRJCT_CD
 							  WHERE  SELPCH_CD = 'SELPCH2'
 							  <if test="coCd != null and !coCd.equals('')">
 							  AND AR02.CO_CD = #{coCd}				
@@ -941,7 +970,12 @@
 							  GROUP BY AR02.CO_CD
 								 , TRST_CLNT_CD
 				            	 , BM02.CLNT_NM
-					             , AR02.TRST_PRDT_CD
+							     , CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN ''
+							    	ELSE BM01.PRDT_GRP END
 							     , CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -1036,8 +1070,14 @@
 							SELECT  1 AS TYPE1  <!--- 당월 입금 -->
 						     , AR05.CO_CD
 				             , BM02.CLNT_NM
-				             , AR05.PRDT_GRP 
-				             ,CASE
+				             , CASE
+							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+				    	   		  THEN ''
+				    		   ELSE  AR05.PRDT_GRP END 
+				    		   AS PRDT_GRP 
+				             , CASE
 							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
 							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
@@ -1094,7 +1134,12 @@
 						  </if>
 						  GROUP BY AR05.CO_CD, SUBSTRING(AR05.TRST_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(AR05.TRST_DT, 0, 4) || '-' || SUBSTRING(AR05.TRST_DT, 5,2) 					  
 				             , BM02.CLNT_NM
-				             , AR05.PRDT_GRP
+				             , CASE
+							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+				    	   		  THEN ''
+				    		   ELSE  AR05.PRDT_GRP END 
 				             ,CASE
 							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -1111,7 +1156,13 @@
 						SELECT   2 AS TYPE1  <!--- 당월 매출 -->
 						     , AR02.CO_CD
 				             , BM02.CLNT_NM
-				             , (SELECT PRDT_GRP FROM TB_BM01M01 BM01 WHERE BM01.PRDT_CD = AR02.TRST_PRDT_CD ) AS PRDT_GRP 
+				             , CASE
+									    WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+									     AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+									     AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+						    	   		  THEN ''
+						    		   ELSE  BM01.PRDT_GRP END
+						     AS PRDT_GRP 
 				             ,CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -1143,6 +1194,7 @@
 							 , 0 AS ETRDPS_AMT   <!--전체 수금액 -->
 							 , 0 AS CUR_AMT   <!--  입금일이 당월 -->
 						  FROM TB_AR02M01 AR02
+						  INNER JOIN TB_BM01M01 BM01 ON BM01.PRDT_CD = AR02.TRST_PRDT_CD 
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD
 						  LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR02.PRJCT_CD
 						  WHERE 1 = 1				  
@@ -1173,8 +1225,13 @@
 						  </if>
 						  GROUP BY AR02.CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
 				             , BM02.CLNT_NM
-				             , AR02.TRST_PRDT_CD
-						     ,CASE
+				             , CASE
+									    WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+									     AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+									     AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+						    	   		  THEN ''
+						    		   ELSE  BM01.PRDT_GRP END
+						     , CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
 							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
@@ -1190,7 +1247,13 @@
 						  SELECT  3 AS TYPE1  <!--- 전월 매출 -->
 						     , C.CO_CD
 				             , BM02.CLNT_NM
-				             , C.PRDT_GRP
+				             ,  CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+						    	   		  THEN ''
+						    		   ELSE  C.PRDT_GRP END 
+						       PRDT_GRP
 						     ,CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -1250,7 +1313,12 @@
 					    GROUP BY C.CO_CD
 						     , C.CLNT_CD
 				             , BM02.CLNT_NM
-				             , C.PRDT_GRP
+				             ,  CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+						    	   		  THEN ''
+						    		   ELSE  C.PRDT_GRP END 
 						     ,CASE
 							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
