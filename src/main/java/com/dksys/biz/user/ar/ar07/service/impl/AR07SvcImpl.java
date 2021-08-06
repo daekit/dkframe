@@ -114,5 +114,23 @@ public class AR07SvcImpl implements AR07Svc {
 		// TODO Auto-generated method stub
 		return ar07Mapper.selectEtrdpsSellList(paramMap) ; 
 	}
+
+	@Override
+	public int selectPreMtCloseChkCount(Map<String, String> paramMap) {
+		// TODO Auto-generated method stub
+		return ar07Mapper.selectPreMtCloseChkCount(paramMap) ; 
+	}
+
+	@Override
+	public int selectPreMtClosCditCount(Map<String, String> paramMap) {
+		// TODO Auto-generated method stub
+		return ar07Mapper.selectPreMtClosCditCount(paramMap) ; 
+	}
+
+	@Override
+	public List<Map<String, String>> selectPreMtClosCditList(Map<String, String> paramMap) {
+		// TODO Auto-generated method stub
+		return  ar07Mapper.selectPreMtClosCditList(paramMap) ; 
+	}
 	
 }

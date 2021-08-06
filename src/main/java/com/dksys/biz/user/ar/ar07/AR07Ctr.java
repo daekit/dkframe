@@ -35,12 +35,24 @@ public class AR07Ctr {
     		resultList = ar07Svc.selectMtCloseCditPreList(paramMap);  
         	
     	}else {
-        	
-        	int totalCnt = ar07Svc.selectMtClosCditCount(paramMap);
-    		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
-        	model.addAttribute("paginationInfo", paginationInfo);
-        	
-        	resultList = ar07Svc.selectMtClosCditList(paramMap);        		
+    		// 전전월 마감이 있으면 당월 매출만 계산 아니면, 전월 매출도 같이 계산
+    		int closePreCnt = ar07Svc.selectPreMtCloseChkCount(paramMap);
+        	if (closePreCnt > 0 ) {
+        		int totalCnt = ar07Svc.selectMtClosCditCount(paramMap);
+        		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+        		model.addAttribute("paginationInfo", paginationInfo);
+        		
+        		resultList = ar07Svc.selectMtClosCditList(paramMap);        		
+        		
+        	}else {
+        		
+        		int totalCnt = ar07Svc.selectPreMtClosCditCount(paramMap);
+        		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+        		model.addAttribute("paginationInfo", paginationInfo);
+        		
+        		resultList = ar07Svc.selectPreMtClosCditList(paramMap);        
+        	}
+    		
     	}
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
