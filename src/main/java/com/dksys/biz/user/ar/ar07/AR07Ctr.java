@@ -65,7 +65,17 @@ public class AR07Ctr {
 
 	@PostMapping(value = "/selectClosCditList")
 	public String selectClosCditList(@RequestBody Map<String, String> paramMap, ModelMap model) {
-    	List<Map<String, String>> resultList = ar07Svc.selectClosCditList(paramMap);
+		
+		int closeCnt = ar07Svc.selectMtCloseChkCount(paramMap);
+    	
+		//  당월 마감 자료가 없으면 실적자료를 가져온다.
+		
+		paramMap.put("curDataYn", "N");
+		if(closeCnt ==  0) {
+			paramMap.put("curDataYn", "Y");
+		}	
+		
+		List<Map<String, String>> resultList = ar07Svc.selectClosCditList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}

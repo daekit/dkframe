@@ -40,11 +40,20 @@ public class AR07SvcImpl implements AR07Svc {
 			long curCellTotAmt  = Long.parseLong(detailList.get(i).get("curCellTotAmt"));  // 현재월 매출
 			long pre1CellTotAmt = Long.parseLong(detailList.get(i).get("pre1CellTotAmt")); // 1개월전 매출
 			long pre2CellTotAmt = Long.parseLong(detailList.get(i).get("pre2CellTotAmt")); // 2개월전 매출
+			long pre1TrmendAmt  = Long.parseLong(detailList.get(i).get("pre1TrmendAmt"));  // 1개월전 채권잔액( = 당월 기초)
+			long pre2TrmendAmt  = Long.parseLong(detailList.get(i).get("pre2TrmendAmt"));  // 2개월전 채권잔액( = 1개월전 기초)
 			long pre3TrmendAmt  = Long.parseLong(detailList.get(i).get("pre3TrmendAmt"));  // 3개월전 채권잔액( = 2개월전 기초)
 
 			long curCellClmnAmt  = Long.parseLong(detailList.get(i).get("curCellClmnAmt"));  // 현재월 수금
 			long pre1CellClmnAmt = Long.parseLong(detailList.get(i).get("pre1CellClmnAmt")); // 1개월전 수금
 			long pre2CellClmnAmt = Long.parseLong(detailList.get(i).get("pre2CellClmnAmt")); // 2개월전 수금
+			
+			// 마감전 당월일 경우 현재 잔액이 없음으로 계산함.
+			if("Y".equals(paramMap.get("curDataYn"))) {
+				curTrmendCreditAmt = pre1TrmendAmt + curCellTotAmt - curCellClmnAmt;
+				detailList.get(i).put("curTrmendCreditAmt",String.valueOf(curTrmendCreditAmt));
+//				detailList.get(i).put("CUR_TRMEND_CREDIT_AMT",String.valueOf(curTrmendCreditAmt));
+			}
 			
 			// 현재월잔액 - 현재월 매출  1. > 0 즉 잔액이 현재월매출 보다 많을 경우 잔액을 전월로 넘기고, 아니면 잔액을 전부 현재월 채권으로 계산
 			if( curTrmendCreditAmt - curCellTotAmt > 0) {

@@ -719,75 +719,258 @@
 		  END AS PRE0_PCHS_CLMN_DAY    
 		  ,(SELECT CRN FROM TB_BM02M01 BM02M WHERE BM02M.CLNT_CD = AR07.CLNT_CD) CRN_NO 
 	FROM (
-	    SELECT  AR07.CO_CD
-		       ,FN_CM05M01_CD_TO_NM(AR07.CO_CD) AS CO_NM
-		       ,AR07.CLNT_CD 
-		       ,BM02.CLNT_NM
-		       ,AR07.PRDT_GRP
-		        ,CASE
-				    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
-				    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
-				    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
-				    	     THEN 0
-				    	ELSE AR07.PRJCT_CD
-		         END AS PRJCT_CD
-		       ,NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY) AS SELL_CLMN_DAY
-		       ,BM02.SELL_CLMN_RMK
-		       ,BM02.SELL_PAY_DIV_CD
-		       ,FN_CM05M01_CD_TO_NM(BM02.SELL_PAY_DIV_CD) AS SELL_PAY_DIV_NM
-		       ,NVL(SD05.CLMN_DIV_CD, BM02.SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_CD
-		       ,FN_CM05M01_CD_TO_NM(NVL(SD05.CLMN_DIV_CD, BM02.SELL_CLMN_DIV_CD)) AS SELL_CLMN_DIV_NM
-		       ,NVL(SD05.PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD) AS PMNT_MTD_CD
-		       ,FN_CM05M01_CD_TO_NM(NVL(SD05.PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD)) AS SELL_PMNT_MTD_NM
-		       ,BM02.SELL_VAT_CD
-		       ,FN_CM05M01_CD_TO_NM(BM02.SELL_VAT_CD) AS SELL_VAT_NM
-		       ,(SELECT SALES_EMP_ID FROM TB_BM02D01 BM02D01 WHERE BM02D01.CLNT_CD = AR07.CLNT_CD AND BM02D01.SALES_CO_CD = AR07.CO_CD AND BM02D01.USE_YN = 'Y' AND ROWNUM = 1 ) AS SALES_EMP_ID
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.BASIS_CREDIT_AMT,0)) AS PRE3_TRMEND_AMT --  3개월전 채권잔액       
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.CELL_CLMN_AMT,0))    AS PRE2_CELL_CLMN_AMT --  2개월전 수금        
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.CELL_TOT_AMT,0))     AS PRE2_CELL_TOT_AMT  --  2개월전 매출    
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-1),'YYYYMM'),AR07.CELL_CLMN_AMT,0))    AS PRE1_CELL_CLMN_AMT --  1개월전 수금        
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-1),'YYYYMM'),AR07.CELL_TOT_AMT,0))     AS PRE1_CELL_TOT_AMT  --  1개월전 매출          
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(TO_DATE(#{closeYm},'YYYYMM'),'YYYYMM'),AR07.CELL_TOT_AMT,0))                    AS CUR_CELL_TOT_AMT       -- 현재월 매출
- 		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(TO_DATE(#{closeYm},'YYYYMM'),'YYYYMM'),AR07.CELL_CLMN_AMT,0))                   AS CUR_CELL_CLMN_AMT       -- 현재월 수금
-		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(TO_DATE(#{closeYm},'YYYYMM'),'YYYYMM'),AR07.TRMEND_CREDIT_AMT,0))               AS CUR_TRMEND_CREDIT_AMT  -- 현재월 채권잔액
-		FROM TB_AR07M01 AR07
-		INNER JOIN TB_BM02M01 BM02
-		        ON BM02.CLNT_CD = AR07.CLNT_CD
-	    LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR07.PRJCT_CD
-		WHERE CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM') AND  #{closeYm}
-		<if test= "coCd != null and !coCd.equals('')">
-		AND  AR07.CO_CD = #{coCd}
-		</if>
-		AND  AR07.SELPCH_CD = 'SELPCH2'
-		<if test= "clntNm != null and !clntNm.equals('')">
-		AND  BM02.CLNT_NM like '%'||#{clntNm} ||'%'
-		</if>
-		<if test= "clntCd != null and !clntCd.equals('')">
-		AND  AR07.CLNT_CD = #{clntCd}
-		</if>
-		<if test="prdtGrp != null and !prdtGrp.equals('')">
-		AND AR07.PRDT_GRP = #{prdtGrp}
-		</if>
-		<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-		AND AR07.TAXIVC_COPRT = #{taxivcCoprt}
-		</if>
-		GROUP BY AR07.CO_CD
-		       ,AR07.CLNT_CD 
-		       ,BM02.CLNT_NM
-		       ,AR07.PRDT_GRP
-		       ,CASE
-				    	WHEN NVL(SD05.CLMN_DAY,NVL(BM02.SELL_CLMN_DAY,0))  = NVL(BM02.SELL_CLMN_DAY,0) 
-				    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
-				    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD,'@')
-				    	     THEN 0
-				    	ELSE AR07.PRJCT_CD
-		         END
-		       ,BM02.SELL_VAT_CD
-		       ,NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY)
-		       ,BM02.SELL_CLMN_RMK
-		       ,BM02.SELL_PAY_DIV_CD
-		       ,NVL(SD05.CLMN_DIV_CD,BM02.SELL_CLMN_DIV_CD)
-		       ,NVL(SD05.PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD)
+	
+	    SELECT
+	             CO_CD
+		       , FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM
+		       , CLNT_CD 
+		       , CLNT_NM
+		       , PRDT_GRP
+		       , PRJCT_CD
+		       , SELL_CLMN_DAY
+		       , SELL_CLMN_RMK
+		       , SELL_PAY_DIV_CD
+		       , FN_CM05M01_CD_TO_NM(SELL_PAY_DIV_CD) AS SELL_PAY_DIV_NM
+		       , SELL_CLMN_DIV_CD
+		       , FN_CM05M01_CD_TO_NM(SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_NM
+		       , PMNT_MTD_CD
+		       , FN_CM05M01_CD_TO_NM(PMNT_MTD_CD) AS SELL_PMNT_MTD_NM
+		       , SELL_VAT_CD
+		       , FN_CM05M01_CD_TO_NM(SELL_VAT_CD) AS SELL_VAT_NM
+		       , (SELECT SALES_EMP_ID FROM TB_BM02D01 BM02D01 WHERE BM02D01.CLNT_CD = CLNT_CD AND BM02D01.SALES_CO_CD = CO_CD AND BM02D01.USE_YN = 'Y' AND ROWNUM = 1 )  SALES_EMP_ID
+		       , SUM(PRE3_TRMEND_AMT)        AS PRE3_TRMEND_AMT        <!--  3개월전 채권잔액       -->
+		       , SUM(PRE2_CELL_CLMN_AMT)     AS PRE2_CELL_CLMN_AMT     <!--  2개월전 수금           -->
+		       , SUM(PRE2_CELL_TOT_AMT)      AS PRE2_CELL_TOT_AMT      <!--  2개월전 매출           -->
+		       , SUM(PRE2_TRMEND_AMT)        AS PRE2_TRMEND_AMT        <!--  2개월전 채권잔액      -->
+		       , SUM(PRE1_CELL_CLMN_AMT)     AS PRE1_CELL_CLMN_AMT     <!--  1개월전 수금           -->
+		       , SUM(PRE1_CELL_TOT_AMT)      AS PRE1_CELL_TOT_AMT      <!--  1개월전 매출           -->
+		       , SUM(PRE1_TRMEND_AMT)        AS PRE1_TRMEND_AMT        <!--  1개월전 채권잔액      -->
+		       , SUM(CUR_CELL_TOT_AMT)       AS CUR_CELL_TOT_AMT       <!--  현재월 매출            -->
+ 		       , SUM(CUR_CELL_CLMN_AMT)      AS CUR_CELL_CLMN_AMT      <!--  현재월 수금            -->
+		       , SUM(CUR_TRMEND_CREDIT_AMT)  AS CUR_TRMEND_CREDIT_AMT  <!--  현재월 채권잔액       -->
+	    
+	    FROM (
+				    SELECT 0 AS TYPE1  <!--- 마감 자료 -->
+				           ,AR07.CO_CD
+					       ,AR07.CLNT_CD 
+					       ,BM02.CLNT_NM
+					       ,AR07.PRDT_GRP
+					        ,CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN 0
+							    	ELSE AR07.PRJCT_CD
+					         END AS PRJCT_CD
+					       ,NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY) AS SELL_CLMN_DAY
+					       ,BM02.SELL_CLMN_RMK
+					       ,BM02.SELL_PAY_DIV_CD
+					       ,NVL(SD05.CLMN_DIV_CD, BM02.SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_CD
+					       ,NVL(SD05.PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD) AS PMNT_MTD_CD
+					       ,BM02.SELL_VAT_CD
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.BASIS_CREDIT_AMT,0))  AS PRE3_TRMEND_AMT    <!--  3개월전 채권잔액    -->  
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.CELL_CLMN_AMT,0))     AS PRE2_CELL_CLMN_AMT <!--  2개월전 수금         -->
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.CELL_TOT_AMT,0))      AS PRE2_CELL_TOT_AMT  <!--  2개월전 매출    -->
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM'),AR07.TRMEND_CREDIT_AMT,0)) AS PRE2_TRMEND_AMT    <!--  2개월전 채권잔액      --> 
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-1),'YYYYMM'),AR07.CELL_CLMN_AMT,0))     AS PRE1_CELL_CLMN_AMT <!--  1개월전 수금         -->
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-1),'YYYYMM'),AR07.CELL_TOT_AMT,0))      AS PRE1_CELL_TOT_AMT  <!--  1개월전 매출         -->  
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-1),'YYYYMM'),AR07.TRMEND_CREDIT_AMT,0)) AS PRE1_TRMEND_AMT    <!--  1개월전 채권잔액      -->    
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(TO_DATE(#{closeYm},'YYYYMM'),'YYYYMM'),AR07.CELL_TOT_AMT,0))                     AS CUR_CELL_TOT_AMT       <!-- 현재월 매출       -->
+			 		       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(TO_DATE(#{closeYm},'YYYYMM'),'YYYYMM'),AR07.CELL_CLMN_AMT,0))                    AS CUR_CELL_CLMN_AMT      <!-- 현재월 수금       -->
+					       ,SUM(DECODE(CLOSE_YM ,TO_CHAR(TO_DATE(#{closeYm},'YYYYMM'),'YYYYMM'),AR07.TRMEND_CREDIT_AMT,0))                AS CUR_TRMEND_CREDIT_AMT  <!-- 현재월 채권잔액  -->
+					FROM TB_AR07M01 AR07
+					INNER JOIN TB_BM02M01 BM02
+					        ON BM02.CLNT_CD = AR07.CLNT_CD
+				    LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR07.PRJCT_CD
+					WHERE CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(#{closeYm},'YYYYMM'),-2),'YYYYMM') AND  #{closeYm}
+					<if test= "coCd != null and !coCd.equals('')">
+					AND  AR07.CO_CD = #{coCd}
+					</if>
+					AND  AR07.SELPCH_CD = 'SELPCH2'
+					<if test= "clntNm != null and !clntNm.equals('')">
+					AND  BM02.CLNT_NM like '%'||#{clntNm} ||'%'
+					</if>
+					<if test= "clntCd != null and !clntCd.equals('')">
+					AND  AR07.CLNT_CD = #{clntCd}
+					</if>
+					<if test="prdtGrp != null and !prdtGrp.equals('')">
+					AND AR07.PRDT_GRP = #{prdtGrp}
+					</if>
+					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					AND AR07.TAXIVC_COPRT = #{taxivcCoprt}
+					</if>
+					GROUP BY AR07.CO_CD
+					       ,AR07.CLNT_CD 
+					       ,BM02.CLNT_NM
+					       ,AR07.PRDT_GRP
+					       ,CASE
+							    	WHEN NVL(SD05.CLMN_DAY,NVL(BM02.SELL_CLMN_DAY,0))  = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD,'@')
+							    	     THEN 0
+							    	ELSE AR07.PRJCT_CD
+					         END
+					       ,BM02.SELL_VAT_CD
+					       ,NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY)
+					       ,BM02.SELL_CLMN_RMK
+					       ,BM02.SELL_PAY_DIV_CD
+					       ,NVL(SD05.CLMN_DIV_CD,BM02.SELL_CLMN_DIV_CD)
+					       ,NVL(SD05.PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD)
+					       
+		   <if test='curDataYn != null and curDataYn.equals("Y")'>
+					UNION ALL
+						 SELECT  1 AS TYPE1  <!--- 당월 입금 -->
+							     , AR05.CO_CD
+					             , AR05.CLNT_CD 
+					             , BM02.CLNT_NM
+					             , AR05.PRDT_GRP
+					             , CASE
+							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN 0
+							    	ELSE AR05.PRJCT_CD END
+					               AS PRJCT_CD
+					  		     , NVL(AR05.SELL_CLMN_DAY, BM02.SELL_CLMN_DAY) AS SELL_CLMN_DAY
+					   		     , BM02.SELL_CLMN_RMK
+							     , BM02.SELL_PAY_DIV_CD
+					  		     , NVL(AR05.SELL_CLMN_DIV_CD, BM02.SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_CD
+					  		     , NVL(AR05.SELL_PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD) AS SELL_PMNT_MTD_CD
+					  		     , BM02.SELL_VAT_CD
+						         , 0 AS PRE3_TRMEND_AMT    <!--  3개월전 채권잔액     -->  
+						         , 0 AS PRE2_CELL_CLMN_AMT <!--  2개월전 수금   -->      
+						         , 0 AS PRE2_CELL_TOT_AMT  <!--  2개월전 매출    -->      
+						         , 0 AS PRE2_TRMEND_AMT    <!--  2개월전 채권잔액    --> 
+						         , 0 AS PRE1_CELL_CLMN_AMT <!--  1개월전 수금    -->    
+						         , 0 AS PRE1_CELL_TOT_AMT  <!--  1개월전 매출      -->   
+						         , 0 AS PRE1_TRMEND_AMT    <!--  1개월전 채권잔액      -->     
+						         , 0 AS CUR_CELL_TOT_AMT   <!-- 현재월 매출--> 
+				 		         , SUM(AR05.ETRDPS_AMT) AS CUR_CELL_CLMN_AMT       <!-- 현재월 수금--> 
+						         , 0  AS CUR_TRMEND_CREDIT_AMT  <!-- 현재월 채권잔액 -->
+						   FROM TB_AR05D02 AR05
+						  INNER JOIN TB_AR05M01 M01 ON M01.CO_CD = AR05.CO_CD AND M01.ETRDPS_SEQ = AR05.ETRDPS_SEQ
+						   LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
+			              WHERE 'SELPCH2' =  (SELECT NVL(CODE_RPRC,'SELPCH2') FROM  TB_CM05M01 WHERE CODE_ID= M01.ETRDPS_TYP)
+					  	    AND SUBSTRING(AR05.ETRDPS_DT, 0, 6) =  REPLACE(#{closeYm}, '-', '')	
+						  <if test="coCd != null and !coCd.equals('')">
+						 	  AND AR05.CO_CD = #{coCd}				
+						  </if>
+							  AND  NVL(AR05.ETRDPS_AMT,0)<![CDATA[ != ]]> 0 					  					  
+						  <if test="clntCd != null and !clntCd.equals('')">
+						 	  AND C.CLNT_CD = #{clntCd}				
+						  </if>			
+						  <if test="clntNm != null and !clntNm.equals('')">
+						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+						  </if>
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+						   AND AR05.PRDT_GRP = #{prdtGrp}
+						  </if>
+						  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						   AND M01.TAXIVC_COPRT = #{taxivcCoprt}
+						  </if>
+						  GROUP BY AR05.CO_CD
+					             , AR05.CLNT_CD 
+					             , BM02.CLNT_NM
+					             , AR05.PRDT_GRP
+					             , CASE
+							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(AR05.SELL_CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(AR05.SELL_PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN 0
+							    	ELSE AR05.PRJCT_CD END
+					  		     , NVL(AR05.SELL_CLMN_DAY, BM02.SELL_CLMN_DAY)
+					   		     , BM02.SELL_CLMN_RMK
+							     , BM02.SELL_PAY_DIV_CD
+					  		     , NVL(AR05.SELL_CLMN_DIV_CD, BM02.SELL_CLMN_DIV_CD)
+					  		     , NVL(AR05.SELL_PMNT_MTD_CD, BM02.SELL_PMNT_MTD_CD)
+					  		     , BM02.SELL_VAT_CD
+					   UNION ALL
+							SELECT   2 AS TYPE1  <!--- 당월 매출 -->
+							     , AR02.CO_CD
+								 , TRST_CLNT_CD AS CLNT_CD 
+				            	 , BM02.CLNT_NM
+					             , (SELECT PRDT_GRP FROM TB_BM01M01 BM01 WHERE BM01.PRDT_CD = AR02.TRST_PRDT_CD ) AS PRDT_GRP
+							     , CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN 0
+							    	ELSE AR02.PRJCT_CD END
+							    	AS PRJCT_CD
+					  		     , NVL(SD05.CLMN_DAY, SELL_CLMN_DAY) AS SELL_CLMN_DAY
+					   		     , BM02.SELL_CLMN_RMK
+							     , SELL_PAY_DIV_CD
+					  		     , NVL(SD05.CLMN_DIV_CD, SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_CD
+					  		     , NVL(SD05.PMNT_MTD_CD, SELL_PMNT_MTD_CD) AS SELL_PMNT_MTD_CD
+					  		     , SELL_VAT_CD
+						         , 0 AS PRE3_TRMEND_AMT    <!--  3개월전 채권잔액     -->  
+						         , 0 AS PRE2_CELL_CLMN_AMT <!--  2개월전 수금   -->      
+						         , 0 AS PRE2_CELL_TOT_AMT  <!--  2개월전 매출    -->      
+						         , 0 AS PRE2_TRMEND_AMT    <!--  2개월전 채권잔액    --> 
+						         , 0 AS PRE1_CELL_CLMN_AMT <!--  1개월전 수금    -->    
+						         , 0 AS PRE1_CELL_TOT_AMT  <!--  1개월전 매출      -->   
+						         , 0 AS PRE1_TRMEND_AMT    <!--  1개월전 채권잔액      --> 
+						         , SUM(NVL(BILG_AMT, 0 ) + NVL(BILG_VAT_AMT, 0)) AS CUR_CELL_TOT_AMT   <!-- 현재월 매출--> 
+				 		         , 0 AS CUR_CELL_CLMN_AMT       <!-- 현재월 수금--> 
+						         , 0  AS CUR_TRMEND_CREDIT_AMT  <!-- 현재월 채권잔액 -->
+							  FROM TB_AR02M01 AR02
+							  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR02.TRST_CLNT_CD
+							  LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = AR02.PRJCT_CD
+							  WHERE  SELPCH_CD = 'SELPCH2'
+							  <if test="coCd != null and !coCd.equals('')">
+							  AND AR02.CO_CD = #{coCd}				
+							  </if>	
+							  <if test="clntCd != null and !clntCd.equals('')">
+							  AND C.CLNT_CD = #{clntCd}				
+							  </if>	
+							  <if test="clntNm != null and !clntNm.equals('')">
+							   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+							  </if>			
+							   <if test="closeYm != null and !closeYm.equals('')">
+							   AND SUBSTRING(TRST_DT, 0, 6) = REPLACE(#{closeYm}, '-', '')	
+							  </if>
+							  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+							   AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
+							  </if>
+							  <if test="prdtGrp != null and !prdtGrp.equals('')">
+							   AND AR02.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+												FROM TB_BM01M01
+											    WHERE PRDT_GRP = #{prdtGrp}
+					  						   )
+							  </if>
+							  GROUP BY AR02.CO_CD
+								 , TRST_CLNT_CD
+				            	 , BM02.CLNT_NM
+					             , AR02.TRST_PRDT_CD
+							     , CASE
+							    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
+							    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
+							    	 AND NVL(SD05.PMNT_MTD_CD,NVL(BM02.SELL_PMNT_MTD_CD ,'@')) = NVL(BM02.SELL_PMNT_MTD_CD ,'@')
+							    	     THEN 0
+							    	ELSE AR02.PRJCT_CD END
+					  		     , NVL(SD05.CLMN_DAY, SELL_CLMN_DAY)
+					   		     , BM02.SELL_CLMN_RMK
+							     , SELL_PAY_DIV_CD
+					  		     , NVL(SD05.CLMN_DIV_CD, SELL_CLMN_DIV_CD)
+					  		     , NVL(SD05.PMNT_MTD_CD, SELL_PMNT_MTD_CD)
+					  		     , SELL_VAT_CD
+					            
+		
+		</if>     
+		      ) A
+		      GROUP BY   CO_CD
+				       , CLNT_CD 
+				       , CLNT_NM
+				       , PRDT_GRP
+				       , PRJCT_CD
+				       , SELL_CLMN_DAY
+				       , SELL_CLMN_RMK
+				       , SELL_PAY_DIV_CD
+				       , SELL_CLMN_DIV_CD
+				       , PMNT_MTD_CD
+				       , SELL_VAT_CD
+		      
+		       
 		       
 		       
 	) AS AR07
