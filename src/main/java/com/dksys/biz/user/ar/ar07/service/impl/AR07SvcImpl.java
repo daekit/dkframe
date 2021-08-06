@@ -34,64 +34,64 @@ public class AR07SvcImpl implements AR07Svc {
 		
 	//	for(Map<String, String> detailMap : detailList) {
 	for(int i = 0; i < detailList.size();i++){
-			  
-			long curTrmendCreditAmt  = Long.parseLong(detailList.get(i).get("curTrmendCreditAmt")); // 현재월 채권잔액			
+			Map<String, String> detailMap = detailList.get(i);
+			long curTrmendCreditAmt  = Long.parseLong(detailMap.get("curTrmendCreditAmt")); // 현재월 채권잔액			
 			
-			long curCellTotAmt  = Long.parseLong(detailList.get(i).get("curCellTotAmt"));  // 현재월 매출
-			long pre1CellTotAmt = Long.parseLong(detailList.get(i).get("pre1CellTotAmt")); // 1개월전 매출
-			long pre2CellTotAmt = Long.parseLong(detailList.get(i).get("pre2CellTotAmt")); // 2개월전 매출
-			long pre1TrmendAmt  = Long.parseLong(detailList.get(i).get("pre1TrmendAmt"));  // 1개월전 채권잔액( = 당월 기초)
-			long pre2TrmendAmt  = Long.parseLong(detailList.get(i).get("pre2TrmendAmt"));  // 2개월전 채권잔액( = 1개월전 기초)
-			long pre3TrmendAmt  = Long.parseLong(detailList.get(i).get("pre3TrmendAmt"));  // 3개월전 채권잔액( = 2개월전 기초)
+			long curCellTotAmt  = Long.parseLong(detailMap.get("curCellTotAmt"));  // 현재월 매출
+			long pre1CellTotAmt = Long.parseLong(detailMap.get("pre1CellTotAmt")); // 1개월전 매출
+			long pre2CellTotAmt = Long.parseLong(detailMap.get("pre2CellTotAmt")); // 2개월전 매출
+			long pre1TrmendAmt  = Long.parseLong(detailMap.get("pre1TrmendAmt"));  // 1개월전 채권잔액( = 당월 기초)
+			long pre2TrmendAmt  = Long.parseLong(detailMap.get("pre2TrmendAmt"));  // 2개월전 채권잔액( = 1개월전 기초)
+			long pre3TrmendAmt  = Long.parseLong(detailMap.get("pre3TrmendAmt"));  // 3개월전 채권잔액( = 2개월전 기초)
 
-			long curCellClmnAmt  = Long.parseLong(detailList.get(i).get("curCellClmnAmt"));  // 현재월 수금
-			long pre1CellClmnAmt = Long.parseLong(detailList.get(i).get("pre1CellClmnAmt")); // 1개월전 수금
-			long pre2CellClmnAmt = Long.parseLong(detailList.get(i).get("pre2CellClmnAmt")); // 2개월전 수금
+			long curCellClmnAmt  = Long.parseLong(detailMap.get("curCellClmnAmt"));  // 현재월 수금
+			long pre1CellClmnAmt = Long.parseLong(detailMap.get("pre1CellClmnAmt")); // 1개월전 수금
+			long pre2CellClmnAmt = Long.parseLong(detailMap.get("pre2CellClmnAmt")); // 2개월전 수금
 			
 			// 마감전 당월일 경우 현재 잔액이 없음으로 계산함.
 			if("Y".equals(paramMap.get("curDataYn"))) {
 				curTrmendCreditAmt = pre1TrmendAmt + curCellTotAmt - curCellClmnAmt;
-				detailList.get(i).put("curTrmendCreditAmt",String.valueOf(curTrmendCreditAmt));
-//				detailList.get(i).put("CUR_TRMEND_CREDIT_AMT",String.valueOf(curTrmendCreditAmt));
+				detailMap.put("CUR_TRMEND_CREDIT_AMT",String.valueOf(curTrmendCreditAmt));
+//				detailMap.put("CUR_TRMEND_CREDIT_AMT",String.valueOf(curTrmendCreditAmt));
 			}
 			
 			// 현재월잔액 - 현재월 매출  1. > 0 즉 잔액이 현재월매출 보다 많을 경우 잔액을 전월로 넘기고, 아니면 잔액을 전부 현재월 채권으로 계산
 			if( curTrmendCreditAmt - curCellTotAmt > 0) {
 				curTrmendCreditAmt = curTrmendCreditAmt - curCellTotAmt;
-				detailList.get(i).put("CUR_CREDIT_AMT", String.valueOf(curCellTotAmt));
+				detailMap.put("CUR_CREDIT_AMT", String.valueOf(curCellTotAmt));
 			}else {
-				detailList.get(i).put("CUR_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
+				detailMap.put("CUR_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
 				curTrmendCreditAmt = 0;
 			}
 			// 잔액이 남았으면 1개월전 매출과 비교
 			if(curTrmendCreditAmt > 0) {
 				if(curTrmendCreditAmt - pre1CellTotAmt > 0  ) {
 					curTrmendCreditAmt = curTrmendCreditAmt - pre1CellTotAmt;
-					detailList.get(i).put("PRE1_CREDIT_AMT", String.valueOf(pre1CellTotAmt));
+					detailMap.put("PRE1_CREDIT_AMT", String.valueOf(pre1CellTotAmt));
 				}else {
-					detailList.get(i).put("PRE1_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
+					detailMap.put("PRE1_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
 					curTrmendCreditAmt = 0;
 				}
 			}else {
-				detailList.get(i).put("PRE1_CREDIT_AMT","0");
+				detailMap.put("PRE1_CREDIT_AMT","0");
 			}
 			// 잔액이 남았으면 2개월전 매출과 비교
 			if(curTrmendCreditAmt > 0) {
 				if(curTrmendCreditAmt - pre2CellTotAmt > 0  ) {
 					curTrmendCreditAmt = curTrmendCreditAmt - pre2CellTotAmt;
-					detailList.get(i).put("PRE2_CREDIT_AMT", String.valueOf(pre2CellTotAmt));
+					detailMap.put("PRE2_CREDIT_AMT", String.valueOf(pre2CellTotAmt));
 				}else {
-					detailList.get(i).put("PRE2_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
+					detailMap.put("PRE2_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
 					curTrmendCreditAmt = 0;
 				}
 			}else {
-				detailList.get(i).put("PRE2_CREDIT_AMT","0");
+				detailMap.put("PRE2_CREDIT_AMT","0");
 			}
 			// 잔액이 남았으면 3개월전 잔액으로 
 			if(curTrmendCreditAmt > 0) {
-				detailList.get(i).put("PRE3_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
+				detailMap.put("PRE3_CREDIT_AMT", String.valueOf(curTrmendCreditAmt));
 			}else {
-				detailList.get(i).put("PRE3_CREDIT_AMT","0");
+				detailMap.put("PRE3_CREDIT_AMT","0");
 			}
 			
 		}
