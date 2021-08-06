@@ -65,13 +65,20 @@
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th class="hit">기준년월</th>
-						<td>
-							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;">
-						</td>
+						<th>기준일자</th>
+		                <td>
+		                    <div class="date_input">
+		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt" onchange="gridView.initView(baseDt.value).setData(0);">
+		                    </div>
+		                </td>
+		                
+<!-- 						<th class="hit">기준년월</th> -->
+<!-- 						<td> -->
+<!-- 							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;"> -->
+<!-- 						</td> -->
 						<th class="hit">구분</th>
 		                <td>
-		               	  <select id="selpchCd" style="width: 100%;" data-search="selpchCd" onchange="gridView.initView(closeYm.value).setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
+		               	  <select id="selpchCd" style="width: 100%;" data-search="selpchCd" onchange="gridView.initView(baseDt.value).setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
 			               	  <option value="SELPCH1">매입</option>
 							  <option value="SELPCH2" selected>매출</option>
 		               	  </select>
@@ -134,9 +141,12 @@
 	var odrDtlSeqArr = [];
 	
 	var gridView = {
-		initView : function(closeYm) {
-			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+		initView : function(baseDt) {
+// 			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+// 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+			var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+			var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
 			var selpchText = $('#selpchCd').val() == "SELPCH2" ? "매출" : "매입";
 			var clmnpayText = $('#selpchCd').val() == "SELPCH2" ? "수금" : "지급";
 			
@@ -246,8 +256,11 @@
 	}
 	var excelView = {
 			initView: function(closeYm){
-				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+// 				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+// 				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+				var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+				var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+				var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
 				var selpchText = $('#selpchCd').val() == "SELPCH2" ? "매출" : "매입";
 				var clmnpayText = $('#selpchCd').val() == "SELPCH2" ? "수금" : "지급";
 				this.target = new ax5.ui.grid();
@@ -314,17 +327,23 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setByCoCd(jwt.coCd);
 		// 기준년월
-		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
-			gridView.setData(0);
+ 			gridView.setData(0);
 		});
 		
+		$('#baseDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+		});
 		
 		// grid init
-		gridView.initView(closeYm.value).setData(0);
-		excelView.initView(closeYm.value);
+		gridView.initView(baseDt.value).setData(0);
+		excelView.initView(baseDt.value);
 		
 		authChk();
 	});
@@ -335,7 +354,8 @@
 		// 조건초기화
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 기간
-		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 		
