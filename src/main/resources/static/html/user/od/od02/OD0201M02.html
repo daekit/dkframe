@@ -223,6 +223,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setSelectedRows();" authchk><i class="fas fa-file-signature"></i>선택정보</a>
 					<a onclick="sellCal();" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-calculator"></i>매입정산</a> 
 					<a onclick="insertSellModal('U');" style="height: 30px; line-height: 28px; width: 50px;" authchk><i class="fas fa-window-close"></i>반입</a>
 					<a onclick="insertBilg(this);" style="height: 30px; line-height: 28px; width: 70px;" authchk><i class="fas fa-file-signature"></i>매입확정</a>
@@ -813,7 +814,72 @@
 		}
 	}
 
+	
+	
+	
 	function setReportMain(type) {
+		if ($('#coCd_S').val() == "") {
+			alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
+			return;
+		}
+
+		if(type == 'CLNT'){
+			var fileName = "AR0201R05.jrf";
+			openSecondModal("/static/html/user/ar/ar02/AR0202P04.html", 600, 200, "거래처 일보 출력 선택", null, function (showYn, showYnRmk) {
+				var arg = "selPchCd#SELPCH1" 
+			         + "#coCd#"			+ $('#coCd_S').val()
+			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#clntCd#"		+ $('#clntCd_S').val()
+			         + "#clntNm#"		+ $('#clntNm_S').val()
+			         + "#prdtGrp#"		+ $('#prdtGrp').val()
+			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+			         + "#siteCd#"		+ $('#siteCd_S').val()
+			         + "#siteNm#"		+ $('#siteNm_S').val()
+			         + "#typCd#"		+ $('#typCd_S').val()
+			         + "#typNm#"		+ $('#typCd_S option:selected').text()
+			         + "#bilg#"			+ $('#bilgYn_S').val()
+			         + "#impYn#"		+ $('#impYn').val()
+			         + "#showYn#"		+ showYn
+			         + "#showYnRmk#"	+ showYnRmk
+			         + "#";
+				callReport(fileName, arg, 1040, 720);
+			});
+			
+			
+		}else{
+			
+			var fileName = "AR0201R01.jrf";
+			var arg = "selPchCd#SELPCH1" 
+			         + "#coCd#"			+ $('#coCd_S').val()
+			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#clntCd#"		+ $('#clntCd_S').val()
+			         + "#clntNm#"		+ $('#clntNm_S').val()
+			         + "#prdtGrp#"		+ $('#prdtGrp').val()
+			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+			         + "#pdsk#"		    + $('#pdsk_S').val()
+			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+			         + "#siteCd#"		+ $('#siteCd_S').val()
+			         + "#siteNm#"		+ $('#siteNm_S').val()
+			         + "#typCd#"		+ $('#typCd_S').val()
+			         + "#typNm#"		+ $('#typCd_S option:selected').text()
+			         + "#prdtGrp#"		+ $('#prdtGrp').val()
+			         + "#bilg#"			+ $('#bilgYn_S').val()
+			         + "#impYn#"		+ $('#impYn').val()
+			         + "#";
+			callReport(fileName, arg, 1040, 720);
+		}
+	}
+	
+	/* function setReportMain(type) {
 		if(type == 'CLNT'){
 			var fileName = "OD0201R02.jrf";
 			openSecondModal("/static/html/user/od/od02/OD0202P04.html", 600, 200, "거래처 일보 출력 선택", null, function (showYn, showYnRmk) {
@@ -866,7 +932,7 @@
 			
 			callReport(fileName, arg, 900, 680);
 		}
-	}
+	} */
 	function excelDown() {
 		var paramObj = {"selpchCd": "SELPCH1"};
 		$.each($('#main_area [data-search]'), function(idx, elem){
@@ -892,4 +958,12 @@
 			excelView.target.exportExcel("매입내역_"+todayDate+".xls");
 		});
 	}	
+	//선택그리드만 남기기
+	function setSelectedRows() {
+		var rows = subGridView.target.getList("selected");
+		subGridView.setData(-1); //공백 그리드화
+		for(var i=0 ; i<rows.length ; i++){ //선택그리드 추가
+           subGridView.target.addRow(rows[i], i);
+        } 
+	}
 </script>
