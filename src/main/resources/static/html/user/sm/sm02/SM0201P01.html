@@ -119,17 +119,15 @@
           		  <select id="searchDtlType" data-kind="SELLTYPE" required msg="판매유형"></select>
           		</td>
 			    <th colspan= "2">프로젝트</th>
-	                <td colspan="3"> 
-	                    <div class="search_form">
-			              <input type="hidden" id="searchPrjctCd" value="0">
-			              <input type="text" id="searchPrjctNm" onkeyup="event.keyCode == 13 ? openSecondPrjctSearch('E') : ''"  readonly="readonly">
-			              <a onclick="openSecondPrjctSearch('E');"><i class="i_search_w"></i></a>
-			            </div>
-	                </td>
-       	  
+                <td colspan="3"> 
+                    <div class="search_form">
+		              <input type="hidden" id="searchPrjctCd" value="0">
+		              <input type="text" id="searchPrjctNm" onkeyup="event.keyCode == 13 ? openSecondPrjctSearch('E') : ''"  readonly="readonly">
+		              <a onclick="openSecondPrjctSearch('E');"><i class="i_search_w"></i></a>
+		            </div>
+                </td>
           	  </tr>
            	  <tr>
-
 			    <th colspan= "2" class="hit">이동일자</th>
       		    <td colspan="2"> 
       			  <input type="text" id="sTransDt" name="sTransDt" class="input_calendar" required msg="이동일자">
@@ -162,6 +160,7 @@
 	var actionType = null;
 	var searchGrid = null;
 	var insertOK = false;
+	var moveWtAll = 0;
 	
 	var gridView1 = {
 		initView: function(){
@@ -184,6 +183,7 @@
 		                
 		            },
 		            onDBLClick: function () {
+						clickChkBox();
 		            	//updateProjectModal("U");
 		            }, 
 		            onDataChanged: function() {
@@ -209,6 +209,7 @@
 			        		idx.list[this.dindex].moveWt = idx.list[this.dindex].moveQty * idx.list[this.dindex].prdtCnvrsnWt
 			            	this.self.repaint();
 		        		}
+		        		clickChkBox();
 		            }
 		        },
 		        page: {
@@ -255,7 +256,14 @@
 		            {key: "stockChgCd",     label: "재고변동사유",     hidden:true},
 		            {key: "prjctCd",        label: "프로젝트",        hidden:true},
 		            {key: "makrNm",         label: "제조사",	       align : "center", width : 80, hidden:true}
-		        ]
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "총계", colspan:13, align:"center"},
+			    		{key:"moveQty", collector: "sum", formatter:"money", align: "right"},
+			    		{key:"moveWt", collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ],
 		    });
 			return this;
 		},
@@ -577,5 +585,18 @@
 		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
 		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
 		
+	}
+	
+	function clickChkBox() {
+		var selectedRows = gridView1.target.getList("selected");
+		if(selectedRows.length > 0){
+			moveWtAll = 0;
+			for(var i=0;i<selectedRows.length;i++){
+				moveWtAll += Number(selectedRows[i].moveWt);
+			}
+			$("#moveWtAll").val(addCommaStr(moveWtAll));
+		}else {
+			$("#moveWtAll").val(0);
+		}
 	}
 </script>
