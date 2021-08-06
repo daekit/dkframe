@@ -467,10 +467,6 @@ public class OD01SvcImpl implements OD01Svc {
 					// 매입실적 반영 AR02
 			    	ar02Mapper.insertPchsSell(paramMap);
 			    	
-// MES 입고 전송, 단 제강사 턴키 및 공장일 경우에 한함.	
-//			    	if("Y".equals(paramMap.get("tnkeyYn")) && "WHDIV01".equals(paramMap("whTyp))){
-//			    		insertIfMesStockMove(paramMap); 
-//					}
 
 			    	if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 					{
@@ -480,6 +476,11 @@ public class OD01SvcImpl implements OD01Svc {
 						}
 						// 재고 반영
 						sm01Mapper.updateStockSell(paramMap);
+						
+						// MES 입고 전송, 단 제강사 턴키 일 경우에 한함.	
+				    	if("Y".equals(paramMap.get("tnkeyYn"))){
+				    		insertIfMesStockIn(paramMap); 
+						}
 					}
 				}
 			}	
@@ -749,28 +750,47 @@ public class OD01SvcImpl implements OD01Svc {
 		}
 	}
 	
-	public void insertIfMesStockMove(Map<String, String> paramMap) throws Exception{
+	public void insertIfMesStockIn(Map<String, String> paramMap) throws Exception{
 	// 제강사 턴키의 경우 입고 이력을 MES에 전송한다.
 //	   	WH01	진천공장   J
 //    	WH05	인천공장   N
 //    	WH06	창녕공장   C
 		
-    	if("WH01".equals(paramMap.get("whCd"))) {
+//		WH06	창녕공장	    WH	GGS	WHDIV01	ESTCOPRT5
+//		WH13	지지스틸창녕공장	WH	GUM	WHDIV03	ESTCOPRT1
+//		WH29	지지엠창녕	    WH	GGM	WHDIV02	ESTCOPRT4
+//		WH32	지지스틸창녕공장	WH	GGM	WHDIV03	ESTCOPRT4
+		
+//		WH05	인천공장	    WH	GUM	WHDIV01	ESTCOPRT1
+//		WH20	금문인천공장	WH	GGM	WHDIV03	ESTCOPRT4
+		
+//		WH01	진천공장	    WH	GUM	WHDIV01	ESTCOPRT1
+//		WH19	금문진천공장	WH	GGM	WHDIV03	ESTCOPRT4
+//		WH41	진천공장2	    WH	GUM	WHDIV01	ESTCOPRT1
+//		
+		
+    	if  ("WH01".equals(paramMap.get("whCd")) ||"WH19".equals(paramMap.get("whCd")) ||"WH41".equals(paramMap.get("whCd"))) {
     		paramMap.put("worksCd", "J");
-    	}else if("WH05".equals(paramMap.get("whcd"))) {
+    	}else if("WH05".equals(paramMap.get("whcd")) ||"WH20".equals(paramMap.get("whCd")) ) {
     		paramMap.put("worksCd", "N"); 
-    	}else if("WH06".equals(paramMap.get("whcd"))) {
+    	}else if("WH06".equals(paramMap.get("whcd")) ||"WH13".equals(paramMap.get("whCd")) ||"WH29".equals(paramMap.get("whCd")) ||"WH32".equals(paramMap.get("whCd"))) {
     		paramMap.put("worksCd", "C"); 
     	}
     	
     	if("Y".equals(paramMap.get("prdtCoilYn"))) {
-    		    paramMap.put("productNameCd", "BC");
+    		    paramMap.put("productNameCd", "BC");    		    
     	}else { paramMap.put("productNameCd", "BD");
     	}
+    	String spec = paramMap.get("prdtSpec");
+    	
+    	paramMap.put("dimsCd", paramMap.get("prdtSpec")); 
+    	if (spec != null && spec.length() > 0 && spec.charAt(spec.length() - 1) == 'C') { 
+    		paramMap.put("dimsCd", spec.substring(0, spec.length() - 1)); /* 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입 */
+    	}    			
         
     	paramMap.put("moveWt",paramMap.get("realTrstWt")) ;
           
-    	mesStockMapper.insertIfMesStockMove(paramMap); 	
+    	mesStockMapper.insertIfMesStockIn(paramMap); 	
 
 	}
 }
