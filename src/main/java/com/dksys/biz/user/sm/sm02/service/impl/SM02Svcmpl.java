@@ -180,6 +180,7 @@ public class SM02Svcmpl implements SM02Svc {
 				detailMap.put("transAmt",  param.get("transAmt"));
 				detailMap.put("transSeq",  param.get("transSeq"));
 			}
+			
 			sm02Mapper.sm02InsertStockMove(detailMap);       // 재고이동 이력
 			insertIfMesStockMove(detailMap);                 // MES If 입력
 		}
@@ -285,6 +286,11 @@ public class SM02Svcmpl implements SM02Svc {
 			/* AR02 매입 정보일 시 [TUNKEY_MOVE_YN] Y로 업데이트 */
 			if(detailMap.get("trstCertiNo") != null) {
 				sm02Mapper.sm03UpdateTernKeyYN(detailMap);
+				//매입정보 일 시 
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+//				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {					
+//					paramMap.put("clntCd",  paramMap.get("whClntCd"));		
+//				}
 			}
 			/* SM03 이동 정보일 시 [TUNKEY_MOVE_YN] Y로 업데이트 */
 			if(detailMap.get("trstNo") != null){				
@@ -357,6 +363,8 @@ public class SM02Svcmpl implements SM02Svc {
 	    }else if("WH06".equals(detailMap.get("whCd")) || "WH13".equals(detailMap.get("whCd")) || "WH29".equals(detailMap.get("whCd")) || "WH32".equals(detailMap.get("whCd"))){
 	    	                                              detailMap.put("worksCd",   "C"); detailMap.put("worksCdFrom",   "C");
 	    }
+	    //set dimsCd
+	    detailMap.put("dimsCd", detailMap.get("sPrdtSpec"));
 	    
 	    /*
 	     * 코일 여부 Y일 시 

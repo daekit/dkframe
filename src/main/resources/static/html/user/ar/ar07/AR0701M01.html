@@ -71,9 +71,9 @@
 						</td>
 						<th class="hit">구분</th>
 		                <td>
-		               	  <select id="selpchCd" style="width: 100%;" data-search="selpchCd" onchange="gridView.setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
-		               	  <option value="SELPCH1">매입</option>
-						  <option value="SELPCH2" selected>매출</option>
+		               	  <select id="selpchCd" style="width: 100%;" data-search="selpchCd" onchange="gridView.initView(closeYm.value).setData(0);" required="required">  <!--  data-kind="SELPCH"  -->
+			               	  <option value="SELPCH1">매입</option>
+							  <option value="SELPCH2" selected>매출</option>
 		               	  </select>
 		                </td>
 					</tr>
@@ -137,6 +137,8 @@
 		initView : function(closeYm) {
 			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			var selpchText = $('#selpchCd').val() == "SELPCH2" ? "매출" : "매입";
+			var clmnpayText = $('#selpchCd').val() == "SELPCH2" ? "수금" : "지급";
 			
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
@@ -155,7 +157,48 @@
 						this.self.select(this.dindex);
 					}
 				},
-				footSum: [
+				page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						gridView.setData(this.page.selectPage);
+					}
+				},
+				columns: [
+					{key: "coCd",            hidden: true},
+					{key: "clntCd",          hidden: true},
+		          	{key: "coNm",            label: "회사",                         align: "left",     width: 80},
+// 		        	{key: "crnNo",           label: "사업자번호",                   align: "left",     width: 140},
+// 		        	{key: "closeYm",         label: "년월",                         align: "center",   width: 80},
+		        	{key: "clntNm",          label: "거래처",                       align: "left",     width: 140},
+		        	{key: "prdtGrpNm",       label: "그룹",    					    align: "center",   width: 80},
+		        	{key: "prjctNm",         label: "프로젝트",    				    align: "left",     width: 140},
+		        	{key: "basisCreditAmt",  label: "전월잔액",     			    align: "right",    width: 140,  formatter: "money"},
+		        	{key: "closeYm2TotAmt",  label: closeYm2 + " " + selpchText,    align: "right",    width: 140,  formatter: "money"},
+		        	{key: "closeYm2ClmnAmt", label: closeYm2 + " " + clmnpayText,   align: "right",    width: 140,  formatter: "money"},
+		        	{key: "closeYm2",        label: closeYm2 +" 잔액",     			align: "right",    width: 140,  formatter: "money"},
+		        	{key: "closeYm1TotAmt",  label: closeYm1 + " " + selpchText,    align: "right",    width: 140,  formatter: "money"},
+		        	{key: "closeYm1ClmnAmt", label: closeYm1 + " " + clmnpayText,   align: "right",    width: 140,  formatter: "money"},
+		        	{key: "closeYm1",  		 label: closeYm1 + " 잔액",     		align: "right",    width: 140,  formatter: "money"},
+		        	{key: "totAmt",  	     label: closeYm  + " " + selpchText,    align: "right",    width: 140,  formatter: "money"},
+		        	{key: "clmnAmt", 	     label: closeYm  + " " + clmnpayText,   align: "right",    width: 140,  formatter: "money"},
+		        	{key: "trmendAmt", 		 label: closeYm  + " 잔액",  	  		align: "right",    width: 140,  formatter: "money"},
+// 		        	{key: "basisAmt", 		 label: "기초",     					align: "right",    width: 140,  formatter: "money"},
+		        	{key: "crdtLmt",	     label: "여신한도", 					align: "right",    width: 140,  formatter: "money"},
+		        	{key: "crdtLoan",	     label: "여신잔액",  					align: "right",    width: 140,  formatter: "money"},
+		        	{key: "sellPayDivNm",    label: "지급구분",  					align: "center",   width: 60},
+		        	{key: "sellClmnDivNm",   label: "결제조건",  					align: "left",     width: 100},
+		        	{key: "sellPmntMtdNm",   label: "결제방법",  					align: "center",   width: 60},
+		        	{key: "sellClmnDay", 	 label: "결제일", 	 					align: "right",    width: 60},
+		        	{key: "sellVatNm",       label: "부가세",  						align: "left",     width: 140}
+		        	
+		        ],
+		        footSum: [
 			    	[
 			    		{label: "합계",     colspan:4, align:"center"},
 	                    {key: "basisCreditAmt",  collector: "sum", formatter:"money", align: "right"},
@@ -172,48 +215,7 @@
 	                    {key: "crdtLmt",  collector: "sum", formatter:"money", align: "right"},
 	                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"}
 			    	]
-			    ],
-				page : {
-					navigationItemCount : 10,
-					height : 30,
-					display : true,
-					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-					onChange : function() {
-						gridView.setData(this.page.selectPage);
-					}
-				},
-				columns: [
-					{key: "coCd",            hidden: true},
-					{key: "clntCd",          hidden: true},
-		          	{key: "coNm",            label: "회사",    align: "left",     width: 80},
-// 		        	{key: "crnNo",           label: "사업자번호",    align: "left",   width: 140},
-// 		        	{key: "closeYm",         label: "년월",     align: "center",  width: 80},
-		        	{key: "clntNm",          label: "거래처",    align: "left",   width: 140},
-		        	{key: "prdtGrpNm",       label: "그룹",    align: "center",   width: 80},
-		        	{key: "prjctNm",         label: "프로젝트",    align: "left",   width: 140},
-		        	{key: "basisCreditAmt",  label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "closeYm2TotAmt",  label: closeYm2 +" 매출",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "closeYm2ClmnAmt", label: closeYm2 +" 수금",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "closeYm2",        label: closeYm2 +" 잔액",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "closeYm1TotAmt",  label: closeYm1 +" 매출",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "closeYm1ClmnAmt", label: closeYm1 +" 수금",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "closeYm1",  		 label: closeYm1 +" 잔액",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "totAmt",  	     label: closeYm  +" 매출",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "clmnAmt", 	     label: closeYm  +" 수금",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "trmendAmt", 		 label: closeYm  +" 잔액",  	  align: "right",   width: 140, formatter: "money"},
-// 		        	{key: "basisAmt", 		 label: "기초",     align: "right",   width: 140, formatter: "money"},
-		        	{key: "crdtLmt",	     label: "여신한도",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "crdtLoan",	     label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "sellPayDivNm",    label: "지급구분",  align: "center",   width: 60},
-		        	{key: "sellClmnDivNm",   label: "결제조건",  align: "left",   width: 100},
-		        	{key: "sellPmntMtdNm",   label: "결제방법",  align: "center",   width: 60},
-		        	{key: "sellClmnDay", 	 label: "결제일", 	 align: "right",   width: 60},
-		        	{key: "sellVatNm",       label: "부가세",  align: "left",   width: 140}
-		        	
-		        ]
+			    ]
 			});
 			return this;
 		},
@@ -246,12 +248,43 @@
 			initView: function(closeYm){
 				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
 				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+				var selpchText = $('#selpchCd').val() == "SELPCH2" ? "매출" : "매입";
+				var clmnpayText = $('#selpchCd').val() == "SELPCH2" ? "수금" : "지급";
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
-					footSum: [
+			        columns: [
+						{key: "coCd",            hidden: true},
+						{key: "clntCd",          hidden: true},
+			          	{key: "coNm",            label: "회사",                         align: "left",     width: 80},
+//	 		        	{key: "crnNo",           label: "사업자번호",                   align: "left",     width: 140},
+//	 		        	{key: "closeYm",         label: "년월",                         align: "center",   width: 80},
+			        	{key: "clntNm",          label: "거래처",                       align: "left",     width: 140},
+			        	{key: "prdtGrpNm",       label: "그룹",    					    align: "center",   width: 80},
+			        	{key: "prjctNm",         label: "프로젝트",    				    align: "left",     width: 140},
+			        	{key: "basisCreditAmt",  label: "전월잔액",     			    align: "right",    width: 140,  formatter: "money"},
+			        	{key: "closeYm2TotAmt",  label: closeYm2 + " " + selpchText,    align: "right",    width: 140,  formatter: "money"},
+			        	{key: "closeYm2ClmnAmt", label: closeYm2 + " " + clmnpayText,   align: "right",    width: 140,  formatter: "money"},
+			        	{key: "closeYm2",        label: closeYm2 +" 잔액",     			align: "right",    width: 140,  formatter: "money"},
+			        	{key: "closeYm1TotAmt",  label: closeYm1 + " " + selpchText,    align: "right",    width: 140,  formatter: "money"},
+			        	{key: "closeYm1ClmnAmt", label: closeYm1 + " " + clmnpayText,   align: "right",    width: 140,  formatter: "money"},
+			        	{key: "closeYm1",  		 label: closeYm1 + " 잔액",     		align: "right",    width: 140,  formatter: "money"},
+			        	{key: "totAmt",  	     label: closeYm  + " " + selpchText,    align: "right",    width: 140,  formatter: "money"},
+			        	{key: "clmnAmt", 	     label: closeYm  + " " + clmnpayText,   align: "right",    width: 140,  formatter: "money"},
+			        	{key: "trmendAmt", 		 label: closeYm  + " 잔액",  	  		align: "right",    width: 140,  formatter: "money"},
+//	 		        	{key: "basisAmt", 		 label: "기초",     					align: "right",    width: 140,  formatter: "money"},
+			        	{key: "crdtLmt",	     label: "여신한도", 					align: "right",    width: 140,  formatter: "money"},
+			        	{key: "crdtLoan",	     label: "여신잔액",  					align: "right",    width: 140,  formatter: "money"},
+			        	{key: "sellPayDivNm",    label: "지급구분",  					align: "center",   width: 60},
+			        	{key: "sellClmnDivNm",   label: "결제조건",  					align: "left",     width: 100},
+			        	{key: "sellPmntMtdNm",   label: "결제방법",  					align: "center",   width: 60},
+			        	{key: "sellClmnDay", 	 label: "결제일", 	 					align: "right",    width: 60},
+			        	{key: "sellVatNm",       label: "부가세",  						align: "left",     width: 140}
+			        	
+			        ],
+			        footSum: [
 				    	[
-				    		{label: "합계",     colspan:5, align:"center"},
+				    		{label: "합계",     colspan:4, align:"center"},
 		                    {key: "basisCreditAmt",  collector: "sum", formatter:"money", align: "right"},
 		                    {key: "closeYm2TotAmt",   collector: "sum", formatter:"money", align: "right"},
 		                    {key: "closeYm2ClmnAmt",    collector: "sum", formatter:"money", align: "right"},
@@ -262,39 +295,11 @@
 		                    {key: "totAmt",  collector: "sum", formatter:"money", align: "right"},
 		                    {key: "clmnAmt",  collector: "sum", formatter:"money", align: "right"},
 		                    {key: "trmendAmt",  collector: "sum", formatter:"money", align: "right"},
-// 		                    {key: "basisAmt",  collector: "sum", formatter:"money", align: "right"},
+//	 	                    {key: "basisAmt",  collector: "sum", formatter:"money", align: "right"},
 		                    {key: "crdtLmt",  collector: "sum", formatter:"money", align: "right"},
 		                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"}
 				    	]
-				    ],
-					columns: [
-						{key: "coCd",            hidden: true},
-						{key: "clntCd",          hidden: true},
-			          	{key: "coNm",            label: "회사",    align: "left",     width: 80},
-			       // 	{key: "closeYm",         label: "년월",     align: "center",  width: 80},
-			        	{key: "clntNm",          label: "거래처",    align: "left",   width: 140},
-			        	{key: "crnNo",           label: "사업자번호",    align: "left",   width: 140},
-			        	{key: "prdtGrpNm",       label: "구분",    align: "left",   width: 80},
-			        	{key: "prjctNm",         label: "프로젝트",    align: "left",   width: 140},
-			        	{key: "basisCreditAmt",  label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "closeYm2TotAmt",  label: closeYm2 +" 매출",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "closeYm2ClmnAmt", label: closeYm2 +" 수금",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "closeYm2",        label: closeYm2 +" 잔액",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "closeYm1TotAmt",  label: closeYm1 +" 매출",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "closeYm1ClmnAmt", label: closeYm1 +" 수금",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "closeYm1",  		 label: closeYm1 +" 잔액",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "totAmt",  	     label: closeYm  +" 매출",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "clmnAmt", 	     label: closeYm  +" 수금",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "trmendAmt", 		 label: closeYm  +" 잔액",  	  align: "right",   width: 140, formatter: "money"},
-//	 		        	{key: "basisAmt", 		 label: "기초",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "crdtLmt",	     label: "여신한도",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "crdtLoan",	     label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "sellPayDivNm",    label: "지급구분",  align: "center",   width: 60},
-			        	{key: "sellClmnDivNm",   label: "결제조건",  align: "left",   width: 100},
-			        	{key: "sellPmntMtdNm",   label: "결제방법",  align: "center",   width: 60},
-			        	{key: "sellClmnDay", 	 label: "결제일", 	 align: "right",   width: 60},
-			        	{key: "sellVatNm",       label: "부가세",  align: "left",   width: 140}
-			        ]
+				    ]
 			    });
 				return this;
 			}
