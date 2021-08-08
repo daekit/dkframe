@@ -1,6 +1,7 @@
 package com.dksys.biz.user.ar.ar01.service.impl;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -349,7 +350,16 @@ public class AR01SvcImpl implements AR01Svc {
 			// 부가세
 			long bilgVatAmt = (long) Math.floor(Long.parseLong(detailMap.get("realShipAmt")) * bilgVatPer / 100);
 			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
-			ar02Mapper.insertPchsSell(paramMap);
+			
+			// 실수, 정수 모두를 할당해야 하므로 BigDecimal로 선언
+			BigDecimal bilgQty = new BigDecimal(paramMap.get("bilgQty"));
+			BigDecimal bilgWt = new BigDecimal(paramMap.get("bilgWt"));
+			BigDecimal bilgAmt = new BigDecimal(paramMap.get("bilgAmt"));
+			
+			if(bilgQty.compareTo(BigDecimal.ZERO) != 0 || bilgWt.compareTo(BigDecimal.ZERO) != 0 || bilgAmt.compareTo(BigDecimal.ZERO) != 0){
+			// 청구수량, 청구중량, 청구금액이 모두 0이면 insert하지 않는다.
+				ar02Mapper.insertPchsSell(paramMap);
+			}
 			
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
 			{
