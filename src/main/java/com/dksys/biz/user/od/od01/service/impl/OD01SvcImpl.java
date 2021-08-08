@@ -593,26 +593,33 @@ public class OD01SvcImpl implements OD01Svc {
 		for(Map<String, String> detailMap : detailList) {
 			// detailMap set
 			detailMap.put("ordrgSeq", paramMap.get("ordrgSeq"));
+			detailMap.putAll(od01Mapper.selectOrdrgDetailInfo(detailMap));
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
-			detailMap.put("trstRprcSeq", paramMap.get("ordrgSeq"));
+			detailMap.put("trstRprcSeq", detailMap.get("ordrgSeq"));
 			detailMap.put("trstDtlSeq", detailMap.get("ordrgDtlSeq"));
 			
-			// 매입마감 체크
 			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 				if("Y".equals(detailMap.get("ordrgYn"))){
+					// 매입마감 체크
 					if(!ar02Svc.checkPchsClose(paramMap)) {
 						thrower.throwCommonException("pchsClose");
 					}
+				}else{
+					// 이미 매입취소된 상세내역이면 매입취소 불가능
+					thrower.throwCommonException("alreadyCancel");
 				}
 			}
 			
-			// 매출마감 체크
 			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
 				if("Y".equals(detailMap.get("shipYn"))){
+					// 매출마감 체크
 					if(!ar02Svc.checkSellClose(paramMap)) {
 	            		thrower.throwCommonException("sellClose");
 	        		}			
+				}else {
+					// 이미 매출취소된 상세내역이면 매출취소 불가능
+					thrower.throwCommonException("alreadyCancel");
 				}
 			}
 			
