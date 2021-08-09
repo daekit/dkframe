@@ -405,7 +405,7 @@ public class SM02Svcmpl implements SM02Svc {
 	    detailMap.put("supCustCdFrom",  supCustCdFrom); /* set 재고 주인 */
 	    detailMap.put("supCustCdTo",  supCustCdTo);     /* set 이동 재고 주인 */
 	    
-	    messtockMapper.insertIfMesStockMove(detailMap); 
+//	    messtockMapper.insertIfMesStockMove(detailMap); 
 		return 200;
 	}
 
