@@ -1259,7 +1259,9 @@
 	}
 	
 	function countAmt(elem) {
-		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		$targetRow   = $(elem).closest('tr[name="detailRow"]');
+		var ordrgYn  = $targetRow.find('input[name="ordrgYn"]').val();
+		var shipYn   = $targetRow.find('input[name="shipYn"]').val();
 		var prdtStockCd = $targetRow.find('input[name="prdtStockCd"]').val();
 		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val())) || 0;
 		var ordrgWt = Number(deleteCommaStr($targetRow.find('input[name="ordrgWt"]').val())) || 0;
@@ -1268,9 +1270,8 @@
 		var stockUpr = Number($targetRow.find('input[name="stockUpr"]').val()) || 0;
 	
 		if(prdtStockCd == "Y") {
-			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(Math.round(ordrgQty * ordrgUpr)));
-			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(Math.round(ordrgQty * shipUpr)));			
-			
+			if(ordrgYn != "Y") { $targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(Math.round(ordrgQty * ordrgUpr)));}
+			if(shipYn  != "Y") { $targetRow.find('input[name="shipAmt"]').val(addCommaStr(Math.round(ordrgQty * shipUpr)));	 }
 			if($('#ordrgPopup #dirtrsYn').val() == "Y"){
 				// 직송여부가 Y일때 예상손익 : 매출단가 * 수량 - 매입단가(발주단가) * 수량
 				$targetRow.find('input[name="epctPal"]').val(addCommaStr(Math.round(ordrgQty * shipUpr) - Math.round(ordrgQty * ordrgUpr)));
@@ -1279,8 +1280,8 @@
 				$targetRow.find('input[name="epctPal"]').val(addCommaStr(Math.round(ordrgQty * stockUpr) - Math.round(ordrgQty * ordrgUpr)));
 			}
 		}else{
-			$targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgUpr));
-			$targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr));
+			if(ordrgYn != "Y") { $targetRow.find('input[name="ordrgAmt"]').val(addCommaStr(ordrgUpr));}
+			if(shipYn  != "Y") { $targetRow.find('input[name="shipAmt"]').val(addCommaStr(shipUpr)); }
 		}
 		
 		// real관련 값 복사
@@ -1455,7 +1456,8 @@
 		// 상세내역 추가
 		var detailArr = [];
 		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find('input[name="ordrgYn"]').val() == "N" || $(elem).find('input[name="ordrgYn"]').val() == "") {
+			if($(elem).find('input[name="ordrgYn"]').val() == "N" || $(elem).find('input[name="ordrgYn"]').val() == "" ||
+			   $(elem).find('input[name="shipYn"]').val() == "N"  || $(elem).find('input[name="shipYn"]').val() == "" ) {
 				var detailObj = {};
 				$.each($(elem).find('[name]'), function(idx, elem){
 					detailObj[elem.name] = elem.value;
