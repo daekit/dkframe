@@ -168,10 +168,10 @@ public class SM02Svcmpl implements SM02Svc {
 				 * 2) 신규 추가 및 재고이동 이력은 변경된 길이 적용
 				 */
 				String prdtLenEdit = detailMap.get("prdtLenEdit");
-				if(!("".equals(prdtLenEdit)) || prdtLenEdit != null) { //길이 변경 chk
-					detailMap.put("sPrdtLen",  prdtLenEdit); 
-				}else {
+				if("".equals(prdtLenEdit) || prdtLenEdit == null) { //길이 변경 chk
 					detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
+				}else {
+					detailMap.put("sPrdtLen",  prdtLenEdit); 
 				}
 			}
 			sm02Mapper.sm01UpdateInsertStockMove(detailMap); // 신규 추가		
@@ -365,6 +365,10 @@ public class SM02Svcmpl implements SM02Svc {
 	    }
 	    //set dimsCd
 	    detailMap.put("dimsCd", detailMap.get("sPrdtSpec"));
+
+	    if("".equals(detailMap.get("worksCdTo")) || detailMap.get("worksCdTo") == null) {
+	    	return 200;
+	    }
 	    
 	    /*
 	     * 코일 여부 Y일 시 
