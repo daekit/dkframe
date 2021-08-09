@@ -430,7 +430,7 @@
 	
 	function ctrlBillTable(elem){
 		var pmntMtd   = $(elem).find('option:selected').data("etc");
-		var etrdpsTyp = $("#etrdpsTyp").val();
+		var etrdpsTyp = $('[name=etrdpsTyp]').val();
 		
 		if(!pmntMtd || pmntMtd == "CASH"){
 			$('#etrdpsBkacCd').attr("required");
@@ -502,6 +502,10 @@
 				// 판매법인 Set
 				if(key == 'coCd'){
 					setTaxivcCoprt(value);
+				}			
+				// 은행계좌  Set
+				if(key == 'taxivcCoprt'){
+					setEtrdpsBkac(value);
 				}
 				$('#etrdpsData').find('#'+key).val(value);
 				
@@ -636,9 +640,7 @@
 			
 			formData.calcelMatchType = calcelMatchType; // 매핑정보를 추가할 것인지 구분
 			formData.isAdvPay = isAdvPay;  // 매핑금액 합계
-			formData.diffAmt = diffAmt;    // 수금과 매핑금액의 차액
-
-			
+			formData.diffAmt = diffAmt;    // 수금과 매핑금액의 차액			
 			
 			putAjax("/user/ar/ar05/updateEtrdps", formData, null, function(data){
 				alert(data.resultMessage);
@@ -697,6 +699,9 @@
 			tempObj.coCd = $('#coCd').val();
 			tempObj.clntCd = $("#clntCd").val();
 			tempObj.prdtGrp = $("#etrdpsData #prdtGrp").val();
+			tempObj.etrdpsTyp = $("#etrdpsData #etrdpsTyp").val();
+			tempObj.taxivcCoprt = $("#etrdpsData #taxivcCoprt").val();			
+			
 			tempObj.userId = jwt.userId;
 			formData[tempForm.id] = tempObj;
 		}
