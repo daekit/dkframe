@@ -347,15 +347,19 @@ public class SM02Svcmpl implements SM02Svc {
 //		WH19	금문진천공장	WH	GGM	WHDIV03	ESTCOPRT4
 //		WH41	진천공장2	    WH	GUM	WHDIV01	ESTCOPRT1
 		
-		
-		
+
+		// 외부에서 공장으로 이동시에는 FROM 관련 자료는 없음
+
+		detailMap.put("worksCdTo",      "");
+		detailMap.put("worksCdFrom",   "");
+		//도착공장
 	    if      ("WH01".equals(detailMap.get("sWhCd")) || "WH19".equals(detailMap.get("sWhCd"))|| "WH41".equals(detailMap.get("sWhCd")) ) {  detailMap.put("worksCdTo",   "J");
 	    }else if("WH05".equals(detailMap.get("sWhCd")) || "WH20".equals(detailMap.get("sWhCd")))                                          {  detailMap.put("worksCdTo",   "N");
 	    }else if("WH06".equals(detailMap.get("sWhCd")) || "WH13".equals(detailMap.get("sWhCd")) || "WH29".equals(detailMap.get("sWhCd")) || "WH32".equals(detailMap.get("sWhCd"))) {       
 	    	   detailMap.put("worksCdTo",   "C");
 	      
 	    }
-	    
+	    //출발공장
 	    if      ("WH01".equals(detailMap.get("whCd")) || "WH19".equals(detailMap.get("whCd"))|| "WH41".equals(detailMap.get("whCd"))) {
 	                                                      detailMap.put("worksCd",   "J"); detailMap.put("worksCdFrom",   "J");
 	    }else if("WH05".equals(detailMap.get("whCd")) || "WH20".equals(detailMap.get("whCd")) ) {
@@ -366,11 +370,7 @@ public class SM02Svcmpl implements SM02Svc {
 	    //set dimsCd
 	    detailMap.put("dimsCd", detailMap.get("sPrdtSpec"));
 
-	    if("".equals(detailMap.get("worksCdTo")) || detailMap.get("worksCdTo") == null) {
-	    	return 200;
-	    }
-	    
-	    /*
+          /*
 	     * 코일 여부 Y일 시 
 	     * 1) SET 코일철근(param -> productNameCd) : BC
 	     * 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입
@@ -404,8 +404,30 @@ public class SM02Svcmpl implements SM02Svc {
 	    String supCustCdTo   = detailMap.get("clntCd");
 	    detailMap.put("supCustCdFrom",  supCustCdFrom); /* set 재고 주인 */
 	    detailMap.put("supCustCdTo",  supCustCdTo);     /* set 이동 재고 주인 */
+
+		// Case 1 공장 -> 공장 이동시
+		//        WorksCd = wkoksCdFrom으로 1개 생성
+		//        WorksCd = worksCdTo로 1개 생성
+		// Case 2 외부 -> 공장 이동시
+		//        WorksCd = wkoksCdTo, wkoksCdFrom = null로 1개 생성
+		// Case 3 동일공장간 이동시
+		//        WorksCd = wkoksCdTo = wkoksCdFrom  1개 생성
+		// Case 3 공장 -> 외부 이동시
+		//        WorksCd = wkoksCdFrom ,  wkoksCdTo = null 1개 생성
 	    
-//	    messtockMapper.insertIfMesStockMove(detailMap); 
+	    String worksCdTo   = detailMap.get("worksCdTo");
+	    String worksCdFrom   = detailMap.get("worksCdFrom");
+	    
+	    messtockMapper.insertIfMesStockMove(detailMap); 
+	    
+	// 출발공장, 도착공장이 다르면 Case 1	 
+		 if(!worksCdTo.equals(detailMap.get("worksCdTo"))) {
+			 detailMap.put("worksCd",   worksCdFrom);
+			 
+			 messtockMapper.insertIfMesStockMove(detailMap); 
+		 
+	    }
+	    
 		return 200;
 	}
 
