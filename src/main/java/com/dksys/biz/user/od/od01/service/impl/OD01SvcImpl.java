@@ -775,7 +775,7 @@ public class OD01SvcImpl implements OD01Svc {
 //		WH19	금문진천공장	WH	GGM	WHDIV03	ESTCOPRT4
 //		WH41	진천공장2	    WH	GUM	WHDIV01	ESTCOPRT1
 //		
-		
+		paramMap.put("worksCd", "");
     	if  ("WH01".equals(paramMap.get("whCd")) ||"WH19".equals(paramMap.get("whCd")) ||"WH41".equals(paramMap.get("whCd"))) {
     		paramMap.put("worksCd", "J");
     	}else if("WH05".equals(paramMap.get("whcd")) ||"WH20".equals(paramMap.get("whCd")) ) {
@@ -788,11 +788,12 @@ public class OD01SvcImpl implements OD01Svc {
     		    paramMap.put("productNameCd", "BC");    		    
     	}else { paramMap.put("productNameCd", "BD");
     	}
-    	String spec = paramMap.get("prdtSpec");
     	
+    	/* 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입 */   	
+    	String spec = paramMap.get("prdtSpec");    	
     	paramMap.put("dimsCd", paramMap.get("prdtSpec")); 
     	if (spec != null && spec.length() > 0 && spec.charAt(spec.length() - 1) == 'C') { 
-    		paramMap.put("dimsCd", spec.substring(0, spec.length() - 1)); /* 2) SET sPrdtSpec 마지막 문자 C 제거 후 삽입 */
+    		paramMap.put("dimsCd", spec.substring(0, spec.length() - 1)); 
     	}    			
         
     	paramMap.put("moveWt",paramMap.get("realTrstWt")) ;
