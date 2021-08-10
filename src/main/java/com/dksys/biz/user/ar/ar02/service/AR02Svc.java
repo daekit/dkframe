@@ -22,6 +22,8 @@ public interface AR02Svc {
 	Map<String, String> selectSellInfo(Map<String, String> paramMap);
 
 	void updatePchsSell (Map<String, Object> paramMap) throws Exception;
+	
+	void updatePchsSellPart (Map<String, String> paramMap) throws Exception;
 
 	void deleteSell(Map<String, String> paramMap) throws Exception;
 

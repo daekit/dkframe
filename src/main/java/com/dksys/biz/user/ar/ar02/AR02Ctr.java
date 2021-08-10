@@ -93,7 +93,22 @@ public class AR02Ctr {
 		}
     	return "jsonView";
     }
-
+    
+    @PutMapping(value = "/updatePchsSellPart")
+    public String updatePchsSellPart(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	try {
+    		ar02Svc.updatePchsSellPart(paramMap);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 	@DeleteMapping(value = "/deleteSell")
     public String deleteSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
 		try {

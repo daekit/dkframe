@@ -159,7 +159,103 @@ public class AR02SvcImpl implements AR02Svc {
 			}
 		}
 	}
+	
+	@Override
+	@SuppressWarnings("all")
+	// 매입리스트, 매출리스트 정산
+	public void updatePchsSellPart(Map<String, String> paramMap) throws Exception{
+		// 매입 매출 구분
+		String selpchCd = paramMap.get("selpchCd").toString();
+		//원본
+		Map<String, String> pchsSellInfo = ar02Mapper.selectSellInfo(paramMap);
 
+		// 매입/매출 업데이트
+		ar02Mapper.updatePchsSellPart(paramMap);
+		
+		String oldPrjcrCd = pchsSellInfo.get("prjctCd");
+
+		
+		// 프로젝트가 바뀌면 기존 프로젝트의 재고는 차감하고, 신규 프로젝트는 추가한다.
+		if(!"oldPrjcrCd".equals(paramMap.get("prjctCd"))) {
+			// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+			if("OWNER1".equals(paramMap.get("ownerCd").toString())) {		
+				paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
+			}
+			// 신규 추가
+			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+
+			int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
+			int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
+			
+			String stockChgCd = "STOCKCHG09";
+			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
+			{
+				stockChgCd = "STOCKCHG09";
+			}
+			else {
+				stockChgCd = "STOCKCHG08";
+			}
+			if(stockInfo == null) {
+				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
+				stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty*-1;
+				stockWt  = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockWt : stockWt*-1;
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				paramMap.put("stockWt", String.valueOf(stockWt));
+				
+//				paramMap.put("stockQty", paramMap.get("realTrstQty"));
+//				paramMap.put("stockWt", paramMap.get("realTrstWt"));
+			
+			} else {
+				if("SELPCH2".equals(paramMap.get("selpchCd"))) 
+				{
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - stockWt;
+				} else 
+				{
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + stockQty;
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + stockWt;
+				}
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				paramMap.put("stockWt",  String.valueOf(stockWt));
+				paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+				paramMap.put("stdUpr", stockInfo.get("stdUpr"));
+				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+				paramMap.put("sellUpr", paramMap.get("bilgUpr"));
+				paramMap.put("stockChgCd", stockChgCd);
+			}
+			sm01Mapper.updateStockSell(paramMap);						
+			// 기존 제거
+			paramMap.put("prjctCd",oldPrjcrCd);
+			Map<String, String> stockInfoOld = sm01Mapper.selectStockInfo(paramMap);
+			if(stockInfoOld != null) {
+				stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
+				stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
+				if("SELPCH2".equals(paramMap.get("selpchCd"))) 
+				{
+					stockChgCd = "STOCKCHG09";
+					stockQty = Integer.parseInt(stockInfoOld.get("stockQty")) + stockQty;
+					stockWt  = Integer.parseInt(stockInfoOld.get("stockWt"))  + stockWt;
+				} else 
+				{
+					stockChgCd = "STOCKCHG08";
+					stockQty = Integer.parseInt(stockInfoOld.get("stockQty")) - stockQty;
+					stockWt  = Integer.parseInt(stockInfoOld.get("stockWt"))  - stockWt;
+				}
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				paramMap.put("stockWt",  String.valueOf(stockWt));
+				paramMap.put("stockUpr", stockInfoOld.get("stockUpr"));
+				paramMap.put("stdUpr", stockInfoOld.get("stdUpr"));
+				paramMap.put("pchsUpr", stockInfoOld.get("pchsUpr"));
+				paramMap.put("sellUpr", paramMap.get("bilgUpr"));
+				paramMap.put("stockChgCd", stockChgCd);
+				sm01Mapper.updateStockSell(paramMap);						
+			}
+			
+		}
+	}
 	@Override
 	// 매입 / 매출 삭제
 	public void deleteSell(Map<String, String> paramMap) throws Exception{
