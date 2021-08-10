@@ -610,8 +610,8 @@ public class OD01SvcImpl implements OD01Svc {
 					thrower.throwCommonException("alreadyCancel");
 				}
 			}
-			
-			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+			// 직송이면서 매출, 일괄의 경우
+			if(("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))) &&"Y".equals(paramMap.get("dirtrsYn"))){
 				if("Y".equals(detailMap.get("shipYn"))){
 					// 매출마감 체크
 					if(!ar02Svc.checkSellClose(paramMap)) {
@@ -637,8 +637,8 @@ public class OD01SvcImpl implements OD01Svc {
 				ar02Mapper.deletePchsSell(detailMap); // 매입만 삭제
 			}
 			
-			//매출확정 체크
-			if("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
+			//직송이면서 매출확정 체크
+			if(("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))&&"Y".equals(paramMap.get("dirtrsYn"))){
 			    od01Mapper.updateCancelDetailS(detailMap);
 			    detailMap.put("selpchCd", "SELPCH2");
 				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
