@@ -326,9 +326,9 @@
 			PAN_DEPT_ID AS DEPT_ID,
 			D.DEPT_NM AS DEPT_NM
 		FROM TB_SD01M01 T
-		INNER JOIN  TB_CM06M01 C
+		LEFT JOIN  TB_CM06M01 C
 		   ON T.PLAN_SALES_ID = C.ID
-		INNER JOIN  TB_CM04M01 D 
+		LEFT JOIN  TB_CM04M01 D 
 		   ON C.DEPT_ID = D.DEPT_ID
 		LEFT OUTER JOIN TB_BM02M01 B
 	       ON T.CLNT_CD = B.CLNT_CD
@@ -347,6 +347,9 @@
 		  </if>
 		   <if test="planDeptCd != null and !planDeptCd.equals('')">
 		   AND T.PAN_DEPT_ID = #{planDeptCd}
+		  </if>
+		   <if test="planDeptId != null and !planDeptId.equals('')">
+		   AND T.PAN_DEPT_ID = #{planDeptId}
 		  </if>
 		   <if test="planSalesId != null and !planSalesId.equals('')">
 		   AND T.PLAN_SALES_ID = #{planSalesId}
@@ -476,9 +479,31 @@
 			CREAT_PGM,
 			CREAT_DTTM,
 			UDT_ID,
-			UDT_PGM from TB_SD01M01
+			UDT_PGM 
+	    from TB_SD01M01
 		WHERE 
 			PLAN_YM = TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM') + INTERVAL '-1' MONTH, 'YYYYMM')
+			<if test="coCd != null and !coCd.equals('')">
+		   AND CO_CD = #{coCd}
+		   </if>
+		   <if test="selpchCd != null and !selpchCd.equals('')">
+		   AND SELPCH_CD = #{selpchCd}
+		  </if>
+		   <if test="planDeptId != null and !planDeptId.equals('')">
+		   AND PAN_DEPT_ID = #{planDeptId}
+		  </if>
+		   <if test="planSalesId != null and !planSalesId.equals('')">
+		   AND PLAN_SALES_ID = #{planSalesId}
+		  </if>
+		   <if test="clntCd != null and !clntCd.equals('')">
+		   AND CLNT_CD = #{clntCd}
+		  </if>
+		   <if test="prdtDiv != null and !prdtDiv.equals('')">
+		   AND PRDT_DIV = #{prdtDiv}
+		  </if>
+		   <if test="prdtGrp != null and !prdtGrp.equals('')">
+		   AND PRDT_GRP = #{prdtGrp}
+		  </if>
 	</insert>
 	
 	<delete id="deleteCopy">
