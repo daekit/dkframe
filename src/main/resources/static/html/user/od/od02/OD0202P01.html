@@ -96,20 +96,22 @@
 				<tr>
 					<th class="hit">제품명</th>
 					<td>
-						<div class="search_form">
-							<input type="hidden" name="prdtCd">
-							<input type="hidden" name="prdtGrp">
-							<input type="hidden" name="prdtUnit">
-							<input type="hidden" name="prdtCnvrsnWt">
-							<input type="hidden" name="prdtStockCd">
-							<input type="hidden" name="prdtDiv">
-							<input type="hidden" name="prdtDivNm"> 
-							<input type="hidden" name="prdtStkn"> 
-							<input type="hidden" name="prdtStknNm"> 
-							<input type="hidden" name="dirtrsYn" value="N">
-							<input type="text" name="prdtNm" msg="제품명" readonly required> 
-							<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></a>
-						</div>
+						<input type="hidden" name="prdtCd">
+						<input type="hidden" name="prdtGrp">
+						<input type="hidden" name="prdtUnit">
+						<input type="hidden" name="prdtCnvrsnWt">
+						<input type="hidden" name="prdtStockCd">
+						<input type="hidden" name="prdtDiv">
+						<input type="hidden" name="prdtDivNm"> 
+						<input type="hidden" name="prdtStkn"> 
+						<input type="hidden" name="prdtStknNm"> 
+						<input type="hidden" name="dirtrsYn" value="N">
+						<div class="prdtSearch">
+							<div class="search_form">
+								<input type="text" name="prdtNm" msg="제품명" readonly required> 
+								<a onclick="openSecondPrdtSearch(this);"><i class="i_search_w"></i></a>
+							</div>
+						</div>	
 					</td>
 					<th>사이즈</th>
 					<td>
@@ -183,6 +185,7 @@
 					</td>
 				</tr>
 			</table>
+			<input type="hidden" id="trstCertiNo" name="trstCertiNo">
 			<input type="hidden" id="selpchCd" name="selpchCd" value="SELPCH1">
 			<input type="hidden" id="stockChgCd" name="stockChgCd" value="STOCKCHG01"> 
 			<input type="hidden" id="userId" name="userId"> 
@@ -213,7 +216,8 @@
 		authChk("OD0201M01");
 	});
 	
-	function setInit() {		
+	function setInit() {	
+		debugger;
 		if(actionType == "C"){
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
 			$('#actionOdBtn').text("등록");
@@ -226,13 +230,23 @@
 			selectSellInfo();
 			$('#actionOdBtn').on("click", function(){insertPchsSell();});
 			$('#actionOdBtn').text("저장");
+		}else if(actionType == "I"){ // 조회 및 수정
+			selectSellInfo();
+			$('#actionOdBtn').on("click", function(){updatePchsSellPart();});
+			$('#actionOdBtn').text("저장");
 		}
 	}
 	
 	function selectSellInfo() {
-		var row = subGridView.target.getList("selected")[0];
+		if(actionType == "U"){ // 반품
+			var row = subGridView.target.getList("selected")[0];
+			var trstCertiNo = row.trstCertiNo			
+		}else if(actionType == "I"){ // 조회 및 수정
+			var trstCertiNo = modalStack.last().paramObj.trstCertiNo;
+		}
+		
 		var formData = {
-			"trstCertiNo" : row.trstCertiNo
+			"trstCertiNo" : trstCertiNo
 		}
 		postAjax("/user/ar/ar02/selectSellInfo", formData, null, function(data){
 			setSellInfo(data.result);
@@ -243,10 +257,12 @@
 		// 메인정보 set
 		$.each(obj, function(key, value){
 			if($('[name="'+key+'"]')[0]){
-				if($('[name="'+key+'"]').is('[minus]')){
-					value = -1 * Number(value);
-				}
 				
+				if(actionType == "U"){ // 반품은  -1을 곱한다.
+					if($('[name="'+key+'"]').is('[minus]')){
+						value = -1 * Number(value);
+					}
+				}
 				if($('[name="'+key+'"]').is('[comma]')){
 					value = addCommaStr(value);
 				}
@@ -255,21 +271,59 @@
 				if(key == "coCd"){
 					setByCocd(value);
 				}
-				
-				// 반품시 재고변동사유 set
-				if(key == "bilgQty"){
-					var stockChgCd = Math.sign(deleteCommaStr(value)) == -1 ? "STOCKCHG10" : "STOCKCHG03";
-					$("#stockChgCd").val(stockChgCd);
-				}
-				
-				// 반품시 운반비 제거
-				if(key == "transAmt"){
-					value = "0";
+				if(actionType == "U"){ // 반품
+					// 반품시 재고변동사유 set
+					if(key == "bilgQty"){
+						var stockChgCd = Math.sign(deleteCommaStr(value)) == -1 ? "STOCKCHG10" : "STOCKCHG03";
+						$("#stockChgCd").val(stockChgCd);
+					}
+					
+					// 반품시 운반비 제거
+					if(key == "transAmt"){
+						value = "0";
+					}
 				}
 				
 				$('[name="'+key+'"]').val(value);
 			}
 		});
+		
+		if(actionType == "I"){ // 조회 및 수정일 경우 dom 변경
+
+			    $('#popForm #coCd').prop("disabled", true);
+				$('input[name="clntNm').prop("disabled", true);
+				$('#popForm #clntNm').siblings('a').remove();
+				
+				$('#popForm #taxivcCoprt').prop("disabled", true);
+				$('input[name="trstDt"]').prop("disabled", true);
+				$('#popForm #whCd').prop("disabled", true);
+				$('#popForm #typCd').prop("disabled", true);
+				$('#popForm #ownerCd').prop("disabled", true);
+				$('#popForm #impYn').prop("disabled", true);
+				$('#popForm #makrCd').prop("disabled", true);
+				
+				$('input[name="prdtNm"]').prop("disabled", true);
+				$('#popForm #prdtNm').siblings('a').remove();
+				$('#popForm .prdtSearch a').removeAttr("onclick");
+
+				$('input[name="prdtSizeNm"]').prop("disabled", true);
+				$('input[name="prdtSpec"]').prop("disabled", true);
+				$('input[name="prdtSize"]').prop("disabled", true);
+				$('input[name="prdtLen"]').prop("disabled", true);
+				
+				$('[name="toggleReq"]').removeClass("hit");
+				$('[name="toggleReq"]').next().find('input:text:not([name="bilgUpr"])').prop("readonly", true);
+				$('[name="toggleReq"]').next().find('input:text').prop("required", false);
+
+				$('input[name="bilgQty"]').prop("disabled", true);	
+				$('input[name="bilgWt"]').prop("disabled", true);	
+				$('input[name="prdtUpr"]').prop("disabled", true);		
+				$('input[name="bilgUpr"]').prop("disabled", true);	
+				$('input[name="bilgAmt"]').prop("disabled", true);	
+				$('input[name="trstDcAmt"]').prop("disabled", true);	
+				$('input[name="etcAmt"]').prop("disabled", true);	
+			
+		}
 	}
 	
 	function selectSellInfoBase() {
@@ -503,6 +557,20 @@
 		if(inputValidation($('input[required]'))) {
 			var formData = makeFormData();
 			postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
+				alert(data.resultMessage);
+				if (data.resultCode == 200) {
+					subGridView.setData(0);
+					modalStack.close();
+				}
+			});
+		}
+	}
+
+	function updatePchsSellPart() {
+		debugger;
+		if(inputValidation($('.popup_area [required]'))) {
+			var formData = makeFormData();
+			putAjax("/user/ar/ar02/updatePchsSellPart", formData, null, function(data){
 				alert(data.resultMessage);
 				if (data.resultCode == 200) {
 					subGridView.setData(0);
