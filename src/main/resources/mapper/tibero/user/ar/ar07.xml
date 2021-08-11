@@ -29,7 +29,7 @@
 			SELECT COUNT(*)
 		  	 FROM TB_AR07M01 C
 			  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD 
-			  WHERE  C.CLOSE_YM != TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYYMM')
+			  WHERE  C.CLOSE_YM = TO_CHAR(ADD_MONTHS(SYSDATE,-1),'YYYYMM')
 			 	  <if test="coCd != null and !coCd.equals('')">
 				  AND C.CO_CD = #{coCd}				
 				  </if>	
@@ -1410,7 +1410,7 @@
 					         , SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 4) || '-' || SUBSTRING(REPLACE(#{baseDt}, '-', ''), 5,2) CLOSE_YM
 							 , AR05.CLNT_CD
 							 , 0 AS BASIS_AMT   <!--  당월 기초 -->
-							 , SUM(DECODE(SUBSTRING(AR05.ETRDPS_DT, 0, 6)SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 6), AR05.ETRDPS_AMT,0)) CLMN_AMT <!--- 당월입금 -->
+							 , SUM(DECODE(SUBSTRING(AR05.ETRDPS_DT, 0, 6),SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 6), AR05.ETRDPS_AMT,0)) CLMN_AMT <!--- 당월입금 -->
 							 , 0 AS TOT_AMT           <!-- 당월 매출채권 -->
 							 , 0 AS TRMEND_AMT <!-- 당월기말 -->
 							 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
