@@ -270,7 +270,8 @@
 						<col width="11%">
 					</colgroup>
 					<tr>
-						<th class="tc" colspan="9">합계</th>
+						<th class="tc" colspan="8">합계</th>
+						<td class="tr" id="totBilgAmt"></td>
 						<td class="tr" id="totEtrdpsAmt"></td>
 					</tr>
 				</table>
@@ -559,7 +560,7 @@
 				$(".detailRow").find("[name="+key+"]")[idx].value = itemValue;
 			}
 		});
-	//	setTot();
+		setTot();
 	}
 	
 	function insertEtrdps() {
@@ -795,9 +796,11 @@
 	}
 	
 	function setTot(){
+		var totBilgAmt   = 0;
 		var totEtrdpsAmt = 0;
-		var etrdpsAmt = deleteCommaStr($("#etrdpsAmt").val());
+ 		var etrdpsAmt = deleteCommaStr($("#etrdpsAmt").val());
 		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) {
+			var tableBilgAmt   = Number(deleteCommaStr($(elem).find("input[name='bilgTot']").val()));
 			if($(elem).find("input[name='detailChkBox']").prop("checked")){
 				var tableEtrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val()));
 				if(!tableEtrdpsAmt){
@@ -812,8 +815,10 @@
 					totEtrdpsAmt = etrdpsAmt;
 				}
 			}
+			totBilgAmt += tableBilgAmt;
 		});
-		
+
+		$("#totBilgAmt").text(addCommaStr(totBilgAmt));
 		$("#totEtrdpsAmt").text(addCommaStr(totEtrdpsAmt));
 	}
 	
