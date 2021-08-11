@@ -61,19 +61,25 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" id="coCd" name="coCd"  data-search="coCd"  onchange="setByCoCd(this.value); gridView.initView(closeYm.value).setData(0);" required="required">
+							<select data-kind="CO" id="coCd" name="coCd"  data-search="coCd"  onchange="setByCoCd(this.value); gridView.initView(baseDt.value).setData(0);" required="required">
 								<option value="">전체</option>
 							</select>
 						</td>
-						<th class="hit">기준년월</th>
-						<td>
-							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;">
-						</td>
+						<th class="hit">기준일자</th>
+		                <td>
+		                    <div class="date_input">
+		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt" onchange="gridView.initView(baseDt.value).setData(0);">
+		                    </div>
+		                </td>
+<!-- 						<th class="hit">기준년월</th> -->
+<!-- 						<td> -->
+<!-- 							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;"> -->
+<!-- 						</td> -->
 						<th>거래처</th>
 						<td>
 		                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
 		                  <div class="search_form" style="width: 50%;">
-			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(closeYm.value).setData(0) : ''">
+			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(baseDt.value).setData(0) : ''">
 			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 			              </div>
 		                </td>
@@ -125,10 +131,14 @@
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
 	var gridView = {
-		initView : function(closeYm) {
-			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
-			var closeYm0 = $("#closeYm").val().replace(/\-/g,'');
+		initView : function(baseDt) {
+// 			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+// 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+// 			var closeYm0 = $("#closeYm").val().replace(/\-/g,'');
+            var baseDtSt = $("#baseDt").val().replace(/\-/g,'');
+			var closeYm0 = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+			var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+			var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
 			
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
@@ -189,17 +199,17 @@
 		        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "right",   width: 60},
 		        	{key: "sellPmntMtdNm",  	 label: "방법", 		 align: "center",   width: 60},
 		        	{key: "pre3CreditAmt",		 label: "전월잔액",     align: "right",   width: 140, formatter: "money",
-		        				styleClass: function () {return (this.item.pre3PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},		        		
+		        				styleClass: function () {return (this.item.pre3PchsClmnDay < baseDtSt ? "grid-font-bold":"")}},		        		
 		        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140, hidden: true},
 		        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 잔액",  align: "right",   width: 140, formatter: "money",
-		        				styleClass: function () {return (this.item.pre2PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},	
+		        				styleClass: function () {return (this.item.pre2PchsClmnDay < baseDtSt ? "grid-font-bold":"")}},	
 		        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140, hidden: true},
 		        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 잔액",  align: "right",   width: 140, formatter: "money",
-		        				styleClass: function () {return (this.item.pre1PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},	
+		        				styleClass: function () {return (this.item.pre1PchsClmnDay < baseDtSt ? "grid-font-bold":"")}},	
 		        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140, hidden: true},
-		        	{key: "curCreditAmt", 		 label: closeYm  +" 잔액",  align: "right",   width: 140, formatter: "money",
-		        				styleClass: function () {return (this.item.pre0PchsClmnDay < closeYm0 ? "grid-font-bold":"")}},	
-		        	{key: "curPchsClmnDay",      label: closeYm  +"결제에정일",  align: "right",   width: 140, hidden: true},
+		        	{key: "curCreditAmt", 		 label: closeYm0 +" 잔액",  align: "right",   width: 140, formatter: "money",
+		        				styleClass: function () {return (this.item.pre0PchsClmnDay < baseDtSt ? "grid-font-bold":"")}},	
+		        	{key: "pre0PchsClmnDay",      label: closeYm0 +"결제에정일",  align: "right",   width: 140, hidden: true},
 		        	{key: "curTrmendCreditAmt",  label: "합계",    	 align: "right",   width: 140, formatter: "money"},
 		        	
 		        	{key: "unsetlBilAmt",   	 label: "미결제어음",    align: "right",   width: 140, formatter: "money"},
@@ -209,7 +219,7 @@
                     },		        	
 		        	{key: "crdtLmt",    label: "여신한도",  align: "right",   width: 140, formatter: "money"},
 		        	{key: "crdtLoan",   label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "pldgAmt",    label: "담보금액",  align: "right",   width: 140, formatter: "money"},
+		        	{key: "pldgAmt",    label: "담보금액",  align: "right",   width: 140, formatter: "money"}
 				        	
 		        ]
 			});
@@ -224,7 +234,7 @@
  				paramObj[$(tempElem).data("search")] = $(tempElem).val();
  			}
 			//set DATE type 
-			paramObj.closeYm = $("#closeYm").val().replace(/\-/g,'');
+			paramObj.baseDt = $("#baseDt").val().replace(/\-/g,'');
 			
 			postAjax("/user/ar/ar07/selectClosCditList", paramObj, null, function(data) {
 				var list = data.resultList;
@@ -238,9 +248,13 @@
 		}
 	}
 	var excelView = {
-			initView: function(closeYm){
-				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			initView: function(baseDt){
+// 				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+// 				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+				var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+				var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+				var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
+				
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
@@ -310,16 +324,23 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setByCoCd(jwt.coCd);
 		// 기준년월
-		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
-			gridView.setData(0);
+ 			gridView.setData(0);
 		});
 		
+		$('#baseDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+		});
+			
 		// grid init
-		gridView.initView(closeYm.value).setData(0);
-		excelView.initView(closeYm.value);
+		gridView.initView(baseDt.value).setData(0);
+		excelView.initView(baseDt.value);
 		authChk();
 	});
 	
@@ -329,7 +350,8 @@
 		// 조건초기화
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 기간
-		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 		
@@ -350,15 +372,15 @@
 
 	function excelDown() {
 
-		excelView.initView(closeYm.value);
+		excelView.initView(baseDt.value);
 		
 		var paramObj = {"pageNo" : 1, "recordCnt"   : 9999999 };
 		
 		var formData = {
-				"closeYm" : $("#closeYm").val().replace(/\-/g,''),
-				"coCd"    : $("#coCd").val(),
-				"clntCd"  : $("#clntCd").val(),
-				"clntNm"  : $("#clntNm").val(),
+				"baseDt"   : $("#baseDt").val().replace(/\-/g,''),
+				"coCd"     : $("#coCd").val(),
+				"clntCd"   : $("#clntCd").val(),
+				"clntNm"   : $("#clntNm").val(),
 				"prdtGrp"  : $("#prdtGrp_S").val(),
 				"taxivcCoprt"  : $("#taxivcCoprt").val(),
 				"pageNo"  :  1, 
@@ -374,11 +396,11 @@
 				excelView.target.setData({
 					list : list,
 					page : {
-						totalElements : list.length,
+						totalElements : list.length
 					}
 				});
 				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("매출채권(연체현황)조회_"+todayDate+".xls");
+				excelView.target.exportExcel("매출채권(연체현황" + baseDt +")조회_"+todayDate+".xls");
 			});	
 	}	
 	
