@@ -947,7 +947,19 @@
 	UPDATE TB_AR04M01
 	   SET TAX_BILG_NO = #{bgm1004}
 	     , TAX_DT = REPLACE(#{selectDt}, '-', '')
-	     , SND_YN = 'Y'
+		<choose>
+			<when test='sndYn != null and sndYn.equals("Y")'>
+     			, SND_YN = 'Y'
+     		</when>
+     		<otherwise>
+     			<!-- 전송여부 N -->
+     			, SND_YN = 'N'
+     			<!-- 국세청 접수여부 N-->
+     			, RCV_YN = 'N'
+     			<!-- 결과 Y-->
+     			, CSEQ_RCV_YN = 'Y'
+     		</otherwise>
+		</choose>
 	     , SND_DTTM = SYSDATE
 	     , ORGN_TAX_BILG_NO = #{orgnTaxBilgNo}
 	     , SND_PROC_ID = #{userId}
@@ -1501,11 +1513,25 @@
 		, SND_YN
 		, SND_DTTM
 		, SND_PROC_ID
+		<choose>
+			<when test='sndYn != null and sndYn.equals("Y")'>
+				, NULL
+			</when>
+			<otherwise>
+				, CSEQ_RCV_YN
+			</otherwise>
+		</choose>
 		, NULL
 		, NULL
 		, NULL
-		, NULL
-		, NULL
+		<choose>
+			<when test='sndYn != null and sndYn.equals("Y")'>
+				, NULL
+			</when>
+			<otherwise>
+				, RCV_YN
+			</otherwise>
+		</choose>
 		, NULL
 		, NULL
 		, NULL

@@ -182,7 +182,14 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHd(Map<String, Object> paramMap) {
 		int result = 0;
-		String loginId = yamlReader.getKlnet().getLoginId();
+		String loginId = null;
+		String sndYn = String.valueOf(paramMap.get("sndYn"));
+		if("Y".equals(sndYn)) {
+			loginId = yamlReader.getKlnet().getLoginId();
+		}else {
+			loginId = yamlReader.getKlnet().getTestId();
+		}
+		
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -311,7 +318,13 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHdUpdate(Map<String, Object> paramMap) {
 		int result = 0;
-		String loginId = yamlReader.getKlnet().getLoginId();
+		String loginId = null;
+		String sndYn = String.valueOf(paramMap.get("sndYn"));
+		if("Y".equals(sndYn)) {
+			loginId = yamlReader.getKlnet().getLoginId();
+		}else {
+			loginId = yamlReader.getKlnet().getTestId();
+		}
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -405,7 +418,13 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHdReSend(Map<String, Object> paramMap) {
 		int result = 0;
-		String loginId = yamlReader.getKlnet().getLoginId();
+		String loginId = null;
+		String sndYn = String.valueOf(paramMap.get("sndYn"));
+		if("Y".equals(sndYn)) {
+			loginId = yamlReader.getKlnet().getLoginId();
+		}else {
+			loginId = yamlReader.getKlnet().getTestId();
+		}
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -476,7 +495,13 @@ public class AR04SvcImpl implements AR04Svc {
 	@Override
 	public int insertTaxHdCancel(Map<String, Object> paramMap) {
 		int result = 0;
-		String loginId = yamlReader.getKlnet().getLoginId();
+		String loginId = null;
+		String sndYn = String.valueOf(paramMap.get("sndYn"));
+		if("Y".equals(sndYn)) {
+			loginId = yamlReader.getKlnet().getLoginId();
+		}else {
+			loginId = yamlReader.getKlnet().getTestId();
+		}
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
@@ -670,12 +695,10 @@ public class AR04SvcImpl implements AR04Svc {
 
 	int insertKladdi(int msgId, Map<String, String> param) {
 		int result = 0;
-		String loginId = yamlReader.getKlnet().getLoginId();
 		
 		// 연계문서 발행
 		String xmlMsgId = ar04Mapper.selectMsgId(msgId);// 새 메시지아이디 생성
 		param.put("xmlMsgId", xmlMsgId);
-		param.put("loginId", loginId);
 		param.put("docName", "KLADDI"); // 연계문서 KLADDI
 		param.put("docCode", "6KQ"); // 문서코드 6KQ
 		result = ar04Mapper.insertMapoutKey(param); // 연계문서 mapoutkey insert

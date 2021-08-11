@@ -1,15 +1,10 @@
-<style>
-	input[comma] {text-align: right;}
-</style>
 <div class="popup_area of_a" style="width: 100%; height: 100%;">
-    <div class="tit_contents">
-        <h4 class="tit">세금 계산서 발행일자 선택</h4>
-    </div>
-
+	<div class="tit_contents">
+		<h4 class="tit">세금 계산서 발행일자 선택</h4>
+	</div>
 	<div class="popup_table">
 		<div class="form-group">
-			<form id="selectForm">
-				<input type="hidden" id="pgmId" name="pgmId" value="AR0401P05">
+			<form id="taxBillForm">
 				<!-- 기본정보 테이블 -->
 				<table class="popup_table">
 					<colgroup>
@@ -17,18 +12,30 @@
 						<col width="75%">
 					</colgroup>
 					<tbody>
-						<tr >
-							<th rowspan="6" class="hit">발행 일자</th>
-							<td >
-								<div  style="width: 50%; margin-left:20px; text-align: left; ">
-									<input type="text" class="input_calendar" autocomplete="off" id="selectDt" data-search="selectDt" required="required" msg="계산서 발행일자"> 
+						<tr>
+							<th class="hit">발행 일자</th>
+							<td>
+								<div class="pdl20" style="width: 50%;">
+									<input type="text" class="input_calendar" autocomplete="off" id="selectDt" name="selectDt" msg="계산서 발행일자" required>
 								</div>
 							</td>
 						</tr>
+						<tr id="sndYnRow">
+							<th>국세청발송여부</th>
+							<td class="tl" style="padding: 5px 0px 5px 20px;">
+								<input type="radio" id="sendY" name="sndYn" value="Y" checked>
+								<label for="sendY">예</label>
+								<input type="radio" id="sendN" name="sndYn" value="N" style="margin-left: 5px;">
+								<label for="sendN">아니오</label>
+							</td>
+						</tr>
 						<tr>
-							<td colspan="2">
-								<div  style="width: 90%; margin-left:20px; text-align: left; color:red ;">
-									<a> 1.세금계산서 발행 후 자동 전송처리되며 수정할 수 없습니다.<br>2.수정 사항 발생시 수정세금계산서 처리하여야 합니다.</a>
+							<th>주의사항</th>
+							<td>
+								<div class="tl" style="margin-left: 20px; color: red;">
+									1.세금계산서 발행 후 자동 전송처리되며 수정할 수 없습니다.
+									<br>
+									2.수정 사항 발생시 수정세금계산서 처리하여야 합니다.
 								</div>
 							</td>
 						</tr>
@@ -39,13 +46,11 @@
 		</div>
 	</div>
 	<div>
-	    <button type="button" class="btn btn-default btn-sm" onclick="setSelectDt();" authchk>세금계산서 발행/전송처리</button>
-	    <button type="button" class="close_btn"  onclick="modalStack.close();">닫기</button>
-    </div>
+		<button type="button" class="btn btn-default btn-sm" onclick="issueTaxBill();" authchk>세금계산서 발행/전송처리</button>
+	</div>
 </div>
 <script type="text/javascript">	
 	$(document).ready(function() {
-		
 		// 시작일 (현재날짜의 월 첫일)
 		$('#selectDt').datepicker({
 			format : "yyyy-mm-dd",
@@ -56,13 +61,20 @@
 		})
 		.datepicker("setDate", modalStack.last().paramObj.selectDt);
 		
+		// 국세청 전송여부 표시
+		var sndYnDp = modalStack.last().paramObj.sndYnDp;
+		if(sndYnDp == "N"){
+			$('#sndYnRow').remove();
+		}
+		
 		authChk("AR0401M01");
 	});
 
-	function setSelectDt(){
+	function issueTaxBill(){
 		if(checkIssueDate()){
-	 		modalStack.last().callback($("#selectDt").val().replace(/\-/g,''));
-	 		modalStack.close();
+			var callbackObj = $('#taxBillForm').serializeObject();
+			callbackObj.selectDt = deleteHyphenStr(callbackObj.selectDt);
+	 		modalStack.last().callback(callbackObj);
 		}
 	}
 	

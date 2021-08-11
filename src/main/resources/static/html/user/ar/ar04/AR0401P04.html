@@ -1,17 +1,10 @@
-<style>
-	input[comma] {text-align: right;}
-</style>
 <div class="popup_area of_a" style="width: 100%; height: 100%;">
-    <div class="tit_contents">
-        <h4 class="tit">세금 계산서 수정 사유 선택</h4>
-    </div>
-
+	<div class="tit_contents">
+		<h4 class="tit">세금 계산서 수정 사유 선택</h4>
+	</div>
 	<div class="popup_table">
 		<div class="form-group">
-			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
-			<form id="clntForm">
-				<input type="hidden" id="pgmId" name="pgmId" value="BM0602P02">
-				<input type="hidden" id="clntCd" name="clntCd">
+			<form id="taxBillForm">
 				<!-- 기본정보 테이블 -->
 				<table class="popup_table">
 					<colgroup>
@@ -19,31 +12,54 @@
 						<col width="75%">
 					</colgroup>
 					<tbody>
-						<tr >
-							<th rowspan="2" class="hit">수정 사유</th>
-							<td >
-								<div  style="width: 50%; margin-left:20px; text-align: left; ">
-									<INPUT type=radio id="iChk" name="iChk" value="RFFAEA01" checked> 1.기재사항의 착오,정정<br>
-									<INPUT type=radio id="iChk" name="iChk" value="RFFAEA02"> 2.공급가액 변동<br>
-									<INPUT type=radio id="iChk" name="iChk" value="RFFAEA03"> 3.환입<br>
-									<INPUT type=radio id="iChk" name="iChk" value="RFFAEA04"> 4.계약의 해제<br>  
-									<INPUT type=radio id="iChk" name="iChk" value="RFFAEA05"> 5.내국신용장 사후 개설<br>  
-									<INPUT type=radio id="iChk" name="iChk" value="RFFAEA06"> 6.착오에 의한 이중발행<br>
+						<tr>
+							<th class="hit">수정 사유</th>
+							<td>
+								<div style="width: 50%; margin-left: 20px; text-align: left;">
+									<input type="radio" id="rffAea01" name="rffAea" value="RFFAEA01" checked>
+									<label for="rffAea01">1.기재사항의 착오,정정</label>
+									<br> 
+									<input type="radio" id="rffAea02" name="rffAea" value="RFFAEA02">
+									<label for="rffAea02">2.공급가액 변동</label>
+									<br>
+									<input type="radio" id="rffAea03" name="rffAea" value="RFFAEA03">
+									<label for="rffAea03">3.환입</label>
+									<br>
+									<input type="radio" id="rffAea04" name="rffAea" value="RFFAEA04"> 
+									<label for="rffAea04">4.계약의 해제</label>
+									<br>
+									<input type="radio" id="rffAea05" name="rffAea" value="RFFAEA05"> 
+									<label for="rffAea05">5.내국신용장 사후 개설</label>
+									<br>
+									<input type="radio" id="rffAea06" name="rffAea" value="RFFAEA06">
+									<label for="rffAea06">6.착오에 의한 이중발행</label>
 								</div>
 							</td>
 						</tr>
 						<tr>
-							<td colspan="2">
-								<div  style="width: 90%; margin-left:20px; text-align: left; color:red ;">
-									<a> 1.수정확정시 수정 세금계산서 자동 전송되며,<br>2.최종 수정완료된 세금계산서는 수정후 필히 전송처리 해야합니다. </a>
+							<th class="hit">발행 일자</th>
+							<td>
+								<div class="pdl20" style="width: 50%;">
+									<input type="text" class="input_calendar" autocomplete="off" id="selectDt" name="selectDt" msg="계산서 발행일자" required>
 								</div>
 							</td>
 						</tr>
-						<tr >
-							<th class="hit">발행 일자</th>
-							<td >
-								<div  style="width: 50%; margin-left:20px; text-align: left; ">
-									<input type="text" class="input_calendar" autocomplete="off" id="selectDt" data-search="selectDt" required="required" msg="계산서 발행일자"> 
+						<tr>
+							<th>국세청발송여부</th>
+							<td class="tl" style="padding: 5px 0px 5px 20px;">
+								<input type="radio" id="sendY" name="sndYn" value="Y" checked>
+								<label for="sendY">예</label>
+								<input type="radio" id="sendN" name="sndYn" value="N" style="margin-left: 5px;">
+								<label for="sendN">아니오</label>
+							</td>
+						</tr>
+						<tr>
+							<th>주의사항</th>
+							<td>
+								<div class="tl" style="margin-left: 20px; color: red;">
+									1.세금계산서 발행 후 자동 전송처리되며 수정할 수 없습니다.
+									<br>
+									2.수정 사항 발생시 수정세금계산서 처리하여야 합니다.
 								</div>
 							</td>
 						</tr>
@@ -54,13 +70,11 @@
 		</div>
 	</div>
 	<div>
-	    <button type="button" class="btn btn-default btn-sm" onclick="setRffAea();" authchk>수정세금계산서발행</button>
-	    <button type="button" class="close_btn"  onclick="modalStack.close();">닫기</button>
-    </div>
+		<button type="button" class="btn btn-default btn-sm" onclick="issueAmdTaxBill();" authchk>수정세금계산서발행</button>
+	</div>
 </div>
 <script type="text/javascript">	
 	$(document).ready(function() {
-		
 		// 시작일 (현재날짜의 월 첫일)
 		$('#selectDt').datepicker({
 			format : "yyyy-mm-dd",
@@ -74,10 +88,11 @@
 		authChk("AR0401M01");
 	});
 	
-	function setRffAea(){
+	function issueAmdTaxBill(){
 		if(checkIssueDate()){
-			modalStack.last().callback($("input[name='iChk']:checked").val(), $("#selectDt").val().replace(/\-/g,''));
-			modalStack.close();
+			var callbackObj = $('#taxBillForm').serializeObject();
+			callbackObj.selectDt = deleteHyphenStr(callbackObj.selectDt);
+	 		modalStack.last().callback(callbackObj);
 		}
 	}
 	

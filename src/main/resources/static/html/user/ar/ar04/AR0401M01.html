@@ -132,7 +132,8 @@
 						<a onclick="viewTaxBilgDetailModal('E');" style="height: 30px; line-height: 28px; width: 80px;" authchk><i class="fas fa-user-check"></i>이메일입력</a>
 						<a onclick="openTaxManagerTap();" style="height: 30px; line-height: 28px; width: 100px;" authchk><i class="fas fa-address-card"></i>수신담당자관리</a>
 						<a onclick="insertTaxHd();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-file-alt"></i>계산서정발행</a>
-						<a onclick="insertTaxHdReSend();" style="height: 30px; line-height: 28px; width: 80px;" authchk><i class="fas fa-file-export"></i>재전송</a>
+<!-- 						재전송은 이미 발행된 건에 대해서 메일을 재전송하려고 사용중이지만 현재 메일이 재전송되지 않으므로 주석처리 - 2021/08/11 -->
+<!-- 						<a onclick="insertTaxHdReSend();" style="height: 30px; line-height: 28px; width: 80px;" authchk><i class="fas fa-file-export"></i>재전송</a> -->
 <!-- 						<a onclick="insertTaxHdCancel();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-redo"></i>정발행취소</a> -->
 						<a onclick="insertTaxHdUpdate();" style="height: 30px; line-height: 28px; width: 100px;" authchk><i class="fas fa-file-signature"></i>수정세금계산서</a>
 						<a onclick="updateTaxHdRvrs();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-file-download"></i>역발행확인</a>
@@ -540,7 +541,24 @@
 		// 재검색
 		gridView.initView().setData(0);
 	}
+	
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt_S').data("rprc", value);
+		$('#main_area #taxivcCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt_S'));  
+	}
 
+	// 거래처 검색창
+	function clntSearch(type) {
+		actionTp = type;
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
+	}
+	
 	// 세금계산서 수정 화면
 	function viewTaxBilgDetailModal(actionType) {
 		var rowLength = gridView.target.getList("selected").length;
@@ -562,96 +580,7 @@
 		openModal("/static/html/user/ar/ar04/AR0401P01.html", 1000, 640, "");
 	}
 	
-	// 거래처 검색창
-	function clntSearch(type) {
-		actionTp = type;
-		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
-			var row = grid.target.getList("selected")[0];
-			$('#clntCd').val(row.clntCd);
-			$('#clntNm').val(row.clntNm);
-		});
-	}
-
-
-
-	//세금계산서재전송
-	function insertTaxHdReSend(index){
-		var flag = false;
-		var clntFlag = false;
-		var list = gridView.target.getList("selected");
-		var bilgCertNoArr = [];
-		var coCdArr = [];
-		var emailChk = true;
-		var selpchChk = true;
-		var emailIdx;
-		var selectDt;
-		$.each(list, function(idx, obj){
-			// 매입매출 체크
-			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
-				selpchChk = false;
-				alert("매출계산서만 전송 가능합니다!");
-				return false;
-			}
-			//세금계산서 발행일자 초기값 설정
-			selectDt = obj.sellDt;
-			if(!obj.taxBilgNo) {
-				flag = true;
-				alert("세금계산서 발행된 건이 아닙니다.");
-				return false;
-			}
-			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
-			if(!obj.taxRcvEmail){
-				emailChk = false;
-				alert("수신자 Email 입력 후 발행해 주세요.");
-				emailIdx = obj.__index;
-				return false;
-			}
-
-		});
-		if(flag) {
-			return;
-		}; 
-		var rowLength = gridView.target.getList("selected").length;
-		if(rowLength == 0) {
-			alert("세금계산서를 선택해 주세요.");
-			return;
-		}
-		if(!emailChk){
-			$.each(list, function(idx, obj){
-				gridView.target.select(obj.__index);
-			});
-			gridView.target.select(emailIdx);
-			viewTaxBilgDetailModal("U");
-			return false;
-		}
-		
-		if(!selpchChk){
-			return false;
-		}
-		
-		if(!confirm(rowLength + "건을 재전송 하시겠습니까?")){
-			return;
-		}
-		var paramObj = {
-				"selectDt": selectDt
-			}
-		openSecondModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 260, "세금계산서 발행일자 선택", paramObj, function (selectDt) {
-			
-			var formData = {
-					"bilgCertNoArr" : bilgCertNoArr,
-					"userId" : jwt.userId,
-					"userNm" : jwt.userNm,
-					"deptId" : jwt.deptId,
-					"pgmId" : "AR0401M01",
-					"selectDt" : selectDt
-				}
-			postAjax("/user/ar/ar04/insertTaxHdReSend", formData, null, function(data){
-				alert(data.resultMessage);
-				gridView.setData(0);
-			});
-		});
-	}
-	
+	// 수신담당자 관리
 	function openTaxManagerTap(){
 		row = gridView.target.getList("selected")[0];
     	var rowLength = gridView.target.getList("selected").length;
@@ -667,10 +596,7 @@
         win.focus();
 	}
 	
-	
-
-
-	//세금계산서정발행
+	// 세금계산서정발행
 	function insertTaxHd(){
 		var flag = false;
 		var clntFlag = false;
@@ -737,7 +663,6 @@
 				return false;
 			}
 				
-			
 			//e-Mail 체크
 			if(!obj.taxRcvEmail){
 				emailChk = false;
@@ -748,10 +673,10 @@
 			
 			//coCdArr.push(obj.coCd);
 		});
+		
 		if(!arrGnChk){
 			return false;
 		}
-		
 		if(!rvrsChk){
 			alert("역발행 확인된 세금계산서입니다. 정발행 처리 불가!");
 			return;
@@ -768,7 +693,6 @@
 			alert("세금계산서 발행된 건이 있습니다.");
 			return;
 		}; 
-		
 		if(!selpchChk){
 			return false;
 		}
@@ -777,39 +701,113 @@
 			alert("정발행 세금계산서 대상자료를 선택해 주세요.");
 			return;
 		}
-
 		if(rowLength > 1) {
 			alert("발행일자 선택 1건씩 처리만 가능합니다..");
 			return;
 		}
-
 		if(!confirm(rowLength + "건을 발행하시겠습니까?")){
 			return;
 		}
-
 		var paramObj = {
-				"selectDt": selectDt
-			}
-		openSecondModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 260, "세금계산서 발행일자 선택", paramObj, function (selectDt) {
+			"selectDt": selectDt,
+			"sndYnDp": "Y"
+		}
+		openModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 240, "", paramObj, function (callbackObj) {
+			callbackObj.bilgCertNoArr = bilgCertNoArr;
+			callbackObj.userId = jwt.userId;
+			callbackObj.userNm = jwt.userNm;
+			callbackObj.deptId = jwt.deptId;
+			callbackObj.pgmId = "AR0401M01";
 			
-			var formData = {
-					"bilgCertNoArr" : bilgCertNoArr,
-					"userId" : jwt.userId,
-					"userNm" : jwt.userNm,
-					"deptId" : jwt.deptId,
-					"pgmId" : "AR0401M01",
-					"selectDt" : selectDt
-				}
-				postAjax("/user/ar/ar04/insertTaxHd", formData, null, function(data){
-					alert(data.resultMessage);
+			postAjax("/user/ar/ar04/insertTaxHd", callbackObj, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
 					gridView.setData(0);
-				});
-		
+	 				modalStack.close();
+				}
+			});
 		});
-		
 	}
 
-	//세금계산서발행취소
+	//세금계산서재전송
+	function insertTaxHdReSend(index){
+		var flag = false;
+		var clntFlag = false;
+		var list = gridView.target.getList("selected");
+		var bilgCertNoArr = [];
+		var coCdArr = [];
+		var emailChk = true;
+		var selpchChk = true;
+		var emailIdx;
+		var selectDt;
+		$.each(list, function(idx, obj){
+			// 매입매출 체크
+			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
+				selpchChk = false;
+				alert("매출계산서만 전송 가능합니다!");
+				return false;
+			}
+			//세금계산서 발행일자 초기값 설정
+			selectDt = obj.sellDt;
+			if(!obj.taxBilgNo) {
+				flag = true;
+				alert("세금계산서 발행된 건이 아닙니다.");
+				return false;
+			}
+			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+			if(!obj.taxRcvEmail){
+				emailChk = false;
+				alert("수신자 Email 입력 후 발행해 주세요.");
+				emailIdx = obj.__index;
+				return false;
+			}
+
+		});
+		
+		if(flag) {
+			return;
+		}; 
+		var rowLength = gridView.target.getList("selected").length;
+		if(rowLength == 0) {
+			alert("세금계산서를 선택해 주세요.");
+			return;
+		}
+		if(!emailChk){
+			$.each(list, function(idx, obj){
+				gridView.target.select(obj.__index);
+			});
+			gridView.target.select(emailIdx);
+			viewTaxBilgDetailModal("U");
+			return false;
+		}
+		if(!selpchChk){
+			return false;
+		}
+		if(!confirm(rowLength + "건을 재전송 하시겠습니까?")){
+			return;
+		}
+		var paramObj = {
+			"selectDt": selectDt,
+			"sndYnDp": "Y"
+		}
+		openModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 240, "", paramObj, function (callbackObj) {
+			callbackObj.bilgCertNoArr = bilgCertNoArr;
+			callbackObj.userId = jwt.userId;
+			callbackObj.userNm = jwt.userNm;
+			callbackObj.deptId = jwt.deptId;
+			callbackObj.pgmId = "AR0401M01";
+			
+			postAjax("/user/ar/ar04/insertTaxHdReSend", callbackObj, null, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+	 				modalStack.close();
+				}
+			});
+		});
+	}
+	
+	// 세금계산서 발행취소
 	function insertTaxHdCancel(){
 		var flag = false;
 		var clntFlag = false;
@@ -911,7 +909,7 @@
 		});
 	}
 
-	//세금계산서수정발행
+	// 수정세금계산서 발행
 	var updateRffAea = "";
 	function insertTaxHdUpdate(){
 		var flag = false;
@@ -956,7 +954,8 @@
 				alert("수정발행처리된 세금계산서입니다 확인하세요!");
 				return false;
 			}
-			if(obj.rcvYn != "Y"){
+			if(!obj.rcvYn){
+				// rcvYn값이 'NULL'이면
 				arrGnChk = false;
 				alert("전송 대기 중인 세금계산서입니다 확인하세요!");
 				return false;
@@ -993,30 +992,27 @@
 			return;
 		}
 		var paramObj = {
-				"selectDt": selectDt
-			}
-		openSecondModal("/static/html/user/ar/ar04/AR0401P04.html", 600, 280, "수정사유코드 선택", paramObj, function (rffAea, selectDt) {
+			"selectDt": selectDt
+		}
+		openModal("/static/html/user/ar/ar04/AR0401P04.html", 600, 340, "", paramObj, function (callbackObj) {
+			callbackObj.bilgCertNoArr = bilgCertNoArr;
+			callbackObj.userId = jwt.userId;
+			callbackObj.userNm = jwt.userNm;
+			callbackObj.deptId = jwt.deptId;
+			callbackObj.pgmId = "AR0401M01";
 			
-
-			var formData = {
-				"bilgCertNoArr" : bilgCertNoArr,
-				"userId" : jwt.userId,
-				"userNm" : jwt.userNm,
-				"deptId" : jwt.deptId,
-				"pgmId" : "AR0401M01",
-				"rffAea" : rffAea,
-				"selectDt" : selectDt
-			}
-			postAjax("/user/ar/ar04/insertTaxHdUpdate", formData, null, function(data){
-				console.log(data);
+			postAjax("/user/ar/ar04/insertTaxHdUpdate", callbackObj, null, function(data){
 				alert(data.resultMessage);
-				gridView.setData(0);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+	 				modalStack.close();
+				}
 			});
 		});
 	}
 	
+	// 역발행 확인
 	function updateTaxHdRvrs(){
-
 		var rowLength = gridView.target.getList("selected").length;
 		var flag = false;
 		var bilgCertNoArr = [];
@@ -1057,9 +1053,7 @@
 		if(flag) {
 			return;
 		};
-		
 		var rowLength = gridView.target.getList("selected").length;
-		
 		if(rowLength == 0) {
 			alert("역발행 확정 대상 자료를 선택해 주세요.");
 			return;
@@ -1070,27 +1064,28 @@
 // 		}
 		
 		var paramObj = {
-				"selectDt": selectDt
-			}
-		openSecondModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 260, "세금계산서 발행일자 선택", paramObj, function (selectDt) {
+			"selectDt": selectDt,
+			"sndYnDp": "N"
+		}
+		openModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 240, "", paramObj, function (callbackObj) {
+			callbackObj.bilgCertNoArr = bilgCertNoArr;
+			callbackObj.userId = jwt.userId;
+			callbackObj.userNm = jwt.userNm;
+			callbackObj.deptId = jwt.deptId;
+			callbackObj.pgmId = "AR0401M01";
 			
-			var formData = {
-				"bilgCertNoArr" : bilgCertNoArr,
-				"userId" : jwt.userId,
-				"userNm" : jwt.userNm,
-				"deptId" : jwt.deptId,
-				"pgmId" : "AR0401M01",
-				"selectDt" : selectDt
-			}
-			postAjax("/user/ar/ar04/updateBilgRvrs", formData, null, function(data){
+			postAjax("/user/ar/ar04/updateBilgRvrs", callbackObj, null, function(data){
 				alert(data.resultMessage);
-				gridView.setData(0);
+				if(data.resultCode == 200){
+					gridView.setData(0);
+	 				modalStack.close();
+				}
 			});
 		});
 	}
-
+	
+	// 역발행 취소
 	function updateTaxHdRvrsCancel(){
-
 		var flag = false;
 		var bilgCertNoArr = [];
 		var coCdArr = [];
@@ -1130,6 +1125,7 @@
 		});
 	}
 	
+	// 계산서 인쇄
 	function setReportMain() {
 		var flag = false;
 		var coFlag = false;
@@ -1170,15 +1166,6 @@
 		var arg =  "#ar_idx#"		+ bilgCertNoArr
 		         + "#";
 
-//	alert(arg);
-
 		callReport(fileName, arg, 1040, 720);
 	}
-
-	// 판매법인 set
-	function setByCoCd(value){
-		$('#main_area #taxivcCoprt_S').data("rprc", value);
-		$('#main_area #taxivcCoprt_S option:not([value=""])').remove()
-		setCommonSelect($('#main_area #taxivcCoprt_S'));  
-	} 	
 </script>
