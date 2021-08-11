@@ -205,6 +205,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("sndYn", sndYn);
 		taxHdParam.put("loginId", loginId);
 		String bgm1004 = ""; // AR04 - taxBilgNo
 		String orgnTaxBilgNo = "";
@@ -340,6 +341,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("sndYn", sndYn);
 		taxHdParam.put("loginId", loginId);
 		String bgm1004 = "";
 		String orgnTaxBilgNo = "";
@@ -439,6 +441,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("sndYn", sndYn);
 		taxHdParam.put("loginId", loginId);
 		String bgm1004 = "";
 		taxHdParam.put("userId", userId);
@@ -514,6 +517,7 @@ public class AR04SvcImpl implements AR04Svc {
 		String xmlMsgId = "";
 		Map<String, String> taxHdParam = new HashMap<String, String>();
 		taxHdParam.put("msgId", Integer.toString(msgId));
+		taxHdParam.put("sndYn", sndYn);
 		taxHdParam.put("loginId", loginId);
 		String bgm1004 = "";
 
