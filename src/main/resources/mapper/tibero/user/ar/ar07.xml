@@ -731,23 +731,23 @@
 	FROM (
 	
 	    SELECT
-	             CO_CD
-		       , FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM
-		       , CLNT_CD 
-		       , CLNT_NM
-		       , PRDT_GRP
-		       , PRJCT_CD
-		       , SELL_CLMN_DAY
-		       , SELL_CLMN_RMK
-		       , SELL_PAY_DIV_CD
-		       , FN_CM05M01_CD_TO_NM(SELL_PAY_DIV_CD) AS SELL_PAY_DIV_NM
-		       , SELL_CLMN_DIV_CD
-		       , FN_CM05M01_CD_TO_NM(SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_NM
-		       , PMNT_MTD_CD
-		       , FN_CM05M01_CD_TO_NM(PMNT_MTD_CD) AS SELL_PMNT_MTD_NM
-		       , SELL_VAT_CD
-		       , FN_CM05M01_CD_TO_NM(SELL_VAT_CD) AS SELL_VAT_NM
-		       , (SELECT SALES_EMP_ID FROM TB_BM02D01 BM02D01 WHERE BM02D01.CLNT_CD = CLNT_CD AND BM02D01.SALES_CO_CD = CO_CD AND BM02D01.USE_YN = 'Y' AND ROWNUM = 1 )  SALES_EMP_ID
+	             A.CO_CD
+		       , FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM
+		       , A.CLNT_CD 
+		       , A.CLNT_NM
+		       , MIN(A.PRDT_GRP) AS PRDT_GRP
+		       , MIN(A.PRJCT_CD) AS PRJCT_CD
+		       , DECODE(A.SELL_CLMN_DAY,0,'',A.SELL_CLMN_DAY) AS SELL_CLMN_DAY
+		       , A.SELL_CLMN_RMK
+		       , A.SELL_PAY_DIV_CD
+		       , FN_CM05M01_CD_TO_NM(A.SELL_PAY_DIV_CD) AS SELL_PAY_DIV_NM
+		       , A.SELL_CLMN_DIV_CD
+		       , FN_CM05M01_CD_TO_NM(A.SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_NM
+		       , A.PMNT_MTD_CD
+		       , FN_CM05M01_CD_TO_NM(A.PMNT_MTD_CD) AS SELL_PMNT_MTD_NM
+		       , A.SELL_VAT_CD
+		       , FN_CM05M01_CD_TO_NM(A.SELL_VAT_CD) AS SELL_VAT_NM
+		       , (SELECT SALES_EMP_ID FROM TB_BM02D01 BM02D01 WHERE BM02D01.CLNT_CD = A.CLNT_CD AND BM02D01.SALES_CO_CD = A.CO_CD AND BM02D01.USE_YN = 'Y' AND ROWNUM = 1 )  SALES_EMP_ID
 		       , SUM(PRE3_TRMEND_AMT)        AS PRE3_TRMEND_AMT        <!--  3개월전 채권잔액       -->
 		       , SUM(PRE2_CELL_CLMN_AMT)     AS PRE2_CELL_CLMN_AMT     <!--  2개월전 수금           -->
 		       , SUM(PRE2_CELL_TOT_AMT)      AS PRE2_CELL_TOT_AMT      <!--  2개월전 매출           -->
@@ -1004,23 +1004,29 @@
 		
 		</if>     
 		      ) A
-		      GROUP BY   CO_CD
-				       , CLNT_CD 
-				       , CLNT_NM
-				       , PRDT_GRP
-				       , PRJCT_CD
-				       , SELL_CLMN_DAY
-				       , SELL_CLMN_RMK
-				       , SELL_PAY_DIV_CD
-				       , SELL_CLMN_DIV_CD
-				       , PMNT_MTD_CD
-				       , SELL_VAT_CD
-		      
-		       
-		       
-		       
+		      GROUP BY   A.CO_CD
+				       , A.CLNT_CD 
+				       , A.CLNT_NM
+<!-- 				       , PRDT_GRP -->
+<!-- 				       , PRJCT_CD -->
+				       , DECODE(A.SELL_CLMN_DAY,0,'',A.SELL_CLMN_DAY)
+				       , A.SELL_CLMN_RMK
+				       , A.SELL_PAY_DIV_CD
+				       , A.SELL_CLMN_DIV_CD
+				       , A.PMNT_MTD_CD
+				       , A.SELL_VAT_CD
 	) AS AR07
 		LEFT JOIN TB_CM05M01 CM05M01 ON  AR07.SELL_CLMN_DIV_CD = CM05M01.CODE_ID
+    ORDER BY   CO_CD
+		       , CLNT_CD 
+		       , PRDT_GRP
+		       , PRJCT_CD
+		       , SELL_PAY_DIV_NM
+		       , SELL_CLMN_DIV_NM
+		       , SELL_PMNT_MTD_NM
+		       , SELL_CLMN_DAY		       
+		       
+		       
 	</select>
 	
 	
