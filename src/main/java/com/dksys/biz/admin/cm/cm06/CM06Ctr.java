@@ -129,4 +129,22 @@ public class CM06Ctr {
 		}
     	return "jsonView";
     }
+    
+    // 비밀번호 수정 by admin
+    @PutMapping("/updatePwByAdmin")
+    public String updatePwByAdmin(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	paramMap.put("id", paramMap.get("userId"));
+    	String prePw = paramMap.get("prePw");
+    	String newPw = paramMap.get("newPw");
+		paramMap.put("password", passwordEncoder.encode(newPw));
+		int result = cm06Svc.updatePw(paramMap);
+		if(result == 2) {
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("relogin"));
+		} else {
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 }
