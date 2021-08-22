@@ -148,7 +148,11 @@
 								<option value="Y">Y</option>
 							</select>
 						</td>
-
+          
+		           	      <th>창고조회여부</th>
+		                  <td>
+		                     <input type="checkbox" id="whShowYn" name="whShowYn"  data-search="whShowYn" style="width: 100%;" onchange="gridView.setData(0);">
+		                  </td>
 					</tr>
 				</table>
 			</div>
@@ -281,6 +285,11 @@
 				var tempElem = $('[data-search]')[i];
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
+			
+
+		       // 창고 조회 여부
+				paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
+			
 			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
 			postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
 				var list = data.resultList;
@@ -363,6 +372,8 @@
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setWareHouse(jwt.coCd);
+		
+		$('#whShowYn').prop("checked",true);
 		
 		// 기준년월
 // 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
@@ -457,7 +468,12 @@
 		for(var i=0;i<$('[data-search]').length;i++){
 			var tempElem = $('[data-search]')[i];
 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			
 		}
+
+	       // 창고 조회 여부
+			paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
+	       
 		paramObj["recordCnt"] = 9999999;
 		paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
 		
@@ -486,8 +502,11 @@
 	function setReportMain(type) {
 
 		var fileName = "RD0501R01.jrf";
+		var whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
 		
-	   if      (type =='STOCK'){  fileName = "RD0501R02.jrf";  //일재고 현황
+		
+	   if      (type =='STOCK'){ if(whShowYn == "Y") { fileName = "RD0501R02.jrf"; } //일재고 현황
+	  							 else                 { fileName = "RD0501R04.jrf"; } //일재고 현황
 	   }else if(type == 'WH09'){  fileName = "RD0501R03.jrf"; //인천하치장 일재고 현황
 	   }
 		var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
@@ -500,6 +519,7 @@
 		         + "#clntCd#"		+ $('[data-search="clntCd"]').val()
 		         + "#clntNm#"		+ $('[data-search="clntNm"]').val()
 		         + "#impYn#"		+ $('[data-search="impYn"]').val()
+		         + "#whShowYn#"		+ $('[data-search="whShowYn"]').val()
 		        
 		         + "#";
 	   console.log('@@ : ', arg);

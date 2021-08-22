@@ -10,7 +10,9 @@
 			(
 				SELECT CLOSE_YM
 					 , REPLACE(#{baseDt}, '-', '')	 AS BASE_DT
+					  <if test='whShowYn != null and whShowYn.equals("Y")'>
 					 , WH_CD
+					 </if>
 					 , CO_CD
 					 , PRDT_CD
 					 , PRDT_DIV
@@ -24,13 +26,6 @@
 					 , PRDT_SPEC
 				--	 , PRDT_LEN
 					 , PRDT_NM
-					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
-					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
-					 , FN_CM05M01_CD_TO_NM(OWNER_CD) OWNER_NM
-					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
-					 , FN_CM05M01_CD_TO_NM(TYP_CD) TYP_NM
-				--	 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
-					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
 					 , SUM(NVL(T.BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
 					 , SUM(NVL(T.SELPCH1_QTY, 0))   SELPCH1_QTY
 					 , SUM(NVL(T.SELPCH2_QTY, 0))   SELPCH2_QTY
@@ -309,7 +304,9 @@
 										    )
 						</if>
 				  GROUP BY T.CLOSE_YM
+				   <if test='whShowYn != null and whShowYn.equals("Y")'>
 						 , T.WH_CD
+						 </if>
 						 , T.CO_CD
 						 , T.PRDT_CD
 						 , T.PRDT_DIV
@@ -325,7 +322,9 @@
 						 , T.PRDT_NM
 					ORDER BY  
 						   T.PRDT_DIV	
+					  <if test='whShowYn != null and whShowYn.equals("Y")'>
 						 , T.WH_CD 
+						 </if>
 						 , T.PRDT_CD	
 						 , T.OWNER_CD
 						 , T.CLNT_CD
@@ -352,7 +351,10 @@
 			(
 				SELECT CLOSE_YM
 					 , REPLACE(#{baseDt}, '-', '')	 AS BASE_DT
+					  <if test='whShowYn != null and whShowYn.equals("Y")'>
 					 , WH_CD
+					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
+					 </if>
 					 , CO_CD
 					 , PRDT_CD
 					 , PRDT_DIV
@@ -367,7 +369,6 @@
 				--	 , PRDT_LEN
 					 , PRDT_NM
 					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
-					 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
 					 , FN_CM05M01_CD_TO_NM(OWNER_CD) OWNER_NM
 					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
 					 , FN_CM05M01_CD_TO_NM(TYP_CD) TYP_NM
@@ -650,8 +651,10 @@
 											   WHERE PRDT_GRP = #{prdtGrp}
 										    )
 						</if>
-				  GROUP BY T.CLOSE_YM
+				  GROUP BY T.CLOSE_YM 
+				 		 <if test='whShowYn != null and whShowYn.equals("Y")'>
 						 , T.WH_CD
+						 </if>
 						 , T.CO_CD
 						 , T.PRDT_CD
 						 , T.PRDT_DIV
@@ -666,8 +669,10 @@
 					--   , T.PRDT_LEN
 						 , T.PRDT_NM
 					ORDER BY  
-						   T.PRDT_DIV	
+						   T.PRDT_DIV						   
+					  <if test='whShowYn != null and whShowYn.equals("Y")'>
 						 , T.WH_CD 
+						 </if>
 						 , T.PRDT_CD	
 						 , T.OWNER_CD
 						 , T.CLNT_CD
