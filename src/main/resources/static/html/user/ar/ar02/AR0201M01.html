@@ -218,7 +218,7 @@
 					<tr>
 						<th>제조사</th> 
 						<td> 
-							<select data-kind="MAKR" data-search="makrCd" onchange="mainGridView.setData(0);"> 
+							<select id="makrCd" data-kind="MAKR" data-search="makrCd" onchange="mainGridView.setData(0);"> 
 								<option value="">전체</option> 
 							</select> 
 						</td>  
@@ -1097,32 +1097,40 @@
 			
 			
 		}else{
-			var fileName = "AR0201R01.jrf";
-			var arg = "selPchCd#SELPCH2" 
-			         + "#coCd#"			+ $('#coCd_S').val()
-			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
-			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
-			         + "#clntCd#"		+ $('#clntCd_S').val()
-			         + "#clntNm#"		+ $('#clntNm_S').val()
-			         + "#prdtGrp#"		+ $('#prdtGrp').val()
-			         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
-			         + "#pdsk#"		    + $('#pdsk_S').val()
-			         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
-			         + "#estCoprt#"		+ $('#estCoprt_S').val()	
-			         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
-			         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
-			         + "#siteCd#"		+ $('#siteCd_S').val()
-			         + "#siteNm#"		+ $('#siteNm_S').val()
-			         + "#typCd#"		+ $('#typCd_S').val()
-			         + "#typNm#"		+ $('#typCd_S option:selected').text()
-			         + "#bilg#"			+ $('#bilgYn_S').val()
-			         + "#impYn#"		+ $('#impYn').val()
-			         + "#makrCd#"		+ $('#makrCd').val()
-			         + "#pchsClntCd#"	+ $('#pchsClntCd').val()
-			         + "#pchsClntNm#"	+ $('#pchsClntNm').val()
-			         + "#trspRmk#"	    + $('#trspRmk_S').val()
-			         + "#";
-			callReport(fileName, arg, 1040, 720);
+			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html", 600, 200, "거래처 일보 출력 선택", null, function (showClntSumYn) {
+
+				if(	showClntSumYn == "Y"){
+					var fileName = "AR0201R01.jrf";
+				}else{
+					var fileName = "AR0201R05.jrf";  // 거래처 합계 없음 일자별 정렬
+				}
+				
+				var arg = "selPchCd#SELPCH2" 
+				         + "#coCd#"			+ $('#coCd_S').val()
+				         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+				         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+				         + "#clntCd#"		+ $('#clntCd_S').val()
+				         + "#clntNm#"		+ $('#clntNm_S').val()
+				         + "#prdtGrp#"		+ $('#prdtGrp').val()
+				         + "#prdtDiv#"		+ $('#prdtDiv_S').val()
+				         + "#pdsk#"		    + $('#pdsk_S').val()
+				         + "#prdtDivNm#"	+ $('#prdtDiv_S option:selected').text()
+				         + "#estCoprt#"		+ $('#estCoprt_S').val()	
+				         + "#estCoprtNm#"	+ $('#estCoprt_S option:selected').text()
+				         + "#dirtrsYn#"		+ $('#dirtrsYn_S').val()
+				         + "#siteCd#"		+ $('#siteCd_S').val()
+				         + "#siteNm#"		+ $('#siteNm_S').val()
+				         + "#typCd#"		+ $('#typCd_S').val()
+				         + "#typNm#"		+ $('#typCd_S option:selected').text()
+				         + "#bilg#"			+ $('#bilgYn_S').val()
+				         + "#impYn#"		+ $('#impYn').val()
+				         + "#makrCd#"		+ $('#makrCd').val()
+				         + "#pchsClntCd#"	+ $('#pchsClntCd').val()
+				         + "#pchsClntNm#"	+ $('#pchsClntNm').val()
+				         + "#trspRmk#"	    + $('#trspRmk_S').val()
+				         + "#";
+				callReport(fileName, arg, 1040, 720);
+			});
 		}
 	}
 
