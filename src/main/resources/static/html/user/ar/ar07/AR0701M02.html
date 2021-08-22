@@ -204,10 +204,10 @@
 			        			(this.item.pre1CreditAmt > 0  && this.item.pre1PchsClmnDay < baseDtSt) ||
 			        			(this.item.curCreditAmt  > 0  && this.item.pre0PchsClmnDay < baseDtSt))
 			        		{
-			        			return   "Y";
+			        			return   "O";
 			        		}
 			        		else {
-			        			return "";
+			        			return "X";
 			        	    }
 			        	}
 		        	},
@@ -307,24 +307,56 @@
 						{key: "clntCd",  			 hidden: true},
 			        	{key: "closeYm",  			 label: "년월",       align: "center",  width: 80, hidden: true},
 			        	{key: "clntNm",  			 label: "거래처",      align: "left",   width: 140},
-			        	{key: "crnNo",           label: "사업자번호",    align: "left",   width: 140},
-			        	{key: "prdtGrpNm", 			 label: "구분",   	 align: "left",   width: 80},
-			        	{key: "prjctNm",   			label: "프로젝트",    align: "left",   width: 140},
+			        	{key: "prdtGrpNm", 			 label: "그룹",   	 align: "center",   width: 80},
+			        	{key: "prjctNm",  			 label: "프로젝트",    align: "left",   width: 140},
 			        	{key: "salesEmpId",   		 label: "담당자",      align: "center",   width: 100, hidden: true},
 			        	{key: "salesEmpNm",  		 label: "담당자",      align: "center",   width: 80},
 			          	{key: "coNm",     			 label: "회사",   	 align: "left",     width: 100},
 			        	{key: "sellPayDivNm",    	 label: "지급", 		 align: "right",   width: 60, hidden: true},
 			        	{key: "sellClmnDivNm", 		 label: "결제조건", 	 align: "left",   width: 120},
-			        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "left",   width: 60},
+			        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "right",   width: 60},
 			        	{key: "sellPmntMtdNm",  	 label: "방법", 		 align: "center",   width: 60},
-			        	{key: "pre3CreditAmt",		 label: "전월잔액",     align: "right",   width: 140, formatter: "money"},
-			        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140},
-			        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 잔액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140},
-			        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 잔액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140},
-			        	{key: "curCreditAmt", 		 label: closeYm  +" 잔액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "curPchsClmnDay",      label: closeYm  +"결제에정일",  align: "right",   width: 140},
+			        	{key: "delayYn",  	         label: "방법", 		 align: "center",   width: 60,formatter: function () {
+				        		if( (this.item.pre3CreditAmt > 0  && this.item.pre3PchsClmnDay < baseDtSt) || 
+				        			(this.item.pre2CreditAmt > 0  && this.item.pre2PchsClmnDay < baseDtSt) ||
+				        			(this.item.pre1CreditAmt > 0  && this.item.pre1PchsClmnDay < baseDtSt) ||
+				        			(this.item.curCreditAmt  > 0  && this.item.pre0PchsClmnDay < baseDtSt))
+				        		{
+				        			return   "O";
+				        		}
+				        		else {
+				        			return "X";
+				        	    }
+				        	}
+			        	},
+			        	{key: "pre3CreditAmt",		 label: "전월잔액",     align: "right",   width: 140, formatter: "money",
+			        				styleClass: function () {
+			        					 if(this.item.pre3CreditAmt > 0) { return (this.item.pre3PchsClmnDay < baseDtSt ? "grid-font-bold":"")}
+			        					 else {return false;}
+			        					 }
+			        	},		        		
+			        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140, hidden: true},
+			        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 잔액",  align: "right",   width: 140, formatter: "money",
+			        				styleClass: function () {
+			        					if(this.item.pre2CreditAmt > 0) {return (this.item.pre2PchsClmnDay < baseDtSt ? "grid-font-bold":"")}
+			        					else {return false;}
+			        				}
+			        	},	
+			        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140, hidden: true},
+			        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 잔액",  align: "right",   width: 140, formatter: "money",
+			        				styleClass: function () {
+			        					if(this.item.pre1CreditAmt > 0) {return (this.item.pre1PchsClmnDay < baseDtSt ? "grid-font-bold":"")}
+			        					else {return false;}
+			        				}
+			        	},	
+			        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140, hidden: true},
+			        	{key: "curCreditAmt", 		 label: closeYm0 +" 잔액",  align: "right",   width: 140, formatter: "money",
+			        				styleClass: function () {
+			        					if(this.item.curCreditAmt > 0) {return (this.item.pre0PchsClmnDay < baseDtSt ? "grid-font-bold":"")}
+			        					else {return false;}
+			        					}
+			        	},	
+			        	{key: "pre0PchsClmnDay",      label: closeYm0 +"결제에정일",  align: "right",   width: 140, hidden: true},
 			        	{key: "curTrmendCreditAmt",  label: "합계",    	 align: "right",   width: 140, formatter: "money"},
 			        	
 			        	{key: "unsetlBilAmt",   	 label: "미결제어음",    align: "right",   width: 140, formatter: "money"},
@@ -334,10 +366,7 @@
 	                    },		        	
 			        	{key: "crdtLmt",    label: "여신한도",  align: "right",   width: 140, formatter: "money"},
 			        	{key: "crdtLoan",   label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "pldgAmt",    label: "담보금액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "",  		    label: "담보종류",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "",		    label: "연체금",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "",		    label: "비고",  align: "right",   width: 140, formatter: "money"},
+			        	{key: "pldgAmt",    label: "담보금액",  align: "right",   width: 140, formatter: "money"}
 			        ]
 			    });
 				return this;
