@@ -334,9 +334,9 @@
 <!-- 		  AND NVL(A.PRDT_LEN,0)  = NVL(S.PRDT_LEN,0) -->
 		)
 		WHEN MATCHED THEN 
-			UPDATE SET   ( STOCK_QTY ) = ( SELECT STOCK_QTY + S.STOCK_QTY AS STOCK_QTY FROM TB_SM01M01 
+			UPDATE SET   ( STOCK_QTY ) = ( SELECT NVL(STOCK_QTY,0) + NVL(S.STOCK_QTY,0) AS STOCK_QTY FROM TB_SM01M01 
 			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
-			            ,( STOCK_WT  ) = ( SELECT STOCK_WT   + S.STOCK_WT AS STOCK_Wt FROM TB_SM01M01 
+			            ,( STOCK_WT  ) = ( SELECT NVL(STOCK_WT,0)   + NVL(S.STOCK_WT,0) AS STOCK_Wt FROM TB_SM01M01 
 			 	                            WHERE STOK_SEQ   = A.STOK_SEQ )
 		WHEN NOT MATCHED THEN 
 		INSERT
@@ -380,8 +380,8 @@
 		   S.MAKR_CD,
 		   S.PRJCT_CD,
 		   S.IMP_YN,
-		   S.STOCK_QTY,
-		   S.STOCK_WT,
+		   NVL(S.STOCK_QTY,0),
+		   NVL(S.STOCK_WT,0),
 		   0,
 		   0,
 		   0,

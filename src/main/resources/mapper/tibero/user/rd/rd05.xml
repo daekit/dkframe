@@ -22,6 +22,7 @@
 					 , CLNT_CD
 					 , IMP_YN
 					 , PRJCT_CD
+					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
 				--	 , PRDT_SIZE
 					 , PRDT_SPEC
 				--	 , PRDT_LEN
@@ -673,6 +674,9 @@
 					  <if test='whShowYn != null and whShowYn.equals("Y")'>
 						 , T.WH_CD 
 						 </if>
+						 , T.PRDT_DIV
+					--	 , T.PRDT_SIZE
+						 , T.PRDT_SPEC
 						 , T.PRDT_CD	
 						 , T.OWNER_CD
 						 , T.CLNT_CD
@@ -686,6 +690,24 @@
 			<if test="prjctNm != null and !prjctNm.equals('')">
 				AND A.PRJCT_NM LIKE '%' || #{prjctNm} || '%'				
 			</if>
+			ORDER BY CLOSE_YM
+					 , REPLACE(#{baseDt}, '-', '')
+					  <if test='whShowYn != null and whShowYn.equals("Y")'>
+					 , WH_CD
+					 </if>
+					 , CO_CD
+				--	 , PRDT_SIZE
+					 , PRDT_SPEC
+					 , PRDT_DIV
+					 , PRDT_CD
+					 , OWNER_CD
+					 , TYP_CD
+				--	 , MAKR_CD
+					 , CLNT_CD
+					 , IMP_YN
+					 , PRJCT_CD
+				--	 , PRDT_LEN
+					 , PRDT_NM
 		)
 		WHERE
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
