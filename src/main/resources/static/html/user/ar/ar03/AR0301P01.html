@@ -137,7 +137,9 @@
 			<input type="hidden" id="transSeq" name="transSeq">
 		</form>
 	</div>
-	<div class="popup_bottom_btn"><button id="actionBtn" authchk>등록</button>
+	<div class="popup_bottom_btn">
+	    <button id="actionBtn" authchk>등록</button>
+		<button type="button" onclick="deleteTrans();" style="height: 30px; line-height: 28px;" authchk>삭제</a> 
 		<button type="button" class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
@@ -290,6 +292,25 @@
 			});
 		}
 	}
+	
+	function deleteTrans() {
+		var transSeq = $('#transPopup #transSeq').val();
+		var formData = {
+			"transSeq" : transSeq,
+			"pgmId"    : "AR0301P01",
+			"userId"   :  jwt.userId
+		}
+		if(confirm("삭제하시겠습니까?")){
+			deleteAjax("/user/ar/ar03/deleteTrans", formData, null, function(data){
+				if(data.resultCode == 200){
+					alert(data.resultMessage);
+					gridView.setData(0);
+					modalStack.close();
+				}
+			});
+		}
+	}
+	
 	
 	function makeCaryngData() {
 		$.each($('input[comma]'), function(idx, elem){

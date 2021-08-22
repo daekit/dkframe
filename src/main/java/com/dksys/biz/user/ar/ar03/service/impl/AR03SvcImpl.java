@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dksys.biz.user.ar.ar01.mapper.AR01Mapper;
 import com.dksys.biz.user.ar.ar03.mapper.AR03Mapper;
 import com.dksys.biz.user.ar.ar03.service.AR03Svc;
+import com.dksys.biz.user.od.od01.mapper.OD01Mapper;
+import com.dksys.biz.user.sm.sm02.mapper.SM02Mapper;
 
 @Service
 @Transactional("erpTransactionManager")
@@ -16,6 +19,15 @@ public class AR03SvcImpl implements AR03Svc {
 
 	@Autowired
     AR03Mapper ar03Mapper;
+	
+	@Autowired
+    AR01Mapper ar01Mapper;
+
+	@Autowired
+    OD01Mapper od01Mapper;
+	
+	@Autowired
+    SM02Mapper sm02Mapper;
 	
 	@Override
 	public int selectCaryngCount(Map<String, String> paramMap) {
@@ -54,6 +66,9 @@ public class AR03SvcImpl implements AR03Svc {
 
 	@Override
 	public int deleteTrans(Map<String, String> paramMap) {
+	       ar01Mapper.updateTrans(paramMap);  // 출하지시에서 제거
+	       od01Mapper.updateTrans(paramMap);  // 발주서에서 제거
+	       sm02Mapper.updateTrans(paramMap);  // 재고이동에서 제거
     	return ar03Mapper.deleteTrans(paramMap);
 	}
 

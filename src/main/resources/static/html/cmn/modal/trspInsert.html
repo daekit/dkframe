@@ -165,7 +165,9 @@
 			</tr>
 		</tbody>
 	</table>
-	<div class="popup_bottom_btn"><button id="actionBtn">등록</button>
+	<div class="popup_bottom_btn">
+	    <button id="actionBtn">등록</button>
+		<button type="button" onclick="deleteTrans();"  authchk>삭제</a> 
 		<button type="button" class="close_btn" onclick="modalStack.close();">닫기</button>
 	</div>
 </div>
@@ -353,7 +355,8 @@
 	}
 	
 	function setCaryngInfo(obj){
-		var transInfo = obj;
+		
+    	var transInfo = obj;
 		//메인정보 세팅
 		$.each(transInfo, function(key, value){
 			$('#transViewDiv #'+key).val(value);
@@ -392,7 +395,7 @@
 					   openFrom == "AR0202P01" || openFrom == "OD0202P01" || openFrom == "SM0201P02") {
 						$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
 						$("#arViewDiv #transSeq").val(data.transSeq);
-						onlyNumber($("#arViewDiv #transAmt"));
+//						onlyNumber($("#arViewDiv #transAmt"));
 						modalStack.close();
 					} else {
 						gridView.setData(0);
@@ -411,7 +414,7 @@
 				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "SM0201P01" ||
 				   openFrom == "AR0202P01" || openFrom == "OD0202P01" || openFrom == "SM0201P02") {
 					$("#arViewDiv #transAmt").val($("#transViewDiv #transAmt").val());
-					onlyNumber($("#arViewDiv #transAmt"));
+				//	onlyNumber($("#arViewDiv #transAmt"));
 					modalStack.close();
 				}else{
 					gridView.setData(0);
@@ -519,5 +522,26 @@
 		$('#transViewDiv #taxivcCoprt option:not([value=""])').remove();
 		setCommonSelect($('#transViewDiv #taxivcCoprt'));
 	}
-		
+	
+	//운송비 삭제
+	function deleteTrans() {
+		var transSeq =  $('#transViewDiv #transSeq').val();
+		var formData = {
+			"transSeq" : transSeq,
+			"pgmId"    : openFrom,
+			"userId"   : jwt.userId
+		}
+		if(confirm("삭제하시겠습니까?")){
+			deleteAjax("/user/ar/ar03/deleteTrans", formData, null, function(data){
+				if(openFrom == "AR0102P01" || openFrom == "OD0102P01" || openFrom == "SM0201P01" ||
+				   openFrom == "AR0202P01" || openFrom == "OD0202P01" || openFrom == "SM0201P02") {
+					$("#arViewDiv #transAmt").val(0);
+					$("#arViewDiv #transSeq").val("");	
+					alert(data.resultMessage);
+					modalStack.close();
+				}
+			});
+		}
+	}
+			
 </script>

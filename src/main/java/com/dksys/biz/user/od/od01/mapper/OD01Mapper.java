@@ -66,4 +66,6 @@ public interface OD01Mapper {
 
 	int updateCancelDetailS(Map<String, String> detailMap);
 
+	void updateTrans(Map<String, String> paramMap);
+
 }

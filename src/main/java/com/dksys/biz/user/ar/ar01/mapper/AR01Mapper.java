@@ -49,4 +49,6 @@ public interface AR01Mapper {
 	int updateCancel(Map<String, String> paramMap);
 
 	int updateRecptYn(Map<String, String> detailMap);
+
+	void updateTrans(Map<String, String> paramMap);
 }
