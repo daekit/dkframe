@@ -2,6 +2,7 @@ package com.dksys.biz.user.sm.sm02.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.ifsys.mes.mapper.MESSTOCKMapper;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
+import com.dksys.biz.user.sd.sd09.mapper.SD09Mapper;
 import com.dksys.biz.user.sm.sm01.mapper.SM01Mapper;
 import com.dksys.biz.user.sm.sm02.mapper.SM02Mapper;
 import com.dksys.biz.user.sm.sm02.service.SM02Svc;
@@ -31,6 +33,9 @@ public class SM02Svcmpl implements SM02Svc {
 
 	@Autowired
 	SD07Mapper sd07Mapper;
+
+	@Autowired
+	SD09Mapper sd09Mapper;
 	
 	@Autowired
 	MESSTOCKMapper messtockMapper;
@@ -346,7 +351,9 @@ public class SM02Svcmpl implements SM02Svc {
 //		WH01	진천공장	    WH	GUM	WHDIV01	ESTCOPRT1
 //		WH19	금문진천공장	WH	GGM	WHDIV03	ESTCOPRT4
 //		WH41	진천공장2	    WH	GUM	WHDIV01	ESTCOPRT1
-		
+
+		String mesIfDesYn = "Y";  // 도착지가 공장
+		String mesIfStrYn = "Y";  // 출발지가 공장
 
 		// 외부에서 공장으로 이동시에는 FROM 관련 자료는 없음
 
@@ -356,16 +363,24 @@ public class SM02Svcmpl implements SM02Svc {
 	    if      ("WH01".equals(detailMap.get("sWhCd")) || "WH19".equals(detailMap.get("sWhCd"))|| "WH41".equals(detailMap.get("sWhCd")) ) {  detailMap.put("worksCdTo",   "J");
 	    }else if("WH05".equals(detailMap.get("sWhCd")) || "WH20".equals(detailMap.get("sWhCd")))                                          {  detailMap.put("worksCdTo",   "N");
 	    }else if("WH06".equals(detailMap.get("sWhCd")) || "WH13".equals(detailMap.get("sWhCd")) || "WH29".equals(detailMap.get("sWhCd")) || "WH32".equals(detailMap.get("sWhCd"))) {       
-	    	   detailMap.put("worksCdTo",   "C");
-	      
+	    	   detailMap.put("worksCdTo",   "C");	      
+	    }else {
+	         //  도착지 MES 전송 대상이 아님.
+	    	 mesIfDesYn = "N";
 	    }
 	    //출발공장
 	    if      ("WH01".equals(detailMap.get("whCd")) || "WH19".equals(detailMap.get("whCd"))|| "WH41".equals(detailMap.get("whCd"))) {
-	                                                      detailMap.put("worksCd",   "J"); detailMap.put("worksCdFrom",   "J");
+	                                                      detailMap.put("worksCd",   "J"); 
+	                                                      detailMap.put("worksCdFrom",   "J");
 	    }else if("WH05".equals(detailMap.get("whCd")) || "WH20".equals(detailMap.get("whCd")) ) {
-	    	                                              detailMap.put("worksCd",   "N"); detailMap.put("worksCdFrom",   "N");
+	    	                                              detailMap.put("worksCd",   "N"); 
+	    	                                              detailMap.put("worksCdFrom",   "N");
 	    }else if("WH06".equals(detailMap.get("whCd")) || "WH13".equals(detailMap.get("whCd")) || "WH29".equals(detailMap.get("whCd")) || "WH32".equals(detailMap.get("whCd"))){
-	    	                                              detailMap.put("worksCd",   "C"); detailMap.put("worksCdFrom",   "C");
+	    	                                              detailMap.put("worksCd",   "C"); 
+	    	                                              detailMap.put("worksCdFrom",   "C");
+	    }else {
+	    	//  출발지 MES 전송 대상이 아님.
+	    	mesIfStrYn = "N";
 	    }
 	    //set dimsCd
 	    detailMap.put("dimsCd", detailMap.get("sPrdtSpec"));
@@ -389,15 +404,23 @@ public class SM02Svcmpl implements SM02Svc {
 	    String prjctCdTo   = detailMap.get("sPrjctCd");
 	    String prjctCdFrom = detailMap.get("prjctCd");
 	    
-	    if("".equals(prjctCdTo)) {
+	    // site를 가져오는것 추가한다.
+		Map<String, String> siteMap = new HashMap<String, String>();
+		siteMap.put("coCd", detailMap.get("coCd"));
+		siteMap.put("prjctCd", prjctCdFrom);
+	    Map<String, String> siteStr =  sd09Mapper.selectMinSite(siteMap);
+		siteMap.put("prjctCd", prjctCdTo);	    
+	    Map<String, String> siteDes =  sd09Mapper.selectMinSite(siteMap);
+	    
+	    if("".equals(prjctCdTo)|| "0".equals(prjctCdTo)) {
 	    	detailMap.put("siteCdTo",   "R"); /* 유통으로이동 : R */
 	    }else {
-			detailMap.put("siteCdTo",  detailMap.get("sPrjctCd")); /* 유통으로이동 : R */
+			detailMap.put("siteCdTo",  siteDes.get("siteCd")); /* 유통으로이동 : R */
 	    }
-	    if("".equals(prjctCdFrom)) {
+	    if("".equals(prjctCdFrom) || "0".equals(prjctCdFrom)) {
 	    	detailMap.put("siteCdFrom",   "R"); /* 유통으로이동 : R */
 	    }else {
-			detailMap.put("siteCdFrom",  detailMap.get("prjctCd")); /* 유통으로이동 : R */
+			detailMap.put("siteCdFrom",  siteStr.get("siteCd")); /* 유통으로이동 : R */
 	    }
 	    
 	    String supCustCdFrom = detailMap.get("clntCd");
@@ -418,14 +441,13 @@ public class SM02Svcmpl implements SM02Svc {
 	    String worksCdTo   = detailMap.get("worksCdTo");
 	    String worksCdFrom   = detailMap.get("worksCdFrom");
 	    
-	    messtockMapper.insertIfMesStockMove(detailMap); 
-	    
+	    if (mesIfStrYn == "Y") {	    
+	    	messtockMapper.insertIfMesStockMove(detailMap); 
+	    }
 	// 출발공장, 도착공장이 다르면 Case 1	 
-		 if(!worksCdTo.equals(detailMap.get("worksCdTo"))) {
-			 detailMap.put("worksCd",   worksCdFrom);
-			 
-			 messtockMapper.insertIfMesStockMove(detailMap); 
-		 
+		 if(!worksCdTo.equals(detailMap.get("worksCdFrom")) &&  mesIfDesYn == "Y") {
+			 detailMap.put("worksCd",   worksCdTo);			 
+			 messtockMapper.insertIfMesStockMove(detailMap); 		 
 	    }
 	    
 		return 200;

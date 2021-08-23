@@ -51,6 +51,8 @@ public interface SD09Mapper {
 
 	Map<String, String> selectClntFromWh(Map<String, String> paramMap);
 
+	Map<String, String> selectMinSite(Map<String, String> siteMap);
+
 	
 
 }
