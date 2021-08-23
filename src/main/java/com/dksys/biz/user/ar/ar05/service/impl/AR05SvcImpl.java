@@ -282,7 +282,7 @@ public class AR05SvcImpl implements AR05Svc {
 		Map<String, Object> cdtlnData = new HashMap<String, Object>();
 		cdtlnData.putAll(etrdpsInfo);
 		int clntCd = Integer.parseInt(etrdpsInfo.get("clntCd"));
-		int etrdpsAmt = Integer.parseInt(etrdpsInfo.get("etrdpsAmt"));
+		long etrdpsAmt = Long.parseLong(etrdpsInfo.get("etrdpsAmt"));
 		String etrdpsDt = etrdpsInfo.get("etrdpsDt").replaceAll("-", "");
 		
 		cdtlnData.put("clntCd", clntCd);
