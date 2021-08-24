@@ -21,6 +21,8 @@ public interface CM06Svc {
 
 	public int updatePw(Map<String, String> paramMap);
 	
+	public Map<String, String> updatePwErrCnt(Map<String, String> paramMap);
+	
 	public List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap); 
 
 }
