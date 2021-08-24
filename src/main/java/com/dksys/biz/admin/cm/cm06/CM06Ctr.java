@@ -147,4 +147,12 @@ public class CM06Ctr {
 		}
     	return "jsonView";
     }
+    
+    // 암호관리규칙조회
+    @PostMapping("/selectRuleCheckList")
+    public String selectRuleCheckList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	List<Map<String, String>> ruleList = cm06Svc.selectRuleCheckList(paramMap);
+    	model.addAttribute("ruleList", ruleList);
+    	return "jsonView";
+    }
 }

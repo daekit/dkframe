@@ -20,5 +20,7 @@ public interface CM06Svc {
 	public int insertPgmHistory(Map<String, String> paramMap);
 
 	public int updatePw(Map<String, String> paramMap);
+	
+	public List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap); 
 
 }

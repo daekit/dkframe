@@ -67,5 +67,10 @@ public class CM06SvcImpl implements CM06Svc {
 		result += cm06Mapper.updateTokenPw(paramMap);
 		return result;
 	}
+    
+	@Override
+	public List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap) {
+		return cm06Mapper.selectRuleCheckList(paramMap); 
+	}
 
 }

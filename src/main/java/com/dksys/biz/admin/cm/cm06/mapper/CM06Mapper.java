@@ -28,4 +28,6 @@ public interface CM06Mapper {
 
 	int updateTokenPw(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap); 
+
 }
