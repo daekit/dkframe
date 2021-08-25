@@ -73,4 +73,9 @@ public class CM06SvcImpl implements CM06Svc {
 		return cm06Mapper.selectRuleCheckList(paramMap); 
 	}
 
+	@Override
+	public Map<String, String> updatePwErrCnt(Map<String, String> paramMap) {
+		cm06Mapper.updatePwErrCnt(paramMap);
+		return cm06Mapper.selectUserInfo(paramMap);
+	}
 }

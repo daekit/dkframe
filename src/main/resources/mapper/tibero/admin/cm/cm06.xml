@@ -56,7 +56,9 @@
 			TO_CHAR(CREAT_DTTM, 'yyyy-MM-dd') CREAT_DTTM,
 			TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') UDT_DTTM,
 			MNG_CO_CD,
-			FN_CM05M01_CD_TO_NM(MNG_CO_CD) MNG_CO_CD_NM
+			FN_CM05M01_CD_TO_NM(MNG_CO_CD) MNG_CO_CD_NM,
+			PASS_ERR_CNT,
+			PWD_DTTM
 		FROM
 			TB_CM06M01 U
 		WHERE
@@ -213,6 +215,20 @@
 			CLIENT_SECRET = #{password}
 		WHERE
 			CLIENT_ID = #{userId}
+	</update>
+	
+	<update id="updatePwErrCnt">
+		UPDATE 
+			TB_CM06M01
+		SET 
+			<if test="isPwErr != null and !isPwErr.equals('') and isPwErr.equals('Y'.toString())">
+				PASS_ERR_CNT = NVL(PASS_ERR_CNT,0)+1,
+			</if>
+			<if test="isPwErr != null and !isPwErr.equals('') and isPwErr.equals('N'.toString())">
+				PASS_ERR_CNT = 0,
+			</if>
+	    	PWD_DTTM = SYSDATE
+		WHERE ID = #{userId}
 	</update>
 	
 	<select id="selectRuleCheckList" resultType="CamelMap">
