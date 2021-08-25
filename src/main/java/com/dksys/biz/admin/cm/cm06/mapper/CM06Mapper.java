@@ -31,5 +31,7 @@ public interface CM06Mapper {
 	List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap); 
 
 	int updatePwErrCnt(Map<String, String> paramMap);
+
+	void updateUserN(Map<String, String> paramMap);
 	
 }

@@ -2,6 +2,7 @@ package com.dksys.biz.main.vo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,8 @@ public class User implements UserDetails {
     private String email;
     private String enterDt;
     private String authInfo;
+    private String useYn;
+    private Date pwdDttm;
     
     @Builder.Default
     private List<String> roles = new ArrayList<>();

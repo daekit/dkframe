@@ -1,5 +1,7 @@
 package com.dksys.biz.admin.cm.cm06;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -153,6 +155,32 @@ public class CM06Ctr {
     public String selectRuleCheckList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	List<Map<String, String>> ruleList = cm06Svc.selectRuleCheckList(paramMap);
     	model.addAttribute("ruleList", ruleList);
+    	return "jsonView";
+    }
+    
+    // 비밀번호 변경기간 유효성 검사.
+    @PostMapping("/checkPwdDttm")
+    public String checkPwdDttm(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	User user = loginService.selectUserInfo(paramMap);
+    	Map<String, String> pwdRuleInfo = cm06Svc.selectRuleCheckList(paramMap).get(0);
+    	String passYn = pwdRuleInfo.get("passYn");
+    	
+    	if("Y".equals(passYn)) {
+    		int passChg = -1 * Integer.parseInt(pwdRuleInfo.get("passChg"));
+    		// 현재일로부터 지정된 개월수만큼 빼기
+    		Calendar cal = Calendar.getInstance();
+    		cal.setTime(new Date());
+    		cal.add(Calendar.MONTH, passChg);
+    		
+    		// 패스워드 변경날짜와 비교
+    		Date pwdDttm = user.getPwdDttm();
+    		if(pwdDttm.compareTo(cal.getTime()) == -1) {
+    		// 패스워드 변경일이 계산한 날보다 작으면
+    			model.addAttribute("isExpired", "Y");
+    			return "jsonView";
+    		}
+    	}
+    	model.addAttribute("isExpired", "N");
     	return "jsonView";
     }
 }

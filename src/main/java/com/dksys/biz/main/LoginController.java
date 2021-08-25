@@ -1,6 +1,7 @@
 package com.dksys.biz.main;
 
-import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,17 +63,23 @@ public class LoginController {
     	User user = loginService.selectUserInfo(param);
     	if(user == null) {
     		model.addAttribute("msg", "ID를 확인해주세요.");
-    	} else if(!passwordEncoder.matches(param.get("password"), user.getPassword())) {
-    		model.addAttribute("msg", "비밀번호를 확인해주세요.");
-    		param.put("isPwErr", "Y");
-    		param.put("userId", param.get("id"));
-    		model.addAttribute("usrInfo", cm06Svc.updatePwErrCnt(param));
-    	} else {
-    		loginService.insertUserHistory(user);
-    		model.addAttribute("msg", "success");
-    		param.put("isPwErr", "N");
-    		param.put("userId", param.get("id"));
-    		model.addAttribute("usrInfo", cm06Svc.updatePwErrCnt(param));
+    	}else {
+    		if("N".equals(user.getUseYn())) {
+    			model.addAttribute("msg", "비활성화된 계정입니다 관리자에게 문의하세요.\n담당자 연락처: 010-XXXX-XXXX");
+    		}else {
+    			if(!passwordEncoder.matches(param.get("password"), user.getPassword())) {
+    				model.addAttribute("msg", "비밀번호를 확인해주세요.");
+    	    		param.put("isPwErr", "Y");
+    	    		param.put("userId", param.get("id"));
+    	    		model.addAttribute("usrInfo", cm06Svc.updatePwErrCnt(param));
+    	    	} else {
+    	    		loginService.insertUserHistory(user);
+    	    		model.addAttribute("msg", "success");
+    	    		param.put("isPwErr", "N");
+    	    		param.put("userId", param.get("id"));
+    	    		model.addAttribute("usrInfo", cm06Svc.updatePwErrCnt(param));
+    	    	}
+    		}
     	}
         return "jsonView";
     }
@@ -82,5 +89,4 @@ public class LoginController {
       new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
       return "redirect:/";
     }
-    
 }
