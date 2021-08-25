@@ -103,7 +103,9 @@
 			CREAT_DTTM, 
 			UDT_DTTM,
 			TEL_NO,
-			MNG_CO_CD
+			MNG_CO_CD,
+			PASS_ERR_CNT,
+			PWD_DTTM 	
 		)VALUES(
 			#{userId},
 			#{password},
@@ -121,7 +123,9 @@
 			SYSDATE,
 			SYSDATE,
 			#{telNo},
-			#{mngCoCd}
+			#{mngCoCd},
+			0,
+			SYSDATE
 		)
 	</insert>
 	
@@ -203,7 +207,10 @@
 		UPDATE
 			TB_CM06M01
 		SET
-			PASSWORD = #{password}
+			PASSWORD = #{password},
+			UDT_DTTM = SYSDATE,
+			PASS_ERR_CNT = 0,
+			PWD_DTTM = SYSDATE
 		WHERE
 			ID = #{userId}
 	</update>
@@ -227,7 +234,7 @@
 			<if test="isPwErr != null and !isPwErr.equals('') and isPwErr.equals('N'.toString())">
 				PASS_ERR_CNT = 0,
 			</if>
-	    	PWD_DTTM = SYSDATE
+	    	UDT_DTTM = SYSDATE
 		WHERE ID = #{userId}
 	</update>
 	
