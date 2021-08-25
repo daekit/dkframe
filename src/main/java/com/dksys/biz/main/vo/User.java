@@ -32,6 +32,10 @@ public class User implements UserDetails {
     private String authInfo;
     private String useYn;
     private Date pwdDttm;
+    private String passErrCnt;
+    private String passYn;
+    private String passChg;
+    private String passChkCnt;
     
     @Builder.Default
     private List<String> roles = new ArrayList<>();

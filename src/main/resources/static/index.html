@@ -164,15 +164,24 @@
 		    contentType: "application/json; charset=utf-8",
 		    data: JSON.stringify(formData),
 		    success: function(data){
+
+	    		var usrInfo = data.usrInfo;
 		    	if(data.msg == "success"){
-		    		getToken();	    		
+	    			getToken();
+		    		
+// 		    		if(usrInfo.passYn == "Y") { //암호관리적용
+// 			    		if(usrInfo.passChg == "1") {  //암호변경주기 초과
+// 			    			openModal("/static/html/cmn/modal/updatePw.html", 500, 200, "비밀번호 변경");
+// 				    		window.open("/static/html/cmn/modal/updatePw.html", "비밀번호 변경", "width=500, height=200, left=30, top=30");
+// 			    		}
+// 		    		} else {
+// 		    		}
 		    	} else {
-		    		var usrInfo = data.usrInfo;
 		    		if(usrInfo){
-		    			if(usrInfo.passErrCnt >= 5) {
-							alert("비밀번호를 5회이상 틀리셨습니다. 관리자에게 문의하세요.");
+		    			if(usrInfo.passErrCnt >= usrInfo.passChkCnt) {
+							alert("비밀번호를 " + usrInfo.passChkCnt + "회이상 틀리셨습니다. 관리자에게 문의하세요.");
 						}else {
-							alert(data.msg);		
+							alert("비밀번호를 " + usrInfo.passErrCnt + "회 틀렸습니다.\n" + usrInfo.passChkCnt + "회 이상 틀리면 접속불가합니다.");		
 						}
 		    		}else{
 		    			alert(data.msg);
