@@ -499,6 +499,16 @@
 		}
 
 	$(document).ready(function() {
+		
+		// 패스워드 유효기간 체크
+		var paramObj = {"id": jwt.userId};
+		postAjax("/admin/cm/cm06/checkPwdDttm", paramObj, null, function(data) {
+			if(data.isExpired == "Y"){
+// 				updatePwModal();
+				openModal("/static/html/cmn/modal/updatePw.html", 500, 200, "비밀번호 변경");
+			}
+		});
+
 		// 페이지 타이틀 set
 		mainDefaultLoad("대시보드", "임원진 현황");
 		$("#searchDttm").val(dateToStr(new Date()));
@@ -518,16 +528,8 @@
 		var setDataInterval = setInterval(function() {
 			gridView4.initView().setData();
 		}, 600000);
-		
-		// 패스워드 유효기간 체크
-		var paramObj = {"id": jwt.userId};
-		postAjax("/admin/cm/cm06/checkPwdDttm", paramObj, null, function(data) {
-			if(data.isExpired == "Y"){
-				updatePwModal();
-			}
-		});
 	});
-	
+
 	function SetYm(){
 		var now = new Date();
 		var nyear = now.getFullYear();
