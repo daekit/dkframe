@@ -147,20 +147,21 @@ public class SM02Svcmpl implements SM02Svc {
 		}			
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId",    param.get("userId").toString());
-			detailMap.put("pgmId",     param.get("pgmId").toString());
-			detailMap.put("sCoCd",     detail.get("sCoCd"));
-			detailMap.put("sWhCd",     detail.get("sWhCd"));
-			detailMap.put("sTransDt",  detail.get("sTransDt"));
-			detailMap.put("sRmk",      detail.get("sRmk"));
-			detailMap.put("sellType",  detail.get("sellType"));
-			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
-			detailMap.put("sPrdtCd",   detailMap.get("prdtCd"));
-			detailMap.put("sPrdtSpec", detailMap.get("prdtSpec"));
-			detailMap.put("sPrdtSize", detailMap.get("prdtSize"));
-			detailMap.put("sPrdtLen",  detailMap.get("prdtLen"));
-			detailMap.put("transSeq",  param.get("transSeq"));
-			detailMap.put("transAmt",  param.get("transAmt"));
+			detailMap.put("userId",       param.get("userId").toString());
+			detailMap.put("pgmId",        param.get("pgmId").toString());
+			detailMap.put("sCoCd",        detail.get("sCoCd"));
+			detailMap.put("sWhCd",        detail.get("sWhCd"));
+			detailMap.put("sTransDt",     detail.get("sTransDt"));
+			detailMap.put("sRmk",         detail.get("sRmk"));
+			detailMap.put("sellType",     detail.get("sellType"));
+			detailMap.put("sPrjctCd",     detail.get("sPrjctCd"));
+			detailMap.put("sPrdtCd",      detailMap.get("prdtCd"));
+			detailMap.put("sPrdtSpec",    detailMap.get("prdtSpec"));
+			detailMap.put("sPrdtSize",    detailMap.get("prdtSize"));
+			detailMap.put("sPrdtLen",     detailMap.get("prdtLen"));
+			detailMap.put("transSeq",     param.get("transSeq"));
+			detailMap.put("transAmt",     param.get("transAmt"));
+			detailMap.put("realStockYn",  detail.get("realStockYn"));
 			
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
 			
@@ -210,20 +211,21 @@ public class SM02Svcmpl implements SM02Svc {
 		
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
-			detailMap.put("userId",    param.get("userId").toString());
-			detailMap.put("pgmId",     param.get("pgmId").toString());
-			detailMap.put("sCoCd",     detail.get("sCoCd"));
-			detailMap.put("sWhCd",     detail.get("sWhCd"));
-			detailMap.put("sTransDt",  detail.get("sTransDt"));
-			detailMap.put("sRmk",      detail.get("sRmk"));
-			detailMap.put("sellType",  detail.get("sellType"));
-			detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
-			detailMap.put("sPrdtCd",   detail.get("sPrdtCd"));
-			detailMap.put("sPrdtSize", detail.get("sPrdtSize"));
-			detailMap.put("sPrdtSpec", detail.get("sPrdtSpec"));
-			detailMap.put("sPrdtLen",  detail.get("sPrdtLen"));
-			detailMap.put("transSeq",  detail.get("transSeq"));
-			detailMap.put("transAmt",  detail.get("transAmt"));
+			detailMap.put("userId",       param.get("userId").toString());
+			detailMap.put("pgmId",        param.get("pgmId").toString());
+			detailMap.put("sCoCd",        detail.get("sCoCd"));
+			detailMap.put("sWhCd",        detail.get("sWhCd"));
+			detailMap.put("sTransDt",     detail.get("sTransDt"));
+			detailMap.put("sRmk",         detail.get("sRmk"));
+			detailMap.put("sellType",     detail.get("sellType"));
+			detailMap.put("sPrjctCd",     detail.get("sPrjctCd"));   // 현재는 변동없음. 추하 변동시 바꿀것.
+			detailMap.put("sPrdtCd",      detail.get("sPrdtCd"));
+			detailMap.put("sPrdtSize",    detail.get("sPrdtSize"));
+			detailMap.put("sPrdtSpec",    detail.get("sPrdtSpec"));
+			detailMap.put("sPrdtLen",     detail.get("sPrdtLen"));
+			detailMap.put("transSeq",     detail.get("transSeq"));
+			detailMap.put("transAmt",     detail.get("transAmt"));
+//			detailMap.put("realStockYn",  detail.get("realStockYn"));
 			
 			sm02Mapper.sm01UpdateStockMove(detailMap);      // 기존 차감.
 			
@@ -233,7 +235,7 @@ public class SM02Svcmpl implements SM02Svc {
 			}			
 			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);  // 신규 추가
 			sm02Mapper.sm02InsertBarterStockMove(detailMap);        // 재고이동 이력
-			insertIfMesStockMove(detailMap);                        // MES If 입력
+		// 	insertIfMesStockMove(detailMap);                        // MES If 입력   바터재고는 공장간 이동이 없으며 MES에서는 이미 생산하고 차감이 되었음으로 전송 필요 없음.
 		}
 		return 200;
 		
@@ -254,21 +256,22 @@ public class SM02Svcmpl implements SM02Svc {
 		
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
-			 detailMap.put("userId",    param.get("userId").toString());
-			 detailMap.put("pgmId",     param.get("pgmId").toString());
-			 detailMap.put("prdtCd",    detailMap.get("trstPrdtCd").toString());
-			 detailMap.put("sPrdtCd",   detailMap.get("trstPrdtCd").toString());
-			 detailMap.put("sPrdtSpec", detailMap.get("prdtSpec").toString());
-			 detailMap.put("sPrdtSize", detailMap.get("prdtSize").toString());
-			 detailMap.put("sPrdtLen",  detailMap.get("prdtLen").toString());
-			 detailMap.put("sCoCd",     detail.get("sCoCd"));
-			 detailMap.put("sWhCd",     detail.get("sWhCd"));
-			 detailMap.put("sTransDt",  detail.get("sTransDt"));
-			 detailMap.put("sRmk",      detail.get("sRmk"));
-			 detailMap.put("sellType",  detail.get("sellType"));
-			 detailMap.put("sPrjctCd",  detail.get("sPrjctCd"));
-			 detailMap.put("prdtCd",    detailMap.get("trstPrdtCd").toString());
-			 detailMap.put("clntCd",    detailMap.get("trstClntCd").toString());
+			 detailMap.put("userId",       param.get("userId").toString());
+			 detailMap.put("pgmId",        param.get("pgmId").toString());
+			 detailMap.put("prdtCd",       detailMap.get("trstPrdtCd").toString());
+			 detailMap.put("sPrdtCd",      detailMap.get("trstPrdtCd").toString());
+			 detailMap.put("sPrdtSpec",    detailMap.get("prdtSpec").toString());
+			 detailMap.put("sPrdtSize",    detailMap.get("prdtSize").toString());
+			 detailMap.put("sPrdtLen",     detailMap.get("prdtLen").toString());
+			 detailMap.put("sCoCd",        detail.get("sCoCd"));
+			 detailMap.put("sWhCd",        detail.get("sWhCd"));
+			 detailMap.put("sTransDt",     detail.get("sTransDt"));
+			 detailMap.put("sRmk",         detail.get("sRmk"));
+			 detailMap.put("sellType",     detail.get("sellType"));
+			 detailMap.put("sPrjctCd",     detail.get("sPrjctCd"));
+			 detailMap.put("prdtCd",       detailMap.get("trstPrdtCd").toString());
+			 detailMap.put("clntCd",       detailMap.get("trstClntCd").toString());
+			 detailMap.put("realStockYn",  detail.get("realStockYn"));
 			 
 			 /*
 			 * 제강사 턴키 재고이동 순서
