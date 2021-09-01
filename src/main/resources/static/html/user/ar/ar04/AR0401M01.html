@@ -133,7 +133,8 @@
 						<a onclick="openTaxManagerTap();" style="height: 30px; line-height: 28px; width: 100px;" authchk><i class="fas fa-address-card"></i>수신담당자관리</a>
 						<a onclick="insertTaxHd();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-file-alt"></i>계산서정발행</a>
 <!-- 						재전송은 이미 발행된 건에 대해서 메일을 재전송하려고 사용중이지만 현재 메일이 재전송되지 않으므로 주석처리 - 2021/08/11 -->
-<!-- 						<a onclick="insertTaxHdReSend();" style="height: 30px; line-height: 28px; width: 80px;" authchk><i class="fas fa-file-export"></i>재전송</a> -->
+<!-- 						재전송은 이미 발행된 건중 오류건(CSEQ_RCV_YN='E')에 대해서  재전송처리 - 2021/09/01 -->
+						<a onclick="insertTaxHdReSend();" style="height: 30px; line-height: 28px; width: 80px;" authchk><i class="fas fa-file-export"></i>재전송</a>
 <!-- 						<a onclick="insertTaxHdCancel();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-redo"></i>정발행취소</a> -->
 						<a onclick="insertTaxHdUpdate();" style="height: 30px; line-height: 28px; width: 100px;" authchk><i class="fas fa-file-signature"></i>수정세금계산서</a>
 						<a onclick="updateTaxHdRvrs();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-file-download"></i>역발행확인</a>
@@ -906,6 +907,7 @@
 		var selpchChk = true;
 		var emailIdx;
 		var selectDt;
+		debugger;
 		$.each(list, function(idx, obj){
 			// 매입매출 체크
 			if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
@@ -920,6 +922,14 @@
 				alert("세금계산서 발행된 건이 아닙니다.");
 				return false;
 			}
+	
+			if(obj.cseqRcvYn != 'E') {
+				flag = true;
+				alert("오류난 세금계산서만 수정해서 재전송 처리 가능합니다.");
+				return false;
+			}
+
+			
 			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
 			if(!obj.taxRcvEmail){
 				emailChk = false;
@@ -936,6 +946,10 @@
 		var rowLength = gridView.target.getList("selected").length;
 		if(rowLength == 0) {
 			alert("세금계산서를 선택해 주세요.");
+			return;
+		}
+		if(rowLength > 1) {
+			alert("세금계산서 재전송은 1건씩만 처리 가능합니다.");
 			return;
 		}
 		if(!emailChk){
