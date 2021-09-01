@@ -302,7 +302,37 @@
 	         WHERE D.WORKS_CD  = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
 	           AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
 	           AND D.MMAIM_GBN = '2' AND D.FAC_GUBUN = 'B0001' --B0001: 1공장, B0002: 2공장
-		
+	           
+		UNION ALL
+			SELECT FAC_NM
+				, ROUND(NVL(DD_WGT, 0)/1000, 3) AS DD_WGT
+				, ROUND(NVL(MM_WGT, 0)/1000, 3) AS MM_WGT
+				, ROUND(NVL(MM_PLAN, 0)/1000, 3) AS MM_PLAN
+			FROM
+			(
+				SELECT
+				'창녕공장' FAC_NM
+				,(
+					SELECT 
+						ROUND(SUM(ISS_WGT)/1000,3) 
+					FROM 
+						MES_KMCN.TB_MES_BARLIST_ITEM
+					WHERE 
+						ISS_DT BETWEEN TO_DATE(TO_CHAR(SYSDATE,'YYYYMMDD')||'000000', 'YYYYMMDDHH24MISS') AND TO_DATE(TO_CHAR(SYSDATE+1,'YYYYMMDD')||'000000', 'YYYYMMDDHH24MISS')
+				) DD_WGT --일생산량
+				, ROUND(SUM(ISS_WGT)/1000,3) AS MM_WGT --월생산량
+				, (
+					SELECT 
+						SUM(PLAN_WGT) 
+					FROM 
+						MES_KMCN.TB_MES_MON_PLAN 
+					WHERE 
+						PLAN_KIND = 'S' AND PLAN_TYPE = 'B' AND (PLAN_YEAR || PLAN_MON) = '202107') AS MM_PLAN --계획목표량
+				FROM 
+					MES_KMCN.TB_MES_BARLIST_ITEM
+				WHERE 
+					ISS_DT BETWEEN TO_DATE('202107'||'01000000', 'YYYYMMDDHH24MISS') AND LAST_DAY(TO_DATE('202107', 'YYYYMM'))+1
+			);
 	</select>
 	
 	<select id="selectMonthlyStat" resultType="CamelMap">
