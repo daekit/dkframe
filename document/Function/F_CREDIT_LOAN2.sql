@@ -1,10 +1,10 @@
-CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN(I_CD CHAR,I_CLNT_CD number, I_CO_CD varchar, I_TR_DT VARCHAR, I_AMT number)
+CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN2(I_CD CHAR,I_CLNT_CD number, I_CO_CD varchar, I_PRDT_GRP VARCHAR, I_TR_DT VARCHAR, I_AMT number)
     RETURN number is 
     PRAGMA AUTONOMOUS_TRANSACTION;
   
 /******************************************************************************
 * TYPE			: FUNCTION (Tibero)
-* NAME			: F_CREDIT_LOAN
+* NAME			: F_CREDIT_LOAN2
 * DEVELOPER		: Jangsub.Nam
 * DESCRIPTION	: 입력받은 코드, 거래처번호, 법인코드,  금액, -9999:Exception 발생)
 * 	 구분 : 
@@ -13,18 +13,18 @@ CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN(I_CD CHAR,I_CLNT_CD number, I_
 *
 *		여신 잔액부족이나 오류 발생시 -9999 Return
 *
-*	SELECT f_CREDIT_LOAN('C', 1, 'GGS','20210101',0) FROM DUAL; -- 여신잔액
-*	SELECT f_CREDIT_LOAN('T', 1, 'GGS','20210101',0) FROM DUAL; -- 총여신금액
+*	SELECT f_CREDIT_LOAN2('C', 1, 'GGS','PRDTGRP1','20210101',0) FROM DUAL; -- 여신잔액
+*	SELECT f_CREDIT_LOAN2('T', 1, 'GGS','PRDTGRP1','20210101',0) FROM DUAL; -- 총여신금액
 *
 *  I_CD 구분
 *  I_CLNT_CD 거래처 
 *  I_CO_CD 회사
 *  I_TR_DT 기준일자( 매출일자(P)/수금일자(M)/조회일자(C) )
-*                                 제품그룹  PRDTGRP1:철재류, PRDTGRP2:건재류
+*  I_PRDT_GRP 제품그룹  PRDTGRP1:철재류, PRDTGRP2:건재류
 *  I_AMT  금액
 ******************************************************************************/
 
-    I_PRDT_GRP   VARCHAR(20) := 'PRDTGRP1';   
+    C_PRDT_GRP   VARCHAR(20) := 'PRDTGRP1';   
     O_BLCE_TRDT_AMT 	number := 0;	/*거래일기준 잔액 계산 */  
     O_BLCE_CURR_AMT 	number := 0;	/*현재일기준 잔액 계산 */  
     O_BLCE_AMT 	number := 0;	/*가용 잔액 */  
@@ -41,22 +41,10 @@ CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN(I_CD CHAR,I_CLNT_CD number, I_
     C_CO_AMT 	number := 0;	/*기준일까지사별여신 잔여 금액*/
     C_GRP_AMT2 	number := 0;	/*현재일까지그룹여신 잔여 금액*/
     C_CO_AMT2 	number := 0;	/*현재일까지사별여신 잔여 금액*/
-
-    BM03_CNT number := 0;	/*BM03 건수*/
-    BM04_CNT number := 0;	/*BM04 건수*/
-    BM03_AMT number := 0;	/*그룹공통여신 반영금액*/
-    BM04_AMT number := 0;	/*사별여신 반영금액*/
-	BM04_CELL_CLMN number := 0;
-	BM04_CELL_REM number := 0;
-	BM04_CELL_TOT number := 0;
 	    
     C_CLNT_CD 	number := 0;
     C_LINK_GRP_YN 	VARCHAR(20) := '';
     C_LINK_GRP_CLNT_CD 	number := 0;
-    
-    REM_AMT 	number := 0;	/* 잔여 금액*/
-	BLCE_AMT    number := 0;	/* 공통사용금액*/
-    RVS_AMT     number := 0;	/* 취소, 반품시  Minus처리*/
     
     O_GRP_PLDG_AMT number := 0;
     O_GRP_BLCE_AMT number := 0;
@@ -73,7 +61,7 @@ CREATE OR REPLACE FUNCTION GOLDMOON.F_CREDIT_LOAN(I_CD CHAR,I_CLNT_CD number, I_
 BEGIN
 	/**************************************************************
 	* -여신 잔액 체크
-	*  SELECT f_CREDIT_LOAN('C', 1, 'GGS','20210131',0) FROM DUAL; -- 여신잔액
+	*  SELECT f_CREDIT_LOAN2('C', 1, 'GGS','PRDTGRP1','20210131',0) FROM DUAL; -- 여신잔액
 	*   1. 사별 여신 잔액 산출
 	***************************************************************/
 
@@ -92,7 +80,8 @@ BEGIN
 /*----------------------------------------------------------------------------*/
 
 	IF I_CD = 'C' OR I_CD = 'T'  THEN
-		I_PRDT_GRP  := 'PRDTGRP1'; 
+--		C_PRDT_GRP  := 'PRDTGRP1'; 
+		O_BLCE_AMT  := 0;
 	ELSE
 		 return -7;  --여신처리는 f_CREDIT_LOAN_PRDTGRP 에서 처리함
 	END IF;
@@ -116,7 +105,7 @@ BEGIN
 								AND b.SELPCH_CD = 'SELPCH2'
 				  				AND nvl(B.SETUP_DT,00010101) <= TO_NUMBER(I_TR_DT) 
 								AND nvl(B.EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT) 
---								AND b.PRDT_GRP = I_PRDT_GRP
+								AND b.PRDT_GRP = nvl2(I_PRDT_GRP ,I_PRDT_GRP, b.PRDT_GRP)
 			WHERE a.USE_YN  = 'Y'
 			  AND a.CLNT_CD = I_CLNT_CD
 			GROUP BY a.CLNT_CD;
@@ -151,7 +140,7 @@ BEGIN
 										AND b.SELPCH_CD = 'SELPCH2'
 										AND nvl(B.SETUP_DT,00010101) <= TO_NUMBER(I_TR_DT) 
 										AND nvl(B.EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT) 
---										AND b.PRDT_GRP = I_PRDT_GRP
+										AND b.PRDT_GRP = nvl2(I_PRDT_GRP ,I_PRDT_GRP, b.PRDT_GRP)
 				  WHERE a.LINK_GRP_CLNT_CD = C_LINK_GRP_CLNT_CD
 				    AND a.LINK_GRP_YN      = 'Y' 
 					AND a.USE_YN           = 'Y'
@@ -176,7 +165,7 @@ BEGIN
 				  AND SELPCH_CD = 'SELPCH2'
 				  AND nvl(SETUP_DT,00010101) <= TO_NUMBER(I_TR_DT) 
 				  AND nvl(EXPRTN_DT,99999999) >= TO_NUMBER(I_TR_DT)
---				  AND PRDT_GRP  = I_PRDT_GRP
+				  AND PRDT_GRP  = nvl2(I_PRDT_GRP ,I_PRDT_GRP, PRDT_GRP)
 				  AND USE_YN    = 'Y';
 		exception 
 		    when others then O_CO_AMT := 0;
@@ -200,8 +189,8 @@ BEGIN
 				SELECT NVL(a.GRP_BLCE_AMT,0)
 				  INTO GRP_BLCE			--그룹공통여신잔액
 				  FROM TB_BM03M01 a 
-				 WHERE a.CLNT_CD = NVL(C_LINK_GRP_CLNT_CD, I_CLNT_CD);
---				   AND a.PRDT_GRP = I_PRDT_GRP;
+				 WHERE a.CLNT_CD = NVL(C_LINK_GRP_CLNT_CD, I_CLNT_CD)
+				   AND a.PRDT_GRP = nvl2(I_PRDT_GRP ,I_PRDT_GRP, a.PRDT_GRP);
 			exception
 			    when others then GRP_BLCE := 0;
     		end;
@@ -216,7 +205,7 @@ BEGIN
 				WHERE CO_CD        = NVL(I_CO_CD,CO_CD) 
 				  AND TRST_CLNT_CD = I_CLNT_CD
 --			      AND SELPCH_CD    = 'SELPCH2'
---			      AND NVL(b.PRDT_GRP,'PRDTGRP1')  = I_PRDT_GRP
+			      AND b.PRDT_GRP   = nvl2(I_PRDT_GRP ,I_PRDT_GRP, b.PRDT_GRP)
 				  AND TRST_DT      <= TO_NUMBER(I_TR_DT);
 			exception
 			    when others then C_TRSP_AMT := 0;
@@ -233,7 +222,7 @@ BEGIN
 				 INNER JOIN TB_CM05M01 CM05 ON CODE_ID = M01.ETRDPS_TYP 
 				WHERE D02.CO_CD      = NVL(I_CO_CD,D02.CO_CD)
 				  AND D02.CLNT_CD    = I_CLNT_CD
---				  AND PRDT_GRP       = I_PRDT_GRP
+				  AND D02.PRDT_GRP   = nvl2(I_PRDT_GRP ,I_PRDT_GRP, D02.PRDT_GRP)
 				  AND D02.ETRDPS_DT <= TO_NUMBER(I_TR_DT);
 			exception
 			    when others then C_ETRDPS_AMT := 0;
