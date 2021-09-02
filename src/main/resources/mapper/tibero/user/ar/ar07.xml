@@ -1108,23 +1108,23 @@
 				  		     , BM02.SELL_VAT_CD
 				  		     , M01.TAXIVC_COPRT AS TAXIVC_COPRT
 				  		     , NVL(AR05.SELL_CLMN_DAY, BM02.SELL_CLMN_DAY) AS SELL_CLMN_DAY
-							 , SUBSTRING(AR05.TRST_DT, 0, 6) ETRDPS_YM
-							 , SUBSTRING(AR05.TRST_DT, 0, 4) || '-' || SUBSTRING(AR05.TRST_DT, 5,2) CLOSE_YM
+							 , SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 6) ETRDPS_YM
+							 , SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 4) || '-' || SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 5,2) CLOSE_YM
 							 , AR05.CLNT_CD
 							 , 0 AS BASIS_AMT   <!--  당월 기초 -->
-							 , SUM( DECODE(SUBSTRING(AR05.TRST_DT,0,6), REPLACE(#{closeYm}, '-', '') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLMN_AMT <!--- 당월입금 -->		      
+							 , SUM( DECODE(SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT),0,6), REPLACE(#{closeYm}, '-', '') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLMN_AMT <!--- 당월입금 -->		      
                              , 0 AS TOT_AMT           <!-- 당월 매출채권 -->
 							 , 0 AS TRMEND_AMT <!-- 당월기말 -->
 							 , 0 AS BFR_BASIS_AMT  <!-- 전월기초 -->
-							 , SUM(DECODE(SUBSTRING(AR05.TRST_DT, 0, 6), TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLOSE_YM1_CLMN_AMT   <!--전월수금 -->	      
+							 , SUM(DECODE(SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 6), TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -1), 'YYYYMM') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLOSE_YM1_CLMN_AMT   <!--전월수금 -->	      
                              , 0 AS CLOSE_YM1_TOT_AMT    <!--전월매출 -->
 							 , 0 AS CLOSE_YM1   <!--  전월 기말	 -->		      
 							 , 0 AS BASIS_CREDIT_AMT  <!-- 전전월기초 -->
-							 , SUM(DECODE(SUBSTRING(AR05.TRST_DT, 0, 6), TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
+							 , SUM(DECODE(SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 6), TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
                              , 0  AS CLOSE_YM2_TOT_AMT    <!--전전월매출     -->
 							 , 0 AS CLOSE_YM2  <!-- 전전월기말 -->
 							 , SUM(NVL(AR05.ETRDPS_AMT, 0))  AS ETRDPS_AMT   <!--전체 수금액 -->
-                             , SUM(DECODE(SUBSTRING(AR05.ETRDPS_DT, 0, 6), REPLACE(#{closeYm}, '-', '') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CUR_CLMN_AMT <!--- 입금일이 당월입금 -->              	      
+                             , SUM(DECODE(SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 6), REPLACE(#{closeYm}, '-', '') ,NVL(AR05.ETRDPS_AMT, 0)))  AS CUR_CLMN_AMT <!--- 입금일이 당월입금 -->              	      
 						  FROM TB_AR05D02 AR05
 						  INNER JOIN TB_AR05M01 M01 ON M01.CO_CD = AR05.CO_CD AND M01.ETRDPS_SEQ = AR05.ETRDPS_SEQ
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR05.CLNT_CD 
@@ -1135,10 +1135,10 @@
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						   <if test="closeYm != null and !closeYm.equals('')">
-						  AND SUBSTRING(AR05.ETRDPS_DT, 0, 6) BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM')
+						  AND SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 6) BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'), -2), 'YYYYMM')
 						       		                              AND TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{closeYm}, '-', ''), 'YYYYMM'),  0), 'YYYYMM')
 						  </if>
 						  <if test="clntNm != null and !clntNm.equals('')">
@@ -1150,7 +1150,7 @@
 						  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 						   AND M01.TAXIVC_COPRT = #{taxivcCoprt}
 						  </if>
-						  GROUP BY AR05.CO_CD, SUBSTRING(AR05.TRST_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(AR05.TRST_DT, 0, 4) || '-' || SUBSTRING(AR05.TRST_DT, 5,2) 					  
+						  GROUP BY AR05.CO_CD, SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 6), AR05.CLNT_CD,  SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 0, 4) || '-' || SUBSTRING(NVL(AR05.TRST_DT,AR05.ETRDPS_DT), 5,2) 					  
 				             , BM02.CLNT_NM
 				             , CASE
 							    	WHEN NVL(AR05.SELL_CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
