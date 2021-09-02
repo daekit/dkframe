@@ -53,6 +53,4 @@ public interface SD09Mapper {
 
 	Map<String, String> selectMinSite(Map<String, String> siteMap);
 
-	
-
 }
