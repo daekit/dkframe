@@ -734,49 +734,77 @@
 	}
 	
 	function updateConfirm(type) {
-		var checkCount = 0;
-		var checkCountP = 0;
-		var checkCountS = 0;
-		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && ($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "N")) {
-				checkCount++;
-			}
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
-				checkCountP++;
-			}
-			if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "Y") {
-				checkCountS++;
-			}
-		});
-			
-		if(checkCount == 0){
-			alert("발주내역을 선택해주세요");
-			return;
-		}
 		
-		// 매출만 확정가능한 케이스(GGM 건재류) 때문에 주석처리 - 20210611
-		/*
-			if (type == 'S' && checkCountP == 0){
-				alert("매출 확정은 매입이 완료된 건에 대한 확정입니다. 매입확정을 혹은 일괄확정 후 작업하십시요.");
+		if (chkZeroTot(type) == true) {
+		
+			var checkCount = 0;
+			var checkCountP = 0;
+			var checkCountS = 0;
+			$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
+				if($(elem).find("input[name='detailChkBox']").is(":checked") && ($(elem).find("input[name='ordrgYn']").val() == "N" || $(elem).find("input[name='shipYn']").val() == "N")) {
+					checkCount++;
+				}
+				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='ordrgYn']").val() == "Y") {
+					checkCountP++;
+				}
+				if($(elem).find("input[name='detailChkBox']").is(":checked") && $(elem).find("input[name='shipYn']").val() == "Y") {
+					checkCountS++;
+				}
+			});
+			
+			if(checkCount == 0){
+				alert("발주내역을 선택해주세요");
 				return;
 			}
-		*/
+			
+			// 매출만 확정가능한 케이스(GGM 건재류) 때문에 주석처리 - 20210611
+			/*
+				if (type == 'S' && checkCountP == 0){
+					alert("매출 확정은 매입이 완료된 건에 대한 확정입니다. 매입확정을 혹은 일괄확정 후 작업하십시요.");
+					return;
+				}
+			*/
+			
+			var formData = makeFormData('CONFIRM');
+			formData.comfirmType = type; // P 매입확정, S 매출확정, A 일괄
+			
+			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+			var mngPrdtLen = ''; 
+			if($('#ordrgView #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+			formData.mngPrdtLen = mngPrdtLen;
+	
+			putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
+				alert(data.resultMessage);           
+				if(data.resultCode == 200){
+					ordrgGridView.setData(0);
+					modalStack.close();
+				}
+			});
+		}
+	}
+	
+	//발주, 매출금액 0 check
+	//발주금액이 0인데 확정이 되면 확정된 상태로 매입리스트에 들어가지 않음
+	function chkZeroTot(type) {
+		var chkTotAmt = $('#ordrgView #totAmt').val();
+		var chkTotShipAmt = $('#ordrgView #totShipAmt').val();
 		
-		var formData = makeFormData('CONFIRM');
-		formData.comfirmType = type; // P 매입확정, S 매출확정, A 일괄
+		if(type == "A" && (chkTotAmt == 0 || chkTotShipAmt == 0)) {
+				alert("발주 또는 매출 금액을 확인해주세요");
+				return false;
+		}
 		
-		// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
-		var mngPrdtLen = ''; 
-		if($('#ordrgView #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
-		formData.mngPrdtLen = mngPrdtLen;
-
-		putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
-			alert(data.resultMessage);           
-			if(data.resultCode == 200){
-				ordrgGridView.setData(0);
-				modalStack.close();
-			}
-		});
+		if(type == "P" && chkTotAmt == 0) {
+			alert("발주 금액을 확인해주세요");
+			return false;
+		}
+		
+		if(type == "S" && chkTotShipAmt == 0) {
+			alert("매출 금액을 확인해주세요");
+			return false;
+		}
+		
+		else return true;
 	}
 	
 	function updateCancel(type) {
