@@ -316,8 +316,8 @@
 		              , A.TAXIVC_COPRT
 		              , FN_CM05M01_CD_TO_NM(A.TAXIVC_COPRT)      AS  TAXIVC_COPRT_NM
 		              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT	               
-		              , F_CREDIT_LOAN_PRDTGRP('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LMT  <!-- 여신한도 -->
-					  , F_CREDIT_LOAN_PRDTGRP('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
+		              , F_CREDIT_LOAN2('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LMT  <!-- 여신한도 -->
+					  , F_CREDIT_LOAN2('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
 	
 		         FROM (
 		            SELECT
@@ -553,7 +553,7 @@
 						 , ETRDPS_YM
 						 , CLOSE_YM
 						 , CLNT_CD
-						 
+					ORDER BY CO_CD, CLNT_NM, PRDT_GRP, PRJCT_CD
 						      
 				) A
 		)
