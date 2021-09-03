@@ -14,6 +14,7 @@ import com.dksys.biz.config.YamlReader;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar04.mapper.AR04Mapper;
 import com.dksys.biz.user.ar.ar04.service.AR04Svc;
+import com.dksys.biz.user.ar.ar05.mapper.AR05Mapper;
 import com.dksys.biz.user.ar.ar06.mapper.AR06Mapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,6 +29,9 @@ public class AR04SvcImpl implements AR04Svc {
 
 	@Autowired
 	AR04Mapper ar04Mapper;
+
+	@Autowired
+	AR05Mapper ar05Mapper;
 
 	@Autowired
 	AR06Mapper ar06Mapper;
@@ -625,6 +629,7 @@ public class AR04SvcImpl implements AR04Svc {
 		if (bilgInfo.get("taxBilgNo") == null) {
 			result = ar04Mapper.deleteBilgInfo(param);
 			ar02Mapper.updateBilgCancel(param);
+			ar05Mapper.updateTrstCertiNo(param); // 매입과 매칭된것 제거
 		}
 		return result;
 	}

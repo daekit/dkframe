@@ -52,4 +52,5 @@ public interface AR05Mapper {
 	
 	List<Map<String, String>> selectEtrdpsMap(Map<String, String> paramMap);
 	
+	int updateTrstCertiNo(Map<String, String> paramMap);	
 }
