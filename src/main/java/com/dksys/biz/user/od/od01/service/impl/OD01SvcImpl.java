@@ -461,7 +461,7 @@ public class OD01SvcImpl implements OD01Svc {
 				od01Mapper.updateConfirmDetail(detailMap);
 				//매입, 매입금액이 없는 경우 매입내역 등록 안함.
 				double bilgAmtPchs =  Double.parseDouble(detailMap.get("realDlvrAmt"));
-				if (bilgAmtPchs > 0 || bilgAmtPchs < 0) {
+				/* if (bilgAmtPchs > 0 || bilgAmtPchs < 0) { */
 					paramMap.put("clntCd", clntCd);
 					
 					// 매입실적 반영 AR02
@@ -482,7 +482,7 @@ public class OD01SvcImpl implements OD01Svc {
 				    		insertIfMesStockIn(paramMap); 
 						}
 					}
-				}
+				/*}*/
 			}	
 
 			// S 매출확정, A 일괄
