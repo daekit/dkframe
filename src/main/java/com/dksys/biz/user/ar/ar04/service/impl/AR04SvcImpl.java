@@ -415,7 +415,14 @@ public class AR04SvcImpl implements AR04Svc {
 		// 연계문서 발행
 		msgId++; // XML_MSG_ID 생성
 		insertKladdi(msgId, taxHdParam);
-		ar04Mapper.updateTrstInfo(taxHdParam); // (-)세금계산서 추가 후 tax, inv, kladdi 발행
+		
+		//AR02 --> 청구번호 제거, 원본세금계산서번호, 수정사유 Update
+		if (taxHdParam.get("rffAea").equals("RFFAEA04")) { //수정사유가 RFFAEA04:계약해지일경우 AR02 원본계산서 번호, 수정사유 Update 안함
+			taxHdParam.put("rffAea", "");
+			taxHdParam.put("orgnTaxBilgNo", "");
+		} 
+		ar04Mapper.updateTrstInfo(taxHdParam); // AR02 Update
+		
 		// for문 제거 end
 		return result;
 	}
