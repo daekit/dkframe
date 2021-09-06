@@ -783,15 +783,18 @@
 			       <if test="clntCd != null and !clntCd.equals('')">
 			        AND AR02.TRST_CLNT_CD = #{clntCd}				
 			       </if>
+			       <if test="clntNm != null and !clntNm.equals('')">
+				    AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+				   </if>
 			       <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-                             AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
-                            </if>
-                            <if test="prdtGrp != null and !prdtGrp.equals('')">
-                             AND AR02.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
-                                             FROM TB_BM01M01
-                                             WHERE PRDT_GRP = #{prdtGrp}
-                                              )
-                            </if>	
+                    AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
+                   </if>
+                   <if test="prdtGrp != null and !prdtGrp.equals('')">
+                    AND AR02.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+                                    FROM TB_BM01M01
+                                    WHERE PRDT_GRP = #{prdtGrp}
+                                     )
+                   </if>
 			) A   
 			WHERE PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '')
 			GROUP BY CO_CD
