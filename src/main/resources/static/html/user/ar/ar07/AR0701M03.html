@@ -67,7 +67,8 @@
 						</td>
 						<th class="hit">기준년월</th>
 						<td>
-							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;">
+<!-- 							<input type="month" id="closeYm" name="closeYm" data-search="closeYm" class="month_calendar" onchange="gridView.initView(closeYm.value).setData(0);"style="width: 100%;line-height: 20px !important;"> -->
+							<input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt" onchange="gridView.initView(baseDt.value).setData(0);">
 						</td>
 						<th class="hit">구분</th>
 		                <td>
@@ -94,7 +95,7 @@
 						<td>
 		                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
 		                  <div class="search_form" style="width: 50%;">
-			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(closeYm.value).setData(0) : ''">
+			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.initView(baseDt.value).setData(0) : ''">
 			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 			              </div>
 		                </td>
@@ -134,10 +135,12 @@
 	var odrDtlSeqArr = [];
 	
 	var gridView = {
-		initView : function(closeYm) {
-			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
-			var closeYm3 = moment(closeYm, 'YYYY-MM').subtract(3, "month").format('YYYY-MM');
+		initView : function(baseDt) {
+            var baseDtSt = $("#baseDt").val().replace(/\-/g,'');
+			var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+			var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+			var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
+			var closeYm3 = moment(baseDt, 'YYYY-MM-DD').subtract(3, "month").format('YYYY-MM');
 			
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
@@ -257,10 +260,16 @@
 		}
 	}
 	var excelView = {
-			initView: function(closeYm){
-				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
-				var closeYm3 = moment(closeYm, 'YYYY-MM').subtract(3, "month").format('YYYY-MM');
+			initView: function(baseDt){		
+
+	            var baseDtSt = $("#baseDt").val().replace(/\-/g,'');
+				var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+				var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+				var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
+				var closeYm3 = moment(baseDt, 'YYYY-MM-DD').subtract(3, "month").format('YYYY-MM');
+				
+				
+				
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
 			        target: $('[data-ax5grid="excel-grid"]'),
@@ -339,17 +348,24 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setByCoCd(jwt.coCd);
 		// 기준년월
-		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
-		
+		// document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+	
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
 		
+		$('#baseDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+	});
+		
 		
 		// grid init
-		gridView.initView(closeYm.value).setData(0);
-		excelView.initView(closeYm.value);
+		gridView.initView(baseDt.value).setData(0);
+		excelView.initView(baseDt.value);
 		
 		authChk();
 	});
@@ -360,7 +376,8 @@
 		// 조건초기화
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 기간
-		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+//		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
 		
@@ -381,7 +398,7 @@
 
 	function excelDown() {
 
-		excelView.initView(closeYm.value);
+		excelView.initView(baseDt.value);
 		var paramObj = {"pageNo" : 1, "recordCnt"   : 9999999 };
 		for(var i=0;i<$('[data-search]').length;i++){
 			var tempElem = $('[data-search]')[i];
