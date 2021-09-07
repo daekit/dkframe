@@ -25,6 +25,9 @@
 				  <if test="closeYm != null and !closeYm.equals('')">
 				   AND  C.CLOSE_YM = REPLACE(#{closeYm}, '-', '')
                   </if>
+                  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				   AND C.TAXIVC_COPRT = #{taxivcCoprt}
+				  </if>
              </where>
 	</select>
 	<!-- 전월 마감이 있는 지 확인함. -->
@@ -45,6 +48,9 @@
 				  <if test="closeYm != null and !closeYm.equals('')">
 				   AND  C.CLOSE_YM = REPLACE(#{closeYm}, '-', '')
                   </if>
+                  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				   AND C.TAXIVC_COPRT = #{taxivcCoprt}
+				  </if>
 	</select>
 	
 	
@@ -246,7 +252,10 @@
 						     , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
 					  	 FROM TB_AR07M01 C
 						  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = C.CLNT_CD 
-						  WHERE SELPCH_CD = 'SELPCH2'	
+						  WHERE  1 = 1				  
+							  <if test="selpchCd != null and !selpchCd.equals('')">
+							  AND SELPCH_CD = #{selpchCd}				
+							  </if>	
 							  <if test="coCd != null and !coCd.equals('')">
 							  AND C.CO_CD = #{coCd}				
 							  </if>	
@@ -606,6 +615,12 @@
 					  <if test="clntCd != null and !clntCd.equals('')">
 					  AND C.CLNT_CDD = #{clntCd}				
 					  </if>
+	                  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					   AND C.TAXIVC_COPRT = #{taxivcCoprt}
+					  </if>
+					  <if test="prdtGrp != null and !prdtGrp.equals('')">
+					   AND PRDT_GRP = #{prdtGrp}
+					  </if>
 				    GROUP BY C.CO_CD,
 					      C.CLOSE_YM ,
 					      C.CLNT_CD ,
@@ -663,7 +678,10 @@
 			  	 FROM TB_AR07M01 C
 			  	 LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD  = C.CLNT_CD
 			  	 LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = C.PRJCT_CD
-				 WHERE SELPCH_CD = 'SELPCH2'				  
+				 WHERE  1 = 1				  
+					  <if test="selpchCd != null and !selpchCd.equals('')">
+					  AND SELPCH_CD = #{selpchCd}				
+					  </if>					  
 				   <if test="baseDt != null and !baseDt.equals('')">
 				   AND C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM')
 			       		              AND REPLACE(#{baseDt}, '-', '')	
@@ -676,6 +694,12 @@
 				  </if>	
 				  <if test="clntCd != null and !clntCd.equals('')">
 				   AND C.CLNT_CDD = #{clntCd}				
+				  </if>
+                  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				   AND C.TAXIVC_COPRT = #{taxivcCoprt}
+				  </if>
+				  <if test="prdtGrp != null and !prdtGrp.equals('')">
+				   AND C.PRDT_GRP = #{prdtGrp}
 				  </if>
 			    GROUP BY C.CO_CD,
 				      C.CLNT_CD ,
