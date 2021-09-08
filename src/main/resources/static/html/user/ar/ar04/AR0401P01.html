@@ -41,6 +41,25 @@
 					</td>
 				</tr>
 				<tr>
+					<th colspan="2">원본계산서번호</th>
+					<td>
+						<input type="text" id="orgnTaxBilgNo" name="orgnTaxBilgNo">
+					</td>
+					<th colspan="2" class="hit">계산서종류</th>
+					<td>
+						<select id="rffGn1" name="rffGn1" required>
+							<option value="RFFGN101" data-etc="01" data-desc="세금계산서종류">세금계산서</option>
+							<option value="RFFGN102" data-etc="02" data-desc="세금계산서종류">수정세금계산서</option>
+						</select>
+					</td>
+					<th id="rffAeaTh">전자세금계산서 수정사유 코드</th>
+					<td>
+						<select id="rffAea" name="rffAea" data-kind="RFFAEA">
+							<option value="">선택</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
 					<th colspan="2">세금계산서번호</th>
 					<td>
 						<input type="text" id="taxBilgNo" name="taxBilgNo" style="width: 100%;" maxlength="20" readonly>
@@ -51,11 +70,9 @@
 							<option value="">선택</option>
 						</select>
 					</td>
-					<th id="rffAeaTh">전자세금계산서 수정사유 코드</th>
+					<th>국세청승인번호</th>
 					<td>
-						<select id="rffAea" name="rffAea" data-kind="RFFAEA" disabled>
-							<option value="">선택</option>
-						</select>
+						<input type="text" id="rcvProcId" name="rcvProcId" readonly />
 					</td>
 				</tr>
 				<tr>
@@ -376,29 +393,31 @@
 		
 		
 		// 공급받는자 담당자의 승인여부 : 현재는 사용안함 bypass
-		if(obj.taxAdmsYn == "Y"){
-			$("#popForm #rffAea").prop("disabled", false);
-		}
+// 		if(obj.taxAdmsYn == "Y"){
+// 			$("#popForm #rffAea").prop("disabled", false);
+// 		}
 		
 		// 수정세금계산서 수정사유 코드 필수값 설정
-		if(obj.rffGn1 == "RFFGN102"){
-			$('#rffAeaTh').addClass("hit");
-			$('#rffAea').prop("required", true);
-			$('#rffAea').prop("disabled", false);
-		}
+// 		if(obj.rffGn1 == "RFFGN102"){
+// 			$('#rffAeaTh').addClass("hit");
+// 			$('#rffAea').prop("required", true);
+// 			$('#rffAea').prop("disabled", false);
+// 		}
 		
 		// sndYn: 전송여부
 		// cseqRcvYn: 계산서 전송결과 여부
-		if(obj.sndYn == "Y" && obj.cseqRcvYn == "Y"){
+// 		if(obj.sndYn == "Y" && obj.cseqRcvYn == "Y"){
+		if(obj.sndYn == "Y" && obj.cseqRcvYn != "E"){
 			$("#popForm input").prop("disabled", true);
 			$("#popForm select").prop("disabled", true);
-			$("#popForm #btnClnt").removeAttr("onclick");
-			$("#popForm #taxRcvNm").prop("disabled", false);
-			$("#popForm #taxRcvEmail").prop("disabled", false);
-			$("#popForm #taxRcvEmail2").prop("disabled", false);
-			$("#popForm #taxRcvFax").prop("disabled", false);
-			$("#popForm #taxRcvTel").prop("disabled", false);
-			$("#popForm #taxMoblphon").prop("disabled", false);
+			$("#actionBtn").hide();
+// 			$("#popForm #btnClnt").removeAttr("onclick");
+// 			$("#popForm #taxRcvNm").prop("disabled", false);
+// 			$("#popForm #taxRcvEmail").prop("disabled", false);
+// 			$("#popForm #taxRcvEmail2").prop("disabled", false);
+// 			$("#popForm #taxRcvFax").prop("disabled", false);
+// 			$("#popForm #taxRcvTel").prop("disabled", false);
+// 			$("#popForm #taxMoblphon").prop("disabled", false);
 		}
 		
 		if(obj.selpchCd == "SELPCH1" || obj.selpchCd == "SELPCH3"){
@@ -441,6 +460,15 @@
 		}
 		if ($("#popForm #taxRcvNm").val() == "") {
 			alert("수신담당자 이름 정보는 필수입니다.");
+			return;
+		}
+		debugger;
+		if (($("#popForm #rffGn1").val() == "RFFGN101" || $("#popForm #rffGn1").val() == "RFFGN103" ) && $("#popForm #rffAea").val() != "") {
+			alert("세금계산서는 수정사유가 필요없습니다.");
+			return;
+		}
+		if (($("#popForm #rffGn1").val() == "RFFGN102" || $("#popForm #rffGn1").val() == "RFFGN104" ) && $("#popForm #rffAea").val() == "") {
+			alert("수정세금계산서는 수정사유가 필수입니다.");
 			return;
 		}
 		var moa1023Sum = 0;
