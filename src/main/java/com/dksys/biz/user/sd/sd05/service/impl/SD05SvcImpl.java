@@ -144,6 +144,7 @@ public class SD05SvcImpl implements SD05Svc {
 			dtl.put("prjctCd", paramMap.get("prjctCd"));
 			dtl.put("userId",  paramMap.get("userId"));
 			dtl.put("pgmId",   paramMap.get("pgmId"));
+			dtl.put("outordLossRate",   paramMap.get("outordLossRate"));
 			
 			String prjctSeq = dtl.get("prjctSeq").toString();
 			if("".equals(prjctSeq) || "0".equals(prjctSeq)) {
