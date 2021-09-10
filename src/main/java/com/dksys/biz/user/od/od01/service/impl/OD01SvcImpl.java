@@ -698,6 +698,9 @@ public class OD01SvcImpl implements OD01Svc {
 						stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realDlvrQty"));
 						stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("realDlvrWt"));
 					}
+					
+					
+					
 					paramMap.put("stockQty", String.valueOf(stockQty));
 					paramMap.put("stockWt" , String.valueOf(stockWt));
 					sm01Mapper.updateStockCancel(paramMap);
