@@ -1593,11 +1593,11 @@
 		(
 			SELECT
 			ROWNUM AS RNUM, A.*
-			,(SELECT SITE_NM FROM TB_SD09M01 SD09 WHERE SD09.SITE_CD = A.SITE_CD) SITE_NM
 			FROM (SELECT TRST_RPRC_SEQ, TRST_DTL_SEQ, ODR_NO,
 					PRDT_NM,
 					TRST_PRDT_CD,
 					SITE_CD,
+					(SELECT SITE_NM FROM TB_SD09M01 SD09 WHERE SD09.SITE_CD = T.SITE_CD) SITE_NM,
 					MAX(T.PRDT_SPEC) AS PRDT_SPEC,
 					MAX(T.PRDT_STKN) AS PRDT_STKN,
 					MAX(T.PRDT_LEN) AS PRDT_LEN,
@@ -1695,14 +1695,14 @@
 					<if test="siteCd != null and !siteCd.equals('')">
 						AND SITE_CD = #{siteCd}
 					</if>
+					<if test="siteNm != null and !siteNm.equals('')">
+						AND SITE_NM LIKE '%'|| #{siteNm} || '%'
+					</if>
 				</where>
 			)
 			WHERE 1=1
 			<if test='pageYn != null and pageYn.equals("Y")'>
 				AND RNUM BETWEEN #{firstIndex} AND #{lastIndex}
-			</if>
-			<if test="siteNm != null and !siteNm.equals('')">
-				AND SITE_NM LIKE '%'|| #{siteNm} || '%'
 			</if>
 			GROUP BY PCH_CLNT,
 					 SEL_CLNT,
