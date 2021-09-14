@@ -134,7 +134,7 @@
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						   <if test="baseDt != null and !baseDt.equals('')">
 						  AND AR05.ETRDPS_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM') ||'01'
@@ -195,7 +195,7 @@
 						  AND AR02.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR02.TRST_CLNT_CD = #{clntCd}				
 						  </if>	
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -392,7 +392,7 @@
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						   <if test="baseDt != null and !baseDt.equals('')">
 						  AND AR05.ETRDPS_DT BETWEEN  TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM') ||'01'
@@ -456,7 +456,7 @@
 						  AND AR02.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR02.TRST_CLNT_CD = #{clntCd}				
 						  </if>	
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -717,7 +717,13 @@
 	</select>
 
 	<select id="selectClosCditList" resultType="CamelMap">
-	SELECT AR07.*, (SELECT NAME FROM TB_CM06M01 WHERE ID = AR07.SALES_EMP_ID  ) AS SALES_EMP_NM
+	SELECT AR07.*
+	      , CUR_CREDIT_AMT_T  - CUR_CREDIT_AMT  AS CUR_CREDIT_AMT_R
+	      , PRE1_CREDIT_AMT_T - PRE1_CREDIT_AMT AS PRE1_CREDIT_AMT_R
+	      , PRE2_CREDIT_AMT_T - PRE2_CREDIT_AMT AS PRE2_CREDIT_AMT_R
+	      , PRE3_CREDIT_AMT_T - PRE3_CREDIT_AMT AS PRE3_CREDIT_AMT_R
+	      , CUR_TRMEND_CREDIT_AMT_T - CUR_TRMEND_CREDIT_AMT AS CUR_TRMEND_CREDIT_AMT_R	
+	      , (SELECT NAME FROM TB_CM06M01 WHERE ID = AR07.SALES_EMP_ID  ) AS SALES_EMP_NM
 	      , (SELECT PRJCT_NM FROM TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = AR07.PRJCT_CD  ) AS PRJCT_NM
 	  	  , FN_CM05M01_CD_TO_NM(AR07.PRDT_GRP)  AS PRDT_GRP_NM
 	      , FN_CM05M01_CD_TO_NM(AR07.CO_CD) AS CO_NM
@@ -753,11 +759,19 @@
 	  		     , SELL_CLMN_DIV_CD
 	  		     , SELL_PMNT_MTD_CD
 	  		     , SELL_VAT_CD
-	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-0),'YYYYMM'), TOT_AMT,0)) AS CUR_CREDIT_AMT
-	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-1),'YYYYMM'), TOT_AMT,0)) AS PRE1_CREDIT_AMT
-	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-2),'YYYYMM'), TOT_AMT,0)) AS PRE2_CREDIT_AMT
-	  		     , SUM(CASE WHEN TO_DATE(TRST_DT,'YYYYMMDD') <![CDATA[ <= ]]> LAST_DAY(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-3)) THEN TOT_AMT ELSE 0 END)  AS PRE3_CREDIT_AMT
-	  		     , SUM(TOT_AMT) AS CUR_TRMEND_CREDIT_AMT
+	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-0),'YYYYMM'), TOT_AMT,0)) AS CUR_CREDIT_AMT_T
+	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-1),'YYYYMM'), TOT_AMT,0)) AS PRE1_CREDIT_AMT_T
+	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-2),'YYYYMM'), TOT_AMT,0)) AS PRE2_CREDIT_AMT_T
+	  		     , SUM(CASE WHEN TO_DATE(TRST_DT,'YYYYMMDD') <![CDATA[ <= ]]> LAST_DAY(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-3)) THEN TOT_AMT ELSE 0 END)  AS PRE3_CREDIT_AMT_T
+	  		     , SUM(TOT_AMT) AS CUR_TRMEND_CREDIT_AMT_T
+  		     
+	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-0),'YYYYMM'), CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END,0)) AS CUR_CREDIT_AMT
+	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-1),'YYYYMM'), CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END,0)) AS PRE1_CREDIT_AMT
+	  		     , SUM(DECODE(SUBSTRING(TRST_DT,0,6),TO_CHAR(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-2),'YYYYMM'), CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END,0)) AS PRE2_CREDIT_AMT
+	  		     , SUM(CASE WHEN TO_DATE(TRST_DT,'YYYYMMDD') <![CDATA[ <= ]]> LAST_DAY(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-3)) THEN 
+	  		         CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END ELSE 0 END)  AS PRE3_CREDIT_AMT
+	  		     , SUM(CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END) AS CUR_TRMEND_CREDIT_AMT
+	  		     
 			FROM (  SELECT 0 AS TYPE1 
 				         , AR02.CO_CD
 						 , TRST_CLNT_CD AS CLNT_CD 
@@ -848,7 +862,7 @@
 				         ,NVL(BILG_AMT, 0 ) + NVL(BILG_VAT_AMT, 0)
 			) A   
 			WHERE TOT_AMT != 0			
-			  AND PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '')
+<!-- 			  AND PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE(#{baseDt}, '-', '') -->
 			GROUP BY 
 			       CO_CD
 				 , CLNT_CD 
@@ -980,7 +994,7 @@
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						   <if test="baseDt != null and !baseDt.equals('')">
 						  AND AR05.ETRDPS_DT BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM') ||'01'
@@ -1069,7 +1083,7 @@
 						  AND AR02.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR02.TRST_CLNT_CD = #{clntCd}				
 						  </if>	
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -1289,7 +1303,7 @@
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						   <if test="baseDt != null and !baseDt.equals('')">
 						  AND AR05.ETRDPS_DT BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -1), 'YYYYMM')||'01'
@@ -1355,7 +1369,7 @@
 						  AND AR02.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR02.TRST_CLNT_CD = #{clntCd}				
 						  </if>	
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -1554,7 +1568,7 @@
 						  AND AR05.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						   <if test="baseDt != null and !baseDt.equals('')">
 						  AND AR05.ETRDPS_DT BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -1), 'YYYYMM')||'01'
@@ -1620,7 +1634,7 @@
 						  AND AR02.CO_CD = #{coCd}				
 						  </if>	
 						  <if test="clntCd != null and !clntCd.equals('')">
-						  AND C.CLNT_CD = #{clntCd}				
+						  AND AR02.TRST_CLNT_CD = #{clntCd}				
 						  </if>	
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -1927,7 +1941,7 @@
 						  </if>
 							  AND  NVL(AR05.ETRDPS_AMT,0)<![CDATA[ != ]]> 0 					  					  
 						  <if test="clntCd != null and !clntCd.equals('')">
-						 	  AND C.CLNT_CD = #{clntCd}				
+						 	  AND AR05.CLNT_CD = #{clntCd}				
 						  </if>			
 						  <if test="clntNm != null and !clntNm.equals('')">
 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -2029,7 +2043,7 @@
 									  AND AR02.CO_CD = #{coCd}				
 									  </if>	
 									  <if test="clntCd != null and !clntCd.equals('')">
-									  AND C.CLNT_CD = #{clntCd}				
+									  AND AR02.TRST_CLNT_CD = #{clntCd}				
 									  </if>	
 									  <if test="clntNm != null and !clntNm.equals('')">
 									   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -2568,7 +2582,7 @@
 <!-- 						  </if> -->
 <!-- 							  AND  NVL(AR05.ETRDPS_AMT,0)<![CDATA[ != ]]> 0 					  					   -->
 <!-- 						  <if test="clntCd != null and !clntCd.equals('')"> -->
-<!-- 						 	  AND C.CLNT_CD = #{clntCd}				 -->
+<!-- 						 	  AND AR05.CLNT_CD = #{clntCd}				 -->
 <!-- 						  </if>			 -->
 <!-- 						  <if test="clntNm != null and !clntNm.equals('')"> -->
 <!-- 						   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%' -->
@@ -2644,7 +2658,7 @@
 <!-- 							  AND AR02.CO_CD = #{coCd}				 -->
 <!-- 							  </if>	 -->
 <!-- 							  <if test="clntCd != null and !clntCd.equals('')"> -->
-<!-- 							  AND C.CLNT_CD = #{clntCd}				 -->
+<!-- 							  AND AR02.TRST_CLNT_CD = #{clntCd}				 -->
 <!-- 							  </if>	 -->
 <!-- 							  <if test="clntNm != null and !clntNm.equals('')"> -->
 <!-- 							   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%' -->
