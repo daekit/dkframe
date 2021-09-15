@@ -307,12 +307,11 @@
 		SELECT COUNT(*)
 		FROM TB_AR04M01 A
 		 WHERE
-		       A.CO_CD = #{coCd}
-		   AND A.SELPCH_CD = 'SELPCH2'
-		   AND NVL(A.SND_YN, 'N') = 'N'
-		   AND NVL(A.CSEQ_RCV_YN, 'N') IN ('N', 'E')
-		   AND NVL(A.RCV_YN, 'N') IN ('N', 'E')
-
+		       A.SELPCH_CD = 'SELPCH2'
+		   <if test="coCd != null and !coCd.equals('')">
+		   AND A.CO_CD = #{coCd}
+		   </if>
+		   AND (NVL(A.CSEQ_RCV_YN, 'N') IN ('N', 'E') OR NVL(A.RCV_YN, 'N') IN ('N', 'E'))
 	</select>
 	
 	<select id="selectTaxNList" resultType="CamelMap">
