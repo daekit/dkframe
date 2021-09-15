@@ -47,4 +47,14 @@ public class CM10SvcImpl implements CM10Svc {
 	public List<Map<String, String>> selectReqNList(Map<String, String> paramMap) {
 		return cm10Mapper.selectReqNList(paramMap);
 	}
+	
+	@Override
+	public int selectTaxNCount(Map<String, String> paramMap) {
+		return cm10Mapper.selectTaxNCount(paramMap);
+	}
+	
+	@Override
+	public List<Map<String, String>> selectTaxNList(Map<String, String> paramMap) {
+		return cm10Mapper.selectTaxNList(paramMap);
+	}
 }

@@ -19,5 +19,9 @@ public interface CM10Mapper {
 	int selectReqNCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectReqNList(Map<String, String> paramMap);
+	
+	int selectTaxNCount(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectTaxNList(Map<String, String> paramMap);
 
 }

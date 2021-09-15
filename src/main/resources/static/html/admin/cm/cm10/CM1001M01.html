@@ -64,7 +64,7 @@
 					<tr>
 						<td style="text-align: left;">
 							<h3 class="location"><span class="page_tit">구매요청 미확정 현황</span>
-								<select id="coCd1" data-kind="CO" onchange="reqGridView.setData();">
+								<select id="coCd1" data-kind="CO" onchange="reqGridView.setData(); gridView.setData();">
 									<option value="">전체</option>
 								</select>
 							</h3> <!-- <span id="ordrgTotCnt"></span> -->
@@ -117,7 +117,9 @@
 					<tr>
 						<td>
 							<div class="contents" style="margin:0px;padding:0px;width:100%;min-width:300px">
-								<div data-ax5grid="req-grid" data-ax5grid-config="{}" style="height: 725px; width: 100%"></div>
+								<div data-ax5grid="req-grid" data-ax5grid-config="{}" style="height: 345px; width: 100%"></div>
+								<h3><span class="page_tit">세금계산서 미처리 현황</span>
+								<div data-ax5grid="tax-grid" data-ax5grid-config="{}" style="height: 365px; width: 100%"></div>
 							</div>
 						</td>
 						<td>
@@ -141,6 +143,15 @@
 <script type="text/javascript">
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
+	
+	ax5.ui.grid.formatter["bilgYn"] = function () {
+		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
+		if (this.value == "E"){
+			return 'E';
+		} else {
+			return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
+		}
+	};
 	
 	// 구매요청 그리드
 	var reqGridView = {
@@ -347,6 +358,89 @@
 		}
 	}
 	
+	// 세금계산서 그리드
+	var gridView = {
+		initView : function() {
+
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : true,
+				multipleSelect : false,
+				sortable : true,
+				target : $('[data-ax5grid="tax-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					onClick : function() {
+						this.self.select(this.dindex);
+					},
+		            onDBLClick: function () {
+							var list = gridView.target.getList("selected");
+							$.each(list, function(idx, obj){
+								gridView.target.select(obj.__index);
+							});
+							this.self.select(this.dindex);
+							viewTaxBilgDetailModal("U");
+		            },
+				},
+				page : {
+					display : true,
+				},
+				footSum: [
+			    	[
+			    		{label: "합계", align: "center", colspan: 7},
+	                    {key: "taxMoa523", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "taxMoa5124", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "taxMoa5388", collector: "sum", formatter:"money", align: "right"}
+			    	]
+			    ],
+				columns: [
+					{key: "coCd", hidden: true},
+		          	{key: "sndYn",          label: "전송",   	     align: "center",  width: 45,	formatter: "bilgYn"},
+		          	{key: "cseqRcvYn",      label: "결과",   	     align: "center",  width: 45},
+		          	{key: "rcvYn",          label: "접수",   	     align: "center",  width: 45, 	formatter: "bilgYn"},
+		          	{key: "taxDt",          label: "발행일", 	     align: "center",  width: 75, hidden: true},
+		          	{key: "taxCreatNm",     label: "발행자",       align: "center",   width: 70},
+		          	{key: "bilgCertNo",     label: "청구번호",     align: "center",  width: 70, styleClass: function () {
+	                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+		          	{key: "sellDt",         label: "매출일자",	     align: "center",  width: 75, styleClass: function () {
+	                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+		          	{key: "clntNm",         label: "거래처명",	     align: "left",    width: 130, styleClass: function () {
+	                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+		          	{key: "taxMoa523",      label: "공급가액합계",   align: "right",   width: 95, formatter: "money", styleClass: function () {
+                 return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+		          	{key: "taxMoa5124",     label: "부가세액합계",   align: "right",   width: 95, formatter: "money", styleClass: function () {
+                 return (this.item.taxMoa5124 < 0) ? "grid-font-red":"";}},
+		          	{key: "taxMoa5388",     label: "총금액",   	 align: "right",   width: 95, formatter: "money", styleClass: function () {
+                 return (this.item.taxMoa5124 < 0) ? "grid-font-red":"";}},
+	                {key: "ftxac11",        label: "국세청신고비고1",    align: "left",  width: 200, styleClass: function () {
+	                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+		          	{key: "rffGn1",         label: "종류",		 align: "center",  width: 100, styleClass: function () {
+	                     return (this.item.taxMoa523 < 0) ? "grid-font-red":"";}},
+		        ]
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {
+					"coCd"       : $("#coCd1").val()
+			};
+			postAjax("/user/cm/cm10/selectTaxNList", paramObj, null, function(data) {
+				var list = data.resultList;
+				targetObj.setData({
+					list : list,
+					page : {
+						totalElements : list.length
+						/* totalElements : data.paginationInfo.totalRecordCount */
+					}
+				});
+			});				
+		}
+	}
+	
 	$(document).ready(function() {
 		
 		// 패스워드 유효기간 체크
@@ -378,6 +472,7 @@
 		ordrgGridView.initView().setData();
 		shipGridView.initView().setData();
 		reqGridView.initView().setData();
+		gridView.initView().setData();
 		// grid init
 	});
 	
@@ -398,7 +493,14 @@
 		var paramObj = {'shipSeq' : shipSeq};
 		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1300, 780, "", paramObj);
 	}
-	
+
+	// 세금계산서 수정 화면
+	function viewTaxBilgDetailModal(actionType) {
+		var rowLength = gridView.target.getList("selected").length;
+		this.actionType = actionType;
+		openModal("/static/html/user/ar/ar04/AR0401P01.html", 1000, 690, "");
+	}
+		
 	// 판매법인 set
 	function setByCoCd(data){
 		//변경한 판매법인의 아이디를 통해 coCd기준 판매법인 변경

@@ -56,4 +56,15 @@ public class CM10Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectTaxNList")
+    public String selectTaxNList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = cm10Svc.selectTaxNCount(paramMap);
+    	PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = cm10Svc.selectTaxNList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+    }
+    
 }

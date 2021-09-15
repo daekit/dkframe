@@ -17,4 +17,8 @@ public interface CM10Svc {
 
 	public List<Map<String, String>> selectReqNList(Map<String, String> param);
 	
+	public int selectTaxNCount(Map<String, String> param);
+	
+	public List<Map<String, String>> selectTaxNList(Map<String, String> param);
+	
 }
