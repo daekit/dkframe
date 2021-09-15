@@ -249,9 +249,9 @@
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setReportDetail('Sumary');" authchk><i class="fas fa-print"></i>집계표</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setReportMain();"><i class="fas fa-print"></i>일보출력</a>
 					<a style="height: 30px; line-height: 28px; width: 110px;" onclick="setReportMain('CLNT');"><i class="fas fa-print"></i>일보(거래처)출력</a>
-					<a style="height: 30px; line-height: 28px;" onclick="insertSellModal('C');" authchk>+</a>
-					<a style="height: 30px; line-height: 28px;" onclick="deleteSell();" authchk>-</a>
-					<a style="height: 30px; line-height: 28px; width: 90px;" onclick="excelDown();"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
+					<a style="height: 30px; line-height: 28px;" 			  onclick="insertSellModal('C');" authchk>+</a>
+					<a style="height: 30px; line-height: 28px;" 			  onclick="deleteSell();" authchk>-</a>
+					<a style="height: 30px; line-height: 28px; width: 90px;"  onclick="excelDown();"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
 				</div>
 			</div>
 		</div>
@@ -1041,7 +1041,7 @@
 
 		if(type == 'CLNT'){
 			var fileName = "AR0201R05.jrf";
-			openSecondModal("/static/html/user/ar/ar02/AR0202P04.html", 600, 200, "거래처 일보 출력 선택", null, function (showYn, showYnRmk) {
+			openSecondModal("/static/html/user/ar/ar02/AR0202P04.html", 600, 300, "거래처 일보 출력 선택", null, function (showYn, showYnRmk) {
 				var arg = "selPchCd#SELPCH2" 
 			         + "#coCd#"			+ $('#coCd_S').val()
 			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
@@ -1068,18 +1068,13 @@
 			});
 			
 		}else{
-			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html", 600, 200, "거래처 일보 출력 선택", null, function (showClntSumYn, showPSClntYn){
-				if(	showClntSumYn == "Y" && showPSClntYn == "N"){
-					var fileName = "AR0201R01.jrf";
-				}
-				else if(showClntSumYn == "N" && showPSClntYn == "Y"){
-					var fileName = "AR0201R07.jrf";
-				}
-				else if(showClntSumYn == "Y" && showPSClntYn == "Y"){
+			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html", 600, 300, "거래처 일보 출력 선택", null, function (showClntSumYn, showPSClntYn, orderYn, rptName){
+				console.log(showClntSumYn, showPSClntYn, orderYn, rptName);
+				debugger;
+				var fileName = "AR0201R01.jrf";
+				
+				if(showPSClntYn == "Y"){
 					var fileName = "AR0201R08.jrf";
-				}
-				else{
-					var fileName = "AR0201R06.jrf";  // 거래처 합계 없음 일자별 정렬
 				}
 					
 				var arg = "selPchCd#SELPCH2" 
@@ -1105,6 +1100,10 @@
 				         + "#pchsClntCd#"	+ $('#pchsClntCd').val()
 				         + "#pchsClntNm#"	+ $('#pchsClntNm').val()
 				         + "#trspRmk#"	    + $('#trspRmk_S').val()
+				         + "#showPSClntYn#" + showPSClntYn
+				         + "#orderYn#" 		+ orderYn
+				         + "#rptName#" 		+ rptName
+				         + "#showClntSumYn#"+ showClntSumYn
 				         + "#";
 				callReport(fileName, arg, 1040, 720);
 			});
