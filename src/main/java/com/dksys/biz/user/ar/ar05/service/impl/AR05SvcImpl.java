@@ -296,7 +296,7 @@ public class AR05SvcImpl implements AR05Svc {
 			paramMap.put("bilNo", etrdpsInfo.get("bilNo"));
 			ar05Mapper.deleteBill(paramMap);          // 어음삭제
 		}
-		ar05Mapper.updateEtrdpsDtlDelete(paramMap);  // 매출에 매핑 금액 삭제, ETRDPS_YN = 'N', ETRDPS_AMT = 0
+		ar05Mapper.updateEtrdpsDtlDelete(paramMap);  // 매출에 매핑 금액 삭제, ETRDPS_YN = 'N', ETRDPS_AMT = 나머지 매칭 금액 합계
 		ar05Mapper.deleteEtrdpsDtl(paramMap);        // TB_AR05D02 삭제
 		result = ar05Mapper.deleteEtrdps(paramMap);  // 입금 삭제
 		return result;
@@ -306,8 +306,8 @@ public class AR05SvcImpl implements AR05Svc {
 	@Override
 	public int calcelMatch(Map<String, String> paramMap) {
 		int result = 0;		
+		ar05Mapper.updateEtrdpsDtlDelete(paramMap);  // 매출에 매핑 금액 삭제, ETRDPS_YN = 'N', ETRDPS_AMT = 나머지 매칭 금액 합계
 		result = ar05Mapper.deleteEtrdpsDtl(paramMap);    // TB_AR05D02 삭제
-		ar05Mapper.updateEtrdpsDtlDelete(paramMap);  // 매출에 매핑 금액 삭제, ETRDPS_YN = 'N', ETRDPS_AMT = 0
 		return result;
 	}
 	
