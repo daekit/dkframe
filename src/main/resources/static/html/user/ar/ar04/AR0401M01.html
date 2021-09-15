@@ -170,6 +170,7 @@
    4) 세금계산서관리 화면에서 &quot;역발행확인&quot; 버튼을 클릭 (계산서 번호란에 &quot;역발행&quot;이라고 표기되며 전송플래그 처리가됨)
    5) 역발행 계산서는 국세청으로 전송하지 않습니다."><i class="fas fa-file-download"></i>역발행확인</a>
 						<a onclick="updateTaxHdRvrsCancel();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-redo"></i>역발행취소</a>
+						<a onclick="updateTaxHdRvrsCancel2();" style="height: 30px; line-height: 28px; width: 100px;" authchk><i class="fas fa-redo"></i>국세청오류정정</a>
 						<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-print"></i>계산서인쇄</a>
 <!-- 						<a onclick="" style="height: 30px; line-height: 28px; width: 60px;" authchk>회계 전송</a> -->
 						<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -1331,6 +1332,56 @@
 		}
 		
 		if(!confirm(rowLength + "건을 역발행 취소 처리 하시겠습니까?")){
+			return;
+		}
+		var formData = {
+			"bilgCertNoArr" : bilgCertNoArr,
+			"userId" : jwt.userId,
+			"userNm" : jwt.userNm,
+			"deptId" : jwt.deptId,
+			"pgmId" : "AR0401M01"
+		}
+		postAjax("/user/ar/ar04/updateBilgRvrsCancel", formData, null, function(data){
+			alert(data.resultMessage);
+			gridView.setData(0);
+		});
+	}
+	
+	// 국세청오류 정정
+	function updateTaxHdRvrsCancel2(){
+		var flag = false;
+		var bilgCertNoArr = [];
+		var coCdArr = [];
+		var list = gridView.target.getList("selected");
+		debugger;
+		
+		$.each(list, function(idx, obj){
+			if(obj.rcvYn != "E") {
+				alert("국세청 오류 확인 계산서만 취소 처리 가능합니다!");
+				flag = false;
+				return false;
+			}
+			if(obj.rcvYn == "E") flag = true; 
+			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+		});
+		
+		if(!flag) {
+			return;
+		};
+		
+		var rowLength = gridView.target.getList("selected").length;
+		
+		if(rowLength == 0) {
+			alert("국세청 오루 확인 대상 세금계산서를 선택해 주세요.");
+			return;
+		}
+		
+		if(rowLength > 1) {
+			alert("국세청 오루 확인은 1건식 처리 가능합니다.");
+			return;
+		}
+		
+		if(!confirm(rowLength + "건을 국체청 오류 확정 처리 하시겠습니까?")){
 			return;
 		}
 		var formData = {
