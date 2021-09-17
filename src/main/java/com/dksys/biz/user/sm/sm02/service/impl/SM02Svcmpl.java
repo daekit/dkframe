@@ -162,6 +162,7 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("transSeq",     param.get("transSeq"));
 			detailMap.put("transAmt",     param.get("transAmt"));
 			detailMap.put("realStockYn",  detail.get("realStockYn"));
+			detailMap.put("errCorecYn",   detail.get("errCorecYn"));
 			
 			sm02Mapper.sm01UpdateStockMove(detailMap);       // 기존 차감.
 			
@@ -226,6 +227,7 @@ public class SM02Svcmpl implements SM02Svc {
 			detailMap.put("transSeq",     detail.get("transSeq"));
 			detailMap.put("transAmt",     detail.get("transAmt"));
 //			detailMap.put("realStockYn",  detail.get("realStockYn"));
+			detailMap.put("errCorecYn",   detail.get("errCorecYn"));
 			
 			sm02Mapper.sm01UpdateStockMove(detailMap);      // 기존 차감.
 			
@@ -272,6 +274,7 @@ public class SM02Svcmpl implements SM02Svc {
 			 detailMap.put("prdtCd",       detailMap.get("trstPrdtCd").toString());
 			 detailMap.put("clntCd",       detailMap.get("trstClntCd").toString());
 			 detailMap.put("realStockYn",  detail.get("realStockYn"));
+			 detailMap.put("errCorecYn",   detail.get("errCorecYn"));
 			 
 			 /*
 			 * 제강사 턴키 재고이동 순서
@@ -444,11 +447,12 @@ public class SM02Svcmpl implements SM02Svc {
 	    String worksCdTo   = detailMap.get("worksCdTo");
 	    String worksCdFrom   = detailMap.get("worksCdFrom");
 	    
-	    if (mesIfStrYn == "Y") {	    
+	// 오류수정의 경우 IF TAble에 입력하지 않음.    
+	    if (mesIfStrYn == "Y" && !"Y".equals(detailMap.get("errCorecYn"))) {	    
 	    	messtockMapper.insertIfMesStockMove(detailMap); 
 	    }
 	// 출발공장, 도착공장이 다르면 Case 1	 
-		 if(!worksCdTo.equals(detailMap.get("worksCdFrom")) &&  mesIfDesYn == "Y") {
+		 if(!worksCdTo.equals(detailMap.get("worksCdFrom")) &&  mesIfDesYn == "Y" && !"Y".equals(detailMap.get("errCorecYn"))) {
 			 detailMap.put("worksCd",   worksCdTo);			 
 			 messtockMapper.insertIfMesStockMove(detailMap); 		 
 	    }
