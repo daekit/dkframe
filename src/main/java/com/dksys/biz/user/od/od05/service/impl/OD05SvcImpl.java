@@ -11,7 +11,7 @@ import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.od.od05.service.OD05Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class OD05SvcImpl implements OD05Svc {
 	
 	@Autowired

@@ -13,7 +13,7 @@ import com.dksys.biz.admin.cm.cm01.service.CM01Svc;
 import com.tmax.tibero.Debug;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class CM01SvcImpl implements CM01Svc {
 	
     @Autowired

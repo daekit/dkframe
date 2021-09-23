@@ -11,7 +11,7 @@ import com.dksys.biz.admin.bm.material.mapper.MaterialMapper;
 import com.dksys.biz.admin.bm.material.service.MaterialService;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class MaterialServiceImpl implements MaterialService {
 	
     @Autowired

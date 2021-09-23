@@ -11,7 +11,7 @@ import com.dksys.biz.user.sm.sm04.mapper.SM04Mapper;
 import com.dksys.biz.user.sm.sm04.service.SM04Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class SM04Svcmpl implements SM04Svc {
 	
     @Autowired

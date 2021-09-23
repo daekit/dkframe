@@ -11,7 +11,7 @@ import com.dksys.biz.user.sd.sd06.mapper.SD06Mapper;
 import com.dksys.biz.user.sd.sd06.service.SD06Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class SD06Svcmpl implements SD06Svc {
 	
     @Autowired

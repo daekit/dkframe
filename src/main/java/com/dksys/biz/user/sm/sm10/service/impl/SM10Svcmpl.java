@@ -11,7 +11,7 @@ import com.dksys.biz.user.sm.sm10.mapper.SM10Mapper;
 import com.dksys.biz.user.sm.sm10.service.SM10Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class SM10Svcmpl implements SM10Svc {
 	
     @Autowired

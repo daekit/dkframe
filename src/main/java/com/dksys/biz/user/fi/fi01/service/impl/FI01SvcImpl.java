@@ -11,7 +11,7 @@ import com.dksys.biz.user.fi.fi01.mapper.FI01Mapper;
 import com.dksys.biz.user.fi.fi01.service.FI01Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class FI01SvcImpl implements FI01Svc {
 	
     @Autowired

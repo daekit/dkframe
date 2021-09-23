@@ -11,7 +11,7 @@ import com.dksys.biz.user.ar.ar12.mapper.AR12Mapper;
 import com.dksys.biz.user.ar.ar12.service.AR12Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class AR12Svcmpl implements AR12Svc {
 	
     @Autowired

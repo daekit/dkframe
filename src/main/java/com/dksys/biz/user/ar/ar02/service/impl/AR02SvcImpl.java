@@ -19,7 +19,7 @@ import com.dksys.biz.util.DateUtil;
 import com.dksys.biz.util.ExceptionThrower;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class AR02SvcImpl implements AR02Svc {
 
 	@Autowired

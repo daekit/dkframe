@@ -14,7 +14,7 @@ import com.dksys.biz.user.pp.pp04.mapper.PP04Mapper;
 import com.dksys.biz.user.pp.pp04.service.PP04Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class PP04Svcmpl implements PP04Svc {
 	
     @Autowired

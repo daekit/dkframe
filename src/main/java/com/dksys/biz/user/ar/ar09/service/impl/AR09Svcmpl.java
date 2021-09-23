@@ -13,7 +13,7 @@ import com.dksys.biz.user.ar.ar09.mapper.AR09Mapper;
 import com.dksys.biz.user.ar.ar09.service.AR09Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class AR09Svcmpl implements AR09Svc {
 	
     @Autowired

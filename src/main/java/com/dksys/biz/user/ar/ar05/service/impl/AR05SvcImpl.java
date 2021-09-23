@@ -23,7 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sun.media.sound.EmergencySoundbank;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class AR05SvcImpl implements AR05Svc {
 	
     @Autowired

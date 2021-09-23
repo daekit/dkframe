@@ -11,7 +11,7 @@ import com.dksys.biz.admin.bm.bm08.mapper.BM08Mapper;
 import com.dksys.biz.admin.bm.bm08.service.BM08Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class BM08SvcImpl implements BM08Svc {
 	
     @Autowired

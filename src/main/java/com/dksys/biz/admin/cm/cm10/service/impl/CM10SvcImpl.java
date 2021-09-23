@@ -11,7 +11,7 @@ import com.dksys.biz.admin.cm.cm10.mapper.CM10Mapper;
 import com.dksys.biz.admin.cm.cm10.service.CM10Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class CM10SvcImpl implements CM10Svc {
 	
     @Autowired

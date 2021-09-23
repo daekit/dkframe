@@ -11,7 +11,7 @@ import com.dksys.biz.user.sm.sm08.mapper.SM08Mapper;
 import com.dksys.biz.user.sm.sm08.service.SM08Svc;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class SM08Svcmpl implements SM08Svc {
 	
     @Autowired

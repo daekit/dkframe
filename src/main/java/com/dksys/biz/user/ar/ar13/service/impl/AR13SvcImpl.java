@@ -13,7 +13,7 @@ import com.dksys.biz.user.od.od05.service.OD05Svc;
 import com.dksys.biz.user.sd.sd05.mapper.SD05Mapper;
 
 @Service
-@Transactional("erpTransactionManager")
+@Transactional(rollbackFor = Exception.class)
 public class AR13SvcImpl implements AR13Svc {
 	
 	@Autowired
