@@ -626,7 +626,7 @@ public class OD01SvcImpl implements OD01Svc {
 			
 			// 매입확정 체크
 			if("P".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType"))){
-			    od01Mapper.updateCancelDetail(detailMap);
+			    
 			    detailMap.put("selpchCd", "SELPCH1");
 				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
 				for (Map<String, String> map : bilgList) {
@@ -634,13 +634,14 @@ public class OD01SvcImpl implements OD01Svc {
 						// 전표처리 되었으면 취소 불가 : rollback
 						thrower.throwCommonException("bilgComplete");
 					}
-				}				
+				}
+				od01Mapper.updateCancelDetail(detailMap);
 				ar02Mapper.deletePchsSell(detailMap); // 매입만 삭제
 			}
 			
 			//직송이면서 매출확정 체크
 			if(("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))&&"Y".equals(paramMap.get("dirtrsYn"))){
-			    od01Mapper.updateCancelDetailS(detailMap);
+			    
 			    detailMap.put("selpchCd", "SELPCH2");
 				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
 				for (Map<String, String> map : bilgList) {
@@ -649,6 +650,7 @@ public class OD01SvcImpl implements OD01Svc {
 						thrower.throwCommonException("bilgComplete");
 					}
 				}
+				od01Mapper.updateCancelDetailS(detailMap);
 				ar02Mapper.deletePchsSell(detailMap);  // 매출만 삭제
 			} 
 		
