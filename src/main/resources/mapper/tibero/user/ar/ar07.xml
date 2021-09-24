@@ -887,7 +887,8 @@
 	
 		<select id="selectEtrdpsSellList" resultType="CamelMap">
 		SELECT
-			*
+			T.*
+			,  NVL(CUR_CREDIT_AMT,0) + NVL(CLOSE_YM1_CREDIT_AMT,0)  + NVL(CLOSE_YM2_CREDIT_AMT,0)  AS 	TOT_TRMEND_AMT	
 		FROM
 			(SELECT   ROWNUM AS RNUM
 		              , A.*
@@ -904,7 +905,7 @@
 					  , F_CREDIT_LOAN2('C', A.CLNT_CD, A.CO_CD, A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
 	                  , TOT_AMT - CLMN_AMT AS CUR_CREDIT_AMT <!-- 당월 채권 -->
 	                  , CLOSE_YM1_TOT_AMT - CLOSE_YM1_CLMN_AMT AS CLOSE_YM1_CREDIT_AMT <!-- 전월 채권 -->
-	                  , CLOSE_YM2_TOT_AMT - CLOSE_YM2_CLMN_AMT AS CLOSE_YM2_CREDIT_AMT <!-- 전전월 채권 -->
+	                  , CLOSE_YM2_TOT_AMT - CLOSE_YM2_CLMN_AMT AS CLOSE_YM2_CREDIT_AMT <!-- 전전월 채권 -->	                  
 	                  , BASIS_CREDIT_AMT - ( ETRDPS_ALL_AMT - CLMN_AMT - CLOSE_YM1_CLMN_AMT - CLOSE_YM2_CLMN_AMT ) AS BASIS_CREDIT_CLNT_AMT <!-- 전전월 기초 채권 - 전전월 이전 입금 -->
                       , BASIS_AMT + TOT_AMT - CUR_CLMN_AMT AS TRMEND_AMT <!--  미수금총액  -->
                       , ETRDPS_ALL_AMT -  TOT_MATCH_AMT AS NOT_MAPPNG_AMT  <!--  매출과 매핑되지 않은 수금금액 -->
@@ -1222,7 +1223,7 @@
 						 
 						      
 				) A
-		)
+		) T
 <!-- 	WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex} -->
 	</select>
 	
