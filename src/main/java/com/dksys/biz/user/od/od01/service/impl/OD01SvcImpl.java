@@ -641,7 +641,7 @@ public class OD01SvcImpl implements OD01Svc {
 			//직송이면서 매출확정 체크
 			if(("S".equals(paramMap.get("cancelType")) || "A".equals(paramMap.get("cancelType")))&&"Y".equals(paramMap.get("dirtrsYn"))){
 			    od01Mapper.updateCancelDetailS(detailMap);
-			    double testValue = 10 / 0;
+//			    double testValue = 10 / 0;
 			    detailMap.put("selpchCd", "SELPCH2");
 				List<Map<String, String>> bilgList = ar02Mapper.checkBilg(detailMap);
 				for (Map<String, String> map : bilgList) {
