@@ -145,7 +145,8 @@
 				showRowSelector : false,
 				multipleSelect : false,
 				sortable : true,
-		    	frozenColumnIndex: 4,
+		    	frozenColumnIndex: 6,
+		    	
 				target : $('[data-ax5grid="first-grid"]'),
 				header : {
 					align : "center",
@@ -160,16 +161,22 @@
 				footSum: [
 			    	[
 			    		{label: "합계",     colspan:8, align:"center"},
-	                    {key: "pre3CreditAmt",  collector: "sum", formatter:"money", align: "right"},
-	                    {key: "pre2CreditAmt",   collector: "sum", formatter:"money", align: "right"},
-	                    {key: "pre1CreditAmt",    collector: "sum", formatter:"money", align: "right"},
-	                    {key: "curCreditAmt", collector: "sum", formatter:"money", align: "right"},
-	                    {key: "curTrmendCreditAmt",   collector: "sum", formatter:"money", align: "right"},
-	                    {key: "unsetlBilAmt",  collector: "sum", formatter:"money", align: "right"},
-	                    {key: "totAmt",  collector: "sum", formatter:"money", align: "right"},
-	                    {key: "crdtLmt",  collector: "sum", formatter:"money", align: "right"},
-	                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"},
-	                    {key: "pldgAmt",  collector: "sum", formatter:"money", align: "right"}
+	                    {key: "pre3CreditAmt",  	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "pre2CreditAmt",   	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "pre1CreditAmt",    	collector: "sum", formatter:"money", align: "right"},
+	                    {key: "curCreditAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "curTrmendCreditAmt", collector: "sum", formatter:"money", align: "right"},
+	                    {key: "unsetlBilAmt",  		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "unitTotAmt", 		collector: function () {
+                            var value = 0;
+                            this.list.forEach(function (n) {
+                                value += (parseInt(n.curTrmendCreditAmt, 10) + parseInt(n.unsetlBilAmt, 10));
+                            });
+                            return ax5.util.number(value, {"money": 1});
+                        }, formatter:"money", align: "right"},	
+	                    {key: "crdtLmt",  			collector: "sum", formatter:"money", align: "right"},
+	                    {key: "crdtLoan",  			collector: "sum", formatter:"money", align: "right"},
+	                    {key: "",  		collector: "sum", formatter:"money", align: "right"}
 			    	]
 			    ],
 				page : {
@@ -185,20 +192,21 @@
 					}
 				},
 				columns: [
-					{key: "coCd",      			 hidden: true},
-					{key: "clntCd",  			 hidden: true},
-		        	{key: "closeYm",  			 label: "년월",       align: "center",  width: 80, hidden: true},
-		        	{key: "clntNm",  			 label: "거래처",      align: "left",   width: 140},
-		        	{key: "prdtGrpNm", 			 label: "그룹",   	 align: "center",   width: 80},
-		        	{key: "prjctNm",  			 label: "프로젝트",    align: "left",   width: 140},
-		        	{key: "salesEmpId",   		 label: "담당자",      align: "center",   width: 100, hidden: true},
-		        	{key: "salesEmpNm",  		 label: "담당자",      align: "center",   width: 80},
-		          	{key: "coNm",     			 label: "회사",   	 align: "left",     width: 100},
-		        	{key: "sellPayDivNm",    	 label: "지급", 		 align: "right",   width: 60, hidden: true},
-		        	{key: "sellClmnDivNm", 		 label: "결제조건", 	 align: "left",   width: 120},
-		        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "right",   width: 60},
-		        	{key: "sellPmntMtdNm",  	 label: "방법", 		 align: "center",   width: 60},
-// 		        	{key: "delayYn",  	         label: "연체여부", 		 align: "center",   width: 60,formatter: function () {
+					{key: "coCd",			hidden: true},
+					{key: "clntCd",			hidden: true},
+		        	{key: "closeYm", 		hidden: true},
+		        	{key: "taxivcCoprtNm",		label: "판매법인",		align: "left",		width: 140},
+		        	{key: "clntNm",  			label: "거래처",    	align: "left",   	width: 140},
+		        	{key: "sellPayDivNm",	hidden: true},
+		        	{key: "sellClmnDivNm", 		label: "결제조건", 	align: "left",   	width: 120},
+		        	{key: "sellClmnDay", 		label: "결제일", 	 	align: "right",   	width: 60},
+		        	{key: "sellPmntMtdNm",  	label: "방법", 		align: "center",   	width: 60},
+ 		        	{key: "salesEmpNm",  		label: "담당자",		align: "center",   	width: 80},
+		        	{key: "prdtGrpNm", 			label: "그룹",   	 	align: "center",   	width: 80},
+		        	{key: "prjctNm",  			label: "프로젝트",    	align: "left",   	width: 140},
+		        	{key: "salesEmpId",		hidden: true},
+		          	{key: "coNm",     		hidden: true},
+// 		        	{key: "delayYn",  	        label: "연체여부", 		 align: "center",   width: 60,formatter: function () {
 // 			        		if( (this.item.pre3CreditAmt > 0  && this.item.pre3PchsClmnDay < baseDtSt) || 
 // 			        			(this.item.pre2CreditAmt > 0  && this.item.pre2PchsClmnDay < baseDtSt) ||
 // 			        			(this.item.pre1CreditAmt > 0  && this.item.pre1PchsClmnDay < baseDtSt) ||
@@ -211,48 +219,44 @@
 // 			        	    }
 // 			        	}
 // 		        	},
-		        	{key: "pre3CreditAmt",		 label: "전월연체잔액",     align: "right",   width: 140, formatter: "money",
+		        	{key: "pre3CreditAmt",		label: "전월연체잔액",     			align: "right",   width: 140, formatter: "money",
 		        				styleClass: function () {
 		        					 if(this.item.pre3PchsClmnDay <  baseDtSt) { return "grid-font-blue-bold"} //(this.item.pre3PchsClmnDay < baseDtSt ? 
 		        					 else {return false;}
 		        					 }
 		        	},       				        		
-		        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140, hidden: true},
-		        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 연체잔액",  align: "right",   width: 140, formatter: "money",
+// 		        	{key: "pre3PchsClmnDay",	label: "전월결제에정일",  			align: "right",   width: 140, hidden: true},
+		        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 미수금",		align: "right",   width: 140, formatter: "money",
 		        				styleClass: function () {
 		        					if(this.item.pre2PchsClmnDay <  baseDtSt ) {return "grid-font-blue-bold"}
 		        					else {return false;}
 		        				}
 		        	},
-		        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140, hidden: true},
-		        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 연체잔액",  align: "right",   width: 140, formatter: "money",
+		        	{key: "pre2PchsClmnDay",    label: closeYm2 +"결제에정일",		align: "right",   width: 140, hidden: true},
+		        	{key: "pre1CreditAmt", 		label: closeYm1 +" 미수금",  	align: "right",   width: 140, formatter: "money",
 		        				styleClass: function () {
 		        					if(this.item.pre1PchsClmnDay <  baseDtSt ) {return "grid-font-blue-bold"}
 		        					else {return false;}
 		        				}
 		        	},
-		        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140, hidden: true},
-		        	{key: "curCreditAmt", 		 label: closeYm0 +" 연체잔액",  align: "right",   width: 140, formatter: "money",
+		        	{key: "pre1PchsClmnDay",    label: closeYm1 +"결제에정일",  	align: "right",   width: 140, hidden: true},
+		        	{key: "curCreditAmt", 		label: closeYm0 +" 미수금",  	align: "right",   width: 140, formatter: "money",
 		        				styleClass: function () {
 		        					if(this.item.pre0PchsClmnDay <  baseDtSt ) {return "grid-font-blue-bold"}
 		        					else {return false;}
 		        					}
 		        	},
-		        	{key: "pre0PchsClmnDay",      label: closeYm0 +"결제에정일",  align: "right",   width: 140, hidden: true},
-		        	{key: "curTrmendCreditAmt",   label: "연체합계",    	 align: "right",   width: 140, formatter: "money",
-        				styleClass: function () {
-        					if(this.item.pre0PchsClmnDay <  baseDtSt ||this.item.pre1PchsClmnDay <  baseDtSt||this.item.pre2PchsClmnDay <  baseDtSt||this.item.pre3PchsClmnDay <  baseDtSt) {return "grid-font-blue-bold"}
-        					else {return false;}
-        					}
-		        	},		        	
-		        	{key: "unsetlBilAmt",   	 label: "미결제어음",    align: "right",   width: 140, formatter: "money"},
-		        	{key: "totAmt",  		 	 label: "합계잔액",     align: "right",   width: 140,  formatter: function () {		        		
+		        	{key: "pre0PchsClmnDay",     label: closeYm0 +"결제에정일",  	align: "right",   width: 140, hidden: true},
+		        	{key: "curTrmendCreditAmt",  label: "미수금합계",    	 		align: "right",   width: 140, formatter: "money"},		        	
+		        	{key: "unsetlBilAmt",   	 label: "미결제어음",    			align: "right",   width: 140, formatter: "money"},
+		        	{key: "unitTotAmt",  		 label: "미수미결합계",     		align: "right",   width: 140, formatter: function () {		        		
 		        		return ax5.util.number(this.item.curTrmendCreditAmt*1 + this.item.unsetlBilAmt*1, {"money": true});
 		        	   }
                     },		        	
-		        	{key: "crdtLmt",    label: "여신한도",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "crdtLoan",   label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
-		        	{key: "pldgAmt",    label: "담보금액",  align: "right",   width: 140, formatter: "money"}
+		        	{key: "crdtLmt",    		label: "여신한도",  				align: "right",   width: 140, formatter: "money"},
+		        	{key: "pldgAmt",    		label: "담보금액",  				align: "right",   width: 140, formatter: "money"},
+		        	{key: "delayAmt",    		label: "연체금",  				align: "right",   width: 140, formatter: "money"},		        		
+		        	{key: "sellClmnRmk",    	label: "비고",  					align: "left",width: 140},
 				        	
 		        ]
 			});
@@ -281,48 +285,83 @@
 		}
 	}
 	var excelView = {
-			initView: function(baseDt){
-// 				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
-// 				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			initView : function(baseDt) {
+//	 			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+//	 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+//	 			var closeYm0 = $("#closeYm").val().replace(/\-/g,'');
 	            var baseDtSt = $("#baseDt").val().replace(/\-/g,'');
 				var closeYm0 = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
 				var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
 				var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
 				
-				
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
-			        target: $('[data-ax5grid="excel-grid"]'),
+					showRowSelector : false,
+					multipleSelect : false,
+					sortable : true,
+			    	frozenColumnIndex: 6,
+			    	
+					target : $('[data-ax5grid="first-grid"]'),
+					header : {
+						align : "center",
+						selector : false
+					},
+					body : {
+						mergeCells : ["clntNm","prdtGrpNm","prjctNm","salesEmpNm"],
+						onClick : function() {
+							this.self.select(this.dindex);
+						}
+					},
 					footSum: [
 				    	[
 				    		{label: "합계",     colspan:8, align:"center"},
-				    		 {key: "pre3CreditAmt",  collector: "sum", formatter:"money", align: "right"},
-			                    {key: "pre2CreditAmt",   collector: "sum", formatter:"money", align: "right"},
-			                    {key: "pre1CreditAmt",    collector: "sum", formatter:"money", align: "right"},
-			                    {key: "curCreditAmt", collector: "sum", formatter:"money", align: "right"},
-			                    {key: "curTrmendCreditAmt",   collector: "sum", formatter:"money", align: "right"},
-			                    {key: "unsetlBilAmt",  collector: "sum", formatter:"money", align: "right"},
-			                    {key: "totAmt",  collector: "sum", formatter:"money", align: "right"},
-			                    {key: "crdtLmt",  collector: "sum", formatter:"money", align: "right"},
-			                    {key: "crdtLoan",  collector: "sum", formatter:"money", align: "right"},
-			                    {key: "pldgAmt",  collector: "sum", formatter:"money", align: "right"}
+		                    {key: "pre3CreditAmt",  	collector: "sum", formatter:"money", align: "right"},
+		                    {key: "pre2CreditAmt",   	collector: "sum", formatter:"money", align: "right"},
+		                    {key: "pre1CreditAmt",    	collector: "sum", formatter:"money", align: "right"},
+		                    {key: "curCreditAmt", 		collector: "sum", formatter:"money", align: "right"},
+		                    {key: "curTrmendCreditAmt", collector: "sum", formatter:"money", align: "right"},
+		                    {key: "unsetlBilAmt",  		collector: "sum", formatter:"money", align: "right"},
+		                    {key: "unitTotAmt", 		collector: function () {
+	                            var value = 0;
+	                            this.list.forEach(function (n) {
+	                                value += (parseInt(n.curTrmendCreditAmt, 10) + parseInt(n.unsetlBilAmt, 10));
+	                                debugger;
+	                            });
+	                            return ax5.util.number(value, {"money": 1});
+	                        }, formatter:"money", align: "right"},	
+		                    {key: "crdtLmt",  			collector: "sum", formatter:"money", align: "right"},
+		                    {key: "crdtLoan",  			collector: "sum", formatter:"money", align: "right"},
+		                    {key: "",  		collector: "sum", formatter:"money", align: "right"}
 				    	]
 				    ],
+					page : {
+						navigationItemCount : 10,
+						height : 30,
+						display : true,
+						firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+						prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+						nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+						lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+						onChange : function() {
+							gridView.setData(this.page.selectPage);
+						}
+					},
 					columns: [
-						{key: "coCd",      			 hidden: true},
-						{key: "clntCd",  			 hidden: true},
-			        	{key: "closeYm",  			 label: "년월",       align: "center",  width: 80, hidden: true},
-			        	{key: "clntNm",  			 label: "거래처",      align: "left",   width: 140},
-			        	{key: "prdtGrpNm", 			 label: "그룹",   	 align: "center",   width: 80},
-			        	{key: "prjctNm",  			 label: "프로젝트",    align: "left",   width: 140},
-			        	{key: "salesEmpId",   		 label: "담당자",      align: "center",   width: 100, hidden: true},
-			        	{key: "salesEmpNm",  		 label: "담당자",      align: "center",   width: 80},
-			          	{key: "coNm",     			 label: "회사",   	 align: "left",     width: 100},
-			        	{key: "sellPayDivNm",    	 label: "지급", 		 align: "right",   width: 60, hidden: true},
-			        	{key: "sellClmnDivNm", 		 label: "결제조건", 	 align: "left",   width: 120},
-			        	{key: "sellClmnDay", 		 label: "결제일", 	 align: "right",   width: 60},
-			        	{key: "sellPmntMtdNm",  	 label: "방법", 		 align: "center",   width: 60},
-//	 		        	{key: "delayYn",  	         label: "연체여부", 		 align: "center",   width: 60,formatter: function () {
+						{key: "coCd",			hidden: true},
+						{key: "clntCd",			hidden: true},
+			        	{key: "closeYm", 		hidden: true},
+			        	{key: "taxivcCoprtNm",		label: "판매법인",		align: "left",		width: 140},
+			        	{key: "clntNm",  			label: "거래처",    	align: "left",   	width: 140},
+			        	{key: "sellPayDivNm",	hidden: true},
+			        	{key: "sellClmnDivNm", 		label: "결제조건", 	align: "left",   	width: 120},
+			        	{key: "sellClmnDay", 		label: "결제일", 	 	align: "right",   	width: 60},
+			        	{key: "sellPmntMtdNm",  	label: "방법", 		align: "center",   	width: 60},
+	 		        	{key: "salesEmpNm",  		label: "담당자",		align: "center",   	width: 80},
+			        	{key: "prdtGrpNm", 			label: "그룹",   	 	align: "center",   	width: 80},
+			        	{key: "prjctNm",  			label: "프로젝트",    	align: "left",   	width: 140},
+			        	{key: "salesEmpId",		hidden: true},
+			          	{key: "coNm",     		hidden: true},
+//	 		        	{key: "delayYn",  	        label: "연체여부", 		 align: "center",   width: 60,formatter: function () {
 //	 			        		if( (this.item.pre3CreditAmt > 0  && this.item.pre3PchsClmnDay < baseDtSt) || 
 //	 			        			(this.item.pre2CreditAmt > 0  && this.item.pre2PchsClmnDay < baseDtSt) ||
 //	 			        			(this.item.pre1CreditAmt > 0  && this.item.pre1PchsClmnDay < baseDtSt) ||
@@ -335,50 +374,47 @@
 //	 			        	    }
 //	 			        	}
 //	 		        	},
-			        	{key: "pre3CreditAmt",		 label: "전월연체잔액",     align: "right",   width: 140, formatter: "money",
+			        	{key: "pre3CreditAmt",		label: "전월연체잔액",     			align: "right",   width: 140, formatter: "money",
 			        				styleClass: function () {
 			        					 if(this.item.pre3PchsClmnDay <  baseDtSt) { return "grid-font-blue-bold"} //(this.item.pre3PchsClmnDay < baseDtSt ? 
 			        					 else {return false;}
 			        					 }
 			        	},       				        		
-			        	{key: "pre3PchsClmnDay",     label: "전월결제에정일",  align: "right",   width: 140, hidden: true},
-			        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 연체잔액",  align: "right",   width: 140, formatter: "money",
+//	 		        	{key: "pre3PchsClmnDay",	label: "전월결제에정일",  			align: "right",   width: 140, hidden: true},
+			        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 미수금",		align: "right",   width: 140, formatter: "money",
 			        				styleClass: function () {
 			        					if(this.item.pre2PchsClmnDay <  baseDtSt ) {return "grid-font-blue-bold"}
 			        					else {return false;}
 			        				}
 			        	},
-			        	{key: "pre2PchsClmnDay",     label: closeYm2 +"결제에정일",  align: "right",   width: 140, hidden: true},
-			        	{key: "pre1CreditAmt", 		 label: closeYm1 +" 연체잔액",  align: "right",   width: 140, formatter: "money",
+			        	{key: "pre2PchsClmnDay",    label: closeYm2 +"결제에정일",		align: "right",   width: 140, hidden: true},
+			        	{key: "pre1CreditAmt", 		label: closeYm1 +" 미수금",  	align: "right",   width: 140, formatter: "money",
 			        				styleClass: function () {
 			        					if(this.item.pre1PchsClmnDay <  baseDtSt ) {return "grid-font-blue-bold"}
 			        					else {return false;}
 			        				}
 			        	},
-			        	{key: "pre1PchsClmnDay",     label: closeYm1 +"결제에정일",  align: "right",   width: 140, hidden: true},
-			        	{key: "curCreditAmt", 		 label: closeYm0 +" 연체잔액",  align: "right",   width: 140, formatter: "money",
+			        	{key: "pre1PchsClmnDay",    label: closeYm1 +"결제에정일",  	align: "right",   width: 140, hidden: true},
+			        	{key: "curCreditAmt", 		label: closeYm0 +" 미수금",  	align: "right",   width: 140, formatter: "money",
 			        				styleClass: function () {
 			        					if(this.item.pre0PchsClmnDay <  baseDtSt ) {return "grid-font-blue-bold"}
 			        					else {return false;}
 			        					}
 			        	},
-			        	{key: "pre0PchsClmnDay",      label: closeYm0 +"결제에정일",  align: "right",   width: 140, hidden: true},
-			        	{key: "curTrmendCreditAmt",   label: "연체합계",    	 align: "right",   width: 140, formatter: "money",
-	        				styleClass: function () {
-	        					if(this.item.pre0PchsClmnDay <  baseDtSt ||this.item.pre1PchsClmnDay <  baseDtSt||this.item.pre2PchsClmnDay <  baseDtSt||this.item.pre3PchsClmnDay <  baseDtSt) {return "grid-font-blue-bold"}
-	        					else {return false;}
-	        					}
-			        	},		        	
-			        	{key: "unsetlBilAmt",   	 label: "미결제어음",    align: "right",   width: 140, formatter: "money"},
-			        	{key: "totAmt",  		 	 label: "합계잔액",     align: "right",   width: 140,  formatter: function () {		        		
+			        	{key: "pre0PchsClmnDay",     label: closeYm0 +"결제에정일",  	align: "right",   width: 140, hidden: true},
+			        	{key: "curTrmendCreditAmt",  label: "미수금합계",    	 		align: "right",   width: 140, formatter: "money"},		        	
+			        	{key: "unsetlBilAmt",   	 label: "미결제어음",    			align: "right",   width: 140, formatter: "money"},
+			        	{key: "unitTotAmt",  		 label: "미수미결합계",     		align: "right",   width: 140, formatter: function () {		        		
 			        		return ax5.util.number(this.item.curTrmendCreditAmt*1 + this.item.unsetlBilAmt*1, {"money": true});
 			        	   }
 	                    },		        	
-			        	{key: "crdtLmt",    label: "여신한도",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "crdtLoan",   label: "여신잔액",  align: "right",   width: 140, formatter: "money"},
-			        	{key: "pldgAmt",    label: "담보금액",  align: "right",   width: 140, formatter: "money"}
+			        	{key: "crdtLmt",    		label: "여신한도",  				align: "right",   width: 140, formatter: "money"},
+			        	{key: "pldgAmt",    		label: "담보금액",  				align: "right",   width: 140, formatter: "money"},
+			        	{key: "delayAmt",    		label: "연체금",  				align: "right",   width: 140, formatter: "money"},		        		
+			        	{key: "sellClmnRmk",    	label: "비고",  					align: "left",width: 140},
+					        	
 			        ]
-			    });
+				});
 				return this;
 			}
 		}

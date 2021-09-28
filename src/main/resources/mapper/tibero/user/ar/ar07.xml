@@ -720,6 +720,7 @@
 	SELECT AR07.*
 	      , (SELECT NAME FROM TB_CM06M01 WHERE ID = AR07.SALES_EMP_ID  ) AS SALES_EMP_NM
 	      , (SELECT PRJCT_NM FROM TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = AR07.PRJCT_CD  ) AS PRJCT_NM
+	      , FN_CM05M01_CD_TO_NM(AR07.TAXIVC_COPRT)  AS TAXIVC_COPRT_NM
 	  	  , FN_CM05M01_CD_TO_NM(AR07.PRDT_GRP)  AS PRDT_GRP_NM
 	      , FN_CM05M01_CD_TO_NM(AR07.CO_CD) AS CO_NM
 		  , FN_CM05M01_CD_TO_NM(AR07.SELL_PAY_DIV_CD) AS SELL_PAY_DIV_NM
@@ -747,6 +748,7 @@
             	 , CRN_NO
 			     , PRDT_GRP
 			     , PRJCT_CD
+			     , TAXIVC_COPRT
 			     ,  (SELECT SALES_EMP_ID FROM TB_BM02D01 BM02D01 WHERE BM02D01.CLNT_CD = A.CLNT_CD AND BM02D01.SALES_CO_CD = A.CO_CD AND BM02D01.USE_YN = 'Y' AND ROWNUM = 1 )  SALES_EMP_ID
 	  		     , SELL_CLMN_DAY
 	   		     , SELL_CLMN_RMK
@@ -766,7 +768,8 @@
 	  		     , SUM(CASE WHEN TO_DATE(TRST_DT,'YYYYMMDD') <![CDATA[ <= ]]> LAST_DAY(ADD_MONTHS(TO_DATE(#{baseDt},'YYYYMMDD'),-3)) THEN TOT_AMT ELSE 0 END)  AS PRE3_CREDIT_AMT
 	  		     , SUM(TOT_AMT) AS CUR_TRMEND_CREDIT_AMT
 		     
-  		        , SUM(CASE WHEN PCHS_CLMN_DAY  <![CDATA[ < ]]>    REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END) AS CUR_TRMEND_CREDIT_AMT_R
+		    
+  		        , SUM(CASE WHEN PCHS_CLMN_DAY  <![CDATA[ < ]]>    REPLACE(#{baseDt}, '-', '') THEN TOT_AMT ELSE 0 END) AS DELAY_AMT
 	  		     
 			FROM (  SELECT 0 AS TYPE1 
 				         , AR02.CO_CD
@@ -775,6 +778,7 @@
 		            	 , BM02.CRN AS CRN_NO
 		            	 , AR02.TRST_DT
 		            	 , AR02.TRST_CERTI_NO
+		            	 , AR02.TAXIVC_COPRT
 					     , CASE
 					    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 					    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -833,6 +837,7 @@
 		            	 , BM02.CRN
 		            	 , AR02.TRST_DT
 		            	 , AR02.TRST_CERTI_NO
+		            	 , AR02.TAXIVC_COPRT
 					     , CASE
 					    	WHEN NVL(SD05.CLMN_DAY   ,NVL(BM02.SELL_CLMN_DAY,0))       = NVL(BM02.SELL_CLMN_DAY,0) 
 					    	 AND NVL(SD05.CLMN_DIV_CD,NVL(BM02.SELL_CLMN_DIV_CD ,'@')) = NVL(BM02.SELL_CLMN_DIV_CD ,'@')
@@ -865,6 +870,7 @@
             	 , CRN_NO
 			     , PRDT_GRP
 			     , PRJCT_CD
+			     , TAXIVC_COPRT
 	  		     , SELL_CLMN_DAY
 	   		     , SELL_CLMN_RMK
 			     , SELL_PAY_DIV_CD
@@ -873,7 +879,7 @@
 	  		     , SELL_VAT_CD
 <!-- 	  		     , CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE('20210907', '-', '') THEN 'Y' ELSE 'N' END -->
 	     ) AR07
-	   WHERE CUR_TRMEND_CREDIT_AMT_R <![CDATA[  > ]]> 0
+	   WHERE DELAY_AMT <![CDATA[  > ]]> 0
 	      AND PCHS_CLMN_DAY <![CDATA[  < ]]> REPLACE(#{baseDt},'-','')
        ORDER BY  CO_CD
 								 , CLNT_CD 
