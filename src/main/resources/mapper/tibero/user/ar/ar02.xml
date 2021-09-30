@@ -787,6 +787,7 @@
 	</select>
 	
 	<update id="updatePchsSell" parameterType="Map">
+	BEGIN
 		UPDATE 
 			TB_AR02M01
 		SET
@@ -817,10 +818,12 @@
 			</choose>
 	        UDT_DTTM        = SYSDATE
 		WHERE 
-			TRST_CERTI_NO = #{trstCertiNo}
+			TRST_CERTI_NO = #{trstCertiNo};
 			
-	 UPDATE TB_AR05D02
-		SET   BILG_CERT_NO     = 0
+		UPDATE 
+			TB_AR05D02
+		SET   
+			  BILG_CERT_NO     = 0
 			, TRST_CERTI_NO    = 0
 			, TRST_DT          = ''
 			, SELL_CLMN_DIV_CD = ''
@@ -828,8 +831,8 @@
 			, SELL_CLMN_DAY    = ''
 			, TAX_BILG_NO      = ''
 			, PRJCT_CD         = ''
-	 WHERE TRST_CERTI_NO = #{trstCertiNo}	
-			
+		WHERE TRST_CERTI_NO = #{trstCertiNo};
+	END;
 			
 			
 	</update>
@@ -853,11 +856,16 @@
 	</update>
 	
 	<delete id="deleteSell" parameterType="Map">
-		DELETE FROM TB_AR02M01
-		WHERE TRST_CERTI_NO = #{trstCertiNo}
-		
-	 UPDATE TB_AR05D02
-		SET   BILG_CERT_NO     = 0
+	BEGIN
+		DELETE 
+			FROM TB_AR02M01
+		WHERE
+			TRST_CERTI_NO = #{trstCertiNo};
+			
+		 UPDATE 
+		 	TB_AR05D02
+		SET   
+			  BILG_CERT_NO     = 0
 			, TRST_CERTI_NO    = 0
 			, TRST_DT          = ''
 			, SELL_CLMN_DIV_CD = ''
@@ -865,30 +873,45 @@
 			, SELL_CLMN_DAY    = ''
 			, TAX_BILG_NO      = ''
 			, PRJCT_CD         = ''
-	 WHERE TRST_CERTI_NO = #{trstCertiNo}	
-	 
+		 WHERE TRST_CERTI_NO = #{trstCertiNo};
+	 END;
 	</delete>
 	
 	<delete id="deletePchsSell" parameterType="Map">
+	BEGIN
+		UPDATE 
+			TB_AR05D02
+		SET   
+		 	  BILG_CERT_NO     = 0
+			, TRST_CERTI_NO    = 0
+			, TRST_DT          = ''
+			, SELL_CLMN_DIV_CD = ''
+			, SELL_PMNT_MTD_CD = ''
+			, SELL_CLMN_DAY    = ''
+			, TAX_BILG_NO      = ''
+			, PRJCT_CD         = ''
+		WHERE 
+			TRST_CERTI_NO IN (
+								SELECT 
+									TRST_CERTI_NO
+								FROM 
+									TB_AR02M01
+								WHERE TRST_RPRC_SEQ = #{trstRprcSeq}
+								  AND TRST_DTL_SEQ = #{trstDtlSeq}
+								  AND CREAT_PGM = #{pgmId}
+								  <if test="selpchCd != null and !selpchCd.equals('')">
+								  AND SELPCH_CD     = #{selpchCd}
+								  </if>
+								 	 );
+	
 		DELETE FROM TB_AR02M01
 		WHERE TRST_RPRC_SEQ = #{trstRprcSeq}
 		  AND TRST_DTL_SEQ = #{trstDtlSeq}
 		  AND CREAT_PGM = #{pgmId}
 		  <if test="selpchCd != null and !selpchCd.equals('')">
 		  AND SELPCH_CD     = #{selpchCd}
-		  </if>
-		  
-		  
-	<!-- UPDATE TB_AR05D02
-		SET   BILG_CERT_NO     = 0
-			, TRST_CERTI_NO    = 0
-			, TRST_DT          = ''
-			, SELL_CLMN_DIV_CD = ''
-			, SELL_PMNT_MTD_CD = ''
-			, SELL_CLMN_DAY    = ''
-			, TAX_BILG_NO      = ''
-			, PRJCT_CD         = ''
-	 WHERE TRST_CERTI_NO = #{trstCertiNo} -->
+		  </if>;
+	 END; 
 	 
 	</delete>
 	
