@@ -59,8 +59,8 @@ public class TiberoDatabaseConfig {
     }
 	
 	@Primary
-    @Bean(name="tiberoSessionTemplate")
-    public SqlSessionTemplate erpSqlSessionTemplate(@Qualifier("tiberoSqlSessionFactory") SqlSessionFactory tiberoSqlSessionFactory) {
+    @Bean(name="tiberoSqlSessionTemplate")
+    public SqlSessionTemplate tiberoSqlSessionTemplate(@Qualifier("tiberoSqlSessionFactory") SqlSessionFactory tiberoSqlSessionFactory) {
         return new SqlSessionTemplate(tiberoSqlSessionFactory);
     }
     

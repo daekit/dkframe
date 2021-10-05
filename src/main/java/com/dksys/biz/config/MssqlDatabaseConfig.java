@@ -55,8 +55,8 @@ public class MssqlDatabaseConfig {
        return sqlSessionFactoryBean.getObject();
     }
 
-    @Bean(name="mssqlSessionTemplate")
-    public SqlSessionTemplate erpSqlSessionTemplate(@Qualifier("mssqlSqlSessionFactory") SqlSessionFactory mssqlSqlSessionFactory) {
+    @Bean(name="mssqlSqlSessionTemplate")
+    public SqlSessionTemplate mssqlSqlSessionTemplate(@Qualifier("mssqlSqlSessionFactory") SqlSessionFactory mssqlSqlSessionFactory) {
         return new SqlSessionTemplate(mssqlSqlSessionFactory);
     }
     
