@@ -25,7 +25,7 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
 	private String signingKey = "biz2020";
 
 	@Autowired
-    @Qualifier("erpDataSource")
+    @Qualifier("tiberoDataSource")
 	private DataSource dataSource;
 	
 	@Autowired
