@@ -28,7 +28,7 @@ public class DZ01Ctr {
     @PostMapping("/testMultiTransaction")
     public String testMultiTransaction(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		dz01Svc.testMultiTransaction();
+    		dz01Svc.testInsert();
     	}catch(Exception e) {
     		e.printStackTrace();
     	}

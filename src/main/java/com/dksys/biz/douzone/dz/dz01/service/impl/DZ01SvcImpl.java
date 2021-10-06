@@ -4,30 +4,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dksys.biz.admin.cm.cm06.mapper.CM06Mapper;
+import com.dksys.biz.admin.cm.cm06.service.CM06Svc;
 import com.dksys.biz.douzone.dz.dz01.mssqlmapper.DZ01Mapper;
 import com.dksys.biz.douzone.dz.dz01.service.DZ01Svc;
 
 @Service
+@Transactional(value="mssqlTransactionManager", rollbackFor = Exception.class)
 public class DZ01SvcImpl implements DZ01Svc {
-	@Autowired
-	CM06Mapper cm06Mapper;
-	
 	@Autowired
 	DZ01Mapper dz01Mapper;
 	
 	@Autowired
-	@Qualifier("tiberoTransactionManager")
-	DataSourceTransactionManager tiberoTransactionManager;
-	
-	@Autowired
-	@Qualifier("mssqlTransactionManager")
-	DataSourceTransactionManager mssqlTransactionManager;
+	CM06Svc cm06Svc;
 	
 	@Override
 	public List<Map<String, String>> testSelect(Map<String, String> paramMap) {
@@ -36,10 +27,8 @@ public class DZ01SvcImpl implements DZ01Svc {
 	}
 
 	@Override
-	@Transactional(rollbackFor=Exception.class)
-	public void testMultiTransaction() throws Exception{
+	public void testInsert() throws Exception{
 		dz01Mapper.testInsert();
-		cm06Mapper.updateUserName();
-		double testValue = 10/0;
+		cm06Svc.updateUserName();
 	}
 }

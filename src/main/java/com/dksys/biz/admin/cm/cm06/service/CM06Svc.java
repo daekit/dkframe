@@ -23,6 +23,9 @@ public interface CM06Svc {
 	
 	public Map<String, String> updatePwErrCnt(Map<String, String> paramMap);
 	
-	public List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap); 
+	public List<Map<String, String>> selectRuleCheckList(Map<String, String> paramMap);
+	
+	/* 테스트를 위한 코드이므로 추후 삭제할것. */
+	public void updateUserName() throws Exception; 
 
 }

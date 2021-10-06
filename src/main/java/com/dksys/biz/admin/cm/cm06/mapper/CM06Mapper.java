@@ -34,6 +34,6 @@ public interface CM06Mapper {
 
 	void updateUserN(Map<String, String> paramMap);
 	
-	/* 트랜잭션 테스트를 위한 update */
+	/* 테스트를 위한 코드이므로 추후 삭제할것. */
 	void updateUserName();
 }
