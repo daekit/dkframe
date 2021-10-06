@@ -636,7 +636,7 @@ public class AR04SvcImpl implements AR04Svc {
 		if (bilgInfo.get("taxBilgNo") == null) {
 			result = ar04Mapper.deleteBilgInfo(param);
 			ar02Mapper.updateBilgCancel(param);
-			ar05Mapper.updateTrstCertiNo(param); // 매입과 매칭된것 제거
+//			ar05Mapper.updateTrstCertiNo(param); // 매입과 매칭된것 제거 //확정취소를 할때 매핑취소가 되지 않게함. 그 전에 이미 매핑관련 처리를 하기 때문 - 20210930 권승경
 		}
 		return result;
 	}
