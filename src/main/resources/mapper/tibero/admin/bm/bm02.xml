@@ -47,10 +47,13 @@
 					<if test="searchValue != null and !searchValue.equals('') and searchType.equals('CLNT_CD')">
 						AND BM02.CLNT_CD = #{searchValue}
 					</if>
+					
 				</where>
 		     ) T
-				<!--  WHERE 1=1
-					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
+				 WHERE 1=1
+				
+					
+					<!-- <if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
 						AND LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
 					</if>
 					<if test='loanAmtYn != null and !loanAmtYn.equals("") and loanAmtYn.equals("Y")'>	
@@ -58,7 +61,7 @@
 					</if>
 					<if test='loanAmtYn != null and !loanAmtYn.equals("") and !loanAmtYn.equals("Y")'>	
 						AND T.TOT_LOAN_AMT = 0 
-					</if> -->
+					</if>-->
 	</select>
 	
 	<select id="selectClntList" resultType="CamelMap">
@@ -188,11 +191,13 @@
 					A.PCHS_CLMN_DAY,    <!-- 매입 수금일자 -->
 	                A.PCHS_CLMN_RMK,    <!-- 매입 수금비고-->
 	                A.SELL_CLMN_DAY,    <!-- 판매 수금 일자-->
-	                A.SELL_CLMN_RMK     <!-- 판매 수금 비고-->
+	                A.SELL_CLMN_RMK,     <!-- 판매 수금 비고-->
+	                SALES_EMP_ID,
+	                (SELECT NAME FROM TB_CM06M01 WHERE ID = D02.SALES_EMP_ID) AS SALES_EMP_NM
 				FROM
 					TB_BM02M01 A
 					LEFT OUTER JOIN (
-					  SELECT CLNT_CD,
+					  SELECT BMD02.CLNT_CD,
 					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_REAL_SECURITY,          <!-- 매입부동산 -->
 					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
 					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_EACH_CREDIT_SECURITY,   <!-- 메입개별신용 -->
@@ -202,8 +207,20 @@
 					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS GUARNTEE_SECURITY,      <!-- 보증보험 -->
 					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
 					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS CASH_SECURITY,          <!-- 현금 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT               <!-- 공통졔외 답보 합계 -->
-					  FROM TB_BM02D02 BMD02
+					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT,               <!-- 공통졔외 답보 합계 -->
+					         D01.SALES_EMP_ID
+					  FROM 
+					  	TB_BM02D02 BMD02
+					  	LEFT OUTER JOIN(
+					  		SELECT
+					  			CLNT_CD,
+					  			SALES_EMP_ID
+					  		FROM
+					  			TB_BM02D01 BMD01	
+					  		GROUP BY
+					  			CLNT_CD,
+					  			BMD01.SALES_EMP_ID
+					  	) D01 ON D01.CLNT_CD = BMD02.CLNT_CD
 					  WHERE USE_YN = 'Y'
 					 <if test="coCd != null and !coCd.equals('')">
 					       AND CO_CD =  #{coCd}
@@ -211,8 +228,10 @@
 					  <if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND PRDT_GRP = #{prdtGrp}
 					  </if>
-					  GROUP BY CLNT_CD
-					  ) D02  ON D02.CLNT_CD = A.CLNT_CD
+					  GROUP BY 
+					  	BMD02.CLNT_CD,
+					  	D01.SALES_EMP_ID
+					  ) D02 ON D02.CLNT_CD = A.CLNT_CD
 				<where>
 					<if test="useYn != null and !useYn.equals('')">
 						USE_YN = #{useYn}
@@ -238,6 +257,7 @@
 					<if test="linkGrpClntCd != null and !linkGrpClntCd.equals('')">
 						AND A.LINK_GRP_CLNT_CD =  #{linkGrpClntCd}
 					</if>
+					
 				</where>
 				<if test="sortType != null and !sortType.equals('')">
 					ORDER BY NVL(A.UDT_DTTM, A.CREAT_DTTM) DESC, A.LINK_GRP_CLNT_CD, A.CLNT_CD
@@ -255,6 +275,12 @@
 					</if>
 					<if test='loanAmtYn != null and !loanAmtYn.equals("") and !loanAmtYn.equals("Y")'>	
 						AND T.TOT_LOAN_AMT = 0 
+					</if>
+					<if test="salesEmpId != null and !salesEmpId.equals('')">
+						AND SALES_EMP_ID =  #{salesEmpId}
+					</if>
+					<if test="salesEmpNm != null and !salesEmpNm.equals('')">
+						AND SALES_EMP_NM LIKE '%${salesEmpNm}%'
 					</if>
 		)
 		WHERE
