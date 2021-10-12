@@ -70,8 +70,9 @@
 		FROM
 		(
 			SELECT
-				ROWNUM AS RNUM, T.*,				
-					T.CDTLN_AMT - T.REAL_SECURITY        - T.GUARNTEE_SECURITY - T.CASH_SECURITY
+				ROWNUM AS RNUM, T.*
+	               , (SELECT NAME FROM TB_CM06M01 WHERE ID = SALES_EMP_ID) AS SALES_EMP_NM			
+				   , T.CDTLN_AMT - T.REAL_SECURITY        - T.GUARNTEE_SECURITY - T.CASH_SECURITY
 					            - T.EACH_CREDIT_SECURITY  AS OTHER_SECURITY	<!-- 기타담보 -->	
 			FROM
 			(
@@ -192,46 +193,33 @@
 	                A.PCHS_CLMN_RMK,    <!-- 매입 수금비고-->
 	                A.SELL_CLMN_DAY,    <!-- 판매 수금 일자-->
 	                A.SELL_CLMN_RMK,     <!-- 판매 수금 비고-->
-	                SALES_EMP_ID,
-	                (SELECT NAME FROM TB_CM06M01 WHERE ID = D02.SALES_EMP_ID) AS SALES_EMP_NM
+	                (SELECT SALES_EMP_ID FROM TB_BM02D01 BMD01 WHERE USE_YN = 'Y' AND BMD01.CLNT_CD = A.CLNT_CD 
+	                    <if test="coCd != null and !coCd.equals('')">
+	                     AND SALES_CO_CD = #{coCd} </if> AND ROWNUM =1) AS SALES_EMP_ID
 				FROM
 					TB_BM02M01 A
 					LEFT OUTER JOIN (
-					  SELECT BMD02.CLNT_CD,
-					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_REAL_SECURITY,          <!-- 매입부동산 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_EACH_CREDIT_SECURITY,   <!-- 메입개별신용 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_CASH_SECURITY,          <!-- 매입현금 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS PCHS_CDTLN_AMT,             <!-- 공통졔외 매입답보합계 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS REAL_SECURITY,          <!-- 부동산 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS GUARNTEE_SECURITY,      <!-- 보증보험 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS CASH_SECURITY,          <!-- 현금 -->
-					         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT,               <!-- 공통졔외 답보 합계 -->
-					         D01.SALES_EMP_ID
-					  FROM 
-					  	TB_BM02D02 BMD02
-					  	LEFT OUTER JOIN(
-					  		SELECT
-					  			CLNT_CD,
-					  			SALES_EMP_ID
-					  		FROM
-					  			TB_BM02D01 BMD01	
-					  		GROUP BY
-					  			CLNT_CD,
-					  			BMD01.SALES_EMP_ID
-					  	) D01 ON D01.CLNT_CD = BMD02.CLNT_CD
-					  WHERE USE_YN = 'Y'
-					 <if test="coCd != null and !coCd.equals('')">
-					       AND CO_CD =  #{coCd}
-					  </if>
-					  <if test="prdtGrp != null and !prdtGrp.equals('')">
-						AND PRDT_GRP = #{prdtGrp}
-					  </if>
-					  GROUP BY 
-					  	BMD02.CLNT_CD,
-					  	D01.SALES_EMP_ID
-					  ) D02 ON D02.CLNT_CD = A.CLNT_CD
+						  SELECT BMD02.CLNT_CD,
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_REAL_SECURITY,          <!-- 매입부동산 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_EACH_CREDIT_SECURITY,   <!-- 메입개별신용 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_CASH_SECURITY,          <!-- 매입현금 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS PCHS_CDTLN_AMT,             <!-- 공통졔외 매입답보합계 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS REAL_SECURITY,          <!-- 부동산 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS GUARNTEE_SECURITY,      <!-- 보증보험 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS CASH_SECURITY,          <!-- 현금 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT               <!-- 공통졔외 답보 합계 -->
+						  FROM TB_BM02D02 BMD02
+						  WHERE USE_YN = 'Y'
+						 <if test="coCd != null and !coCd.equals('')">
+						       AND CO_CD       =  #{coCd}
+						  </if>
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND PRDT_GRP = #{prdtGrp}
+						  </if>
+						  GROUP BY 	BMD02.CLNT_CD
+						 ) D02 ON D02.CLNT_CD = A.CLNT_CD
 				<where>
 					<if test="useYn != null and !useYn.equals('')">
 						USE_YN = #{useYn}
