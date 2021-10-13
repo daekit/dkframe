@@ -741,30 +741,34 @@
 					 , PLAN_SEQ
 				     , T1.CO_CD
 					 , FN_CM05M01_CD_TO_NM(T1.CO_CD) CO_NM
-				    ,  T1.CLNT_CD
-				    ,  T1.PRDT_DIV
+				     , T1.CLNT_CD
+				     , T1.PRDT_DIV
 					 , FN_CM05M01_CD_TO_NM(BM02.CLNT_DIV_CD) CLNT_DIV_NM
 					 , FN_CM05M01_CD_TO_NM(T1.PRDT_DIV) PRDT_DIV_NM
 					 , NVL(BM02.CLNT_NM, '기타') CLNT_NM
-				    , NVL(T1.PLAN_WT,0) AS PLAN_WT
-				    , NVL(T1.TRST_Y,0) AS TRST_Y
-				    , NVL(T1.TRST_N,0) AS TRST_N
-				    , TO_CHAR(CASE WHEN NVL(T1.PLAN_WT,0) != 0 THEN ((NVL(T1.TRST_N,0) + NVL(T1.TRST_Y,0)) / NVL(T1.PLAN_WT,0)) * 100
+				     , NVL(T1.PLAN_WT,0) AS PLAN_WT
+				     , NVL(T1.TRST_Y,0) AS TRST_Y
+				     , NVL(T1.TRST_N,0) AS TRST_N
+				     , TO_CHAR(CASE WHEN NVL(T1.PLAN_WT,0) != 0 THEN ((NVL(T1.TRST_N,0) + NVL(T1.TRST_Y,0)) / NVL(T1.PLAN_WT,0)) * 100
 				    		ELSE 0 END, '9,999.99')  AS TRST_RATE
+				      <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
 					  ,T1.PLAN_SALES_ID
 					  ,T1.PLAN_SALES_NM
 					  ,T1.PLAN_DEPT_ID
 					 , T1.PLAN_DEPT_NM
+					 </if>
 				  FROM 
 				  (SELECT SD01.PLAN_SEQ
 				  	   , NVL(SD01.CO_CD, AR02.CO_CD) CO_CD
 				  	   , NVL(SD01.CLNT_CD, AR02.TRST_CLNT_CD) CLNT_CD
 				  	   , NVL(SD01.PRDT_DIV, AR02.PRDT_DIV) PRDT_DIV
 				  	   , SD01.PLAN_YM
+				       <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
 				  	   , NVL(SD01.PLAN_SALES_ID, AR02.SALES_MNG)  PLAN_SALES_ID
 				  	   , NVL(SD01.PLAN_SALES_NM, AR02.NAME) PLAN_SALES_NM
 				  	   , NVL(SD01.PLAN_DEPT_ID, AR02.DEPT_ID) PLAN_DEPT_ID
 				  	   , NVL(SD01.PLAN_DEPT_NM, AR02.DEPT_NM) PLAN_DEPT_NM
+				  	   </if>
 				  	   , SD01.PLAN_WT
 				  	   , AR02.TRST_Y
 				  	   , AR02.TRST_N
@@ -776,10 +780,12 @@
 				       , S.CLNT_CD 
 				       , TRIM(S.PRDT_DIV) PRDT_DIV
 				       , S.PLAN_YM
+				       <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
 					    ,S.PLAN_SALES_ID
 					    , CM06.NAME AS PLAN_SALES_NM
 					    ,S.PAN_DEPT_ID AS PLAN_DEPT_ID
 					    ,CM04.DEPT_NM AS PLAN_DEPT_NM
+					    </if>
 				       , S.PLAN_WT PLAN_WT
 				       , 0 TRST_Y
 				       , 0 TRST_N
@@ -859,11 +865,13 @@
 				       , AR02.CO_CD
 				       , AR02.TRST_CLNT_CD
 				       , TRIM(AR02.PRDT_DIV) PRDT_DIV 
-				       , SUBSTRING(AR02.TRST_DT, 0, 6) TRST_DT
+				       , SUBSTRING(AR02.TRST_DT, 0, 6) TRST_DT 
+				       <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
 					   , AR02.SALES_MNG 
 					   , CM06.NAME
 					   , CM06.DEPT_ID
 					    ,CM04.DEPT_NM
+					   </if>
 					   , 0 AS PLAN_WT 
 				       , SUM(DECODE(AR02.IMP_YN, 'Y', AR02.REAL_TRST_WT)) TRST_Y
 				       , SUM(DECODE(AR02.IMP_YN, 'N', AR02.REAL_TRST_WT)) TRST_N
@@ -938,20 +946,27 @@
 					   </if>
 				   GROUP BY AR02.CO_CD, AR02.TRST_CLNT_CD, TRIM(AR02.PRDT_DIV)
 				         , SUBSTRING(AR02.TRST_DT, 0, 6) 
+				       <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
 					     , AR02.SALES_MNG 
 					     , CM06.NAME
 						 , CM06.DEPT_ID
 					     , CM04.DEPT_NM
+					     </if>
 					    ) AR02
 			ON SD01.CO_CD = AR02.CO_CD
 			AND SD01.CLNT_CD = AR02.TRST_CLNT_CD
 			AND SD01.PRDT_DIV = AR02.PRDT_DIV
+		    <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
+			AND SD01.PLAN_SALES_ID = AR02.SALES_MNG
+			</if>
 				) T1
 			   LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = T1.CLNT_CD
 				 ORDER BY 
+		             <if test="!selpchCd.equals('SELPCH1') and selpchCd != null and !selpchCd.equals('')">
 					  T1.PLAN_DEPT_NM ,
 					  T1.PLAN_SALES_ID,
 					  T1.PLAN_SALES_NM,
+					  </if>
 						 T1.CO_CD,
 					 BM02.CLNT_DIV_CD,
 					 T1.PRDT_DIV, T1.CLNT_CD 
