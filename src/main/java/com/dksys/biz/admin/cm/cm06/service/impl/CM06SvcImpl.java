@@ -84,8 +84,9 @@ public class CM06SvcImpl implements CM06Svc {
 	}
 	
 	/* 테스트를 위한 코드이므로 추후 삭제할것. */
-	/*
-	 * @Override public void updateUserName() throws Exception{
-	 * cm06Mapper.updateUserName(); double testValue = 10 / 0; }
-	 */
+	
+	  @Override public void updateUserName() throws Exception{
+	  cm06Mapper.updateUserName(); double testValue = 10 / 0; 
+	  }
+	 
 }
