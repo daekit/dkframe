@@ -28,6 +28,9 @@
                   <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 				   AND C.TAXIVC_COPRT = #{taxivcCoprt}
 				  </if>
+                  <if test="selpchCd != null and !selpchCd.equals('')">
+				   AND C.SELPCH_CD = #{selpchCd}
+				  </if>
              </where>
 	</select>
 	<!-- 전월 마감이 있는 지 확인함. -->
@@ -51,6 +54,9 @@
                   <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 				   AND C.TAXIVC_COPRT = #{taxivcCoprt}
 				  </if>
+                  <if test="selpchCd != null and !selpchCd.equals('')">
+				   AND C.SELPCH_CD = #{selpchCd}
+				  </if>
 	</select>
 	
 	
@@ -58,24 +64,13 @@
 		SELECT COUNT(*)
 			FROM
 			(SELECT   ROWNUM AS RNUM
-		              , A.*
-		  		      , FN_CM05M01_CD_TO_NM(A.CO_CD)  AS  CO_NM
-		  		      , FN_CM05M01_CD_TO_NM(A.PRDT_GRP)  AS PRDT_GRP_NM
-		  		      , (SELECT PRJCT_NM FROM  TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
-		  		      , FN_CM05M01_CD_TO_NM(A.SELL_PAY_DIV_CD)  AS  SELL_PAY_DIV_NM
-	    			  , FN_CM05M01_CD_TO_NM(A.SELL_CLMN_DIV_CD) AS  SELL_CLMN_DIV_NM
-		              , FN_CM05M01_CD_TO_NM(A.SELL_PMNT_MTD_CD) AS  SELL_PMNT_MTD_NM
-		              , FN_CM05M01_CD_TO_NM(A.SELL_VAT_CD)      AS  SELL_VAT_NM
-		              , A.TAXIVC_COPRT
-		              , FN_CM05M01_CD_TO_NM(A.TAXIVC_COPRT)      AS  TAXIVC_COPRT_NM
-		              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT	               
-		              , F_CREDIT_LOAN_PRDTGRP('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
-					  , F_CREDIT_LOAN_PRDTGRP('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LOAN 
-	
+		              , A.*	
 		         FROM (
 		            SELECT
-		                   CO_CD
-				         , CLNT_NM
+					  	<if test="clntCd != null and !clntCd.equals('')">
+		                   CO_CD ,
+		                   </if>
+				           CLNT_NM
 				         , PRDT_GRP
 				         , PRJCT_CD
 						 , SELL_PAY_DIV_CD
@@ -289,8 +284,10 @@
 				  		     , SELL_CLMN_DAY
 				     )
 				     GROUP BY
-				   		   CO_CD
-				         , CLNT_NM
+					  	<if test="clntCd != null and !clntCd.equals('')">
+				   		   CO_CD,
+				         </if>
+				           CLNT_NM
 				         , PRDT_GRP
 				         , PRJCT_CD
 						 , SELL_PAY_DIV_CD
@@ -315,7 +312,9 @@
 			(SELECT   ROWNUM AS RNUM
 		              , A.*
 		              , (SELECT CRN FROM TB_BM02M01 BM02M WHERE BM02M.CLNT_CD = A.CLNT_CD) CRN_NO
+					  <if test="clntCd != null and !clntCd.equals('')">
 		  		      , FN_CM05M01_CD_TO_NM(A.CO_CD)  AS  CO_NM
+		  		      </if>
 		  		      , FN_CM05M01_CD_TO_NM(A.PRDT_GRP)  AS PRDT_GRP_NM
 		  		      , (SELECT PRJCT_NM FROM  TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = A.PRJCT_CD ) AS PRJCT_NM
 		  		      , FN_CM05M01_CD_TO_NM(A.SELL_PAY_DIV_CD)  AS  SELL_PAY_DIV_NM
@@ -324,14 +323,21 @@
 		              , FN_CM05M01_CD_TO_NM(A.SELL_VAT_CD)      AS  SELL_VAT_NM
 		              , A.TAXIVC_COPRT
 		              , FN_CM05M01_CD_TO_NM(A.TAXIVC_COPRT)      AS  TAXIVC_COPRT_NM
-		              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT	               
+		              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT
+					  <if test="clntCd != null and !clntCd.equals('')">	               
 		              , F_CREDIT_LOAN2('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LMT  <!-- 여신한도 -->
 					  , F_CREDIT_LOAN2('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
-	
+	                 </if>
+					  <if test="clntCd == null or clntCd.equals('')">	               
+		              , F_CREDIT_LOAN2('T', A.CLNT_CD, '' ,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LMT  <!-- 여신한도 -->
+					  , F_CREDIT_LOAN2('C', A.CLNT_CD, '' ,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
+	                 </if>
 		         FROM (
 		            SELECT
-		                   CO_CD
-				         , CLNT_NM
+						  <if test="clntCd != null and !clntCd.equals('')">
+		                   CO_CD,
+		                   </if>
+				           CLNT_NM
 				         , PRDT_GRP
 				         , PRJCT_CD
 						 , SELL_PAY_DIV_CD
@@ -407,7 +413,8 @@
 						  <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 						   AND M01.TAXIVC_COPRT = #{taxivcCoprt}
 						  </if>
-						  GROUP BY AR05.CO_CD, SUBSTRING(AR05.ETRDPS_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(AR05.ETRDPS_DT, 0, 4) || '-' || SUBSTRING(AR05.ETRDPS_DT, 5,2) 					  
+						  GROUP BY AR05.CO_CD
+						     , SUBSTRING(AR05.ETRDPS_DT, 0, 6), AR05.CLNT_CD,  SUBSTRING(AR05.ETRDPS_DT, 0, 4) || '-' || SUBSTRING(AR05.ETRDPS_DT, 5,2) 					  
 				             , BM02.CLNT_NM
 				             , AR05.PRDT_GRP
 						     , NVL(AR05.PRJCT_CD,0)
@@ -474,7 +481,8 @@
 										    WHERE PRDT_GRP = #{prdtGrp}
 				  						   )
 						  </if>
-						  GROUP BY AR02.CO_CD, SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
+						  GROUP BY AR02.CO_CD
+						     , SUBSTRING(TRST_DT, 0, 6), TRST_CLNT_CD , SUBSTRING(TRST_DT, 0, 4) || '-' || SUBSTRING(TRST_DT, 5,2)
 				             , BM02.CLNT_NM
 				             , AR02.TRST_PRDT_CD
 						     , AR02.PRJCT_CD
@@ -549,8 +557,10 @@
 				  		     , SELL_CLMN_DAY
 				     )
 				     GROUP BY
-				   		   CO_CD
-				         , CLNT_NM
+						  <if test="clntCd != null and !clntCd.equals('')">
+				   		   CO_CD,
+				   		   </if>
+				           CLNT_NM
 				         , PRDT_GRP
 				         , PRJCT_CD
 						 , SELL_PAY_DIV_CD
@@ -562,7 +572,11 @@
 						 , ETRDPS_YM
 						 , CLOSE_YM
 						 , CLNT_CD
-					ORDER BY CO_CD, CLNT_NM, PRDT_GRP, PRJCT_CD
+					ORDER BY
+					    <if test="clntCd != null and !clntCd.equals('')">
+					        CO_CD,
+					       </if>
+					      CLNT_NM, PRDT_GRP, PRJCT_CD
 						      
 				) A
 		)
@@ -573,7 +587,10 @@
 		SELECT COUNT(*)
 			FROM
 			(
-			  	  SELECT  C.CO_CD,
+			  	  SELECT  
+					 	 <if test="coCd != null and !coCd.equals('')">
+					 	  C.CO_CD,
+					 	  </if>
 					      C.CLOSE_YM AS ETRDPS_YM,
 				          SUBSTRING(C.CLOSE_YM, 0, 4) || '-' || SUBSTRING( C.CLOSE_YM, 5,2) CLOSE_YM,
 					      C.CLNT_CD ,
@@ -604,7 +621,7 @@
 					  </if>					  
 					   <if test="baseDt != null and !baseDt.equals('')">
 					   AND C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM')
-				       		              AND REPLACE(#{baseDt}, '-', '')	
+				       		              AND TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), 'YYYYMM')
 					   </if>
 					  <if test="clntNm != null and !clntNm.equals('')">
 					   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -621,7 +638,10 @@
 					  <if test="prdtGrp != null and !prdtGrp.equals('')">
 					   AND PRDT_GRP = #{prdtGrp}
 					  </if>
-				    GROUP BY C.CO_CD,
+				    GROUP BY 
+					 	 <if test="coCd != null and !coCd.equals('')">
+				          C.CO_CD,
+				          </if>
 					      C.CLOSE_YM ,
 					      C.CLNT_CD ,
 					      BM02.CLNT_NM,
@@ -642,12 +662,16 @@
 		SELECT
 			ROWNUM AS RNUM, A.*
 		 FROM (
-			  SELECT  C.CO_CD
-	  		        , FN_CM05M01_CD_TO_NM(C.CO_CD)  AS  CO_NM
-				    , SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 6) AS ETRDPS_YM
+			  SELECT  
+					<if test="coCd != null and !coCd.equals('')">
+					  C.CO_CD,
+	  		          FN_CM05M01_CD_TO_NM(C.CO_CD)  AS  CO_NM,
+					 </if>
+				      SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 6) AS ETRDPS_YM
 			        , SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 4) || '-' || SUBSTRING(REPLACE(#{baseDt}, '-', ''), 5,2) CLOSE_YM
 				    , C.CLNT_CD
 				    , BM02.CLNT_NM
+				    , BM02.CRN AS CRN_NO
 					, C.PRJCT_CD
 					, (SELECT PRJCT_NM FROM TB_SD05M01 SD05 WHERE SD05.PRJCT_CD = C.PRJCT_CD  ) AS PRJCT_NM
 					, C.PRDT_GRP
@@ -673,8 +697,14 @@
 				    , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM') ,NVL(C.CELL_CLMN_AMT, 0)))     CLOSE_YM2_CLMN_AMT   <!--전전월수금 -->
 				    , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM') ,NVL(C.CELL_TOT_AMT, 0)))      CLOSE_YM2_TOT_AMT    <!--전전월매출 -->
 				    , SUM(DECODE(C.CLOSE_YM, TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM') ,NVL(C.TRMEND_CREDIT_AMT, 0))) CLOSE_YM2  <!-- 전전월기말 -->
+					<if test="coCd != null and !coCd.equals('')">
 				    , F_CREDIT_LOAN_PRDTGRP('T',C.CLNT_CD,C.CO_CD,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
-			        , F_CREDIT_LOAN_PRDTGRP('C',C.CLNT_CD,C.CO_CD,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LOAN  	
+			        , F_CREDIT_LOAN_PRDTGRP('C',C.CLNT_CD,C.CO_CD,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LOAN  
+			        </if>
+					<if test="coCd == null or coCd.equals('')">
+				    , F_CREDIT_LOAN_PRDTGRP('T',C.CLNT_CD, '' ,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LMT  <!-- 여신한도 -->
+			        , F_CREDIT_LOAN_PRDTGRP('C',C.CLNT_CD, '' ,C.PRDT_GRP,TO_CHAR(LAST_DAY(TO_DATE(REPLACE(#{baseDt},'-',''), 'YYYYMMDD')), 'YYYYMMDD'),0) AS CRDT_LOAN  
+					</if>
 			  	 FROM TB_AR07M01 C
 			  	 LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD  = C.CLNT_CD
 			  	 LEFT JOIN TB_SD05M01 SD05 ON SD05.PRJCT_CD = C.PRJCT_CD
@@ -684,7 +714,7 @@
 					  </if>					  
 				   <if test="baseDt != null and !baseDt.equals('')">
 				   AND C.CLOSE_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), -2), 'YYYYMM')
-			       		              AND REPLACE(#{baseDt}, '-', '')	
+			       		              AND TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''), 'YYYYMMDD'), 'YYYYMM')
 				   </if>
 				  <if test="clntNm != null and !clntNm.equals('')">
 				   AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
@@ -701,9 +731,13 @@
 				  <if test="prdtGrp != null and !prdtGrp.equals('')">
 				   AND C.PRDT_GRP = #{prdtGrp}
 				  </if>
-			    GROUP BY C.CO_CD,
+			    GROUP BY
+					<if test="coCd != null and !coCd.equals('')">
+					  C.CO_CD,
+					 </if>
 				      C.CLNT_CD ,
 				      BM02.CLNT_NM,
+				      BM02.CRN,
 					  C.PRJCT_CD,
 					  C.PRDT_GRP,
 				      SELL_PAY_DIV_CD,
