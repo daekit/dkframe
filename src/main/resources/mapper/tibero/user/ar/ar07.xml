@@ -67,7 +67,7 @@
 		              , A.*	
 		         FROM (
 		            SELECT
-					  	<if test="clntCd != null and !clntCd.equals('')">
+					  	<if test="coCd != null and !coCd.equals('')">
 		                   CO_CD ,
 		                   </if>
 				           CLNT_NM
@@ -284,7 +284,7 @@
 				  		     , SELL_CLMN_DAY
 				     )
 				     GROUP BY
-					  	<if test="clntCd != null and !clntCd.equals('')">
+					  	<if test="coCd != null and !coCd.equals('')">
 				   		   CO_CD,
 				         </if>
 				           CLNT_NM
@@ -312,7 +312,7 @@
 			(SELECT   ROWNUM AS RNUM
 		              , A.*
 		              , (SELECT CRN FROM TB_BM02M01 BM02M WHERE BM02M.CLNT_CD = A.CLNT_CD) CRN_NO
-					  <if test="clntCd != null and !clntCd.equals('')">
+					  <if test="coCd != null and !coCd.equals('')">
 		  		      , FN_CM05M01_CD_TO_NM(A.CO_CD)  AS  CO_NM
 		  		      </if>
 		  		      , FN_CM05M01_CD_TO_NM(A.PRDT_GRP)  AS PRDT_GRP_NM
@@ -324,17 +324,17 @@
 		              , A.TAXIVC_COPRT
 		              , FN_CM05M01_CD_TO_NM(A.TAXIVC_COPRT)      AS  TAXIVC_COPRT_NM
 		              , BASIS_AMT + TOT_AMT - CLMN_AMT AS TRMEND_AMT
-					  <if test="clntCd != null and !clntCd.equals('')">	               
+					  <if test="coCd != null and !coCd.equals('')">	               
 		              , F_CREDIT_LOAN2('T', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LMT  <!-- 여신한도 -->
 					  , F_CREDIT_LOAN2('C', A.CLNT_CD, A.CO_CD,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
 	                 </if>
-					  <if test="clntCd == null or clntCd.equals('')">	               
+					  <if test="coCd != null and !coCd.equals('')">
 		              , F_CREDIT_LOAN2('T', A.CLNT_CD, '' ,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LMT  <!-- 여신한도 -->
 					  , F_CREDIT_LOAN2('C', A.CLNT_CD, '' ,A.PRDT_GRP, REPLACE(#{baseDt},'-',''),0) AS CRDT_LOAN 
 	                 </if>
 		         FROM (
 		            SELECT
-						  <if test="clntCd != null and !clntCd.equals('')">
+						  <if test="coCd != null and !coCd.equals('')">
 		                   CO_CD,
 		                   </if>
 				           CLNT_NM
@@ -557,7 +557,7 @@
 				  		     , SELL_CLMN_DAY
 				     )
 				     GROUP BY
-						  <if test="clntCd != null and !clntCd.equals('')">
+						  <if test="coCd != null and !coCd.equals('')">
 				   		   CO_CD,
 				   		   </if>
 				           CLNT_NM
@@ -573,10 +573,10 @@
 						 , CLOSE_YM
 						 , CLNT_CD
 					ORDER BY
-					    <if test="clntCd != null and !clntCd.equals('')">
+					    <if test="coCd != null and !coCd.equals('')">
 					        CO_CD,
 					       </if>
-					      CLNT_NM, PRDT_GRP, PRJCT_CD
+					       CLNT_NM, PRDT_GRP, PRJCT_CD
 						      
 				) A
 		)
@@ -669,6 +669,8 @@
 					 </if>
 				      SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 6) AS ETRDPS_YM
 			        , SUBSTRING(REPLACE(#{baseDt}, '-', ''), 0, 4) || '-' || SUBSTRING(REPLACE(#{baseDt}, '-', ''), 5,2) CLOSE_YM
+			        , C.TAXIVC_COPRT
+			        , FN_CM05M01_CD_TO_NM(C.TAXIVC_COPRT)  AS  TAXIVC_COPRT_NM
 				    , C.CLNT_CD
 				    , BM02.CLNT_NM
 				    , BM02.CRN AS CRN_NO
@@ -735,8 +737,9 @@
 					<if test="coCd != null and !coCd.equals('')">
 					  C.CO_CD,
 					 </if>
-				      C.CLNT_CD ,
+					  C.TAXIVC_COPRT,
 				      BM02.CLNT_NM,
+				      C.CLNT_CD ,
 				      BM02.CRN,
 					  C.PRJCT_CD,
 					  C.PRDT_GRP,
@@ -748,6 +751,12 @@
 		) A
 	)
 	WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	ORDER BY 
+	<if test="coCd != null and !coCd.equals('')">
+					        CO_CD,
+					       </if>
+					       CLNT_NM, PRDT_GRP, PRJCT_CD
+	
 	</select>
 
 	<select id="selectClosCditList" resultType="CamelMap">
