@@ -800,25 +800,38 @@
 		var totBilgAmt   = 0;
 		var totEtrdpsAmt = 0;
  		var etrdpsAmt = deleteCommaStr($("#etrdpsAmt").val());
+ 		
+ 		
 		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) {
 			var tableBilgAmt = Number(deleteCommaStr($(elem).find("input[name='bilgTot']").val()));
+			
 			if($(elem).find("input[name='detailChkBox']").prop("checked")){
+				
 				var tableEtrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val()));
+				
 				if(!tableEtrdpsAmt){
 					tableEtrdpsAmt = 0;
+				} 
+				
+				if(tableEtrdpsAmt > 0) {
+					if(etrdpsAmt > Number(totEtrdpsAmt) + Number(tableEtrdpsAmt)){
+							totEtrdpsAmt += tableEtrdpsAmt;
+					} 
+					
+					else {
+	 					$(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
+						totEtrdpsAmt = etrdpsAmt;
+					}
 				}
-				if(etrdpsAmt > Number(totEtrdpsAmt) + Number(tableEtrdpsAmt)){
-					console.log("OK");
-						totEtrdpsAmt += tableEtrdpsAmt;
-				} else {
-					console.log("NO");
- 					$(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
+				else{
+					$(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
 					totEtrdpsAmt = etrdpsAmt;
 				}
+					
 			}
+			
 			totBilgAmt += tableBilgAmt;
 		});
-                 
 		$("#totBilgAmt").text(addCommaStr(totBilgAmt));
 		$("#totEtrdpsAmt").text(addCommaStr(totEtrdpsAmt));
 	}
