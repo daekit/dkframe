@@ -88,7 +88,7 @@
 			            ,TO_CHAR(TO_DATE(NVL(AR04.TAX_DT,AR04.SELL_DT), 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
 						, AR04.CO_CD
 						, AR04.CLNT_CD
-						, AR04.CLNT_NM
+						, BM02.CLNT_NM
 						, DECODE(AR04.SELPCH_CD, 'SELPCH1', '외상매입금', 'SELPCH2', '외상매출금','SELPCH3',	'외상매입금','SELPCH4', '외상매출금') AS GUBUN_NM
 						, AR04.SELPCH_CD AS GUBUN_CD
 						, (SELECT ARD_5006 FROM TB_AR04D01 D WHERE D.BILG_CERT_NO = AR04.BILG_CERT_NO AND  ARD_5006 IS NOT NULL AND BILG_CERT_NO_SEQ = 1) || ' '||
@@ -98,6 +98,7 @@
 						, 0 AS BASIS_AMT
 						, NVL2(TAX_BILG_NO,'완료','계산서미처리') AS RMK
 				  FROM  TB_AR04M01 AR04
+				  LEFT JOIN TB_BM02M01 BM02 ON BM02.CLNT_CD = AR04.CLNT_CD
 <!-- 			     WHERE  AR04.TAX_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '') -->
 			     WHERE  AR04.SELL_DT  BETWEEN REPLACE(#{strtDt}, '-', '') AND REPLACE(#{endDt}, '-', '')
 						<if test= "clntCd != null and !clntCd.equals('')">
@@ -107,7 +108,7 @@
 					 	AND AR04.CO_CD = #{coCd}
 						</if>
 						 <if test= "clntNm != null and !clntNm.equals('')">
-					 	AND	AR04.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
+					 	AND	BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 						</if>
 						 <if test= "taxivcCoprt != null and !taxivcCoprt.equals('')">
 						  AND AR04.BILG_CERT_NO IN (SELECT AR02.BILG_CERT_NO FROM TB_AR02M01 AR02 WHERE AR02.BILG_CERT_NO = AR04.BILG_CERT_NO AND AR02.TAXIVC_COPRT = #{taxivcCoprt} )
