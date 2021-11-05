@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.admin.bm.bm09.mapper.BM09Mapper">
+	
+	<select id="selectPledgeCount" resultType="int">
+		SELECT count(*)
+			FROM
+			(	
+			SELECT 
+				A.USE_YN,
+				A.LINK_GRP_CLNT_CD,
+			    nvl2(A.LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 C WHERE C.CLNT_CD = A.LINK_GRP_CLNT_CD), A.CLNT_NM ) AS LINK_GRP_CLNT_NM,	
+				CO_CD, CO_NM,
+				CLNT_CD,
+				CLNT_NM,
+				BASIS_CDTLN_AMT,
+				PLDG01_AMT, <!-- 부동산 -->
+				PLDG02_AMT, <!-- 보증보험 -->
+				PLDG04_AMT, <!-- 개별신용 -->
+				PLDG05_AMT, <!-- 현금 -->
+				CDTLN_AMT
+			FROM (
+					SELECT 
+							A.USE_YN,
+						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
+		                   B.CO_CD,
+							FN_CM05M01_CD_TO_NM(b.CO_CD) CO_NM,
+							A.CLNT_CD,
+							A.CLNT_NM,
+							A.BASIS_CDTLN_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG01_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG02_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG04_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG05_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0))) AS CDTLN_AMT
+			        FROM TB_BM02M01 A
+						INNER JOIN TB_BM02D02 B
+					             ON  B.CLNT_CD = A.CLNT_CD 
+<!-- 					             AND B.USE_YN = 'Y' -->
+<!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
+					             <if test="coCd !=null and !coCd.equals('')">
+				     	          AND B.CO_CD = #{coCd} 
+					            </if>
+					WHERE 1=1
+					<if test="useYn != null and !useYn.equals('')">
+					  AND A.USE_YN = #{useYn}
+					</if>
+					<if test="clntCdS != null and !clntCdS.equals('')">
+					  AND A.CLNT_CD = #{clntCdS}
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+					  AND A.CLNT_NM like '%${clntNm}%'
+					</if>
+					<if test="clntDivCd !=null and !clntDivCd.equals('')">
+					  AND A.CLNT_DIV_CD = #{clntDivCd} 
+					</if>
+					<if test="pldgDivCd !=null and !pldgDivCd.equals('')">
+					  AND B.PLDG_DIV_CD = #{pldgDivCd} 
+					</if>
+					<if test="selpchCd !=null and !selpchCd.equals('')">
+					  AND B.SELPCH_CD = #{selpchCd} 
+					</if>
+					<if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND B.PRDT_GRP = #{prdtGrp}
+					</if>
+					GROUP BY A.USE_YN,
+						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
+							B.CO_CD,
+							A.CLNT_CD,
+							A.CLNT_NM,
+							A.BASIS_CDTLN_AMT
+				) AS a
+				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
+			) A
+<!-- 	         WHERE TOT_LOAN_AMT != 0 -->
+<!-- 	         AND CDTLN_AMT  != 0 -->
+			 ORDER BY a.LINK_GRP_CLNT_NM 
+		
+		
+	</select>
+	
+	<select id="selectPledgeList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*,
+				CDTLN_AMT - PLDG01_AMT - PLDG02_AMT - PLDG04_AMT - PLDG05_AMT AS PLDG99_AMT
+			FROM
+			(	
+			SELECT 
+				A.USE_YN,
+				A.LINK_GRP_CLNT_CD,
+			    nvl2(A.LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 C WHERE C.CLNT_CD = A.LINK_GRP_CLNT_CD), A.CLNT_NM ) AS LINK_GRP_CLNT_NM,	
+				CO_CD, CO_NM,
+				CLNT_CD,
+				CLNT_NM,
+				BASIS_CDTLN_AMT,
+				PLDG01_AMT, <!-- 부동산 -->
+				PLDG02_AMT, <!-- 보증보험 -->
+				PLDG04_AMT, <!-- 개별신용 -->
+				PLDG05_AMT, <!-- 현금 -->
+				A.CDTLN_AMT,
+				PRDT_GRP_NM,
+				PLDG_DIV_CD,
+				PLDG_DIV_NM,
+				PLDG_AMT,
+				PLDG_RCOGN_RATE,
+				EXPRTN_DT,
+				SETUP_DT,
+				PLDG_RMK,
+					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
+					 WHERE B.CLNT_CD = A.CLNT_CD  
+					   AND B.USE_YN = 'Y'
+					   AND B.SELPCH_CD   = 'SELPCH2'
+					   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
+					 ) AS PLDG03_AMT,
+			    F_CREDIT_LOAN('T', A.CLNT_CD,A.CO_CD, REPLACE(#{baseDt},'-','') ,0) AS TOT_LOAN_AMT,
+			    F_CREDIT_LOAN('C', A.CLNT_CD,A.CO_CD, REPLACE(#{baseDt},'-','') ,0) AS LOAN_AMT
+			FROM (
+					SELECT 
+							A.USE_YN,
+						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
+		                    B.CO_CD,
+							FN_CM05M01_CD_TO_NM(b.CO_CD) CO_NM,
+							A.CLNT_CD,
+							A.CLNT_NM,
+							A.BASIS_CDTLN_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG01', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG01_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG02', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG02_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG04', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG04_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG05', B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100,0),0))) AS PLDG05_AMT,
+							SUM(decode(B.USE_YN,'Y',decode(B.SELPCH_CD,'SELPCH2',decode(b.PLDG_DIV_CD,'PLDG03',0,B.PLDG_AMT * B.PLDG_RCOGN_RATE / 100),0))) AS CDTLN_AMT,
+							FN_CM05M01_CD_TO_NM(B.PRDT_GRP) PRDT_GRP_NM,
+							B.PLDG_DIV_CD,
+							FN_CM05M01_CD_TO_NM(PLDG_DIV_CD) PLDG_DIV_NM,
+							B.PLDG_AMT,
+							B.PLDG_RCOGN_RATE,
+							B.EXPRTN_DT,
+							B.SETUP_DT,
+							B.PLDG_RMK
+			        FROM TB_BM02M01 A
+						INNER JOIN TB_BM02D02 B
+					             ON  B.CLNT_CD = A.CLNT_CD
+<!-- 					             AND B.USE_YN = 'Y' -->
+<!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
+					             <if test="coCd !=null and !coCd.equals('')">
+				     	         AND B.CO_CD = #{coCd} 
+					            </if>
+					WHERE 1=1
+					<if test="useYn != null and !useYn.equals('')">
+					  AND A.USE_YN = #{useYn}
+					</if> 
+					<if test="clntCdS != null and !clntCdS.equals('')">
+					  AND A.CLNT_CD = #{clntCdS}
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+					  AND A.CLNT_NM like '%${clntNm}%'
+					</if>
+					<if test="clntDivCd !=null and !clntDivCd.equals('')">
+					  AND A.CLNT_DIV_CD = #{clntDivCd} 
+					</if>
+					<if test="pldgDivCd !=null and !pldgDivCd.equals('')">
+					  AND B.PLDG_DIV_CD = #{pldgDivCd} 
+					</if>
+					<if test="selpchCd !=null and !selpchCd.equals('')">
+					  AND B.SELPCH_CD = #{selpchCd} 
+					</if>
+					<if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND B.PRDT_GRP = #{prdtGrp}
+					</if>
+					GROUP BY A.USE_YN,
+						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
+							B.CO_CD,
+							A.CLNT_CD,
+							A.CLNT_NM,
+							A.BASIS_CDTLN_AMT,
+							B.PLDG_DIV_CD,
+							B.PLDG_AMT,
+							B.PRDT_GRP,
+							B.PLDG_RCOGN_RATE,
+							B.EXPRTN_DT,
+							B.SETUP_DT,
+							B.PLDG_RMK
+				) AS a
+				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
+			) A
+<!-- 	         WHERE TOT_LOAN_AMT != 0 -->
+<!-- 	         AND CDTLN_AMT  != 0 -->
+			 ORDER BY a.LINK_GRP_CLNT_NM 
+		)
+		WHERE  RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+</mapper>
