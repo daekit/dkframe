@@ -39,9 +39,9 @@
 					             ON  B.CLNT_CD = A.CLNT_CD 
 <!-- 					             AND B.USE_YN = 'Y' -->
 <!-- 					             AND nvl(B.EXPRTN_DT,99999999) >= to_char(CURRENT_DATE,'yyyymmdd') -->
-					             <if test="coCd !=null and !coCd.equals('')">
-				     	          AND B.CO_CD = #{coCd} 
-					            </if>
+		             <if test="coCd !=null and !coCd.equals('')">
+	     	          AND B.CO_CD = #{coCd} 
+		            </if>
 					WHERE 1=1
 					<if test="useYn != null and !useYn.equals('')">
 					  AND A.USE_YN = #{useYn}
@@ -110,6 +110,7 @@
 				PLDG_RCOGN_RATE,
 				EXPRTN_DT,
 				SETUP_DT,
+				SELPCH_NM,
 				PLDG_RMK,
 					(SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
 					 WHERE B.CLNT_CD = A.CLNT_CD  
@@ -140,7 +141,8 @@
 							B.PLDG_RCOGN_RATE,
 							B.EXPRTN_DT,
 							B.SETUP_DT,
-							B.PLDG_RMK
+							B.PLDG_RMK,
+							FN_CM05M01_CD_TO_NM(B.SELPCH_CD) SELPCH_NM
 			        FROM TB_BM02M01 A
 						INNER JOIN TB_BM02D02 B
 					             ON  B.CLNT_CD = A.CLNT_CD
@@ -183,7 +185,8 @@
 							B.PLDG_RCOGN_RATE,
 							B.EXPRTN_DT,
 							B.SETUP_DT,
-							B.PLDG_RMK
+							B.PLDG_RMK,
+							B.SELPCH_CD
 				) AS a
 				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
