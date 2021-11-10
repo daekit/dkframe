@@ -6,5 +6,5 @@ import java.util.Map;
 public interface DZ01Svc {
 	List<Map<String, String>> testSelect(Map<String, String> paramMap);
 
-	void testInsert() throws Exception;
+	public void testInsert(Map<String, String> paramMap);
 }

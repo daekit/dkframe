@@ -46,7 +46,8 @@
 			        CREAT_PGM,
 			        UDT_ID,
 			        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
-			        UDT_PGM
+			        UDT_PGM,
+			        DZ_CODE
 				FROM 
 					TB_CM05M01 
 				WHERE
@@ -105,7 +106,8 @@
 			        CREAT_PGM,
 			        UDT_ID,
 			        TO_CHAR(UDT_DTTM, 'yyyy-MM-dd') AS UDT_DTTM,
-			        UDT_PGM
+			        UDT_PGM,
+			        DZ_CODE
 				FROM 
 					TB_CM05M01 
 				WHERE
@@ -129,7 +131,10 @@
 		WHERE
 			USE_YN = 'Y'
 			<if test="codeKind != null and !codeKind.equals('')">
-			AND CODE_KIND = #{codeKind}
+				AND CODE_KIND = #{codeKind}
+			</if>
+			<if test="dzCode != null and !dzCode.equals('')">
+				AND DZ_CODE = #{dzCode}
 			</if>
 			<if test="codeRprc != null and !codeRprc.equals('')">
 				AND CODE_RPRC = #{codeRprc}
@@ -158,7 +163,9 @@
 			decode( A.CODE_KIND, 'ESTCOPRT',(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CODE_ETC),
 			                                (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_ETC))  AS CODE_ETC_NM,
 			decode( A.CODE_KIND, 'WH',      (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_DESC),
-			                                        A.CODE_DESC ) AS CODE_DESC_NM
+			                                        A.CODE_DESC ) AS CODE_DESC_NM,
+			A.DZ_CODE
+
 		FROM
 			TB_CM05M01 AS A
 		WHERE
@@ -181,7 +188,8 @@
 			decode( A.CODE_KIND, 'ESTCOPRT',(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = A.CODE_ETC),
 			                                (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_ETC))  AS CODE_ETC_NM,
 			decode( A.CODE_KIND, 'WH',      (SELECT CODE_NM FROM TB_CM05M01 WHERE CODE_ID = A.CODE_DESC),
-			                                        A.CODE_DESC ) AS CODE_DESC_NM
+			                                        A.CODE_DESC ) AS CODE_DESC_NM,
+			A.DZ_CODE
 		FROM
 			TB_CM05M01 AS A
 		WHERE
@@ -204,7 +212,8 @@
 				USE_YN = #{useYn},
 				UDT_ID = #{userId},
 				UDT_PGM = 'admin',
-				UDT_DTTM = SYSDATE
+				UDT_DTTM = SYSDATE,
+				DZ_CODE = #{dzCode}
 		WHEN NOT MATCHED THEN
 		INSERT
 		(
@@ -218,7 +227,8 @@
 			USE_YN,
 			CREAT_ID,
 			CREAT_PGM,
-			CREAT_DTTM
+			CREAT_DTTM,
+			DZ_CODE
 		)
 		VALUES(
 			#{codeId},
@@ -231,7 +241,8 @@
 			#{useYn},
 			#{userId},
 			'admin',
-			SYSDATE
+			SYSDATE,
+			#{dzCode}
 		)		
 	</insert>
 

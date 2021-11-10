@@ -1,0 +1,502 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
+<div class="popup_area of_a" style="height: 90%;">
+	<div class="tit_contents">
+		<h4 class="tit"></h4>
+	</div>
+	<ul class="dp_ib" >
+		<li style="width: 100%; vertical-align: top;">
+			<!-- 수금 테이블 -->
+			<div class="popup_table" id="etrdpsTableDiv">
+				<form id="etrdpsData">
+					<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
+					<input type="hidden" id="etrdpsSeq" name="etrdpsSeq">
+					<table>
+						<colgroup>
+							<col width="15%">
+							<col width="">
+							<col width="15%">
+							<col width="">
+						</colgroup>
+						<tr>
+							<th class="hit">회사</th>
+							<td>
+								<select id="coCd" name="coCd" data-kind="CO" onchange="setByCoCd(this.value);"  msg="회사" required>
+									<option value="" dzCode="">선택</option>
+								</select>
+							</td>
+							
+							<th class="hit">판매법인(회계단위)</th>
+							<td>
+								<select id="taxivcCoprt" name="taxivcCoprt" data-kind="ESTCOPRT"  onchange="setByCoprt(this.value);"  >
+									<option value="" dzCode="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th class="hit">거래처</th>
+							<td>
+								<div class="search_form">
+									<input type="hidden" id="clntCd" name="clntCd"  msg="거래처" required>
+									<input type="text" id="clntNm" disabled> 
+								</div> 
+							</td>
+							<th class="hit">일자</th>
+							<td>
+								<input type="text" class="input_calendar" autocomplete="off" id="etrdpsDt" name="etrdpsDt"  msg="일자" date required>
+							</td>
+						</tr>
+						<tr>
+							<th class="hit">구분</th>
+							<td>
+								<select id="etrdpsTyp" name="etrdpsTyp" data-kind="ETRDPS"  onchange="etrdpsTypTable(); setSummary();"  msg="구분" required>
+									<option value="" dzCode="">선택</option>
+								</select>
+							</td>
+							<th>잡이익여부</th>
+							<td>
+								<select id="msclPrftYn" name="msclPrftYn" msg="잡이익 여부" >
+									<option value="" dzCode="">선택</option>
+									<option value="Y" dzCode="">잡이익</option>
+									<option value="N" dzCode="">잡손실</option>
+								</select>
+							</td>
+		
+						</tr>
+						<tr>
+							<th class="hit">입금계좌</th>
+							<td>
+								<select id="etrdpsBkacCd" name="etrdpsBkacCd" data-kind="BKAC"  msg="입금계좌" required>
+									<option value="">선택</option>
+								</select>
+							</td>
+						
+							<th class="hit">결제방법(구분)</th>
+							<td>
+								<select id="setleTypCd" name="setleTypCd" data-kind="PMNTMTD" onchange="ctrlBillTable(this);"  msg="결제방법" required>
+									<option value="" dzCode="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>	
+							<th class="hit">금액</th>
+							<td>
+								<input type="text" id="etrdpsAmt" name="etrdpsAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : '';" msg="금액"  comma required >
+							</td>
+							<th class="hit">제품그룹</th>
+							<td>
+								<select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" msg="제품그룹" required">
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>적요</th>
+							<td colspan="3">
+								<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			
+			<br>
+			<!-- 어음 테이블 -->
+			<div class="popup_table" id="billTableDiv" style="display: none;">
+				<form id="billData">
+					<input type="hidden" id="pgmId" name="pgmId" value="AR0502P01">
+					<table>
+						<colgroup>
+							<col width="15%">
+							<col width="">
+							<col width="15%">
+							<col width="">
+						</colgroup>
+						<tr>
+							<th class="hit">어음종류</th>
+							<td>
+								<select id="bilTypCd" name="bilTypCd" data-kind="BIL" required>
+									<option value=""  dzCode="">선택</option>
+								</select>
+							</td>
+							<th class="hit">어음번호</th>
+							<td>
+								<input type="text" id="bilNo" name="bilNo" required onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''"> 
+							</td>
+						</tr>
+						<tr>
+							<th class="hit">만기일</th>
+							<td>
+								<input type="text" class="input_calendar" autocomplete="off" id="exprtnDt" name="exprtnDt" date required>
+							</td>
+							<th>지급은행</th>
+							<td>
+								<select id="pymntBankCd" name="pymntBankCd" data-kind="BANK">
+									<option value="" dzCode="">선택</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>발행자</th>
+							<td>
+								<input type="text" id="bilPblsPsn" name="bilPblsPsn" maxlength="25" onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
+							</td>
+							<th>배서인 수</th>
+							<td>
+								<input type="text" id="endrsPsnCnt" name="endrsPsnCnt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''">
+							</td>
+						</tr>
+						<tr>
+							<th>어음금액</th>
+							<td>
+								<input type="text" id="bilAmt" name="bilAmt" onkeyup="onlyNumber(this); event.keyCode == 13 ? enterRemote(this) : ''" comma>
+							</td>
+							<th>발행일</th>
+							<td>
+								<input type="text" class="input_calendar" autocomplete="off" id="bilPblsDt" name="bilPblsDt" date>
+							</td>
+						</tr>
+						<tr>
+							<th>전배서인</th>
+							<td>
+								<input type="text" id="endrsPsn" name="endrsPsn" maxlength="25"  onkeyup=" event.keyCode == 13 ? enterRemote(this) : ''">
+							</td>
+							<th>
+							</th>
+							<td>
+							</td>
+						</tr>
+						<tr>
+							<th>비고</th>
+							<td colspan="3">
+								<textarea class="form-control" id="sumry" name="sumry" style="height: 60px;" maxlength="100"></textarea>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</li>
+	</ul>
+</div>
+<!-- 하단 버튼 -->
+<div class="popup_bottom_btn">
+	<button id="actionBtn" authchk></button>
+	<button class="close_btn" onclick="modalStack.close();">닫기</button>
+</div>
+	
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		
+		// 공통코드 SelectBox set
+		setCommonSelect($(".popup_area select[data-kind]"));
+		// 입금일 datepicker bind
+		$('#etrdpsDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 만기일 datepicker bind
+		$('#exprtnDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+		
+		// 어음 발행일 datepicker bind
+		$('#bilPblsDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+			selectEtrdpsInfo();
+			// 거래처 변경 disable				
+			$('#coCd').prop("readonly", true);
+			$('#coCd').prop("disabled", true);
+			$('#clntCd').prop("readonly", true);
+			$('#clntCd').prop("disabled", true);
+			$('#btnClntSearch').remove();
+			//$('#etrdpsTb').hide();
+			// 조회시에는 수정 불가
+			$('[name=etrdpsTyp]').prop("disabled", true);
+			$('[name=detailChkBox]').prop("disabled", true);
+			$('[name=etrdpsAmt]').prop("disabled", true);
+			// 제품그룹변경
+			$('[name=prdtGrp]').prop("disabled", true);
+			// 판매법인변경
+			$('[name=taxivcCoprt]').prop("disabled", true);
+			// 금액 변경 disable
+			$('#etrdpsAmt').prop("disabled", true);
+			// 결제방법 변경 disable
+			/* $('#setleTypCd').prop("disabled", true); */
+			// 어음번호 변경 readonly (어음 업데이트 시 필요)
+			$('#bilNo').prop("readonly", true);
+			$('#actionBtn').on("click", function() {testInsert();});
+			$('.tit_contents .tit').text("더존 테스트 팝업");
+			$('#actionBtn').text("테스트");
+	
+		authChk("AR0501M01");
+	   /* select 태그 keypress catch */
+	   $('td select').keypress(function(e){
+		   var tagId = $(e.target).attr('id');
+    	   var keyCode = e.keyCode;
+    	   var idx=keyCode-48; 
+    	   var target = e.target;
+            $("select#"+tagId+" option:eq("+idx+")").prop("selected", true);
+		   if(tagId == 'setleTypCd'){ctrlBillTable(target);}
+           /*if(keyCode == 13){
+			   e.preventDefault();
+			   $("#"+tagId).next('select').focus();
+		   } */
+       });
+	});
+	
+	// 거래처 검색
+	function openSecondClntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = clntGridView.target.getList("selected")[0];
+			$("#clntCd").val(row.clntCd);
+			$("#clntNm").val(row.clntNm);
+		});
+	}
+	
+	function clntSearch() {
+		openSecondModal("/static/html/user/ar/ar05/AR0502P02.html", 500, 420, "거래처");
+	}
+	
+	function ctrlBillTable(elem){
+		var pmntMtd   = $(elem).find('option:selected').data("etc");
+		var etrdpsTyp = $('[name=etrdpsTyp]').val();
+		
+		if(!pmntMtd || pmntMtd == "CASH"){
+			$('#etrdpsBkacCd').attr("required");
+			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
+			$('#billTableDiv').hide();
+		}else{
+			$('#etrdpsBkacCd').removeAttr("required");
+			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
+			$('#billTableDiv').show();
+		}
+		
+		if((!pmntMtd || pmntMtd == "CASH") && etrdpsTyp =="ETRDPS01" ){
+			$('#etrdpsBkacCd').attr("required");
+			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
+		}else{
+			$('#etrdpsBkacCd').removeAttr("required");
+			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
+		}	
+		
+	}
+
+	function etrdpsTypTable() {
+		var pmntMtd   = $("#setleTypCd").find('option:selected').data("etc");
+		var etrdpsTyp = $("#etrdpsTyp").val();
+
+		//  지급/상계일 경우 혹은 현금이 아닐결우 입금계좌 필수 제거
+		if((!pmntMtd || pmntMtd == "CASH") && ( !etrdpsTyp || etrdpsTyp =="ETRDPS01" )){
+			$('#etrdpsBkacCd').attr("required");
+			$('#etrdpsBkacCd').closest('td').prev().addClass("hit");
+		}else{
+			$('#etrdpsBkacCd').removeAttr("required");
+			$('#etrdpsBkacCd').closest('td').prev().removeClass("hit");
+		}
+		//  상계일 경우 지급방법이 필수가 아님. 수금/지급은 필수 나머지는 아님.
+		if((etrdpsTyp =="ETRDPS01" || etrdpsTyp =="ETRDPS02" )){
+			$('#setleTypCd').attr("required");
+			$('#setleTypCd').closest('td').prev().addClass("hit");
+			if (actionType != "U") { $('#setleTypCd').val(""); }
+		}else{
+			$('#setleTypCd').removeAttr("required");
+			$('#setleTypCd').closest('td').prev().removeClass("hit");
+			if (actionType != "U") { $('#setleTypCd').val("PMNTMTD06"); }
+		}				
+	}
+	
+	
+	
+	function selectEtrdpsInfo(){
+		var row = gridView.target.getList("selected")[0];
+		var paramObj = {
+				"etrdpsSeq": row.etrdpsSeq,
+				"coCd": row.coCd,
+				"clntCd": row.clntCd,
+				"taxivcCoprt": row.taxivcCoprt
+				};
+		
+		postAjax("/user/ar/ar05/selectEtrdpsInfo", paramObj, null, function(data){
+			setEtrdpsInfo(data.etrdpsInfo);
+		});
+	}
+	
+	
+	function setEtrdpsInfo(etrdpsInfo){
+		var etrdpsData = etrdpsInfo.etrdpsData;
+		var billData = etrdpsInfo.billData;
+		var etrdpsList = etrdpsInfo.etrdpsList;
+
+		$.each(etrdpsData, function(key, value){
+			if($('#etrdpsData').find('#'+key)[0]){				
+				// 판매법인 Set
+				if(key == 'coCd'){
+					setTaxivcCoprt(value);
+				}			
+				// 은행계좌  Set
+				if(key == 'taxivcCoprt'){
+					setEtrdpsBkac(value);
+				}
+				$('#etrdpsData').find('#'+key).val(value);
+				
+				if($('#etrdpsData').find('#'+key).is("[comma]")){
+					onlyNumber($('#etrdpsData').find('#'+key)[0]);
+				}
+				
+				if($('#etrdpsData').find('#'+key).is("[date]")){
+					$('#etrdpsData').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}
+
+			}  
+		});
+		
+		// 구분에 따른 필수지정 관리
+		etrdpsTypTable();
+		
+		if(billData){
+			$('#billTableDiv').show();
+			$.each(billData, function(key, value){
+				if($('#billData').find('#'+key)[0]){
+					$('#billData').find('#'+key).val(value);
+					
+					if($('#billData').find('#'+key).is("[comma]")){
+						onlyNumber($('#billData').find('#'+key)[0]);
+					}
+					
+					if($('#billData').find('#'+key).is("[date]")){
+						$('#billData').find('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+					}
+					
+					
+				}
+			});
+		}
+	}
+	
+	// 판매법인 set
+	function setTaxivcCoprt(value){
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+		// 은행계좌 Set
+		setEtrdpsBkac($('#taxivcCoprt').val());
+
+	}
+	
+	// 은행계좌 Set
+	function setEtrdpsBkac(value){
+		$('#etrdpsBkacCd').data("etc", value);
+		$('#etrdpsBkacCd option:not([value=""])').remove()
+		setCommonSelect($('#etrdpsBkacCd'));  		
+	}	
+	
+	//input창에서 enter입력 이벤트
+	function enterRemote(val){
+		var tagId = $(val).attr('id');
+		if(tagId == 'etrdpsAmt'){
+			$('#sumry').focus();
+		}
+		if(tagId == 'bilNo'){
+			$('#exprtnDt').focus();
+		}
+		if(tagId == 'bilPblsPsn'){
+			$('#endrsPsnCnt').focus();
+		}
+		if(tagId == 'endrsPsnCnt'){
+			$('input#bilAmt').focus();
+		}
+		if(tagId == 'bilAmt'){
+			$('#bilPblsDt').focus();
+		}
+		if(tagId == 'endrsPsn'){
+			$('textarea#sumry.form-control').focus();
+		}
+	}
+	
+
+	//list 행추가
+	function addRow() {
+		var row = $("#detailTb > tbody:last > tr:last").clone();
+		$("#detailTb > tbody:last").append(row);
+		$.each($(row).find(':input'), function(){
+			this.value = '';
+			this.checked = '';
+		});
+		return $("tr[name='tableEtrdps']:last")[0];
+	}
+	
+	function setEtrdpsAmt(elem){
+		
+		if($(elem).prop("checked")){
+			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
+			if($targetRow.find('input[name="pmntMtdNm"]').val() && $targetRow.find('input[name="clmnDivCd"]').val()){
+				$targetRow.find('input[name="etrdpsAmt"]').val($targetRow.find('input[name="bilgTot"]').val());
+			} else {
+				if($targetRow.find('input[name="prjctCd"]').val() != 0 ){
+					alert("프로젝트 관리 화면에서 결제방법과 수금조건을 설정해주세요.");
+				} else {
+					alert("거래처 화면에서 결제방법과 수금조건을 설정해주세요.");
+				}
+				$(elem).prop("checked", false);
+				return false;
+			}
+		} else {
+			$targetRow = $(elem).closest('tr[name="tableEtrdps"]');
+			$targetRow.find('input[name="etrdpsAmt"]').val("0");
+		}
+	}
+	
+	function setSummary(){
+		if($("#etrdpsTyp option:selected").attr("data-rprc") == "SELPCH1"){
+			$("#sumry").val("월분 물품대 지급");
+		} else{
+			$("#sumry").val("월분 물품대 입금");
+		}
+	}
+	
+	function testInsert(){
+		if (selectGridValidation(gridView.target)) 
+			return;
+		
+		if (!confirm("테스트 진행하시겠습니까?")) 
+			return;
+		
+		var formData = {
+				"coCd"		: $("#coCd option:selected").data("dzCode"),     		/* 회사코드 */
+				"inDt"		: $("#etrdpsDt").val(),									/* 거래일자 */
+				"inSq"		: $("#etrdpsSeq").val(),								/* 거래순번 */
+				"divCd"		: $("#taxivcCoprt option:selected").data('dzCode'),		/* 회계단위 */
+				"drcrFg"	: $("#etrdpsTyp option:selected").data('dzCode'),		/* 차대구분 */				
+				"acctCd"	: $("#setleTypCd option:selected").data('dzCode'),		/* 계정코드 */
+				"acctAm"	: $("#etrdpsAmt").val(),								/* 금액 */
+				"rmkDc"		: $("#sumry").val(),									/* 적요 */
+ 				"clntNm"	: $("#clntNm").val(),									/* 거래처명 */
+ 				"frDt"		: $("#bilPblsDt").val(),								/* 시작일 어음일경우 발행일 */
+ 				"toDt"		: $("#exprtnDt").val(),									/* 종료일 어음일경우 만기일 */
+ 				"ctNb"		: $("#bilNo").val(),									/* 어음번호 */
+ 				"isuNm"		: $("#bilPblsPsn").val(),								/* 받을어음일 경우 발행인 */
+ 				"billFg1"	: $("#bilTypCd option:selected").data('etc'),			/* 받을어음종류 1.당좌, 2.가계, 3.어음, 4.전자*/
+ 				"billFg2"	: $("#bilTypCd option:selected").data('dzCode'),		/* 받을어음 계정일 경우 수금구분1. 타수, 2. 자수 */
+// 				"insertId"	: jwt.userId											/* 입력자 ID*/
+		}
+		debugger;
+		console.log(formData);
+		postAjax("/douzone/dz/dz01/testInsert", formData, null, function(data) {
+			alert(data.resultMessage);
+			if(data.resultCode == 200){
+				gridView.setData(0);
+				modalStack.close();
+			}
+		});
+	}
+	
+
+</script>

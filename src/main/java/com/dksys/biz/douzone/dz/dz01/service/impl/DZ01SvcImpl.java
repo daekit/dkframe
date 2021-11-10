@@ -26,9 +26,40 @@ public class DZ01SvcImpl implements DZ01Svc {
 		return testList;
 	}
 
-	@Override
+//	@Override
+//	public void testInsert(Map<String, String> paramMap){
+//
+//		dz01Mapper.testInsert(paramMap);
+//	}
+  @Override
+  	public void testInsert(Map<String, String> paramMap){
+	
+	  //-금액 처리
+      String drcrFg = paramMap.get("drcrFg");
+      String acctAm = paramMap.get("acctAm");
+      
+      //금액이 - 면 차,대변 바꿔서 put
+      //drcrFg = 3 지급(차변)
+      if("3".equals(drcrFg)&& Integer.parseInt(acctAm) < 0){ /* drcrFg가 3이면서 음수면 4 */
+          paramMap.put("drcrFg","4");
+          //수금(대변)으로 바꾸고 금액에서 - 없앰
+          
+          int acc = Integer.parseInt(acctAm);
+          paramMap.put("acctAm", String.valueOf(acc));
+      }
+      //drcrFg = 4 수금(대변)
+      else if("4".equals(drcrFg)&& Integer.parseInt(acctAm) < 0){ /* drcrFg가 4이면서 음수면 3 */
+          paramMap.put("drcrFg","3");
+          //지급(차변)으로 바꾸고 금액에서 - 없앰
+          
+          int acc = Integer.parseInt(acctAm);         
+          paramMap.put("acctAm", String.valueOf(acc));
+      }
+      dz01Mapper.testInsert(paramMap);
+  }
+/*	@Override
 	public void testInsert() throws Exception{
 		dz01Mapper.testInsert();
-		cm06Svc.updateUserName();
-	}
+		cm06Svc.updateUserName();*/
+	
 }

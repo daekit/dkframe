@@ -134,10 +134,10 @@
 					<a onclick="openEtrdpsDetail('C');" authchk>+</a>
 					<a onclick="deleteEtrdps();" authchk>-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
-	                <!--
-		                <a onclick="testSelect();" style="height: 30px; line-height: 28px; width: 90px;">testSelect</a>
-		                <a onclick="testMultiTransaction();" style="height: 30px; line-height: 28px; width: 150px;">testMultiTransaction</a>
-	                 -->
+	                
+<!-- 		                <a onclick="testSelect();" style="height: 30px; line-height: 28px; width: 90px;">testSelect</a> -->
+<!-- 		                <a onclick="openTestDz();" style="height: 30px; line-height: 28px; width: 150px;">더존 테스트 팝업</a> -->
+	                 
 				</div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
@@ -197,12 +197,12 @@
 					{key : "coNm",		    label : "회사", 		align : "center", width : 70},
 					{key : "taxivcCoprtNm", label : "판매법인", 	align : "center", width : 100},
 					{key : "etrdpsDt",      label : "입금일자", 	align : "center", width : 80},
-					{key : "clntNm",        label : "거래처",  	align : "left", width : 140}, 
+					{key : "clntNm",        label : "거래처",  	align : "left",   width : 140}, 
 					{key : "etrdpsTypNm",   label : "구분",   	align : "center", width : 120},
 					{key : "setleTypNm",    label : "결제방법", 	align : "center", width : 80}, 
-					{key : "etrdpsAmt",     label : "금액",   	align : "right", width : 120, formatter: "money"}, 
+					{key : "etrdpsAmt",     label : "금액",   	align : "right",  width : 120, formatter: "money"}, 
 					{key : "etrdpsBkacNm",  label : "입금계좌", 	align : "center", width : 100}, 
-					{key : "sumry",         label : "적요",   	align : "left", width : 250}, 
+					{key : "sumry",         label : "적요",   	align : "left",   width : 250}, 
 					{key : "bilTypNm",      label : "어음종류", 	align : "center", width : 120}, 
 					{key : "bilNo",         label : "어음번호", 	align : "center", width : 120}, 
 					{key : "exprtnDt",      label : "만기일",  	align : "center", width : 80}, 
@@ -333,10 +333,16 @@
 		gridView.setData(0);
 	}
 	
+	
 	// 입금 상세
 	function openEtrdpsDetail(actionType) {
 		this.actionType = actionType;
 		openModal("/static/html/user/ar/ar05/AR0502P01.html", 1520, 550, "");
+	}
+	
+	function openTestDz() {
+		if (selectGridValidation(gridView.target)) return;
+		openModal("/static/html/user/ar/ar05/AR0502P03.html", 1000, 550, "");
 	}
 	
 	// 입금 삭제
@@ -399,15 +405,32 @@
 		});
 	}
 	
-	function testSelect(){
-		postAjax("/douzone/dz/dz01/testSelect", {}, null, function(data) {
-			debugger;
-		});
-	}
+// 	 function testSelect(){
+// 		postAjax("/douzone/dz/dz01/testSelect", null, null, function(data) {
+// 		});
+// 	}
 	
-	function testMultiTransaction(){
-		postAjax("/douzone/dz/dz01/testMultiTransaction", {}, null, function(data) {
-			debugger;
-		});
-	}
+// 	function testInsert(){
+// 			if (selectGridValidation(gridView.target)) 
+// 				return;
+			
+// 			if (!confirm("테스트 진행하시겠습니까?")) 
+// 				return;
+// 			var row = gridView.target.getList("selected")[0];
+// 			var formData = {
+// 						"coCd"		:	row.coCd,
+// 						"etrdpsDt"	:	row.etrdpsDt,
+// 						"etrdpsAmt"	:	row.etrdpsAmt,
+// 						"sumry"		:	row.sumry,
+// 						"clntNm"	:	row.clntNm,
+// 						"etrdpsSeq"	:	row.etrdpsSeq,
+// 						"userId"	:	jwt.userId
+// 					};
+// 			postAjax("/douzone/dz/dz01/testInsert", formData, null, function(data) {
+// 				if(data.resultCode == "200") {
+// 					alert(data.resultMessage);
+// 					gridView.setData(0);
+// 				}
+// 			});
+// 	}
 </script>

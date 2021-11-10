@@ -87,7 +87,9 @@ var ubiprefix = "";
 if(jwt){
 	switch (jwt.serverType){
     case "real" :
-        ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+        //ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+        
+        ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
         break;
     case "dev" :
         ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
@@ -96,7 +98,8 @@ if(jwt){
         ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
         break;
     default :
-        ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+        //ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+    	ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
 	}
 }
 
@@ -610,7 +613,7 @@ function setCommonSelect(selectArr){
 			var optionHtml = '';
 			var codeList = data.childCodeList;
 			$.each(codeList, function (index, item){
-				optionHtml += '<option value="'+item.codeId+'" data-rprc="'+item.codeRprc+'" data-etc="'+item.codeEtc+'" data-desc="'+item.codeDesc+'">';
+				optionHtml += '<option value="'+item.codeId+'" data-rprc="'+item.codeRprc+'" data-etc="'+item.codeEtc+'" data-desc="'+item.codeDesc+'" data-dz-code="'+item.dzCode+'">';
 				optionHtml += item.codeNm;
 				optionHtml += '</option>';
 			});
