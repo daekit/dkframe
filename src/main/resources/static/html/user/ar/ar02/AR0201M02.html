@@ -506,7 +506,8 @@
 		        		formatter: function(){
 		        			if(this.item.udtNm == undefined){return '-';}
 			        		return this.item.udtNm;
-			        }}
+			        }},
+			        {key: "prdtCnvrsnWt",	label: "환산단위",	    hidden: true}
 		        ],
 		        footSum: [
 			    	[
@@ -987,6 +988,7 @@
 					siteFlag = true;
 				}
 			}
+			checkPrdtInfo();
 		});
 		if (!flag) {
 			alert("거래명세서 발행대상이 선택되지 않았습니다.");
@@ -1007,8 +1009,8 @@
 		}				
  		if (!p_siteNm) {
  			p_siteNm = "";
- 		}		
-
+ 		}                     		
+		
 		var arg = "selPchCd#SELPCH2" 
 		         + "#coCd#"			+ $('#coCd_S').val()
 		         + "#taxivcCoprt#"  + p_taxivcCoprt
@@ -1151,6 +1153,11 @@
 				alert("삭제할 수 없는 데이터 입니다.");
 			}
 		}
+	}
+	function checkPrdtInfo(){
+		var row = subGridView.target.getList("selected")[0];
+		if(row.bilgQty * row.prdtCnvrsnWt != row.bilgWt)
+			alert("청구수량 * 스펙 = 청구중량. 맞지않는것이 있습니다.");
 	}
 	
 	function excelDown() {
