@@ -789,6 +789,20 @@
 	
 	<update id="updatePchsSell" parameterType="Map">
 	BEGIN
+				
+		UPDATE 
+			TB_AR05D02
+		SET   
+			  BILG_CERT_NO     = 0
+			, TRST_CERTI_NO    = 0
+			, TRST_DT          = ''
+			, SELL_CLMN_DIV_CD = ''
+			, SELL_PMNT_MTD_CD = ''
+			, SELL_CLMN_DAY    = ''
+			, TAX_BILG_NO      = ''
+			, PRJCT_CD         = ''
+		WHERE TRST_CERTI_NO = #{trstCertiNo};
+		
 		UPDATE 
 			TB_AR02M01
 		SET
@@ -809,6 +823,8 @@
 			SHIP_VEH_NO 	= #{shipVehNo, jdbcType=VARCHAR},
 	        LOSS_RATE       = #{lossRate},
 	        UDT_ID          = #{userId},
+	        ETRDPS_YN       = 'N',
+            ETRDPS_AMT      = 0
 	        <choose>
 				<when test="updatePgmId != null and !updatePgmId.equals('')">
 					UDT_PGM = #{updatePgmId},
@@ -820,19 +836,7 @@
 	        UDT_DTTM        = SYSDATE
 		WHERE 
 			TRST_CERTI_NO = #{trstCertiNo};
-			
-		UPDATE 
-			TB_AR05D02
-		SET   
-			  BILG_CERT_NO     = 0
-			, TRST_CERTI_NO    = 0
-			, TRST_DT          = ''
-			, SELL_CLMN_DIV_CD = ''
-			, SELL_PMNT_MTD_CD = ''
-			, SELL_CLMN_DAY    = ''
-			, TAX_BILG_NO      = ''
-			, PRJCT_CD         = ''
-		WHERE TRST_CERTI_NO = #{trstCertiNo};
+
 	END;
 			
 			
@@ -1156,8 +1160,6 @@
 	<update id="updateBilgCancel" parameterType="Map">
 		UPDATE TB_AR02M01
 		SET BILG_CERT_NO = ''
-		  , ETRDPS_YN    = 'N'
-          , ETRDPS_AMT   = 0
 		WHERE BILG_CERT_NO = #{bilgCertNo}
 	</update>
 	
