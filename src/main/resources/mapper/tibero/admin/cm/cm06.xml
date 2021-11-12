@@ -59,6 +59,7 @@
 			FN_CM05M01_CD_TO_NM(MNG_CO_CD) MNG_CO_CD_NM,
 			PASS_ERR_CNT,
 			PWD_DTTM,
+			SALES_AREA,
   	        NVL((SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = 'PASSYN'),'N') PASS_YN , --암호규칙사용여부
 		    <![CDATA[CASE WHEN (PWD_DTTM < ADD_MONTHS(SYSDATE, (-1 * NVL((SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = 'PASSCHG'),9999)))) THEN 1 ELSE 0 END PASS_CHG,]]>  --암호변경주기(월)
 		    NVL((SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = 'PASSERRCNT'),5) PASS_CHK_CNT --암호오류허용횟수
@@ -108,7 +109,8 @@
 			TEL_NO,
 			MNG_CO_CD,
 			PASS_ERR_CNT,
-			PWD_DTTM 	
+			PWD_DTTM,
+			SALES_AREA 	
 		)VALUES(
 			#{userId},
 			#{password},
@@ -128,7 +130,8 @@
 			#{telNo},
 			#{mngCoCd},
 			0,
-			SYSDATE
+			SYSDATE,
+			#{salesArea}
 		)
 	</insert>
 	
@@ -201,7 +204,8 @@
 			UDT_DTTM = SYSDATE,
 			TEL_NO = #{telNo},
 			LEAVE_DT = #{leaveDt},
-			MNG_CO_CD= #{mngCoCd}
+			MNG_CO_CD= #{mngCoCd},
+			SALES_AREA = #{salesArea}
 		WHERE
 			ID = #{userId}
 	</update>
