@@ -189,150 +189,66 @@
 	</select>
 	
 	<select id="selectFacList" resultType="CamelMap">
-	SELECT '인천공장' FAC_NM 
-	, C.DD_WGT --일생산량
-	, C.MM_WGT --월생산량 
-	, CASE  WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
-            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
-       END MM_PLAN --계획목표량 
-	FROM (
-		SELECT  ROUND(ROUND(  SUM(CASE WHEN RCPT_DD = TO_CHAR(SYSDATE,'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT --일생산량 
-	         , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT --월생산량 
-	         , MAX(WORKS_CD) AS WORKS_CD, MAX(FAC_CD) AS FAC_CD
-	    FROM (   
-				   SELECT B.WORKS_CD, B.FAC_CD, B.RCPT_DD, B.ORD_PACK_WGT- NVL(A.WEIGHT,0) AS ORD_PACK_WGT
-				   FROM KUMMUN.TB_MES_ORD_ITEM B
-				    LEFT JOIN KUMMUN.TB_MES_PROD_CANCEL A ON B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD
-					      AND A.CANCEL_CD='1'
-					      AND B.TAG_NO = A.TAG_NO
-				WHERE B.WORKS_CD = 'N' --N: 인천금문철강 
-				   AND B.FAC_CD = '1180' --1180: 인천공장 
-				   AND B.RCPT_DD LIKE TO_CHAR(SYSDATE,'YYYYMM')||'%'
-	          )
-	)C, KUMMUN.TB_MES_MMAIM_MGNT D
-	      WHERE D.WORKS_CD  = 'N'  AND D.FAC_CD = '1180'
-  	        AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) 
-  	        AND D.MMAIM_GBN = '2'
-	UNION ALL
-	SELECT '진천2공장' FAC_NM
-	  , C.DD_WGT --일생산량
-	  ,  C.MM_WGT --월생산량 
-	  , CASE    WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
-	       END MM_PLAN --계획목표량 
-	FROM (
-	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT
-	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT
-	      , MAX(WORKS_CD) AS WORKS_CD
-	      , MAX(FAC_CD) AS FAC_CD
-	    FROM (   
-	          SELECT  B.WORKS_CD, B.FAC_CD, A.END_DT, B.RCPT_DD, B.ORD_PACK_WGT- NVL(E.WEIGHT,0) AS ORD_PACK_WGT
-	         FROM KUMMUN.TB_MES_PROD_RSLT A, KUMMUN.TB_MES_ORD_DTL C ,KUMMUN.TB_MES_ORD_ITEM B
-	          LEFT JOIN KUMMUN.TB_MES_PROD_CANCEL E ON B.WORKS_CD = E.WORKS_CD AND B.FAC_CD = E.FAC_CD
-	              AND E.CANCEL_CD='1'
-	              AND B.TAG_NO = E.TAG_NO
-	       WHERE B.WORKS_CD = 'J' --J: 진천금문철강
-	         AND B.FAC_CD   = '1146' --1146: 진천공장 
-	         AND B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD AND B.TAG_NO = A.TAG_NO 
-	         AND C.WORKS_CD = B.WORKS_CD AND C.FAC_CD = B.FAC_CD AND C.ORD_NO =B.ORD_NO AND C.ORD_LINE_NO = B.ORD_LINE_NO
-	         AND A.EQP_CD LIKE 'K2MC' || '%' --진천 2공장 설비조회, --진천 1공장 설비 조회시 'K1MC'
-	         AND B.RCPT_DD LIKE TO_CHAR(SYSDATE,'YYYYMM')||'%'
-	          )
-	  ) C , KUMMUN.TB_MES_MMAIM_MGNT D 
-	        WHERE D.WORKS_CD = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
-	          AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) 
-	          AND D.MMAIM_GBN = '2'
-	     AND D.FAC_GUBUN = 'B0002' --B0001: 1공장, B0002: 2공장 
-	UNION ALL
-	SELECT '진천1공장' FAC_NM
-	  , C.DD_WGT --일생산량
-	  ,  C.MM_WGT --월생산량 
-	  , CASE WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0)    / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0)
-	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0)
-	       END MM_PLAN --계획목표량 
-	FROM (
-	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT
-	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT
-	      , MAX(WORKS_CD) AS WORKS_CD
-	      , MAX(FAC_CD) AS FAC_CD
-	    FROM (   
-	          SELECT  B.WORKS_CD, B.FAC_CD, A.END_DT, B.RCPT_DD, B.ORD_PACK_WGT- NVL(E.WEIGHT,0) AS ORD_PACK_WGT
-	         FROM KUMMUN.TB_MES_PROD_RSLT A, KUMMUN.TB_MES_ORD_DTL C ,KUMMUN.TB_MES_ORD_ITEM B
-	          LEFT JOIN KUMMUN.TB_MES_PROD_CANCEL E ON B.WORKS_CD = E.WORKS_CD AND B.FAC_CD = E.FAC_CD
-	              AND E.CANCEL_CD='1'
-	              AND B.TAG_NO = E.TAG_NO
-	       WHERE B.WORKS_CD = 'J' --J: 진천금문철강
-	         AND B.FAC_CD   = '1146' --1146: 진천공장 
-	         AND B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD AND B.TAG_NO = A.TAG_NO 
-	         AND C.WORKS_CD = B.WORKS_CD AND C.FAC_CD = B.FAC_CD AND C.ORD_NO =B.ORD_NO AND C.ORD_LINE_NO = B.ORD_LINE_NO
-	         AND A.EQP_CD LIKE 'K1MC' || '%' --진천 2공장 설비조회, --진천 1공장 설비 조회시 'K1MC'
-	         AND B.RCPT_DD LIKE SUBSTRING(#{searchYm}, 0, 6)||'%'
-	          )
-	  ) C , KUMMUN.TB_MES_MMAIM_MGNT D 
-	         WHERE D.WORKS_CD  = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
-	           AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)
-	           AND D.MMAIM_GBN = '2' AND D.FAC_GUBUN = 'B0001' --B0001: 1공장, B0002: 2공장
-	           
+			SELECT '창녕공장' AS FAC_NM
+			,ROUND(PLAN.PLAN_WGT/1000/ #{searchUnit}) AS MM_PLAN <!-- 사업계획 -->
+			,ROUND(SHIP.PROD_WGT/1000/ #{searchUnit}) AS PROD_WGT <!-- 출하 이론중량-->
+			,ROUND(SHIP.ISS_WGT/1000/ #{searchUnit}) AS MM_WGT <!-- 할증감안 출하중량-->
+			,ROUND(SHIP.DD_WGT/1000/ #{searchUnit}) AS DD_WGT <!-- 할증감안 출하중량-->
+			FROM (
+				SELECT PLAN_TYPE,PLAN_WGT
+				FROM   MES_KMCN.TB_MES_MON_PLAN
+				WHERE  PLAN_KIND = 'S' AND PLAN_TYPE = 'A' AND PLAN_YEAR || PLAN_MON = #{searchYm}
+				) PLAN,
+				(
+				SELECT SUM(PROD_WGT) AS PROD_WGT
+				      ,SUM(ISS_WGT)  AS ISS_WGT
+				      ,SUM(DECODE(STD_DT, TO_CHAR(SYSDATE,'YYYYMMDD'),ISS_WGT,0))  AS DD_WGT
+				FROM MES_KMCN.TB_MES_PROD_SHIP_RSLT
+				WHERE CONT_CD IS NULL
+				AND STD_DT LIKE  #{searchYm} ||'%'
+				) SHIP
 		UNION ALL
-			SELECT FAC_NM
-				, ROUND(NVL(DD_WGT, 0)/1000, 3) AS DD_WGT
-				, ROUND(NVL(MM_WGT, 0)/1000, 3) AS MM_WGT
-				, ROUND(NVL(MM_PLAN, 0)/1000, 3) AS MM_PLAN
-			FROM
-			(
-				SELECT
-				'창녕공장' FAC_NM
-				,(
-					SELECT 
-						ROUND(SUM(ISS_WGT)/1000,3) 
-					FROM 
-						MES_KMCN.TB_MES_BARLIST_ITEM
-					WHERE 
-						ISS_DT BETWEEN TO_DATE(TO_CHAR(SYSDATE,'YYYYMMDD')||'000000', 'YYYYMMDDHH24MISS') AND TO_DATE(TO_CHAR(SYSDATE+1,'YYYYMMDD')||'000000', 'YYYYMMDDHH24MISS')
-				) DD_WGT --일생산량
-				, ROUND(SUM(ISS_WGT)/1000,3) AS MM_WGT --월생산량
-				, (
-					SELECT 
-						SUM(PLAN_WGT) 
-					FROM 
-						MES_KMCN.TB_MES_MON_PLAN 
-					WHERE 
-						PLAN_KIND = 'S' AND PLAN_TYPE = 'B' AND (PLAN_YEAR || PLAN_MON) = '202107') AS MM_PLAN --계획목표량
-				FROM 
-					MES_KMCN.TB_MES_BARLIST_ITEM
-				WHERE 
-					ISS_DT BETWEEN TO_DATE('202107'||'01000000', 'YYYYMMDDHH24MISS') AND LAST_DAY(TO_DATE('202107', 'YYYYMM'))+1
-			);
+			SELECT DECODE(SHIP.FAC_CD,'1','진천1공장','2','진천2공장') AS FAC_NM
+			,ROUND(PLAN.PLAN_WGT/1000/ #{searchUnit}) AS MM_PLAN <!-- 사업계획-->
+			,ROUND(SHIP.PROD_WGT/1000/ #{searchUnit}) AS PROD_WGT <!-- 출하 이론중량-->
+			,ROUND(SHIP.ISS_WGT/1000/ #{searchUnit}) AS MM_WGT <!-- 할증감안 출하중량-->
+			,ROUND(SHIP.DD_WGT/1000/ #{searchUnit}) AS DD_WGT <!-- 할증감안 출하중량-->
+			FROM (
+				SELECT FAC_CD,PLAN_TYPE,PLAN_WGT
+				FROM MES_KMJC.TB_MES_MON_PLAN
+				WHERE PLAN_KIND = 'S' AND PLAN_TYPE = 'A' AND PLAN_YEAR || PLAN_MON = #{searchYm}	
+				) PLAN,
+				(
+				SELECT SUBSTR(WORK_PART,-1) AS FAC_CD
+			       	  ,SUM(PROD_WGT) AS PROD_WGT
+				      ,SUM(ISS_WGT) AS ISS_WGT
+				      ,SUM(DECODE(STD_DT, TO_CHAR(SYSDATE,'YYYYMMDD'),ISS_WGT,0))  AS DD_WGT
+				FROM MES_KMJC.TB_MES_PROD_SHIP_RSLT
+				WHERE CONT_CD IS NULL
+				AND STD_DT LIKE #{searchYm} ||'%'
+				AND WORK_PART IN ('1001','1002')
+				GROUP BY WORK_PART
+				) SHIP
+				WHERE SHIP.FAC_CD = PLAN.FAC_CD(+)
+		UNION ALL
+			SELECT '인천공장' AS FAC_NM
+			,ROUND(PLAN.PLAN_WGT/1000/ #{searchUnit}) AS MM_PLAN <!-- 사업계획 --> 
+			,ROUND(SHIP.PROD_WGT/1000/ #{searchUnit}) AS PROD_WGT <!-- 출하 이론중량--> 
+			,ROUND(SHIP.ISS_WGT/1000/ #{searchUnit}) AS MM_WGT <!-- 할증감안 출하중량-->
+			,ROUND(SHIP.DD_WGT/1000/ #{searchUnit}) AS DD_WGT <!-- 할증감안 출하중량-->
+			FROM (
+				SELECT PLAN_TYPE,PLAN_WGT
+				FROM MES_KMIC.TB_MES_MON_PLAN
+				WHERE PLAN_KIND = 'S' AND PLAN_TYPE = 'A' AND PLAN_YEAR || PLAN_MON = #{searchYm}
+				) PLAN,
+				(
+				SELECT SUM(PROD_WGT) AS PROD_WGT
+				      ,SUM(ISS_WGT) AS ISS_WGT
+				      ,SUM(DECODE(STD_DT, TO_CHAR(SYSDATE,'YYYYMMDD'),ISS_WGT,0))  AS DD_WGT
+				FROM MES_KMIC.TB_MES_PROD_SHIP_RSLT
+				WHERE CONT_CD IS NULL
+				AND STD_DT LIKE #{searchYm} ||'%'
+				) SHIP
 	</select>
 	
 	<select id="selectMonthlyStat" resultType="CamelMap">
@@ -376,3 +292,151 @@
 	ORDER BY TRST_DT
 	</select>
 </mapper>
+
+<!--  기존 생산량 쿼리  -->
+<!-- 	<select id="selectFacList" resultType="CamelMap"> -->
+<!-- 	SELECT '인천공장' FAC_NM  -->
+<!-- 	, C.DD_WGT 일생산량 -->
+<!-- 	, C.MM_WGT 월생산량  -->
+<!-- 	, CASE  WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0) -->
+<!--             WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0) -->
+<!--        END MM_PLAN 계획목표량  -->
+<!-- 	FROM ( -->
+<!-- 		SELECT  ROUND(ROUND(  SUM(CASE WHEN RCPT_DD = TO_CHAR(SYSDATE,'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT--> <!--일생산량  -->
+<!-- 	         , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT --> <!--월생산량  -->
+<!-- 	         , MAX(WORKS_CD) AS WORKS_CD, MAX(FAC_CD) AS FAC_CD -->
+<!-- 	    FROM (    -->
+<!-- 				   SELECT B.WORKS_CD, B.FAC_CD, B.RCPT_DD, B.ORD_PACK_WGT- NVL(A.WEIGHT,0) AS ORD_PACK_WGT -->
+<!-- 				   FROM KUMMUN.TB_MES_ORD_ITEM B -->
+<!-- 				    LEFT JOIN KUMMUN.TB_MES_PROD_CANCEL A ON B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD -->
+<!-- 					      AND A.CANCEL_CD='1' -->
+<!-- 					      AND B.TAG_NO = A.TAG_NO -->
+<!-- 				WHERE B.WORKS_CD = 'N' --> <!--N: 인천금문철강  -->
+<!-- 				   AND B.FAC_CD = '1180' --> <!--1180: 인천공장  -->
+<!-- 				   AND B.RCPT_DD LIKE TO_CHAR(SYSDATE,'YYYYMM')||'%' -->
+<!-- 	          ) -->
+<!-- 	)C, KUMMUN.TB_MES_MMAIM_MGNT D -->
+<!-- 	      WHERE D.WORKS_CD  = 'N'  AND D.FAC_CD = '1180' -->
+<!--   	        AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)  -->
+<!--   	        AND D.MMAIM_GBN = '2' -->
+<!-- 	UNION ALL -->
+<!-- 	SELECT '진천2공장' FAC_NM -->
+<!-- 	  , C.DD_WGT --> <!--일생산량 -->
+<!-- 	  ,  C.MM_WGT --> <!--월생산량  -->
+<!-- 	  , CASE    WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0) -->
+<!-- 	            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0) -->
+<!-- 	       END MM_PLAN --> <!--계획목표량  -->
+<!-- 	FROM ( -->
+<!-- 	  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT -->
+<!-- 	      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT -->
+<!-- 	      , MAX(WORKS_CD) AS WORKS_CD -->
+<!-- 	      , MAX(FAC_CD) AS FAC_CD -->
+<!-- 	    FROM (    -->
+<!-- 	          SELECT  B.WORKS_CD, B.FAC_CD, A.END_DT, B.RCPT_DD, B.ORD_PACK_WGT- NVL(E.WEIGHT,0) AS ORD_PACK_WGT -->
+<!-- 	         FROM KUMMUN.TB_MES_PROD_RSLT A, KUMMUN.TB_MES_ORD_DTL C ,KUMMUN.TB_MES_ORD_ITEM B -->
+<!-- 	          LEFT JOIN KUMMUN.TB_MES_PROD_CANCEL E ON B.WORKS_CD = E.WORKS_CD AND B.FAC_CD = E.FAC_CD -->
+<!-- 	              AND E.CANCEL_CD='1' -->
+<!-- 	              AND B.TAG_NO = E.TAG_NO -->
+<!-- 	       WHERE B.WORKS_CD = 'J' --> <!--J: 진천금문철강 -->
+<!-- 	         AND B.FAC_CD   = '1146' --> <!--1146: 진천공장  -->
+<!-- 	         AND B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD AND B.TAG_NO = A.TAG_NO  -->
+<!-- 	         AND C.WORKS_CD = B.WORKS_CD AND C.FAC_CD = B.FAC_CD AND C.ORD_NO =B.ORD_NO AND C.ORD_LINE_NO = B.ORD_LINE_NO -->
+<!-- 	         AND A.EQP_CD LIKE 'K2MC' || '%' --> <!--진천 2공장 설비조회, 진천 1공장 설비 조회시 'K1MC' -->
+<!-- 	         AND B.RCPT_DD LIKE TO_CHAR(SYSDATE,'YYYYMM')||'%' -->
+<!-- 	          ) -->
+<!-- 	  ) C , KUMMUN.TB_MES_MMAIM_MGNT D  -->
+<!-- 	        WHERE D.WORKS_CD = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) -->
+<!-- 	          AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4)  -->
+<!-- 	          AND D.MMAIM_GBN = '2' -->
+<!-- 	     AND D.FAC_GUBUN = 'B0002' --> <!--B0001: 1공장, B0002: 2공장  -->
+<!-- 	UNION ALL -->
+<!-- 		SELECT '진천1공장' FAC_NM -->
+<!-- 		  , C.DD_WGT --> <!--일생산량 -->
+<!-- 		  ,  C.MM_WGT --> <!--월생산량  -->
+<!-- 		  , CASE WHEN SUBSTRING(#{searchYm}, 5, 2) = '01' THEN ROUND(nvl(D.PLAN_WGT_01,0)    / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '02' THEN ROUND(nvl(D.PLAN_WGT_02,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '03' THEN ROUND(nvl(D.PLAN_WGT_03,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '04' THEN ROUND(nvl(D.PLAN_WGT_04,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '05' THEN ROUND(nvl(D.PLAN_WGT_05,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '06' THEN ROUND(nvl(D.PLAN_WGT_06,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '07' THEN ROUND(nvl(D.PLAN_WGT_07,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '08' THEN ROUND(nvl(D.PLAN_WGT_08,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '09' THEN ROUND(nvl(D.PLAN_WGT_09,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '10' THEN ROUND(nvl(D.PLAN_WGT_10,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '11' THEN ROUND(nvl(D.PLAN_WGT_11,0) / #{searchUnit}, 0) -->
+<!-- 		            WHEN SUBSTRING(#{searchYm}, 5, 2) = '12' THEN ROUND(nvl(D.PLAN_WGT_12,0) / #{searchUnit}, 0) -->
+<!-- 		       END MM_PLAN --> <!--계획목표량  -->
+<!-- 		FROM ( -->
+<!-- 		  SELECT  ROUND(ROUND(  SUM(CASE WHEN TO_CHAR(END_DT, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN ORD_PACK_WGT END)/1000,3) / #{searchUnit}, 0) DD_WGT -->
+<!-- 		      , ROUND(ROUND(SUM(ORD_PACK_WGT)/1000,3) / #{searchUnit}, 0) AS MM_WGT -->
+<!-- 		      , MAX(WORKS_CD) AS WORKS_CD -->
+<!-- 		      , MAX(FAC_CD) AS FAC_CD -->
+<!-- 		    FROM (    -->
+<!-- 		          SELECT  B.WORKS_CD, B.FAC_CD, A.END_DT, B.RCPT_DD, B.ORD_PACK_WGT- NVL(E.WEIGHT,0) AS ORD_PACK_WGT -->
+<!-- 		         FROM KUMMUN.TB_MES_PROD_RSLT A, KUMMUN.TB_MES_ORD_DTL C ,KUMMUN.TB_MES_ORD_ITEM B -->
+<!-- 		          LEFT JOIN KUMMUN.TB_MES_PROD_CANCEL E ON B.WORKS_CD = E.WORKS_CD AND B.FAC_CD = E.FAC_CD -->
+<!-- 		              AND E.CANCEL_CD='1' -->
+<!-- 		              AND B.TAG_NO = E.TAG_NO -->
+<!-- 		       WHERE B.WORKS_CD = 'J' --> <!--J: 진천금문철강 -->
+<!-- 		         AND B.FAC_CD   = '1146' --> <!--1146: 진천공장  -->
+<!-- 		         AND B.WORKS_CD = A.WORKS_CD AND B.FAC_CD = A.FAC_CD AND B.TAG_NO = A.TAG_NO  -->
+<!-- 		         AND C.WORKS_CD = B.WORKS_CD AND C.FAC_CD = B.FAC_CD AND C.ORD_NO =B.ORD_NO AND C.ORD_LINE_NO = B.ORD_LINE_NO -->
+<!-- 		         AND A.EQP_CD LIKE 'K1MC' || '%' --> <!--진천 2공장 설비조회, --> <!--진천 1공장 설비 조회시 'K1MC' -->
+<!-- 		         AND B.RCPT_DD LIKE SUBSTRING(#{searchYm}, 0, 6)||'%' -->
+<!-- 		          ) -->
+<!-- 		  ) C , KUMMUN.TB_MES_MMAIM_MGNT D  -->
+<!-- 		         WHERE D.WORKS_CD  = 'J' AND D.FAC_CD = '1146' AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) -->
+<!-- 		           AND D.PLAN_YYYY = SUBSTRING(#{searchYm}, 0, 4) -->
+<!-- 		           AND D.MMAIM_GBN = '2' AND D.FAC_GUBUN = 'B0001' --> <!--B0001: 1공장, B0002: 2공장 -->
+	           
+<!-- 		UNION ALL -->
+<!-- 			SELECT FAC_NM -->
+<!-- 				, ROUND(NVL(DD_WGT, 0)/1000 / #{searchUnit}, 0) AS DD_WGT -->
+<!-- 				, ROUND(NVL(MM_WGT, 0)/1000 / #{searchUnit}, 0) AS MM_WGT -->
+<!-- 				, ROUND(NVL(MM_PLAN, 0)/1000 / #{searchUnit}, 0) AS MM_PLAN -->
+<!-- 			FROM -->
+<!-- 			( -->
+<!-- 				SELECT -->
+<!-- 				'창녕공장' FAC_NM -->
+<!-- 				,( -->
+<!-- 					SELECT  -->
+<!-- 						SUM(ISS_WGT) -->
+<!-- 					FROM  -->
+<!-- 						MES_KMCN.TB_MES_BARLIST_ITEM -->
+<!-- 					WHERE  -->
+<!-- 						ISS_DT BETWEEN TO_DATE(TO_CHAR(SYSDATE,'YYYYMMDD')||'000000', 'YYYYMMDDHH24MISS') AND TO_DATE(TO_CHAR(SYSDATE+1,'YYYYMMDD')||'000000', 'YYYYMMDDHH24MISS') -->
+<!-- 				) DD_WGT --> <!--일생산량 -->
+<!-- 				, SUM(ISS_WGT) AS MM_WGT --> <!--월생산량 -->
+<!-- 				, ( -->
+<!-- 					SELECT  -->
+<!-- 						SUM(PLAN_WGT)  -->
+<!-- 					FROM  -->
+<!-- 						MES_KMCN.TB_MES_MON_PLAN  -->
+<!-- 					WHERE  -->
+<!-- 						PLAN_KIND = 'S' AND PLAN_TYPE = 'A' AND (PLAN_YEAR || PLAN_MON) = #{searchYm} ) AS MM_PLAN --> <!--계획목표량 -->
+<!-- 				FROM  -->
+<!-- 					MES_KMCN.TB_MES_BARLIST_ITEM -->
+<!-- 				WHERE  -->
+<!-- 					ISS_DT BETWEEN TO_DATE(#{searchYm}||'01000000', 'YYYYMMDDHH24MISS') AND LAST_DAY(TO_DATE(#{searchYm}, 'YYYYMM'))+1 -->
+<!-- 			); -->
+<!-- 	</select> -->
