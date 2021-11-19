@@ -222,6 +222,15 @@
 								<option value="">전체</option> 
 							</select> 
 						</td>  
+						
+						<th class="hit">운송일자</th>
+						<td>
+							<div class="date_input">
+								<input type="text" class="input_calendar" id="realDlvrDttmFrom" data-search="realDlvrDttmFrom" autocomplete="off" date>
+								<span>~</span>
+								<input type="text" class="input_calendar" id="realDlvrDttmTo" 	data-search="realDlvrDttmTo" autocomplete="off" date>
+							</div>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -422,6 +431,7 @@
 			paramObj.pageYn = "Y";
 			
 			postAjaxSync("/user/ar/ar02/selectSellList", paramObj, null, function(data){
+				debugger;
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -574,6 +584,34 @@
 			if($('#reqDtFrom').val() > $('#reqDtTo').val()){
 				alert("날짜를 확인해주세요");
 				$('#reqDtTo').datepicker("setDate", new Date($('#reqDtFrom').val()));
+			}
+		});
+		
+		// 운송시작일 (현재날짜의 월 첫일)
+		$('#realDlvrDttmFrom').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#realDlvrDttmFrom').val() > $('#realDlvrDttmTo').val()){
+				alert("운송일자를 확인해주세요");
+				$('#realDlvrDttmFrom').datepicker("setDate", new Date($('#realDlvrDttmTo').val()));
+			}
+		});
+		
+		// 운송종료일 (현재날짜의 월 말일)
+		$('#realDlvrDttmTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#realDlvrDttmFrom').val() > $('#realDlvrDttmTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#realDlvrDttmTo').datepicker("setDate", new Date($('#realDlvrDttmFrom').val()));
 			}
 		});
 		
@@ -955,12 +993,16 @@
 		var p_siteNm = "";
 		var p_taxivcCoprt = "";
 		
+		
+		
 		if ($('#coCd_S').val() == "") {
 			alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
 			return;
 		}
 
+
 		$.each(list, function(idx, obj) {
+			
 			if (!flag){
 				flag = true;
 				trstNoArr = obj.trstCertiNo;
@@ -1022,6 +1064,8 @@
 		         + "#taxivcCoprt#"  + p_taxivcCoprt
 		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
 		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+		         + "#fromDlvrDt#"	+ $("#realDlvrDttmFrom").val().replace(/\-/g,'')
+			     + "#toDlvrDt#"		+ $("#realDlvrDttmTo").val().replace(/\-/g,'')
 		         + "#clntCd#"		+ p_clntCd
 		         + "#clntNm#"		+ p_clntNm
 		         + "#siteCd#"		+ ""
@@ -1029,6 +1073,8 @@
 		         + "#trstNoArr#"	+ trstNoArr
 		         + "#";
 
+		
+		
 		if (type == 'Sumary') { 	 
 			callReport("AR0201R12.jrf", arg, "750", "1007");
 		} else if (!siteFlag) { 	 
@@ -1038,6 +1084,7 @@
 		} else {
 			callReport("AR0201R04.jrf", arg, "950", "690");
 		}
+		
 	}
 	
 	function setReportMain(type) {
@@ -1054,6 +1101,8 @@
 			         + "#coCd#"			+ $('#coCd_S').val()
 			         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
 			         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+			         + "#fromDlvrDt#"	+ $("#realDlvrDttmFrom").val().replace(/\-/g,'')
+			         + "#toDlvrDt#"		+ $("#realDlvrDttmTo").val().replace(/\-/g,'')
 			         + "#clntCd#"		+ $('#clntCd_S').val()
 			         + "#clntNm#"		+ $('#clntNm_S').val()
 			         + "#prdtGrp#"		+ $('#prdtGrp').val()
@@ -1087,6 +1136,8 @@
 				         + "#coCd#"			+ $('#coCd_S').val()
 				         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
 				         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+				         + "#fromDlvrDt#"	+ $("#realDlvrDttmFrom").val().replace(/\-/g,'')
+			         	 + "#toDlvrDt#"		+ $("#realDlvrDttmTo").val().replace(/\-/g,'')
 				         + "#clntCd#"		+ $('#clntCd_S').val()
 				         + "#clntNm#"		+ $('#clntNm_S').val()
 				         + "#prdtGrp#"		+ $('#prdtGrp').val()
@@ -1160,11 +1211,7 @@
 			}
 		}
 	}
-	function checkPrdtInfo(){
-		var row = subGridView.target.getList("selected")[0];
-		if(row.bilgQty * row.prdtCnvrsnWt != row.bilgWt)
-			alert("청구수량 * 스펙 = 청구중량. 맞지않는것이 있습니다.");
-	}
+
 	
 	function excelDown() {
 		var paramObj = {"selpchCd": "SELPCH2"};
