@@ -6,67 +6,6 @@
 	<select id="selectClntCount" resultType="int">
 		SELECT 
 			COUNT(*)
-		FROM (	SELECT BM02.*,		
-                     nvl2(LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = BM02.LINK_GRP_CLNT_CD),BM02.CLNT_NM ) AS LINK_GRP_CLNT_NM
-				FROM
-					TB_BM02M01 BM02		
-					LEFT OUTER JOIN (
-					  SELECT CLNT_CD
-					  FROM TB_BM02D02 BMD02D
-					  WHERE USE_YN = 'Y'
-					 <if test="coCd != null and !coCd.equals('')">
-					       AND CO_CD =  #{coCd}
-					  </if>
-					  <if test="prdtGrp != null and !prdtGrp.equals('')">
-						AND PRDT_GRP = #{prdtGrp}
-					  </if>
-					  GROUP BY CLNT_CD
-					  ) D02  ON D02.CLNT_CD = BM02.CLNT_CD	             
-				<where>
-					<if test="useYn != null and !useYn.equals('')">
-						BM02.USE_YN = #{useYn}
-					</if>
-					<if test="clntDivCd !=null and !clntDivCd.equals('')">
-						AND BM02.CLNT_DIV_CD = #{clntDivCd} 
-					</if>
-					<if test="clntCd != null and !clntCd.equals('')">
-						AND BM02.CLNT_CD =  #{clntCd}
-					</if>
-					<if test="clntNm != null and !clntNm.equals('')">
-						AND BM02.CLNT_NM LIKE '%${clntNm}%'
-					</if>
-					<if test="linkGrpClntCd != null and !linkGrpClntCd.equals('')">
-						AND BM02.LINK_GRP_CLNT_CD = #{linkGrpClntCd}
-					</if>
-					<if test="crn != null and !crn.equals('')">
-						AND BM02.CRN LIKE '%'|| #{crn} ||'%'
-					</if>
-					<if test="searchValue != null and !searchValue.equals('') and !searchType.equals('CLNT_CD')">
-						AND ${searchType} LIKE '%${searchValue}%'
-					</if>
-					<if test="searchValue != null and !searchValue.equals('') and searchType.equals('CLNT_CD')">
-						AND BM02.CLNT_CD = #{searchValue}
-					</if>
-					
-				</where>
-		     ) T
-				 WHERE 1=1
-				
-					
-					<!-- <if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
-						AND LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
-					</if>
-					<if test='loanAmtYn != null and !loanAmtYn.equals("") and loanAmtYn.equals("Y")'>	
-						AND T.TOT_LOAN_AMT > 0 
-					</if>
-					<if test='loanAmtYn != null and !loanAmtYn.equals("") and !loanAmtYn.equals("Y")'>	
-						AND T.TOT_LOAN_AMT = 0 
-					</if>-->
-	</select>
-	
-	<select id="selectClntList" resultType="CamelMap">
-		SELECT
-			*
 		FROM
 		(
 			SELECT
@@ -76,8 +15,12 @@
 					            - T.EACH_CREDIT_SECURITY  AS OTHER_SECURITY	<!-- 기타담보 -->	
 			FROM
 			(
-				SELECT 
+				SELECT
 					A.CLNT_CD,
+					<if test='coShow=="Y"'>
+					D02.CO_CD,
+					FN_CM05M01_CD_TO_NM(D02.CO_CD) AS CO_NM,
+					</if>	 
 					A.CLNT_NM,
 					A.CRN,
 					A.CRN_TYP,
@@ -91,13 +34,16 @@
 					TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD') AS CREAT_DTTM,
 					TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM,
 					A.BASIS_CDTLN_AMT,
-					F_CREDIT_LOAN('T', A.CLNT_CD,
+					F_CREDIT_LOAN('T', A.CLNT_CD
  							<choose> 
  								<when test="coCd != null and !coCd.equals('')"> 
- 									#{coCd} 
+ 									,#{coCd} 
+ 								</when> 
+ 								<when test='coShow =="Y"'>
+ 									,D02.CO_CD
  								</when> 
  								<otherwise> 
- 									'' 
+ 									,'' 
  								</otherwise> 
  							</choose> 
 							 <choose> 
@@ -110,13 +56,16 @@
  							</choose> 
 							 
 							 ,0) AS TOT_LOAN_AMT,
-					F_CREDIT_LOAN('C', A.CLNT_CD,
+					F_CREDIT_LOAN('C', A.CLNT_CD
  							<choose> 
  								<when test="coCd != null and !coCd.equals('')"> 
- 									#{coCd}
+ 									,#{coCd}
+ 								</when> 
+ 								<when test='coShow =="Y"'>
+ 									,D02.CO_CD
  								</when> 
  								<otherwise> 
- 									''
+ 									,''
  								</otherwise> 
  							</choose> 
 							 <choose> 
@@ -199,7 +148,8 @@
 				FROM
 					TB_BM02M01 A
 					LEFT OUTER JOIN (
-						  SELECT BMD02.CLNT_CD,
+						  SELECT
+						  		 CLNT_CD,
 						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_REAL_SECURITY,          <!-- 매입부동산 -->
 						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
 						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_EACH_CREDIT_SECURITY,   <!-- 메입개별신용 -->
@@ -210,15 +160,246 @@
 						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
 						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS CASH_SECURITY,          <!-- 현금 -->
 						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT               <!-- 공통졔외 답보 합계 -->
+						         <if test='coShow=="Y"'>
+						         , CO_CD
+						         </if>
 						  FROM TB_BM02D02 BMD02
 						  WHERE USE_YN = 'Y'
 						 <if test="coCd != null and !coCd.equals('')">
-						       AND CO_CD       =  #{coCd}
+						       AND CO_CD = #{coCd}
 						  </if>
 						  <if test="prdtGrp != null and !prdtGrp.equals('')">
 							AND PRDT_GRP = #{prdtGrp}
 						  </if>
-						  GROUP BY 	BMD02.CLNT_CD
+						  GROUP BY 	BMD02.CLNT_CD <if test='coShow=="Y"'>
+						  							,BMD02.CO_CD
+						  							</if>
+						 ) D02 ON D02.CLNT_CD = A.CLNT_CD
+				<where>
+					<if test="useYn != null and !useYn.equals('')">
+						USE_YN = #{useYn}
+					</if>
+					<if test="searchValue != null and !searchValue.equals('') and !searchType.equals('CLNT_CD')">
+						AND ${searchType} LIKE '%${searchValue}%'
+					</if>
+					<if test="searchValue != null and !searchValue.equals('') and searchType.equals('CLNT_CD')">
+						AND A.CLNT_CD = #{searchValue}
+					</if>
+					<if test="clntDivCd !=null and !clntDivCd.equals('')">
+						AND A.CLNT_DIV_CD = #{clntDivCd} 
+					</if>
+					<if test="clntCd != null and !clntCd.equals('')">
+						AND A.CLNT_CD =  #{clntCd}
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND A.CLNT_NM LIKE '%${clntNm}%'
+					</if>
+					<if test="crn != null and !crn.equals('')">
+						AND A.CRN LIKE '%'|| #{crn} ||'%'
+					</if>
+					<if test="linkGrpClntCd != null and !linkGrpClntCd.equals('')">
+						AND A.LINK_GRP_CLNT_CD =  #{linkGrpClntCd}
+					</if>
+					
+				</where>
+				<if test="sortType != null and !sortType.equals('')">
+					ORDER BY NVL(A.UDT_DTTM, A.CREAT_DTTM) DESC, A.LINK_GRP_CLNT_CD, A.CLNT_CD
+				</if>
+				<if test="sortType = null and sortType.equals('')">
+					ORDER BY A.LINK_GRP_CLNT_CD, A.CLNT_CD
+				</if>
+			) T
+			   WHERE 1=1
+					<if test="linkGrpClntNm != null and !linkGrpClntNm.equals('')">	
+						AND LINK_GRP_CLNT_NM LIKE '%${linkGrpClntNm}%'
+					</if>
+					<if test='loanAmtYn != null and !loanAmtYn.equals("") and loanAmtYn.equals("Y")'>	
+						AND T.TOT_LOAN_AMT > 0 
+					</if>
+					<if test='loanAmtYn != null and !loanAmtYn.equals("") and !loanAmtYn.equals("Y")'>	
+						AND T.TOT_LOAN_AMT = 0 
+					</if>
+					<if test="salesEmpId != null and !salesEmpId.equals('')">
+						AND SALES_EMP_ID =  #{salesEmpId}
+					</if>
+					<if test="salesEmpNm != null and !salesEmpNm.equals('')">
+						AND SALES_EMP_NM LIKE '%${salesEmpNm}%'
+					</if>
+		
+		)
+	</select>
+	
+	<select id="selectClntList" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, T.*
+	               , (SELECT NAME FROM TB_CM06M01 WHERE ID = SALES_EMP_ID) AS SALES_EMP_NM			
+				   , T.CDTLN_AMT - T.REAL_SECURITY        - T.GUARNTEE_SECURITY - T.CASH_SECURITY
+					            - T.EACH_CREDIT_SECURITY  AS OTHER_SECURITY	<!-- 기타담보 -->	
+			FROM
+			(
+				SELECT
+					A.CLNT_CD,
+					<if test='coShow=="Y"'>
+					D02.CO_CD,
+					FN_CM05M01_CD_TO_NM(D02.CO_CD) AS CO_NM,
+					</if>	 
+					A.CLNT_NM,
+					A.CRN,
+					A.CRN_TYP,
+					FN_CM05M01_CD_TO_NM(A.CRN_TYP) AS CRN_TYP_NM,					
+					A.COPRT_NO,
+                    A.CLNT_DIV_CD,
+					FN_CM05M01_CD_TO_NM(A.CLNT_DIV_CD) CLNT_DIV_NM,
+					A.BIZCON_NM,
+					A.BSTY_NM,
+					A.BIZ_TEL_NO,
+					TO_CHAR(A.CREAT_DTTM, 'YYYY-MM-DD') AS CREAT_DTTM,
+					TO_CHAR(A.UDT_DTTM, 'YYYY-MM-DD') AS UDT_DTTM,
+					A.BASIS_CDTLN_AMT,
+					F_CREDIT_LOAN('T', A.CLNT_CD
+ 							<choose> 
+ 								<when test="coCd != null and !coCd.equals('')"> 
+ 									,#{coCd} 
+ 								</when> 
+ 								<when test='coShow =="Y"'>
+ 									,D02.CO_CD
+ 								</when> 
+ 								<otherwise> 
+ 									,'' 
+ 								</otherwise> 
+ 							</choose> 
+							 <choose> 
+ 								<when test="baseDt != null and !baseDt.equals('')"> 
+							     ,REPLACE(#{baseDt},'-','')
+							     </when>
+							     <otherwise> 
+ 								,TO_CHAR(SYSDATE,'YYYYMMDD') 
+ 								</otherwise> 
+ 							</choose> 
+							 
+							 ,0) AS TOT_LOAN_AMT,
+					F_CREDIT_LOAN('C', A.CLNT_CD
+ 							<choose> 
+ 								<when test="coCd != null and !coCd.equals('')"> 
+ 									,#{coCd}
+ 								</when> 
+ 								<when test='coShow =="Y"'>
+ 									,D02.CO_CD
+ 								</when> 
+ 								<otherwise> 
+ 									,''
+ 								</otherwise> 
+ 							</choose> 
+							 <choose> 
+ 								<when test="baseDt != null and !baseDt.equals('')"> 
+							     ,REPLACE(#{baseDt},'-','')
+							     </when>
+							     <otherwise> 
+ 								,TO_CHAR(SYSDATE,'YYYYMMDD') 
+ 								</otherwise> 
+ 							</choose> 
+							 
+							 
+							 ,0) AS LOAN_AMT,
+					 LINK_GRP_YN,
+                     nvl(LINK_GRP_CLNT_CD, A.CLNT_CD) as LINK_GRP_CLNT_CD,	
+                     nvl2(LINK_GRP_CLNT_CD, (SELECT CLNT_NM FROM TB_BM02M01 B WHERE B.CLNT_CD = A.LINK_GRP_CLNT_CD),A.CLNT_NM )AS LINK_GRP_CLNT_NM,
+					A.REPST_NM,
+					A.BIZ_ZIP,
+					A.BIZ_ADDR,
+					A.BIZ_ADDR_DTL,
+					A.BIZ_FAX_NO,
+					A.SUB_RMK_URL,
+					A.BANK_CD,
+					A.BKAC_NO,
+					A.BKAC_OWNER,
+					A.PCHS_PAY_DIV_CD,  
+					FN_CM05M01_CD_TO_NM(A.PCHS_PAY_DIV_CD)  AS PCHS_PAY_DIV_NM,
+					A.PCHS_CLMN_DIV_CD, 
+					FN_CM05M01_CD_TO_NM(A.PCHS_CLMN_DIV_CD) AS PCHS_CLMN_DIV_NM,
+					A.PCHS_PMNT_MTD_CD, 
+					FN_CM05M01_CD_TO_NM(A.PCHS_PMNT_MTD_CD) AS PCHS_PMNT_MTD_NM,
+					A.PCHS_VAT_CD,      
+					FN_CM05M01_CD_TO_NM(A.PCHS_VAT_CD)      AS PCHS_VAT_NM,
+					A.SELL_PAY_DIV_CD,  
+					FN_CM05M01_CD_TO_NM(A.SELL_PAY_DIV_CD)  AS SELL_PAY_DIV_NM,
+					A.SELL_CLMN_DIV_CD, 
+					FN_CM05M01_CD_TO_NM(A.SELL_CLMN_DIV_CD) AS SELL_CLMN_DIV_NM,
+					A.SELL_PMNT_MTD_CD, 
+					FN_CM05M01_CD_TO_NM(A.SELL_PMNT_MTD_CD) AS SELL_PMNT_MTD_NM,
+					A.SELL_VAT_CD,      
+					FN_CM05M01_CD_TO_NM(A.SELL_VAT_CD)      AS SELL_VAT_NM,
+					NVL((SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = A.SELL_VAT_CD), 10) AS SELL_VAT,
+					(SELECT CODE_ID FROM TB_CM05M01 WHERE CODE_KIND = 'MAKR' AND CODE_ETC = A.CLNT_CD ) AS MAKR_CD,
+					A.CLNT_RMK,
+					A.USE_YN,
+					A.ETC_FIELD1,
+					A.ETC_FIELD2,
+					A.ETC_FIELD3,
+					A.CREAT_ID,
+					(SELECT NAME FROM TB_CM06M01 WHERE ID = A.CREAT_ID) AS CREAT_NM,
+					A.CREAT_PGM,
+					A.UDT_ID,
+					(SELECT NAME FROM TB_CM06M01 WHERE ID = A.UDT_ID) AS UDT_NM,
+					A.UDT_PGM,
+					A.LINK_GRP_YN,
+                    A.LINK_GRP_CLNT_CD,
+					NVL((SELECT SUM(B.PLDG_AMT * PLDG_RCOGN_RATE / 100) FROM TB_BM02D02 B
+					 WHERE B.CLNT_CD = A.CLNT_CD  
+					   AND B.USE_YN = 'Y'
+					   AND B.SELPCH_CD   = 'SELPCH2'
+					   AND B.PLDG_DIV_CD = 'PLDG03' <!-- 공통여신 -->
+					 ),0) AS COMMON_CREDIT_SECURITY,  
+                    D02.REAL_SECURITY,          <!-- 부동산 -->
+					D02.GUARNTEE_SECURITY,      <!-- 보증보험 -->
+					D02.EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
+					D02.CASH_SECURITY,          <!-- 현금 -->
+					D02.CDTLN_AMT,               <!-- 답보 합계 -->
+                    D02.PCHS_REAL_SECURITY,          <!-- 매입부동산 -->
+					D02.PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
+					D02.PCHS_EACH_CREDIT_SECURITY,   <!-- 매입개별신용 -->
+					D02.PCHS_CASH_SECURITY,          <!-- 매입현금 -->
+					D02.PCHS_CDTLN_AMT,               <!-- 매입답보 합계 -->
+					A.PCHS_CLMN_DAY,    <!-- 매입 수금일자 -->
+	                A.PCHS_CLMN_RMK,    <!-- 매입 수금비고-->
+	                A.SELL_CLMN_DAY,    <!-- 판매 수금 일자-->
+	                A.SELL_CLMN_RMK,     <!-- 판매 수금 비고-->
+	                (SELECT SALES_EMP_ID FROM TB_BM02D01 BMD01 WHERE USE_YN = 'Y' AND BMD01.CLNT_CD = A.CLNT_CD 
+	                    <if test="coCd != null and !coCd.equals('')">
+	                     AND SALES_CO_CD = #{coCd} </if> AND ROWNUM =1) AS SALES_EMP_ID
+				FROM
+					TB_BM02M01 A
+					LEFT OUTER JOIN (
+						  SELECT
+						  		 CLNT_CD,
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_REAL_SECURITY,          <!-- 매입부동산 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_GUARNTEE_SECURITY,      <!-- 매입보증보험 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_EACH_CREDIT_SECURITY,   <!-- 메입개별신용 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS PCHS_CASH_SECURITY,          <!-- 매입현금 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH2',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS PCHS_CDTLN_AMT,             <!-- 공통졔외 매입답보합계 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG01',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS REAL_SECURITY,          <!-- 부동산 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG02',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS GUARNTEE_SECURITY,      <!-- 보증보험 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG04',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS EACH_CREDIT_SECURITY,   <!-- 개별신용 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG05',PLDG_AMT * PLDG_RCOGN_RATE / 100,0))) AS CASH_SECURITY,          <!-- 현금 -->
+						         SUM(DECODE(SELPCH_CD ,'SELPCH1',0,DECODE(PLDG_DIV_CD,'PLDG03',0,PLDG_AMT * PLDG_RCOGN_RATE / 100))) AS CDTLN_AMT               <!-- 공통졔외 답보 합계 -->
+						         <if test='coShow=="Y"'>
+						         , CO_CD
+						         </if>
+						  FROM TB_BM02D02 BMD02
+						  WHERE USE_YN = 'Y'
+						 <if test="coCd != null and !coCd.equals('')">
+						       AND CO_CD = #{coCd}
+						  </if>
+						  <if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND PRDT_GRP = #{prdtGrp}
+						  </if>
+						  GROUP BY 	BMD02.CLNT_CD <if test='coShow=="Y"'>
+						  							,BMD02.CO_CD
+						  							</if>
 						 ) D02 ON D02.CLNT_CD = A.CLNT_CD
 				<where>
 					<if test="useYn != null and !useYn.equals('')">

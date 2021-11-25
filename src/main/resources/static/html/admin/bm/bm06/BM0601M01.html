@@ -128,6 +128,11 @@
 		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt" style="width: 100% !important;" title="여신잔액 계산일자">
 		                     </div>
 		                </td>
+		                
+		                <th>회사별 표시</th>
+						<td>
+							<input type="checkbox" id="checkCoSum" name="checkCoSum" onchange="dtlCo();">
+						</td>
               		</tr>
 				</table>
 			</div>
@@ -167,6 +172,8 @@
 </body>
 </html>
 <script type="text/javascript">
+	var coBool = true;
+	colspanCnt = 9; 
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -189,6 +196,7 @@
 		            mergeCells : ["linkGrpClntNm","clntCd","clntNm"]
 		        },
 	            columns: [
+	            	{key: "coNm",				 label: "회사",				width: 80,		align: "left",	hidden: coBool},	
 	                {key: "linkGrpYn",     		 label: "신용연계", 		    width: 60,		align: "center"},
 	                {key: "linkGrpClntNm",  	 label: "신용연계회사", 	    width: 140,     align: "left"},	    
 	                {key: "clntCd",		     	 label: "거래처 코드",			width: 80,		align: "center"},
@@ -212,6 +220,20 @@
 	                {key: "creatDttm", 	         label: "등록일", 			width: 100,		align: "center"},
 	                {key: "udtDttm", 	         label: "수정일", 			width: 100,		align: "center"}
 	            ],
+	            footSum: [
+			    	[
+			    		{label: "합 계",  align:"center", colspan : colspanCnt},
+			    		{key:"totLoanAmt", 				collector: "sum", 		formatter:"money", 		align: "right"},
+			    		{key: "loanAmt", 				collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "commonCreditSecurity", 	collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "eachCreditSecurity", 	collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "guarnteeSecurity", 		collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "realSecurity", 			collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "cashSecurity", 			collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "basisCdtlnAmt", 			collector: "sum", 		formatter:"money", 		align: "right"},
+	                    {key: "otherSecurity", 			collector: "sum", 		formatter:"money", 		align: "right"}
+			    	]
+			    ],
 	            page: {
 	                navigationItemCount: 10,
 	                height: 30,
@@ -235,7 +257,11 @@
 				paramObj[$(elem).data('search')] = elem.value;
 			});
 			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
-			
+ 			console.log("ParamObj : ", paramObj);
+ 			
+ 			//회사별 표시
+ 			paramObj.coShow = $('#checkCoSum').is(":checked") ? 'Y' : 'N';
+ 			
 			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data){
 				targetObj.setData({
 					list: data.clntList,
@@ -373,6 +399,22 @@
 				$('#clntNm_S').val(row.clntNm);
 			}
 		});
+	}
+	
+	function dtlCo(){
+		var coNm = $("#coNm").val();
+		var tempColspanCnt = 10;
+		
+	    if($('#checkCoSum').is(":checked") || coNm){
+	    	coShow = 'Y';
+			coBool = false;
+		}else{
+			coShow = 'N';
+			coBool = true;
+			tempColspanCnt = tempColspanCnt - 1;
+		}
+	    colspanCnt  = tempColspanCnt;
+		gridView.initView().setData(0);
 	}
 
 	
