@@ -82,12 +82,17 @@
 						<td>
 							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); subGridView.setData(0);"></select>
 						</td>
-						<th class="hit">매출일자</th>
+						<th class="hit">
+							<select id= "searchDateValue" style = "width: 72px">
+								<option value = "sellDate">매출일자</option>
+								<option value = "dlvrDate">운송일자</option>
+							</select>
+						</th>
 						<td>
 							<div class="date_input">
-								<input type="text" class="input_calendar" id="reqDtFrom" data-search="reqDtFrom" autocomplete="off" date>
-								<span>~</span>
-								<input type="text" class="input_calendar" id="reqDtTo" data-search="reqDtTo" autocomplete="off" date>
+								<input type="text" class="input_calendar" id="dtFrom" data-search="dtFrom" autocomplete="off" date>
+								<span> ~ </span>
+								<input type="text" class="input_calendar" id="dtTo" data-search="dtTo" autocomplete="off" date>
 							</div>
 						</td>
 						<th>거래처</th>
@@ -222,15 +227,6 @@
 								<option value="">전체</option> 
 							</select> 
 						</td>  
-						
-						<th>운송일자</th>
-						<td>
-							<div class="date_input">
-								<input type="text" class="input_calendar" id="realDlvrDttmFrom" data-search="realDlvrDttmFrom" autocomplete="off" date>
-								<span>~</span>
-								<input type="text" class="input_calendar" id="realDlvrDttmTo" 	data-search="realDlvrDttmTo" autocomplete="off" date>
-							</div>
-						</td>
 					</tr>
 				</table>
 			</div>
@@ -418,6 +414,15 @@
 		setData: function(_pageNo) {
 			var targetObj = this.target;
 			var paramObj = {"selpchCd": "SELPCH2", "pageNo": _pageNo + 1};
+			console.log("과연:" + $('#searchDateValue option:selected').val());
+			if($('#searchDateValue option:selected').val() == 'sellDate'){
+				console.log("거래일자 데이터");
+				paramObj.dtKind = "sellDate";
+			}
+			if($('#searchDateValue option:selected').val() == 'dlvrDate'){
+				console.log("운송일자 데이터")
+				paramObj.dtKind = "dlvrDate";
+			}
 			
 			$.each($('#main_area [data-search]'), function(idx, elem){
 				var searchValue = elem.value;
@@ -431,7 +436,6 @@
 			paramObj.pageYn = "Y";
 			
 			postAjaxSync("/user/ar/ar02/selectSellList", paramObj, null, function(data){
-				debugger;
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -560,7 +564,7 @@
 		setByCoCd(jwt.coCd)
 		
 		// 시작일 (현재날짜의 월 첫일)
-		$('#reqDtFrom').datepicker({
+		$('#dtFrom').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -574,7 +578,7 @@
 		});
 		
 		// 종료일 (현재날짜의 월 말일)
-		$('#reqDtTo').datepicker({
+		$('#dtTo').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -586,20 +590,7 @@
 				$('#reqDtTo').datepicker("setDate", new Date($('#reqDtFrom').val()));
 			}
 		});
-		
-		// 운송시작일 (현재날짜의 월 첫일)
-		$('#realDlvrDttmFrom').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		})
-		
-		// 운송종료일 (현재날짜의 월 말일)
-		$('#realDlvrDttmTo').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		})
+		$('#prdtDiv_S').val()
 		
 		// grid init
  		subGridView.initView().setData(0);
@@ -611,8 +602,8 @@
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
 		$("#coCd_S").val(jwt.coCd);
-		$("#reqDtFrom").val(getMonth("S"));
-		$("#reqDtTo").val(getMonth("E"));
+		$("#dtFrom").val(getMonth("S"));
+		$("#dtTo").val(getMonth("E"));
 		//재검색
 		subGridView.initView().setData(0);
 	}
@@ -1023,7 +1014,6 @@
 			}
 			
 		});
-		debugger;
 		if (!flag) {
 			alert("거래명세서 발행대상이 선택되지 않았습니다.");
 			return;
