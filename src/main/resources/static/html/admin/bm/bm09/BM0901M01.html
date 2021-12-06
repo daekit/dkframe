@@ -163,7 +163,6 @@
 		                this.self.select(this.dindex);
 						$("#coCd").val( this.item.coCd);
 						$("#clntCd").val( this.item.clntCd);
-		                gridView2.initView().setData(0);
 		            },
 		            onDBLClick: function () {
 		            	openClntDetail("U");
@@ -232,9 +231,6 @@
 						totalPages : data.paginationInfo.totalPageCount
 					}
 				});
-
-				gridView2.initView().setData(0);
-				
 			});
 		}
 	}
@@ -306,7 +302,6 @@
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 재검색
 		gridView.setData(0);
-		gridView2.setData(0);
 	}
 	
 	//거래처
@@ -333,9 +328,19 @@
 	function excelDown() {
 		var targetObj = this.target;
 		var formData = {
+				"coCd"		: $("#coCd_S").val(),
+				"clntCd"	: $("#clntCd").val(),
+				"useYn" 	: $('#useType').val(),
+				"clntCdS"	: $('#clntCd_S').val(),
+				"clntNm"	: $('#clntNm_S').val(),
+				"selpchCd"	: $('#selpchCd_S').val(),
+				"pldgDivCd"	: $('#pldgDivCd_S').val(),
+				"prdtGrp"	: $('#prdtGrp_S').val(),
+				"baseDt"	: $("#baseDt").val().replace(/\-/g,''),
+				"pageNo" 	: 1, 
 				"recordCnt" : 9999999
 			}
-		
+		debugger;
 		postAjax("/admin/bm/bm09/selectPledgeList", formData, null, function(data){
 				var list = data.clntList;				
 				excelView.target.setData({
@@ -344,7 +349,7 @@
 						totalElements : list.length,
 					}
 				});
-				
+				debugger;		
 				var todayDate = new Date().format('yyyyMMddHHmmss');
 				excelView.target.exportExcel("거래처 담보현황"+todayDate+".xls");
 			});	
