@@ -23,6 +23,10 @@ public class SD07SvcImpl implements SD07Svc {
     
     @Override
 	public Map<String, String> selectClose(Map<String, String> paramMap) {
+//    	String closeYm = paramMap.get("closeYm");
+//    	if(closeYm.equals("202106")){
+//    		경고
+//    	}
 		return sd07Mapper.selectClose(paramMap);
 	}
 
