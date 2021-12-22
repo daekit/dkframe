@@ -25,7 +25,7 @@ public class SD07SvcImpl implements SD07Svc {
 	public Map<String, String> selectClose(Map<String, String> paramMap) {
 //    	String closeYm = paramMap.get("closeYm");
 //    	if(closeYm.equals("202106")){
-//    		경고
+//    		return 시키기. 초기재고여서 6월 마감하면 데이터 싹다 날아감
 //    	}
 		return sd07Mapper.selectClose(paramMap);
 	}

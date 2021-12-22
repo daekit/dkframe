@@ -187,7 +187,7 @@
 <script type="text/javascript">
 	
 	$(document).ready(function() {
-		
+		debugger;
 		// 공통코드 SelectBox set
 		setCommonSelect($(".popup_area select[data-kind]"));
 		// 입금일 datepicker bind
@@ -210,6 +210,7 @@
 			language : "ko",
 			autoclose : true
 		});
+		debugger;
 			selectEtrdpsInfo();
 			// 거래처 변경 disable				
 			$('#coCd').prop("readonly", true);
@@ -232,10 +233,10 @@
 			/* $('#setleTypCd').prop("disabled", true); */
 			// 어음번호 변경 readonly (어음 업데이트 시 필요)
 			$('#bilNo').prop("readonly", true);
-			$('#actionBtn').on("click", function() {testInsert();});
+			$('#actionBtn').on("click", function() {dzInsert();});
 			$('.tit_contents .tit').text("더존 테스트 팝업");
 			$('#actionBtn').text("테스트");
-	
+			debugger;
 		authChk("AR0501M01");
 	   /* select 태그 keypress catch */
 	   $('td select').keypress(function(e){
@@ -249,6 +250,7 @@
 			   e.preventDefault();
 			   $("#"+tagId).next('select').focus();
 		   } */
+		   debugger;
        });
 	});
 	
@@ -321,9 +323,10 @@
 				"etrdpsSeq": row.etrdpsSeq,
 				"coCd": row.coCd,
 				"clntCd": row.clntCd,
+				"setleTypCd": row.setleTypCd,
 				"taxivcCoprt": row.taxivcCoprt
 				};
-		
+		debugger;
 		postAjax("/user/ar/ar05/selectEtrdpsInfo", paramObj, null, function(data){
 			setEtrdpsInfo(data.etrdpsInfo);
 		});
@@ -462,7 +465,7 @@
 		}
 	}
 	
-	function testInsert(){
+	function dzInsert(){
 		if (selectGridValidation(gridView.target)) 
 			return;
 		
@@ -473,9 +476,11 @@
 				"coCd"		: $("#coCd option:selected").data("dzCode"),     		/* 회사코드 */
 				"inDt"		: $("#etrdpsDt").val(),									/* 거래일자 */
 				"inSq"		: $("#etrdpsSeq").val(),								/* 거래순번 */
+				"lnSq"		: 1,													/* 븐개라인순번 */
 				"divCd"		: $("#taxivcCoprt option:selected").data('dzCode'),		/* 회계단위 */
 				"drcrFg"	: $("#etrdpsTyp option:selected").data('dzCode'),		/* 차대구분 */				
 				"acctCd"	: $("#setleTypCd option:selected").data('dzCode'),		/* 계정코드 */
+				"bilTypCd"	: $("#bilTypCd option:selected").data('dzCode'),		/* 받을어음종류 1.당좌, 2.가계, 3.어음, 4.전자*/// 구분 1.타수, 2.자수   ex)타수가계 : 21  자수어음 : 32
 				"acctAm"	: $("#etrdpsAmt").val(),								/* 금액 */
 				"rmkDc"		: $("#sumry").val(),									/* 적요 */
  				"clntNm"	: $("#clntNm").val(),									/* 거래처명 */
@@ -483,13 +488,11 @@
  				"toDt"		: $("#exprtnDt").val(),									/* 종료일 어음일경우 만기일 */
  				"ctNb"		: $("#bilNo").val(),									/* 어음번호 */
  				"isuNm"		: $("#bilPblsPsn").val(),								/* 받을어음일 경우 발행인 */
- 				"billFg1"	: $("#bilTypCd option:selected").data('etc'),			/* 받을어음종류 1.당좌, 2.가계, 3.어음, 4.전자*/
- 				"billFg2"	: $("#bilTypCd option:selected").data('dzCode'),		/* 받을어음 계정일 경우 수금구분1. 타수, 2. 자수 */
-// 				"insertId"	: jwt.userId											/* 입력자 ID*/
+ 				"insertId"	: jwt.userId											/* 입력자 ID*/
 		}
-		debugger;
 		console.log(formData);
-		postAjax("/douzone/dz/dz01/testInsert", formData, null, function(data) {
+		postAjax("/douzone/dz/dz01/dzInsert", formData, null, function(data) {
+			debugger;
 			alert(data.resultMessage);
 			if(data.resultCode == 200){
 				gridView.setData(0);

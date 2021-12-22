@@ -31,10 +31,10 @@ public class DZ01Ctr {
     	return "jsonView";
     }
     
-    @PostMapping(value = "/testInsert")
-    public String testInsert(HttpServletRequest request, @RequestBody Map<String, String> paramMap, ModelMap model) {
+    @PostMapping(value = "/dzInsert")
+    public String dzInsert(HttpServletRequest request, @RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		dz01Svc.testInsert(paramMap);
+    		dz01Svc.dzInsert(paramMap);
     		model.addAttribute("resultCode", 200);
     		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	}catch(Exception e) {

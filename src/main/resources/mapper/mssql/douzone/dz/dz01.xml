@@ -6,7 +6,7 @@
 		SELECT * FROM GOLDMOON_DEV.AUTODOCU_SIMPLE
 	</select>
 	
-	<insert id="testInsert">
+	<insert id="dzInsert">
 		INSERT INTO AUTODOCU_SIMPLE
 		(
 			CO_CD,					<!-- 회사코드* -->
@@ -75,27 +75,16 @@
 				'9998',              			<!-- 회사코드* -->            
 				REPLACE(#{inDt}, '-', ''),  	<!-- 거래일자* -->            
 				#{inSq},        				<!-- 거래순번* -->            
-				'1',       						<!-- 분개라인순번* -->          
+				#{lnSq},       						<!-- 분개라인순번* -->          
 				'00000000',          			<!-- 결의일자 -->             
 				'0',                 			<!-- 결의번호 -->             
 				#{divCd},                 		<!-- 회계단위 -->             
 				'',                 			<!-- 결의부서 -->             
 				'',                				<!-- 작성자 -->              
  				#{drcrFg},                 		<!-- 차대구분   -->
-<!-- 				<choose> -->
-<!-- 					<when test="drcrFg == 3 and acctAm"> -->
-<!-- 						'4', -->
-<!-- 					</when> -->
-<!-- 					<when test="drcrFg == 4 and acctAm"> -->
-<!-- 						'3', -->
-<!-- 					</when> -->
-<!-- 					<otherwise> -->
-<!-- 						#{drcrFg}, -->
-<!-- 					</otherwise> -->
-<!-- 				</choose> -->
 				#{acctCd},                 		<!-- 계정코드 -->             
 				'',                 			<!-- 거래처_사업자번호 -->        
-				#{acctAm},    <!-- 금액 -->               
+				#{acctAm},    					<!-- 금액 -->               
 				#{rmkDc},            			<!-- 적요 -->               
 				'',                 			<!-- 적요(보조어) -->          
 				'',                 			<!-- C관리항목_타입 -->         
@@ -149,4 +138,35 @@
 <!-- 			'test2' -->
 		)
 	</insert>
+	
+	<select id="checkTrstCertiNo" resultType="CamelMap">
+		SELECT
+			BILG_AMT,
+			BILG_VAT_AMT,
+			ETRDPS_AMT
+		FROM
+			(
+			SELECT
+				SUM(AR02M01.BILG_AMT) AS BILG_AMT,
+				SUM(AR02M01.BILG_VAT_AMT) AS BILG_VAT_AMT,
+				SUM(AR05D02.ETRDPS_AMT) AS ETRDPS_AMT
+			FROM
+				TB_AR05D02 AR05D02
+				LEFT JOIN TB_AR05M01 AR05M01 ON AR05M01.ETRDPS_SEQ = AR05D02.ETRDPS_SEQ
+				LEFT JOIN TB_AR02M01 AR02M01 ON AR02M01.TRST_CERTI_NO = AR05D02.TEST_CERTI_NO
+			WHERE
+				AR05M01.ETRDPS_SEQ = #{etrdpsSeq}
+			)
+			
+	
+	</select>
+	<select id="getAcctAm" resultType="CamelMap">
+		SELECT 
+			* ,
+			TRST_CERTI_NO
+		FROM 
+			TB_AR05D02
+		WHERE
+			ETRDPS_SEQ = #{etrdpsSeq}
+	</select>
 </mapper>
