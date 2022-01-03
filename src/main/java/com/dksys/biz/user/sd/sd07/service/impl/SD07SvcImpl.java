@@ -23,10 +23,7 @@ public class SD07SvcImpl implements SD07Svc {
     
     @Override
 	public Map<String, String> selectClose(Map<String, String> paramMap) {
-//    	String closeYm = paramMap.get("closeYm");
-//    	if(closeYm.equals("202106")){
-//    		return 시키기. 초기재고여서 6월 마감하면 데이터 싹다 날아감
-//    	}
+
 		return sd07Mapper.selectClose(paramMap);
 	}
 
@@ -41,13 +38,18 @@ public class SD07SvcImpl implements SD07Svc {
 //		if (chkCount > 0) {
 //			paramMap.put("chkCount", String.valueOf(chkCount));			
 //		}else {
+    	String closeYm = paramMap.get("closeYm");
+    	if(closeYm.equals("202106")||closeYm.equals("202110")||closeYm.equals("202111")){
+      		return;
+    	}
+    	else {    	
 			paramMap.put("errCode", "200");	
 			paramMap.put("Message", "");	
 			paramMap.put("chkCount", "0");		
 			sd07Mapper.deleteStockClose(paramMap);
 			sd07Mapper.insertStockClose(paramMap);
 			sm01Mapper.updateStockUpr(paramMap);
-//		}
+		}
 	}
 
 	@Override
@@ -56,11 +58,17 @@ public class SD07SvcImpl implements SD07Svc {
 //		if (chkCount > 0) {
 //			paramMap.put("chkCount", String.valueOf(chkCount));			
 //		}else {
+		String closeYm = paramMap.get("closeYm");
+    	if(closeYm.equals("202106")||closeYm.equals("202110")||closeYm.equals("202111")){
+      		return;
+    	}
+    	else {
 			paramMap.put("errCode", "200");	
 			paramMap.put("Message", "");	
 			paramMap.put("chkCount", "0");	
 			sd07Mapper.deleteCreditClose(paramMap);
 			sd07Mapper.insertCreditClose(paramMap);
+    	}
 //		}
 	}
 
@@ -70,11 +78,17 @@ public class SD07SvcImpl implements SD07Svc {
 //		if (chkCount > 0) {
 //			paramMap.put("chkCount", String.valueOf(chkCount));		
 //		}else {
+		String closeYm = paramMap.get("closeYm");
+    	if(closeYm.equals("202106")||closeYm.equals("202110")||closeYm.equals("202111")){
+      		return;
+    	}
+    	else {
 			paramMap.put("errCode", "200");	
 			paramMap.put("Message", "");	
 			paramMap.put("chkCount", "0");		
 			sd07Mapper.deleteCreditClose(paramMap);
 			sd07Mapper.insertCreditClosePur(paramMap);
+    	}
 //		}
 	}
 	
