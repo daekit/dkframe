@@ -50,7 +50,7 @@ public class DZ01SvcImpl implements DZ01Svc {
       String acctCd = paramMap.get("acctCd");
       
       
-      //금액이 - 면 차,대변 바꿔서 put
+      //금액이 -(음수)면 차,대변 바꿔서 put
       //drcrFg = 3 지급(차변)
       if("3".equals(drcrFg) && Integer.parseInt(acctAm) < 0){ /* drcrFg가 3이면서 음수면 4 */
           paramMap.put("drcrFg","4");
