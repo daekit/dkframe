@@ -59,7 +59,7 @@ public class SD07SvcImpl implements SD07Svc {
 //			paramMap.put("chkCount", String.valueOf(chkCount));			
 //		}else {
 		String closeYm = paramMap.get("closeYm");
-    	if(closeYm.equals("202106")||closeYm.equals("202110")||closeYm.equals("202111")){
+    	if(closeYm.equals("202106")){
       		return;
     	}
     	else {
@@ -79,7 +79,7 @@ public class SD07SvcImpl implements SD07Svc {
 //			paramMap.put("chkCount", String.valueOf(chkCount));		
 //		}else {
 		String closeYm = paramMap.get("closeYm");
-    	if(closeYm.equals("202106")||closeYm.equals("202110")||closeYm.equals("202111")){
+    	if(closeYm.equals("202106")){
       		return;
     	}
     	else {
