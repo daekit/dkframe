@@ -26,7 +26,7 @@ public class AccountController {
     @Autowired
     AccountService codeService;
     
-    // 계정과목코드리스트 조회   
+    // 계정과목코드리스트 조회    
     @PostMapping("/selectCodeList")
     public String selectCodeList(@RequestBody Map<String, String> param, ModelMap model) {
     	int totalCnt = codeService.selectCodeCount(param);
