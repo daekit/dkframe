@@ -46,6 +46,10 @@
 				<input type=radio id="chartLine" name="chartOption" value="line" onchange="gridView2.setData(0);" checked><label for="chartLine">선으로 보기</label>
 				<input type=radio id="chartColumn" name="chartOption" value="column" onchange="gridView2.setData(0);"><label for="chartColumn">막대로 보기</label>
 			</div>
+			<div class="date_input">
+				<select id="searchYear" name="searchYear" data-search="searchYear" onchange="gridView2.setData();">
+				</select>							
+			</div>
 			<!-- 리스트 -->
 			<table class="form-group popup_table" id="scndTable">
 				<thead>
@@ -243,9 +247,11 @@ var gridView2 = {
 					"searchItem2": $('#searchItem2').val(),
 					"searchUnit1": $('#searchUnit1').val(),
 					"searchUnit2": $('#searchUnit2').val(),
+					"searchYear" : $('#searchYear').val(),
 			}			
-
+			debugger;
 			postAjax("/user/fi/fi02/selectPalBillStat", paramObj, null, function(data) {
+				debugger;
 				gridView.target.setData({
 					list : data.resultList1,
 					page : {
@@ -263,6 +269,17 @@ var gridView2 = {
 				});	
 			});		
 		}
+	}
+	
+	function SetYm(){
+		var now = new Date();
+		var nyear = now.getFullYear();
+		
+		for(var sy = 2010; sy <= nyear; sy++){
+			$("#searchYear").append("<option value='" + sy + "'>" + sy + "년</option>");
+		}
+		
+		$("#searchYear option[value=" + nyear +"]").attr("selected", true);
 	}
 	
 	function setChart(){
@@ -307,6 +324,7 @@ var gridView2 = {
 	$(document).ready(function() {
 		// 페이지 타이틀 set
 		mainDefaultLoad("대시보드", "경영실적현황");
+		SetYm();
 		// grid init
 		gridView.initView();
 		gridView2.initView().setData();
