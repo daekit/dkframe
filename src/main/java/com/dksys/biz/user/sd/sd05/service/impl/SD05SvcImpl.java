@@ -160,7 +160,7 @@ public class SD05SvcImpl implements SD05Svc {
 			}
 		}
 		
-		paramMap.put("siteNm",      paramMap.get("prjctNm"));
+		//paramMap.put("siteNm",      paramMap.get("prjctNm")); // 프로젝트 수정시 현장명 같이 수정되는 부분 제거
 		paramMap.put("siteAddrZip", paramMap.get("prjctAddrZip"));
 		paramMap.put("siteAddr",    paramMap.get("prjctAddr"));
 		paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
