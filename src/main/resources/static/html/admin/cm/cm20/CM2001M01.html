@@ -35,7 +35,7 @@
 	</div>
 </div>
 <div class="row">
-	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+	<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 700px; width: 100%"></div>
 </div>
 <script type="text/javascript">
 	var gridView = {
@@ -67,7 +67,9 @@
 	                }
 	            },
 	            columns: [
-                    {key: "sanctnCd",     label: "결재문서ID",   width: 150},
+	            	{key: "coNm",     label: "회사",   width: 150},
+	            	{key: "coCd",   width: 100,		 hidden: true},
+	            	{key: "sanctnCd",     label: "결재문서ID",   width: 150},
 	                {key: "fstLevelCd",   width: 100,		 hidden: true},
 	                {key: "fstLevelNm",  label:"1차결재자", width: 100},
 	                {key: "sndLevelCd",   width: 100,		 hidden: true},
@@ -90,7 +92,7 @@
 		},
 		setData: function(_pageNo){
 			var targetObj = this.target;
-			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 20};
+			var paramObj = {"pageNo": _pageNo + 1, "recordCnt": 30};
 			
 			postAjax("/admin/cm/cm20/selectSanctnList", paramObj, null, function(data){
 				targetObj.setData({
@@ -120,15 +122,16 @@
 		}
 		
 		var paramObj = {"actionType": type};
-		openModal("/static/html/admin/cm/cm20/CM2002P01.html", 600, 400, "출력물 결재선 등록", paramObj);
+		openModal("/static/html/admin/cm/cm20/CM2002P01.html", 600, 450, "출력물 결재선 등록", paramObj);
 	}
 
 	function deleteCode() {
 		if(!confirm("삭제하시겠습니까?")) return;
 		
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"sanctnCd": row.sanctnCd, "userId": jwt.userId};
-		putAjax("/admin/cm/cm20/deleteSanctn", paramObj, null, function(data){
+		var paramObj = {"coCd": row.coCd, "sanctnCd": row.sanctnCd, "userId": jwt.userId};
+		
+		deleteAjax("/admin/cm/cm20/deleteSanctnInfo", paramObj, null, function(data){
 			if(data.resultCode == 200){
 				alert(data.resultMessage);
 				gridView.setData(0);

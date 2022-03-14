@@ -10,6 +10,14 @@
 						<col width="30%">
 					</colgroup>
 					<tr>
+						<th colspan ="2" class="hit">회사</th>
+						<td colspan ="2">
+							<select class="form-control input-sm" data-kind="CO" id="coCd" required>
+								<option value="">선택</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
 						<th class="hit" colspan ="2">보고서 문서 코드</th>
 						<td colspan ="2">
 							<input type="text" class="form-control" id="sanctnCd" required>
@@ -106,6 +114,7 @@
 			$('#actionBtn').text("등록");
 		}else if(actionType == "U"){
 			selectSanctnInfo();
+			$('#coCd').prop("disabled", true);
 			$('#sanctnCd').prop("readOnly", true);
 			$('#actionBtn').text("저장");
 		}
@@ -113,7 +122,7 @@
 	
 	function selectSanctnInfo(){
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"sanctnCd": row.sanctnCd};
+		var paramObj = {"sanctnCd": row.sanctnCd, "coCd": row.coCd};
 		postAjax("/admin/cm/cm20/selectSanctnInfo", paramObj, null, function(data){
 			setSanctnInfo(data.sanctnInfo);
 		});
@@ -133,8 +142,9 @@
 				
 				$.each($(elem).find('[name]'), function(idx, elem){
 					detailObj.userId = jwt.userId;
+					detailObj.coCd = $("#coCd").val();
 					detailObj.sanctnCd = $("#sanctnCd").val();
-					detailObj[elem.name] = elem.value;
+					detailObj[elem.name] = elem.value;					
 				});
 				
 				detailArr.push(detailObj);
@@ -146,6 +156,7 @@
 			}
 			
 			var formData2 = {
+					"coCd" : $("#coCd").val(),
 					"sanctnCd" : $("#sanctnCd").val()
 			};
 		

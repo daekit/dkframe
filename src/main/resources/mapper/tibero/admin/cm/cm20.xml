@@ -6,7 +6,7 @@
 	<select id="selectSanctnCount" resultType="int">
 	SELECT COUNT(*)
 	FROM  (
-		SELECT SANCTN_CD
+		SELECT CO_CD, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM, SANCTN_CD
 			, MAX(DECODE(SANCTN_LEVEL, 1, LEVEL_CD)) FST_LEVEL_CD
 			, MAX(DECODE(SANCTN_LEVEL, 1, LEVEL_NM)) FST_LEVEL_NM
 			, MAX(DECODE(SANCTN_LEVEL, 2, LEVEL_CD)) SND_LEVEL_CD
@@ -24,7 +24,7 @@
 			, MAX(DECODE(SANCTN_LEVEL, 8, LEVEL_CD)) EGH_LEVEL_CD
 			, MAX(DECODE(SANCTN_LEVEL, 8, LEVEL_NM)) EGH_LEVEL_NM
 		FROM TB_CM20M01 
-		GROUP BY SANCTN_CD
+		GROUP BY CO_CD, SANCTN_CD
 	)
 	</select>
 	
@@ -33,7 +33,7 @@
 	FROM (
 		SELECT ROWNUM AS RNUM, A.*
 		FROM (
-			SELECT SANCTN_CD
+			SELECT CO_CD, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM, SANCTN_CD
 						, MAX(DECODE(SANCTN_LEVEL, 1, LEVEL_CD)) FST_LEVEL_CD
 						, MAX(DECODE(SANCTN_LEVEL, 1, LEVEL_NM)) FST_LEVEL_NM
 						, MAX(DECODE(SANCTN_LEVEL, 2, LEVEL_CD)) SND_LEVEL_CD
@@ -51,7 +51,8 @@
 						, MAX(DECODE(SANCTN_LEVEL, 8, LEVEL_CD)) EGH_LEVEL_CD
 						, MAX(DECODE(SANCTN_LEVEL, 8, LEVEL_NM)) EGH_LEVEL_NM
 			FROM TB_CM20M01 
-			GROUP BY SANCTN_CD
+			GROUP BY CO_CD, SANCTN_CD
+			ORDER BY SANCTN_CD, CO_CD
 		)A
 	)
 	WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
@@ -59,7 +60,7 @@
 	
 	
 	<select id="selectSanctnInfo"  parameterType="Map"  resultType="CamelMap">
-		SELECT SANCTN_CD
+		SELECT CO_CD, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM, SANCTN_CD
 						, MAX(DECODE(SANCTN_LEVEL, 1, LEVEL_CD)) FST_LEVEL_CD
 						, MAX(DECODE(SANCTN_LEVEL, 1, LEVEL_NM)) FST_LEVEL_NM
 						, MAX(DECODE(SANCTN_LEVEL, 2, LEVEL_CD)) SND_LEVEL_CD
@@ -78,20 +79,22 @@
 						, MAX(DECODE(SANCTN_LEVEL, 8, LEVEL_NM)) EGH_LEVEL_NM
 			FROM TB_CM20M01 
 			WHERE SANCTN_CD = #{sanctnCd}
-			GROUP BY SANCTN_CD
+			  AND CO_CD = #{coCd}
+			GROUP BY CO_CD, SANCTN_CD
 	</select>
 	
 	<delete id="deleteSanctnInfo" parameterType="Map" >
 		DELETE FROM TB_CM20M01 
 		WHERE SANCTN_CD = #{sanctnCd}
+		  AND CO_CD = #{coCd}
 	</delete>
 	
 	<insert id="insertSanctnInfo" parameterType="Map">
 
 	INSERT INTO TB_CM20M01
-	 (SANCTN_CD, SANCTN_LEVEL, LEVEL_CD, LEVEL_NM)
+	 (SANCTN_CD, SANCTN_LEVEL, LEVEL_CD, LEVEL_NM, CO_CD)
 	VALUES
-		(#{sanctnCd}, #{sanctnLevel}, #{levelCd},  FN_CM05M01_CD_TO_NM(#{levelCd}) )
+		(#{sanctnCd}, #{sanctnLevel}, #{levelCd},  FN_CM05M01_CD_TO_NM(#{levelCd}), #{coCd} )
 
 	</insert>
 
@@ -102,6 +105,7 @@
 	SET LEVEL_CD= #{levelCd}
 		, LEVEL_NM = FN_CM05M01_CD_TO_NM(#{levelCd}) 
 	WHERE SANCTN_CD= #{sanctnCd} AND SANCTN_LEVEL= #{sanctnLevel}
+	  AND CO_CD = #{coCd}
 	
 	</update>
 </mapper>
