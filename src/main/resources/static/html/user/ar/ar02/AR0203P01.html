@@ -390,13 +390,36 @@
 			var orgTotAmt = Number(obj.totAmt);
 			var orgTrstDcAmt = Number(obj.trstDcAmt);
 			
+			// 원본 수량 소수점 체크
+			var orgRealTrstQtyPointChk = false;
+			if(orgRealTrstQty % 1 > 0)
+			{
+				orgRealTrstQtyPointChk = true;
+			}
+			
+			// 원본 청구 수량 소수점 체크
+			var orgBilgQtyPointChk = false;
+			if(orgBilgQty % 1 > 0)
+			{
+				orgBilgQtyPointChk = true;
+			}
+			
 			// 매출데이터
-			//var realTrstQty = Math.round(orgRealTrstQty * leftRatio);
-			var realTrstQty = Number((orgRealTrstQty * leftRatio).toFixed(3));
+			var realTrstQty = Math.round(orgRealTrstQty * leftRatio);
+			if(orgRealTrstQtyPointChk)
+			{
+				realTrstQty = Number((orgRealTrstQty * leftRatio).toFixed(3));
+			}
+			
 			var realTrstWt = Math.round(orgRealTrstWt * leftRatio);
 			var realTrstAmt = Math.round(orgRealTrstAmt * leftRatio);
-			//var bilgQty = Math.round(orgBilgQty * leftRatio);
-			var bilgQty = Number((orgBilgQty * leftRatio).toFixed(3));
+			
+			var bilgQty = Math.round(orgBilgQty * leftRatio);
+			if(orgBilgQtyPointChk)
+			{
+				bilgQty = Number((orgBilgQty * leftRatio).toFixed(3));
+			}
+			
 			var bilgWt = Math.round(orgBilgWt * leftRatio);
 			var bilgAmt = Math.round(orgBilgAmt * leftRatio);
 			var bilgVatAmt = Math.floor(bilgAmt * salesDivGridView.target.getList()[idx].sellVat / 100);
@@ -425,12 +448,21 @@
 			salesSumData.trstDcAmt += trstDcAmt;
 			
 			// 분할데이터
-			//var divRealTrstQty = Math.round(orgRealTrstQty * rightRatio);
-			var divRealTrstQty = Number((orgRealTrstQty * rightRatio).toFixed(3));
+			var divRealTrstQty = Math.round(orgRealTrstQty * rightRatio);
+			if(orgRealTrstQtyPointChk)
+			{
+				divRealTrstQty = Number((orgRealTrstQty * rightRatio).toFixed(3));
+			}
+			
 			var divRealTrstWt = Math.round(orgRealTrstWt * rightRatio);
 			var divRealTrstAmt = Math.round(orgRealTrstAmt * rightRatio);
-			//var divBilgQty = Math.round(orgBilgQty * rightRatio);
-			var divBilgQty = Number((orgBilgQty * rightRatio).toFixed(3));
+			
+			var divBilgQty = Math.round(orgBilgQty * rightRatio);
+			if(orgBilgQtyPointChk)
+			{
+				divBilgQty = Number((orgBilgQty * rightRatio).toFixed(3));
+			}
+			
 			var divBilgWt = Math.round(orgBilgWt * rightRatio);
 			var divBilgAmt = Math.round(orgBilgAmt * rightRatio);
 			var divBilgVatAmt = Math.floor(divBilgAmt * salesDivGridView.target.getList()[idx].divSellVat / 100);
@@ -459,12 +491,21 @@
 			divSumData.divTrstDcAmt += divTrstDcAmt;
 			
 			// 차이데이터
-			//var diffRealTrstQty = orgRealTrstQty - (realTrstQty + divRealTrstQty);
-			var diffRealTrstQty = Number((orgRealTrstQty - (realTrstQty + divRealTrstQty)).toFixed(3));
+			var diffRealTrstQty = orgRealTrstQty - (realTrstQty + divRealTrstQty);
+			if(orgRealTrstQtyPointChk)
+			{
+				diffRealTrstQty = Number((orgRealTrstQty - (realTrstQty + divRealTrstQty)).toFixed(3));
+			}
+			
 			var diffRealTrstWt = orgRealTrstWt - (realTrstWt + divRealTrstWt);
 			var diffRealTrstAmt = orgRealTrstAmt - (realTrstAmt + divRealTrstAmt);
-			//var diffBilgQty = orgBilgQty - (bilgQty + divBilgQty);
-			var diffBilgQty = Number((orgBilgQty - (bilgQty + divBilgQty)).toFixed(3));
+			
+			var diffBilgQty = orgBilgQty - (bilgQty + divBilgQty);
+			if(orgBilgQtyPointChk)
+			{
+				diffBilgQty = Number((orgBilgQty - (bilgQty + divBilgQty)).toFixed(3));
+			}
+			
 			var diffBilgWt = orgBilgWt - (bilgWt + divBilgWt);
 			var diffBilgAmt = orgBilgAmt - (bilgAmt + divBilgAmt);
 			var diffBilgVatAmt = orgBilgVatAmt - (bilgVatAmt + divBilgVatAmt);
