@@ -249,7 +249,27 @@
 	<select id="selectTaxBilgCount" resultType="int">
 		SELECT COUNT(*)
 		FROM TB_AR04M01 A
-		 <where>
+		
+			<choose>
+				<when test="(prdtDiv == null or prdtDiv.equals('')) and (prdtGrp == null or prdtGrp.equals(''))">
+					WHERE 1=1
+				</when>
+				<otherwise>
+				  ,(SELECT AR01.BILG_CERT_NO 
+					  FROM TB_AR02M01 AR01
+					      ,TB_BM01M01 BM01
+					 WHERE AR01.TRST_PRDT_CD = BM01.PRDT_CD
+					   <if test="prdtDiv != null and !prdtDiv.equals('')">
+						AND AR01.PRDT_DIV = #{prdtDiv}				
+					   </if>
+					   <if test="prdtGrp != null and !prdtGrp.equals('')">
+						AND BM01.PRDT_GRP = #{prdtGrp}
+					   </if>
+					 GROUP BY AR01.BILG_CERT_NO) B					 
+				WHERE A.BILG_CERT_NO = B.BILG_CERT_NO				
+				</otherwise>
+			</choose>		
+		
 			<if test="coCd != null and !coCd.equals('')">
 			   AND A.CO_CD = #{coCd}
 			</if>
@@ -283,7 +303,6 @@
 			<if test="taxCreatNm != null and !taxCreatNm.equals('')">
 			   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
 			</if>
-		   </where>
 	</select>
 	
 	<select id="selectTaxBilgList" resultType="CamelMap">
@@ -391,7 +410,29 @@
 						A.ORGN_TAX_BILG_NO,
 						A.INV_SND_YN
 					  FROM TB_AR04M01 A
-					  <where>
+					  
+					  
+					  
+						<choose>
+							<when test="(prdtDiv == null or prdtDiv.equals('')) and (prdtGrp == null or prdtGrp.equals(''))">
+								WHERE 1=1
+							</when>
+							<otherwise>
+							  ,(SELECT AR01.BILG_CERT_NO 
+								  FROM TB_AR02M01 AR01
+								      ,TB_BM01M01 BM01
+								 WHERE AR01.TRST_PRDT_CD = BM01.PRDT_CD
+								   <if test="prdtDiv != null and !prdtDiv.equals('')">
+									AND AR01.PRDT_DIV = #{prdtDiv}				
+								   </if>
+								   <if test="prdtGrp != null and !prdtGrp.equals('')">
+									AND BM01.PRDT_GRP = #{prdtGrp}
+								   </if>
+								 GROUP BY AR01.BILG_CERT_NO) B					 
+							WHERE A.BILG_CERT_NO = B.BILG_CERT_NO				
+							</otherwise>
+						</choose>		
+					  
 						<if test="coCd != null and !coCd.equals('')">
 						   AND A.CO_CD = #{coCd}
 						</if>
@@ -431,7 +472,6 @@
 						<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
 						   AND TO_CHAR(TAXIVC_COPRT) = (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_KIND = 'ESTCOPRT' AND CODE_ID = #{taxivcCoprt})
 						</if> 
-					   </where>
 				 ORDER BY SELL_DT DESC, ORGN_TAX_BILG_NO, TAX_BILG_NO,  BILG_CERT_NO DESC
 			) A
 		)
@@ -539,8 +579,8 @@
 	<select id="selectTaxBilgDetailCount" resultType="int">
 	SELECT COUNT(*)
 	 FROM TB_AR02M01 A
-	WHERE BILG_CERT_NO = #{bilgCertNo}
-	  AND CO_CD = #{coCd}
+		WHERE BILG_CERT_NO = #{bilgCertNo}
+	  		AND CO_CD = #{coCd}
 	</select>
 	
 	<select id="selectTaxBilgDetailList" resultType="CamelMap">
@@ -552,70 +592,70 @@
 				ROWNUM AS RNUM, A.*
 			FROM
 			(
-			SELECT CO_CD
-				 , TRST_CERTI_NO
-				 , SELPCH_CD
-				 , FN_CM05M01_CD_TO_NM(SELPCH_CD) SELPCH_NM
-				 , TAXIVC_COPRT
+			SELECT A.CO_CD
+				 , A.TRST_CERTI_NO
+				 , A.SELPCH_CD
+				 , FN_CM05M01_CD_TO_NM(A.SELPCH_CD) SELPCH_NM
+				 , A.TAXIVC_COPRT
 				 , SUBSTRING(TRST_DT,0,4) || '-' || SUBSTRING(TRST_DT,5,2) || '-' || SUBSTRING(TRST_DT,7,2) TRST_DT
-				 , TRST_CLNT_CD
+				 , A.TRST_CLNT_CD
 		 		 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = TRST_CLNT_CD) CLNT_NM
-				 , TRST_PRDT_CD
+				 , A.TRST_PRDT_CD
 				 , (SELECT PRDT_NM FROM TB_BM01M01 WHERE PRDT_CD = TRST_PRDT_CD) AS PRDT_NM
-				 , OWNER_CD
-				 , IMP_YN
-				 , TYP_CD
-				 , TRSP_TYP_CD
-				 , FN_CM05M01_CD_TO_NM(TRSP_TYP_CD) TRSP_TYP_NM
-				 , TRST_RPRC_SEQ
-				 , TRST_DTL_SEQ
-				 , PRDT_LEN
-				 , ODR_NO
-				 , SALES_MNG
-				 , PRJCT_CD
-				 , MAKR_CD
-				 , FN_CM05M01_CD_TO_NM(MAKR_CD) MAKR_NM
-				 , WH_CD
-				 , FN_CM05M01_CD_TO_NM(WH_CD) WH_NM
-				 , MNG_TEL
-				 , TO_CHAR(DLVR_DTTM, 'YYYY-MM-DD') DLVR_DTTM
-				 , DIRTRS_YN
-				 , PRDT_DIV
-				 , PRDT_STKN
-				 , FN_CM05M01_CD_TO_NM(PRDT_STKN) PRDT_STKN_NM
-				 , PRDT_SIZE
-				 , FN_CM05M01_CD_TO_NM(PRDT_SIZE) PRDT_SIZE_NM
-				 , PRDT_UNIT
-				 , FN_CM05M01_CD_TO_NM(PRDT_UNIT) PRDT_UNIT_NM
-				 , PRDT_UPR
-				 , STOCK_UPR
-				 , PCHS_UPR
-				 , SELL_UPR
-				 , TRST_QTY
-				 , TRST_WT
-				 , TRST_UPR
-				 , TRST_AMT
-				 , REAL_TRST_QTY
-				 , REAL_TRST_WT
-				 , REAL_TRST_UPR
-				 , REAL_TRST_AMT
-				 , BILG_QTY
-				 , BILG_WT
-				 , BILG_UPR
-				 , BILG_AMT
-				 , TRST_DC_AMT
-				 , ETC_AMT
-				 , TRSP_RMK
-				 , TRANS_AMT
-				 , SHIP_VEH_NO
-				 , CLNT_NM
-				 , BILG_CERT_NO
-				 , LOSS_RATE
-				 , ODR_CREAT_DIV
-				 , SALES_AREA_CD
-				 , SITE_CD
-				 , BILG_VAT_AMT
-				 , PRDT_SPEC
+				 , A.OWNER_CD
+				 , A.IMP_YN
+				 , A.TYP_CD
+				 , A.TRSP_TYP_CD
+				 , FN_CM05M01_CD_TO_NM(A.TRSP_TYP_CD) TRSP_TYP_NM
+				 , A.TRST_RPRC_SEQ
+				 , A.TRST_DTL_SEQ
+				 , A.PRDT_LEN
+				 , A.ODR_NO
+				 , A.SALES_MNG
+				 , A.PRJCT_CD
+				 , A.MAKR_CD
+				 , FN_CM05M01_CD_TO_NM(A.MAKR_CD) MAKR_NM
+				 , A.WH_CD
+				 , FN_CM05M01_CD_TO_NM(A.WH_CD) WH_NM
+				 , A.MNG_TEL
+				 , TO_CHAR(A.DLVR_DTTM, 'YYYY-MM-DD') DLVR_DTTM
+				 , A.DIRTRS_YN
+				 , A.PRDT_DIV
+				 , A.PRDT_STKN
+				 , FN_CM05M01_CD_TO_NM(A.PRDT_STKN) PRDT_STKN_NM
+				 , A.PRDT_SIZE
+				 , FN_CM05M01_CD_TO_NM(A.PRDT_SIZE) PRDT_SIZE_NM
+				 , A.PRDT_UNIT
+				 , FN_CM05M01_CD_TO_NM(A.PRDT_UNIT) PRDT_UNIT_NM
+				 , A.PRDT_UPR
+				 , A.STOCK_UPR
+				 , A.PCHS_UPR
+				 , A.SELL_UPR
+				 , A.TRST_QTY
+				 , A.TRST_WT
+				 , A.TRST_UPR
+				 , A.TRST_AMT
+				 , A.REAL_TRST_QTY
+				 , A.REAL_TRST_WT
+				 , A.REAL_TRST_UPR
+				 , A.REAL_TRST_AMT
+				 , A.BILG_QTY
+				 , A.BILG_WT
+				 , A.BILG_UPR
+				 , A.BILG_AMT
+				 , A.TRST_DC_AMT
+				 , A.ETC_AMT
+				 , A.TRSP_RMK
+				 , A.TRANS_AMT
+				 , A.SHIP_VEH_NO
+				 , A.CLNT_NM
+				 , A.BILG_CERT_NO
+				 , A.LOSS_RATE
+				 , A.ODR_CREAT_DIV
+				 , A.SALES_AREA_CD
+				 , A.SITE_CD
+				 , A.BILG_VAT_AMT
+				 , A.PRDT_SPEC
 			 FROM TB_AR02M01 A
 			WHERE BILG_CERT_NO = #{bilgCertNo}
 			  AND CO_CD = #{coCd}
