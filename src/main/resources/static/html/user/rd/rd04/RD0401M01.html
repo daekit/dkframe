@@ -61,7 +61,7 @@
 					<tr>
 						<th class="hit">회사</th>
 						<td>
-							<select data-kind="CO" data-search="coCd"  required="required" onchange="setWareHouse(this.value);">
+							<select data-kind="CO" data-search="coCd"  required="required" onchange="setByCoCd(this.value); setWareHouse(this.value);">
 							<!--  	<option value="">전체</option>   -->
 							</select>
 						</td>
@@ -121,6 +121,13 @@
 								</a>
 							</div>
 						</td>
+						<th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="gridView.setData(0);" data-search="taxivcCoprt_S">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<!-- 
 						<th>거래처</th>
 						<td>
 							<input type="hidden" data-search="clntCd" id="clntCd">
@@ -130,6 +137,7 @@
 								</a>
 							</div>
 						</td>
+						 -->
 					</tr>
 					<tr>
 						<th>제품그룹</th>
@@ -251,7 +259,7 @@
 					{key: "prdtSpec",       label: "SPEC",    align: "center",    width: 80},
 // 					{key: "prdtLen",        label: "길이",      align: "center",    width: 60},
 		        	{key: "ownerNm",   		label: "재고주체",   align: "left",    width: 60},
-		        	{key: "clntNm",   	 	label: "거래처",    align: "left",    width: 140},
+		        	{key: "clntNm",   	 	label: "판매법인",    align: "left",    width: 140},
 		        	{key: "typNm",   	  	label: "판매유형",    align: "center", width: 60},
 		        //	{key: "makrNm", 	   	label: "제조사",  	align: "left",   width: 80},
 		        	{key: "prjctNm",   		label: "프로젝트",    align: "left",  width: 200},
@@ -353,6 +361,7 @@
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
+		setByCoCd(jwt.coCd);
 		setWareHouse(jwt.coCd);
 		
 		// 기준년월
@@ -378,6 +387,7 @@
 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
+		setByCoCd(jwt.coCd);
 		setWareHouse(jwt.coCd);
 		
 		// 재검색
@@ -389,6 +399,13 @@
 		this.actionType = actionType;
 		openModal("/static/html/user/sd/sd04/SD0402P01.html", 1000, 800, "");
 	}
+	
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt_S').data("rprc", value);
+		$('#main_area #taxivcCoprt_S option:not([value=""])').remove();
+		setCommonSelect($('#main_area #taxivcCoprt_S'));  
+	} 
 	
 	// 거래처 검색
 	function openSecondClntSearch(type) {

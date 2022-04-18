@@ -243,6 +243,8 @@
 					<option value="500">500</option>
 					<option value="9999999" selected>전체</option>
 				</select>					
+					비고작성 : <input type="text" id="edtetc" onkeyup="updateNoteText()"> 
+					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="updateNote();" authchk><i	class="fas fa-file-signature"></i>비고저장</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setSelectedRows();" authchk><i class="fas fa-file-signature"></i>선택정보</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="openClntChange();" authchk><i class="fas fa-exchange-alt"></i>거래처변경</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="openSalesDivision();" authchk><i class="fas fa-divide"></i>매출분할</a>
@@ -344,8 +346,8 @@
 		        	{key: "bilgUpr",        label: "청구단가",	    align: "right", 	width: 80, 	formatter: "money", styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "bilgAmt", 	    label: "청구금액",  	align: "right", 	width: 80,	formatter: "money", styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "bilgVatAmt", 	label: "부가세", 	    align: "right", 	width: 80,	formatter: "money", styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "totAmt", 	    label: "합계", 		    align: "right", 	width: 80,	formatter: "money", styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
-		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "totAmt", 	    label: "합계", 		align: "right", 	width: 80,	formatter: "money", styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
+		        	{key: "trspRmk", 	    label: "비고",  		align: "left", 		width: 120, editor : { type : "textarea"}, styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
 		        	{key: "pchsClmnDivNm",  label: "결제예상",  	align: "left",   	width: 130},
 		            {key: "pchsClmnDay",    label: "결제예상일",  	align: "left",   	width: 80},
 		        	{key: "trstDcAmt", 	    label: "할인금액",  	align: "right", 	width: 80, 	formatter: "money", styleClass: function () {return (this.item.bilgQty < 0) ? "grid-font-red":"";}},
@@ -606,6 +608,7 @@
 		$("#dtTo").val(getMonth("E"));
 		//재검색
 		subGridView.initView().setData(0);
+		emptyEtcText();
 	}
 	
 	function setByCoCd(value){
@@ -1217,6 +1220,44 @@
 		for(var i=0 ; i<rows.length ; i++){ //선택그리드 추가
            subGridView.target.addRow(rows[i], i);
         } 
+	}
+	
+	// 선택한 그리드의 비고 텍스트 변경해주기
+	function updateNoteText() {
+		var rows = subGridView.target.getList("selected");
+		
+		var edtetc = $('#edtetc').val();
+
+		for (var i = 0; i < rows.length; i++) {
+			subGridView.target.setValue(rows[i].__index, 'trspRmk', edtetc);
+		}
+		subGridView.target.repaint();
+		
+	}
+
+	//선택한 그리드의 비고 업데이트
+	function updateNote() {
+		emptyEtcText();
+		var rows = subGridView.target.getList("selected");
+
+		if (subGridView.target.getList("selected").length != 0) {
+			if (confirm("선택한 건에 대해서 비고를 변경하시겠습니까?")) {
+				var formData = {
+					"rows" : rows,
+					"type" : "AR"
+				}
+				putAjax("/user/ar/ar04/updateNote", formData, null,
+						function(data) {
+							alert(data.resultMessage);
+							subGridView.setData(0);
+						});
+			}
+		}
+	}
+	
+	// ** 비고작성 박스 초기화 
+	function emptyEtcText(){
+		$('#edtetc').val("");
 	}
 </script>
 </html>

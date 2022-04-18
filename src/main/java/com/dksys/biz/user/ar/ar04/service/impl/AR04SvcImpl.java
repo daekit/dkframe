@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -640,6 +641,8 @@ public class AR04SvcImpl implements AR04Svc {
 		}
 		return result;
 	}
+	
+
 
 	@Override
 	@SuppressWarnings("all")
@@ -723,4 +726,39 @@ public class AR04SvcImpl implements AR04Svc {
 
 		return result;
 	}
+	
+	
+	
+
+	@Override
+	@SuppressWarnings("all")
+	public int updateNote(Map<String, Object> paramMap) {
+		int result = 0;
+		List<Map<String, Object>> rowlist = (List<Map<String, Object>>) paramMap.get("rows");
+		
+		Map<String, String> param = new HashMap<String, String>();
+		
+		for(int i=0; i<rowlist.size(); i++) {
+			param.put("trstCertiNo", MapUtils.getString(rowlist.get(i), "trstCertiNo"));
+			param.put("trspRmk", MapUtils.getString(rowlist.get(i), "trspRmk"));
+			param.put("ordrgSeq", MapUtils.getString(rowlist.get(i), "ordrgSeq"));
+			
+			result = ar04Mapper.updateNote(param);
+			
+			if(paramMap.get("type").equals("OD")) {
+				if(rowlist.get(i).containsKey("ordrgSeq")) {
+					result = ar04Mapper.updateNoteData(param);
+				}
+			} else {
+				if(rowlist.get(i).containsKey("ordrgSeq")) {
+					result = ar04Mapper.updateNoteData2(param);
+				}
+			}
+			
+			
+		}
+		
+		return result;
+	}
+	
 }
