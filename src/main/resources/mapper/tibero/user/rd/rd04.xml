@@ -97,7 +97,7 @@
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD
    		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
    		 			    AND ( <![CDATA[ AR02.REAL_TRST_QTY  !=  0 OR AR02.REAL_TRST_WT !=  0 ]]> )
-					  <if test="coCd != null and !coCd.equals('')">
+					  	<if test="coCd != null and !coCd.equals('')">
 							AND AR02.CO_CD   = #{coCd}				
 						</if>
 					  	AND  SUBSTRING(AR02.TRST_DT , 0, 6) = REPLACE(#{closeYm}, '-', '')
@@ -236,8 +236,13 @@
 						<if test="makrCd != null and !makrCd.equals('')">
 							AND T.MAKR_CD = #{makrCd}				
 						</if>
-						<if test="clntCd != null and !clntCd.equals('')">
-							AND T.CLNT_CD = #{clntCd}				
+						<!-- 
+							<if test="clntCd != null and !clntCd.equals('')">
+								AND T.CLNT_CD = #{clntCd}				
+							</if>
+						 -->
+						<if test="taxivcCoprt_S != null and !taxivcCoprt_S.equals('')">
+							AND T.CLNT_CD = (SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = #{taxivcCoprt_S})				
 						</if>
 						<if test="impYn != null and !impYn.equals('')">
 							AND T.IMP_YN = #{impYn}				
@@ -271,6 +276,7 @@
 			<if test="clntNm != null and !clntNm.equals('')">
 				AND A.CLNT_NM LIKE '%' || #{clntNm} || '%'				
 			</if>
+			
 			<if test="prjctNm != null and !prjctNm.equals('')">
 				AND A.PRJCT_NM LIKE '%' || #{prjctNm} || '%'				
 			</if>
@@ -393,9 +399,14 @@
 					  WHERE AR02.TRST_PRDT_CD   = BM01.PRDT_CD					  
    		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
    		 			    AND ( <![CDATA[ AR02.REAL_TRST_QTY  !=  0 OR AR02.REAL_TRST_WT !=  0 ]]> )  
-					  <if test="coCd != null and !coCd.equals('')">
+					  	<if test="coCd != null and !coCd.equals('')">
 							AND AR02.CO_CD   = #{coCd}				
 						</if>
+						<!-- 
+						<if test="taxivcCoprt_S != null and !taxivcCoprt_S.equals('')">
+							AND AR02.TAXIVC_COPRT   = #{taxivcCoprt_S}				
+						</if>
+						 -->
 					  	AND  SUBSTRING(AR02.TRST_DT , 0, 6) = REPLACE(#{closeYm}, '-', '')
 				  GROUP BY SUBSTRING(AR02.TRST_DT , 0, 6)
 						 , AR02.WH_CD
@@ -544,8 +555,13 @@
 						<if test="makrCd != null and !makrCd.equals('')">
 							AND T.MAKR_CD = #{makrCd}				
 						</if>
-						<if test="clntCd != null and !clntCd.equals('')">
-							AND T.CLNT_CD = #{clntCd}				
+						<!-- 
+							<if test="clntCd != null and !clntCd.equals('')">
+								AND T.CLNT_CD = #{clntCd}				
+							</if>
+						 -->
+						<if test="taxivcCoprt_S != null and !taxivcCoprt_S.equals('')">
+							AND T.CLNT_CD = (SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = #{taxivcCoprt_S})				
 						</if>
 						<if test="impYn != null and !impYn.equals('')">
 							AND T.IMP_YN = #{impYn}				

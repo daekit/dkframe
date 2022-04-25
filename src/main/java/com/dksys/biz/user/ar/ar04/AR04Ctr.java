@@ -179,5 +179,19 @@ public class AR04Ctr {
 		}
     	return "jsonView";
     }
+	
+	
+	@PutMapping(value = "/updateNote")
+    public String updateNote(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	int result = ar04Svc.updateNote(paramMap);
+    	if(result == 0) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("taxComplete"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}
+    	return "jsonView";
+    }
 
 }

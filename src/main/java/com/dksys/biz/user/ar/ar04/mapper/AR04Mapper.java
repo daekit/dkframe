@@ -108,4 +108,10 @@ public interface AR04Mapper {
 	
 	int updateOrgnTaxBilgNo(Map<String, String> bilgInfo);
 
+	int updateNote(Map<String, String> param);
+
+	int updateNoteData(Map<String, String> param);
+
+	int updateNoteData2(Map<String, String> param);
+
 }
