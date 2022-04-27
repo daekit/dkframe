@@ -38,14 +38,10 @@ public class CM08SvcImpl implements CM08Svc {
 		List<MultipartFile> fileList = mRequest.getFiles("files");
 		String year = DateUtil.getCurrentYyyy();
 		String month = DateUtil.getCurrentMm();
-		
         String path = "D:\\goldmoon\\upload" + File.separator + fileTrgtTyp + File.separator + year + File.separator + month + File.separator;
         for (MultipartFile mf : fileList) {
             String originFileName = mf.getOriginalFilename(); // 원본 파일 명
-            long fileSize = mf.getSize(); // 파일 사이즈
-
-            System.out.println("originFileName : " + originFileName);
-            System.out.println("fileSize : " + fileSize);
+            // long fileSize = mf.getSize(); // 파일 사이즈
 
             HashMap<String, String> param = new HashMap<String, String>();
             param.put("fileSize", String.valueOf(mf.getSize()));
@@ -61,7 +57,11 @@ public class CM08SvcImpl implements CM08Svc {
             	String saveFile = param.get("fileKey") + "_" + originFileName;
             	File f = new File(path);
             	if(!f.isDirectory()) f.mkdirs();
-            	mf.transferTo(new File(path+saveFile));
+            	
+            	if(fileTrgtTyp.equals("TB_OD01M01")) {
+            		mf.transferTo(new File(path+saveFile));
+            	}
+            	
             } catch (IllegalStateException e) {
                 e.printStackTrace();
             } catch (IOException e) {

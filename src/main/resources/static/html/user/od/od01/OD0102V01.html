@@ -15,6 +15,7 @@
 		<h4 class="tit">발주서 조회</h4>  
 	</div>
 	<div class="popup_table">
+		<input type="file" id="file" style="display: none" multiple="multiple" onchange="setFile(this);" />
 		<form id="popForm">
 			<input type="hidden" id="pgmId"       name="pgmId"       value="OD0102V01">
 			<input type="hidden" id="pgmNm"       name="pgmNm"       value="발주서조회 및 확정">
@@ -372,7 +373,11 @@
 				<col width="12%">
 			</colgroup>
 			<tr>
-				<th>첨부파일</th>
+				<th>
+					<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="file.click();">첨부파일</button>
+					<a class="fs-12 th_btn on" style="color: #3860f8;" onclick="updateOrdrgFile();">저장</a>
+				<!-- 첨부파일 -->
+				</th>
 				<td>
 					<div data-ax5grid="ordrg-file-grid" data-ax5grid-config="{}" style="height: 120px; width: 100%"></div>
 				</td>
@@ -396,6 +401,7 @@
 </div>
 <script type="text/javascript">
 	var ordrgFileArr = [];
+	var deleteFileArr = [];
 	var ordrgFileGridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
@@ -407,6 +413,7 @@
 				header: {selector: false},
 				body: {
 		        	onClick: function () {
+		        		
 		                this.self.select(this.dindex);
 		            },
 		            onDBLClick: function () {
@@ -417,6 +424,12 @@
 	                {key: "fileName", label: "파일명", width: 460},
 	                {key: "fileType", label: "파일타입", width: 140},
 	                {key: "fileSize", label: "파일크기", width: 140},
+	                {
+						key:"fileDelete", label: "삭제", width:60,
+						formatter:function() {
+							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');">삭제</button>';
+						}
+					}
 	            ]
 			});
 			return this;
@@ -512,12 +525,12 @@
 		
 		// 전체 매입확정시 확정  hide
 		if(orderInfo.ordrgYn == "Y") {
-			$("#ordrgView #ordrgYnBtnP").hide();
-			$("#ordrgView #ordrgYnBtnA").hide();
+			$("#ordrgView #ordrgYnBtnP").hide(); // 매입확정 버튼
+			$("#ordrgView #ordrgYnBtnA").hide(); // 일괄확정 버튼
 		}
 		// 직송이 아니거나 전체 매출확정시 확정  hide
 		if(orderInfo.shipYn  == "Y" || $("#ordrgView #dirtrsYn").val() == 'N') {
-			$("#ordrgView #ordrgYnBtnS").hide();
+			$("#ordrgView #ordrgYnBtnS").hide(); // 매출확정 버튼
 		}
 		
 		// 전체 매입/매출 확정시 확정 및 수정버튼 hide
@@ -716,12 +729,106 @@
 		$('#ordrgView #totEpctPal').val(addCommaStr(totEpctPal));
 	}
 	
+	function setFile(elem){
+		var tempFiles = elem.files;
+		$.each(tempFiles, function(idx, obj){
+			var tempArr = obj.name.split(".");
+			ordrgFileArr.push({
+				"fileKey" : 0,
+		      	"fileName" : obj.name,
+		      	"fileType" : tempArr[tempArr.length-1],
+		      	"fileSize" : obj.size,
+		      	"file" : obj
+			});
+		});
+		ordrgFileGridView.setData();
+		$(elem).val("");
+	}
+	
+	function deleteFile(rowIndex) {
+		ordrgFileGridView.target.removeRow(rowIndex);
+		
+		if(ordrgFileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(ordrgFileArr[rowIndex].fileKey);
+		}
+		
+		ordrgFileArr.splice(rowIndex, 1);
+		
+		ordrgFileGridView.setData();
+	}
+	
 	function downloadFile(idx) {
 		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": ordrgFileArr[idx].fileKey}, null, function(data){
 			var fileInfo = data.fileInfo;
 			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
 			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
 		});
+	}
+	
+	function updateOrdrgFile() {
+		var formData = makeFormDataFile();
+		filePutAjax("/user/od/od01/updateOrdrgFile", formData, function(data){
+			processData: false;
+			contentType: false;
+			alert(data.resultMessage);    
+			if(data.resultCode == 200){
+				var ordrgSeq = $('#ordrgView #ordrgSeq').val();
+				modalStack.close();
+				ordrgGridView.setData(0);
+				setTimeout(function(){
+				    viewOrderModal(ordrgSeq);
+				}, 500);
+			}
+		});
+	}
+	
+	function makeFormDataFile() {
+		$('#ordrgView input').prop("disabled", false);
+		$('#ordrgView select').prop("disabled", false);
+		if($('#ordrgView #prjctCd').val() == "") $('#ordrgView #prjctCd').val("0");
+		
+		//콤마 제거
+		$.each($('#ordrgView input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		// 폼데이터 생성
+		var formData = new FormData($('#ordrgView #popForm')[0]);
+		
+		// 유저아이디 추가
+		formData.append("userId", jwt.userId);
+		
+		// 합계 추가
+		formData.append("totQty", $('#ordrgView #totQty').val());
+		formData.append("totWt", $('#ordrgView #totWt').val());
+		formData.append("totAmt", $('#ordrgView #totAmt').val());
+		formData.append("totShipAmt", $('#ordrgView #totShipAmt').val());
+		
+		// 상세내역 추가
+		var detailArr = [];
+		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
+			if($(elem).find('input[name="ordrgYn"]').val() == "N" || $(elem).find('input[name="ordrgYn"]').val() == "" ||
+			   $(elem).find('input[name="shipYn"]').val() == "N"  || $(elem).find('input[name="shipYn"]').val() == "" ) {
+				var detailObj = {};
+				$.each($(elem).find('[name]'), function(idx, elem){
+					detailObj[elem.name] = elem.value;
+				});
+				detailArr.push(detailObj);
+			}
+		});
+		formData.append("detailArr", JSON.stringify(detailArr));
+		
+		// 첨부파일 추가
+		$.each(ordrgFileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		
+		return formData;
 	}
 	
 	function updateOrderModal() {

@@ -84,10 +84,18 @@ public class OD01Ctr {
     	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
     	return "jsonView";
     }
-    
+
     @PutMapping(value = "/updateOrdrg")
     public String updateOrdrg(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
     	od01Svc.updateOrdrg(paramMap, mRequest);
+    	model.addAttribute("resultCode", 200);
+    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	return "jsonView";
+    }
+    
+    @PutMapping(value = "/updateOrdrgFile")
+    public String updateOrdrgFile(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	od01Svc.updateOrdrgFile(paramMap, mRequest);
     	model.addAttribute("resultCode", 200);
     	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
     	return "jsonView";

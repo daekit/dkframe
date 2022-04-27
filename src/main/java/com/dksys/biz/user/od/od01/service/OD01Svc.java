@@ -34,5 +34,7 @@ public interface OD01Svc {
 	void updateConfirm(Map<String, String> paramMap) throws Exception;
 
 	void updateCancel(Map<String, String> paramMap) throws Exception;
+
+	int updateOrdrgFile(Map<String, String> paramMap, MultipartHttpServletRequest mRequest);
 	
 }

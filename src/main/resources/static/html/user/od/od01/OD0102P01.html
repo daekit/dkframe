@@ -29,7 +29,7 @@
 						</td>
 						<th class="hit">판매유형</th>
 						<td>
-							<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value);" required>
+							<select id="typCd" name="typCd" data-kind="SELLTYPE" msg="판매유형" onchange="setBySellType(this.value); ctrlDirtrs();" required>
 								<option value="">선택</option>
 							</select>
 						</td>	
@@ -413,6 +413,7 @@
 	</div>
 </div>
 <script type="text/javascript">
+
 	var targetRow = null;
 	var changeFlagPchs = 'N'; // 수정시 확정된건이 있으면 수정 불가 항목 지정 용도
 	var changeFlagSell = 'N'; // 수정시 확정된건이 있으면 수정 불가 항목 지정 용도
@@ -542,9 +543,29 @@
 		var orderInfo = obj.orderInfo;
 		var orderDetail = obj.orderDetail;
 		
+		
 		// 메인정보 세팅
 		$.each(orderInfo, function(key, value){
 			if($('#ordrgPopup #'+key)[0]){
+
+				
+				// 창고, 판매법인 set
+				if(key == "coCd"){
+					setByCoCd(value);  
+				}
+				
+				// 재고주체 set
+				
+				if(key == "typCd"){
+					setBySellType(value);  
+				}
+				
+				
+				// 제조사 set
+				if(key == "impYn"){
+					setMaker(value);
+				}
+				
 				if($('#ordrgPopup #'+key).is('[date]')){
 					$('#ordrgPopup #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 				}else{
@@ -554,22 +575,13 @@
 					$('#ordrgPopup #'+key).val(value);
 				}
 				
-				// 창고, 판매법인 set
-				if(key == "coCd"){
-					setByCoCd(value);  
-				}
-				
-				// 재고주체 set
-				if(key == "typCd"){
-					setBySellType(value);  
-				}
-				
-				// 제조사 set
-				if(key == "impYn"){
-					setMaker(value);
-				}
 			}
 		});
+		
+		ctrlDirtrs();
+
+
+		
 		
 		if(actionType == "U"){
 			// 상세정보 세팅
@@ -703,14 +715,7 @@
 		// 메인정보 세팅
 		$.each(reqInfo, function(key, value){
 			if($('#ordrgPopup #'+key)[0]){
-				if($('#ordrgPopup #'+key).is('[date]')){
-					$('#ordrgPopup #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
-				}else{
-					if($('#ordrgPopup #'+key).is('[comma]')){
-						value = addCommaStr(value);
-					}
-					$('#ordrgPopup #'+key).val(value);
-				}
+				
 
 				// 창고, 판매법인 set
 				if(key == "coCd"){
@@ -730,8 +735,20 @@
 				if(key == "whCd"){
 					setTaxivcCoprt();
 				}
+				
+				if($('#ordrgPopup #'+key).is('[date]')){
+					$('#ordrgPopup #'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
+				}else{
+					if($('#ordrgPopup #'+key).is('[comma]')){
+						value = addCommaStr(value);
+					}
+					$('#ordrgPopup #'+key).val(value);
+				}
+
 			}
 		});
+		
+		ctrlDirtrs();
 		
 		// 상세정보 세팅
 		$.each(reqDetail, function(idx, obj){
@@ -751,6 +768,7 @@
 	
 	// 창고, 판매법인 set
 	function setByCoCd(value){
+		
 		$('#ordrgPopup #whCd').data("desc", value);
 		$('#ordrgPopup #whCd option:not([value=""])').remove()
 		setCommonSelect($('#ordrgPopup #whCd'));
@@ -762,10 +780,10 @@
 	}
 	
 	function setBySellType(value){
-		/* 
-			메인정보 set할때 호출되는데 이때 아래에 있는  ctrlDirtrs()중 ctrlDirtrsDetail()은 호출되더라도 상세내역이 set되기 전이므로 영향이 없음.
-			단, 변경이벤트에서 호출될때는 메인정보와 상세내역까지 컨트롤 해야하기 때문에 ctrlDirtrs()중 ctrlDirtrsDetail()은 호출되어야 함.
-		*/
+		 
+		//	메인정보 set할때 호출되는데 이때 아래에 있는  ctrlDirtrs()중 ctrlDirtrsDetail()은 호출되더라도 상세내역이 set되기 전이므로 영향이 없음.
+		//	단, 변경이벤트에서 호출될때는 메인정보와 상세내역까지 컨트롤 해야하기 때문에 ctrlDirtrs()중 ctrlDirtrsDetail()은 호출되어야 함.
+		
 		
 		// 판매유형
 		// SELLTYPE1: 유통
@@ -800,7 +818,9 @@
 				$('#ordrgPopup #ownerCd').prop("disabled", true);
 				if(value == "SELLTYPE1"){
 					// 직송여부 Y set, 활성화
+					
 					$('#ordrgPopup #dirtrsYn').val("Y");
+					
 					$('#ordrgPopup #dirtrsYn').prop("disabled", false);
 				}else if(value == "SELLTYPE2"){
 					// 직송여부 N set, 비활성화
@@ -808,7 +828,7 @@
 					$('#ordrgPopup #dirtrsYn').prop("disabled", true);
 				}
 			}
-			ctrlDirtrs();
+			// ctrlDirtrs();
 		}else if(value == "SELLTYPE4"){
 		// 판매유형이 임가공일때
 			// 재고주체에서 자사 삭제, 활성화
@@ -817,12 +837,15 @@
 			// 직송여부 N set, 비활성화
 			$('#ordrgPopup #dirtrsYn').val("N");
 			$('#ordrgPopup #dirtrsYn').prop("disabled", true);
-			ctrlDirtrs();
+			// ctrlDirtrs();
 		}
+		
+		
 	}
 	
 	// 직송여부 변경
 	function ctrlDirtrs(){
+		
 		ctrlDirtrsMaster();
 		ctrlDirtrsDetail();
 	}
@@ -830,7 +853,7 @@
 	// 직송여부 변경 master
 	function ctrlDirtrsMaster(){
 		if($('#ordrgPopup #dirtrsYn').val() == "N") {
-			$('#ordrgPopup .drctArea input').val("");
+			// $('#ordrgPopup .drctArea input').val("");
 			$('#ordrgPopup .drctArea input').prop("disabled", true);
 			$('#ordrgPopup #sellClntNm').closest('td').prev().removeClass("hit");
 			$('#ordrgPopup #sellClntNm').prop("required", false);
@@ -913,6 +936,7 @@
 	
 	// 입고창고 변경시 계산서발행법인 set
 	function setTaxivcCoprt(){
+		
 		$('#ordrgPopup #taxivcCoprt').val($('#ordrgPopup #whCd option:selected').data("etc"));
 	}
 	
@@ -967,6 +991,7 @@
 				$('#ordrgPopup #ownerCd').prop("disabled", true); 
 			}
 			ctrlDirtrsMaster();
+			
 			
 			$('#ordrgPopup #siteCd').val(row.siteCd);
 			$('#ordrgPopup #siteNm').val(row.siteNm);
@@ -1370,6 +1395,7 @@
 			if(!siteValidation()) return false;
 			var formData = makeFormData();
 			filePostAjax("/user/od/od01/insertOrdrg", formData, function(data){
+				
 				alert(data.resultMessage);
 				if(data.resultCode == 200){
 					var ordrgSeq = data.ordrgSeq;

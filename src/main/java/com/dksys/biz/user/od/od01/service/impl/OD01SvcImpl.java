@@ -116,6 +116,7 @@ public class OD01SvcImpl implements OD01Svc {
 	public int insertOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
 		boolean isOdr = false;
 		boolean isReq = false;
+
 		if("".equals(paramMap.get("odrSeq"))) {
 			isOdr = true;
 //			paramMap.put("totQty", paramMap.get("totQty"));
@@ -168,17 +169,20 @@ public class OD01SvcImpl implements OD01Svc {
 		if(isOdr) {
 			cm08Svc.uploadFile("TB_SD04M01", paramMap.get("odrSeq"), mRequest);
 		}
+		
 		if(isReq) {
 			if(od04Mapper.selectOrdrgNCnt(paramMap) < 1) {
 				od04Mapper.updateReqOrdrgY(paramMap);
 			}
 		}
+		
 		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("ordrgSeq"), mRequest);
 		return result;
 	}
 	
 	@Override
 	public int updateOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		System.out.println(paramMap);
 		int result = od01Mapper.updateOrdrg(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
@@ -209,6 +213,21 @@ public class OD01SvcImpl implements OD01Svc {
 			}			
 		}
 		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("ordrgSeq"), mRequest);
+		
+		String[] deleteFileArr = gson.fromJson(paramMap.get("deleteFileArr"), String[].class);
+		List<String> deleteFileList = Arrays.asList(deleteFileArr);
+		for(String fileKey : deleteFileList) {
+			cm08Svc.deleteFile(fileKey);
+		}
+		return result;
+	}
+	
+	@Override
+	public int updateOrdrgFile(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		int result = 0;
+		cm08Svc.uploadFile("TB_OD01M01", paramMap.get("ordrgSeq"), mRequest);
+		
 		String[] deleteFileArr = gson.fromJson(paramMap.get("deleteFileArr"), String[].class);
 		List<String> deleteFileList = Arrays.asList(deleteFileArr);
 		for(String fileKey : deleteFileList) {
