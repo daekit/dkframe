@@ -786,6 +786,7 @@
 		        AND NVL(EXPRTN_DT,REPLACE(#{baseDt},'-','')) <![CDATA[>= ]]> REPLACE(#{baseDt},'-','')) AS PLDG_AMT -- 담보금액
 	FROM (
 			SELECT CO_CD
+				 , CRN_TYP
 				 , CLNT_CD 
             	 , CLNT_NM
             	 , CRN_NO
@@ -816,7 +817,8 @@
 	  		     
 			FROM (  SELECT 0 AS TYPE1 
 				         , AR02.CO_CD
-						 , TRST_CLNT_CD AS CLNT_CD 
+						 , TRST_CLNT_CD AS CLNT_CD
+						 , BM02.CRN_TYP 
 		            	 , BM02.CLNT_NM
 		            	 , BM02.CRN AS CRN_NO
 		            	 , AR02.TRST_DT
@@ -876,6 +878,7 @@
                    </if>
              GROUP BY AR02.CO_CD
 						 , TRST_CLNT_CD
+						 , BM02.CRN_TYP
 		            	 , BM02.CLNT_NM
 		            	 , BM02.CRN
 		            	 , AR02.TRST_DT
@@ -908,6 +911,7 @@
 			WHERE TOT_AMT != 0			
 			GROUP BY 
 			       CO_CD
+			     , CRN_TYP
 				 , CLNT_CD 
             	 , CLNT_NM
             	 , CRN_NO

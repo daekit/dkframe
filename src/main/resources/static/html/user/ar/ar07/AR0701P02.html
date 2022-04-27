@@ -1,0 +1,214 @@
+<body>
+  <div id="cplrUntpcDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
+    <div class="tit_contents">
+        <h4 class="tit">거래처 원장</h4>
+    </div>
+	<div>
+		<table>
+			<tr>
+				<th class="hit">기간</th>
+				<td>
+            		<div class="date_input">
+                      	<input type="text" id="strtDt_S" class="input_calendar" autocomplete="off" required="required" onchange="gridViewDetail.setData(0);">
+                      	<span>~</span>
+                      	<input type="text" id="endDt_S" class="input_calendar" autocomplete="off" required="required" onchange="gridViewDetail.setData(0);">
+                    </div>
+                </td>
+                <th>매입매출구분</th>
+                <td>
+                    <select id="selpch_S" required="required" onchange="gridViewDetail.setData(0);">
+                    	<option value="">전체</option>
+                    	<option value="SELPCH2">매출</option>
+                    	<option value="SELPCH1">매입</option>
+                 	</select>
+                </td>    
+			</tr>
+			<tr>
+			<!-- 
+                <th>판매법인</th>
+                <td>
+					<select id="taxivcCoprt_S" name="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="gridViewDetail.setData(0);">
+						<option value="">전체</option>
+					<option value="ESTCOPRT1" data-rprc="GUM" data-etc="1" data-desc="발행법인코드" data-dz-code="1000">금문철강(주)</option><option value="ESTCOPRT2" data-rprc="GUM" data-etc="3" data-desc="발행법인코드" data-dz-code="3000">금문철강(주) 인천공장</option><option value="ESTCOPRT3" data-rprc="GUM" data-etc="2" data-desc="발행법인코드" data-dz-code="2000">금문철강(주) 진천공장</option></select>
+				</td>
+			 -->
+				<th>계산서구분</th>
+				<td>
+                    <select id="bilgYn" required="required" onchange="gridViewDetail.setData(0);">
+                    	<option value="">전체</option>
+                    	<option value="Y">발행</option>
+                 	</select>
+                </td>
+                <th>제품그룹</th>
+                <td>
+					<select id="prdtGrp_S2" data-kind="PRDTGRP" data-search="prdtGrp" onchange="gridViewDetail.setData(0);">
+						<option value="">전체</option>
+					<option value="PRDTGRP1" data-rprc="undefined" data-etc="undefined" data-desc="철근,형강,철판 등" data-dz-code="undefined">철제품</option><option value="PRDTGRP2" data-rprc="undefined" data-etc="undefined" data-desc="건축자재, 시멘트,몰탈등" data-dz-code="undefined">건자재</option><option value="PRDTGRP3" data-rprc="undefined" data-etc="undefined" data-desc="관납 운반비,보관료 등" data-dz-code="undefined">관수</option><option value="PRDTGRP4" data-rprc="undefined" data-etc="undefined" data-desc="임가공" data-dz-code="undefined">임가공</option><option value="PRDTGRP99" data-rprc="undefined" data-etc="undefined" data-desc="기타" data-dz-code="undefined">기타제품</option></select>
+				</td>
+        	</tr>        
+    	</table>
+	</div>
+    <div class="popup_table">
+    	<form id="popForm">
+	        <div data-ax5grid="popup-grid" data-ax5grid-config="{}" style="height: 520px; width: 100%" ></div>
+	    </form>
+    </div>
+
+    <br>
+    <!-- 하단 버튼 -->
+    <div >
+    	<button class="btn btn-default btn-sm" onclick="gridViewDetail.setData(0);">조회</button>
+      	<button class="btn btn-default btn-sm" onclick="modalClose();">닫기</button>
+    </div>
+  </div>
+ 
+</body>
+<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+<script src="/static/js/jstree/jstree.min.js"></script>
+<script type="text/javascript">
+		
+	
+	var gridViewDetail = {
+			initView: function(){
+				
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			    	showRowSelector: false,
+			    	multipleSelect: false,
+			    	sortable: true,
+			        target: $('[data-ax5grid="popup-grid"]'),
+			        header: {
+			        	align: "center", 
+			        	selector: true
+			        },
+			        body: {
+			        	 onClick: function () {
+	 		                this.self.select(this.dindex);
+			            }
+			            , mergeCells : ["trstDt"]
+			        },
+			        columns: [
+			        	{key: "trstDt",       label: "날짜",   align: "center", width: "8%"},
+			            {key: "taxivcCoprtNm",label: "법인명",  align: "center", width: "12%"},
+			            {key: "clntNm",       label: "거래처명", align: "left", width: "16%"},
+				        {key: "gubunNm",      label: "구분",   align: "left", width: "8%"},
+			            {key: "bigo",         label: "적요",   align: "left", width: "20%"},
+			            {key: "sellAmt",      label: "차변",   align: "right", formatter: "money", width: "10%"},
+			            {key: "pchsAmt",      label: "대변",   align: "right", formatter: "money", width: "10%"},
+			            {key: "remaindAmt",   label: "잔액",   align: "right", formatter: "money",width: "10%"},
+			            {key: "rmk",          label: "확정구분", align: "center", width: "7%"},	
+			        ]
+			    });
+				return this;
+			}, 
+			setData: function(_pageNo) {
+				
+				firstGrid = this.target;
+			
+				var row = gridView.target.getList("selected")[0];
+				
+				var formData = {
+						"coCd"         : row.coCd,
+						"taxivcCoprt"  : "",
+						"prdtGrp"      : $("#prdtGrp_S2").val(),
+						"clntCd"       : row.clntCd,
+						"clntNm"       : row.clntNm,
+						"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
+						"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
+						"selpchCd"     : $("#selpch_S").val(),
+						"bilgYn"       : $('#bilgYn').val(),
+						"dailySumYn"   : "N",
+						"monthlySumYn" : "N",
+						"pageNo"       : 1, 
+						"recordCnt"    : 999999999
+				}
+				postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
+					var list = data.resultList;
+					var length = list.length;
+					/* 
+					
+					전월 이뤌과 합계 행을 제외해야하기 때문에, -2를 해줘야 보기 수월할 것
+					if(length == null){
+						length = 0;
+					}else{
+						length = length - 2;
+					} 
+					
+					*/
+	 				firstGrid.setData({
+	 					list : list,
+	 					page : {
+	 						totalElements : length,
+	 					}
+	 				});
+				});
+			}
+		}
+
+	$(document).ready(function() {
+		
+		
+		var today = new Date();
+
+		var year = today.getFullYear();
+		var month = ('0' + (today.getMonth() + 1)).slice(-2);
+		var day = ('0' + today.getDate()).slice(-2);
+
+		var todayT = year + month + day;
+		var todayT2 = year +"-"+ month +"-"+ day;
+
+		var threeMonthAgo = new Date(today.setMonth(today.getMonth() - 3));	// 한달 전
+		
+		var Tyear = threeMonthAgo.getFullYear();
+		var Tmonth = ('0' + (threeMonthAgo.getMonth() + 1)).slice(-2);
+		var Tday = ('0' + threeMonthAgo.getDate()).slice(-2);
+		
+		var threeDayT = Tyear + Tmonth + Tday;
+		var threeDayT2 = Tyear +"-"+ Tmonth +"-"+ Tday;
+		
+		$('#strtDt_S').val(threeDayT2);
+		$('#endDt_S').val(todayT2);
+		
+		// 시작일 (현재날짜의 월 첫일)
+		$('#strtDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", threeDayT2)
+		.on("changeDate", function(){
+			if($('#strtDt_S').val() > $('#endDt_S').val()){
+				alert("날짜를 확인해주세요");
+				$('#strtDt_S').datepicker("setDate", new Date($('#endDt_S').val()));
+			}
+		});
+		
+		// 종료일 (현재날짜의 월 말일)
+		$('#endDt_S').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", todayT2)
+		.on("changeDate", function(){
+			if($('#strtDt_S').val() > $('#endDt_S').val()){
+				alert("날짜를 확인해주세요");
+				$('#endDt_S').datepicker("setDate", new Date($('#strtDt_S').val()));
+			}
+		});
+		
+		$('#taxivcCoprt_S').data("rprc", $('#coCd').val());
+		$('#taxivcCoprt_S option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt_S'));
+		
+		gridViewDetail.initView().setData(0);
+		authChk("SM0601M01");
+		
+		
+	});
+
+	function modalClose(){
+		modalStack.close();
+	}
+	
+</script>
