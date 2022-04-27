@@ -186,8 +186,60 @@
 			var formData = makeSiteData();
 			filePostAjax("/user/sd/sd09/insertSite", formData, function(data){
 				alert(data.resultMessage);
-				$("#siteCd").val(data.siteCd);
-				$("#siteNm").val($('#siteInsertForm #siteNm').val());
+				// 현장 등록 후에도 현장명 자동으로 등록하지 않도록 변경
+				
+				var paramObj = {
+					"siteCd": data.siteCd
+				}
+				
+				postAjax("/user/sd/sd09/insertedSite", paramObj, null, function(insertedSiteData) {
+					if(insertedSiteData.insertedSite.ORD_TYP == "ORDTYP02"){
+						$('#ordrgPopup #typCd').val("SELLTYPE2"); // 가공
+						$('#ordrgPopup #dirtrsYn').val("N"); // 직송  
+						$('#ordrgPopup #ownerCd').val("OWNER1"); // 재고주체  
+						$('#ordrgPopup #dirtrsYn').prop("disabled", true);
+						$('#ordrgPopup #ownerCd').prop("disabled", true);  
+					} else if (insertedSiteData.ordTyp == "ORDTYP03"){
+						$('#ordrgPopup #typCd').val("SELLTYPE4"); // 임가공
+						$('#ordrgPopup #dirtrsYn').val("N");      // 직송 
+						$('#ordrgPopup #ownerCd').val("");        // 재고주체  
+					    $('#ordrgPopup #dirtrsYn').prop("disabled", true);
+						$('#ordrgPopup #ownerCd').prop("disabled", false);
+					}else{
+						$('#ordrgPopup #typCd').val("SELLTYPE1"); // 유통
+						$('#ordrgPopup #dirtrsYn').val("Y");      // 직송 
+						$('#ordrgPopup #ownerCd').val("OWNER1");        // 재고주체  
+					    $('#ordrgPopup #dirtrsYn').prop("disabled", false);
+						$('#ordrgPopup #ownerCd').prop("disabled", true); 
+					}
+					
+					ctrlDirtrsMasterP();
+
+					$('#ordrgPopup #siteCd').val(insertedSiteData.insertedSite.SITE_CD);
+					$('#ordrgPopup #siteNm').val(insertedSiteData.insertedSite.SITE_NM);
+					$('#ordrgPopup #prjctCd').val(insertedSiteData.insertedSite.PRJCT_CD);
+					$('#ordrgPopup #addrZip').val(insertedSiteData.insertedSite.SITE_ADDR_ZIP);
+					$('#ordrgPopup #addrMain').val(insertedSiteData.insertedSite.SITE_ADDR);
+					$('#ordrgPopup #addrSub').val(insertedSiteData.insertedSite.SITE_ADDR_SUB);
+					$('#ordrgPopup #mngTel').val(insertedSiteData.insertedSite.TEL_NO);
+					$('#ordrgPopup #salesAreaCd').val(insertedSiteData.insertedSite.SALES_AREA_CD);
+					$('#ordrgPopup #sellClntCd').val(insertedSiteData.insertedSite.CLNT_CD);
+					$('#ordrgPopup #sellClntNm').val(insertedSiteData.insertedSite.CLNT_NM);
+					$('#ordrgPopup #salesMng').val(insertedSiteData.insertedSite.SALES_EMP_ID);
+					$('#ordrgPopup #salesMngNm').val(insertedSiteData.insertedSite.SALES_EMP_NM);
+					
+					var whCd = $('#ordrgPopup #whCd').val();
+					if(whCd == ""){
+						$('#ordrgPopup #whCd').val(insertedSiteData.insertedSite.WH_CD); 
+					}
+					
+					var taxivcCoprt = $('#ordrgPopup #taxivcCoprt').val();
+					if(taxivcCoprt == ""){
+						$('#ordrgPopup #taxivcCoprt').val(insertedSiteData.insertedSite.TAXIVC_COPRT);
+					}
+
+				});
+				
 				modalStack.close();
 			});
 		}
@@ -202,5 +254,24 @@
 		var formData = new FormData($("#siteInsertForm")[0]);
 		formData.append("userId", jwt.userId);
 		return formData;
+	}
+	
+	// 직송여부 변경 master
+	function ctrlDirtrsMasterP(){
+		if($('#ordrgPopup #dirtrsYn').val() == "N") {
+			$('#ordrgPopup .drctArea input').val("");
+			$('#ordrgPopup .drctArea input').prop("disabled", true);
+			$('#ordrgPopup #sellClntNm').closest('td').prev().removeClass("hit");
+			$('#ordrgPopup #sellClntNm').prop("required", false);
+			$('#ordrgPopup .drctArea a').removeAttr("onclick");
+			$('#ordrgPopup .drctArea select').val("");
+			$('#ordrgPopup .drctArea select').prop("disabled", true);
+		} else {
+			$('#ordrgPopup .drctArea input').prop("disabled", false);
+			$('#ordrgPopup #sellClntNm').closest('td').prev().addClass("hit");
+			$('#ordrgPopup #sellClntNm').prop("required", true);
+			$('#ordrgPopup .drctArea a').attr("onclick", "openSecondClntSearch('SELL')");
+			$('#ordrgPopup .drctArea select').prop("disabled", false);
+		}
 	}
 </script>

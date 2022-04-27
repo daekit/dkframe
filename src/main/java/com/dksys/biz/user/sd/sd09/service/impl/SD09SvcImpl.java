@@ -251,4 +251,12 @@ public class SD09SvcImpl implements SD09Svc {
 		return sd09Mapper.selectClntFromWh(paramMap);
 		
 	}
+	
+
+	@Override
+	public Map<String, Object> insertedSite(Map<String, String> paramMap) {
+		Map<String, Object> insertedSite = sd09Mapper.insertedSite(paramMap);
+
+		return insertedSite;
+	}
 }

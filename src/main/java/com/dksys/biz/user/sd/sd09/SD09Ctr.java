@@ -130,4 +130,20 @@ public class SD09Ctr {
     	model.addAttribute("result", result);
     	return "jsonView";
 	}
+    
+    @PostMapping(value = "/insertedSite")
+    public String insertedSite(@RequestBody Map<String, String> paramMap, ModelMap model) {
+
+    	try {
+    		Map<String, Object> insertedSite = sd09Svc.insertedSite(paramMap);
+    		model.addAttribute("insertedSite", insertedSite);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch (Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	
+    	return "jsonView";
+    }
 }

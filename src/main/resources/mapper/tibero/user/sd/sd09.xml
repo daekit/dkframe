@@ -679,4 +679,109 @@
 		   
 	</select>
 	
+	<select id="insertedSite" parameterType="Map" resultType="Map">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+				, NAME AS SALES_EMP_NM
+			FROM
+			(
+				SELECT T.CO_CD
+					 , FN_CM05M01_CD_TO_NM(T.CO_CD) CO_NM
+					 , T.SITE_CD
+					 , T.CLNT_CD
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.CLNT_CD) AS CLNT_NM
+					 , T.PRJCT_CD
+					 , (SELECT PRJCT_NM FROM TB_SD05M01 WHERE PRJCT_CD = T.PRJCT_CD) AS PRJCT_NM
+					 , DECODE(NVL(T.PRJCT_CD,0),0,'N','Y') AS PRJCT_YN
+					 , T.SITE_NM
+					 , T.SITE_ABBR_NM
+					 , T.SITE_ADDR_ZIP
+					 , T.SITE_ADDR
+					 , T.SITE_ADDR_SUB
+					 , T.SITE_ADDR || '  ' || T.SITE_ADDR_SUB AS ADDR_FULL 
+					 , T.SITE_MNG_NM
+					 , T.TEL_NO
+					 , T.USE_YN
+					 , T.RMK
+					 , T.SITE_MES_CD
+					 , FN_CM05M01_CD_TO_NM(T.SALES_AREA_CD) SALES_AREA_NM
+					 , T.SALES_AREA_CD
+					 , T.ETC_FIELD1
+					 , T.ETC_FIELD2
+					 , T.ETC_FIELD3
+					 , FN_BM02_MNG_ID( T.CO_CD, T.CLNT_CD)  SALES_EMP_ID
+					 , SD05.MAKR_CD
+					 , FN_CM05M01_CD_TO_NM(SD05.MAKR_CD) MAKR_NM
+					 , T.WH_CD
+					 , FN_CM05M01_CD_TO_NM(T.WH_CD) WH_NM
+					 , T.SCND_WH_CD
+					 , FN_CM05M01_CD_TO_NM(T.SCND_WH_CD) SCND_WH_NM
+					 , T.THRD_WH_CD
+					 , FN_CM05M01_CD_TO_NM(T.THRD_WH_CD) THRD_WH_NM
+					 , (SELECT CODE_ETC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS TAXIVC_COPRT
+					 , SD05.ORD_TYP
+					 , T.MNG_ID
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MNG_ID) AS MNG_NM
+					 , T.ORD_TYP
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.ORD_TYP) AS ORD_TYP_NM
+					 , T.TNKEY_YN
+					 , T.MAKR_CD
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.MAKR_CD) AS MAKR_NM
+					 , T.CLNT_EMAIL
+					 , T.CLNT_FAX_NO
+					 , T.OUTORD_UPR
+					 , T.OUTORD_LOSS_RATE
+                     , T.PCHS_CLNT_CD
+                     , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.PCHS_CLNT_CD) AS PCHS_CLNT_NM
+                     , T.OUTORD_MNG_ID
+                     , T.OUTORD_MNG_NM
+                     , T.SCND_WH_MNG_ID
+                     , T.SCND_WH_MNG_NM
+                     , T.THRD_WH_MNG_ID
+                     , T.THRD_WH_MNG_NM
+                     , T.CPLR_PCHS_CLNT_CD
+                     , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.CPLR_PCHS_CLNT_CD) AS CPLR_PCHS_CLNT_NM
+                     , T.CPLR_SELL_CLNT_CD
+                     , (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE BM02.CLNT_CD = T.CPLR_SELL_CLNT_CD) AS CPLR_SELL_CLNT_NM
+			         , T.OUTORD_TEL_NO
+			         , T.SCND_WH_TEL_NO
+			         , T.THRD_WH_TEL_NO
+			         , T.RLLRVAL_USE_YN
+			         , T.ORGPLCE_PRTN_YN
+			         , T.TAG_CTTNLEN_DP_YN
+			         , T.NAVI_ADDR
+			         , T.PRCSN_UPR
+			         , T.ETHQKP_UPR
+			         , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.CREAT_ID) AS CREAT_NM
+			         , TO_CHAR(T.CREAT_DTTM, 'YYYY-MM-DD') CREAT_DTTM
+					 , (SELECT NAME FROM TB_CM06M01 WHERE ID = T.UDT_ID) AS UDT_NM
+					 , TO_CHAR(T.UDT_DTTM, 'YYYY-MM-DD') UDT_DTTM
+					 ,TO_CHAR(TO_DATE(T.STRT_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS STRT_DT
+					 ,TO_CHAR(TO_DATE(T.END_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS END_DT
+					 , T.BILDNG_TYP
+					 , FN_CM05M01_CD_TO_NM(T.BILDNG_TYP) BILDNG_TYP_NM
+					 , T.ENGRK_TYP
+					 , FN_CM05M01_CD_TO_NM(T.ENGRK_TYP) ENGRK_TYP_NM
+					 , T.SHOP_CLNT_CD
+					 , (SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.SHOP_CLNT_CD) AS SHOP_CLNT_NM
+					 , T.SHOP_UPR
+					 , T.TOT_WT
+				   FROM TB_SD09M01 T
+				  LEFT OUTER JOIN TB_SD05M01 SD05
+				        ON SD05.PRJCT_CD = T.PRJCT_CD
+					WHERE T.USE_YN = 'Y' 
+				 ORDER BY T.SITE_CD DESC, T.CO_CD, T.CLNT_CD, T.SITE_NM
+			) A			
+				  LEFT OUTER JOIN TB_CM06M01 ON ID = SALES_EMP_ID
+
+		)
+		WHERE
+				SITE_CD = #{siteCd}
+ 
+	</select>
+	
 </mapper>
