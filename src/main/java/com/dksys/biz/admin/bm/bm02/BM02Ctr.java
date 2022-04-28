@@ -39,7 +39,7 @@ public class BM02Ctr {
     	model.addAttribute("clntList", clntList);
         return "jsonView";
     }
-    
+
     // 거래처 정보 조회
     @PostMapping("/selectClntInfo")
     public String selectClntInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {

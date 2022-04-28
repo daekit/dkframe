@@ -123,13 +123,7 @@
 								</a>
 							</div>
 						</td>
-						<th>판매법인</th>
-						<td>
-							<select id="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="gridView.setData(0);" data-search="taxivcCoprt_S">
-								<option value="">전체</option>
-							</select>
-						</td>
-						<!-- 
+						 <!-- 
 						<th>거래처</th>
 						<td>
 							<input type="hidden" data-search="clntCd" id="clntCd">
@@ -140,6 +134,17 @@
 							</div>
 						</td>
 						 -->
+						
+						
+						<th>판매법인</th>
+						<td>
+							<select id="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="gridView.setData(0);" data-search="taxivcCoprt_S">
+								<option value="">전체</option>
+							</select>
+						</td>
+						
+
+						 
 					</tr>
 					<tr>
 						<th>제품그룹</th>
@@ -435,6 +440,7 @@
 	}
 	
 	// 거래처 검색
+	/*
 	function openSecondClntSearch(type) {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
@@ -442,6 +448,7 @@
 			$('#clntNm').val(row.clntNm);
 		});
 	}
+	*/
 	
 	// 제품 검색
 	function openSecondPrdtSearch(elem) {
@@ -450,16 +457,27 @@
 			"coCd"    : $('[data-search="coCd"]').val(),
 			"selpchCd": "SELPCH2",
 			"impYn"   : $('[data-search="impYn"]').val(),
-			"clntCd"  : $('[data-search="clntCd"]').val(),
+			// "clntCd" : $("#taxivcCoprt_S option:checked").attr("data-etc"),
 			"prjctCd" : $("#prjctCd").val(),
 			"useYn": "Y"
 		};
+		// console.log(paramObj);
 				
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$("#prdtCd").val(row.prdtCd);
 			$("#prdtNm").val(row.prdtNm);
 		});
+	}
+	
+	function selectClntNm(){
+		/*
+		var paramObj = {"clntNm" : $("#taxivcCoprt_S option:checked").text()};
+		postAjax("/admin/bm/bm02/selectClntNm", paramObj, null, function(data){
+			console.log(data.clntInfo.clntCd);
+			$('#clntCd').val(data.clntInfo.clntCd);
+		});
+		*/
 	}
 	
 	// 프로젝트 검색
@@ -532,13 +550,13 @@
 		         + "#prdtCd#"		+ $('[data-search="prdtCd"]').val()
 		         + "#prjctNm#"		+ $('[data-search="prjctNm"]').val()
 		         + "#ownerCd#"		+ $('[data-search="ownerCd"]').val()
-		         + "#clntCd#"		+ $('[data-search="clntCd"]').val()
-		         + "#clntNm#"		+ $('[data-search="clntNm"]').val()
+		         + "#taxivcCoprt_Cd#"		+ $("#taxivcCoprt_S option:checked").attr("data-etc")
+		         + "#taxivcCoprt_Nm#"		+ $("#taxivcCoprt_S option:checked").val()
 		         + "#impYn#"		+ $('[data-search="impYn"]').val()
 		         + "#whShowYn#"		+ $('[data-search="whShowYn"]').val()
 		        
 		         + "#";
-	   console.log('@@ : ', arg);
+	    console.log('@@ : ', arg);
 		callReport(fileName, arg, "1050", "700");
 		
 	}
