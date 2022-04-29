@@ -1415,9 +1415,11 @@
 			if(!siteValidation()) return false;
 			var formData = makeFormData();
 			filePutAjax("/user/od/od01/updateOrdrg", formData, function(data){
-				alert(data.resultMessage);    
+				// alert(data.resultMessage);    
 				if(data.resultCode == 200){
 					var ordrgSeq = $('#ordrgPopup #ordrgSeq').val();
+					ctrlAllChkBoxRemove();
+					updateConfirm('A');
 					modalStack.close();
 					ordrgGridView.setData(0);
 					setTimeout(function(){
@@ -1539,5 +1541,79 @@
 			$('#ordrgPopup .pchsSearchArea a').removeAttr("onclick");
 		}
 		$('#ordrgPopup .siteSearchArea a').removeAttr("onclick");
+	}
+	
+	function updateConfirm(type) {
+			var formData = makeFormDataUpdate('CONFIRM');
+			formData.comfirmType = type; // P 매입확정, S 매출확정, A 일괄
+			// 공장에서는 재고관리시 길이는 관리불가임으로 공통으로 8m를 입력한다. 나머지(하치장, 외주)는 실제 길이 관리한다.
+			var mngPrdtLen = ''; 
+			// if($('#ordrgPopup #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
+			formData.mngPrdtLen = mngPrdtLen;
+			putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
+				var message = data.resultMessage;
+				if(message == "확정 되었습니다."){
+					message = "수정 되었습니다.";	
+				}
+				
+				alert(message);
+				
+				if(data.resultCode == 200){
+					
+					ordrgGridView.setData(0);
+					/*
+					modalStack.close();
+					*/
+				}
+			});
+		/* } */
+	}
+		
+	function makeFormDataUpdate(type) {
+		//콤마 제거
+		$.each($('#ordrgPopup input[comma]'), function(idx, elem){
+			deleteComma(elem);
+		});
+		
+		// 폼데이터 생성
+		var formData = $("#ordrgPopup #popForm").serializeObject();
+		
+		// 유저아이디 추가
+		formData.userId = jwt.userId;
+		
+		// 상세내역 추가
+		
+		var detailArr = [];
+		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
+			if(type == "CONFIRM") {
+				if($(elem).find("input[name='detailChkBox']").is(":checked") ) {  //&& $(elem).find("input[name='ordrgYn']").val() == "N"
+					var detailObj = {};
+					$.each($(elem).find('[name]'), function(idx, elem){
+						if(elem.name == "ordrgProcId" && elem.value == "") elem.value = jwt.userId;
+						if(elem.name == "ordrgProcNm" && elem.value == "") elem.value = jwt.userNm;
+						detailObj[elem.name] = elem.value;
+					});
+					detailArr.push(detailObj);
+				}
+			} else {
+				if($(elem).find("input[name='detailChkBox']").is(":checked")) {  // && $(elem).find("input[name='ordrgYn']").val() == "Y"
+					var detailObj = {};
+					$.each($(elem).find('[name]'), function(idx, elem){
+						detailObj[elem.name] = elem.value;
+					});
+					detailArr.push(detailObj);
+				}
+			}
+		});
+		
+		formData.detailArr = JSON.stringify(detailArr);
+		
+		return formData;
+	}
+	
+	function ctrlAllChkBoxRemove(){
+		
+		$("input[name=detailChkBox]").prop("checked", false);
+		
 	}
 </script>

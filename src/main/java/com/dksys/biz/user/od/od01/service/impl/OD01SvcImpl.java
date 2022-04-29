@@ -182,7 +182,6 @@ public class OD01SvcImpl implements OD01Svc {
 	
 	@Override
 	public int updateOrdrg(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
-		System.out.println(paramMap);
 		int result = od01Mapper.updateOrdrg(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();
