@@ -109,25 +109,34 @@
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
 
-			postAjax("/user/sd/sd09/selectSiteList", paramObj, null, function(data){
-				var list = data.resultList;
-				targetObj.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
-				});
-			});
+			if(_pageNo != 999){
+				postAjax("/user/sd/sd09/selectSiteList", paramObj, null, function(data){
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				});	
+			}
+			
 		}
 	}
 	
 	$(document).ready(function() {
 		$('[data-search="siteNm"]').focus();
 		$('[data-search="siteNm"]').val(modalStack.last().paramObj.siteNm);
-		siteGridView.initView().setData(0);
+		
+		if(modalStack.last().paramObj.siteNm == '' || modalStack.last().paramObj.siteNm == undefined){
+			siteGridView.initView().setData(999);	
+		}else{
+			siteGridView.initView().setData(0);
+		}
+		
 		
 		var paramObj = modalStack.last().paramObj;
 		if(paramObj.insertYn == "N"){

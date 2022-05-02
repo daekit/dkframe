@@ -185,61 +185,67 @@
 		if(inputValidation($('#siteInsertForm [required]'))) {
 			var formData = makeSiteData();
 			filePostAjax("/user/sd/sd09/insertSite", formData, function(data){
-				alert(data.resultMessage);
-				// 현장 등록 후에도 현장명 자동으로 등록하지 않도록 변경
 				
+				// 현장 등록 후에도 현장명 자동으로 등록하지 않도록 변경
+				var msg = data.resultMessage;
+
 				var paramObj = {
 					"siteCd": data.siteCd
 				}
 				
-				postAjax("/user/sd/sd09/insertedSite", paramObj, null, function(insertedSiteData) {
-					if(insertedSiteData.insertedSite.ORD_TYP == "ORDTYP02"){
-						$('#ordrgPopup #typCd').val("SELLTYPE2"); // 가공
-						$('#ordrgPopup #dirtrsYn').val("N"); // 직송  
-						$('#ordrgPopup #ownerCd').val("OWNER1"); // 재고주체  
-						$('#ordrgPopup #dirtrsYn').prop("disabled", true);
-						$('#ordrgPopup #ownerCd').prop("disabled", true);  
-					} else if (insertedSiteData.ordTyp == "ORDTYP03"){
-						$('#ordrgPopup #typCd').val("SELLTYPE4"); // 임가공
-						$('#ordrgPopup #dirtrsYn').val("N");      // 직송 
-						$('#ordrgPopup #ownerCd').val("");        // 재고주체  
-					    $('#ordrgPopup #dirtrsYn').prop("disabled", true);
-						$('#ordrgPopup #ownerCd').prop("disabled", false);
-					}else{
-						$('#ordrgPopup #typCd').val("SELLTYPE1"); // 유통
-						$('#ordrgPopup #dirtrsYn').val("Y");      // 직송 
-						$('#ordrgPopup #ownerCd').val("OWNER1");        // 재고주체  
-					    $('#ordrgPopup #dirtrsYn').prop("disabled", false);
-						$('#ordrgPopup #ownerCd').prop("disabled", true); 
-					}
+				if(msg == "생성 되었습니다."){
 					
-					ctrlDirtrsMasterP();
+					postAjax("/user/sd/sd09/insertedSite", paramObj, null, function(insertedSiteData) {
+						if(insertedSiteData.insertedSite.ORD_TYP == "ORDTYP02"){
+							$('#ordrgPopup #typCd').val("SELLTYPE2"); // 가공
+							$('#ordrgPopup #dirtrsYn').val("N"); // 직송  
+							$('#ordrgPopup #ownerCd').val("OWNER1"); // 재고주체  
+							$('#ordrgPopup #dirtrsYn').prop("disabled", true);
+							$('#ordrgPopup #ownerCd').prop("disabled", true);  
+						} else if (insertedSiteData.ordTyp == "ORDTYP03"){
+							$('#ordrgPopup #typCd').val("SELLTYPE4"); // 임가공
+							$('#ordrgPopup #dirtrsYn').val("N");      // 직송 
+							$('#ordrgPopup #ownerCd').val("");        // 재고주체  
+						    $('#ordrgPopup #dirtrsYn').prop("disabled", true);
+							$('#ordrgPopup #ownerCd').prop("disabled", false);
+						}else{
+							$('#ordrgPopup #typCd').val("SELLTYPE1"); // 유통
+							$('#ordrgPopup #dirtrsYn').val("Y");      // 직송 
+							$('#ordrgPopup #ownerCd').val("OWNER1");        // 재고주체  
+						    $('#ordrgPopup #dirtrsYn').prop("disabled", false);
+							$('#ordrgPopup #ownerCd').prop("disabled", true); 
+						}
+						
+						ctrlDirtrsMasterP();
 
-					$('#ordrgPopup #siteCd').val(insertedSiteData.insertedSite.SITE_CD);
-					$('#ordrgPopup #siteNm').val(insertedSiteData.insertedSite.SITE_NM);
-					$('#ordrgPopup #prjctCd').val(insertedSiteData.insertedSite.PRJCT_CD);
-					$('#ordrgPopup #addrZip').val(insertedSiteData.insertedSite.SITE_ADDR_ZIP);
-					$('#ordrgPopup #addrMain').val(insertedSiteData.insertedSite.SITE_ADDR);
-					$('#ordrgPopup #addrSub').val(insertedSiteData.insertedSite.SITE_ADDR_SUB);
-					$('#ordrgPopup #mngTel').val(insertedSiteData.insertedSite.TEL_NO);
-					$('#ordrgPopup #salesAreaCd').val(insertedSiteData.insertedSite.SALES_AREA_CD);
-					$('#ordrgPopup #sellClntCd').val(insertedSiteData.insertedSite.CLNT_CD);
-					$('#ordrgPopup #sellClntNm').val(insertedSiteData.insertedSite.CLNT_NM);
-					$('#ordrgPopup #salesMng').val(insertedSiteData.insertedSite.SALES_EMP_ID);
-					$('#ordrgPopup #salesMngNm').val(insertedSiteData.insertedSite.SALES_EMP_NM);
-					
-					var whCd = $('#ordrgPopup #whCd').val();
-					if(whCd == ""){
-						$('#ordrgPopup #whCd').val(insertedSiteData.insertedSite.WH_CD); 
-					}
-					
-					var taxivcCoprt = $('#ordrgPopup #taxivcCoprt').val();
-					if(taxivcCoprt == ""){
-						$('#ordrgPopup #taxivcCoprt').val(insertedSiteData.insertedSite.TAXIVC_COPRT);
-					}
+						$('#ordrgPopup #siteCd').val(insertedSiteData.insertedSite.SITE_CD);
+						$('#ordrgPopup #siteNm').val(insertedSiteData.insertedSite.SITE_NM);
+						$('#ordrgPopup #prjctCd').val(insertedSiteData.insertedSite.PRJCT_CD);
+						$('#ordrgPopup #addrZip').val(insertedSiteData.insertedSite.SITE_ADDR_ZIP);
+						$('#ordrgPopup #addrMain').val(insertedSiteData.insertedSite.SITE_ADDR);
+						$('#ordrgPopup #addrSub').val(insertedSiteData.insertedSite.SITE_ADDR_SUB);
+						$('#ordrgPopup #mngTel').val(insertedSiteData.insertedSite.TEL_NO);
+						$('#ordrgPopup #salesAreaCd').val(insertedSiteData.insertedSite.SALES_AREA_CD);
+						$('#ordrgPopup #sellClntCd').val(insertedSiteData.insertedSite.CLNT_CD);
+						$('#ordrgPopup #sellClntNm').val(insertedSiteData.insertedSite.CLNT_NM);
+						$('#ordrgPopup #salesMng').val(insertedSiteData.insertedSite.SALES_EMP_ID);
+						$('#ordrgPopup #salesMngNm').val(insertedSiteData.insertedSite.SALES_EMP_NM);
+						
+						var whCd = $('#ordrgPopup #whCd').val();
+						if(whCd == ""){
+							$('#ordrgPopup #whCd').val(insertedSiteData.insertedSite.WH_CD); 
+						}
+						
+						var taxivcCoprt = $('#ordrgPopup #taxivcCoprt').val();
+						if(taxivcCoprt == ""){
+							$('#ordrgPopup #taxivcCoprt').val(insertedSiteData.insertedSite.TAXIVC_COPRT);
+						}
+						alert(insertedSiteData.resultMessage);
+					});
+				}else{
+					alert(data.resultMessage);
+				}
 
-				});
-				
 				modalStack.close();
 			});
 		}
