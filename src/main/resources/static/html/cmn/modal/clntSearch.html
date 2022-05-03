@@ -101,37 +101,45 @@
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
 			
-			
-			/* 검색어 숫자인지 문자인지 확인 (거래처명 코드 검색 시 사용)
-			 * isNaN true이면 문자 아니면 숫자
-			 */ 
-			var searchValue = paramObj.searchValue;
-			var searchType  = paramObj.searchType;
-			var isSearchValueNaN = isNaN(searchValue);
-			if(searchType == 'CLNT_CD' && isSearchValueNaN && searchValue != ''){
-				alert("거래처 코드는 숫자만 입력해주세요.");
-				return;
-			}
-			postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data) {
-				var list = data.clntList;
-				targetObj.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
+			if(_pageNo !== 999){
+				/* 검색어 숫자인지 문자인지 확인 (거래처명 코드 검색 시 사용)
+				 * isNaN true이면 문자 아니면 숫자
+				 */ 
+				var searchValue = paramObj.searchValue;
+				var searchType  = paramObj.searchType;
+				var isSearchValueNaN = isNaN(searchValue);
+				if(searchType == 'CLNT_CD' && isSearchValueNaN && searchValue != ''){
+					alert("거래처 코드는 숫자만 입력해주세요.");
+					return;
+				}
+				postAjax("/admin/bm/bm02/selectClntList", paramObj, null, function(data) {
+					var list = data.clntList;
+					targetObj.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
 				});
-			});
+			}
 		}
 	}
 
 	$(document).ready(function() {
 		$('[data-search="searchValue"]').focus();
 		$('[data-search="searchValue"]').val(modalStack.last().paramObj.searchValue);
+		
+		
+		if(modalStack.last().paramObj.searchValue == '' || modalStack.last().paramObj.searchValue == undefined){
+			clntGridView.initView().setData(999);
+		}else{
+			clntGridView.initView().setData(0);
+		}
+		
 		setCommonSelect($('#commonPopup select[data-kind]'));
-		clntGridView.initView().setData(0);
 	});
 	
 	function executeCallback(){
