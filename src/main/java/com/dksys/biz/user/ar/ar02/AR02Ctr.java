@@ -1,5 +1,6 @@
 package com.dksys.biz.user.ar.ar02;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.dksys.biz.admin.cm.cm08.service.CM08Svc;
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.exc.LogicException;
+import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.util.MessageUtils;
 
@@ -177,5 +179,20 @@ public class AR02Ctr {
 		model.addAttribute("fileName", fileName);
 		return "jsonView";
 	}
-	
+
+	@PostMapping(value = "/insertDeletePchsSell")
+    public String insertDeletePchsSell(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		try {
+			ar02Svc.insertDeletePchsSell(paramMap);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 }

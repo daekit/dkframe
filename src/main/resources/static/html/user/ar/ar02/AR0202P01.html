@@ -239,6 +239,10 @@
 			selectSellInfo();
 			$('#actionArBtn').on("click", function(){updatePchsSellPart();});
 			$('#actionArBtn').text("저장");
+		}else if(actionType == "D"){ // 조회 및 수정
+			selectSellInfo();
+			$('#actionArBtn').on("click", function(){dInsertPchsSellPart();});
+			$('#actionArBtn').text("수정");
 		}
 	}
 	
@@ -246,7 +250,7 @@
 		if(actionType == "U"){ // 반품
 			var row = subGridView.target.getList("selected")[0];
 			var trstCertiNo = row.trstCertiNo			
-		}else if(actionType == "I"){ // 조회 및 수정
+		}else if(actionType == "I" || actionType == "D"){ // 조회 및 수정
 			var trstCertiNo = modalStack.last().paramObj.trstCertiNo;
 		}
 		var formData = {
@@ -328,6 +332,10 @@
 				$('input[name="trstDcAmt"]').prop("disabled", true);	
 				$('input[name="etcAmt"]').prop("disabled", true);	
 			
+		}else if(actionType == "D"){
+			$('input[name="prdtSizeNm"]').prop("readonly", true);
+			$('input[name="prdtSpec"]').prop("readonly", true);
+			$('input[name="prdtSize"]').prop("readonly", true);
 		}
 	}
 	
@@ -487,12 +495,20 @@
 				
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
+			
 			$.each(row, function(key, value){
 				if($("input[name="+key+"]") != undefined)
 					$("input[name="+key+"]").val(value);
 			});
 			$('input[name="prdtUpr"]').val(row.ordrgUpr);
-			$('input[name="bilgUpr"]').val(row.ordrgUpr);
+			$('input[name="realTrstQty"]').val(0);
+			$('input[name="bilgQty"]').val(0);
+			$('input[name="realTrstWt"]').val(0);
+			$('input[name="bilgWt"]').val(0);
+			$('input[name="realTrstUpr"]').val(0);
+			$('input[name="bilgUpr"]').val(0);
+			$('input[name="realTrstAmt"]').val(0);
+			$('input[name="bilgAmt"]').val(0);
 			
 			if(row.prdtStockCd == "N") {
 				$('input[name="prdtSizeNm"]').prop("readonly", true);
@@ -592,6 +608,60 @@
 			});
 		}
 	}	
+	
+
+	
+	/* 수정 버튼을 위한 로직 설계 */
+	function dInsertPchsSellPart() {
+			insertDeletePchsSell();
+	}	
+	
+	function insertDeletePchsSell() {
+		if(inputValidation($('.popup_area [required]'))) {
+			var formData = makeFormData();
+			
+			formData.userId = jwt.userId;
+			formData.pgmId = "AR0202P01";
+			
+				
+			if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
+				postAjax("/user/ar/ar02/insertDeletePchsSell", formData, null, function(data){
+					alert(data.resultMessage);
+					if (data.resultCode == 200) {
+						subGridView.setData(0);
+						modalStack.close();
+					}
+				});
+			}else{
+				alert("수정할 수 없는 데이터 입니다.");
+			}
+
+			
+		}
+	}
+	
+	/*
+	function dDeleteSell(formData) {
+			var paramObj = {
+				"trstCertiNo" : formData.trstCertiNo,
+				"userId" : jwt.userId,
+				"pgmId" : "AR0201M02"
+			}
+			
+			if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
+			//전표 미발행, 매출화면에서 직접 등록한 데이터만 삭제 가능
+				deleteAjax("/user/ar/ar02/deleteSell", paramObj, null, function(data) {
+					alert(data.resultMessage);
+					if (data.resultCode == 200) {
+						subGridView.setData(0);
+					}
+				});
+			} else {
+				alert("삭제할 수 없는 데이터 입니다.");
+			}
+			
+	}
+	*/
 	function makeFormData() {
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);

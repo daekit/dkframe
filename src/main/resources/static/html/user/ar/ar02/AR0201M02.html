@@ -303,7 +303,14 @@
 		            		openModal("/static/html/user/ar/ar01/AR0102V01.html", 1300, 780, "", paramObj);
 		            	}else if(item.creatPgm == "AR0202P01"){
 		            		paramObj.trstCertiNo = item.trstCertiNo;
-		            		insertSellModal('I',paramObj);
+		            		
+		            		// 더블클릭시 확정 여부에 따라 수정버튼 나타내는 로직 변경하기 위한 값
+		            		if(item.bilgYn == "Y"){
+			            		insertSellModal('I',paramObj);	
+		            		}else{
+		            			insertSellModal('D',paramObj);
+		            		}
+		            		
 		            	}else{
 		            		alert("연결된 발주서 또는 출하요청서가 없습니다.");
 		            	}
@@ -416,13 +423,10 @@
 		setData: function(_pageNo) {
 			var targetObj = this.target;
 			var paramObj = {"selpchCd": "SELPCH2", "pageNo": _pageNo + 1};
-			console.log("과연:" + $('#dtKind option:selected').val());
 			if($('#dtKind option:selected').val() == 'sellDate'){
-				console.log("거래일자 데이터");
 				paramObj.dtKind = "sellDate";
 			}
 			if($('#dtKind option:selected').val() == 'dlvrDate'){
-				console.log("운송일자 데이터")
 				paramObj.dtKind = "dlvrDate";
 			}
 			
@@ -1154,7 +1158,8 @@
 			}
 		} else if (type == "I"){
 			modalTitle = "조회";
-			
+		} else if (type == "D"){
+			modalTitle = "조회";
 		} else {
 			modalTitle = "매출등록";
 		}
@@ -1200,7 +1205,6 @@
 		// 페이지 필요유무 추가
 		paramObj.pageYn = "N";
 		paramObj["dtKind"] = $('#dtKind').val();;
-		console.log(paramObj);
 		postAjaxSync("/user/ar/ar02/selectSellList", paramObj, null, function(data){
 			var list = data.resultList;
 			excelView.target.setData({

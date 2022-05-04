@@ -233,6 +233,10 @@
 			selectSellInfo();
 			$('#actionOdBtn').on("click", function(){updatePchsSellPart();});
 			$('#actionOdBtn').text("저장");
+		}else if(actionType == "D"){ // 조회 및 수정
+			selectSellInfo();
+			$('#actionOdBtn').on("click", function(){dInsertPchsSellPart();});
+			$('#actionOdBtn').text("수정");
 		}
 	}
 	
@@ -240,7 +244,7 @@
 		if(actionType == "U"){ // 반품
 			var row = subGridView.target.getList("selected")[0];
 			var trstCertiNo = row.trstCertiNo			
-		}else if(actionType == "I"){ // 조회 및 수정
+		}else if(actionType == "I" || actionType == "D"){ // 조회 및 수정
 			var trstCertiNo = modalStack.last().paramObj.trstCertiNo;
 		}
 		
@@ -322,6 +326,10 @@
 				$('input[name="trstDcAmt"]').prop("disabled", true);	
 				$('input[name="etcAmt"]').prop("disabled", true);	
 			
+		}else if(actionType == "D"){
+			$('input[name="prdtSizeNm"]').prop("readonly", true);
+			$('input[name="prdtSpec"]').prop("readonly", true);
+			$('input[name="prdtSize"]').prop("readonly", true);
 		}
 	}
 	
@@ -478,7 +486,14 @@
 					$("input[name="+key+"]").val(value);
 			});
 			$('input[name="prdtUpr"]').val(row.ordrgUpr);
-			$('input[name="bilgUpr"]').val(row.ordrgUpr);
+			$('input[name="realTrstQty"]').val(0);
+			$('input[name="bilgQty"]').val(0);
+			$('input[name="realTrstWt"]').val(0);
+			$('input[name="bilgWt"]').val(0);
+			$('input[name="realTrstUpr"]').val(0);
+			$('input[name="bilgUpr"]').val(0);
+			$('input[name="realTrstAmt"]').val(0);
+			$('input[name="bilgAmt"]').val(0);
 			
 			if(row.prdtStockCd == "N") {
 				$('input[name="prdtSizeNm"]').prop("readonly", true);
@@ -599,4 +614,34 @@
 		
 		return formData;
 	}
+	
+	/* 수정 버튼을 위한 로직 설계 */
+	function dInsertPchsSellPart() {
+			insertDeletePchsSell();
+	}	
+	
+	function insertDeletePchsSell() {
+		if(inputValidation($('.popup_area [required]'))) {
+			var formData = makeFormData();
+			
+			formData.userId = jwt.userId;
+			formData.pgmId = "OD0202P01";
+			
+				
+			if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
+				postAjax("/user/ar/ar02/insertDeletePchsSell", formData, null, function(data){
+					alert(data.resultMessage);
+					if (data.resultCode == 200) {
+						subGridView.setData(0);
+						modalStack.close();
+					}
+				});
+			}else{
+				alert("수정할 수 없는 데이터 입니다.");
+			}
+
+			
+		}
+	}
+	
 </script>

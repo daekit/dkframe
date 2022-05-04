@@ -342,6 +342,7 @@ public class AR02SvcImpl implements AR02Svc {
 				stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(paramMap.get("realTrstQty"));
 				stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(paramMap.get("realTrstWt"));
 			}
+			
 			paramMap.put("stockQty", String.valueOf(stockQty));
 			paramMap.put("stockWt",  String.valueOf(stockWt));
 			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
@@ -351,6 +352,7 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockChgCd", stockChgCd);
 			paramMap.put("userId", paramMap.get("userId"));
 			paramMap.put("pgmId", paramMap.get("pgmId"));
+			
 			sm01Mapper.updateStockSell(paramMap);						
 		}
 		
@@ -388,7 +390,6 @@ public class AR02SvcImpl implements AR02Svc {
 	@Override
 	// 매입 / 반입 / 매출 / 반품
 	public void insertPchsSell(Map<String, String> paramMap) throws Exception{
-		
 		long totAmt = 0;
     	long bilgAmt = Long.parseLong(paramMap.get("bilgAmt"));
     	int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
@@ -714,6 +715,254 @@ public class AR02SvcImpl implements AR02Svc {
 			}
 		}
 		return true;
+	}
+	
+	
+
+	@Override
+	// 매입 / 반입 / 매출 / 반품
+	public void insertDeletePchsSell(Map<String, String> paramMap) throws Exception{
+		Map<String, String> paramMapBackUp = new HashMap<>();
+		paramMapBackUp.putAll(paramMap);
+		
+		Map<String, String> sellInfoMap = ar02Mapper.selectSellInfo(paramMap);
+		paramMap.putAll(sellInfoMap);
+		
+		if("Y".equals(sellInfoMap.get("bilgYn"))) {
+			thrower.throwCommonException("fail");
+		}else {
+
+			long totAmt = 0;
+	    	long bilgAmt = Long.parseLong(paramMap.get("bilgAmt"));
+	    	int bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+	    	long bilgVatAmt = (long) Math.floor(bilgAmt * bilgVatPer / 100);
+	    	totAmt = bilgAmt + bilgVatAmt;
+	    	
+	    	// 여신맵 초기화
+	    	Map<String, Object> loanMap = new HashMap<String, Object>();
+			loanMap.put("coCd", paramMap.get("coCd"));
+			loanMap.put("clntCd", paramMap.get("clntCd"));
+			loanMap.put("prdtGrp", paramMap.get("prdtGrp"));
+			loanMap.put("trstDt", paramMap.get("trstDt"));
+			
+			if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+	        // 매입
+				if(!ar02Svc.checkPchsClose(paramMap)) {
+				// 마감 체크
+					thrower.throwCommonException("pchsClose");
+				}
+	        }else if("SELPCH2".equals(paramMap.get("selpchCd"))){
+	        // 매출
+	        	if(!ar02Svc.checkSellClose(paramMap)) {
+	    		// 마감 체크
+	        		thrower.throwCommonException("sellClose");
+				}
+	        	if(bilgAmt < 0) {
+	    		// 매출리스트에서 반품건 삭제
+	        		// 여신 체크
+	        		loanMap.put("totAmt", -1 * totAmt);
+	        		long diffLoan = ar02Svc.checkLoan(loanMap);
+	        		if(diffLoan < 0) {
+	                	thrower.throwCreditLoanException("", diffLoan);
+	                }
+	        	}
+	        }
+	        
+			// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+			if("OWNER1".equals(paramMap.get("ownerCd").toString())) {		
+				paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
+			}
+			
+			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+			
+			if(stockInfo != null) {
+				int stockQty = 0;
+				int stockWt = 0;
+				String stockChgCd = "STOCKCHG09";
+				if("SELPCH2".equals(paramMap.get("selpchCd"))) 
+				{
+					stockChgCd = "STOCKCHG09";
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + Integer.parseInt(paramMap.get("realTrstQty"));
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + Integer.parseInt(paramMap.get("realTrstWt"));
+				} else 
+				{
+					stockChgCd = "STOCKCHG08";
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - Integer.parseInt(paramMap.get("realTrstQty"));
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - Integer.parseInt(paramMap.get("realTrstWt"));
+				}
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				paramMap.put("stockWt",  String.valueOf(stockWt));
+				paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+				paramMap.put("stdUpr", stockInfo.get("stdUpr"));
+				paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+				paramMap.put("sellUpr", paramMap.get("bilgUpr"));
+				paramMap.put("stockChgCd", stockChgCd);
+				paramMap.put("userId", paramMap.get("userId"));
+				paramMap.put("pgmId", paramMap.get("pgmId"));
+				sm01Mapper.updateStockSell(paramMap);						
+			}
+			
+			ar02Mapper.deleteSell(paramMap);
+			
+			// 여신 체크후 차감 / 여신 증가
+			long loanPrcsResult = 0;
+			if("SELPCH2".equals(paramMap.get("selpchCd"))){
+	        // 매출
+	        	if(bilgAmt < 0) {
+	    		// 매출리스트에서 반품건 삭제
+	        		// 여신 체크
+	        		loanMap.put("totAmt", -1 * totAmt);
+	        		long diffLoan = ar02Svc.checkLoan(loanMap);
+	        		if(diffLoan < 0) {
+	                	thrower.throwCreditLoanException("", diffLoan);
+	                }else {
+	                	// 여신 차감
+	                	loanPrcsResult = ar02Svc.deductLoan(loanMap);
+	                }
+	        	}else if(bilgAmt > 0){
+	        	// 매출리스트에서 매출건 삭제
+	        		loanMap.put("totAmt", totAmt);
+	        		// 여신 누적
+	        		loanPrcsResult = ar02Svc.depositLoan(loanMap);
+	        	}
+	        }
+			
+			// 여신 차감 / 여신 증가후 음수 return시 롤백
+			if(loanPrcsResult < 0) {
+				throw new Exception();
+			}
+			
+			// 수정 로직 시작
+			
+			paramMap.putAll(paramMapBackUp);
+			
+			long totAmtBackUp = totAmt;
+			totAmt = 0;
+	    	bilgAmt = Long.parseLong(paramMap.get("bilgAmt"));
+	    	bilgVatPer = ar02Mapper.selectBilgVatPer(paramMap);
+	    	bilgVatAmt = (long) Math.floor(bilgAmt * bilgVatPer / 100);
+	    	totAmt = bilgAmt + bilgVatAmt;
+	    	
+	    	// 여신맵 초기화
+	    	loanMap = new HashMap<String, Object>();
+			loanMap.put("coCd", paramMap.get("coCd"));
+			loanMap.put("clntCd", paramMap.get("clntCd"));
+			loanMap.put("prdtGrp", paramMap.get("prdtGrp"));
+			loanMap.put("trstDt", paramMap.get("trstDt"));
+	    	
+	        if("SELPCH1".equals(paramMap.get("selpchCd"))) {
+	        // 매입 / 반입
+				if(!ar02Svc.checkPchsClose(paramMap)) {
+				// 마감 체크
+					thrower.throwCommonException("pchsClose");
+				}
+	        }else if("SELPCH2".equals(paramMap.get("selpchCd"))){
+	        // 매출 / 반품
+	        	if(!ar02Svc.checkSellClose(paramMap)) {
+	    		// 마감 체크
+	        		thrower.throwCommonException("sellClose");
+				}
+	        	if(bilgAmt > 0) {
+	    		// 매출 / 반품의 반품
+	        		loanMap.put("totAmt", totAmt);
+	        		// 여신 체크
+	        		long diffLoan = ar02Svc.checkLoan(loanMap) + totAmtBackUp;
+	        		if(diffLoan < 0) {
+	                	thrower.throwCreditLoanException("", diffLoan);
+	                }
+	        	}
+	        }
+	        
+			int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
+			int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
+			// 파라미터로부터 전달받은 거래처 backup
+			String clntCd = paramMap.get("clntCd");
+			
+			if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
+			{
+				// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
+				if("OWNER1".equals(paramMap.get("ownerCd").toString())) {		
+					paramMap.put("clntCd",  ar02Mapper.selectOwner1ClntCd(paramMap));		
+				}
+			}
+			stockInfo = sm01Mapper.selectStockInfo(paramMap);
+			
+			if(stockInfo == null) {
+				paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
+				paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
+				stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty*-1;
+				stockWt  = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockWt : stockWt*-1;
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				paramMap.put("stockWt", String.valueOf(stockWt));
+			} else {
+				//매출일때
+				if("SELPCH2".equals(paramMap.get("selpchCd"))) 
+				{
+					paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
+					paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt")) - stockWt;
+				}
+				//매입일때
+				else 
+				{
+					paramMap.put("pchsUpr", paramMap.get("realTrstUpr"));
+					paramMap.put("sellUpr", stockInfo.get("sellUpr"));
+					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + stockQty;
+					stockWt  = Integer.parseInt(stockInfo.get("stockWt")) + stockWt;
+				}
+				paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+				paramMap.put("stdUpr", stockInfo.get("stdUpr"));
+				paramMap.put("stockQty", String.valueOf(stockQty));
+				paramMap.put("stockWt",  String.valueOf(stockWt));
+			}
+			
+			if(paramMap.containsKey("prdtStockCd") && "Y".equals(paramMap.get("prdtStockCd").toString())) 
+			{
+				// 재고정보 update
+				sm01Mapper.updateStockSell(paramMap);
+			}
+			
+			// 부가세 put
+	        paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt));
+	        // 납품일자 put
+	        paramMap.put("dlvrDttm", paramMap.get("trstDt"));
+			// 거래처 원복
+			paramMap.put("clntCd", clntCd);
+			// insert
+			ar02Mapper.insertPchsSell(paramMap);
+			
+			// 여신 체크후 차감 / 여신 증가
+			loanPrcsResult = 0;
+			if("SELPCH2".equals(paramMap.get("selpchCd"))){
+	        // 매출 / 반품
+	        	if(bilgAmt > 0) {
+	    		// 매출 / 반품의 반품
+	        		loanMap.put("totAmt", totAmt);
+	        		// 여신 체크
+	        		long diffLoan = ar02Svc.checkLoan(loanMap) + totAmtBackUp;
+	        		if(diffLoan < 0) {
+	                	thrower.throwCreditLoanException("", diffLoan);
+	                }else {
+	                	// 여신 차감
+	                	loanPrcsResult = ar02Svc.deductLoan(loanMap);
+	                }
+	        	}else if(bilgAmt < 0){
+	        	// 반품
+	        		loanMap.put("totAmt", -1 * totAmt);
+	        		// 여신 누적
+	        		loanPrcsResult = ar02Svc.depositLoan(loanMap);
+	        	}
+	        }
+			
+			// 여신 차감 / 여신 증가후 음수 return시 롤백
+			if(loanPrcsResult < 0) {
+				throw new Exception();
+			}
+		}
+		
 	}
 
 }
