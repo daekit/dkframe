@@ -799,33 +799,36 @@
 	function setTot(){
 		var totBilgAmt   = 0;
 		var totEtrdpsAmt = 0;
- 		var etrdpsAmt = deleteCommaStr($("#etrdpsAmt").val());
+ 		var etrdpsAmt = deleteCommaStr($("#etrdpsAmt").val()); // 전체 금액
  		
  		
-		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) {
-			var tableBilgAmt = Number(deleteCommaStr($(elem).find("input[name='bilgTot']").val()));
-			
-			if($(elem).find("input[name='detailChkBox']").prop("checked")){
+		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) { // 하나를 체크해도 모든 행을 확인한다.
+			var tableBilgAmt = Number(deleteCommaStr($(elem).find("input[name='bilgTot']").val())); // 채권금액
+			console.log("== 채권금액 ==");
+			console.log(tableBilgAmt);
+			if($(elem).find("input[name='detailChkBox']").prop("checked")){ // 이번 행의 체크박스가 체크되어있는가?
 				
-				var tableEtrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val()));
-				
+				var tableEtrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val())); // 수금액 = 채권금액
+
 				if(!tableEtrdpsAmt){
 					tableEtrdpsAmt = 0;
 				} 
 				
 				if(tableEtrdpsAmt > 0) {
+					// 전체금액 > 누적금액 + 수금액(채권금액)
 					if(etrdpsAmt > Number(totEtrdpsAmt) + Number(tableEtrdpsAmt)){
 							totEtrdpsAmt += tableEtrdpsAmt;
-					} 
-					
-					else {
+					} else {
 	 					$(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
 						totEtrdpsAmt = etrdpsAmt;
 					}
-				}
-				else{
-					$(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
-					totEtrdpsAmt = etrdpsAmt;
+				// 마이너스 금액의 케이스를 if문으로 빼고 마이너스 일 경우 0을 하드코딩해서 넣어준 뒤 계산에서 빼는 형식
+				}else if(tableEtrdpsAmt < 0){
+					// $(elem).find("input[name='etrdpsAmt']").val(addCommaStr(Number(etrdpsAmt) - Number(totEtrdpsAmt)));
+					$(elem).find("input[name='etrdpsAmt']").val(0);
+					// totEtrdpsAmt = etrdpsAmt;
+				}else{
+					
 				}
 					
 			}
