@@ -298,4 +298,11 @@ public class ObjectUtil {
         }
         return (BigDecimal)object;
     }
+
+    public static BigDecimal defaultBigDecimalNotNull(Object object) {
+        if (object == null) {
+            return null;
+        }
+        return new BigDecimal(object.toString());
+    }
 }

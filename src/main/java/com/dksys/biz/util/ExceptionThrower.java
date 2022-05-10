@@ -1,5 +1,6 @@
 package com.dksys.biz.util;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -24,6 +25,21 @@ public class ExceptionThrower{
 	public void throwCreditLoanException(String prdtGrp, Long diffLoan) throws LogicException{
 		NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
 		diffLoan *= -1;
+		String diffLoanStr = numberFormat.format(diffLoan);
+		String prdtGrpNm = bm01Mapper.selectProductGroupNm(prdtGrp);
+		
+		String message = "";
+		if(prdtGrpNm != null) {
+			message += prdtGrpNm + "그룹의 ";
+		}
+		message += "여신이" + diffLoanStr + "원 만큼 부족합니다."; 
+		throw new LogicException(message);
+	}
+	
+	public void throwCreditLoanExceptionBig(String prdtGrp, BigDecimal diffLoan) throws LogicException{
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
+		diffLoan = diffLoan.multiply(new BigDecimal("-1"));
+		
 		String diffLoanStr = numberFormat.format(diffLoan);
 		String prdtGrpNm = bm01Mapper.selectProductGroupNm(prdtGrp);
 		

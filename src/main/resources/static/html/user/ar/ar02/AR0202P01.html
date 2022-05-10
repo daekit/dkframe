@@ -587,25 +587,30 @@
 	function insertPchsSell() {
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
-			postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
-				alert(data.resultMessage);
-				if (data.resultCode == 200) {
-					subGridView.setData(0);
-					modalStack.close();
-				}
-			});
+			if(checkTotalAmt()){
+				postAjax("/user/ar/ar02/insertPchsSell", formData, null, function(data){
+					alert(data.resultMessage);
+					if (data.resultCode == 200) {
+						subGridView.setData(0);
+						modalStack.close();
+					}
+				});	
+			}
 		}
 	}
 	function updatePchsSellPart() {
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
-			putAjax("/user/ar/ar02/updatePchsSellPart", formData, null, function(data){
-				alert(data.resultMessage);
-				if (data.resultCode == 200) {
-					subGridView.setData(0);
-					modalStack.close();
-				}
-			});
+			if(checkTotalAmt()){
+				putAjax("/user/ar/ar02/updatePchsSellPart", formData, null, function(data){
+					alert(data.resultMessage);
+					if (data.resultCode == 200) {
+						subGridView.setData(0);
+						modalStack.close();
+					}
+				});				
+			}
+
 		}
 	}	
 	
@@ -619,24 +624,24 @@
 	function insertDeletePchsSell() {
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
-			
-			formData.userId = jwt.userId;
-			formData.pgmId = "AR0202P01";
-			
+			if(checkTotalAmt()){
 				
-			if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
-				postAjax("/user/ar/ar02/insertDeletePchsSell", formData, null, function(data){
-					alert(data.resultMessage);
-					if (data.resultCode == 200) {
-						subGridView.setData(0);
-						modalStack.close();
-					}
-				});
-			}else{
-				alert("수정할 수 없는 데이터 입니다.");
-			}
-
-			
+				formData.userId = jwt.userId;
+				formData.pgmId = "AR0202P01";
+				
+					
+				if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
+					postAjax("/user/ar/ar02/insertDeletePchsSell", formData, null, function(data){
+						alert(data.resultMessage);
+						if (data.resultCode == 200) {
+							subGridView.setData(0);
+							modalStack.close();
+						}
+					});
+				}else{
+					alert("수정할 수 없는 데이터 입니다.");
+				}	
+			}			
 		}
 	}
 	
@@ -683,4 +688,20 @@
 		
 		return formData;
 	}
+	
+	function checkTotalAmt(){
+		var totalAmtV = $('input[name=realTrstAmt]').val();
+		var totalAmtT = $('input[name=bilgAmt]').val();
+		
+		totalAmtV *= 1;
+		totalAmtT *= 1;
+		
+		if(!Number.isInteger(totalAmtV) || !Number.isInteger(totalAmtT)){
+			alert("매출금액을 확인해주세요.");
+			return false;
+		}else{
+			return true;
+		}
+	}
+	
 </script>
