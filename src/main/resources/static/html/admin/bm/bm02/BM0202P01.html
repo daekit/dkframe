@@ -454,6 +454,35 @@
 				 	</td>				 	
 				 </tr>
 			</table>
+			<table>
+				<colgroup>
+					<col width="8%">
+					<col width="6%">
+					<col width="8%">
+					<col width="8%">
+					<col width="10%">
+					<col width="8%">
+					<col width="8%">
+					<col width="8%">
+					<col width="32%">
+					<col width="6%">
+					<col width="8%">
+				</colgroup>
+				<tbody><tr>
+					<th class="tc" colspan="5">합계</th>
+					<td>
+						<input class="tr" type="text" id="pldgTotAmt" name="pldgTotAmt" comma="" readonly="">
+					</td>
+					<td></td> 
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody></table>
 			<br>
 			<!-- 첨부파일 테이블 -->
 			<table class="popup_table">
@@ -628,6 +657,8 @@
 			$('#pldgTable tbody tr[name="bizdeptHead"]').remove();
 			$('#pldgTable tbody').append('<tr><td colspan="9" class="tc">담보내역이 없습니다.</td></tr>');
 		}
+		
+		countTot();
 		
 		// 첨부파일 set
 		var clntFileList = clntInfo.clntFileList;
@@ -884,5 +915,27 @@
 		}else{
 			$('#sellTypePopup #sellClmnDay').prop("readonly", false);
 		}
+	}
+	
+	function countTot() {
+		var pldgTotAmt = 0;
+		var cdtlnTotAmt = 0;
+		debugger;
+		
+		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
+			var pldgAmt = Number(deleteCommaStr($(elem).find('input[name="pldgAmt"]').val())) || 0;
+// 			var cdtlnAmt = Number(deleteCommaStr($(elem).find('input[name="cdtlnAmt"]').val())) || 0;
+
+           // var useYn = $(elem).find('input[name="useYn"]').val();
+
+		   if($(elem).find('input[name="useYn"]').val() == "Y")
+			{
+				pldgTotAmt += pldgAmt;
+	// 			cdtlnTotAmt += cdtlnAmt;
+			} 
+		});
+		$('#pldgTotAmt').val(addCommaStr(pldgTotAmt));
+// 		$('#cdtlnTotAmt').val(addCommaStr(cdtlnTotAmt));
+
 	}
 </script>
