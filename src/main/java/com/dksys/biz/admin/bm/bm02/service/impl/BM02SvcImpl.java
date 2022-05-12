@@ -54,7 +54,7 @@ public class BM02SvcImpl implements BM02Svc {
 		if(bizdeptList != null) {
 			// 사업부 insert
 			for(Map<String, String> bizdeptMap : bizdeptList) {
-				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
+				bizdeptMap.put("clntCd_P", paramMap.get("clntCd_P"));
 				bizdeptMap.put("userId", paramMap.get("userId"));
 				bizdeptMap.put("pgmId", paramMap.get("pgmId"));
 				bm02Mapper.insertBizdept(bizdeptMap);
@@ -65,7 +65,7 @@ public class BM02SvcImpl implements BM02Svc {
 		if(pldgList != null) {
 			// 담보내역 insert
 			for(Map<String, String> pldgMap : pldgList) {
-				pldgMap.put("clntCd", paramMap.get("clntCd"));
+				pldgMap.put("clntCd_P", paramMap.get("clntCd_P"));
 				pldgMap.put("userId", paramMap.get("userId"));
 				pldgMap.put("pgmId", paramMap.get("pgmId"));
 				bm02Mapper.insertPldg(pldgMap);
@@ -73,7 +73,7 @@ public class BM02SvcImpl implements BM02Svc {
 		}
 		
 		// 파일 업로드
-		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
+		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd_P"), mRequest);
 	}
 	
 	@Override
@@ -92,7 +92,7 @@ public class BM02SvcImpl implements BM02Svc {
 		//	bm02Mapper.deleteBizdept(paramMap);
 			// 사업부 insert
 			for(Map<String, String> bizdeptMap : bizdeptList) {
-				bizdeptMap.put("clntCd", paramMap.get("clntCd"));
+				bizdeptMap.put("clntCd_P", paramMap.get("clntCd_P"));
 				bizdeptMap.put("userId", paramMap.get("userId"));
 				bizdeptMap.put("pgmId", paramMap.get("pgmId"));
 				bizdeptMap.put("udtId",  paramMap.get("userId"));
@@ -110,7 +110,7 @@ public class BM02SvcImpl implements BM02Svc {
 		if(pldgList != null) {
 			// 담보내역 insert
 			for(Map<String, String> pldgMap : pldgList) {
-				pldgMap.put("clntCd", paramMap.get("clntCd"));
+				pldgMap.put("clntCd_P", paramMap.get("clntCd_P"));
 				pldgMap.put("userId", paramMap.get("userId"));
 				pldgMap.put("pgmId",  paramMap.get("pgmId"));
 				pldgMap.put("udtId",  paramMap.get("userId"));
@@ -126,7 +126,7 @@ public class BM02SvcImpl implements BM02Svc {
 		}
 		
 		// 파일 업로드
-		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd"), mRequest);
+		cm08Svc.uploadFile("TB_BM02M01", paramMap.get("clntCd_P"), mRequest);
 		// 파일 삭제
 		List<String> deleteFileList = gson.fromJson(paramMap.get("deleteFileArr"), stringList);
 		for(String fileKey : deleteFileList) {
