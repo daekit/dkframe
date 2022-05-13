@@ -77,7 +77,7 @@ public class CM06SvcImpl implements CM06Svc {
 	public Map<String, String> updatePwErrCnt(Map<String, String> paramMap) {
 		cm06Mapper.updatePwErrCnt(paramMap);
 		Map<String, String> usrInfo = cm06Mapper.selectUserInfo(paramMap);
-		if(Integer.parseInt(usrInfo.get("passErrCnt")) >= 5) {
+		if(Integer.parseInt(usrInfo.get("passErrCnt")) >= 10) {
 			cm06Mapper.updateUserN(paramMap);
 		}
 		return usrInfo;
