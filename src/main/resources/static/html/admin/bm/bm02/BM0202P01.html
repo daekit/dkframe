@@ -11,7 +11,8 @@
 			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 			<form id="clntForm">
 				<input type="hidden" id="pgmId" name="pgmId" value="BM0202P01">
-				<input type="hidden" id="clntCd" name="clntCd">
+				<input type="hidden" id="clntCd_P" name="clntCd_P">
+				<input type="hidden" id="targetCd" name="targetCd">
 				<!-- 기본정보 테이블 -->
 				<table class="popup_table">
 					<colgroup>
@@ -34,7 +35,8 @@
 						<tr>
 							<th class="hit">거래처명</th>
 							<td>
-								<input type="text" class="form-control" id="clntNm" name="clntNm" maxlength="25" required msg="회사명">
+								<input type="text" class="form-control" id="clntNm_P" name="clntNm_P" maxlength="25" required msg="회사명">
+								<input type="hidden" id="targetNm">
 							</td>
 							<th class="hit">사업자등록번호</th>
 							<td>
@@ -602,13 +604,20 @@
 		// 기본정보 set
 		$.each(clntInfo, function(key, value){
 			if($('#'+key)[0]){
-				$('#'+key).val(value);
-				// 금액 콤마 set
-				if($('#'+key).is('[comma]')){
-					onlyNumber($('#'+key)[0]);
+				if(key == 'clntCd' || key == 'clntNm'){
+				
+				}else{
+					$('#'+key).val(value);
+					// 금액 콤마 set
+					if($('#'+key).is('[comma]')){
+						onlyNumber($('#'+key)[0]);
+					}	
 				}
 			}
 		});
+		
+		$('#targetNm').prev().val(clntInfo.clntNm);
+		$('#targetCd').prev().val(clntInfo.clntCd);
 		
 		//연계거래처 없을 시 공통여신금액(연계거래처) > ''
 		var linkGrpClntNm = $('#linkGrpClntNm').val();
@@ -920,7 +929,6 @@
 	function countTot() {
 		var pldgTotAmt = 0;
 		var cdtlnTotAmt = 0;
-		debugger;
 		
 		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
 			var pldgAmt = Number(deleteCommaStr($(elem).find('input[name="pldgAmt"]').val())) || 0;
