@@ -54,6 +54,29 @@ public class AR02SvcImpl implements AR02Svc {
 	
 	@Override
 	public int selectSellCount(Map<String, String> paramMap) {
+		
+		String dtTo = paramMap.get("dtTo");
+		String dtFrom = paramMap.get("dtFrom");
+		String dtKind = paramMap.get("dtKind");
+		
+		//매출리스트에서 일자 선택을 매출일자로 했을때
+		if("sellDate".equals(dtKind)) {
+			paramMap.put("reqDtTo", "");
+			paramMap.put("reqDtFrom", "");
+			
+			paramMap.put("reqDtTo", dtTo);
+			paramMap.put("reqDtFrom", dtFrom);
+		}
+		
+		//매출리스트에서 일자 선택을 운송일자로 했을때
+		if("dlvrDate".equals(dtKind)) {
+			paramMap.put("realDlvrDtTo", "");
+			paramMap.put("realDlvrDtFrom", "");
+			
+			paramMap.put("realDlvrDtTo", dtTo);
+			paramMap.put("realDlvrDtFrom", dtFrom);
+		}
+		
 		return ar02Mapper.selectSellCount(paramMap);
 	}
 
