@@ -208,6 +208,9 @@
 			<if test="estCoprt != null and !estCoprt.equals('')">
 				AND T.TAXIVC_COPRT = #{estCoprt}				
 			</if>
+			<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+				AND T.TAXIVC_COPRT = #{taxivcCoprt}				
+			</if>
 			<if test="dirtrsYn != null and !dirtrsYn.equals('')">
 				AND T.DIRTRS_YN = #{dirtrsYn}				
 			</if>
@@ -254,6 +257,9 @@
 			<if test="trspTypCd != null and !trspTypCd.equals('')">
 				AND T.TRSP_TYP_CD = #{trspTypCd}
 			</if>
+			<if test="makrCd != null and !makrCd.equals('')">
+				AND T.MAKR_CD = #{makrCd}
+			</if>
 			GROUP BY 
 				T.CO_CD
 				, T.TRST_CLNT_CD
@@ -296,16 +302,16 @@
 				    	SD09M01.SITE_NM,
 					    T.PRJCT_CD,
 				    </if>
-<!-- 				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'"> -->
-<!-- 					   (SELECT CLNT_NM FROM TB_BM02M01  BM02 -->
-<!-- 		                     INNER JOIN  TB_OD01M01 OD01M01  ON BM02.CLNT_CD = OD01M01.CLNT_CD  -->
-<!-- 		                     WHERE  T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ  AND T.CREAT_PGM LIKE 'OD'||'%') AS PCHS_CLNT_NM,  -->
-<!-- 				    </if>  -->
-<!-- 				    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'"> -->
-<!-- 					   (SELECT CLNT_NM FROM TB_BM02M01  BM02 -->
-<!-- 		                     INNER JOIN  TB_OD01M01 OD01M01  ON BM02.CLNT_CD = OD01M01.SELL_CLNT_CD  -->
-<!-- 		                     WHERE  T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ  AND T.CREAT_PGM LIKE 'OD'||'%') AS SELL_CLNT_NM,  -->
-<!-- 				    </if> -->
+ 				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
+ 					   (SELECT CLNT_NM FROM TB_BM02M01  BM02
+ 		                     INNER JOIN  TB_OD01M01 OD01M01  ON BM02.CLNT_CD = OD01M01.CLNT_CD 
+ 		                     WHERE  T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ  AND T.CREAT_PGM LIKE 'OD'||'%') AS PCHS_CLNT_NM, 
+ 				    </if> 
+ 				    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
+ 					   (SELECT CLNT_NM FROM TB_BM02M01  BM02
+ 		                     INNER JOIN  TB_OD01M01 OD01M01  ON BM02.CLNT_CD = OD01M01.SELL_CLNT_CD 
+ 		                     WHERE  T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ  AND T.CREAT_PGM LIKE 'OD'||'%') AS SELL_CLNT_NM, 
+ 				    </if>
 				    SUM(T.BILG_QTY) BILG_QTY,
 				    SUM(T.BILG_WT) BILG_WT,
 				    SUM(T.BILG_UPR) BILG_UPR,
@@ -402,10 +408,10 @@
 						, SD09M01.SITE_NM
 					    , T.PRJCT_CD
 					</if>
-<!-- 					<if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4' or selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'"> -->
-<!-- 					   ,T.TRST_RPRC_SEQ -->
-<!-- 					   ,T.CREAT_PGM -->
-<!-- 				    </if> -->
+ 					<if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4' or selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
+					   ,T.TRST_RPRC_SEQ
+					   ,T.CREAT_PGM
+ 				    </if> 
 				ORDER BY 
 					T.CLNT_NM
 					, TAXIVC_COPRT_NM
@@ -418,11 +424,13 @@
 					WHERE PCHS_CLNT_NM LIKE '%'|| #{pchsClntNm} || '%'
 				</if>
 			</if>
+			<!-- 
 			<if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
 				<if test="sellClntNm != null and !sellClntNm.equals('')">
 					WHERE SELL_CLNT_NM LIKE '%'|| #{sellClntNm} || '%'
 				</if>
 			</if>
+			 -->
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
