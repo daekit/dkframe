@@ -67,9 +67,16 @@
 						</td>
 						<th>기준일자</th>
 		                <td>
+		                	<!-- 
 		                    <div class="date_input">
 		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
 		                    </div>
+		                     -->
+		                    <div class="date_input">
+								<input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
+								<span>~</span> 
+								<input id="baseDtTo" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDtTo">
+							</div>
 		                </td>
 						<th>제품구분</th>
 						<td>
@@ -304,6 +311,7 @@
 				paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
 			
 			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
+			paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
 			postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
@@ -389,19 +397,53 @@
 		$('#whShowYn').prop("checked",true);
 		
 		// 기준년월
-// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
-		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+ 		// document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
+		// document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		 
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
 		
+		/*
 		$('#baseDt').datepicker({
 				format : "yyyy-mm-dd",
 				language : "ko",
 				autoclose : true
 		});
+		*/
+		
+		// 시작일 (현재날짜의 월 첫일)
+		$('#baseDt').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#baseDt').val() > $('#baseDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#baseDt').datepicker("setDate", new Date($('#baseDtTo').val()));
+			}
+		});
+
+		// 종료일 (현재날짜의 월 말일)
+		$('#baseDtTo').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
+		.on("changeDate", function(){
+			if($('#baseDt').val() > $('#baseDtTo').val()){
+				alert("날짜를 확인해주세요");
+				$('#baseDtTo').datepicker("setDate", new Date($('#baseDt').val()));
+			}
+		});
+		
+		
+		
+		
 		// grid init
 		gridView.initView().setData(0);
 		excelView.initView();
@@ -415,7 +457,10 @@
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 기간
 // 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
-		$('#baseDt').datepicker("setDate", new Date());
+		// $('#baseDt').datepicker("setDate", new Date());
+		// 날짜 초기화
+		$('#baseDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
+		$('#baseDtTo').datepicker("setDate", new Date());
 		
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
