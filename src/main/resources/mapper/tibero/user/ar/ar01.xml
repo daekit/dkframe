@@ -240,6 +240,12 @@
 		<if test="shipRmk != null and !shipRmk.equals('')">
 			AND AR01.SHIP_RMK LIKE '%${shipRmk}%'				
 		</if>
+		<if test="siteCd != null and !siteCd.equals('')">
+			AND AR01.SITE_CD = #{siteCd}				
+		</if>
+		<if test="siteNm != null and !siteNm.equals('')">
+			AND (SELECT SITE_NM FROM TB_SD09M01 SD09 WHERE AR01.SITE_CD = SD09.SITE_CD) LIKE '%${siteNm}%'
+		</if>
 	</select>
 	
 	<select id="selectShipList" parameterType="Map" resultType="camelMap">
@@ -364,6 +370,12 @@
 				</if>
 				<if test="shipRmk != null and !shipRmk.equals('')">
 					AND AR01.SHIP_RMK LIKE '%${shipRmk}%'				
+				</if>
+				<if test="siteCd != null and !siteCd.equals('')">
+					AND AR01.SITE_CD = #{siteCd}				
+				</if>	
+				<if test="siteNm != null and !siteNm.equals('')">
+					AND (SELECT SITE_NM FROM TB_SD09M01 SD09 WHERE AR01.SITE_CD = SD09.SITE_CD) LIKE '%${siteNm}%'				
 				</if>
 				ORDER BY DLVR_DTTM DESC, REAL_DLVR_DTTM DESC, SHIP_SEQ DESC
 			) T

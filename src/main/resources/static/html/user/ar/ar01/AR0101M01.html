@@ -138,6 +138,18 @@
 						<input type="text" id="shipRmk" data-search="shipRmk" onkeyup="event.keyCode == 13 ? shipGridView.setData(0) : ''">
 	                </td>      
 	               </tr>
+	               <tr>
+	               <th>현장명</th>
+	               <td>
+							<div class="search_form">
+								<input type="hidden" id="siteCd_S" data-search="siteCd">
+								<input type="text" id="siteNm_S" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? shipGridView.setData(0) : ''">
+								<a onclick="openSiteSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
+	               </tr>
 	            </table>
 	        </div>
 	    </div>
@@ -290,21 +302,23 @@
 		setData: function(_pageNo) {
 			var targetObj = this.target;
 			var formData = {
-				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
-				"coCd" : $("#coCd_S").val(),
-				"typCd" : $("#typCd_S").val(),
-				"whCd" : $("#whCd_S").val(),
-				"shipYn" : $("#shipYn_S").val(),
-				"clntCd" : $("#clntCd_S").val(),
-				"clntNm" : $("#clntNm_S").val(),
-				"taxivcCoprt" : $("#taxivcCoprt").val(),
-				"prdtGrp" : $("#prdtGrp_S").val(), 
-				"shipRmk" : $("#shipRmk").val(), 
-// 				"searchType" : $("#searchType").val(),
-// 				"searchValue" : $("#searchValue").val(),
-				"pageNo" : _pageNo + 1, 
-				"recordCnt" : $("#recordCnt").val()
+				"reqDtFrom" 	: $("#reqDtFrom").val().replace(/\-/g,''),
+				"reqDtTo" 		: $("#reqDtTo").val().replace(/\-/g,''),
+				"coCd" 			: $("#coCd_S").val(),
+				"typCd" 		: $("#typCd_S").val(),
+				"whCd" 			: $("#whCd_S").val(),
+				"shipYn" 		: $("#shipYn_S").val(),
+				"clntCd" 		: $("#clntCd_S").val(),
+				"clntNm" 		: $("#clntNm_S").val(),
+				"taxivcCoprt" 	: $("#taxivcCoprt").val(),
+				"prdtGrp" 		: $("#prdtGrp_S").val(), 
+				"shipRmk" 		: $("#shipRmk").val(), 
+// 				"searchType" 	: $("#searchType").val(),
+// 				"searchValue" 	: $("#searchValue").val(),
+				"pageNo" 		: _pageNo + 1, 
+				"recordCnt" 	: $("#recordCnt").val(),
+				"siteCd"		: $("#siteCd_S").val(),
+				"siteNm"		: $("#siteNm_S").val()
 			}
 			postAjax("/user/ar/ar01/selectShipList", formData, null, function(data){
 				var list = data.resultList;
@@ -659,4 +673,20 @@
 		$('#main_area #taxivcCoprt option:not([value=""])').remove();
 		setCommonSelect($('#main_area #taxivcCoprt'));  
 	} 
+	
+	
+	// 현장 검색
+	function openSiteSearch() {
+		$('#clntCd_S').val("");
+		var paramObj = {
+			"coCd": $('#coCd_S').val(),
+			"insertYn": "N"
+		};
+		
+		openModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
+			var row = grid.target.getList("selected")[0];
+			$("#siteCd_S").val(row.siteCd);
+			$("#siteNm_S").val(row.siteNm);
+		});
+	}
 </script>
