@@ -500,7 +500,14 @@
 			var checkedObj = ordrgGridView.target.getList("selected")[0];
 			var paramObj = {"actionType": "P"};
 			paramObj.ordrgSeq = checkedObj.ordrgSeq;
-			openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, "", paramObj);
+			
+			postAjax("/user/ar/ar02/checkClose", checkedObj, null, function(data){
+				if (data.resultCode == 200) {
+					openModal("/static/html/user/od/od01/OD0102P01.html", 1300, 780, "", paramObj);
+				}else{
+					alert(data.resultMessage);	
+				}
+			});
 		}
 	}
 
@@ -528,6 +535,7 @@
 
 	function viewOrderModal(ordrgSeq) {
 		var paramObj = {'ordrgSeq' : ordrgSeq};
+		paramObj.creatPgm = "OD0101M01"; 
 		openModal("/static/html/user/od/od01/OD0102V01.html", 1300, 780, "", paramObj);
 	}
 	

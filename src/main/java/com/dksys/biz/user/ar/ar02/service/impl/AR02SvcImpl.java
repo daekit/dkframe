@@ -989,5 +989,39 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		
 	}
+	
+	
+
+	@Override
+	// 마감 체크
+	public void checkClose(Map<String, String> paramMap) throws Exception{
+		
+			if("P".equals(paramMap.get("comfirmType"))) {
+				if(!ar02Svc.checkPchsClose(paramMap)) {
+				// 마감 체크
+			 		thrower.throwCommonException("pchsClose");
+				}
+				
+			}
+			
+        	if ("S".equals(paramMap.get("comfirmType"))) {
+	        	if(!ar02Svc.checkSellClose(paramMap)) {
+	        		// 마감 체크
+	        		thrower.throwCommonException("sellClose");
+	        	}
+        		
+        	}
+        	
+        	if ("A".equals(paramMap.get("comfirmType")) || paramMap.get("comfirmType") == null) {
+				if(!ar02Svc.checkPchsClose(paramMap)) {
+			 		thrower.throwCommonException("pchsClose");
+				}
+        		
+	        	if(!ar02Svc.checkSellClose(paramMap)) {
+	        		thrower.throwCommonException("sellClose");
+	        	}
+        	}
+        	
+	};
 
 }

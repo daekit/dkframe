@@ -299,23 +299,32 @@ public class OD01SvcImpl implements OD01Svc {
 		
 		/* 마감체크 부문 */
 		// 매입 N 이면서  P 매입확정, A 일괄인 경우 매입확정
+		
+		
 		if("P".equals(paramMap.get("comfirmType")) || "A".equals(paramMap.get("comfirmType"))) {
 			// 마감 체크
+			/*
 			if(!ar02Svc.checkPchsClose(paramMap)) {
-	    		thrower.throwCommonException("pchsClose");
+		   		thrower.throwCommonException("pchsClose");
 			}
-		}		
+			*/
+		}	
+		
 		
 		// 직송이면서 매출여부 N인경우 매출확정 시작
          if("Y".equals(paramMap.get("dirtrsYn"))) {		
 		       // 전체 확정인 경우는 진행
 		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
+        	 
+        	 
         	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
         		
+        		/*
 				// 마감 체크 (매출)
         		if(!ar02Svc.checkSellClose(paramMap)) {
             		thrower.throwCommonException("sellClose");
         		}
+        		*/
         		
         		/* 여신 체크 start */
         		

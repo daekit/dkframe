@@ -44,5 +44,7 @@ public interface AR02Svc {
 	long depositLoan(Map<String, Object> paramMap);
 
 	void insertDeletePchsSell(Map<String, String> paramMap) throws Exception;
+
+	void checkClose(Map<String, String> paramMap) throws Exception;
 	
 }

@@ -1414,17 +1414,23 @@
 		if(inputValidation($('#ordrgPopup [required]').not('#ordrgPopup #frameTable [required]'))) {
 			if(!siteValidation()) return false;
 			var formData = makeFormData();
+			
 			filePutAjax("/user/od/od01/updateOrdrg", formData, function(data){
-				// alert(data.resultMessage);    
+				// alert(data.resultMessage);
 				if(data.resultCode == 200){
 					var ordrgSeq = $('#ordrgPopup #ordrgSeq').val();
+					var creatPgm = modalStack.last().paramObj.creatPgm;
 					ctrlAllChkBoxRemove();
 					updateConfirm('A');
-					modalStack.close();
-					ordrgGridView.setData(0);
+					// modalStack.close();
+					// ordrgGridView.setData(0);
 					setTimeout(function(){
-					    viewOrderModal(ordrgSeq);
+						if(creatPgm == "OD0101M01"){
+					    	viewOrderModal(ordrgSeq);
+						}
 					}, 500);
+				}else{
+					alert(data.resultMessage);
 				}
 			});
 		}
@@ -1550,6 +1556,7 @@
 			var mngPrdtLen = ''; 
 			// if($('#ordrgPopup #whType').val() == "WHDIV01") {mngPrdtLen = 8;}
 			formData.mngPrdtLen = mngPrdtLen;
+			
 			putAjax("/user/od/od01/updateConfirm", formData, null, function(data){
 				var message = data.resultMessage;
 				if(message == "확정 되었습니다."){
@@ -1560,10 +1567,14 @@
 				
 				if(data.resultCode == 200){
 					
-					ordrgGridView.setData(0);
-					/*
+					var creatPgm = modalStack.last().paramObj.creatPgm;
+					if(creatPgm == "OD0101M01"){
+						ordrgGridView.setData(0);
+					}else{
+						subGridView.setData(0);
+					}
 					modalStack.close();
-					*/
+					
 				}
 			});
 		/* } */

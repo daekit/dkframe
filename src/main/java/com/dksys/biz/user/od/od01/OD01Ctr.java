@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.exc.LogicException;
+import com.dksys.biz.user.ar.ar02.service.AR02Svc;
 import com.dksys.biz.user.od.od01.service.OD01Svc;
 import com.dksys.biz.util.MessageUtils;
 
@@ -32,6 +33,9 @@ public class OD01Ctr {
     
     @Autowired
     OD01Svc od01Svc;
+    
+    @Autowired
+    AR02Svc ar02Svc;
 	
     @PostMapping(value = "/selectOrdrgList")
 	public String selectOrdrgList(@RequestBody Map<String, String> paramMap, ModelMap model) {
@@ -87,9 +91,20 @@ public class OD01Ctr {
 
     @PutMapping(value = "/updateOrdrg")
     public String updateOrdrg(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-    	od01Svc.updateOrdrg(paramMap, mRequest);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		try {
+			ar02Svc.checkClose(paramMap);
+	    	od01Svc.updateOrdrg(paramMap, mRequest);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+		
+
     	return "jsonView";
     }
     
@@ -132,6 +147,7 @@ public class OD01Ctr {
     @PutMapping(value = "/updateConfirm")
     public String updateConfirm(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
+    		ar02Svc.checkClose(paramMap);
     		od01Svc.updateConfirm(paramMap);
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));

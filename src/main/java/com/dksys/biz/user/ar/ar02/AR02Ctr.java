@@ -109,6 +109,7 @@ public class AR02Ctr {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
+
     	return "jsonView";
     }
 	@DeleteMapping(value = "/deleteSell")
@@ -193,6 +194,26 @@ public class AR02Ctr {
 			model.addAttribute("resultCode", 500);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
 		}
+
     	return "jsonView";
     }
+	
+	@PostMapping(value = "/checkClose")
+	public String checkClose(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		try {
+			ar02Svc.checkClose(paramMap);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+
+		System.out.println(model.getAttribute("resultCode"));
+		System.out.println(model.getAttribute("resultMessage"));
+		return "jsonView";
+	}
 }
