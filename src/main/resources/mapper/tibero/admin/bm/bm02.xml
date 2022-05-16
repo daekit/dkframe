@@ -238,7 +238,6 @@
 	  (
 	   SELECT
 	    ROWNUM AS RNUM, T.*
-	                , (SELECT NAME FROM TB_CM06M01 WHERE ID = SALES_EMP_ID) AS SALES_EMP_NM   
 	       , T.CDTLN_AMT - T.REAL_SECURITY        - T.GUARNTEE_SECURITY - T.CASH_SECURITY
 	                 - T.EACH_CREDIT_SECURITY  AS OTHER_SECURITY <!-- 기타담보 --> 
 	   FROM
@@ -437,6 +436,10 @@
 	                 (SELECT SALES_EMP_ID FROM TB_BM02D01 BMD01 WHERE USE_YN = 'Y' AND BMD01.CLNT_CD = A.CLNT_CD 
 	                     <if test="coCd != null and !coCd.equals('')">
 	                      AND SALES_CO_CD = #{coCd} </if> AND ROWNUM =1) AS SALES_EMP_ID
+	    , (SELECT NAME FROM TB_CM06M01 WHERE ID = (SELECT SALES_EMP_ID FROM TB_BM02D01 BMD01 WHERE USE_YN = 'Y' AND BMD01.CLNT_CD = A.CLNT_CD 
+	                     <if test="coCd != null and !coCd.equals('')">
+	                      AND SALES_CO_CD = #{coCd} </if> AND ROWNUM =1)) AS SALES_EMP_NM   
+	    
 	    FROM
 	     TB_BM02M01 A
 	     LEFT OUTER JOIN (
