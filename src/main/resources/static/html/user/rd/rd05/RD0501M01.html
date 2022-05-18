@@ -74,8 +74,10 @@
 		                     -->
 		                    <div class="date_input">
 								<input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
+								<!-- 
 								<span>~</span> 
 								<input id="baseDtTo" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDtTo">
+								 -->
 							</div>
 		                </td>
 						<th>제품구분</th>
@@ -311,7 +313,7 @@
 				paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
 			
 			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
-			paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
+			// paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
 			postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
@@ -398,22 +400,23 @@
 		
 		// 기준년월
  		// document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
-		// document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		 
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
 		
-		/*
+		
 		$('#baseDt').datepicker({
 				format : "yyyy-mm-dd",
 				language : "ko",
 				autoclose : true
 		});
-		*/
+		
 		
 		// 시작일 (현재날짜의 월 첫일)
+		/*
 		$('#baseDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
@@ -426,9 +429,9 @@
 				$('#baseDt').datepicker("setDate", new Date($('#baseDtTo').val()));
 			}
 		});
-
+*/
 		// 종료일 (현재날짜의 월 말일)
-		$('#baseDtTo').datepicker({
+/*		$('#baseDtTo').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
@@ -440,6 +443,7 @@
 				$('#baseDtTo').datepicker("setDate", new Date($('#baseDt').val()));
 			}
 		});
+		*/
 		
 		
 		
@@ -457,10 +461,10 @@
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 기간
 // 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
-		// $('#baseDt').datepicker("setDate", new Date());
+		$('#baseDt').datepicker("setDate", new Date());
 		// 날짜 초기화
-		$('#baseDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
-		$('#baseDtTo').datepicker("setDate", new Date());
+		// $('#baseDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
+		// $('#baseDtTo').datepicker("setDate", new Date());
 		
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
@@ -590,6 +594,7 @@
 	   }
 		var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
 		         + "#baseDt#"		+ $('[data-search="baseDt"]').val().replace(/\-/g,'')
+		         // + "#baseDtTo#"		+ $('[data-search="baseDtTo"]').val().replace(/\-/g,'')
 		         + "#whCd#"			+ $('[data-search="whCd"]').val()
 		         + "#typCd#"		+ $('[data-search="typCd"]').val()
 		         + "#prdtCd#"		+ $('[data-search="prdtCd"]').val()
@@ -599,7 +604,6 @@
 		         + "#taxivcCoprt_Nm#"		+ $("#taxivcCoprt_S option:checked").val()
 		         + "#impYn#"		+ $('[data-search="impYn"]').val()
 		         + "#whShowYn#"		+ $('[data-search="whShowYn"]').val()
-		        
 		         + "#";
 	    console.log('@@ : ', arg);
 		callReport(fileName, arg, "1050", "700");
