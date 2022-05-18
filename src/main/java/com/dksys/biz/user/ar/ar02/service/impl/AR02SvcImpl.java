@@ -232,8 +232,8 @@ public class AR02SvcImpl implements AR02Svc {
 			// 신규 추가
 			Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
 
-			int stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
-			int stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
+			BigDecimal stockQty = ObjectUtil.defaultBigDecimalNotNull(paramMap.get("realTrstQty"));
+			BigDecimal stockWt  = ObjectUtil.defaultBigDecimalNotNull(paramMap.get("realTrstWt"));
 			
 			String stockChgCd = "STOCKCHG09";
 			if("SELPCH2".equals(paramMap.get("selpchCd"))) 
@@ -248,8 +248,8 @@ public class AR02SvcImpl implements AR02Svc {
 				paramMap.put("sellUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("stockUpr", paramMap.get("realTrstUpr"));
 				paramMap.put("stdUpr", paramMap.get("realTrstUpr"));
-				stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty*-1;
-				stockWt  = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockWt : stockWt*-1;
+				stockQty = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockQty : stockQty.multiply(new BigDecimal("-1"));
+				stockWt  = "SELPCH1".equals(paramMap.get("selpchCd")) ? stockWt : stockWt.multiply(new BigDecimal("-1"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
 				paramMap.put("stockWt", String.valueOf(stockWt));
 				
@@ -259,12 +259,12 @@ public class AR02SvcImpl implements AR02Svc {
 			} else {
 				if("SELPCH2".equals(paramMap.get("selpchCd"))) 
 				{
-					stockQty = Integer.parseInt(stockInfo.get("stockQty")) - stockQty;
-					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  - stockWt;
+					stockQty = ObjectUtil.defaultBigDecimalNotNull(stockInfo.get("stockQty")).subtract(stockQty);
+					stockWt  = ObjectUtil.defaultBigDecimalNotNull(stockInfo.get("stockWt")).subtract(stockWt);
 				} else 
 				{
-					stockQty = Integer.parseInt(stockInfo.get("stockQty")) + stockQty;
-					stockWt  = Integer.parseInt(stockInfo.get("stockWt"))  + stockWt;
+					stockQty = ObjectUtil.defaultBigDecimalNotNull(stockInfo.get("stockQty")).add(stockQty);
+					stockWt  = ObjectUtil.defaultBigDecimalNotNull(stockInfo.get("stockWt")).add(stockWt);
 				}
 				paramMap.put("stockQty", String.valueOf(stockQty));
 				paramMap.put("stockWt",  String.valueOf(stockWt));
@@ -279,18 +279,18 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("prjctCd",oldPrjcrCd);
 			Map<String, String> stockInfoOld = sm01Mapper.selectStockInfo(paramMap);
 			if(stockInfoOld != null) {
-				stockQty = Integer.parseInt(paramMap.get("realTrstQty"));
-				stockWt  = Integer.parseInt(paramMap.get("realTrstWt"));
+				stockQty = ObjectUtil.defaultBigDecimalNotNull(paramMap.get("realTrstQty"));
+				stockWt  = ObjectUtil.defaultBigDecimalNotNull(paramMap.get("realTrstWt"));
 				if("SELPCH2".equals(paramMap.get("selpchCd"))) 
 				{
 					stockChgCd = "STOCKCHG09";
-					stockQty = Integer.parseInt(stockInfoOld.get("stockQty")) + stockQty;
-					stockWt  = Integer.parseInt(stockInfoOld.get("stockWt"))  + stockWt;
+					stockQty = ObjectUtil.defaultBigDecimalNotNull(stockInfoOld.get("stockQty")).add(stockQty);
+					stockWt  = ObjectUtil.defaultBigDecimalNotNull(stockInfoOld.get("stockWt")).add(stockWt);
 				} else 
 				{
 					stockChgCd = "STOCKCHG08";
-					stockQty = Integer.parseInt(stockInfoOld.get("stockQty")) - stockQty;
-					stockWt  = Integer.parseInt(stockInfoOld.get("stockWt"))  - stockWt;
+					stockQty = ObjectUtil.defaultBigDecimalNotNull(stockInfoOld.get("stockQty")).subtract(stockQty);
+					stockWt  = ObjectUtil.defaultBigDecimalNotNull(stockInfoOld.get("stockWt")).subtract(stockWt);
 				}
 				paramMap.put("stockQty", String.valueOf(stockQty));
 				paramMap.put("stockWt",  String.valueOf(stockWt));
