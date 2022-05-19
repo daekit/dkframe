@@ -740,7 +740,7 @@ public class AR04SvcImpl implements AR04Svc {
 		
 		for(int i=0; i<rowlist.size(); i++) {
 			param.put("trstCertiNo", MapUtils.getString(rowlist.get(i), "trstCertiNo"));
-			param.put("trspRmk", MapUtils.getString(rowlist.get(i), "trspRmk"));
+			param.put("trspRmk", MapUtils.getString(rowlist.get(i), "trspRmk", ""));
 			param.put("ordrgSeq", MapUtils.getString(rowlist.get(i), "ordrgSeq"));
 			
 			result = ar04Mapper.updateNote(param);
