@@ -180,7 +180,13 @@
                   <td>
                      <input type="checkbox" id="mngShowYn" name="mngShowYn"  style="width: 100%;" onchange="dtlSearch();">
                   </td>
-	         </tr>            
+	         </tr>
+	         <tr>
+	         	<th>자사거래 제외</th>
+                <td>
+                	<input type="checkbox" id="selfCheck" name="selfCheck"  style="width: 100%;" data-search="selfCheck"onchange="gridView.setData(0);">
+                </td>
+	         </tr>                
             </table>
           </div>
     </div>
@@ -288,6 +294,7 @@
 				}
 		       // 담당자 조회 여부
 				paramObj.mngShow = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
+				paramObj.selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
 				
 				postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
 					var list = data.resultList;
@@ -519,12 +526,14 @@
 	function setReportMain() {
 	    
 		var mngShowYn = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
+		var selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+		
 		if(mngShowYn == 'Y'){
 			var fileName = "SM0501R01.jrf";
 		}else{
 			var fileName = "SM0501R02.jrf"; // 담당자 제거한 집계
 		}
-		
+
 		var arg = "selPchCd#"		+$('#selpch').val() 
 		         + "#coCd#"			+$('#coCd').val()
 		         + "#fromDt#"		+$('#startDt').val().replace(/\-/g,'')
@@ -542,10 +551,9 @@
 		         + "#prjctCd#"		+$('#prjctCd').val()
 		         + "#prjctNm#"		+$('#prjctNm').val()
 		         + "#bill#"			+$('#bill').val()
+		         + "#selfCheck#"	+selfCheck
 		         + "#";
 
-//	alert(arg);	   
-      
 		callReport(fileName, arg, 750, 900);
 	}		
 	
