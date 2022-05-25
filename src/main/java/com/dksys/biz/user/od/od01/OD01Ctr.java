@@ -82,10 +82,21 @@ public class OD01Ctr {
     
     @PostMapping(value = "/insertOrdrg")
     public String insertOrdrg(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-    	od01Svc.insertOrdrg(paramMap, mRequest);
-    	model.addAttribute("ordrgSeq", paramMap.get("ordrgSeq"));
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	try {
+			ar02Svc.checkClose(paramMap);
+			od01Svc.insertOrdrg(paramMap, mRequest);
+			model.addAttribute("ordrgSeq", paramMap.get("ordrgSeq"));
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+		} catch (LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		} catch (Exception e) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	
+    	
     	return "jsonView";
     }
 
