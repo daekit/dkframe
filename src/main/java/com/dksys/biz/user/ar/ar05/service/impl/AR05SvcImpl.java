@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.admin.bm.bm02.mapper.BM02Mapper;
+import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar05.mapper.AR05Mapper;
 import com.dksys.biz.user.ar.ar05.service.AR05Svc;
 import com.dksys.biz.user.fi.douzone.mapper.DouzoneMapper;
@@ -38,6 +39,8 @@ public class AR05SvcImpl implements AR05Svc {
 	@Autowired
 	BM02Mapper bm02Mapper;
     
+	@Autowired
+	AR02Mapper ar02Mapper;
     
 	@Override
 	public int selectEtrdpsCount(Map<String, String> paramMap) {
@@ -209,6 +212,12 @@ public class AR05SvcImpl implements AR05Svc {
 			etrdpsData.put("diffAmt", paramMap.get("diffAmt").toString());
 			ar05Mapper.insertAdvPay(etrdpsData);
 		}
+		/*
+		Map<String, String> paramMapMatch = new HashMap<String, String>();
+		paramMapMatch.put("clntCd", etrdpsData.get("clntCd"));
+		paramMapMatch.put("coCd", etrdpsData.get("coCd"));
+		ar02Mapper.callSaleMatch(paramMapMatch);
+		*/
 		return result;
 		
 	}
@@ -262,8 +271,12 @@ public class AR05SvcImpl implements AR05Svc {
 			  }
 			  
 		  }
-		  
-		  
+		  /*
+		  Map<String, String> paramMapMatch = new HashMap<String, String>();
+		  paramMapMatch.put("clntCd", etrdpsData.get("clntCd"));
+		  paramMapMatch.put("coCd", etrdpsData.get("coCd"));
+		  ar02Mapper.callSaleMatch(paramMapMatch);
+		  */
 		  return result;
 		 
 	}
