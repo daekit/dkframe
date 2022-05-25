@@ -579,6 +579,10 @@ public class OD01SvcImpl implements OD01Svc {
 					}
 				}
 			}
+			
+	        paramMap.put("clntCd", clntCd);
+	        paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
+	        ar02Mapper.callSaleMatch(paramMap);
 		} // for문 종료
 		
 		if(od01Mapper.selectConfirmCount(paramMap) == od01Mapper.selectDetailCount(paramMap)) {
@@ -609,10 +613,6 @@ public class OD01SvcImpl implements OD01Svc {
 	    		}
 	       	}
         }
-        
-        paramMap.put("clntCd", clntCd);
-        ar02Mapper.callSaleMatch(paramMap);
-        
 	}
 
 	@Override
@@ -765,6 +765,13 @@ public class OD01SvcImpl implements OD01Svc {
 					sm01Mapper.updateStockCancel(paramMap);
 				}
 			}	
+			
+			
+
+			paramMap.put("clntCd", sellClntCd);
+			paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
+			ar02Mapper.callSaleMatch(paramMap);
+			
 		}
 
 		// P 매입취소, A 일괄 취소
@@ -818,8 +825,6 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}
 		}
-		paramMap.put("clntCd", sellClntCd);
-		ar02Mapper.callSaleMatch(paramMap);
 	}
 	
 	public void insertIfMesStockIn(Map<String, String> paramMap) throws Exception{

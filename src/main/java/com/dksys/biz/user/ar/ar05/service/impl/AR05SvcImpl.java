@@ -216,6 +216,7 @@ public class AR05SvcImpl implements AR05Svc {
 		Map<String, String> paramMapMatch = new HashMap<String, String>();
 		paramMapMatch.put("clntCd", etrdpsData.get("clntCd"));
 		paramMapMatch.put("coCd", etrdpsData.get("coCd"));
+		paramMapMatch.put("prdtGrp", etrdpsData.get("prdtGrp"));
 		ar02Mapper.callSaleMatch(paramMapMatch);
 		*/
 		return result;
@@ -275,6 +276,7 @@ public class AR05SvcImpl implements AR05Svc {
 		  Map<String, String> paramMapMatch = new HashMap<String, String>();
 		  paramMapMatch.put("clntCd", etrdpsData.get("clntCd"));
 		  paramMapMatch.put("coCd", etrdpsData.get("coCd"));
+		  paramMapMatch.put("prdtGrp", etrdpsData.get("prdtGrp"));
 		  ar02Mapper.callSaleMatch(paramMapMatch);
 		  */
 		  return result;
