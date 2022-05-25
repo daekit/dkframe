@@ -381,6 +381,10 @@ public class AR02SvcImpl implements AR02Svc {
 			sm01Mapper.updateStockSell(paramMap);						
 		}
 		
+		
+		int countSell = ar02Mapper.countSell(paramMap);
+		paramMap.put("countSell", String.valueOf(countSell));
+		
 		ar02Mapper.deleteSell(paramMap);
 		
 		// 여신 체크후 차감 / 여신 증가
@@ -410,6 +414,9 @@ public class AR02SvcImpl implements AR02Svc {
 		if(loanPrcsResult < 0) {
 			throw new Exception();
 		}
+		
+		ar02Mapper.callSaleMatch(sellInfoMap);
+		
 	}
 
 	@Override
@@ -539,6 +546,8 @@ public class AR02SvcImpl implements AR02Svc {
 		if(loanPrcsResult < 0) {
 			throw new Exception();
 		}
+		
+		ar02Mapper.callSaleMatch(paramMap);
 	}
 	
 	@Override
@@ -607,6 +616,12 @@ public class AR02SvcImpl implements AR02Svc {
 			// insert
 			ar02Mapper.insertPchsSell(divMap);
 		}
+		
+		Map<String, String> paramMap = new HashMap<String, String>();
+		paramMap.put("coCd", paramList.get(0).get("coCd"));
+		paramMap.put("clntCd", paramList.get(0).get("clntCd"));
+		
+		ar02Mapper.callSaleMatch(paramMap);
 		
 		// 최종 여신 체크 / 여신 차감
 		diffLoan = ar02Svc.checkLoan(loanMap);
@@ -827,6 +842,10 @@ public class AR02SvcImpl implements AR02Svc {
 				sm01Mapper.updateStockSell(paramMap);						
 			}
 			
+			
+			int countSell = ar02Mapper.countSell(paramMap);
+			paramMap.put("countSell", String.valueOf(countSell));
+			
 			ar02Mapper.deleteSell(paramMap);
 			
 			// 여신 체크후 차감 / 여신 증가
@@ -986,6 +1005,9 @@ public class AR02SvcImpl implements AR02Svc {
 			if(loanPrcsResult < 0) {
 				throw new Exception();
 			}
+			
+			ar02Mapper.callSaleMatch(paramMap);
+			
 		}
 		
 	}

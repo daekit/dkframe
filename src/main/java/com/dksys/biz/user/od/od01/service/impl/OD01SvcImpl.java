@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -608,6 +609,10 @@ public class OD01SvcImpl implements OD01Svc {
 	    		}
 	       	}
         }
+        
+        paramMap.put("clntCd", clntCd);
+        ar02Mapper.callSaleMatch(paramMap);
+        
 	}
 
 	@Override
@@ -662,7 +667,20 @@ public class OD01SvcImpl implements OD01Svc {
 						thrower.throwCommonException("bilgComplete");
 					}
 				}				
-				ar02Mapper.deletePchsSell(detailMap); // 매입만 삭제
+				
+				List<Map<String, Object>> trstCertNoList = ar02Mapper.selectTrstCertiNo(detailMap);
+				
+				if(trstCertNoList.size() != 0) {
+					for(int i=0; i<trstCertNoList.size(); i++) {
+						detailMap.put("trstCertiNo", MapUtils.getString(trstCertNoList.get(i), "TRST_CERTI_NO"));
+						int countSell = ar02Mapper.countSell(detailMap);
+						detailMap.put("countSell", String.valueOf(countSell));
+						
+						ar02Mapper.deleteSell(detailMap);
+					}
+				}
+				
+				ar02Mapper.deletePchsSell(detailMap);  // 매출만 삭제
 			}
 			
 			//직송이면서 매출확정 체크
@@ -677,6 +695,19 @@ public class OD01SvcImpl implements OD01Svc {
 						thrower.throwCommonException("bilgComplete");
 					}
 				}
+				
+				List<Map<String, Object>> trstCertNoList = ar02Mapper.selectTrstCertiNo(detailMap);
+				
+				if(trstCertNoList.size() != 0) {
+					for(int i=0; i<trstCertNoList.size(); i++) {
+						detailMap.put("trstCertiNo", MapUtils.getString(trstCertNoList.get(i), "TRST_CERTI_NO"));
+						int countSell = ar02Mapper.countSell(detailMap);
+						detailMap.put("countSell", String.valueOf(countSell));
+						
+						ar02Mapper.deleteSell(detailMap);
+					}
+				}
+				
 				ar02Mapper.deletePchsSell(detailMap);  // 매출만 삭제
 			} 
 		
@@ -787,6 +818,8 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}
 		}
+		paramMap.put("clntCd", sellClntCd);
+		ar02Mapper.callSaleMatch(paramMap);
 	}
 	
 	public void insertIfMesStockIn(Map<String, String> paramMap) throws Exception{

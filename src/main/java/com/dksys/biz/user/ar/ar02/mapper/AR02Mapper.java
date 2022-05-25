@@ -66,4 +66,10 @@ public interface AR02Mapper {
 	
 	int updateSelectedRows(Map<String, String> param);
 
+	void callSaleMatch(Map<String, String> paramMap);
+
+	int countSell(Map<String, String> paramMap);
+
+	List<Map<String, Object>> selectTrstCertiNo(Map<String, String> paramMap);
+
 }
