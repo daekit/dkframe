@@ -563,7 +563,7 @@ public class AR01SvcImpl implements AR01Svc {
 		if(!ar02Svc.checkSellClose(paramMap)) {
     		thrower.throwCommonException("sellClose");
 		}
-		
+		String clntCd = paramMap.get("clntCd");
 		for(Map<String, String> detailMap : detailList) {
 			detailMap.put("shipSeq", paramMap.get("shipSeq"));
 			detailMap.putAll(ar01Mapper.selectShipDetailInfo(detailMap));
@@ -640,7 +640,9 @@ public class AR01SvcImpl implements AR01Svc {
 				sm01Mapper.updateStockCancel(paramMap);
 			}
 
-
+			paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
+			paramMap.put("clntCd", clntCd);
+			ar02Mapper.callSaleMatch(paramMap);
 			
 		}
 		
