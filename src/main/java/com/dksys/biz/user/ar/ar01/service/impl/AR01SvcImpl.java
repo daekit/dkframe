@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -395,6 +396,11 @@ public class AR01SvcImpl implements AR01Svc {
 				}
 				sm01Mapper.updateStockSell(paramMap);
 			}
+			
+			paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
+			paramMap.put("clntCd", clntCd);
+			ar02Mapper.callSaleMatch(paramMap);
+			
 		}
 		
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
@@ -582,7 +588,37 @@ public class AR01SvcImpl implements AR01Svc {
 			detailMap.put("userId", paramMap.get("userId"));
 			detailMap.put("pgmId", paramMap.get("pgmId"));
 			ar01Mapper.updateCancelDetail(detailMap);
-			ar02Mapper.deletePchsSell(trstMap);
+			// ar02Mapper.deletePchsSell(trstMap);
+			
+
+			List<Map<String, Object>> trstCertNoList = ar02Mapper.selectTrstCertiNo(trstMap);
+			
+			if(trstCertNoList.size() != 0) {
+				for(int i=0; i<trstCertNoList.size(); i++) {
+					detailMap.put("trstCertiNo", MapUtils.getString(trstCertNoList.get(i), "TRST_CERTI_NO"));
+					
+					List<Map<String, String>> countSellList = ar02Mapper.countSellList(detailMap);
+					
+					if(countSellList.size() != 0) {
+						for(int j=0; j<countSellList.size(); j++) {
+							detailMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(j), "ETRDPS_SEQ"));
+							int countSell = ar02Mapper.countSellFind(detailMap);
+							detailMap.put("countSell", String.valueOf(countSell));
+							ar02Mapper.deleteSell(detailMap);
+						}
+					}
+					
+					ar02Mapper.deleteSellReal(detailMap);
+					
+					/*
+					int countSell = ar02Mapper.countSell(detailMap);
+					detailMap.put("countSell", String.valueOf(countSell));
+					
+					ar02Mapper.deleteSell(detailMap);
+					*/
+				}
+			}
+		
 			
 			//재고원복
 			if(detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) 
@@ -603,6 +639,9 @@ public class AR01SvcImpl implements AR01Svc {
 				paramMap.put("stockWt", String.valueOf(stockWt));
 				sm01Mapper.updateStockCancel(paramMap);
 			}
+
+
+			
 		}
 		
 		ar01Mapper.updateCancel(paramMap);
