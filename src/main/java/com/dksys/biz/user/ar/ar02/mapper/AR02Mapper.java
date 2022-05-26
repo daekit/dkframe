@@ -72,4 +72,10 @@ public interface AR02Mapper {
 
 	List<Map<String, Object>> selectTrstCertiNo(Map<String, String> paramMap);
 
+	List<Map<String, String>> countSellList(Map<String, String> paramMap);
+
+	int countSellFind(Map<String, String> paramMap);
+
+	void deleteSellReal(Map<String, String> paramMap);
+
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -382,10 +383,18 @@ public class AR02SvcImpl implements AR02Svc {
 		}
 		
 		
-		int countSell = ar02Mapper.countSell(paramMap);
-		paramMap.put("countSell", String.valueOf(countSell));
+		List<Map<String, String>> countSellList = ar02Mapper.countSellList(paramMap);
 		
-		ar02Mapper.deleteSell(paramMap);
+		if(countSellList.size() != 0) {
+			for(int i=0; i<countSellList.size(); i++) {
+				paramMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(i), "ETRDPS_SEQ"));
+				int countSell = ar02Mapper.countSellFind(paramMap);
+				paramMap.put("countSell", String.valueOf(countSell));
+				ar02Mapper.deleteSell(paramMap);
+			}
+		}
+		
+		ar02Mapper.deleteSellReal(paramMap);
 		
 		// 여신 체크후 차감 / 여신 증가
 		long loanPrcsResult = 0;
@@ -844,10 +853,24 @@ public class AR02SvcImpl implements AR02Svc {
 			}
 			
 			
+			List<Map<String, String>> countSellList = ar02Mapper.countSellList(paramMap);
+			
+			if(countSellList.size() != 0) {
+				for(int i=0; i<countSellList.size(); i++) {
+					paramMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(i), "ETRDPS_SEQ"));
+					int countSell = ar02Mapper.countSellFind(paramMap);
+					paramMap.put("countSell", String.valueOf(countSell));
+					ar02Mapper.deleteSell(paramMap);
+				}
+			}
+			
+			ar02Mapper.deleteSellReal(paramMap);
+			/*
 			int countSell = ar02Mapper.countSell(paramMap);
 			paramMap.put("countSell", String.valueOf(countSell));
 			
 			ar02Mapper.deleteSell(paramMap);
+			*/
 			
 			// 여신 체크후 차감 / 여신 증가
 			long loanPrcsResult = 0;

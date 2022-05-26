@@ -673,10 +673,26 @@ public class OD01SvcImpl implements OD01Svc {
 				if(trstCertNoList.size() != 0) {
 					for(int i=0; i<trstCertNoList.size(); i++) {
 						detailMap.put("trstCertiNo", MapUtils.getString(trstCertNoList.get(i), "TRST_CERTI_NO"));
+						
+						List<Map<String, String>> countSellList = ar02Mapper.countSellList(detailMap);
+						
+						if(countSellList.size() != 0) {
+							for(int j=0; j<countSellList.size(); j++) {
+								detailMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(j), "ETRDPS_SEQ"));
+								int countSell = ar02Mapper.countSellFind(detailMap);
+								detailMap.put("countSell", String.valueOf(countSell));
+								ar02Mapper.deleteSell(detailMap);
+							}
+						}
+						
+						ar02Mapper.deleteSellReal(detailMap);
+						
+						/*
 						int countSell = ar02Mapper.countSell(detailMap);
 						detailMap.put("countSell", String.valueOf(countSell));
 						
 						ar02Mapper.deleteSell(detailMap);
+						*/
 					}
 				}
 				
@@ -701,10 +717,26 @@ public class OD01SvcImpl implements OD01Svc {
 				if(trstCertNoList.size() != 0) {
 					for(int i=0; i<trstCertNoList.size(); i++) {
 						detailMap.put("trstCertiNo", MapUtils.getString(trstCertNoList.get(i), "TRST_CERTI_NO"));
+						
+						List<Map<String, String>> countSellList = ar02Mapper.countSellList(detailMap);
+						
+						if(countSellList.size() != 0) {
+							for(int j=0; j<countSellList.size(); j++) {
+								detailMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(j), "ETRDPS_SEQ"));
+								int countSell = ar02Mapper.countSellFind(detailMap);
+								detailMap.put("countSell", String.valueOf(countSell));
+								ar02Mapper.deleteSell(detailMap);
+							}
+						}
+						
+						ar02Mapper.deleteSellReal(detailMap);
+						
+						/*
 						int countSell = ar02Mapper.countSell(detailMap);
 						detailMap.put("countSell", String.valueOf(countSell));
 						
 						ar02Mapper.deleteSell(detailMap);
+						*/
 					}
 				}
 				
