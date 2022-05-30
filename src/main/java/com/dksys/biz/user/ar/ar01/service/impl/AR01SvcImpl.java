@@ -397,9 +397,12 @@ public class AR01SvcImpl implements AR01Svc {
 				sm01Mapper.updateStockSell(paramMap);
 			}
 			
-			paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
-			paramMap.put("clntCd", clntCd);
-			ar02Mapper.callSaleMatch(paramMap);
+			
+			Map<String, String> matchMap = new HashMap<String, String>();
+			matchMap.putAll(paramMap);
+			matchMap.put("clntCd", clntCd);
+			matchMap.put("prdtGrp", detailMap.get("prdtGrp"));
+	        ar02Mapper.callSaleMatch(matchMap);
 			
 		}
 		
@@ -640,9 +643,11 @@ public class AR01SvcImpl implements AR01Svc {
 				sm01Mapper.updateStockCancel(paramMap);
 			}
 
-			paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
-			paramMap.put("clntCd", clntCd);
-			ar02Mapper.callSaleMatch(paramMap);
+			Map<String, String> matchMap = new HashMap<String, String>();
+			matchMap.putAll(paramMap);
+			matchMap.put("clntCd", clntCd);
+			matchMap.put("prdtGrp", detailMap.get("prdtGrp"));
+	        ar02Mapper.callSaleMatch(matchMap);
 			
 		}
 		

@@ -626,12 +626,12 @@ public class AR02SvcImpl implements AR02Svc {
 			ar02Mapper.insertPchsSell(divMap);
 		}
 		
-		Map<String, String> paramMap = new HashMap<String, String>();
-		paramMap.put("coCd", paramList.get(0).get("coCd"));
-		paramMap.put("clntCd", paramList.get(0).get("clntCd"));
-		paramMap.put("prdtGrp", paramList.get(0).get("prdtGrp"));
+		Map<String, String> matchMap = new HashMap<String, String>();
+		matchMap.put("coCd", paramList.get(0).get("coCd"));
+		matchMap.put("clntCd", paramList.get(0).get("clntCd"));
+		matchMap.put("prdtGrp", paramList.get(0).get("prdtGrp"));
 		
-		ar02Mapper.callSaleMatch(paramMap);
+		ar02Mapper.callSaleMatch(matchMap);
 		
 		// 최종 여신 체크 / 여신 차감
 		diffLoan = ar02Svc.checkLoan(loanMap);

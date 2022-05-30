@@ -580,9 +580,12 @@ public class OD01SvcImpl implements OD01Svc {
 				}
 			}
 			
-	        paramMap.put("clntCd", clntCd);
-	        paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
-	        ar02Mapper.callSaleMatch(paramMap);
+			Map<String, String> matchMap = new HashMap<String, String>();
+			matchMap.putAll(paramMap);
+			matchMap.put("clntCd", sellClntCd);
+			matchMap.put("prdtGrp", detailMap.get("prdtGrp"));
+	        ar02Mapper.callSaleMatch(matchMap);
+	        
 		} // for문 종료
 		
 		if(od01Mapper.selectConfirmCount(paramMap) == od01Mapper.selectDetailCount(paramMap)) {
@@ -799,10 +802,11 @@ public class OD01SvcImpl implements OD01Svc {
 			}	
 			
 			
-
-			paramMap.put("clntCd", sellClntCd);
-			paramMap.put("prdtGrp", detailMap.get("prdtGrp"));
-			ar02Mapper.callSaleMatch(paramMap);
+			Map<String, String> matchMap = new HashMap<String, String>();
+			matchMap.putAll(paramMap);
+			matchMap.put("clntCd", sellClntCd);
+			matchMap.put("prdtGrp", detailMap.get("prdtGrp"));
+	        ar02Mapper.callSaleMatch(matchMap);
 			
 		}
 
