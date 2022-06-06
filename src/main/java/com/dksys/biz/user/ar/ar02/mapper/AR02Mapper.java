@@ -78,4 +78,6 @@ public interface AR02Mapper {
 
 	void deleteSellReal(Map<String, String> paramMap);
 
+	void deleteSell05D(Map<String, String> detailMap);
+
 }

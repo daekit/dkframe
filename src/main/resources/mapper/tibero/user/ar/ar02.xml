@@ -807,7 +807,26 @@
 	
 	<update id="updatePchsSell" parameterType="Map">
 	BEGIN
-				
+		<!-- 매출 정산 버튼시 해당 매출 매칭 삭제 -->
+		
+		
+		<if test="countSell == 0">
+		INSERT INTO TB_AR05D02
+			(CO_CD ,ETRDPS_SEQ ,ETRDPS_DTL_SEQ 																		 		,BILG_CERT_NO ,TRST_CERTI_NO ,ETRDPS_DT ,TRST_DT ,CLNT_CD ,SELL_CLMN_DIV_CD ,SELL_PMNT_MTD_CD ,SELL_CLMN_DAY ,TAX_BILG_NO ,PRJCT_CD ,ETRDPS_AMT ,PRDT_GRP ,CREAT_ID ,CREAT_PGM ,CREAT_DTTM)                 
+			SELECT CO_CD ,ETRDPS_SEQ ,1 + (SELECT MAX(ETRDPS_DTL_SEQ) FROM TB_AR05D02 D WHERE ETRDPS_SEQ = #{etrdpsSeqFind}) ,'0' 		   ,'0' 		  ,ETRDPS_DT ,NULL 	  ,CLNT_CD ,NULL 			 ,NULL 			   ,NULL 		  ,'0' 		   ,NULL 	 ,'0' 		 ,PRDT_GRP ,#{userId} ,'MATCH_AR02' ,SYSDATE
+			FROM TB_AR05D02 D02 
+				WHERE ETRDPS_SEQ = #{etrdpsSeqFind} GROUP BY CO_CD, ETRDPS_SEQ, ETRDPS_DT, CLNT_CD, PRDT_GRP;
+		</if>
+		
+		UPDATE 
+			TB_AR05D02 D02 
+				SET ETRDPS_AMT = D02.ETRDPS_AMT + (SELECT SUM(ETRDPS_AMT) FROM TB_AR05D02 WHERE TRST_CERTI_NO = #{trstCertiNo} AND ETRDPS_SEQ = #{etrdpsSeqFind}) 
+				WHERE TRST_CERTI_NO = '0'
+				AND ETRDPS_SEQ = #{etrdpsSeqFind};
+		
+		
+		
+		<!-- 
 		UPDATE 
 			TB_AR05D02
 		SET   
@@ -820,6 +839,8 @@
 			, TAX_BILG_NO      = ''
 			, PRJCT_CD         = ''
 		WHERE TRST_CERTI_NO = #{trstCertiNo};
+		 -->
+		
 		
 		UPDATE 
 			TB_AR02M01
@@ -889,7 +910,7 @@
 		
 		<if test="countSell == 0">
 		INSERT INTO TB_AR05D02
-			(CO_CD ,ETRDPS_SEQ ,ETRDPS_DTL_SEQ 																		 ,BILG_CERT_NO ,TRST_CERTI_NO ,ETRDPS_DT ,TRST_DT ,CLNT_CD ,SELL_CLMN_DIV_CD ,SELL_PMNT_MTD_CD ,SELL_CLMN_DAY ,TAX_BILG_NO ,PRJCT_CD ,ETRDPS_AMT ,PRDT_GRP ,CREAT_ID ,CREAT_PGM ,CREAT_DTTM)                 
+			(CO_CD ,ETRDPS_SEQ ,ETRDPS_DTL_SEQ 																		 		 ,BILG_CERT_NO ,TRST_CERTI_NO ,ETRDPS_DT ,TRST_DT ,CLNT_CD ,SELL_CLMN_DIV_CD ,SELL_PMNT_MTD_CD ,SELL_CLMN_DAY ,TAX_BILG_NO ,PRJCT_CD ,ETRDPS_AMT ,PRDT_GRP ,CREAT_ID ,CREAT_PGM ,CREAT_DTTM)                 
 			SELECT CO_CD ,ETRDPS_SEQ ,1 + (SELECT MAX(ETRDPS_DTL_SEQ) FROM TB_AR05D02 D WHERE ETRDPS_SEQ = #{etrdpsSeqFind}) ,'0' 		   ,'0' 		  ,ETRDPS_DT ,NULL 	  ,CLNT_CD ,NULL 			 ,NULL 			   ,NULL 		  ,'0' 		   ,NULL 	 ,'0' 		 ,PRDT_GRP ,#{userId} ,'MATCH_AR02' ,SYSDATE
 			FROM TB_AR05D02 D02 
 				WHERE ETRDPS_SEQ = #{etrdpsSeqFind} GROUP BY CO_CD, ETRDPS_SEQ, ETRDPS_DT, CLNT_CD, PRDT_GRP;
@@ -937,6 +958,22 @@
 			WHERE
 				TRST_CERTI_NO = #{trstCertiNo};
 				
+				
+			
+			DELETE
+				FROM TB_AR05D02
+					WHERE TRST_CERTI_NO = #{trstCertiNo};
+		END;
+	</delete>
+	
+		<delete id="deleteSell05D" parameterType="Map">
+		BEGIN
+		<!-- 
+			DELETE 
+				FROM TB_AR02M01
+			WHERE
+				TRST_CERTI_NO = #{trstCertiNo};
+		 -->	
 				
 			
 			DELETE

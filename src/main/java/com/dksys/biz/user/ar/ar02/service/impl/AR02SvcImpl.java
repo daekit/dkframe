@@ -154,7 +154,54 @@ public class AR02SvcImpl implements AR02Svc {
 	        // 매입/매출 업데이트
 			detailMap.put("userId", paramMap.get("userId").toString());
 			detailMap.put("pgmId", paramMap.get("pgmId").toString());
-			ar02Mapper.updatePchsSell(detailMap);
+			
+			///// 매출정산 UPDATE 
+			/*
+			Map<String, String> deUpMap = new HashMap<String, String>();
+			deUpMap.put("trstCertiNo", MapUtils.getString(paramMap, "trstCertiNo"));
+			deUpMap.put("clntCd", MapUtils.getString(paramMap, "clntCd"));
+			deUpMap.put("clntNm", MapUtils.getString(paramMap, "clntNm"));
+			deUpMap.put("realTrstQty", MapUtils.getString(paramMap, "realTrstQty"));
+			deUpMap.put("realTrstWt", MapUtils.getString(paramMap, "realTrstWt"));
+			deUpMap.put("realTrstAmt", MapUtils.getString(paramMap, "realTrstAmt"));
+			deUpMap.put("bilgQty", MapUtils.getString(paramMap, "bilgQty"));
+			deUpMap.put("bilgWt", MapUtils.getString(paramMap, "bilgWt"));
+			deUpMap.put("bilgUpr", MapUtils.getString(paramMap, "bilgUpr"));
+			deUpMap.put("bilgAmt", MapUtils.getString(paramMap, "bilgAmt"));
+			deUpMap.put("bilgVatAmt", MapUtils.getString(paramMap, "bilgVatAmt"));
+			deUpMap.put("trstDcAmt", MapUtils.getString(paramMap, "trstDcAmt"));
+			deUpMap.put("etcAmt", MapUtils.getString(paramMap, "etcAmt"));
+			deUpMap.put("trspRmk", MapUtils.getString(paramMap, "trspRmk"));
+			deUpMap.put("shipVehNo", MapUtils.getString(paramMap, "shipVehNo"));
+			deUpMap.put("transAmt", MapUtils.getString(paramMap, "transAmt"));
+			deUpMap.put("lossRate", MapUtils.getString(paramMap, "lossRate"));
+			deUpMap.put("userId", MapUtils.getString(paramMap, "userId"));
+			deUpMap.put("updatePgmId", MapUtils.getString(paramMap, "updatePgmId"));
+			deUpMap.put("pgmId", MapUtils.getString(paramMap, "pgmId"));
+			*/
+			
+			
+			
+			
+			List<Map<String, String>> countSellList = ar02Mapper.countSellList(detailMap);
+			
+			if(countSellList.size() != 0) {
+				for(int i=0; i<countSellList.size(); i++) {
+					detailMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(i), "ETRDPS_SEQ"));
+					int countSell = ar02Mapper.countSellFind(detailMap);
+					detailMap.put("countSell", String.valueOf(countSell));
+					ar02Mapper.updatePchsSell(detailMap);
+					// ar02Mapper.deleteSell(deUpMap);
+				}
+			}
+			
+			ar02Mapper.deleteSell05D(detailMap);
+			
+			ar02Mapper.callSaleMatch(detailMap);
+			
+			
+			
+			
 			
 			// for문을 순회하며 가장 큰 trstDt 계산
 			if(trstDt == null) {
@@ -590,8 +637,23 @@ public class AR02SvcImpl implements AR02Svc {
 		/* 여신체크 end */
 		
 		for(Map<String, String> paramMap : paramList) {
+			
+			List<Map<String, String>> countSellList = ar02Mapper.countSellList(paramMap);
+			
+			if(countSellList.size() != 0) {
+				for(int i=0; i<countSellList.size(); i++) {
+					paramMap.put("etrdpsSeqFind", MapUtils.getString(countSellList.get(i), "ETRDPS_SEQ"));
+					int countSell = ar02Mapper.countSellFind(paramMap);
+					paramMap.put("countSell", String.valueOf(countSell));
+					ar02Mapper.updatePchsSell(paramMap);
+					// ar02Mapper.deleteSell(deUpMap);
+				}
+			}
+			
+			ar02Mapper.deleteSell05D(paramMap);
+			
 			// paramList 순회하며 넘어온값 그대로 update
-			ar02Mapper.updatePchsSell(paramMap);
+			// ar02Mapper.updatePchsSell(paramMap);
 			// paramList 순회하며 분할된 데이터를 map에 update후 insert
 			Map<String, String> divMap = new HashMap<String, String>();
 			divMap.putAll(paramMap);
@@ -630,6 +692,10 @@ public class AR02SvcImpl implements AR02Svc {
 		matchMap.put("coCd", paramList.get(0).get("coCd"));
 		matchMap.put("clntCd", paramList.get(0).get("clntCd"));
 		matchMap.put("prdtGrp", paramList.get(0).get("prdtGrp"));
+		
+		ar02Mapper.callSaleMatch(matchMap);
+		
+		matchMap.put("clntCd", paramList.get(0).get("divClntCd"));
 		
 		ar02Mapper.callSaleMatch(matchMap);
 		
