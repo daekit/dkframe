@@ -44,6 +44,12 @@
 			<if test="prdtGrp != null and !prdtGrp.equals('')">
 				AND D.PRDT_GRP = #{prdtGrp}
 			</if>        
+			<if test="autoMapping != null and !autoMapping.equals('')">
+				AND D.AUTO_MATCH_FLAG = #{autoMapping}
+			</if>
+			<if test="completeMap != null and !completeMap.equals('')">
+				AND DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') = #{completeMap}
+			</if>
 		</where>
 	</select>
 	
@@ -77,11 +83,15 @@
 					FN_CM05M01_CD_TO_NM(D.ETRDPS_TYP) AS ETRDPS_TYP_NM,
 					D.TAXIVC_COPRT,
 					FN_CM05M01_CD_TO_NM(D.TAXIVC_COPRT) AS TAXIVC_COPRT_NM,
-					D.MSCL_PRFT_YN
+					D.MSCL_PRFT_YN,
+					D.AUTO_MATCH_FLAG,
+					D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0) AS REMAIN_AMT,
+					DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') AS REMAIN_YN
 				FROM
 					TB_AR05M01 D
 					LEFT JOIN TB_AR05D01 B ON D.BIL_NO = B.BIL_NO
 					INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
+					<!-- LEFT JOIN TB_AR05D02 E ON D.ETRDPS_SEQ = E.ETRDPS_SEQ -->
 				<where>
 					<if test="coCd != null and !coCd.equals('')">
 						D.CO_CD = #{coCd}
@@ -116,6 +126,12 @@
 			        <if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND D.PRDT_GRP = #{prdtGrp}
 					</if>
+					<if test="autoMapping != null and !autoMapping.equals('')">
+						AND D.AUTO_MATCH_FLAG = #{autoMapping}
+					</if>
+					<if test="completeMap != null and !completeMap.equals('')">
+						AND DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') = #{completeMap}
+					</if>
 				</where>
 				ORDER BY D.CO_CD, D.TAXIVC_COPRT, D.ETRDPS_DT, C.CLNT_NM, D.CREAT_DTTM DESC
 			) A
@@ -140,7 +156,8 @@
 			D.BIL_NO,
 			D.SUMRY,
 			D.ETRDPS_TYP,
-			D.PRDT_GRP
+			D.PRDT_GRP,
+			D.AUTO_MATCH_FLAG
 		FROM
 			TB_AR05M01 D
 			INNER JOIN TB_BM02M01 C ON D.CLNT_CD = C.CLNT_CD
@@ -189,7 +206,8 @@
 			ETRDPS_TYP,
 			TAXIVC_COPRT,
 			MSCL_PRFT_YN,
-			PRDT_GRP	
+			PRDT_GRP,
+			AUTO_MATCH_FLAG	
 	 	) VALUES (
 	 		#{coCd},
 			#{etrdpsDt},
@@ -207,7 +225,8 @@
 			#{etrdpsTyp},
 			#{taxivcCoprt},
 			#{msclPrftYn},
-			#{prdtGrp}
+			#{prdtGrp},
+			#{autoMatchFlag}
 	 	)
 	</insert>
 	
@@ -270,7 +289,8 @@
 			ETRDPS_TYP     = #{etrdpsTyp},
 			TAXIVC_COPRT   = #{taxivcCoprt},
 			MSCL_PRFT_YN   = #{msclPrftYn},
-			PRDT_GRP	   = #{prdtGrp}
+			PRDT_GRP	   = #{prdtGrp},
+			AUTO_MATCH_FLAG= #{autoMatchFlag}
 		WHERE
 			ETRDPS_SEQ     = #{etrdpsSeq}
 	</update>

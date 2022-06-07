@@ -91,6 +91,19 @@
 								</select>
 							</td>
 						</tr>
+						<tr>	
+							<th class="hit">자동매핑</th>
+							<td>
+								<select id="autoMatchFlag" name="autoMatchFlag" data-kind="AUTOMATCHFLAG" msg="자동매핑" required>
+									<option value="Y" selected>Y</option>
+									<option value="N">N</option>
+								</select>
+							</td>
+							<th></th>
+							<td>
+
+							</td>
+						</tr>
 						<tr>
 							<th>적요</th>
 							<td colspan="3">
@@ -406,6 +419,8 @@
 			$('#etrdpsTb').hide();
 			return false;
 		}
+		
+		// 매핑삭제 후 선택할 수 있는 매출리스트 출력
 		var paramObj = {
 				"coCd": $("#etrdpsData #coCd").val(),
 				"clntCd": $("#etrdpsData #clntCd").val(),
@@ -413,7 +428,7 @@
 				"prdtGrp": $("#etrdpsData #prdtGrp").val(),
 				"selpchCd": "SELPCH2"  // 매출만 매핑한다.
 				};
-		console.log(paramObj);
+
 		postAjax("/user/ar/ar05/selectEtrdpsDtlList", paramObj, null, function(data){
 			$('#etrdpsTb').show();
 			console.log(data.resultList);
@@ -492,6 +507,8 @@
 		postAjax("/user/ar/ar05/selectEtrdpsInfo", paramObj, null, function(data){
 			setEtrdpsInfo(data.etrdpsInfo);
 		});
+		
+		// selectEtrdpsDtlList();
 	}
 	
 	function setEtrdpsInfo(etrdpsInfo){
@@ -579,8 +596,6 @@
 				}
 			});
 			
-			console.log(totEtrdpsAtm);
-			
 			if(Math.abs(totEtrdpsAtm) > Math.abs(Number(deleteCommaStr($("#etrdpsAmt").val())))){
 				alert("금액을 확인해주세요");
 				return false;
@@ -620,13 +635,9 @@
 			if(calcelMatchType == 'C'){
 				$.each($(".detailRow [name=etrdpsAmt]"), function(idx, elem){
 					if($(".detailRow [name=detailChkBox]").eq(idx).prop("checked")){
-						console.log("???");
-						console.log(Number(deleteCommaStr($(elem).val())));
 						totEtrdpsAtm += Number(deleteCommaStr($(elem).val()));
 					}
 				});
-				
-				console.log(totEtrdpsAtm);
 				
 				if(totEtrdpsAtm > Number(deleteCommaStr($("#etrdpsAmt").val()))){
 					alert("금액을 확인해주세요");
@@ -816,8 +827,6 @@
  		
 		$.each($('#detailTb tr[name="tableEtrdps"]'), function(idx, elem) { // 하나를 체크해도 모든 행을 확인한다.
 			var tableBilgAmt = Number(deleteCommaStr($(elem).find("input[name='bilgTot']").val())); // 채권금액
-			console.log("== 채권금액 ==");
-			console.log(tableBilgAmt);
 			if($(elem).find("input[name='detailChkBox']").prop("checked")){ // 이번 행의 체크박스가 체크되어있는가?
 				
 				var tableEtrdpsAmt = Number(deleteCommaStr($(elem).find("input[name='etrdpsAmt']").val())); // 수금액 = 채권금액
