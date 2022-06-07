@@ -659,15 +659,27 @@
 		if (selectGridValidation(gridView.target)) return;
 		if (!confirm("매출 매핑정보를삭제하시겠습니까?")) return;
 		var row = gridView.target.getList("selected")[0];
-		var paramObj = {"etrdpsSeq": row.etrdpsSeq};
-
+		
+		var formData = makeFormData();
+		
+		var etrdpsAmt = Number(deleteCommaStr($("#etrdpsAmt").val()));
+		var isAdvPay = true;
+		var diffAmt = etrdpsAmt;
+		
+		formData.etrdpsData.etrdpsSeq = row.etrdpsSeq;
+		formData.etrdpsData.diffAmt = diffAmt;
+		formData.isAdvPay = true; 
+		// var paramObj = {"etrdpsSeq": row.etrdpsSeq};
+		
+		// console.log(formData);
+		
 		// 매핑 취소하고 신규로 할때는 수정 가능
 		$('.detailRow [name=detailChkBox]').prop("disabled", false);
 		$('.detailRow [name=etrdpsAmt]').prop("disabled", false);
 		
 		calcelMatchType ='C'; // 매핑정보는 추가로 등록한다.
 		
-		putAjax("/user/ar/ar05/calcelMatch", paramObj, null, function(data) {
+		putAjax("/user/ar/ar05/calcelMatch", formData, null, function(data) {
 			alert(data.resultMessage);
 			if (data.resultCode == 200) {
 				gridView.setData(0);

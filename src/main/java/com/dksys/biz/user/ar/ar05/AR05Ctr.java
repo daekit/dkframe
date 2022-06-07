@@ -1,8 +1,10 @@
 package com.dksys.biz.user.ar.ar05;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -117,10 +119,12 @@ public class AR05Ctr {
 	// 입금 매칭 정보 삭제 
 	
 	@PutMapping("/calcelMatch")
-    public String calcelMatch(@RequestBody Map<String, String> paramMap, ModelMap model) {
-
+    public String calcelMatch(@RequestBody Map<String, Object> paramMap, ModelMap model) {
 		try {
-			int result = ar05Svc.calcelMatch(paramMap);
+			Map<String, String> etrdpsData = (Map<String, String>) paramMap.get("etrdpsData");
+			// etrdpsData.put("etrdpsSeq", MapUtils.getString(paramMap, "etrdpsSeq"));
+			// etrdpsData.put("diffAmt", MapUtils.getString(paramMap, "diffAmt"));
+			int result = ar05Svc.calcelMatch(etrdpsData);
 			if(result == 500){
 				model.addAttribute("resultCode", 500);
 		    	model.addAttribute("resultMessage", messageUtils.getMessage("etrdpsClose"));
