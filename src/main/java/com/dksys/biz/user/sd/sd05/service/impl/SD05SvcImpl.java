@@ -165,6 +165,7 @@ public class SD05SvcImpl implements SD05Svc {
 		// paramMap.put("siteAddr",    paramMap.get("prjctAddr"));
 		// paramMap.put("siteAddrSub", paramMap.get("prjctAddrSub"));
 		// paramMap.put("siteMngNm",   paramMap.get("prjctMngNm"));
+		paramMap.remove("telNo");
 		sd09Mapper.updateSite(paramMap);
 		
 		return result;
