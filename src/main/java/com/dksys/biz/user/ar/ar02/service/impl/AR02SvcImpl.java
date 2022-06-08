@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import com.dksys.biz.util.ObjectUtil;
 @Transactional(rollbackFor = Exception.class)
 public class AR02SvcImpl implements AR02Svc {
 
+	private Logger logger = LoggerFactory.getLogger(AR02SvcImpl.class);
+	
 	@Autowired
     AR02Mapper ar02Mapper;
 	
@@ -742,6 +747,22 @@ public class AR02SvcImpl implements AR02Svc {
 		loanMap.put("amt", paramMap.get("totAmt"));
 		long creditLoan  = ar02Mapper.callCreditLoan2(loanMap);
 		long diffLoan = creditLoan - (Long)paramMap.get("totAmt");
+		
+		/* 여신초과 확인을 위한 로그 시작 */
+		long pldgAmt = ar02Mapper.checkPldgAmt(loanMap);
+		logger.info("=====> pldgAmt : " + pldgAmt);
+		long creditNonRecvAmt  = ar02Mapper.callCreditNonRecvAmt(loanMap);
+		logger.info("=====> creditNonRecvAmt : " + creditNonRecvAmt);
+		long creditNonPayAmt  = ar02Mapper.callCreditNonPayAmt(loanMap);
+		logger.info("=====> creditNonPayAmt : " + creditNonPayAmt);
+		long creditUnsetlBilAmt  = ar02Mapper.callCreditUnsetlBilAmt(loanMap);
+		logger.info("=====> creditUnsetlBilAmt : " + creditUnsetlBilAmt);
+		
+		logger.info("=====> creditLoan : " + creditLoan);
+		logger.info("=====> totAmt : " + (Long)paramMap.get("totAmt"));
+		logger.info("=====> diffLoan : " + diffLoan);
+		/* 여신초과 확인을 위한 로그 끝 */
+		
 		return diffLoan;
 	}
 	
