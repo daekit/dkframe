@@ -841,6 +841,46 @@
 		WHERE TRST_CERTI_NO = #{trstCertiNo};
 		 -->
 		
+		<!-- 
+		UPDATE 
+			TB_AR02M01
+		SET
+			TRST_CLNT_CD	= #{clntCd},
+			CLNT_NM         = #{clntNm},
+			REAL_TRST_QTY	= #{realTrstQty},
+			REAL_TRST_WT	= #{realTrstWt},
+			REAL_TRST_AMT	= #{realTrstAmt},
+	        BILG_QTY        = #{bilgQty},
+	        BILG_WT         = #{bilgWt},
+	        BILG_UPR        = #{bilgUpr},
+	        BILG_AMT        = #{bilgAmt},
+	        BILG_VAT_AMT    = #{bilgVatAmt},
+	        TRST_DC_AMT     = #{trstDcAmt},
+	        ETC_AMT         = #{etcAmt},
+	        TRSP_RMK    	= #{trspRmk, jdbcType=VARCHAR},
+	        TRANS_AMT       = #{transAmt},
+			SHIP_VEH_NO 	= #{shipVehNo, jdbcType=VARCHAR},
+	        LOSS_RATE       = #{lossRate},
+	        UDT_ID          = #{userId},
+	        ETRDPS_YN       = 'N',
+            ETRDPS_AMT      = 0,
+	        <choose>
+				<when test="updatePgmId != null and !updatePgmId.equals('')">
+					UDT_PGM = #{updatePgmId},
+				</when>
+				<otherwise>
+					UDT_PGM = #{pgmId},
+				</otherwise>
+			</choose>
+	        UDT_DTTM        = SYSDATE
+		WHERE 
+			TRST_CERTI_NO = #{trstCertiNo};
+		 -->
+	END;
+	</update>
+	
+	<update id="updatePchsSellPart2" parameterType="Map">
+	BEGIN
 		
 		UPDATE 
 			TB_AR02M01
@@ -877,8 +917,6 @@
 			TRST_CERTI_NO = #{trstCertiNo};
 
 	END;
-			
-			
 	</update>
 	
 	<update id="updatePchsSellPart" parameterType="Map">

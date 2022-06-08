@@ -80,4 +80,6 @@ public interface AR02Mapper {
 
 	void deleteSell05D(Map<String, String> detailMap);
 
+	void updatePchsSellPart2(Map<String, String> detailMap);
+
 }

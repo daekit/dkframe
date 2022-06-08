@@ -195,6 +195,9 @@ public class AR02SvcImpl implements AR02Svc {
 				}
 			}
 			
+			// 기존에는 매핑된 리스트에 따라서 for문을 돌게되어있었지만, 매핑되지 않은 매입과 매출리스트 건에 대한 분할 및 정산이 이루어질 수 있어서 수정
+			ar02Mapper.updatePchsSellPart2(detailMap);
+			
 			ar02Mapper.deleteSell05D(detailMap);
 			
 			ar02Mapper.callSaleMatch(detailMap);
@@ -649,6 +652,9 @@ public class AR02SvcImpl implements AR02Svc {
 					// ar02Mapper.deleteSell(deUpMap);
 				}
 			}
+			
+			// 기존에는 매핑된 리스트에 따라서 for문을 돌게되어있었지만, 매핑되지 않은 매입과 매출리스트 건에 대한 분할 및 정산이 이루어질 수 있어서 수정
+			ar02Mapper.updatePchsSellPart2(paramMap);
 			
 			ar02Mapper.deleteSell05D(paramMap);
 			
