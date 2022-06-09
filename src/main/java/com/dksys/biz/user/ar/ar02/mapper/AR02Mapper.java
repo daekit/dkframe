@@ -40,6 +40,14 @@ public interface AR02Mapper {
 	
 	long callCreditLoan2(Map<String, Object> map);
 	
+	long callCreditNonPayAmt(Map<String, Object> map);
+	
+	long callCreditNonRecvAmt(Map<String, Object> map);
+	
+	long callCreditUnsetlBilAmt(Map<String, Object> map);
+	
+	long checkPldgAmt(Map<String, Object> map);
+	
 	long selectBilgVatAmt(Map<String, String> paramMap);
 	
 	int selectBilgVatPer(Map<String, String> paramMap);

@@ -1349,6 +1349,33 @@
     <select id="callCreditLoan2" parameterType="Map" resultType="long">
     	SELECT F_CREDIT_LOAN_PRDTGRP(#{loanCd}, #{clntCd}, #{coCd}, #{iPrdtGrp}, #{iTrDt}, #{amt}) FROM DUAL
     </select>
+    
+    <select id="callCreditNonPayAmt" parameterType="Map" resultType="long">
+    	SELECT F_CREDIT_PRDTGRP_NON_PAY_AMT(#{clntCd}, #{coCd}, #{iPrdtGrp}, #{iTrDt}) FROM DUAL
+    </select>
+    
+    <select id="callCreditNonRecvAmt" parameterType="Map" resultType="long">
+    	SELECT F_CREDIT_PRDTGRP_NON_RECV_AMT(#{clntCd}, #{coCd}, #{iPrdtGrp}, #{iTrDt}) FROM DUAL
+    </select>
+    
+    <select id="callCreditUnsetlBilAmt" parameterType="Map" resultType="long">
+    	SELECT F_CREDIT_PRDTGRP_UNSETL_BIL_AMT(#{clntCd}, #{coCd}, #{iPrdtGrp}, #{iTrDt}) FROM DUAL
+    </select>
+    
+    <select id="checkPldgAmt" parameterType="Map" resultType="long">
+		SELECT NVL(SUM(PLDG_AMT*PLDG_RCOGN_RATE/100),0) AS O_CO_AMT
+		  FROM TB_BM02D02
+		 WHERE CLNT_CD  = #{clntCd}
+		   AND CO_CD    = NVL(#{coCd},CO_CD)
+		   --AND PLDG_DIV_CD NOT IN ('PLDG03')
+		   AND SELPCH_CD = 'SELPCH2'
+		   <![CDATA[
+		   AND NVL(SETUP_DT,00010101) <= TO_NUMBER(#{iTrDt}) 
+		   AND NVL(EXPRTN_DT,99999999) >= TO_NUMBER(#{iTrDt})
+		   ]]>
+		   AND PRDT_GRP  = #{iPrdtGrp}
+		   AND USE_YN    = 'Y'
+	</select>
 	
     <select id="selectSellSumList" parameterType="Map" resultType="CamelMap">
 	    SELECT 		
