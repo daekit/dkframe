@@ -481,6 +481,9 @@ public class AR04SvcImpl implements AR04Svc {
 		} else {
 			taxHdParam.put("bgm1060", "");
 		}
+		
+		ar04Mapper.updateTaxHd(taxHdParam);
+		
 		result = ar04Mapper.insertTaxHd(taxHdParam); // taxHd insert
 		result = ar04Mapper.insertTaxDtl(taxHdParam);
 		result = ar04Mapper.insertTaxItem(taxHdParam);

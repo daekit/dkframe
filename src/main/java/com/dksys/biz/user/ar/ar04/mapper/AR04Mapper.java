@@ -114,4 +114,6 @@ public interface AR04Mapper {
 
 	int updateNoteData2(Map<String, String> param);
 
+	void updateTaxHd(Map<String, String> taxHdParam);
+
 }
