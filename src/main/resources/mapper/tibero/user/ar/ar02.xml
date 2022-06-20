@@ -9,6 +9,9 @@
 		</selectKey>
 		INSERT INTO TB_AR02M01 
 		(
+			<if test='pgmId != null and pgmId == "AR0202P01"'>
+				TRANS_SEQ,
+			</if>
 			CO_CD,
 			TRST_CERTI_NO,
 			SELPCH_CD,
@@ -78,6 +81,9 @@
 		)
 		VALUES 
 		(
+			<if test='pgmId != null and pgmId == "AR0202P01"'>
+				#{transSeq},
+			</if>
 			#{coCd},
 			#{trstCertiNo},
 			#{selpchCd},
@@ -885,6 +891,9 @@
 		UPDATE 
 			TB_AR02M01
 		SET
+			<if test='pgmId != null and pgmId == "AR0202P01"'>
+				TRANS_SEQ	= #{transSeq},
+			</if>
 			TRST_CLNT_CD	= #{clntCd},
 			CLNT_NM         = #{clntNm},
 			REAL_TRST_QTY	= #{realTrstQty},
@@ -1162,7 +1171,8 @@
 	        T.ORGN_TAX_BILG_NO,
 	        T.RFF_APG,
 	        BM01.PRDT_CNVRSN_WT,
-	        BM01.PRDT_STOCK_CD
+	        BM01.PRDT_STOCK_CD,
+	        T.TRANS_SEQ
 		FROM 
 			TB_AR02M01 T
 			LEFT OUTER JOIN TB_BM01M01 BM01 ON BM01.PRDT_CD = T.TRST_PRDT_CD
