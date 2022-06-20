@@ -295,7 +295,8 @@
 			   AND A.ACC_SLIP_YN = #{accSlipYn}
 			</if>
 			<if test="sndYn != null and !sndYn.equals('')">
-			   AND NVL(A.SND_YN, 'N') = #{sndYn}
+			   <!-- AND NVL(A.SND_YN, 'N') = #{sndYn} -->
+			   AND DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) = #{sndYn} 
 			</if>
 			<if test="rcvYn != null and !rcvYn.equals('')">
 			   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
@@ -314,7 +315,9 @@
 				ROWNUM AS RNUM, A.*
 			FROM
 			(
-				SELECT A.BILG_CERT_NO,
+				SELECT 
+						DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) AS SND_CHECK,
+						A.BILG_CERT_NO,
 						A.CO_CD,
 						FN_CM05M01_CD_TO_NM(A.CO_CD) AS CO_NM, 
 						TO_CHAR(TO_DATE(A.SELL_DT, 'YYYYMMDD'), 'YYYY-MM-DD') SELL_DT,
@@ -461,7 +464,8 @@
 						   AND A.ACC_SLIP_YN = #{accSlipYn}
 						</if>
 						<if test="sndYn != null and !sndYn.equals('')">
-						   AND NVL(A.SND_YN, 'N') = #{sndYn}
+						   <!-- AND NVL(A.SND_YN, 'N') = #{sndYn} -->
+						   AND DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) = #{sndYn}
 						</if>
 						<if test="rcvYn != null and !rcvYn.equals('')">
 						   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
