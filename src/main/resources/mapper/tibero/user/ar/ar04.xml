@@ -299,7 +299,8 @@
 			   AND DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) = #{sndYn} 
 			</if>
 			<if test="rcvYn != null and !rcvYn.equals('')">
-			   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
+			   AND DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) = #{rcvYn}
+			   <!-- AND NVL(A.RCV_YN, 'N') = #{rcvYn} -->
 			</if>
 			<if test="taxCreatNm != null and !taxCreatNm.equals('')">
 			   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
@@ -400,7 +401,8 @@
 						TO_CHAR(A.CSEQ_RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') CSEQ_RCV_DTTM,
 						A.TAX_ADMS_YN,
 						TO_CHAR(A.TAX_ADMS_DTTM, 'YYYY-MM-DD HH24:MI:SS') TAX_ADMS_DTTM,
-						A.RCV_YN,
+						DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) AS RCV_YN,
+						<!-- A.RCV_YN, -->
 						TO_CHAR(A.RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') RCV_DTTM,
 						A.RCV_PROC_ID,
 						A.ACC_SLIP_NO,
@@ -468,7 +470,8 @@
 						   AND DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) = #{sndYn}
 						</if>
 						<if test="rcvYn != null and !rcvYn.equals('')">
-						   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
+						   AND DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) = #{rcvYn}
+						   <!-- AND NVL(A.RCV_YN, 'N') = #{rcvYn} -->
 						</if>
 						<if test="taxCreatNm != null and !taxCreatNm.equals('')">
 						   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
