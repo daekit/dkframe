@@ -67,18 +67,16 @@
 						</td>
 						<th>기준일자</th>
 		                <td>
-		                	<!-- 
-		                    <div class="date_input">
-		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
-		                    </div>
-		                     -->
+		                	<div class="date_input">
+								<input type="text" class="input_calendar" id="baseDtFrom" data-search="baseDtFrom" autocomplete="off" date> 
+								<span>~</span>
+								<input type="text" class="input_calendar" id="baseDtTo" data-search="baseDtTo" autocomplete="off" date>
+							</div>
+							<!-- 
 		                    <div class="date_input">
 								<input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt">
-								<!-- 
-								<span>~</span> 
-								<input id="baseDtTo" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDtTo">
-								 -->
 							</div>
+							 -->
 		                </td>
 						<th>제품구분</th>
 						<td>
@@ -278,6 +276,7 @@
 					{key: "prjctNm", hidden: true},
 					{key: "prdtDiv", hidden: true},
 					{key: "prdtSize", hidden: true},
+// 					{key: "closeYm", 	    label: "마감월",   align: "left",  width: 60},
 		          	{key: "prdtDivNm", 	    label: "제품구분",   align: "left",  width: 60},
 		            {key: "whNm",      		label: "창고",   align: "left",  width: 100},
 		            {key: "prdtNm",    		label: "제품",    align: "left",    width: 140},
@@ -312,8 +311,8 @@
 		       // 창고 조회 여부
 				paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
 			
-			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
-			// paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
+			paramObj["baseDtFrom"] = $("#baseDtFrom").val().replace(/\-/g,'');
+			paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
 			postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
@@ -400,52 +399,47 @@
 		
 		// 기준년월
  		// document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
-		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		// document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
 		 
 		// 검색조건 이벤트 bind
 		$('[data-search]').on("change", function(){
 			gridView.setData(0);
 		});
 		
-		
+		/*	
 		$('#baseDt').datepicker({
 				format : "yyyy-mm-dd",
 				language : "ko",
 				autoclose : true
 		});
-		
-		
+		*/
+	
 		// 시작일 (현재날짜의 월 첫일)
-		/*
-		$('#baseDt').datepicker({
+		$('#baseDtFrom').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		})
 		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
 		.on("changeDate", function(){
-			if($('#baseDt').val() > $('#baseDtTo').val()){
+			if($('#baseDtFrom').val() > $('#baseDtTo').val()){
 				alert("날짜를 확인해주세요");
-				$('#baseDt').datepicker("setDate", new Date($('#baseDtTo').val()));
+				$('#baseDtFrom').datepicker("setDate", new Date($('#baseDtTo').val()));
 			}
 		});
-*/
 		// 종료일 (현재날짜의 월 말일)
-/*		$('#baseDtTo').datepicker({
+		$('#baseDtTo').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
 			autoclose : true
 		})
 		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
 		.on("changeDate", function(){
-			if($('#baseDt').val() > $('#baseDtTo').val()){
+			if($('#baseDtFrom').val() > $('#baseDtTo').val()){
 				alert("날짜를 확인해주세요");
-				$('#baseDtTo').datepicker("setDate", new Date($('#baseDt').val()));
+				$('#baseDtTo').datepicker("setDate", new Date($('#baseDtFrom').val()));
 			}
 		});
-		*/
-		
-		
 		
 		
 		// grid init
@@ -461,7 +455,7 @@
 		$(".contents.search [data-search]").not('.input_calendar').val("");
 		// 기간
 // 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
-		$('#baseDt').datepicker("setDate", new Date());
+		// $('#baseDt').datepicker("setDate", new Date());
 		// 날짜 초기화
 		// $('#baseDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
 		// $('#baseDtTo').datepicker("setDate", new Date());
@@ -554,11 +548,12 @@
 			
 		}
 
-	       // 창고 조회 여부
-			paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
+	    // 창고 조회 여부
+		paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
 	       
 		paramObj["recordCnt"] = 9999999;
-		paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
+		paramObj["baseDtFrom"] = $("#baseDtFrom").val().replace(/\-/g,'');
+		paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
 		
 		postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
 			var list = data.resultList;				
@@ -593,8 +588,8 @@
 	   }else if(type == 'WH09'){  fileName = "RD0501R03.jrf"; //인천하치장 일재고 현황
 	   }
 		var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
-		         + "#baseDt#"		+ $('[data-search="baseDt"]').val().replace(/\-/g,'')
-		         // + "#baseDtTo#"		+ $('[data-search="baseDtTo"]').val().replace(/\-/g,'')
+		         + "#baseDtFrom#"	+ $('[data-search="baseDtFrom"]').val().replace(/\-/g,'')
+		         + "#baseDtTo#"		+ $('[data-search="baseDtTo"]').val().replace(/\-/g,'')
 		         + "#whCd#"			+ $('[data-search="whCd"]').val()
 		         + "#typCd#"		+ $('[data-search="typCd"]').val()
 		         + "#prdtCd#"		+ $('[data-search="prdtCd"]').val()
