@@ -171,10 +171,20 @@
 							</select>
 						</td>
           
-		           	      <th>창고조회여부</th>
-		                  <td>
-		                     <input type="checkbox" id="whShowYn" name="whShowYn"  data-search="whShowYn" style="width: 100%;" onchange="gridView.setData(0);">
-		                  </td>
+		           	    <th>창고조회여부</th>
+						<td>
+							<input type="checkbox" id="whShowYn" name="whShowYn"  data-search="whShowYn" style="width: 100%;" onchange="gridView.setData(0);">
+		            	</td>
+					</tr>
+					<tr>
+						<th>턴키여부</th>
+						<td>
+							<input type="checkbox" id="tnkeyYn" name="tnkeyYn"  data-search="tnkeyYn" style="width: 100%;" onchange="gridView.setData(0);">
+						</td>
+		           	    <th>프로젝트<br>조회여부</th>
+						<td>
+							<input type="checkbox" id="pjShowYn" name="pjShowYn"  data-search="pjShowYn" style="width: 100%;" onchange="gridView.setData(0);">
+		            	</td>
 					</tr>
 				</table>
 			</div>
@@ -309,11 +319,15 @@
 			}
 			
 
-		       // 창고 조회 여부
-				paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
-			
+		    // 창고 조회 여부
+			paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
+			// 턴키 여부
+		    paramObj.tnkeyYn = $('#tnkeyYn').is(":checked") ? 'Y' : 'N';
+			// 프로젝트 조회 여부
+		    paramObj.pjShowYn = $('#pjShowYn').is(":checked") ? 'Y' : 'N';
+				
 			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
-			// paramObj["baseDtTo"] = $("#baseDtTo").val().replace(/\-/g,'');
+			
 			postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
@@ -397,6 +411,7 @@
 		setByCoCd(jwt.coCd);
 		setWareHouse(jwt.coCd);
 		$('#whShowYn').prop("checked",true);
+		$('#pjShowYn').prop("checked",true);
 		
 		// 기준년월
  		// document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);		
@@ -414,40 +429,6 @@
 				autoclose : true
 		});
 		
-		
-		// 시작일 (현재날짜의 월 첫일)
-		/*
-		$('#baseDt').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).startOf("month").toDate())
-		.on("changeDate", function(){
-			if($('#baseDt').val() > $('#baseDtTo').val()){
-				alert("날짜를 확인해주세요");
-				$('#baseDt').datepicker("setDate", new Date($('#baseDtTo').val()));
-			}
-		});
-*/
-		// 종료일 (현재날짜의 월 말일)
-/*		$('#baseDtTo').datepicker({
-			format : "yyyy-mm-dd",
-			language : "ko",
-			autoclose : true
-		})
-		.datepicker("setDate", moment(new Date()).endOf("month").toDate())
-		.on("changeDate", function(){
-			if($('#baseDt').val() > $('#baseDtTo').val()){
-				alert("날짜를 확인해주세요");
-				$('#baseDtTo').datepicker("setDate", new Date($('#baseDt').val()));
-			}
-		});
-		*/
-		
-		
-		
-		
 		// grid init
 		gridView.initView().setData(0);
 		excelView.initView();
@@ -459,12 +440,7 @@
 
 		// 조건초기화
 		$(".contents.search [data-search]").not('.input_calendar').val("");
-		// 기간
-// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		$('#baseDt').datepicker("setDate", new Date());
-		// 날짜 초기화
-		// $('#baseDt').datepicker("setDate", moment(new Date()).subtract(7, "day").toDate());
-		// $('#baseDtTo').datepicker("setDate", new Date());
 		
 		// 접속자 회사 set
 		$('[data-search="coCd"]').val(jwt.coCd);
@@ -510,7 +486,6 @@
 			"prjctCd" : $("#prjctCd").val(),
 			"useYn": "Y"
 		};
-		// console.log(paramObj);
 				
 		openSecondModal("/static/html/cmn/modal/prdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var row = grid.target.getList("selected")[0];
@@ -554,8 +529,12 @@
 			
 		}
 
-	       // 창고 조회 여부
-			paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
+	    // 창고 조회 여부
+		paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
+		// 턴키 여부
+	    paramObj.tnkeyYn = $('#tnkeyYn').is(":checked") ? 'Y' : 'N';
+	 	// 프로젝트 조회 여부
+	    paramObj.pjShowYn = $('#pjShowYn').is(":checked") ? 'Y' : 'N';
 	       
 		paramObj["recordCnt"] = 9999999;
 		paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
@@ -586,7 +565,8 @@
 
 		var fileName = "RD0501R01.jrf";
 		var whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
-		
+		var tnkeyYn = $('#tnkeyYn').is(":checked") ? 'Y' : 'N';
+	    var pjShowYn = $('#pjShowYn').is(":checked") ? 'Y' : 'N';
 		
 	   if      (type =='STOCK'){ if(whShowYn == "Y") { fileName = "RD0501R02.jrf"; } //일재고 현황
 	  							 else                 { fileName = "RD0501R04.jrf"; } //일재고 현황
@@ -594,7 +574,6 @@
 	   }
 		var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
 		         + "#baseDt#"		+ $('[data-search="baseDt"]').val().replace(/\-/g,'')
-		         // + "#baseDtTo#"		+ $('[data-search="baseDtTo"]').val().replace(/\-/g,'')
 		         + "#whCd#"			+ $('[data-search="whCd"]').val()
 		         + "#typCd#"		+ $('[data-search="typCd"]').val()
 		         + "#prdtCd#"		+ $('[data-search="prdtCd"]').val()
@@ -604,8 +583,9 @@
 		         + "#taxivcCoprt_Nm#"		+ $("#taxivcCoprt_S option:checked").val()
 		         + "#impYn#"		+ $('[data-search="impYn"]').val()
 		         + "#whShowYn#"		+ $('[data-search="whShowYn"]').val()
+		         + "#tnkeyYn#"		+ tnkeyYn
+		         + "#pjShowYn#"		+ pjShowYn
 		         + "#";
-	    console.log('@@ : ', arg);
 		callReport(fileName, arg, "1050", "700");
 		
 	}
