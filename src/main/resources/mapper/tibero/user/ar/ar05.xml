@@ -86,7 +86,15 @@
 					D.MSCL_PRFT_YN,
 					D.AUTO_MATCH_FLAG,
 					D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0) AS REMAIN_AMT,
-					DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') AS REMAIN_YN
+					DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') AS REMAIN_YN,
+				    (SELECT dz_code   FROM TB_CM05M01  WHERE CODE_ID = ETRDPS_TYP) AS DZ_CODE,   /*더존 코드 추가  2022 KDM*/
+                    (SELECT dz_code   FROM TB_CM05M01  WHERE CODE_ID = D.SETLE_TYP_CD) AS DZ_CODE2, /*더존 코드 추가  2022 KDM*/
+                    (SELECT CODE_DESC FROM TB_CM05M01  WHERE CODE_ID = ETRDPS_BKAC_CD) AS BK_ACT,  /*은행계좌 추가   2022 KDM*/ 
+                    (SELECT CRN FROM TB_BM02M01 WHERE CLNT_CD =  C.CLNT_CD) AS CRN,/*사업자 번호  추가   2022 KDM*/ 
+                    D.SETLE_TYP_CD,/*거래 code   2022 KDM*/ 
+                    (SELECT dz_code  FROM TB_CM05M01  WHERE CODE_ID = D.CO_CD) AS DZ_CO , /*법인 코드 추가   2022 KDM*/ 
+                    DECODE(D.DZ_SND_SEQ,NULL,'N','Y') AS DZ_SND_YN,
+                    D.DZ_SND_SEQ
 				FROM
 					TB_AR05M01 D
 					LEFT JOIN TB_AR05D01 B ON D.BIL_NO = B.BIL_NO AND D.CO_CD = B.CO_CD AND D.CLNT_CD = B.CLNT_CD 
@@ -605,5 +613,19 @@
 		AND A.CLNT_CD = #{clntCd}
 		</if>
 	</select>
+	
+	
+	
+	
+	<update id="updateDzSndSeq">
+	 /* ar05. updateDzSndSeq 더존 dzsndseq 값 update */
+		UPDATE TB_AR05M01
+	 	   SET
+		  	   DZ_SND_SEQ	   = #{dzSndSeq}
+		 WHERE CO_CD 		   = #{coCd} 
+		   AND ETRDPS_DT       = REPLACE(#{etrdpsDt}, '-', '')  
+		   AND ETRDPS_SEQ      = #{etrdpsSeq}
+		   AND CLNT_CD         = #{clntCd}		 
+	</update>
 	
 </mapper>

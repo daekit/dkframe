@@ -24,23 +24,54 @@ public class DZ01Ctr {
 	@Autowired
 	MessageUtils messageUtils;
 	
-    @PostMapping("/testSelect")
+    @PostMapping( "/testSelect")
     public String testSelect(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		System.out.println("-----------------------------------testSelect");
 		List<Map<String, String>> testList = dz01Svc.testSelect(paramMap);
-		model.addAttribute("testList", testList);
+		model.addAttribute("testList", testList);		
     	return "jsonView";
     }
     
     @PostMapping(value = "/dzInsert")
     public String dzInsert(HttpServletRequest request, @RequestBody Map<String, String> paramMap, ModelMap model) {
     	try {
-    		dz01Svc.dzInsert(paramMap);
-    		model.addAttribute("resultCode", 200);
-    		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		int  gbn = 0;
+    		
+    	    gbn = dz01Svc.dzInsert(paramMap);
+    		
+    	    if (gbn == 20000) {
+        	
+    	    	model.addAttribute("resultMessage", "더존 은행거래처를 등록해 주세요");
+    	    	
+    	    }else {
+    	    		
+        	    model.addAttribute("resultCode", gbn);
+        		model.addAttribute("resultMessage", "insert");
+
+    	    }
+    	    
+    	    
     	}catch(Exception e) {
-    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultCode", 30000);
 			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
     	}
+    	return "jsonView";
+    }
+    
+    
+
+    @PostMapping( "/dzDelete")
+    public String dzDelete(@RequestBody Map<String, String> paramMap, ModelMap model) {
+		  int chk =  dz01Svc.dzDelete(paramMap);
+		 	
+		  if (chk == 0) {
+			    model.addAttribute("resultCode", 500);
+			   	model.addAttribute("resultMessage", "발행된 전표가 있습니다.(i-Cube확인)");
+		  }else {
+			    model.addAttribute("resultCode", 200);
+	      		model.addAttribute("resultMessage", "전표삭제에 성공하였습니다.");
+		  }
+		  
     	return "jsonView";
     }
 }

@@ -12,7 +12,17 @@ public interface DZ01Mapper {
 	
 	Map<String, String> getAcctAm(Map<String, String> paramMap);
 	
-	void dzInsert(Map<String, String> paramMap);
+	int dzInsert(Map<String, String> paramMap);
 
 	Map<String, String> checkTrstCertiNo(Map<String, String> paramMap);
+
+	int getCntSeq(Map<String, String> paramMap);
+
+	String getTrCd(Map<String, String> paramMap);
+
+
+	void dzDelete(Map<String, String> paramMap);
+	
+	int getDzCnt(Map<String, String> paramMap);
+	
 }

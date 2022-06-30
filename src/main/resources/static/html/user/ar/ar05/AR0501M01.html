@@ -153,8 +153,9 @@
 					<a onclick="deleteEtrdps();" authchk>-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	                
-<!-- 		                <a onclick="testSelect();" style="height: 30px; line-height: 28px; width: 90px;">testSelect</a> -->
-<!-- 		                <a onclick="openTestDz();" style="height: 30px; line-height: 28px; width: 150px;">더존 테스트 팝업</a> -->
+		            <a onclick="dzInsert();" style="height: 30px; line-height: 28px; width: 90px;">더존 전표발행</a>     
+		            <a onclick="dzDel();" style="height: 30px; line-height: 28px; width: 100px;">더존 전표발행 취소</a> 
+	             
 	                 
 				</div>
 				<select class="prae_select" data-search="recordCnt">
@@ -228,7 +229,10 @@
 					{key : "endrsPsn",      label : "배서인",  	align : "center", width : 90},
 					{key : "autoMatchFlag", label : "자동매핑", 	align : "center", width : 90},
 					{key : "remainYn", 		label : "매핑완료",	align : "center", width : 90},
-					{key : "remainAmt", 	label : "미매핑금액",	align : "right",  width : 120, formatter: "money"}
+					{key : "remainAmt", 	label : "미매핑금액",	align : "right",  width : 120, formatter: "money"},
+					{key : "dzSndYn", 	    label : "DZ전송유무",	align : "center",  width : 90 }
+								
+					
 				],
 		        footSum: [
 			    	[
@@ -295,7 +299,8 @@
 						{key : "endrsPsn", 		label : "배서인", align : "center", width : "9%"},
 						{key : "autoMatchFlag", label : "자동매핑", align : "center", width : "9%"},
 						{key : "remainYn", 		label : "매핑완료", align : "center", width : "9%"},
-						{key : "remainAmt", 	label : "미매핑금액", align : "center", width : "9%", formatter: "money"}
+						{key : "remainAmt", 	label : "미매핑금액", align : "center", width : "9%", formatter: "money"},
+						{key : "dzSndYn", 	    label : "DZ전송유무",	align : "center",  width : "9%" }
 					]
 			    });
 				return this;
@@ -439,34 +444,137 @@
 			$('#clntCd_S').val(row.clntCd);
 			$('#clntNm_S').val(row.clntNm);
 		});
-	}
+	}	
 	
-// 	 function testSelect(){
-// 		postAjax("/douzone/dz/dz01/testSelect", null, null, function(data) {
-// 		});
-// 	}
 	
-// 	function testInsert(){
-// 			if (selectGridValidation(gridView.target)) 
-// 				return;
-			
-// 			if (!confirm("테스트 진행하시겠습니까?")) 
-// 				return;
-// 			var row = gridView.target.getList("selected")[0];
-// 			var formData = {
-// 						"coCd"		:	row.coCd,
-// 						"etrdpsDt"	:	row.etrdpsDt,
-// 						"etrdpsAmt"	:	row.etrdpsAmt,
-// 						"sumry"		:	row.sumry,
-// 						"clntNm"	:	row.clntNm,
-// 						"etrdpsSeq"	:	row.etrdpsSeq,
-// 						"userId"	:	jwt.userId
-// 					};
-// 			postAjax("/douzone/dz/dz01/testInsert", formData, null, function(data) {
-// 				if(data.resultCode == "200") {
-// 					alert(data.resultMessage);
-// 					gridView.setData(0);
-// 				}
-// 			});
-// 	}
+	//더존 전표연동 삭제 20220630 kdm 
+ 	 function dzDel(){
+		
+ 		if (selectGridValidation(gridView.target)) return;
+
+		var row = gridView.target.getList("selected")[0];
+		
+ 	   if (row.dzSndYn=='N'){
+ 		   alert("전표가 발행되지 않았습니다"); 
+ 		   return; 
+ 	   }
+ 	    
+ 		if (!confirm("해당 전표 발행을 취소하시겠습니까?")) return;
+ 		
+ 		//더존 erp 에서는 회사코드 일자 / 그리고 seq 값만 있으면 해당 전표룰 찾을 수 있음 월별로 따지는 seq 가  pk임 
+ 		var dzData = {
+					"coCd"		     :   row.dzCo,
+					"etrdpsDt"       :   row.etrdpsDt,
+					"dzSndSeq"		 : 	 row.dzSndSeq
+				};
+				
+			postAjax("/douzone/dz/dz01/dzDelete", dzData, null, function(data) {
+				
+				if (data.resultCode == 200) { //전표 삭제가 되었을때 dz 전송유무 n 로 고쳐줌 
+					
+					var dzData = {
+ 	 						"coCd"		     :   row.coCd,
+ 	 						"etrdpsDt"       :   row.etrdpsDt,
+ 	 						"etrdpsSeq"		 :   row.etrdpsSeq,
+ 	 						"clntCd"		 :   row.clntCd,
+ 	 						"dzSndSeq"		 : 	 ""
+ 	 					};
+ 						
+	 					postAjax("/user/ar/ar05/updateDzSndSeq", dzData, null, function(data1) {
+	 						
+		 						if (data1.resultCode == 200) {
+		 						
+		 							alert("전표 삭제에 성공하였습니다 .");
+		 						}else{
+		 							
+		 							alert ("더존 연동 후 erp 구분자 update 실패하였습니다")
+		 							
+		 						}
+	 					});
+				}else{
+					
+					alert(data.resultMessage);
+					
+ 					
+				}
+				gridView.setData(0);
+			});
+ 	  }
+	
+	
+ 	 //더존 전표 연동 insert 20220630 kdm 
+ 	 function dzInsert(){
+ 		 
+
+			var row = gridView.target.getList("selected")[0];
+ 			if (selectGridValidation(gridView.target)) 
+ 				return;
+
+ 		   if (row.dzSndYn=='Y'){
+ 	 		   alert("전표가 발행되어 있습니다"); 
+ 	 		   return; 
+ 	 	   }
+ 			
+ 			if (!confirm("전표발행을 하시겠습니까?")) 
+ 				return;
+ 			
+ 			
+ 			var formData = {
+ 						"coCd"		     :   row.dzCo,
+ 						"etrdpsDt"       :   row.etrdpsDt,
+ 						"etrdpsAmt"	     :   row.etrdpsAmt,
+ 						"sumry"		     :   row.sumry,
+ 						"clntNm"	     :   row.clntNm,
+ 						"clntCd"   	     :   row.clntCd,
+ 						"etrdpsBkacNm"   :   row.etrdpsBkacNm,	
+ 						"etrdpsSeq"	     :   row.etrdpsSeq,
+ 						"userId"	     :   jwt.userId,
+ 						"dzCode" 	     :   row.dzCode,
+ 						"dzCode2" 	     :   row.dzCode2,
+ 						"bkAct"		     :   row.bkAct,
+ 						"crn"		     :   row.crn,
+ 						"setleTypCd"     :   row.setleTypCd,
+ 						"bilNo" 	     :   row.bilNo,
+ 						"exprtnDt"       :   row.exprtnDt,
+ 						"etrdpsTyp"		 :   row.etrdpsTyp
+ 					};
+ 		
+ 			postAjax("/douzone/dz/dz01/dzInsert", formData, null, function(data) {
+ 					
+ 				
+ 				var chk = data.resultMessage;
+  			// 전송 성공일 시 erp db 구분자 insert  AR0501M01  dz_snd_seq  값 update  더존 erp key 값 
+ 				if (chk =='insert'){
+ 					var dz_if_code = data.resultCode;
+ 					
+ 					var dzData = {
+ 	 						"coCd"		     :   row.coCd,
+ 	 						"etrdpsDt"       :   row.etrdpsDt,
+ 	 						"etrdpsSeq"		 :   row.etrdpsSeq,
+ 	 						"clntCd"		 :   row.clntCd,
+ 	 						"dzSndSeq"		 : 	 dz_if_code
+ 	 					};
+ 						
+ 					postAjax("/user/ar/ar05/updateDzSndSeq", dzData, null, function(data1) {
+ 						
+ 						if (data1.resultCode == 200) {
+ 					
+ 							alert("전표 생성에 성공하였습니다 .");
+ 						}else{
+ 							
+ 							alert ("더존 연동 후 erp 구분자 update 실패하였습니다")
+ 							
+ 						}
+ 					});
+ 					gridView.setData(0);
+ 				}else{ 
+ 	
+ 					gridView.setData(0);
+ 			 		
+ 				}
+ 				
+ 			});
+ 			
+ 			
+ 	} 
 </script>

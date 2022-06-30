@@ -57,4 +57,8 @@ public interface AR05Mapper {
 	void updateAdvPay(Map<String, String> etrdpsData);
 
 	void deleteAdvPay(Map<String, String> etrdpsData);	
+	
+	//더존 연동 관련 데이터 update 20220630 kdm 
+	int updateDzSndSeq(Map<String, String> paramMap);
+	
 }

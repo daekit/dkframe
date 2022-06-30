@@ -369,4 +369,17 @@ public class AR05SvcImpl implements AR05Svc {
 	public List<Map<String, String>> selectEtrdpsMap(Map<String, String> paramMap) {
 		return ar05Mapper.selectEtrdpsMap(paramMap);
 	}
+	
+	//더존 연동 관련 데이터 update 20220630 kdm 
+	@Override
+	public int updateDzSndSeq(Map<String, String> paramMap) {
+		try {
+			ar05Mapper.updateDzSndSeq(paramMap);
+		}catch(Exception e ) {
+			
+			return 0;
+			
+		}
+		return 1;
+	}
 }

@@ -27,4 +27,7 @@ public interface AR05Svc {
 
 	List<Map<String, String>> selectEtrdpsMap(Map<String, String> paramMap);
 	
+	//더존 연동 관련 데이터 update 20220630 kdm 
+	int updateDzSndSeq(Map<String, String> paramMap);
+	
 }

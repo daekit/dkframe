@@ -150,4 +150,22 @@ public class AR05Ctr {
     	model.addAttribute("etrDpsList", etrDpsList);
         return "jsonView";
     }
+    
+    //더존 sndseq 값 업데이트  20220630 kdm 
+    @PostMapping("/updateDzSndSeq")
+    public String  updateDzSndSeq(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int chk = ar05Svc. updateDzSndSeq(paramMap);
+      
+    	if(chk == 0 ) {
+	    	model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("false"));
+    	}else {
+    		model.addAttribute("resultCode", 200);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+    	}
+    	 
+        return "jsonView";
+    }
+  
+    
 }
