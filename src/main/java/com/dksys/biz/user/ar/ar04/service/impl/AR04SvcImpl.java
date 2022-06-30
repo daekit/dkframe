@@ -86,7 +86,14 @@ public class AR04SvcImpl implements AR04Svc {
 		bilgDetail.put("ard113a", arParam.get("trstPrdtCd"));
 		bilgDetail.put("mea106154", arParam.get("prdtUnitNm"));
 		bilgDetail.put("dms1056", arParam.get("prdtSpec"));
-		bilgDetail.put("mea106314", bilgInfo.get("bilgQty"));
+		
+		double bilgQty = MapUtils.getDouble(bilgInfo, "bilgQty");
+		bilgQty = Math.round(bilgQty*100)/100.0;
+		String strBilgQty = Double.toString(bilgQty);
+		
+		bilgDetail.put("mea106314", strBilgQty);
+		// bilgDetail.put("mea106314", bilgInfo.get("bilgQty"));
+		
 		bilgDetail.put("moa1023", bilgInfo.get("bilgAmt"));
 		bilgDetail.put("moa10124", bilgInfo.get("taxMoa5124"));
 		bilgDetail.put("dms1000", arParam.get("trspRmk"));
