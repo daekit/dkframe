@@ -299,7 +299,8 @@
 			   AND DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) = #{sndYn} 
 			</if>
 			<if test="rcvYn != null and !rcvYn.equals('')">
-			   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
+			   AND DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) = #{rcvYn}
+			   <!-- AND NVL(A.RCV_YN, 'N') = #{rcvYn} -->
 			</if>
 			<if test="taxCreatNm != null and !taxCreatNm.equals('')">
 			   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
@@ -400,7 +401,8 @@
 						TO_CHAR(A.CSEQ_RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') CSEQ_RCV_DTTM,
 						A.TAX_ADMS_YN,
 						TO_CHAR(A.TAX_ADMS_DTTM, 'YYYY-MM-DD HH24:MI:SS') TAX_ADMS_DTTM,
-						A.RCV_YN,
+						DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) AS RCV_YN,
+						<!-- A.RCV_YN, -->
 						TO_CHAR(A.RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') RCV_DTTM,
 						A.RCV_PROC_ID,
 						A.ACC_SLIP_NO,
@@ -468,7 +470,8 @@
 						   AND DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N')) = #{sndYn}
 						</if>
 						<if test="rcvYn != null and !rcvYn.equals('')">
-						   AND NVL(A.RCV_YN, 'N') = #{rcvYn}
+						   AND DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) = #{rcvYn}
+						   <!-- AND NVL(A.RCV_YN, 'N') = #{rcvYn} -->
 						</if>
 						<if test="taxCreatNm != null and !taxCreatNm.equals('')">
 						   AND A.TAX_CREAT_NM LIKE '%' || #{taxCreatNm} || '%'
@@ -1052,7 +1055,8 @@
 		 , ARD___113A <!-- ARD__113A 중국일떄만 사용 -->
 		 , NULL <!-- ARD__113B 중국일떄만 사용 -->
 		 , NULL <!-- ARD__5104 중국일떄만 사용 -->
-		 , DMS_1056
+		 , '.'
+		 <!-- , DMS_1056  20220616 규격 데이터를 넘기지 않도록 변경-->
 		 , SUBSTRB(DMS_1000,1,35)
 		 , NVL(MOA10_23, 0)
 		 , NVL(MOA10_124, 0)
@@ -1563,7 +1567,7 @@
 		, TRANS_AMT * -1
 		, TRST_DC_AMT * -1
 		, ETC_AMT * -1
-		, SND_YN
+		, #{sndYn} <!-- SND_YN -->
 		, SND_DTTM
 		, SND_PROC_ID
 		<choose>
@@ -2048,7 +2052,8 @@
 		 , ARD___113A <!-- ARD__113A 중국일떄만 사용 -->
 		 , NULL <!-- ARD__113B 중국일떄만 사용 -->
 		 , NULL <!-- ARD__5104 중국일떄만 사용 -->
-		 , NVL(DMS_1056,'.')
+		 , '.'
+		 <!-- , NVL(DMS_1056,'.') 20220616 모든 규격 데이터 넘기지 않도록 수정해달라는 요청으로 변경 -->
 		 , SUBSTRB(DMS_1000,1,35)
 		 , NVL(MOA10_23, 0) 
 		 , NVL(MOA10_124, 0)

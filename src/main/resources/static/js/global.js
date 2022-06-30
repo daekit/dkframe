@@ -901,3 +901,34 @@ function authChk(menuUrl){
 function confirmBefore(btnElem){
 	return confirm("\'"+$(btnElem).text()+"\'하시겠습니까?");
 }
+
+// 거래처 코드 제거
+function resetClntCd(){
+	$('#clntCd_S').val("");
+}
+
+// 매출 거래처 코드 제거
+function resetSellClntCd(){
+	$('#sellClntCd_S').val("");
+}
+
+// 매입 거래처 코드 제거
+function resetPchsClntCd(){
+	$('#pchsClntCd_S').val("");
+}
+
+// 연관거래처 코드 제거
+function resetlinkGrpClntCd(){
+	$('#linkGrpClntCd_S').val("");
+}
+
+// 프로젝트 코드 제거
+function resetPrjctCd(){
+	$('#prjctCd_S').val("");
+}
+
+// 현장 코드 제거
+function resetSiteCd(){
+	$('#siteCd_S').val("");
+}
+

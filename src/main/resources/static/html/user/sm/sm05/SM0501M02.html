@@ -118,9 +118,9 @@
                 </td>
                 <th>거래처</th>
                 <td>
-                  <input type="hidden" id="clntCd" name="clntCd" data-search="clntCd">
+                  <input type="hidden" id="clntCd_S" name="clntCd" data-search="clntCd">
                   <div class="search_form" style="width: 60%;">
-	                <input type="text" id="clntNm" name="clntNm" data-search="clntNm"  onkeyup="event.keyCode == 8 ? clntCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+	                <input type="text" id="clntNm" name="clntNm" data-search="clntNm"  onkeyup="if(event.keyCode != 13){resetClntCd()}; event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''; ">
 	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
 	              </div>
                 </td>
@@ -156,9 +156,9 @@
 <!-- 		        </td> -->
 		        <th >현장명</th>
 		        <td>
-		          <input type="hidden" id="siteCd" name="siteCd" data-search="siteCd">
+		          <input type="hidden" id="siteCd_S" name="siteCd" data-search="siteCd">
 		          <div class="search_form" style="width: 62%;">
-		            <input type="text" id="siteNm" name="siteNm" data-search="siteNm" onkeyup="event.keyCode == 8 ? siteCd.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+		            <input type="text" id="siteNm" name="siteNm" data-search="siteNm" onkeyup="if(event.keyCode != 13){resetSiteCd()}; event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''; ">
 		            <a onclick="openSiteSearch('S');"><i class="i_search_w"></i></a>
 		          </div>
 		        </td>
@@ -423,7 +423,7 @@
 	function clntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
-			$('#clntCd').val(row.clntCd);
+			$('#clntCd_S').val(row.clntCd);
 			$('#clntNm').val(row.clntNm);
 		});
 	}
@@ -464,10 +464,10 @@
 		openModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
 			var row = grid.target.getList("selected")[0];
 			if(type == 'S') {
-				$("#siteCd").val(row.siteCd);
+				$("#siteCd_S").val(row.siteCd);
 				$("#siteNm").val(row.siteNm);
 			} else {
-				$("#siteCd").val(row.siteCd);
+				$("#siteCd_S").val(row.siteCd);
 				$("#siteNm").val(row.siteNm);
 				$("#prjctCd").val(row.prjctCd);
 			}
@@ -528,7 +528,7 @@
     		     + "#mngShow#"		+mngShowYn
 		         + "#salesMng#"		+$('#salesMng').val()
 		         + "#salesMngNm#"	+$('#salesMngNm').val()
-		         + "#clntCd#"		+$('#clntCd').val()
+		         + "#clntCd#"		+$('#clntCd_S').val()
 		         + "#clntNm#"		+$('#clntNm').val()
 		         + "#prdtGrp#"		+$('#prdtGrp').val()
 		         + "#prdtGrpNm#"	+$('#prdtGrp option:selected').text()

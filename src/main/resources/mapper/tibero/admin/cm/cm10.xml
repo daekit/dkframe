@@ -311,7 +311,8 @@
 		   <if test="coCd != null and !coCd.equals('')">
 		   AND A.CO_CD = #{coCd}
 		   </if>
-		   AND (NVL(A.CSEQ_RCV_YN, 'N') IN ('N', 'E') OR NVL(A.RCV_YN, 'N') IN ('N', 'E'))
+		   AND DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) = 'N'
+		   <!-- AND (NVL(A.CSEQ_RCV_YN, 'N') IN ('N', 'E') OR NVL(A.RCV_YN, 'N') IN ('N', 'E')) -->
 	</select>
 	
 	<select id="selectTaxNList" resultType="CamelMap">
@@ -399,7 +400,8 @@
 			TO_CHAR(A.CSEQ_RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') CSEQ_RCV_DTTM,
 			A.TAX_ADMS_YN,
 			TO_CHAR(A.TAX_ADMS_DTTM, 'YYYY-MM-DD HH24:MI:SS') TAX_ADMS_DTTM,
-			A.RCV_YN,
+			DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) AS RCV_YN,
+			<!-- A.RCV_YN, -->
 			TO_CHAR(A.RCV_DTTM, 'YYYY-MM-DD HH24:MI:SS') RCV_DTTM,
 			A.RCV_PROC_ID,
 			A.ACC_SLIP_NO,
@@ -417,7 +419,8 @@
 		   <if test="coCd != null and !coCd.equals('')">
 		   AND A.CO_CD = #{coCd}
 		   </if>
-		   AND (NVL(A.CSEQ_RCV_YN, 'N') IN ('N', 'E') OR NVL(A.RCV_YN, 'N') IN ('N', 'E'))
+		   AND DECODE(CSEQ_RCV_YN, 'E', 'N', DECODE(A.SND_YN, 'Y', A.SND_YN, 'N', DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'), NULL, DECODE(A.CSEQ_RCV_YN, 'Y', A.CSEQ_RCV_YN, 'N', 'N', NULL, 'N'))) = 'N'
+		   <!-- AND (NVL(A.CSEQ_RCV_YN, 'N') IN ('N', 'E') OR NVL(A.RCV_YN, 'N') IN ('N', 'E')) -->
 	 ORDER BY SELL_DT DESC, ORGN_TAX_BILG_NO, TAX_BILG_NO,  BILG_CERT_NO DESC
 	</select>
 	
