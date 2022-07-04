@@ -154,7 +154,16 @@
 								<option value="Y">Y</option>
 							</select>
 						</td>
-
+						<th>턴키여부</th>
+						<td>
+							<input type="checkbox" id="tnkeyYn" name="tnkeyYn"  data-search="tnkeyYn" style="width: 100%;" onchange="gridView.setData(0);">
+						</td>
+					</tr>
+					<tr>
+						<th>프로젝트<br>조회여부</th>
+						<td>
+							<input type="checkbox" id="pjShowYn" name="pjShowYn"  data-search="pjShowYn" style="width: 100%;" onchange="gridView.setData(0);">
+		            	</td>
 					</tr>
 				</table>
 			</div>
@@ -282,6 +291,9 @@
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
 			
+			paramObj.tnkeyYn = $('#tnkeyYn').is(":checked") ? 'Y' : 'N';
+			paramObj.pjShowYn = $('#pjShowYn').is(":checked") ? 'Y' : 'N';
+			
 			postAjax("/user/rd/rd04/selectRcvpayList", paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
@@ -363,7 +375,7 @@
 		$('[data-search="coCd"]').val(jwt.coCd);
 		setByCoCd(jwt.coCd);
 		setWareHouse(jwt.coCd);
-		
+		$('#pjShowYn').prop("checked",true);
 		// 기준년월
 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
 		
@@ -463,7 +475,8 @@
 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
 		}
 		paramObj["recordCnt"] = 9999999;
-		
+		paramObj.tnkeyYn = $('#tnkeyYn').is(":checked") ? 'Y' : 'N';
+		paramObj.pjShowYn = $('#pjShowYn').is(":checked") ? 'Y' : 'N';
 		postAjax("/user/rd/rd04/selectRcvpayList", paramObj, null, function(data) {
 			var list = data.resultList;				
 				excelView.target.setData({
