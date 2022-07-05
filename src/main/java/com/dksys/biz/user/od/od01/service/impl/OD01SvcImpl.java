@@ -575,17 +575,20 @@ public class OD01SvcImpl implements OD01Svc {
 						if ("OWNER1".equals(paramMap.get("ownerCd").toString())) {
 							paramMap.put("clntCd", paramMap.get("whClntCd"));
 						}
+						
 						Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
-					if(stockInfo == null) {
-						paramMap.put("stockQty", "-"+detailMap.get("realDlvrQty"));
-						paramMap.put("stockWt",  "-"+detailMap.get("realDlvrWt"));
-					} else {
-						double stockQty = Double.parseDouble(stockInfo.get("stockQty")) - Double.parseDouble(detailMap.get("realDlvrQty"));
-						double stockWt = Double.parseDouble(stockInfo.get("stockWt")) - Double.parseDouble(detailMap.get("realDlvrWt"));
-						paramMap.put("stockQty", String.valueOf(stockQty));
-						paramMap.put("stockWt", String.valueOf(stockWt));
-						paramMap.put("sellUpr", detailMap.get("shipUpr"));
-					}			
+						
+						if(stockInfo == null) {
+							paramMap.put("stockQty", "-"+detailMap.get("realDlvrQty"));
+							paramMap.put("stockWt",  "-"+detailMap.get("realDlvrWt"));
+						} else {
+							double stockQty = Double.parseDouble(stockInfo.get("stockQty")) - Double.parseDouble(detailMap.get("realDlvrQty"));
+							double stockWt = Double.parseDouble(stockInfo.get("stockWt")) - Double.parseDouble(detailMap.get("realDlvrWt"));
+							paramMap.put("stockQty", String.valueOf(stockQty));
+							paramMap.put("stockWt", String.valueOf(stockWt));
+							paramMap.put("sellUpr", detailMap.get("shipUpr"));
+						}
+						
 						sm01Mapper.updateStockSell(paramMap);
 					}
 				}
