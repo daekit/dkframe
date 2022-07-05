@@ -228,6 +228,7 @@
 					<a style="height: 30px; line-height: 28px; width: 110px;"onclick="setReportMain('CLNT');"><i class="fas fa-print"></i>일보(거래처)출력</a>
 					<a style="height: 30px; line-height: 28px;" onclick="insertSellModal('C');" authchk>+</a> 
 					<a style="height: 30px; line-height: 28px;" onclick="deleteSell();"	authchk>-</a> 
+					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="copyOrderModal();" authChk>생성</a>
 					<a style="height: 30px; line-height: 28px; width: 90px;" onclick="excelDown();"><i class="fas fa-file-excel"></i>엑셀다운로드</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt"	onchange="subGridView.setData(0);">
@@ -309,6 +310,7 @@
 								{key : "trstCertiNo",label : "거래지시번호",hidden : true},
 								{key : "clntCd",label : "거래처",hidden : true},
 								{key : "returnYn",label : "반품여부",hidden : true},
+								{key : "creatPgm",label : "생성PGM",hidden : true},
 								{key : "bilgYn",label : "전표",align : "center",width : 50,formatter : "bilgYn"},
 								{key : "trstDt",label : "매입일자",align : "center",width : 80},
 								{key : "realDlvrDttm",label : "실출하일자",align : "center",width : 80},
@@ -959,5 +961,22 @@
 		$('#edtetc').val("");
 	}
 	
+	function copyOrderModal(){
+		if(checkGridRow(subGridView.target, "single")) {
+			var checkedObj = subGridView.target.getList("selected")[0];
+			var mainSeq = checkedObj.trstRprcSeq;
+			
+			if(mainSeq != null){
+				alert("매입리스트에서 직접 작성한 데이터만 생성할 수 있습니다.");
+				return false;
+			}
+			
+			var paramObj = {"actionType": "P"};
+			actionType = "P";
+			paramObj.trstCertiNo = checkedObj.trstCertiNo;
+			openModal("/static/html/user/od/od02/OD0202P01.html", 700, 650,	"매입 등록", paramObj);
+			
+		}
+	}
 	
 </script>
