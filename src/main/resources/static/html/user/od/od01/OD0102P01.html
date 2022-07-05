@@ -179,6 +179,14 @@
 						</td>
 					</tr>
 					<tr>
+						<th>기준단가</th>
+						<td>
+							<div class="search_form"> 
+								<input type="text" id="criteriaPrice" name="criteriaPrice" oninput="onlyNumber(this); criteriaPriceAmt(this);" msg="기준단가" comma>
+							</div>
+						</td>
+					</tr>
+					<tr>
 						<th>매입비고</th>
 						<td colspan="5">
 							<textarea class="form-control" id="ordrgRmk" name="ordrgRmk" style="height: 60px;" maxlength="500"></textarea>
@@ -323,6 +331,8 @@
 							<input type="text" class="tr" name="ordrgUpr" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma>
 						</td>
 						<td>
+							<input type="hidden" name="kindDiscount">
+							<input type="hidden" name="sizeDiscount">
 							<input type="text" class="tr" name="shipUpr" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma>
 						</td>
 						<td>
@@ -1144,6 +1154,7 @@
 		}else{
 			$('#ordrgPopup #allChkBox').prop("checked", false);
 		}
+// 		criteriaPriceAmt();
 	}
 	
 	function ctrlDetailChkBox(elem){
@@ -1152,6 +1163,7 @@
 		}else{
 			$('#ordrgPopup #detailTable tr[name="detailRow"] input[name="detailChkBox"]:not(:disabled)').prop("checked", false);
 		}
+// 		criteriaPriceAmt();
 	}
 	
 	// 제품 검색
@@ -1233,6 +1245,7 @@
 
 		openSecondModal("/static/html/cmn/modal/multiPrdtSearch.html", 800, 600, "제품 검색", paramObj, function (grid) {
 			var selectedRows = grid.target.getList("selected");
+			console.log(selectedRows);
 			$.each(selectedRows, function(idx, obj){
 				// 행 추가
 				var $addedRow = addDetailRow();
@@ -1627,5 +1640,22 @@
 		
 		$("input[name=detailChkBox]").prop("checked", false);
 		
+	}
+	
+	function criteriaPriceAmt(){
+		var criteriaPrice = Number(deleteCommaStr($('#criteriaPrice').val()));
+		// console.log("기준단가 : " + criteriaPrice);
+		$("input:checkbox[name=detailChkBox]").each(function(index){
+			//if($(this).is(":checked") == true){
+				if($(this).parent().next().next().next().next().next().next().next().next().next().next().next().next().children().next().next().prop("readonly") == false){
+
+					var kindDiscount = Number($(this).parent().next().next().next().next().next().next().next().next().next().next().next().next().children().val());
+					var sizeDiscount = Number($(this).parent().next().next().next().next().next().next().next().next().next().next().next().next().children().next().val());
+					
+					$(this).parent().next().next().next().next().next().next().next().next().next().next().next().next().children().next().next().val(criteriaPrice + kindDiscount + sizeDiscount);				
+					countAmt($(this));
+				}
+			//}
+		})
 	}
 </script>

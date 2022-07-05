@@ -365,7 +365,8 @@
 			(SELECT CODE_RPRC FROM TB_CM05M01 WHERE CODE_ID = T.WH_CD) AS WH_TYPE,
 	        T.REQ_SEQ,
 		    T.TRSP_TYP_CD,
-	        FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM
+	        FN_CM05M01_CD_TO_NM(T.TRSP_TYP_CD) AS TRSP_TYP_NM,
+	        T.CRITERIA_PRICE
 		FROM TB_OD01M01 T
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</select>
@@ -445,7 +446,13 @@
 			T.SHIP_VEH_NO,
 			NVL((SELECT SUM(IFAR02.REAL_DLVR_QTY) FROM EAI_KUMMUN.TB_IFAR02 IFAR02 WHERE IFAR02.ORDRG_SEQ = T.ORDRG_SEQ AND  IFAR02.ORDRG_DTL_SEQ = T.ORDRG_DTL_SEQ),0) AS ACMLT_DLVR_QTY,
 			NVL((SELECT SUM(IFAR02.REAL_DLVR_WT)  FROM EAI_KUMMUN.TB_IFAR02 IFAR02 WHERE IFAR02.ORDRG_SEQ = T.ORDRG_SEQ AND  IFAR02.ORDRG_DTL_SEQ = T.ORDRG_DTL_SEQ),0) AS ACMLT_DLVR_WT,
-			B.PRDT_GRP
+			B.PRDT_GRP,
+			(SELECT SD61.SC_AMT FROM TB_SD06D01 SD61 WHERE SD61.BASIS_PRICE_SEQ = '78' AND SD61.PRDT_STKN = T.PRDT_STKN AND SD61.PRDT_ERQK_CD = T.PRDT_ERQK_YN) AS KIND_DISCOUNT,
+			(SELECT SD62.SC_AMT FROM TB_SD06D02 SD62 WHERE SD62.BASIS_PRICE_SEQ = '78' AND SD62.PRDT_SIZE = T.PRDT_SIZE AND SD62.PRDT_ERQK_CD = T.PRDT_ERQK_YN) AS SIZE_DISCOUNT
+			<!-- 
+			T.KIND_DISCOUNT,
+			T.SIZE_DISCOUNT
+			 -->
 			
 		FROM 
 			TB_OD01D01 T
@@ -596,7 +603,8 @@
 		    SITE_CD,
 		    TAXIVC_COPRT,
 		    REQ_SEQ,
-		    TRSP_TYP_CD
+		    TRSP_TYP_CD,
+		    CRITERIA_PRICE
 	    ) 
 	    VALUES
 	    (
@@ -641,7 +649,8 @@
 		    NVL(#{siteCd,  	jdbcType=VARCHAR},0),
 		    #{taxivcCoprt,  jdbcType=VARCHAR},
 		    #{reqSeq,       jdbcType=VARCHAR},
-		    #{trspTypCd,    jdbcType=VARCHAR}
+		    #{trspTypCd,    jdbcType=VARCHAR},
+		    NVL(#{criteriaPrice}, 0)
 	    )
 	</insert>
 	
@@ -690,6 +699,10 @@
 	        REQ_SEQ,
 			REQ_DTL_SEQ,
 			SHIP_VEH_NO
+			<!-- ,
+			KIND_DISCOUNT,
+			SIZE_DISCOUNT
+			 -->
         ) 
         VALUES
         (
@@ -732,6 +745,11 @@
         	#{reqSeq},
 	        #{reqDtlSeq},
 	        #{shipVehNo,  jdbcType=VARCHAR}
+			<!-- 
+	        ,
+	        #{kindDiscount},
+	        #{sizeDiscount}
+	         -->
         )
 	</insert>
 	
@@ -770,7 +788,8 @@
 		    UDT_PGM                = #{pgmId},                       
 		    UDT_DTTM               = SYSDATE,
 		    TAXIVC_COPRT           = #{taxivcCoprt},
-		    TRSP_TYP_CD            = #{trspTypCd}        
+		    TRSP_TYP_CD            = #{trspTypCd},
+		    CRITERIA_PRICE		   = #{criteriaPrice}
 		WHERE ORDRG_SEQ = #{ordrgSeq}
 	</update>
 	
