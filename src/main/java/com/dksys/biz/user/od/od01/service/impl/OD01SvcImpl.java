@@ -557,8 +557,19 @@ public class OD01SvcImpl implements OD01Svc {
 					paramMap.put("bilgVatAmt", String.valueOf(bilgVatAmt2));
                    // 발주 상세에 
 					od01Mapper.updateConfirmDetailS(detailMap);
-					ar02Mapper.insertPchsSell(paramMap);
-
+					
+					String prdtStkn = MapUtils.getString(detailMap, "prdtStkn");
+					
+					if(prdtStkn.indexOf("운반비") > -1) {
+						if("0".equals(MapUtils.getString(detailMap, "shipAmt")) && "0".equals(MapUtils.getString(detailMap, "shipUpr"))) {
+							
+						}else {
+							ar02Mapper.insertPchsSell(paramMap);
+						}
+					}else {
+						ar02Mapper.insertPchsSell(paramMap);
+					}
+					
 					if (detailMap.containsKey("prdtStockCd") && "Y".equals(detailMap.get("prdtStockCd").toString())) {
 						// 구분이 자사의 경우 재고추체=거래처는 금문으로 변경
 						if ("OWNER1".equals(paramMap.get("ownerCd").toString())) {
