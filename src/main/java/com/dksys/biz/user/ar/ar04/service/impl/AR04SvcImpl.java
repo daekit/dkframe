@@ -86,6 +86,7 @@ public class AR04SvcImpl implements AR04Svc {
 		bilgDetail.put("ard113a", arParam.get("trstPrdtCd"));
 		bilgDetail.put("mea106154", arParam.get("prdtUnitNm"));
 		bilgDetail.put("dms1056", arParam.get("prdtSpec"));
+		// prdtLen 길이를 추가하기 위한 값
 		
 		double bilgQty = MapUtils.getDouble(bilgInfo, "bilgQty");
 		bilgQty = Math.round(bilgQty*100)/100.0;
