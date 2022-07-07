@@ -99,7 +99,12 @@
 				'',                 			<!-- 사유구분 -->             
 				REPLACE(#{frDt}, '-', ''),     						<!-- 시작일 -->              
 				REPLACE(#{toDt}, '-', ''),      						<!-- 종료일 -->              
-				#{sumry},                 		<!-- 품의내역 -->             
+				#{etrdpsTypNm} 	+')'+ 
+				<if test="etrdpsBkacNm != null">
+					#{etrdpsBkacNm} 	+ '-'+ 
+				</if>
+				#{clntNm} 	+'-'+ 
+				#{sumry} ,                 		<!-- 품의내역 -->             
 				'',                 			<!-- 품의내역(보조어) -->        
 				'',                 			<!-- 전자세금계산서여부 -->        
 				#{ctNb},                 		<!-- 관리번호 -->             
@@ -175,7 +180,7 @@
 	<select id="getCntSeq" resultType="int">	
 	/*dz01 getCntSeq 전표 생성 SEQ 조회 */	
 	SELECT 
-		    COUNT(*)+1 AS SEQ
+		    MAX(IN_SQ)+1 AS SEQ
    	  FROM 	AUTODOCU_SIMPLE 
 	 WHERE  SUBSTRING(IN_DT,0,7) = SUBSTRING(REPLACE(#{etrdpsDt}, '-', ''),0,7)
 	</select>

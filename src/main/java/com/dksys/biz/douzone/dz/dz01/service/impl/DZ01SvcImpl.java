@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.admin.cm.cm06.service.CM06Svc;
@@ -13,7 +15,7 @@ import com.dksys.biz.douzone.dz.dz01.mssqlmapper.DZ01Mapper;
 import com.dksys.biz.douzone.dz.dz01.service.DZ01Svc;
 
 @Service
-@Transactional(value="mssqlTransactionManager", rollbackFor = Exception.class)
+@Transactional(value="mssqlTransactionManager",rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW , isolation = Isolation.SERIALIZABLE)
 public class DZ01SvcImpl implements DZ01Svc {
 	@Autowired
 	DZ01Mapper dz01Mapper;
@@ -65,13 +67,13 @@ public class DZ01SvcImpl implements DZ01Svc {
     
       int in_sq = 0 ;		             // 거래순번
       int ln_sq = 2 ; 			         // 분개라인 순번 순번은 총 2번까지 생성됨 (수는 변경 될 수 있음)
-      String div_cd = "1000";     		 // 회계단위 
+      //String div_cd = "2000";     		 // 회계단위 
       in_sq = getCountInSeq(paramMap);   // IN_SQ  - 거래순번  최근 차수를 가져오는 query 호출  +1 로 들고 온다 
       String tr_cd ="";   				 // 은행 거래처 코드 
       
       //공통으로 사용하는 데이터 셋팅 
       paramMap.put("inSq",Integer.toString(in_sq));  
-      paramMap.put("divCd",div_cd);		 // 회계 단위 셋팅  1000
+      //paramMap.put("divCd",div_cd);		 // 회계 단위 셋팅  1000
       
       tr_cd = getTrCd(paramMap);  		 // 은행 거래처 코드 를 들고옴 ( 계좌 정보가 있는지 확인 )
       String bkAct 		= paramMap.get("bkAct");
@@ -255,10 +257,12 @@ public class DZ01SvcImpl implements DZ01Svc {
     	    	
     	     dz01Mapper.dzInsert(paramMap);
     	    	
-    	    }catch (Exception e) {
-    	    	
+    	    
+			}catch(Exception e) {
     	    	e.printStackTrace();
     	    	return 30000;  //error 코드 return 
+				
+				
 			}
       }
       
