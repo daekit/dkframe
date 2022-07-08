@@ -135,7 +135,7 @@
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-					<a onclick="openEtrdpsDetail('C');" authchk>+</a> <a
+					<a onclick="openEtrdpsDetail('C','');" authchk>+</a> <a
 						onclick="deleteEtrdps();" authchk>-</a> <a onclick="excelDown();"
 						style="height: 30px; line-height: 28px; width: 90px;"><i
 						class="fas fa-file-excel"></i> 엑셀다운로드</a> <a onclick="dzInsert();"
@@ -174,21 +174,25 @@
 			this.target
 					.setConfig({
 						showRowSelector : true,
-						multipleSelect : false,
+						multipleSelect : true,
 						sortable : true,
 						target : $('[data-ax5grid="first-grid"]'),
 						header : {
 							align : "center",
-							selector : false
+							selector : true
 						},
 						body : {
 							mergeCells : [ "coNm", "taxivcCoprtNm", "etrdpsDt",
 									"clntNm", "etrdpsTypNm", "setleTypNm" ],
 							onClick : function() {
 								this.self.select(this.dindex);
+								
 							},
 							onDBLClick : function() {
-								openEtrdpsDetail('U');
+								var row = this.dindex;
+								openEtrdpsDetail('U',row);
+								
+								
 							}
 						},
 						page : {
@@ -203,143 +207,37 @@
 								gridView.setData(this.page.selectPage);
 							}
 						},
-						columns : [ {
-							key : "coNm",
-							label : "회사",
-							align : "center",
-							width : 70
-						}, {
-							key : "taxivcCoprtNm",
-							label : "판매법인",
-							align : "center",
-							width : 100
-						}, {
-							key : "etrdpsDt",
-							label : "입금일자",
-							align : "center",
-							width : 80
-						}, {
-							key : "clntNm",
-							label : "거래처",
-							align : "left",
-							width : 140
-						}, {
-							key : "etrdpsTypNm",
-							label : "구분",
-							align : "center",
-							width : 120
-						}, {
-							key : "setleTypNm",
-							label : "결제방법",
-							align : "center",
-							width : 80
-						}, {
-							key : "etrdpsAmt",
-							label : "금액",
-							align : "right",
-							width : 120,
-							formatter : "money"
-						}, {
-							key : "etrdpsBkacNm",
-							label : "입금계좌",
-							align : "center",
-							width : 100
-						}, {
-							key : "sumry",
-							label : "적요",
-							align : "left",
-							width : 250
-						}, {
-							key : "bilTypNm",
-							label : "어음종류",
-							align : "center",
-							width : 120
-						}, {
-							key : "bilNo",
-							label : "어음번호",
-							align : "center",
-							width : 120
-						}, {
-							key : "exprtnDt",
-							label : "만기일",
-							align : "center",
-							width : 80
-						}, {
-							key : "pymntBankNm",
-							label : "지급은행",
-							align : "center",
-							width : 90
-						}, {
-							key : "endrsPsn",
-							label : "배서인",
-							align : "center",
-							width : 90
-						}, {
-							key : "autoMatchFlag",
-							label : "자동매핑",
-							align : "center",
-							width : 90
-						}, {
-							key : "remainYn",
-							label : "매핑완료",
-							align : "center",
-							width : 90
-						}, {
-							key : "remainAmt",
-							label : "미매핑금액",
-							align : "right",
-							width : 120,
-							formatter : "money"
-						}, {
-							key : "dzSndYn",
-							label : "DZ전송유무",
-							align : "center",
-							width : 90
-						}
-
-						],
-						footSum : [ [ {
-							label : "총계",
-							align : "center",
-							colspan : 6
-						}, {
-							key : "etrdpsAmt",
-							collector : "sum",
-							formatter : "money",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "-",
-							align : "right"
-						}, {
-							key : "remainAmt",
-							collector : "sum",
-							formatter : "money",
-							align : "right"
-						}, ] ]
+						columns : [ {key : "coNm",		    label : "회사",	    align : "center",	width : 70	}, 
+								    {key : "taxivcCoprtNm",	label : "판매법인",	align : "center",	width : 100	},
+								    {key : "etrdpsDt",		label : "입금일자",	align : "center",	width : 80	}, 
+								    {key : "clntNm",		label : "거래처",		align : "left",		width : 140	},
+								    {key : "etrdpsTypNm",	label : "구분",		align : "center",	width : 120	},
+								    {key : "setleTypNm",	label : "결제방법",	align : "center",	width : 80	},
+								    {key : "etrdpsAmt",		label : "금액",		align : "right",	width : 120, formatter : "money"}, 
+								    {key : "etrdpsBkacNm",	label : "입금계좌",	align : "center",	width : 100	},
+								    {key : "sumry",			label : "적요",		align : "left",		width : 250	}, 
+								    {key : "bilTypNm",		label : "어음종류",	align : "center",	width : 120	}, 
+								    {key : "bilNo",			label : "어음번호",	align : "center",	width : 120	}, 
+								    {key : "exprtnDt",		label : "만기일",		align : "center",	width : 80	},
+								    {key : "pymntBankNm",	label : "지급은행",	align : "center",	width : 90	},
+								    {key : "endrsPsn",		label : "배서인",		align : "center",	width : 90	}, 
+								    {key : "autoMatchFlag",	label : "자동매핑",	align : "center",	width : 90	}, 
+								    {key : "remainYn",		label : "매핑완료",	align : "center",	width : 90	},
+								    {key : "remainAmt",		label : "미매핑금액",	align : "right",	width : 120, formatter : "money"}, 
+								    {key : "dzSndYn",		label : "DZ전송유무",	align : "center",	width : 90	}
+								 ],
+						footSum : [ [  {label : "총계",	align : "center",	colspan : 6	}, 
+								 		{key : "etrdpsAmt",	collector : "sum",	formatter : "money",align : "right"	}, 
+								 		{key : "-",	align : "right"	}, 
+								 		{key : "-",	align : "right"	}, 
+								 		{key : "-",	align : "right"	}, 
+								 		{key : "-",	align : "right"	}, 
+								 		{key : "-",	align : "right"	}, 
+								 		{key : "-", align : "right"	}, 
+								 		{key : "-",	align : "right"	}, 
+								 		{key : "-",	align : "right"	},
+								 		{key : "-",	align : "right"	},
+								 		{key : "remainAmt",	collector : "sum",	formatter : "money", align : "right"}, ] ]
 					});
 			return this;
 		},
@@ -379,99 +277,24 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 				target : $('[data-ax5grid="excel-grid"]'),
-				columns : [ {
-					key : "coNm",
-					label : "회사",
-					align : "center",
-					width : "4%"
-				}, {
-					key : "taxivcCoprtNm",
-					label : "법인",
-					align : "center",
-					width : "7%"
-				}, {
-					key : "etrdpsDt",
-					label : "입금일자",
-					align : "center",
-					width : "3%"
-				}, {
-					key : "clntNm",
-					label : "거래처",
-					align : "center",
-					width : "9%"
-				}, {
-					key : "etrdpsTypNm",
-					label : "구분",
-					align : "center",
-					width : "6%"
-				}, {
-					key : "setleTypNm",
-					label : "결제방법",
-					align : "center",
-					width : "3%"
-				}, {
-					key : "etrdpsAmt",
-					label : "금액",
-					align : "right",
-					width : "9%",
-					formatter : "money"
-				}, {
-					key : "etrdpsBkacNm",
-					label : "입금계좌",
-					align : "center",
-					width : "9%"
-				}, {
-					key : "sumry",
-					label : "적요",
-					align : "center",
-					width : "15%"
-				}, {
-					key : "bilTypNm",
-					label : "어음종류",
-					align : "center",
-					width : "2%"
-				}, {
-					key : "bilNo",
-					label : "어음번호",
-					align : "center",
-					width : "9%"
-				}, {
-					key : "exprtnDt",
-					label : "만기일",
-					align : "center",
-					width : "4%"
-				}, {
-					key : "pymntBankNm",
-					label : "지급은행",
-					align : "center",
-					width : "4%"
-				}, {
-					key : "endrsPsn",
-					label : "배서인",
-					align : "center",
-					width : "9%"
-				}, {
-					key : "autoMatchFlag",
-					label : "자동매핑",
-					align : "center",
-					width : "9%"
-				}, {
-					key : "remainYn",
-					label : "매핑완료",
-					align : "center",
-					width : "9%"
-				}, {
-					key : "remainAmt",
-					label : "미매핑금액",
-					align : "center",
-					width : "9%",
-					formatter : "money"
-				}, {
-					key : "dzSndYn",
-					label : "DZ전송유무",
-					align : "center",
-					width : "9%"
-				} ]
+				columns : [ {key : "coNm",			label : "회사",		align : "center",	width : "4%"	}, 
+							{key : "taxivcCoprtNm",	label : "법인", 	 	align : "center",	width : "7%"	}, 
+							{key : "etrdpsDt",		label : "입금일자",	align : "center",	width : "3%"	}, 
+							{key : "clntNm",		label : "거래처",		align : "center",	width : "9%"	}, 
+							{key : "etrdpsTypNm",	label : "구분",		align : "center",	width : "6%"	},
+							{key : "setleTypNm",	label : "결제방법",	align : "center",	width : "3%"	},
+							{key : "etrdpsAmt",		label : "금액",		align : "right",	width : "9%",	formatter : "money"	}, 
+							{key : "etrdpsBkacNm",	label : "입금계좌",	align : "center",	width : "9%"	}, 
+							{key : "sumry",			label : "적요",		align : "center",	width : "15%"	}, 
+							{key : "bilTypNm",		label : "어음종류",	align : "center",	width : "2%"	}, 
+							{key : "bilNo",			label : "어음번호",	align : "center",	width : "9%"	},
+							{key : "exprtnDt",		label : "만기일",		align : "center",	width : "4%"	}, 
+							{key : "pymntBankNm",	label : "지급은행",	align : "center",	width : "4%"	},
+							{key : "endrsPsn",		label : "배서인",		align : "center",	width : "9%"	}, 
+							{key : "autoMatchFlag",	label : "자동매핑",	align : "center",	width : "9%"	}, 
+							{key : "remainYn",		label : "매핑완료",	align : "center",	width : "9%"	}, 
+							{key : "remainAmt",		label : "미매핑금액",	align : "center",	width : "9%",	formatter : "money"	}, 
+							{key : "dzSndYn",		label : "DZ전송유무",	align : "center",	width : "9%"	} ]
 			});
 			return this;
 		}
@@ -552,12 +375,16 @@
 
 	// 입금 상세
 	
-	function openEtrdpsDetail(actionType) {
+	function openEtrdpsDetail(actionType,row) {
 		this.actionType = actionType;
-		openModal("/static/html/user/ar/ar05/AR0502P01.html", 1520, 550, "");
+		
+		
+		var paramObj = {"row":row};
+		
+		openModal("/static/html/user/ar/ar05/AR0502P01.html", 1520, 550, "",paramObj);
 	}
 
-	/*
+	/* 필요없는 로직 
 	function openTestDz() {
 		if (selectGridValidation(gridView.target))
 			return;
@@ -700,6 +527,7 @@
 		if( selectedRows.length == 0){
 			alert("선택된 행이 없습니다.");
 		}else{
+			
 			var cnt = 0;
 		
 			if (!confirm("전표발행을 하시겠습니까?"))return;
@@ -707,14 +535,14 @@
 			for (var i = 0; i < selectedRows.length; i++) {
 			
 				var obj = selectedRows[i];
-			 dzInt(obj);
+				flag = dzInt(obj);
 			
-				//	 	if(flag == true){
-				// 		cnt++ ;
-				// }
+					 if(flag == true){
+				 		cnt++ ;
+					 }
 		 	}
 			
-			alert( "전표 생성 성공하였습니다 ");
+			alert(cnt +  "건 전표 생성에 성공하였습니다 ");
 			gridView.setData(0);
 		
 		}
@@ -756,7 +584,7 @@
 			"divCd" : row.divCd
 		};
 
-		postAjax("/douzone/dz/dz01/dzInsert", formData, null, function(data) {
+		postAjaxSync("/douzone/dz/dz01/dzInsert", formData, null, function(data) {
 
 			var chk = data.resultMessage;
 			// 전송 성공일 시 erp db 구분자 insert  AR0501M01  dz_snd_seq  값 update  더존 erp key 값 
@@ -771,31 +599,28 @@
 					"dzSndSeq" : dz_if_code
 				};
 
-				postAjax("/user/ar/ar05/updateDzSndSeq", dzData, null,
+				postAjaxSync("/user/ar/ar05/updateDzSndSeq",  dzData, null,
 						function(data1) {
 							if (data1.resultCode == 200) {
 
-							//	gridView.setData(0);
 							} else {
 
 								alert("더존 연동 후 erp 구분자 update 실패하였습니다")
-								
+								return false;
 							}
 
-							//gridView.setData(0);
-							
 						});
 
 			} else {
 
 				alert("전표 생성실패 ." + data.resultMessage);
-				
+				return false;
 
 			}
 
 			
 		});
 		gridView.setData(0);
-		
+		return true;
 	}
 </script>
