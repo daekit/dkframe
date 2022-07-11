@@ -63,5 +63,7 @@ public interface SM02Mapper {
 	int updateStockMoveCaryng(Map<String, String> param);
 
 	void updateTrans(Map<String, String> paramMap);
+
+	void deleteStockHistory(Map<String, String> detailMap);
 	
 }

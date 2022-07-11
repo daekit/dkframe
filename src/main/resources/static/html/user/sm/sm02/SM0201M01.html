@@ -169,7 +169,8 @@ th {
 			<!-- 콘텐츠 타이틀 -->
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
-                   <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+					<a onclick="deleteStock();" style="height: 30px; line-height: 28px;" authchk>-</a> 
+                   	<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
 				<select id="recordCnt" class="prae_select" onchange="gridView.setData(0);">
 					<option value="10">10</option>
@@ -193,6 +194,15 @@ th {
 
 <script type="text/javascript">
 
+	ax5.ui.grid.formatter["bilgYn"] = function () {
+		var color = this.value == "N" ? "color-circle_02.png" : "color-circle_01.png";
+		if (this.value == "E"){
+			return 'E';
+		} else {
+			return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
+		}
+	};
+	
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
@@ -219,11 +229,11 @@ th {
 		            	var selectedCol = this.colIndex;
 		            	
 		            	//출고 정보 아닌 컬럼 클릭해야 상세 확인 가능
-		            	if(selectedCol > 10){
+		            	if(selectedCol > 11){
 		            		updateStockMoveModal(row);	
 		            	}
 		            	//이동일자 클릭 시 운송비정보 확인 가능
-		            	if(selectedCol == 10){
+		            	if(selectedCol == 11){
 		            		openCaryng(row);
 		            	}
 		            }, 
@@ -242,7 +252,8 @@ th {
 		            }
 		        },
 		        columns: [
-		            {key: "outCoNm", 	  label: "출고회사", align: "center", width: "7%"}, 
+		        	{key: "errCorecYn",   label: "MES", 	align: "center",  	width: 45,	formatter: "bilgYn"},
+		            {key: "outCoNm", 	  label: "출고회사", 	align: "center", 	width: "7%"}, 
 		            {label: "출고",  columns:[
 			            {key: "prdtNm", 	  label: "제품",	  align: "left", width:100},
 			          	{key: "prdtSpec",     label: "스펙",    align: "left",   width: 80},
@@ -252,8 +263,8 @@ th {
 			          	{key: "prjctNm",      label: "프로젝트", align: "center", width: 100},
 			        	{key: "outWhNm",      label: "출고창고", align: "center", width: 90},		            	
 			         ]},
-		            {key: "trstDt", 	  label: "이동일자",      align: "center", width: 90},
-		            {key: "moWh", 	   	  label: "이동 수량<br>(KG)", align: "right", width: 80, formatter: "money"},
+		            {key: "trstDt", 	  label: "이동 일자",      align: "center", width: 90},
+		            {key: "moWh", 	   	  label: "이동 수량", align: "right", width: 80, formatter: "money"},
 		            {key: "transAmt", 	   	  label: "운반비", align: "right", width: 80, formatter: "money", styleClass : "grid-cell-blue"},
 		            {label: "입고",  columns:[
 			            {key: "inPrdtNm", 	  label: "제품",    align: "center", width: 100},
@@ -275,7 +286,7 @@ th {
 		        ],
 		        footSum: [
 			    	[
-			    		{label: "총계", 	  align:"center",	  colspan:9},
+			    		{label: "총계", 	  align:"center",	  colspan:10},
 	                    {key: "moWh",      collector: "sum",   formatter:"money",  align: "right"},
 			    	]
 			    ]
@@ -332,7 +343,7 @@ th {
 				        	{key: "outWhNm",      label: "출고창고", align: "center", width: 90},		            	
 				         ]},
 			            {key: "trstDt", 	  label: "이동일자",      align: "center", width: 90},
-			            {key: "moWh", 	   	  label: "이동 수량<br>(KG)", align: "right", width: 80, formatter: "money"},
+			            {key: "moWh", 	   	  label: "이동 수량", align: "right", width: 80, formatter: "money"},
 			            {key: "transAmt", 	   	  label: "운반비", align: "right", width: 80, formatter: "money", styleClass : "grid-cell-blue"},
 			            {label: "입고",  columns:[
 				            {key: "inPrdtNm", 	  label: "제품",    align: "center", width: 100},
@@ -534,6 +545,46 @@ th {
 			transSeq : row.transSeq
 		}
 		openModal("/static/html/user/sm/sm02/SM0201P05.html", 800, 500, "", paramObj);
+	}
+	
+	// 재고 이동 내역 취소
+	function deleteStock() {
+		
+		if (!checkGridRow(gridView.target, "single"))
+			return false;
+		
+		var row = gridView.target.getList("selected")[0];
+		console.log(row);
+		if(row.errCorecYn == "N"){
+			alert("MES와 연동되지 않은 데이터만 삭제가 가능합니다.");
+			return false;
+		}
+		
+		/*
+		var formData = {
+				"trstCertiNo" : row.trstCertiNo,
+				"userId" : jwt.userId,
+				"pgmId" : "OD0201M01",
+				"ownerCd" : row.ownerCd,
+				"whCd" : row.whCd,
+				"coCd" : row.coCd,
+				"trstDt" : row.trstDt,
+				"selpchCd" : "SELPCH1"
+		}
+		*/
+		row.userId = jwt.userId;
+		row.pgmId = "SM0201M01";
+		
+		
+		if (confirm("삭제하시겠습니까?")) {
+			postAjax("/user/sm/sm02/deleteStock", row, null,function(data) {
+				alert(data.resultMessage);
+				if (data.resultCode == 200) {
+					gridView.setData(0);
+				}
+			});
+		}
+		
 	}
 	
 </script>
