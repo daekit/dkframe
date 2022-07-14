@@ -529,20 +529,23 @@
 		}else{
 			
 			var cnt = 0;
+			var cntf = 0;
 		
 			if (!confirm("전표발행을 하시겠습니까?"))return;
 			
 			for (var i = 0; i < selectedRows.length; i++) {
-			
+				
 				var obj = selectedRows[i];
-				flag = dzInt(obj);
-			
-					 if(flag == true){
+				var flag = dzInt(obj);
+				alert(flag);
+					 if(flag == 1){
 				 		cnt++ ;
+					 }else{
+						 cntf++ ;
 					 }
 		 	}
 			
-			alert(cnt +  "건 전표 생성에 성공하였습니다 ");
+			alert("전표 생성 성공 : " +cnt +  " 실패:"+cntf+ "건  ");
 			gridView.setData(0);
 		
 		}
@@ -555,7 +558,7 @@
 	function dzInt(obj) {
 
 		var row =obj;
-		
+		var rtn_chk = 1;
 		if (row.dzSndYn == 'Y') {
 			alert("전표가 발행되어 있습니다");
 			return false;
@@ -602,11 +605,11 @@
 				postAjaxSync("/user/ar/ar05/updateDzSndSeq",  dzData, null,
 						function(data1) {
 							if (data1.resultCode == 200) {
-
+								rtn_chk = 1;
 							} else {
 
-								alert("더존 연동 후 erp 구분자 update 실패하였습니다")
-								return false;
+								alert("더존 연동 후 erp 구분자 update 실패하였습니다");
+								rtn_chk = 2;
 							}
 
 						});
@@ -614,13 +617,15 @@
 			} else {
 
 				alert("전표 생성실패 ." + data.resultMessage);
-				return false;
+				rtn_chk = 2;
 
 			}
 
 			
 		});
+
+		return rtn_chk;
 		gridView.setData(0);
-		return true;
+		
 	}
 </script>
