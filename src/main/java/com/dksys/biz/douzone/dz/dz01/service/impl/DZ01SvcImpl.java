@@ -95,9 +95,10 @@ public class DZ01SvcImpl implements DZ01Svc {
        *   %상계 (지급보증) 일때 위차면 금액 -  대변 아래쪽도 차변 처리 ( 대변 없음 ) 상계 지급 보증 코드 =ETRDPS04
        */
       
-      String etrdps_type = paramMap.get("etrdpsTyp");   //지급 구분 
-      String msclPrftYn  = paramMap.get("msclPrftYn");  //잡손실 잡이득 유무 컬럼  
-      String dzCode      = paramMap.get("dzCode");		//dzCode  
+      String etrdps_type  = paramMap.get("etrdpsTyp");   //지급 구분 
+      String msclPrftYn   = paramMap.get("msclPrftYn");  //잡손실 잡이득 유무 컬럼  
+      String dzCode       = paramMap.get("dzCode");		 //dzCode  
+      String dzCode2      = paramMap.get("dzCode2");	 //dzCode2  
       
       for (int i = 1 ; i <=ln_sq; i++) {
     	  
@@ -135,21 +136,29 @@ public class DZ01SvcImpl implements DZ01Svc {
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));  
 				    	  	    	paramMap.put("drcrFg", "3");    
 				    	  	    	
-				    	  	     }else if(msclPrftYn.equals("Y")&& dzCode.equals("10800")) {
+				    	  	     }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10800")) {
 				    	  	    	/*
 										매출일때 잡이익이 발생했을시 
 										구분코드 : 대변/대변
 										계정코드 :  외상매출금 10800  /잡이익 93000
 										금액      : - /+
+									
+									*/
+				    	  	    	paramMap.put("dzCode","93000");	 
+					    	  	  // 	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
+				    	  	    //	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
+				    	  	        paramMap.put("drcrFg", "4");      //대변 처리 
+				    	  	    	 
+				    	  	    }else if(msclPrftYn.equals("N")&& dzCode2.equals("10800")) {
+				    	  	    	/*
 										
 										매출일때 잡손실이 발생했을시 
 										구분코드 : 차변/대변
 										계정코드 : 외상매출금 10800  / 잡손실 96000
 										금액      : +/+
 									*/
-					    	  	   	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
-				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
-				    	  	        paramMap.put("drcrFg", "4");      //대변 처리 
+				    	  	    	paramMap.put("dzCode","96000");	  //잡손실
+		        	  		    	paramMap.put("drcrFg", "3");      //차변처리
 				    	  	    	 
 				    	  	    }else {
 				    	  	    	
@@ -207,23 +216,32 @@ public class DZ01SvcImpl implements DZ01Svc {
 	    		        	  	   	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 				    	  	    	
-	    	    	  		    }else if(msclPrftYn.equals("Y")&& dzCode.equals("10800")) {// 매출일때 차변차변이 들어간 경우 
+	    	    	  		    }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10800")) {// 매출일때 차변차변이 들어간 경우 
 	    	    	  		   	/*
 	    							매출일때 잡이익이 발생했을시 
 	    							구분코드 : 차변/차변 
 	    							계정코드 :  외상매출금 10800  /잡이익 93000
 	    							금액      : - /+
 	    							
-	    							매출일때 잡손실이 발생했을시 
-	    							구분코드 : 차변/대변
-	    							계정코드 : 외상매출금 10800  / 잡손실 96000
-	    							금액      : +/+
+	    							
 	    						*/
-	    			        	  	paramMap.put("dzCode","93000");		 //잡손실 코드 셋팅 
+	    			        	  	paramMap.put("dzCode",dzCode2);		 //잡손실 코드 셋팅 
 	    			        	   	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 	    	    	  		    	
-	    	    	  		    }else {
+	    	    	  		    }else if(msclPrftYn.equals("N")&& dzCode2.equals("10800")) {
+				    	  	    	/*
+										
+										매출일때 잡손실이 발생했을시 
+										구분코드 : 차변/대변
+										계정코드 : 외상매출금 10800  / 잡손실 96000
+										금액      : +/+
+									*/
+	    	    	  		 
+				    	  	    	paramMap.put("dzCode",dzCode2);	  //외상매출금처리 
+		        	  		    	paramMap.put("drcrFg", "4");      //대변처리
+				    	  	    	 
+				    	  	    }else {
 	    	    	  		    	
 	    	    	  		      paramMap.put("drcrFg", "4");	
 	    	    	  		      
