@@ -109,6 +109,14 @@
 					,A.TRANS_AMT
 					,A.TRANS_SEQ
 					,C.PRDT_GRP AS PRDT_GRP
+					,A.MOVE_WT
+					,A.MOVE_QTY
+					,A.CLNT_CD
+					,A.STOCK_UPR
+					,A.STD_UPR
+					,A.PCHS_UPR
+					,A.SELL_UPR
+					,NVL(A.ERR_COREC_YN, 'Y') AS ERR_COREC_YN
 				FROM TB_SM02M01 A, TB_BM01M01 C
 				WHERE A.PRDT_CD = C.PRDT_CD
 				<if test="coCd != null and !coCd.equals('')">
@@ -1248,6 +1256,13 @@
 		WHERE 
 			TRANS_SEQ = #{transSeq}
 	</update>
+	
+	<delete id="deleteStockHistory" parameterType="Map">
+		DELETE 
+			TB_SM02M01
+				WHERE
+					TRST_NO = #{trstNo}
+	</delete>
 	
 	
 </mapper>

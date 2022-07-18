@@ -176,4 +176,18 @@ public class SM02Ctr {
 		}
     	return "jsonView";
     }
+	
+    //재고 운송비 update
+	@PostMapping(value = "/deleteStock")
+    public String deleteStock(@RequestBody Map<String, String> param, ModelMap model) {
+		try {
+			sm02svc.deleteStock(param);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+		}catch (Exception e) {
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 }

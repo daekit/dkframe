@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -473,6 +474,73 @@ public class SM02Svcmpl implements SM02Svc {
 	    }
 	    
 		return 200;
+	}
+
+	@Override
+	public void deleteStock(Map<String, String> paramMap) {
+
+		Map<String, String> detailMap = new HashMap<String, String>();
+		detailMap.put("coCd", MapUtils.getString(paramMap, "inCoCd"));
+		detailMap.put("whCd", MapUtils.getString(paramMap, "inWhCd"));
+		detailMap.put("ownerCd", MapUtils.getString(paramMap, "ownerCd"));
+		detailMap.put("typCd", MapUtils.getString(paramMap, "inTypCd"));
+		detailMap.put("makrCd", MapUtils.getString(paramMap, "makrCd"));
+		detailMap.put("prjctCd", MapUtils.getString(paramMap, "inPrjctCd"));
+		detailMap.put("impYn", MapUtils.getString(paramMap, "impYn"));
+		detailMap.put("prdtCd", MapUtils.getString(paramMap, "inPrdtCd"));
+		detailMap.put("prdtSize", MapUtils.getString(paramMap, "inPrdtSize"));
+		detailMap.put("prdtSpec", MapUtils.getString(paramMap, "inPrdtSpec"));
+		
+		detailMap.put("clntCd", MapUtils.getString(paramMap, "clntCd"));
+		detailMap.put("stockUpr", MapUtils.getString(paramMap, "stockUpr"));
+		detailMap.put("stdUpr", MapUtils.getString(paramMap, "stdUpr"));
+		detailMap.put("pchsUpr", MapUtils.getString(paramMap, "pchsUpr"));
+		detailMap.put("sellUpr", MapUtils.getString(paramMap, "sellUpr"));
+		detailMap.put("userId", MapUtils.getString(paramMap, "userId"));
+		detailMap.put("pgmId", MapUtils.getString(paramMap, "pgmId"));
+		detailMap.put("moveQty", MapUtils.getString(paramMap, "moveQty"));
+		detailMap.put("moveWt", MapUtils.getString(paramMap, "moveWt"));
+		detailMap.put("trstNo", MapUtils.getString(paramMap, "trstNo"));
+		
+		detailMap.put("stockChgCd", "STOCKCHG02");
+		detailMap.put("stockQty", "0");
+		detailMap.put("stockWt", "0");
+		
+		
+		sm01Mapper.updateStockSell(detailMap);
+		
+		
+		detailMap.put("coCd", MapUtils.getString(paramMap, "outCoCd"));
+		detailMap.put("whCd", MapUtils.getString(paramMap, "outWhCd"));
+		detailMap.put("ownerCd", MapUtils.getString(paramMap, "ownerCd"));
+		detailMap.put("typCd", MapUtils.getString(paramMap, "typCd"));
+		detailMap.put("makrCd", MapUtils.getString(paramMap, "makrCd"));
+		detailMap.put("prjctCd", MapUtils.getString(paramMap, "prjctCd"));
+		detailMap.put("impYn", MapUtils.getString(paramMap, "impYn"));
+		detailMap.put("prdtCd", MapUtils.getString(paramMap, "prdtCd"));
+		detailMap.put("prdtSize", MapUtils.getString(paramMap, "prdtSize"));
+		detailMap.put("prdtSpec", MapUtils.getString(paramMap, "prdtSpec"));
+		
+		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(detailMap);
+		
+
+		// 재고정보 update
+		detailMap.put("stockChgCd", "STOCKCHG02");
+		detailMap.put("clntCd", stockInfo.get("clntCd"));
+		detailMap.put("pchsUpr", stockInfo.get("pchsUpr"));
+		detailMap.put("sellUpr", stockInfo.get("sellUpr"));
+		detailMap.put("stockUpr", stockInfo.get("stockUpr"));
+		detailMap.put("stdUpr", stockInfo.get("stdUpr"));
+		
+		double stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("moveQty"));
+		double stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("moveWt"));
+		detailMap.put("stockQty", String.valueOf(stockQty));
+		detailMap.put("stockWt" , String.valueOf(stockWt));
+		
+		sm01Mapper.updateStockSell(detailMap);
+		
+		sm02Mapper.deleteStockHistory(detailMap);
+		
 	}
 
 }

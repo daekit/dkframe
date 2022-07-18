@@ -10,7 +10,9 @@
 		INSERT INTO TB_AR02M01 
 		(
 			<if test='pgmId != null and pgmId == "AR0202P01"'>
+				<if test='transSeq != null and transSeq != ""'>
 				TRANS_SEQ,
+				</if>
 			</if>
 			CO_CD,
 			TRST_CERTI_NO,
@@ -19,25 +21,41 @@
 			TRST_DT,
 			TRST_CLNT_CD,
 			TRST_PRDT_CD,
+			<if test='ownerCd != null and ownerCd != ""'>
 			OWNER_CD,
+			</if>
 			IMP_YN,
 			TYP_CD,
 			TRSP_TYP_CD,
+			<if test='trstRprcSeq != null and trstRprcSeq != ""'>
 			TRST_RPRC_SEQ,
+			</if>
+			<if test='trstDtlSeq != null and trstDtlSeq != ""'>
 			TRST_DTL_SEQ,
+			</if>
 			PRDT_LEN,
+			<if test='odrNo != null and odrNo != ""'>
 			ODR_NO,
+			</if>
 			SALES_MNG,
 			PRJCT_CD,
+			<if test='makrCd != null and makrCd != ""'>
 			MAKR_CD,
+			</if>
 			WH_CD,
+			<if test='mngTel != null and mngTel != ""'>
 			MNG_TEL,
+			</if>
 			DLVR_DTTM,
+			<if test='realDlvrDttm != null and realDlvrDttm != ""'>
 			REAL_DLVR_DTTM,
+			</if>
 			DIRTRS_YN,
 			PRDT_DIV,
 			PRDT_STKN,
+			<if test='prdtSize != null and prdtSize != ""'>
 			PRDT_SIZE,
+			</if>
 			PRDT_UNIT,
 			PRDT_UPR,
 			STOCK_UPR,
@@ -73,16 +91,25 @@
 			UDT_ID,
 			UDT_PGM,
 			UDT_DTTM, 
+			<if test='salesAreaCd != null and salesAreaCd != ""'>
 	        SALES_AREA_CD,
+	        </if>
 	        SITE_CD,
-	        BILG_VAT_AMT,
+	        
+	        <if test='prdtSpec != null and prdtSpec != ""'>
 	        PRDT_SPEC,
-	        SHIP_CNT
+	        </if>
+	        <if test='shipCnt != null and shipCnt != ""'>
+	        SHIP_CNT,
+	        </if>
+	        BILG_VAT_AMT
 		)
 		VALUES 
 		(
 			<if test='pgmId != null and pgmId == "AR0202P01"'>
+				<if test='transSeq != null and transSeq != ""'>
 				#{transSeq},
+				</if>
 			</if>
 			#{coCd},
 			#{trstCertiNo},
@@ -91,25 +118,41 @@
 			#{trstDt,   jdbcType=VARCHAR},
 			#{clntCd,   jdbcType=VARCHAR},
 			#{prdtCd,   jdbcType=VARCHAR},
-			#{ownerCd,  jdbcType=VARCHAR},
+			<if test='ownerCd != null and ownerCd != ""'>
+				#{ownerCd,  jdbcType=VARCHAR},
+			</if>
 			#{impYn},
 			#{typCd},
 			#{trspTypCd ,  jdbcType=VARCHAR},
-			#{trstRprcSeq, jdbcType=VARCHAR},
-			#{trstDtlSeq,  jdbcType=VARCHAR},
+			<if test='trstRprcSeq != null and trstRprcSeq != ""'>
+				#{trstRprcSeq, jdbcType=VARCHAR},
+			</if>
+			<if test='trstDtlSeq != null and trstDtlSeq != ""'>
+				#{trstDtlSeq,  jdbcType=VARCHAR},
+			</if>
 			#{prdtLen,     jdbcType=VARCHAR},
-			#{odrNo,       jdbcType=VARCHAR},
+			<if test='odrNo != null and odrNo != ""'>
+				#{odrNo,       jdbcType=VARCHAR},
+			</if>
 			#{salesMng,    jdbcType=VARCHAR},
 			#{prjctCd},
-			#{makrCd},
+			<if test='makrCd != null and makrCd != ""'>
+				#{makrCd},
+			</if>
 			#{whCd,     jdbcType=VARCHAR},
-			#{mngTel,   jdbcType=VARCHAR},
+			<if test='mngTel != null and mngTel != ""'>
+				#{mngTel,   jdbcType=VARCHAR},
+			</if>
 			#{dlvrDttm, jdbcType=VARCHAR},
-			#{realDlvrDttm, jdbcType=VARCHAR},
+			<if test='realDlvrDttm != null and realDlvrDttm != ""'>
+				#{realDlvrDttm, jdbcType=VARCHAR},
+			</if>
 			#{dirtrsYn, jdbcType=VARCHAR},
 			#{prdtDiv,  jdbcType=VARCHAR},
 			#{prdtStkn, jdbcType=VARCHAR},
-			#{prdtSize, jdbcType=VARCHAR},
+			<if test='prdtSize != null and prdtSize != ""'>
+				#{prdtSize, jdbcType=VARCHAR},
+			</if>
 			#{prdtUnit, jdbcType=VARCHAR},
 			#{prdtUpr,  jdbcType=VARCHAR},
 			NULL,
@@ -152,11 +195,18 @@
 				</otherwise>
 			</choose>
 			SYSDATE,
-	        #{salesAreaCd, jdbcType=VARCHAR},
+			<if test='salesAreaCd != null and salesAreaCd != ""'>
+	        	#{salesAreaCd, jdbcType=VARCHAR},
+	        </if>
 	        NVL(#{siteCd,  jdbcType=VARCHAR},0),
-	        #{bilgVatAmt,  jdbcType=VARCHAR},
-	        #{prdtSpec,    jdbcType=VARCHAR},
-	        #{shipCnt,     jdbcType=VARCHAR}
+	        
+	        <if test='prdtSpec != null and prdtSpec != ""'>
+	        	#{prdtSpec,    jdbcType=VARCHAR},
+	        </if>
+	        <if test='shipCnt != null and shipCnt != ""'>
+	        	#{shipCnt,     jdbcType=VARCHAR},
+	        </if>
+	        #{bilgVatAmt,  jdbcType=VARCHAR}
 		)
 	</insert>
 	
@@ -2226,4 +2276,59 @@
 							  AND SELPCH_CD     = #{selpchCd}
 						  </if>
 	</select>
+	
+	
+	<update id="updateOrgItemODSH1" parameterType="Map">
+		UPDATE 
+			TB_OD01D01
+				SET 
+					ORDRG_UPR = #{bilgUpr},
+					ORDRG_AMT = #{bilgUpr} * (SELECT ORDRG_QTY FROM TB_OD01D01 WHERE ORDRG_SEQ = #{trstRprcSeq} AND ORDRG_DTL_SEQ = #{trstDtlSeq})
+					
+					WHERE 1=1 
+						AND ORDRG_SEQ = #{trstRprcSeq}
+						AND ORDRG_DTL_SEQ = #{trstDtlSeq};
+	</update>
+	
+	<update id="updateOrgItemODSH2" parameterType="Map">
+		UPDATE 
+			TB_OD01D01
+				SET 
+					SHIP_UPR = #{bilgUpr},
+					SHIP_AMT = #{bilgUpr} * (SELECT ORDRG_QTY FROM TB_OD01D01 WHERE ORDRG_SEQ = #{trstRprcSeq} AND ORDRG_DTL_SEQ = #{trstDtlSeq})
+					
+					WHERE 1=1 
+						AND ORDRG_SEQ = #{trstRprcSeq}
+						AND ORDRG_DTL_SEQ = #{trstDtlSeq};
+	</update>
+	
+	<update id="updateOrgItemAR" parameterType="Map">
+		UPDATE 
+			TB_AR01D01 
+				SET 
+					SHIP_UPR = #{bilgUpr},
+					SHIP_AMT = #{bilgUpr} * (SELECT SHIP_QTY FROM TB_AR01D01 WHERE SHIP_SEQ = #{trstRprcSeq} AND SHIP_DTL_SEQ = #{trstDtlSeq}),
+					REAL_SHIP_AMT = #{bilgUpr} * (SELECT SHIP_QTY FROM TB_AR01D01 WHERE SHIP_SEQ = #{trstRprcSeq} AND SHIP_DTL_SEQ = #{trstDtlSeq})
+				
+					WHERE 1=1 
+						AND SHIP_SEQ = #{trstRprcSeq}
+						AND SHIP_DTL_SEQ = #{trstDtlSeq};
+	</update>
+	
+	<update id="updateOrgMainOD" parameterType="Map">
+		UPDATE 
+			TB_OD01M01 
+				SET TOT_AMT = (SELECT SUM(ORDRG_AMT) FROM TB_OD01D01 WHERE ORDRG_SEQ = #{trstRprcSeq})
+					WHERE ORDRG_SEQ = #{trstRprcSeq}
+	</update>
+	
+	<update id="updateOrgMainAR" parameterType="Map">
+		UPDATE 
+			TB_AR01M01
+				SET   
+					  SHIP_TOT_AMT = (SELECT SUM(SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{trstRprcSeq})
+					, REAL_TOT_AMT = (SELECT SUM(SHIP_AMT) FROM TB_AR01D01 WHERE SHIP_SEQ = #{trstRprcSeq} AND SHIP_YN = 'Y')
+					WHERE SHIP_SEQ = #{trstRprcSeq}
+	</update>
+	
 </mapper>
