@@ -136,7 +136,7 @@ public class DZ01SvcImpl implements DZ01Svc {
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));  
 				    	  	    	paramMap.put("drcrFg", "3");    
 				    	  	    	
-				    	  	     }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10800")) {
+				    	  	     }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10300")) {
 				    	  	    	/*
 										매출일때 잡이익이 발생했을시 
 										구분코드 : 대변/대변
@@ -149,7 +149,7 @@ public class DZ01SvcImpl implements DZ01Svc {
 				    	  	    //	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 				    	  	        paramMap.put("drcrFg", "4");      //대변 처리 
 				    	  	    	 
-				    	  	    }else if(msclPrftYn.equals("N")&& dzCode2.equals("10800")) {
+				    	  	    }else if(msclPrftYn.equals("N")&& dzCode2.equals("10300")) {
 				    	  	    	/*
 										
 										매출일때 잡손실이 발생했을시 
@@ -216,7 +216,7 @@ public class DZ01SvcImpl implements DZ01Svc {
 	    		        	  	   	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 				    	  	    	
-	    	    	  		    }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10800")) {// 매출일때 차변차변이 들어간 경우 
+	    	    	  		    }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10300")) {// 매출일때 차변차변이 들어간 경우 
 	    	    	  		   	/*
 	    							매출일때 잡이익이 발생했을시 
 	    							구분코드 : 차변/차변 
@@ -225,11 +225,11 @@ public class DZ01SvcImpl implements DZ01Svc {
 	    							
 	    							
 	    						*/
-	    			        	  	paramMap.put("dzCode",dzCode2);		 //잡손실 코드 셋팅 
+	    			        	  	paramMap.put("dzCode","10800");		 //잡손실 코드 셋팅 
 	    			        	   	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 	    	    	  		    	
-	    	    	  		    }else if(msclPrftYn.equals("N")&& dzCode2.equals("10800")) {
+	    	    	  		    }else if(msclPrftYn.equals("N")&& dzCode2.equals("10300")) {
 				    	  	    	/*
 										
 										매출일때 잡손실이 발생했을시 
@@ -238,7 +238,7 @@ public class DZ01SvcImpl implements DZ01Svc {
 										금액      : +/+
 									*/
 	    	    	  		 
-				    	  	    	paramMap.put("dzCode",dzCode2);	  //외상매출금처리 
+				    	  	    	paramMap.put("dzCode","10800");	  //외상매출금처리 
 		        	  		    	paramMap.put("drcrFg", "4");      //대변처리
 				    	  	    	 
 				    	  	    }else {
@@ -261,11 +261,20 @@ public class DZ01SvcImpl implements DZ01Svc {
 	    	    	  		    }
 	    	  		    	
 	    	  		    }else {  //위 조건 제외  데이터 
-	    	  		    	
-	        	  		    paramMap.put("drcrFg", "4");			  //대변 셋팅 
-	        	  		    String dztemp=  paramMap.get("dzCode2");  //대변 dzCode2 넣어줌 
-	        	  		    paramMap.put("dzCode",dztemp);
-	        	  		    
+	    	  		    	 if( dzCode2.equals("10300")&& dzCode.equals("10300")) {
+			    	  	    	/*
+								  매출 수금일때 현금 일때 
+								  
+								*/
+    	    	  		 
+			    	  	    	paramMap.put("dzCode","10800");	  //외상매출금처리 
+	        	  		    	paramMap.put("drcrFg", "4");      //대변처리
+			    	  	    	 
+			    	  	    }else {
+		        	  		    paramMap.put("drcrFg", "4");			  //대변 셋팅 
+		        	  		    String dztemp=  paramMap.get("dzCode2");  //대변 dzCode2 넣어줌 
+		        	  		    paramMap.put("dzCode",dztemp);
+			    	  	    }
 	    	  		    }
     	  		    	
     	  	}
