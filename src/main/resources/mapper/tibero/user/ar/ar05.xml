@@ -50,6 +50,13 @@
 			<if test="completeMap != null and !completeMap.equals('')">
 				AND DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') = #{completeMap}
 			</if>
+			
+			<if test ='dzSndYn=="Y"' >
+				 AND D.DZ_SND_SEQ IS NOT NULL
+			</if>
+			<if test ='dzSndYn=="N"' >
+				 AND D.DZ_SND_SEQ IS NULL
+			</if>
 		</where>
 	</select>
 	
@@ -140,6 +147,14 @@
 					</if>
 					<if test="completeMap != null and !completeMap.equals('')">
 						AND DECODE(0, D.ETRDPS_AMT - NVL((SELECT SUM(E.ETRDPS_AMT) FROM TB_AR05D02 E WHERE E.ETRDPS_SEQ = D.ETRDPS_SEQ AND TRST_CERTI_NO != 0),0), 'Y', 'N') = #{completeMap}
+					</if>
+					
+					<if test ='dzSndYn=="Y"' >
+						 AND D.DZ_SND_SEQ IS NOT NULL
+					</if>
+					
+					<if test ='dzSndYn=="N"' >
+						 AND D.DZ_SND_SEQ IS NULL
 					</if>
 				</where>
 				ORDER BY D.CO_CD, D.TAXIVC_COPRT, D.ETRDPS_DT, C.CLNT_NM, D.CREAT_DTTM DESC
