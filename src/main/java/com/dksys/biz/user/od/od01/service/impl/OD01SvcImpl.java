@@ -219,6 +219,39 @@ public class OD01SvcImpl implements OD01Svc {
 		for(String fileKey : deleteFileList) {
 			cm08Svc.deleteFile(fileKey);
 		}
+		
+		// 발주서관리 수정 화면에서 저장시 확정된 건을 제외하고 삭제하게되면 메인 테이블의 매출, 매입 데이터가 꼬이는 상황을 해결하는 로직 
+		// 먼저 메인 발주서에 속해있는 서브 발주서들을 찾는다.
+		List<Map<String, String>> detailCheckList = od01Mapper.selectOrdrgDetailList(paramMap);
+		
+		if(detailCheckList.size() > 0) {
+
+			// 매입 여부 체크
+			Boolean pchsCheck = true;
+			// 매출 여부 체크
+			Boolean sellCheck = true;
+			
+			// 발주서 상세 리스트 중 매입, 매출 확정이 있는지 확인한다.
+			for(Map<String, String> detailCheck : detailCheckList) {
+				String ordrgYn = MapUtils.getString(detailCheck, "ordrgYn");
+				String shipYn = MapUtils.getString(detailCheck, "shipYn");
+				if("N".equals(ordrgYn)) {
+					pchsCheck = false;
+				}
+				if("N".equals(shipYn)) {
+					sellCheck = false;
+				}
+			}
+			
+			if(pchsCheck) {
+				od01Mapper.updateConfirm(paramMap);
+			}
+			
+			if(sellCheck) {
+				od01Mapper.updateConfirmS(paramMap);
+			}
+		}
+		
 		return result;
 	}
 	
