@@ -203,6 +203,27 @@ public class AR01SvcImpl implements AR01Svc {
 		for(String fileKey : deleteFileList) {
 			cm08Svc.deleteFile(fileKey);
 		}
+		
+		// 출하요청관리 상세페이지에서 수정시 현재 갖고있는 출하 리스트를 불러와서 출하여부를 확인 후 메인 출하 테이블의 출하 값을 변경하는 로직 실행
+		List<Map<String, String>> detailCheckList = ar01Mapper.selectShipDetail(paramMap);
+		
+		if(detailCheckList.size() > 0) {
+			
+			Boolean check = true;
+			
+			for(Map<String, String> detailCheck : detailCheckList) {
+				String shipYn = MapUtils.getString(detailCheck, "shipYn");
+				if("N".equals(shipYn)) {
+					check = false;
+				}
+			}
+			
+			if(check) {
+				ar01Mapper.updateConfirm(paramMap);
+			}
+			
+		}
+		
 		return result;
 	}
 	
