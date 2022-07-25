@@ -94,6 +94,12 @@ public class AR05SvcImpl implements AR05Svc {
 			
 			// 결제방법이 어음일때 clntCd put
 			billData.put("clntCd", etrdpsData.get("clntCd"));
+			
+			Map<String, String> billMap = ar05Mapper.selectBillInfo(billData);
+			if(billMap != null) {
+				return 300;
+			}
+			
 			ar05Mapper.insertBill(billData);
 		}
 		result = ar05Mapper.insertEtrdps(etrdpsData);

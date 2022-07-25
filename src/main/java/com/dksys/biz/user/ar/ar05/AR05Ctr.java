@@ -65,6 +65,9 @@ public class AR05Ctr {
 			if(result == 500){
 				model.addAttribute("resultCode", 500);
 		    	model.addAttribute("resultMessage", messageUtils.getMessage("etrdpsClose"));
+			}else if(result == 300){
+				model.addAttribute("resultCode", 300);
+		    	model.addAttribute("resultMessage", messageUtils.getMessage("alreadyKey"));
 			}else {
 		    		
 		    		model.addAttribute("resultCode", 200);
