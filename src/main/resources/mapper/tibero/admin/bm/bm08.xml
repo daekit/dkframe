@@ -270,6 +270,12 @@
 				<if test="prdtGrp != null and !prdtGrp.equals('')">
 					AND A.PRDT_GRP = #{prdtGrp}
 				</if>
+				<if test='maturityType != null and maturityType.equals("Y")'>
+				   AND TO_DATE(A.EXPRTN_DT,'YYYYMMDD') <![CDATA[ < ]]>  SYSDATE
+				</if>
+				<if test='maturityType != null and maturityType.equals("N")'>
+				   AND TO_DATE(NVL(A.EXPRTN_DT,20991231),'YYYYMMDD') <![CDATA[ >= ]]>  SYSDATE
+				</if>		
 		
 	</select>
 	
@@ -283,7 +289,8 @@
 			FROM
 			(
 				SELECT A.TRST_NO
-				     , TO_CHAR(A.PROC_DTTM,'YYYY-MM-DD') AS PROC_DTTM
+				     <!-- , TO_CHAR(A.PROC_DTTM,'YYYY-MM-DD') AS PROC_DTTM -->
+				     , A.PROC_DTTM AS PROC_DTTM
 				     , A.CHG_CD
 				     , FN_CM05M01_CD_TO_NM(A.CHG_CD) AS CHG_NM
 				     , A.PLDG_SN
@@ -349,8 +356,15 @@
 				<if test="prdtGrp != null and !prdtGrp.equals('')">
 					AND A.PRDT_GRP = #{prdtGrp}
 				</if>
+				<if test='maturityType != null and maturityType.equals("Y")'>
+				   AND TO_DATE(A.EXPRTN_DT,'YYYYMMDD') <![CDATA[ < ]]>  SYSDATE
+				</if>
+				<if test='maturityType != null and maturityType.equals("N")'>
+				   AND TO_DATE(NVL(A.EXPRTN_DT,20991231),'YYYYMMDD') <![CDATA[ >= ]]>  SYSDATE
+				</if>						
 			) A
-			ORDER BY PLDG_DIV_CD , CLNT_CD ,CO_CD, TRST_NO
+			ORDER BY A.PROC_DTTM DESC
+			<!-- ORDER BY PLDG_DIV_CD , CLNT_CD ,CO_CD, TRST_NO -->
 		)
 		WHERE
 			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
