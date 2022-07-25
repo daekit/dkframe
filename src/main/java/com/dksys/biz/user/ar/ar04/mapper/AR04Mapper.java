@@ -116,4 +116,8 @@ public interface AR04Mapper {
 
 	void updateTaxHd(Map<String, String> taxHdParam);
 
+	void updateAR02BilgCertNo(Map<String, Object> paramMap);
+
+	void deleteTaxHd(Map<String, Object> paramMap);
+
 }

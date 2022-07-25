@@ -42,4 +42,6 @@ public interface AR04Svc {
 	int updateBilg(Map<String, Object> paramMap);
 
 	int updateNote(Map<String, Object> paramMap);
+
+	public void deleteTaxHd(Map<String, Object> paramMap);
 }

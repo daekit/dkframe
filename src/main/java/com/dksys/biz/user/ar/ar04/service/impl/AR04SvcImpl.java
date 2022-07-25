@@ -772,4 +772,11 @@ public class AR04SvcImpl implements AR04Svc {
 		return result;
 	}
 	
+	@SuppressWarnings("all")
+	@Override
+	public void deleteTaxHd(Map<String, Object> paramMap) {
+		ar04Mapper.updateAR02BilgCertNo(paramMap);
+		ar04Mapper.deleteTaxHd(paramMap);
+	}
+	
 }

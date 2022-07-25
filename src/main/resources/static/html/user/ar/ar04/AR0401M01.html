@@ -191,6 +191,7 @@
    3) 원하는 계산서 종류를 필히 선택해야함"><i class="fas fa-redo"></i>국세청오류정정</a>
 						<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-print"></i>계산서인쇄</a>
 <!-- 						<a onclick="" style="height: 30px; line-height: 28px; width: 60px;" authchk>회계 전송</a> -->
+						<a onclick="deleteTaxHd();" style="height: 30px; line-height: 28px; display: none" authChk id="deleteTaxHd">-</a>
 						<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
@@ -676,6 +677,14 @@
 		}	
 	
 	$(document).ready(function() {
+		var userId = jwt.userId;
+		
+		if(userId != "selltest"){
+			$('#deleteTaxHd').remove();	
+		}else{
+			$('#deleteTaxHd').show();
+		}
+		
 		// 페이지 타이틀 set
 		mainDefaultLoad("세금계산서관리", "세금계산서관리");
 		// 공통코드 set
@@ -1471,4 +1480,27 @@
 
 		callReport(fileName, arg, 1040, 720);
 	}
+	
+	function deleteTaxHd(){
+		if(checkGridRow(gridView.target, "single")) {
+			var row = gridView.target.getList("selected")[0];
+			var cseqRcvYn = row.cseqRcvYn;
+			var bilgCertNo = row.bilgCertNo;
+			
+			if(cseqRcvYn == 'E'){
+				if(confirm("선택한 세금계산서를 삭제하시겠습니까?")){
+					postAjax("/user/ar/ar04/deleteTaxHd", row, null, function(data){
+						alert(data.resultMessage);
+						if(data.resultCode == 200){
+							gridView.setData(0);
+						}
+					});
+				}
+			}else{
+				alert("국세청 전송 결과가 오류인건만 삭제가 가능합니다.");
+				return false;
+			}	
+		}
+	}
+	
 </script>
