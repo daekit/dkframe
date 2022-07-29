@@ -64,12 +64,27 @@
 					<if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND B.PRDT_GRP = #{prdtGrp}
 					</if>
+					<if test='maturityType != null and maturityType.equals("Y")'>
+					   AND TO_DATE(B.EXPRTN_DT,'YYYYMMDD') + 1 <![CDATA[ < ]]>  SYSDATE
+					</if>
+					<if test='maturityType != null and maturityType.equals("N")'>
+					   AND TO_DATE(NVL(B.EXPRTN_DT,20991230),'YYYYMMDD') + 1 <![CDATA[ >= ]]>  SYSDATE
+					</if>	
 					GROUP BY A.USE_YN,
 						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
 							B.CO_CD,
 							A.CLNT_CD,
 							A.CLNT_NM,
-							A.BASIS_CDTLN_AMT
+							A.BASIS_CDTLN_AMT,
+							B.PLDG_DIV_CD,
+							B.PLDG_AMT,
+							B.PRDT_GRP,
+							B.PLDG_RCOGN_RATE,
+							B.EXPRTN_DT,
+							B.SETUP_DT,
+							B.PLDG_RMK,
+							B.SELPCH_CD,
+							B.GRNTY_INSTT_CD
 				) AS a
 				ORDER BY  LINK_GRP_CLNT_CD, CLNT_NM, CLNT_CD, CO_NM, CO_CD, USE_YN
 			) A
@@ -176,6 +191,12 @@
 					<if test="prdtGrp != null and !prdtGrp.equals('')">
 						AND B.PRDT_GRP = #{prdtGrp}
 					</if>
+					<if test='maturityType != null and maturityType.equals("Y")'>
+					   AND TO_DATE(B.EXPRTN_DT,'YYYYMMDD') + 1 <![CDATA[ < ]]>  SYSDATE
+					</if>
+					<if test='maturityType != null and maturityType.equals("N")'>
+					   AND TO_DATE(NVL(B.EXPRTN_DT,20991230),'YYYYMMDD') + 1 <![CDATA[ >= ]]>  SYSDATE
+					</if>	
 					GROUP BY A.USE_YN,
 						    nvl(A.LINK_GRP_CLNT_CD, A.CLNT_CD) ,	
 							B.CO_CD,
