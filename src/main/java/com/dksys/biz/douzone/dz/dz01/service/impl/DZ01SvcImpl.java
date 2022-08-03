@@ -45,10 +45,15 @@ public class DZ01SvcImpl implements DZ01Svc {
 		int InSeq = dz01Mapper.getCntSeq(paramMap);
 		return InSeq;
 	}
+	
+	@Override
+	public int getDzTrade(Map<String, String> paramMap) {//임시 거래처 처리 사전 CHK  은영애ㅑ 20220803 
+		int trcnt = dz01Mapper.getDzTrade(paramMap);
+		return trcnt;
+	}
 
 	@Override
 	public String getTrCd(Map<String, String> paramMap) {
-		// TODO Auto-generated method stub
 		String trCd = dz01Mapper.getTrCd(paramMap);
 		return trCd ;
 	}
@@ -69,10 +74,15 @@ public class DZ01SvcImpl implements DZ01Svc {
       //String div_cd = "2000";     		 // 회계단위 
       in_sq = getCountInSeq(paramMap);   // IN_SQ  - 거래순번  최근 차수를 가져오는 query 호출  +1 로 들고 온다 
       String tr_cd ="";   				 // 은행 거래처 코드 
+      int tr_cnt = 0 ;
+      
+      String crn  = paramMap.get("crn");
+      tr_cnt = getDzTrade(paramMap);
+      
       
       //공통으로 사용하는 데이터 셋팅 
+
       paramMap.put("inSq",Integer.toString(in_sq));  
-      //paramMap.put("divCd",div_cd);		 // 회계 단위 셋팅  1000
       
       tr_cd = getTrCd(paramMap);  		 // 은행 거래처 코드 를 들고옴 ( 계좌 정보가 있는지 확인 )
       String bkAct 		= paramMap.get("bkAct");
@@ -85,6 +95,7 @@ public class DZ01SvcImpl implements DZ01Svc {
           }
 
       }		 
+    
       
       /*
        *   차변/대변 데이터 생성  차변 구분 코드 dccrfg = 3  / 대변 4 
@@ -100,9 +111,51 @@ public class DZ01SvcImpl implements DZ01Svc {
       String dzCode       = paramMap.get("dzCode");		 //dzCode  
       String dzCode2      = paramMap.get("dzCode2");	 //dzCode2  
       
+      //임시 거래처 처리  은영애ㅑ 20220803
+      if( tr_cnt == 0 ) {
+    	  
+    	  paramMap.put("crn","0000000000");
+          
+      }
+    //임시 거래처 처리  은영애ㅑ 20220803  END
+      
+      String ls_crn ="";
       for (int i = 1 ; i <=ln_sq; i++) {
     	  
-    	  	if( i == 1 ) { 	// 차변 전표 생성 
+    	  	if( i == 1 ) { 	// 차변 전표 생성  
+    	  		
+    	  		//-------------------------//전표 생성 구분자 추가  은영애ㅑ 20220803
+    	  		if(etrdps_type.equals("ETRDPS01")) {// 수금일때  
+    	  			
+    	  			if(setleTypCd.equals("PMNTMTD01")||setleTypCd.equals("PMNTMTD02")) {//현금 또는 어름 
+        	  			
+    	  				paramMap.put("logicCd", "4");
+        	  			
+        	  		}
+    	  			
+    	  			
+    	  			if (bkAct == null || bkAct.trim().isEmpty()) {
+    	  				
+    	  			}else {
+    	  				
+    	  				ls_crn = paramMap.get("crn");	// 차대 구분자 바뀜으로 이한 임의 변수에 데이터 저장 
+    	  				paramMap.put("crn","");     	// 은행계좌가 있을시 사업자 코드 NULL
+	    	  			paramMap.put("trCd",tr_cd); 	// 은행 거래처 코드 넣어줌 	 
+    	  					 
+    	  			}
+    	  			
+    	  			
+    	  			
+    	  		}else if(etrdps_type.equals("ETRDPS02")) { //지급 
+
+    	  			if(setleTypCd.equals("PMNTMTD01")||setleTypCd.equals("PMNTMTD02")) {//현금 또는 어름 
+        	  			
+    	  				paramMap.put("logicCd", "5");
+        	  			
+        	  		}
+    	  			
+    	  		}
+    	  		//-------------------------//전표 생성 구분자 추가  은영애ㅑ 20220803  ---- END
     	  			
 		    	  		 if (setleTypCd.equals("PMNTMTD02")) { //어음 일때 데이터 셋팅 
 		    	  	    	 
@@ -182,17 +235,25 @@ public class DZ01SvcImpl implements DZ01Svc {
 	    	  				
 	    	  			}else {
 	    	  				
-	    	  				paramMap.put("crn","");     	// 은행계좌가 있을시 사업자 코드 NULL
-		    	  			paramMap.put("trCd",tr_cd); 	// 은행 거래처 코드 넣어줌 	 
-	    	  					 
+	    	  				if(ls_crn !=null&&etrdps_type.equals("ETRDPS01")) {  //수금일때 구분자 (거래처 은행계좌 바꿔줌 )
+	    	  					paramMap.put("crn",ls_crn);   
+			    	  			paramMap.put("trCd",""); 		 
+		    	  					
+	    	  					
+	    	  				}else{
+	    	  					
+		    	  				paramMap.put("crn","");     	// 은행계좌가 있을시 사업자 코드 NULL
+			    	  			paramMap.put("trCd",tr_cd); 	// 은행 거래처 코드 넣어줌 	 
+			    	  			
+	    	  				}
 	    	  			}
 	    	  			
 	    	  				paramMap.put("lnSq", Integer.toString(i));
     	  		    
 	    	  		    if (etrdps_type.equals("ETRDPS04")) {	 //상계 지급 보충일때
 	    	  		    	
-	        	  		    paramMap.put("drcrFg", "3");         //차변 셋팅 
-	        	  		    paramMap.put("dzCode","10300"); 	 //보통 예금 
+	        	  		    paramMap.put("drcrFg", "3");         //차변 셋팅   차대 차액 오류 수정 대변 -> 차변   은영애ㅑ 20220803
+	        	  		    paramMap.put("dzCode","25100"); 	 //외상 매입금  상계지급 변경  일반매입 -> 외상매입금  은영애ㅑ 20220803
 	        	  		 	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 양수전환
 		    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 		    	  	    	

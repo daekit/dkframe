@@ -25,5 +25,7 @@ public interface DZ01Mapper {
 	void dzDelete(Map<String, String> paramMap);
 	
 	int getDzCnt(Map<String, String> paramMap);
+
+	int getDzTrade(Map<String, String> paramMap);
 	
 }

@@ -468,67 +468,108 @@
 					$('#clntNm_S').val(row.clntNm);
 				});
 	}
+	
+	
+	
 
 	//더존 전표연동 삭제 20220630 kdm 
 	function dzDel() {
 
-		if (selectGridValidation(gridView.target))
-			return;
+		
+		 var selectedRows = gridView.target.getList("selected");
+			
+			if( selectedRows.length == 0){
+				alert("선택된 행이 없습니다.");
+			}else{
+	
+			
+			var cnt = 0;
+			var cntf = 0;
+		
+			if (!confirm("전표발행 취소를 하시겠습니까?"))return;
+			
+			for (var i = 0; i < selectedRows.length; i++) {
+				
+				var obj = selectedRows[i];
+				var flag = dzDelete(obj);
+				
+					 if(flag == 1){
+				 		cnt++ ;
+					 }else{
+						 cntf++ ;
+					 }
+		 	}
+			
+			alert("전표 삭제 성공 : " +cnt +  " 실패:"+cntf+ "건  ");
+			gridView.setData(0);
+		
+		}
+		
+		
+	}
 
-		var row = gridView.target.getList("selected")[0];
+	//전표 삭제 다중 추가 은영애ㅑ 20220803
+	function dzDelete(obj){
+		
+		var row=obj;
+		var rtn_chk = 1;
+
 
 		if (row.dzSndYn == 'N') {
 			alert("전표가 발행되지 않았습니다");
-			return;
+			return false;
 		}
-
-		if (!confirm("해당 전표 발행을 취소하시겠습니까?"))
-			return;
-
 		//더존 erp 에서는 회사코드 일자 / 그리고 seq 값만 있으면 해당 전표룰 찾을 수 있음 월별로 따지는 seq 가  pk임 
-		var dzData = {
-			"coCd" : row.dzCo,
-			"etrdpsDt" : row.etrdpsDt,
-			"dzSndSeq" : row.dzSndSeq
-		};
-
-		postAjax("/douzone/dz/dz01/dzDelete", dzData, null, function(data) {
-
-			if (data.resultCode == 200) { //전표 삭제가 되었을때 dz 전송유무 n 로 고쳐줌 
-
-				var dzData = {
-					"coCd" : row.coCd,
-					"etrdpsDt" : row.etrdpsDt,
-					"etrdpsSeq" : row.etrdpsSeq,
-					"clntCd" : row.clntCd,
-					"dzSndSeq" : ""
-				};
-
-				postAjax("/user/ar/ar05/updateDzSndSeq", dzData, null,
-						function(data1) {
-
-							if (data1.resultCode == 200) {
-
-								alert("전표 삭제에 성공하였습니다 .");
-							} else {
-
-								alert("더존 연동 후 erp 구분자 update 실패하였습니다")
-
-							}
-
-							gridView.setData(0);
-						});
-			} else {
-
-				alert(data.resultMessage);
-
-			}
-			gridView.setData(0);
-		});
-	}
-
-	function dzInsert(){
 		
+		var dzData = {
+				"coCd" : row.dzCo,
+				"etrdpsDt" : row.etrdpsDt,
+				"dzSndSeq" : row.dzSndSeq
+			};
+
+		postAjaxSync("/douzone/dz/dz01/dzDelete", dzData, null, function(data) {
+
+				if (data.resultCode == 200) { //전표 삭제가 되었을때 dz 전송유무 n 로 고쳐줌 
+
+					var dzData = {
+						"coCd" : row.coCd,
+						"etrdpsDt" : row.etrdpsDt,
+						"etrdpsSeq" : row.etrdpsSeq,
+						"clntCd" : row.clntCd,
+						"dzSndSeq" : ""
+					};
+
+					postAjaxSync("/user/ar/ar05/updateDzSndSeq", dzData, null,
+							function(data1) {
+
+									if (data1.resultCode == 200) {
+	
+										//alert("전표 삭제에 성공하였습니다 .");
+										rtn_chk = 1;
+									} else {
+	
+										alert("더존 연동 후 erp 구분자 update 실패하였습니다")
+										rtn_chk = 2;
+									}
+								
+							});
+				} else {
+
+					alert(data.resultMessage);
+					rtn_chk = 2;
+
+				}
+				
+			});
+		
+		return rtn_chk;
+		gridView.setData(0);
+		
+	}
+	
+	
+	/// 전표 생성 
+	function dzInsert(){
 	
 	  var selectedRows = gridView.target.getList("selected");
 		
@@ -561,7 +602,7 @@
 		
 	}
 	
-	
+
 	//더존 전표 연동 insert 20220630 kdm 
 	function dzInt(obj) {
 

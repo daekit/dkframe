@@ -18,4 +18,6 @@ public interface DZ01Svc {
 
 	public int dzDelete(Map<String, String> paramMap);
 	
+	public int getDzTrade(Map<String, String> paramMap);
+	
 }

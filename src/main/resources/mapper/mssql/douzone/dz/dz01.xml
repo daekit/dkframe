@@ -85,8 +85,8 @@
 				'',                 			<!-- 결의부서 -->             
 				'',                				<!-- 작성자 -->              
  				#{drcrFg},                 		<!-- 차대구분   -->
-				#{dzCode},                 		<!-- 계정코드 -->             
-				#{crn},                 		<!-- 거래처_사업자번호 -->        
+				#{dzCode},                 		<!-- 계정코드 -->   
+				#{crn}  ,    	<!-- 거래처_사업자번호 -->        		          
 				#{etrdpsAmt},    				<!-- 금액 -->               
 				#{sumry},            			<!-- 적요 -->               
 				'',                 			<!-- 적요(보조어) -->          
@@ -95,16 +95,17 @@
 				(SELECT  PJTCD_TY FROM ZA_ACCT_DAIKIN WHERE    ACCT_CD =#{dzCode} AND CO_CD= #{coCd}),                 			<!-- D관리항목_타입 -->         
 				'',          					<!-- 프로젝트코드 -->           
 				#{etrdpsAmt},                 	<!-- 공급가액 -->             
-				'',                 			<!-- 세무구분 -->             
+				#{ctDeal},                 			<!-- 세무구분 -->             
 				'',                 			<!-- 사유구분 -->             
 				REPLACE(#{frDt}, '-', ''),     						<!-- 시작일 -->              
 				REPLACE(#{toDt}, '-', ''),      						<!-- 종료일 -->              
-				#{etrdpsTypNm} 	+')'+ 
+				#{etrdpsTypNm} 	+'/'+ 
 				<if test="etrdpsBkacNm != null">
-					#{etrdpsBkacNm} 	+ '-'+ 
+					#{etrdpsBkacNm} 	+ '/'+ 
 				</if>
-				#{clntNm} 	+'-'+ 
-				#{sumry} ,                 		<!-- 품의내역 -->             
+				#{clntNm} 	+'/'+ 
+				#{sumry} 	+'/'+
+				#{etrdpsAmt},                 		<!-- 품의내역 -->             
 				'',                 			<!-- 품의내역(보조어) -->        
 				'',                 			<!-- 전자세금계산서여부 -->        
 				#{ctNb},                 		<!-- 관리번호 -->             
@@ -133,7 +134,7 @@
 				'',                  			<!-- M관리항목_타입 -->         
 				'',                  			<!-- 거래처_고객담당자명 -->       
 				'',                  			<!-- 거래처_고객담당자_메일주소 -->   
-				'',                  			<!-- 전표자료구분유형 -->         
+				#{logicCd},                  			<!-- 전표자료구분유형 -->         
 				'',                  			<!-- 증빙구분 -->             
 				'',                  			<!-- 지급장소 -->             
 				'',                  			<!-- 발행인 -->              
@@ -214,5 +215,16 @@
 	   AND IN_DT    = REPLACE(#{etrdpsDt}, '-', '')
 	   AND IN_SQ    = #{dzSndSeq}
 	   AND DEPT_CD  <![CDATA[<>]]> '';	
+	</select>
+	
+	
+	
+	<select id="getDzTrade" resultType="int">		
+	/*dz01 getDzTrade 더존 임시거래처  chk  */
+    SELECT 
+	 	   COUNT(*) AS CNT 
+	  FROM ZA_TRADE_DAIKIN 
+	 WHERE REG_NB  = REPLACE(#{crn}, '-', '') 
+	   AND CO_CD   = #{coCd}
 	</select>
 </mapper>
