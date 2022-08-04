@@ -189,7 +189,7 @@ public class DZ01SvcImpl implements DZ01Svc {
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));  
 				    	  	    	paramMap.put("drcrFg", "3");    
 				    	  	    	
-				    	  	     }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10300")) {
+				    	  	     }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10800")) {
 				    	  	    	/*
 										매출일때 잡이익이 발생했을시 
 										구분코드 : 대변/대변
@@ -277,7 +277,7 @@ public class DZ01SvcImpl implements DZ01Svc {
 	    		        	  	   	int etr_amt =Integer.parseInt(paramMap.get("etrdpsAmt"))*-1;  //string  int parse 음수 전환 
 				    	  	    	paramMap.put("etrdpsAmt", Integer.toString(etr_amt));   
 				    	  	    	
-	    	    	  		    }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10300")) {// 매출일때 차변차변이 들어간 경우 
+	    	    	  		    }else if(msclPrftYn.equals("Y")&& dzCode2.equals("10800")) {// 매출일때 차변차변이 들어간 경우 
 	    	    	  		   	/*
 	    							매출일때 잡이익이 발생했을시 
 	    							구분코드 : 차변/차변 
