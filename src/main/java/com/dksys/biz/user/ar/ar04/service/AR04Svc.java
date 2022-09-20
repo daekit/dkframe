@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface AR04Svc {
 
-	public void insertBilg(Map<String, Object> paramMap);
+	public void insertBilg(Map<String, Object> paramMap) throws Exception;
 	
 	public List<Map<String, String>> selectTaxBilgList(Map<String, String> param);
 	

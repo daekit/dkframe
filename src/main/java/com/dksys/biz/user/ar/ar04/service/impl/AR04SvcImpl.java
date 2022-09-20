@@ -42,15 +42,28 @@ public class AR04SvcImpl implements AR04Svc {
 
 	@SuppressWarnings("all")
 	@Override
-	public void insertBilg(Map<String, Object> paramMap) {
+	public void insertBilg(Map<String, Object> paramMap) throws Exception {
 
 		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(paramMap);
 		String bilgCertNo = String.valueOf(ar04Mapper.getBilgCertNo());
+		
 		// bilgInfo: CamelMap이라 대문자 형태로 SET
 		bilgInfo.put("USER_ID", paramMap.get("userId").toString());
 		bilgInfo.put("PGM_ID", paramMap.get("pgmId").toString());
 		bilgInfo.put("BILG_CERT_NO", bilgCertNo);
 
+		// 매출리스트에서 매출확정을 두번 클릭했을 때 한번만 INSERT 되도록 로직 수정
+		// 현재 선택된 매출리스트에 세금계산서 번호 (BILG_CERT_NO)가 있는지 확인하고, 있으면 에러로 떨군다.
+		List<String> selectCertiList = (List<String>) paramMap.get("trstCertiNoList");
+		for(int i=0; i<selectCertiList.size(); i++) {
+			Map<String, Object> selectTaxBilgDetailList = ar04Mapper.selectTaxBilgDetail(selectCertiList.get(i));
+			
+			if(MapUtils.getString(selectTaxBilgDetailList, "bilgCertNo") != null) {
+				throw new Exception();
+			}
+			
+		}
+		
 		// 비고1에 현장 put
 		int siteCnt = Integer.parseInt(bilgInfo.get("siteCnt"));
 		if (null != bilgInfo.get("siteNm")) {

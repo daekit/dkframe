@@ -120,4 +120,6 @@ public interface AR04Mapper {
 
 	void deleteTaxHd(Map<String, Object> paramMap);
 
+	Map<String, Object> selectTaxBilgDetail(String string);
+
 }
