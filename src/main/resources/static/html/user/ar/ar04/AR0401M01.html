@@ -134,6 +134,10 @@
 								<option value="">전체</option>
 							</select>
 						</td>
+						<th>국세청비고</th>
+						<td>
+							<input type="text" id="ftxac1_1" data-search="ftxac1_1"> 
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -159,11 +163,13 @@
    4) 세금계산서 번호가 부여되고 전송플래그가 처리되나 국세청 전송은 되지 않습니다."><i class="fas fa-file-alt"></i>계산서정발행</a>
 <!-- 						재전송은 이미 발행된 건에 대해서 메일을 재전송하려고 사용중이지만 현재 메일이 재전송되지 않으므로 주석처리 - 2021/08/11 -->
 <!-- 						재전송은 이미 발행된 건중 오류건(CSEQ_RCV_YN='E')에 대해서  재전송처리 - 2021/09/01 -->
+<!-- 
 						<a onclick="insertTaxHdReSend();" style="height: 30px; line-height: 28px; width: 80px;" authchk; title="5. Case5: 세금계산서관리화면에서 결과 코드가 'E'인경우 처리 방법
    1) 해당 계산서 상세화면에서 에러내용을 확인하고 자료를 수정하여 저장한다.
       (계산서 정발행이후 오류에 대한 처리만 가능합니다.)
    2) 계산선 선택후 &quot;재전송&quot; 버튼을 클릭하면 수정된 내용으로 계산서가 재전송 처리됨
    3) 국세청에서 접수처리가 완료되면 국세청 승인번호와 결과 Flag 처리됨"><i class="fas fa-file-export"></i>재전송</a>
+ -->
 <!-- 						<a onclick="insertTaxHdCancel();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-redo"></i>정발행취소</a> -->
 						<a onclick="insertTaxHdUpdate();" style="height: 30px; line-height: 28px; width: 100px;" authchk; title="3. Case3:수정세금계산서 처리 (매출리스트화면에서 수정처리하는 경우)
    1) &quot;수정세금계산서&quot; 버튼을 클리하면 Minus 수정세금계산서가 생성되고 매출리스트화면의 해당 출하건에 수정사유, 원본계산서번호가 입력되면서 청구번호가 지워짐
@@ -1481,6 +1487,8 @@
 		callReport(fileName, arg, 1040, 720);
 	}
 	
+	// 세금계산서를 삭제하는 로직
+	// 국세청 발송 후 결과가 에러 E인 세금계산서만 삭제할 수 있는 로직
 	function deleteTaxHd(){
 		if(checkGridRow(gridView.target, "single")) {
 			var row = gridView.target.getList("selected")[0];
