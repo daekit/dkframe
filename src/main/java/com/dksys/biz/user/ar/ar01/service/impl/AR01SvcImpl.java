@@ -577,6 +577,7 @@ public class AR01SvcImpl implements AR01Svc {
 		return ar01Mapper.selectDetailCount(paramMap);
 	}
 
+	@SuppressWarnings("null")
 	@Override
 	public void updateCancel(Map<String, String> paramMap) throws Exception{
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -657,6 +658,13 @@ public class AR01SvcImpl implements AR01Svc {
 				paramMap.put("prdtLen", detailMap.get("prdtLen"));
 				paramMap.put("impYn", detailMap.get("impYn"));
 				Map<String, String> stockInfo = sm01Mapper.selectStockInfo(paramMap);
+				
+				if(stockInfo == null) {
+					stockInfo = new HashMap<String, String>();
+					stockInfo.put("stockQty", "0");
+					stockInfo.put("stockWt", "0");
+				}
+				
 				double stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("realShipQty"));
 				double stockWt = Double.parseDouble(stockInfo.get("stockWt")) + Double.parseDouble(detailMap.get("realShipWt"));
 				paramMap.put("stockQty", String.valueOf(stockQty));
