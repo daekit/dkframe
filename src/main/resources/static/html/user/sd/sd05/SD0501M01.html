@@ -273,22 +273,40 @@
 		setData: function(_pageNo){
 			firstGrid = this.target;
 			if(inputValidation($('input[required]'))){
-				var formData = {
-					"pageNo"    : _pageNo + 1,
-					"recordCnt" : $("#recordCnt").val(),
-					"coCd"      : $("#coCd_S").val(),
-					"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
-					"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
-					"searchType" : $("#searchType").val(),
-					"searchValue" : $("#searchValue").val(),
-					"prjctNm" : $("#prjctNm_S").val(),
-					"prjctCd" : $("#prjctCd_S").val(),
-					"prdtGrp" : $("#prdtGrp_S").val(),
-					"taxivcCoprt" : $("#taxivcCoprt").val(),
-					"ordTyp" : $('#ordTyp_S').val(),
-					"useYn"	 : $('#useYn').val()
-					
+				var prjctNm = $("#prjctNm_S").val();
+				
+				if(prjctNm != null && prjctNm != ""){
+					var formData = {
+							"pageNo"    : _pageNo + 1,
+							"recordCnt" : $("#recordCnt").val(),
+							"coCd"      : $("#coCd_S").val(),
+							"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
+							"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+							"searchType" : $("#searchType").val(),
+							"searchValue" : $("#searchValue").val(),
+							"prjctNm" : $("#prjctNm_S").val(),
+							"prjctCd" : $("#prjctCd_S").val(),
+							"prdtGrp" : $("#prdtGrp_S").val(),
+							"taxivcCoprt" : $("#taxivcCoprt").val(),
+							"ordTyp" : $('#ordTyp_S').val(),
+							"useYn"	 : $('#useYn').val()
+					}
+				}else{
+					var formData = {
+							"pageNo"    : _pageNo + 1,
+							"recordCnt" : $("#recordCnt").val(),
+							"coCd"      : $("#coCd_S").val(),
+							"searchType" : $("#searchType").val(),
+							"searchValue" : $("#searchValue").val(),
+							"prjctNm" : $("#prjctNm_S").val(),
+							"prjctCd" : $("#prjctCd_S").val(),
+							"prdtGrp" : $("#prdtGrp_S").val(),
+							"taxivcCoprt" : $("#taxivcCoprt").val(),
+							"ordTyp" : $('#ordTyp_S').val(),
+							"useYn"	 : $('#useYn').val()
+					}
 				}
+				
 				postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
 					var list = data.sd0501m01;
 					firstGrid.setData({
@@ -466,27 +484,53 @@
 	}
 	
 	function excelDown() {
-		var formData = {
-				"coCd"        : $("#coCd_S").val(),
-				"strtDt"      : $("#strtDt_S").val().replace(/\-/g,''),
-				"endDt"       : $("#endDt_S").val().replace(/\-/g,''),
-				"searchType"  : $("#searchType").val(),
-				"searchValue" : $("#searchValue").val(),
-				"pageNo"      : 1,
-				"recordCnt"   : 9999999
+		
+		var prjctNm = $("#prjctNm_S").val();
+			
+		if(prjctNm != null && prjctNm != ""){
+			var formData = {
+					"pageNo"    : 1,
+					"recordCnt" : 9999999,
+					"coCd"      : $("#coCd_S").val(),
+					"strtDt"    : $("#strtDt_S").val().replace(/\-/g,''),
+					"endDt"     : $("#endDt_S").val().replace(/\-/g,''),
+					"searchType" : $("#searchType").val(),
+					"searchValue" : $("#searchValue").val(),
+					"prjctNm" : $("#prjctNm_S").val(),
+					"prjctCd" : $("#prjctCd_S").val(),
+					"prdtGrp" : $("#prdtGrp_S").val(),
+					"taxivcCoprt" : $("#taxivcCoprt").val(),
+					"ordTyp" : $('#ordTyp_S').val(),
+					"useYn"	 : $('#useYn').val()
 			}
-			postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
-				var list = data.sd0501m01;
-				
-				excelView.target.setData({
-					list : list,
-					page : {
-						totalElements : list.length,
-					}
-				});
-				var todayDate = new Date().format('yyyyMMddHHmmss');
-				excelView.target.exportExcel("프로젝트목록"+todayDate+".xls");
-			});	
+		}else{
+			var formData = {
+					"pageNo"    : 1,
+					"recordCnt" : 9999999,
+					"coCd"      : $("#coCd_S").val(),
+					"searchType" : $("#searchType").val(),
+					"searchValue" : $("#searchValue").val(),
+					"prjctNm" : $("#prjctNm_S").val(),
+					"prjctCd" : $("#prjctCd_S").val(),
+					"prdtGrp" : $("#prdtGrp_S").val(),
+					"taxivcCoprt" : $("#taxivcCoprt").val(),
+					"ordTyp" : $('#ordTyp_S').val(),
+					"useYn"	 : $('#useYn').val()
+			}
+		}
+		
+		postAjax("/user/sd/sd05/selectProjectList", formData, null, function(data){
+			var list = data.sd0501m01;
+			
+			excelView.target.setData({
+				list : list,
+				page : {
+					totalElements : list.length,
+				}
+			});
+			var todayDate = new Date().format('yyyyMMddHHmmss');
+			excelView.target.exportExcel("프로젝트목록"+todayDate+".xls");
+		});	
 	}	
 	
  	
