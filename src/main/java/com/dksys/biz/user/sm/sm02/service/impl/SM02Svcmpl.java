@@ -523,6 +523,11 @@ public class SM02Svcmpl implements SM02Svc {
 		
 		Map<String, String> stockInfo = sm01Mapper.selectStockInfo(detailMap);
 		
+		if(stockInfo == null){
+			stockInfo = new HashMap<String, String>();
+			stockInfo.put("stockQty", "0");
+			stockInfo.put("stockWt", "0");
+		}
 
 		// 재고정보 update
 		detailMap.put("stockChgCd", "STOCKCHG02");
