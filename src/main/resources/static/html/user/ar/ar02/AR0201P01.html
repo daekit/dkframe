@@ -33,10 +33,11 @@
 		<div class="contents_tit">
 			<div class="add_btn_small pdl10" id="actionDiv">
 				할인: 
-				<input type="text" class="tr" id="allAmt" onkeyup="onlyNumber(this);"> 
-				<a onclick="setDcAmt('bilgUpr');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a>
-				<a onclick="setDcAmt('trstDcAmt');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
-				<a onclick="setDcAmt('bilgVatAmt');" style="height: 30px; line-height: 28px; width: 90px;">부가세일괄적용</a>
+				<input type="text" class="tr" id="allAmt" onkeyup="onlyNumber(this);">
+				<a onclick="setDcAmt('bilgUpr', 'all');" style="height: 30px; line-height: 28px; width: 90px;">단가일괄적용</a> 
+				<a onclick="setDcAmt('bilgUpr', 'discount');" style="height: 30px; line-height: 28px; width: 100px;">단가할인일괄적용</a>
+				<a onclick="setDcAmt('trstDcAmt', '');" style="height: 30px; line-height: 28px; width: 90px;">할인금액배부</a>
+				<a onclick="setDcAmt('bilgVatAmt', '');" style="height: 30px; line-height: 28px; width: 90px;">부가세일괄적용</a>
 			</div>
 		</div>
 	</div>
@@ -75,7 +76,7 @@
 		            onDataChanged: function() {
 		            	var realTrstAmt = 0;
 		            	var bilgAmt     = 0;
-		            	if(this.key == "bilgQty" || this.key == "bilgUpr" ||this.key == "trstDcAmt"){
+		            	if(this.key == "bilgQty" || this.key == "bilgUpr" || this.key == "trstDcAmt" || this.key == "allBilgUpr"){
 			            	// 물품금액 = 청구수량 * 청구단가
 			            	if(this.item.bilgQty){
 			            		if(this.item.prdtStkn.includes("운반비")){
@@ -217,11 +218,12 @@
 		authChk("AR0201M01");
 	});
 
-	function setDcAmt(targetName) {
+	function setDcAmt(targetName, type) {
 		if($("#allAmt").val() == "") {
 			alert("할인할증을 입력해주세요.");
 			return;
 		}
+		
 		var allAmt = Number(deleteCommaStr($("#allAmt").val()));		
 		var list = adjustGridView.target.getList();
 		var setValue = 0;
@@ -236,7 +238,11 @@
 		
 		$.each(list, function(idx, item) {
 			if(targetName == "bilgUpr") {
-				setValue = item.bilgUprOrg - Number(allAmt);
+				if(type == "all"){
+					setValue = Number(allAmt);	
+				}else{
+					setValue = item.bilgUprOrg - Number(allAmt);	
+				}
 			} else if(targetName == "bilgVatAmt") {
 				setValue = item.bilgVatAmt - Number(allAmt);
 			} else {
