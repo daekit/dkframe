@@ -228,6 +228,21 @@ public class SM02Svcmpl implements SM02Svc {
 		
 		List<Map<String, String>> detailList = gson.fromJson(param.get("detailArr"), mapList);
 		for (Map<String, String> detailMap : detailList) {
+			
+			// 재고이동시 기존 제품의 데이터가 없을 때 키,값이 들어오지 않기 때문에 강제로 넣어주는 것
+			List<String> containList = new ArrayList<>();
+			containList.add("prjctCd");
+			containList.add("prdtCd");
+			containList.add("prdtSize");
+			containList.add("prdtSpec");
+			containList.add("prdtLen");
+			
+			for(int i=0; i<containList.size(); i++) {
+				if(!detailMap.containsKey(containList.get(i))) {
+					detailMap.put(containList.get(i), "");
+				}
+			}
+			
 			detailMap.put("userId",       param.get("userId").toString());
 			detailMap.put("pgmId",        param.get("pgmId").toString());
 			detailMap.put("sCoCd",        detail.get("sCoCd"));
