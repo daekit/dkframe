@@ -695,6 +695,18 @@ public class AR02SvcImpl implements AR02Svc {
 			divMap.put("pgmId", paramMap.get("creatPgm"));
 			// 수정 프로그램 아이디: 분할 화면ID
 			divMap.put("updatePgmId", paramMap.get("updatePgmId"));
+			if(paramMap.get("subClntCd") != null) {
+				// 매출분할 전 매입거래처코드
+				divMap.put("subClntCd", paramMap.get("subClntCd"));
+				// 매출분할 전 매입거래처명
+				divMap.put("subClntNm", paramMap.get("subClntNm"));
+			} else {
+				// 매출분할 전 매입거래처코드
+				divMap.put("subClntCd", "");
+				// 매출분할 전 매입거래처명
+				divMap.put("subClntNm", "");
+			}
+			
 			// insert
 			ar02Mapper.insertPchsSell(divMap);
 		}

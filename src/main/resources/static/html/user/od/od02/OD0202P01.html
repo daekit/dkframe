@@ -14,7 +14,7 @@
 						<div class="search_form">
 							<input type="hidden" id="clntCd" name="clntCd" msg="거래처"  required>
 							<input type="text" id="clntNm" name="clntNm" readonly> 
-							<a onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
+							<a onclick="openSecondClntSearch('SELL');"><i class="i_search_w"></i></a>
 						</div>
 					</td>
 					<th class="hit">회사</th>
@@ -178,6 +178,16 @@
 					<td>
 						<input type="hidden" name="realTrstAmt" readonly="readonly" minus>
 						<input type="text" class="tr" name="bilgAmt" value="0" onkeyup="onlyNumber(this);  if(this.value == ''){this.value = '0'} countBilgAmt(this);" readonly comma minus>
+					</td>
+				</tr>
+				<tr>
+					<th>매출거래처</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="subClntCd" name="subClntCd" msg="매출거래처">
+							<input type="text" id="subClntNm" name="subClntNm" readonly>
+							<a onclick="openSecondClntSearch('PURC');"><i class="i_search_w"></i></a>
+						</div>
 					</td>
 				</tr>
 				<tr>
@@ -375,12 +385,38 @@
 	}
 	
 	// 거래처 검색
-	function openSecondClntSearch() {
+	function openSecondClntSearch(type) {
+		/*
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
 			var row = grid.target.getList("selected")[0];
 			$('#clntCd').val(row.clntCd);
 			$('#clntNm').val(row.clntNm);	
 		});
+		*/
+
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			
+			if(type == 'SELL'){
+				$('#clntCd').val(row.clntCd);
+				$('#clntNm').val(row.clntNm);
+				
+				var paramObj = {
+					"coCd": $('#coCd').val(),
+					"clntCd": row.clntCd
+				}
+				
+				postAjax("/admin/bm/bm02/selectMngInfo", paramObj, null, function(data) {				  
+					$('#salesMng').val(data.mngInfo.salesEmpId);     // "kyungmi.kuan"
+					$('#salesMngNm').val(data.mngInfo.salesEmpNm);	 //  "권경미"	  
+				});
+			}else{
+				$('#subClntCd').val(row.clntCd);
+				$('#subClntNm').val(row.clntNm);
+			}
+			
+		});
+	
 	}
 	
 	// 창고, 판매법인 set

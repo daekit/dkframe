@@ -102,6 +102,10 @@
 	        <if test='shipCnt != null and shipCnt != ""'>
 	        SHIP_CNT,
 	        </if>
+	        <if test='subClntCd != null and subClntCd != ""'>
+	        SUB_CLNT_CD,
+	        SUB_CLNT_NM,
+	        </if>
 	        BILG_VAT_AMT
 		)
 		VALUES 
@@ -205,6 +209,10 @@
 	        </if>
 	        <if test='shipCnt != null and shipCnt != ""'>
 	        	#{shipCnt,     jdbcType=VARCHAR},
+	        </if>
+	        <if test='subClntCd != null and subClntCd != ""'>
+	        	#{subClntCd},
+	        	#{subClntNm},
 	        </if>
 	        #{bilgVatAmt,  jdbcType=VARCHAR}
 		)
@@ -737,12 +745,22 @@
 				    T.ORGN_TAX_BILG_NO,
 				    T.RFF_APG,
 				    T.SHIP_CNT,
+				    T.SUB_CLNT_CD,
+				    T.SUB_CLNT_NM,
 				    BM01M01.PRDT_CNVRSN_WT
 				    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
 <!-- 				    	OD01M01.CLNT_CD AS PCHS_CLNT_CD -->
+					   , DECODE(T.SUB_CLNT_CD, NULL, (SELECT CLNT_NM FROM TB_BM02M01  BM02
+					                     INNER JOIN  TB_OD01M01 OD01M01  ON BM02.CLNT_CD = OD01M01.CLNT_CD 
+					                     WHERE  T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ  AND T.CREAT_PGM LIKE 'OD'||'%' ),
+					                     T.SUB_CLNT_NM) AS PCHS_CLNT_NM
+
+
+<!-- 
 					   , (SELECT CLNT_NM FROM TB_BM02M01  BM02
 					                     INNER JOIN  TB_OD01M01 OD01M01  ON BM02.CLNT_CD = OD01M01.CLNT_CD 
 					                     WHERE  T.TRST_RPRC_SEQ = OD01M01.ORDRG_SEQ  AND T.CREAT_PGM LIKE 'OD'||'%' ) AS PCHS_CLNT_NM
+ -->
 				    </if>
 				    <if test="selpchCd != 'SELPCH2' and selpchCd != 'SELPCH4'">
 <!-- 				    	'' AS PCHS_CLNT_CD -->
@@ -751,7 +769,8 @@
 				    
 				    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
 						, OD01M01.SELL_CLNT_CD AS SELL_CLNT_CD
-						, (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE OD01M01.SELL_CLNT_CD = BM02.CLNT_CD) AS SELL_CLNT_NM
+						, DECODE(T.SUB_CLNT_CD, NULL, (SELECT CLNT_NM FROM TB_BM02M01 BM02 WHERE OD01M01.SELL_CLNT_CD = BM02.CLNT_CD),
+								 T.SUB_CLNT_NM) AS SELL_CLNT_NM
 					</if>
 				FROM 
 					TB_AR02M01 T

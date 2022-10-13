@@ -369,6 +369,8 @@ public class AR01SvcImpl implements AR01Svc {
 			paramMap.put("odrNo", 		 paramMap.get("odrSeq"));
 			paramMap.put("makrCd", 	     detailMap.get("makrCd"));
 			paramMap.put("trspRmk", 	 paramMap.get("shipRmk"));
+			paramMap.put("subClntNm", "");
+			paramMap.put("subClntCd", "");
 			// 부가세
 			long bilgVatAmt = (long) Math.floor(Long.parseLong(detailMap.get("realShipAmt")) * bilgVatPer / 100);
 			paramMap.put("bilgVatAmt", 	String.valueOf(bilgVatAmt));
