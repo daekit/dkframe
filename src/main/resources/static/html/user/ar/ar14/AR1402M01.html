@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/all.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div id="main_area">
+		<!-- 페이지 상단 -->
+		<div class="contents no_bg">
+			<ul class="btn_ul">
+				<li class="btn_r">
+					<a onclick="initSearch();">
+						<button type="button" class="bg_gray">초기화</button>
+					</a> 
+					<a onclick="subGridView.setData(0);">
+						<button type="button" class="bg_gray">검 색</button>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!-- 검색 콘텐츠 -->
+		<div class="contents search" id="searchDiv">
+			<input type="hidden" id="selectedData" name="selectedData"/>
+			<div class="">
+				<!-- 테이블 인풋 3분할 -->
+				<table class="table_input type03">
+					<tr>
+						<th class="hit">회사</th>
+						<td>
+							<select id="coCd_S" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); subGridView.setData(0);" required msg="회사">
+								<option value="">전체</option>
+							</select>
+						</td>
+						<th>기준일자</th>
+		                <td>
+		                    <div class="date_input">
+		                      <input id="baseDt" onkeyup="dateMask(this);" class="input_calendar" autocomplete="off" data-search="baseDt" onchange="subGridView.initView(baseDt.value).setData(0);">
+		                    </div>
+		                </td>
+		                <th>거래처</th>
+						<td>
+		                  <input type="hidden" id="clntCd_S" name="clntCd" data-search="clntCd">
+		                  <div class="search_form" style="width: 50%;">
+			                <input type="text" id="clntNm" name="clntNm" data-search="clntNm" onkeyup="if(event.keyCode != 13){resetClntCd()}; event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? subGridView.initView(closeYm.value).setData(0) : ''">
+			              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+			              </div>
+		                </td>
+					</tr>
+					</tr>
+						<th>판매법인</th>
+						<td>
+						  <select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="subGridView.setData(0);">
+						 	 <option value="">전체</option>
+						  </select>
+						</td>
+						<!-- 
+						<th>제품그룹</th>
+						<td>
+							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="subGridView.setData(0);">
+								<option value="">전체</option>
+							</select>
+						</td>
+						 -->
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<div class="add_btn_small pdl10">
+					<!-- <a style="height: 30px; line-height: 28px;" onclick="insertDebtModal('C');" authchk>+</a> -->
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select class="prae_select" data-search="recordCnt">
+					<option value="10">10</option>
+					<option value="20" selected>20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999">전체</option>
+				</select> 
+			</div>
+		</div>
+		<!-- 콘텐츠 -->
+		<div class="contents">
+			<!-- 리스트 -->
+			<div class="ax5_grid" data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 680px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	var actionType = null;
+	var odrSeq = null;
+	var odrDtlSeqArr = [];
+	
+	var subGridView = {
+		initView : function(baseDt) {
+// 			var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+// 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+			var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+			var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+			var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
+			var selpchText = $('#selpchCd').val() == "SELPCH2" ? "매출" : "매입";
+			var clmnpayText = $('#selpchCd').val() == "SELPCH2" ? "수금" : "지급";
+			
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector : false,
+				multipleSelect : false,
+				sortable : true,
+		    	frozenColumnIndex: 4,
+				target : $('[data-ax5grid="first-grid"]'),
+				header : {
+					align : "center",
+					selector : false
+				},
+				body : {
+					mergeCells : ["clntNm","prdtGrpNm"],
+					onClick : function() {
+						this.self.select(this.dindex);
+					}
+				},
+				page : {
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						subGridView.setData(this.page.selectPage);
+					}
+				},
+				columns: [
+					{key: "coCd",            hidden: true},
+					{key: "clntCd",          hidden: true},
+		          	{key: "coNm",   		label: "회사",			align: "left",     	width: 120},
+		          	{key: "taxivcCoprtNm",	label: "법인",			align: "left",     	width: 120},
+		          	{key: "clntNm",     	label: "거래처",			align: "left",     	width: 140},
+		          	{key: "repstNm",   		label: "대표자명",			align: "left",     	width: 120},
+ 		        	{key: "crn",        	label: "사업자 등록번호",		align: "center",	width: 90},
+		        	{key: "debtAmt",  		label: "발생금액",			align: "right",    	width: 120,  formatter: "money"},
+		        	{key: "repayAmt",  		label: "회수금액",			align: "right",    	width: 120,  formatter: "money"},
+		        	{key: "balance",  		label: "잔액",			align: "right",    	width: 120,  formatter: "money"},
+		        	{key: "debtRmk",  		label: "비고",			align: "right",    	width: 120}
+		        ],
+		        footSum: [
+			    	[
+			    		{label: "합계",     colspan:5, align:"center"},
+	                    {key: "debtAmt",   collector: "sum", formatter:"money", align: "right"},
+	                    {key: "repayAmt",  collector: "sum", formatter:"money", align: "right"},
+	                    {key: "balance",   collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ]
+			});
+			return this;
+		},
+		setData : function(_pageNo) {
+			var targetObj = this.target;
+			var paramObj = {"pageNo" : _pageNo + 1};
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+			
+			console.log('@@paramObj : ', paramObj);
+			console.log('@@selpchCd : ', paramObj.selpchCd);
+			
+			postAjax("/user/ar/ar14/selectDebtGroupList", paramObj, null, function(data) {
+				var list = data.resultList;
+				console.log(list);
+				targetObj.setData({
+					list : list,
+					page : {
+						currentPage : _pageNo,
+						pageSize : data.paginationInfo.pageSize,
+						totalElements : data.paginationInfo.totalRecordCount,
+						totalPages : data.paginationInfo.totalPageCount
+					}
+				});
+			});
+		}
+	}
+	var excelView = {
+			initView: function(baseDt){
+// 				var closeYm1 = moment(closeYm, 'YYYY-MM').subtract(1, "month").format('YYYY-MM');
+// 				var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
+				var closeYm  = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
+				var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
+				var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
+				var selpchText = $('#selpchCd').val() == "SELPCH2" ? "매출" : "매입";
+				var clmnpayText = $('#selpchCd').val() == "SELPCH2" ? "수금" : "지급";
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        columns: [
+						{key: "coCd",            hidden: true},
+						{key: "clntCd",          hidden: true},
+			          	{key: "coNm",   		label: "회사",			align: "left",     	width: 120},
+			          	{key: "taxivcCoprtNm",	label: "법인",			align: "left",     	width: 120},
+			          	{key: "clntNm",     	label: "거래처",			align: "left",     	width: 140},
+			          	{key: "repstNm",   		label: "대표자명",			align: "left",     	width: 120},
+	 		        	{key: "crn",        	label: "사업자 등록번호",		align: "center",	width: 90},
+			        	{key: "debtAmt",  		label: "발생금액",			align: "right",    	width: 120,  formatter: "money"},
+			        	{key: "repayAmt",  		label: "회수금액",			align: "right",    	width: 120,  formatter: "money"},
+			        	{key: "balance",  		label: "잔액",			align: "right",    	width: 120,  formatter: "money"},
+			        	{key: "debtRmk",  		label: "비고",			align: "right",    	width: 120}
+			        ],
+			        footSum: [
+				    	[
+				    		{label: "합계",     colspan:5, align:"center"},
+		                    {key: "debtAmt",   collector: "sum", formatter:"money", align: "right"},
+		                    {key: "repayAmt",  collector: "sum", formatter:"money", align: "right"},
+		                    {key: "balance",   collector: "sum", formatter:"money", align: "right"},
+				    	]
+				    ]
+			    });
+				return this;
+			}
+		}
+	$(document).ready(function() {
+	
+		// 페이지 타이틀 set
+		mainDefaultLoad("채권관리", "업체별 부실채권조회");
+		// 공통코드 set
+		setCommonSelect($("#main_area select[data-kind]"));
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		setByCoCd(jwt.coCd);
+		// 기준년월
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		
+		// 검색조건 이벤트 bind
+		$('[data-search]').on("change", function(){
+			subGridView.setData(0);
+		});
+		
+		$('#baseDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true
+		});
+		
+		// grid init
+		subGridView.initView(baseDt.value).setData(0);
+		
+		authChk();
+	});
+	
+	// 검색조건 초기화
+	function initSearch() {
+
+		// 조건초기화
+		$(".contents.search [data-search]").not('.input_calendar').val("");
+		// 기간
+// 		document.getElementById('closeYm').value= new Date().toISOString().slice(0, 7);
+		document.getElementById('baseDt').value = new Date().toISOString().substring(0, 10);
+		// 접속자 회사 set
+		$('[data-search="coCd"]').val(jwt.coCd);
+		
+		// 재검색
+		subGridView.setData(0);
+	}
+	
+	// 거래처 검색
+	function clntSearch() {
+
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);	
+		});
+	//	openModal("/static/html/user/ar/ar07/AR0701P01.html", 500, 420, "거래처 검색");
+	}
+
+	function excelDown() {
+		excelView.initView(baseDt.value);
+		var targetObj = this.target;
+		var paramObj = {"pageNo" : 1,
+		                "recordCnt" : 9999999};
+		for(var i=0;i<$('[data-search]').length;i++){
+			var tempElem = $('[data-search]')[i];
+			paramObj[$(tempElem).data("search")] = $(tempElem).val();
+		}
+		postAjax("/user/ar/ar14/selectDebtGroupList", paramObj, null, function(data) {
+			var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("매출채권조회_"+todayDate+".xls");
+			});	
+	}	
+
+	// 판매법인 set
+	function setByCoCd(value){
+		$('#main_area #taxivcCoprt').data("rprc", value);
+		$('#main_area #taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#main_area #taxivcCoprt'));  
+	} 
+	
+	
+	// 부실채권 insert/update 팝업창 띄우기
+	function insertDebtModal(type,paramObj) {
+		var modalTitle = "";
+		actionType = type;
+		if (type == "U") {
+			modalTitle = "반품";
+			if(!checkGridRow(subGridView.target, "single")) return false;
+			var obj = subGridView.target.getList("selected")[0];
+			if(obj.bilgYn == "N"){
+				alert("매출이 확정된 건만 가능합니다.");
+				return false;
+			}
+		} else if (type == "I"){
+			modalTitle = "조회";
+		} else if (type == "D"){
+			modalTitle = "조회";
+		} else {
+			modalTitle = "부실채권등록";
+		}
+		openModal("/static/html/user/ar/ar14/AR1401P01.html", 700, 350, modalTitle,paramObj);
+	}
+	
+</script>

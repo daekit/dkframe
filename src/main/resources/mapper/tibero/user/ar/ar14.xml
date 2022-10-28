@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar14.mapper.AR14Mapper">
+
+	<!-- 부실채권 TB_AR14M01 테이블 COUNT -->
+	<select id="selectDebtCount" resultType="int">
+			SELECT COUNT(*)
+		  	 FROM TB_AR14M01
+		  	 	WHERE 1=1 
+				<if test="coCd != null and !coCd.equals('')">
+					AND CO_CD = #{coCd}		
+				</if>
+				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					AND TAXIVC_COPRT= #{taxivcCoprt}				
+				</if>
+		  	 	<if test="clntCd != null and !clntCd.equals('')">
+					AND CLNT_CD = #{clntCd}				
+				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+					AND CLNT_NM like '%${clntNm}%'	
+				</if>
+				<if test="baseDt != null and !baseDt.equals('')">
+					AND INST_DT <![CDATA[<=]]> #{baseDt}
+				</if>	
+	</select>
+	
+	<!-- 부실채권 TB_AR14M01 테이블 LIST -->
+	<select id="selectDebtList" resultType="CamelMap">
+			SELECT
+				  CO_CD 
+				, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM
+				, TAXIVC_COPRT
+				, FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM
+				, INST_DT
+				, CLNT_CD
+				, CLNT_NM
+				, REPST_NM
+				, CRN
+				, MNG_CD
+				, MNG_NM
+				, MNG_TEL
+				, ASSORT_CD
+				, DEBT_AMT
+				, DEBT_RMK
+				, USE_YN
+				, CREAT_ID
+				, CREAT_PGM
+				, DEBT_NO
+		  	 FROM TB_AR14M01
+		  	 WHERE 1=1 
+				<if test="coCd != null and !coCd.equals('')">
+					AND CO_CD = #{coCd}		
+				</if>
+				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+					AND TAXIVC_COPRT= #{taxivcCoprt}				
+				</if>
+		  	 	<if test="clntCd != null and !clntCd.equals('')">
+					AND CLNT_CD = #{clntCd}				
+				</if>
+				<if test="clntNm != null and !clntNm.equals('')">
+					AND CLNT_NM like '%${clntNm}%'	
+				</if>
+				<if test="baseDt != null and !baseDt.equals('')">
+					AND INST_DT <![CDATA[<=]]> #{baseDt}
+				</if>	
+	</select>
+	
+	<!-- 부실채권 TB_AR14M01 테이블 INSERT -->
+	<insert id="insertDebt" parameterType="Map">
+		<selectKey keyProperty="debtNo" resultType="String" order="BEFORE">
+			SELECT TB_AR14M01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+			INSERT INTO
+				TB_AR14M01
+					(
+						CO_CD
+						<!-- , PRDT_GRP -->
+						, TAXIVC_COPRT
+						, INST_DT
+						, CLNT_CD
+						, CLNT_NM
+						, REPST_NM
+						, CRN
+						, MNG_CD
+						, MNG_NM
+						, MNG_TEL
+						, ASSORT_CD
+						, DEBT_AMT
+						, DEBT_RMK
+						, USE_YN
+						, CREAT_ID
+						, CREAT_PGM
+						, DEBT_NO
+					) VALUES (
+						#{coCd}
+						<!-- , #{prdtGrp} -->
+						, #{taxivcCoprt}
+						, #{instDt}
+						, #{clntCd}
+						, #{clntNm}
+						, #{repstNm}
+						, #{crn}
+						, #{mngCd}
+						, #{mngNm}
+						, #{mngTel}
+						, #{assortCd}
+						, #{debtAmt}
+						, #{debtRmk}
+						, 'Y'
+						, #{userId}
+						, #{pgmId}
+						, #{debtNo}
+					)
+	</insert>
+	
+	<!-- 부실채권 TB_AR14M01 테이블 COUNT -->
+	<select id="selectDebtGroupCount" resultType="int">
+	SELECT COUNT(*) FROM (
+	SELECT * FROM (
+		SELECT 
+			CO_CD
+			, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM 
+			, TAXIVC_COPRT 
+			, FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM 
+			, CLNT_CD 
+			, CLNT_NM 
+			, REPST_NM 
+			, CRN 
+			, SUM(DEBT_AMT) AS DEBT_AMT 
+			, SUM(REPAY_AMT) AS REPAY_AMT
+			FROM (
+				SELECT
+					  CO_CD 
+					, TAXIVC_COPRT
+					, CLNT_CD
+					, CLNT_NM
+					, REPST_NM
+					, CRN
+					, DECODE(ASSORT_CD, 'ASSORTCD1', DEBT_AMT) AS DEBT_AMT
+					, DECODE(ASSORT_CD, 'ASSORTCD2', DEBT_AMT) AS REPAY_AMT
+			  	 FROM TB_AR14M01
+			  	 WHERE 1=1 
+					<if test="coCd != null and !coCd.equals('')">
+						AND CO_CD = #{coCd}		
+					</if>
+					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						AND TAXIVC_COPRT= #{taxivcCoprt}				
+					</if>
+			  	 	<if test="clntCd != null and !clntCd.equals('')">
+						AND CLNT_CD = #{clntCd}				
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM like '%${clntNm}%'	
+					</if>
+					<if test="baseDt != null and !baseDt.equals('')">
+						AND INST_DT <![CDATA[<=]]> #{baseDt}
+					</if>	
+				) GROUP BY CO_CD, TAXIVC_COPRT, CLNT_CD, CLNT_NM, REPST_NM, CRN	
+				) T
+				)
+	</select>
+	
+	<!-- 부실채권 TB_AR14M01 테이블 LIST -->
+	<select id="selectDebtGroupList" resultType="CamelMap">
+	SELECT * FROM (
+	SELECT ROWNUM AS RNUM, T.* FROM (
+		SELECT
+			CO_CD
+			, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM 
+			, TAXIVC_COPRT 
+			, FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM 
+			, CLNT_CD 
+			, CLNT_NM 
+			, REPST_NM 
+			, CRN 
+			, NVL(SUM(DEBT_AMT),0) AS DEBT_AMT 
+			, NVL(SUM(REPAY_AMT),0) AS REPAY_AMT
+			, NVL(SUM(DEBT_AMT),0) - NVL(SUM(REPAY_AMT),0) AS BALANCE
+			FROM (
+				SELECT
+					  CO_CD 
+					, TAXIVC_COPRT
+					, CLNT_CD
+					, CLNT_NM
+					, REPST_NM
+					, CRN
+					, DECODE(ASSORT_CD, 'ASSORTCD1', DEBT_AMT) AS DEBT_AMT
+					, DECODE(ASSORT_CD, 'ASSORTCD2', DEBT_AMT) AS REPAY_AMT
+			  	 FROM TB_AR14M01
+			  	 WHERE 1=1 
+					<if test="coCd != null and !coCd.equals('')">
+						AND CO_CD = #{coCd}		
+					</if>
+					<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
+						AND TAXIVC_COPRT= #{taxivcCoprt}				
+					</if>
+			  	 	<if test="clntCd != null and !clntCd.equals('')">
+						AND CLNT_CD = #{clntCd}				
+					</if>
+					<if test="clntNm != null and !clntNm.equals('')">
+						AND CLNT_NM like '%${clntNm}%'	
+					</if>
+					<if test="baseDt != null and !baseDt.equals('')">
+						AND INST_DT <![CDATA[<=]]> #{baseDt}
+					</if>	
+				) GROUP BY CO_CD, TAXIVC_COPRT, CLNT_CD, CLNT_NM, REPST_NM, CRN
+				) T
+				) WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<delete id="deleteDebt" parameterType="Map">
+		DELETE FROM TB_AR14M01 WHERE DEBT_NO = #{debtNo} 
+	</delete>
+	
+</mapper>	
