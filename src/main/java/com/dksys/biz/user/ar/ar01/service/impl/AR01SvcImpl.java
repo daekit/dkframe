@@ -169,8 +169,7 @@ public class AR01SvcImpl implements AR01Svc {
 				mesFtrCd = "MES_KMJC";
 			}
 			
-			
-/*
+	/*
 			if(factoryCode.equals("C")) {
 				mesFtrCd = "MES_KMCN_DEV";
 			}else if(factoryCode.equals("N")) {
@@ -178,8 +177,7 @@ public class AR01SvcImpl implements AR01Svc {
 			}else if(factoryCode.equals("J")) {
 				mesFtrCd = "MES_KMJC_DEV";
 			}
-*/			
-			
+	*/		
 			String[] loadOrgNoList = loadOrgNoGroup.split(",");
 			for(int l = 0; l < loadOrgNoList.length; l++) {
 				loadOrgNo += "'" + loadOrgNoList[l] + "'";
