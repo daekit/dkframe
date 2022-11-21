@@ -1,10 +1,20 @@
 package com.dksys.biz.user.pp.pp04;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -21,6 +31,8 @@ import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.pp.pp04.service.PP04Svc;
 import com.dksys.biz.util.MessageUtils;
 
+import net.minidev.json.JSONObject;
+
 @Controller
 @RequestMapping("/user/pp/pp04")
 public class PP04Ctr {
@@ -34,9 +46,35 @@ public class PP04Ctr {
     @Autowired
     AR01Svc ar01Svc;
 	
-   
+
+    @PostMapping(value = "/selectMesMtrlRstlFirstList")
+	public String selectMesMtrlRstlFirstList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = pp04Svc.selectMesMtrlRstlFirstCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = pp04Svc.selectMesMtrlRstlFirstList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
     @PostMapping(value = "/selectMesMtrlRstlList")
 	public String selectMesMtrlRstlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	
+		String loadOrgNo = "";
+		String loadOrgNoGroup = MapUtils.getString(paramMap, "loadOrgNoGroup");
+		
+		String[] loadOrgNoList = loadOrgNoGroup.split(",");
+		for(int i = 0; i < loadOrgNoList.length; i++) {
+			loadOrgNo += "'" + loadOrgNoList[i] + "'";
+			
+			if(i != loadOrgNoList.length-1) {
+				loadOrgNo += ",";
+			}
+		}
+		
+		paramMap.put("loadOrgNo", loadOrgNo);
+    	
     	int totalCnt = pp04Svc.selectMesMtrlRstlCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
     	model.addAttribute("paginationInfo", paginationInfo);
@@ -163,4 +201,62 @@ public class PP04Ctr {
 	
    */ 
     
+    @PostMapping(value = "/daliyAccessList")
+	public String daliyAccessList(@RequestBody Map<String, String> paramMap, ModelMap model) throws IOException {
+    	// int totalCnt = pp04Svc.selectMesMtrlRstlCount(paramMap);
+		// PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	// model.addAttribute("paginationInfo", paginationInfo);
+    	List<Map<String, String>> resultList = pp04Svc.daliyAccessList(paramMap);
+    	
+    	
+    	
+    	for(Map<String, String> result : resultList) {
+    		String accessTime = MapUtils.getString(result, "firstAccessTime");
+    		accessTime = accessTime.substring(0,4)+"-"+accessTime.substring(4,6)+"-"+accessTime.substring(6,8)+" "+accessTime.substring(8,10)+":"+accessTime.substring(10,12)+":"+accessTime.substring(12,14)+".000";
+    		
+    		String accessUser = MapUtils.getString(result, "userId");
+    		
+    		URL url = new URL("http://log.smart-factory.kr/apisvc/sendLogData.json");
+            String postData = "foo1=bar1&foo2=bar2";
+            JSONObject json = new JSONObject();
+            json.put("crtfcKey", "$5$API$y3q3QB1tkSn00x7LNc4Cu9kdL.zboDeV4V8AwFFT/RA");
+            json.put("logDt", "2022-09-28 14:22:31.958");
+            json.put("useSe", " 접속");
+            json.put("sysUser", "userId");
+            json.put("conectIp", "0.0.0.0.0.1");
+            json.put("dataUsgqty", "0");
+     
+            String jsonString = json.toString();
+            System.out.println("============== 변환하기 전 =============");
+            System.out.println(jsonString);
+            
+            jsonString = URLEncoder.encode(jsonString);
+            System.out.println("============== 변환하고 후 =============");
+            System.out.println(jsonString);
+            
+            BufferedReader in = null;
+            
+            try {
+                URL obj = new URL(jsonString);
+                HttpURLConnection con = (HttpURLConnection)obj.openConnection();
+                con.setRequestMethod("GET");
+                in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
+                String line;
+                while((line = in.readLine()) != null) { // response를 차례대로 출력
+                    System.out.println(line);
+                }
+            } catch(Exception e) {
+                // e.printStackTrace();
+            } finally {
+                if(in != null) try { in.close(); } catch(Exception e) { e.printStackTrace(); }
+            }
+    	}
+
+    	
+    	
+
+        
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
 }

@@ -98,7 +98,7 @@
           		<th colspan="2"  class="hit">입고지</th>
           		<td colspan="2"> 
 			      <input type="hidden" id="sCoCd"         name="sCoCd" >
-                  <input type="hidden" id="searchPrjctCd" name="searchMovePrdtCd" style="width: 76%;">
+                  <!-- <input type="hidden" id="searchPrjctCd" name="searchMovePrdtCd" style="width: 76%;"> -->
                   <input type="hidden" id="sWhType"       name="sWhType">
 	              <input type="hidden" id="transSeq"      name="transSeq">
 	              <input type="hidden" id="transAmt"      name="transAmt">
@@ -140,6 +140,16 @@
       		    <td colspan="2"> 
       			  <input type="text" id="searchMovePrdtSpec" name="searchMovePrdtSpec" readonly>
       		    </td>
+          	  </tr>
+          	  <tr>
+          	  	<th colspan= "2">프로젝트</th>
+                <td colspan="2"> 
+                    <div class="search_form">
+		              <input type="hidden" id="searchPrjctCd" value="0">
+		              <input type="text" id="searchPrjctNm" onkeyup="event.keyCode == 13 ? openSecondPrjctSearch('E') : ''"  readonly="readonly">
+		              <a onclick="openSecondPrjctSearch('E');"><i class="i_search_w"></i></a>
+		            </div>
+                </td>
           	  </tr>
           	</tbody>
           </table>      		
@@ -399,7 +409,7 @@
 			var mngPrdtLen = ''; 
 			if($('#sWhType').val() == "WHDIV01") {mngPrdtLen = 8;}
 			formData.mngPrdtLen = mngPrdtLen;
-			
+			console.log(formData);
 			putAjax("/user/sm/sm02/insertUpdateBarterStockMove", formData, null, function(data){
 				alert(data.resultMessage);           
 				gridView.setData(0);
@@ -443,6 +453,27 @@
 		return formData;
 	}
 
+	// 현장 검색
+	function openSecondPrjctSearch(type) {
+		var paramObj = {
+			"coCd"   : $("#searchDtlOutCoCd").val(), 
+			"clntCd" : "",
+			"clntNm" : "",
+			"prjctNm": ""
+		}
+		
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			if(type == "E") {
+				$("#searchPrjctCd").val(row.prjctCd);
+				$("#searchPrjctNm").val(row.prjctNm);
+			} else {
+				$("#arViewDiv #prjctCd_S").val(row.prjctCd);
+				$("#arViewDiv #prjctNm_S").val(row.prjctNm);
+			}
+		});
+	}
+	
 	//거래처 검색
 	function clntSearch() {
 		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {

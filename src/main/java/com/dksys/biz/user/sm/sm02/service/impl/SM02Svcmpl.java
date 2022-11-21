@@ -156,10 +156,11 @@ public class SM02Svcmpl implements SM02Svc {
 			containList.add("prdtSize");
 			containList.add("prdtSpec");
 			containList.add("prdtLen");
+			containList.add("clntCd");
 			
 			for(int i=0; i<containList.size(); i++) {
 				if(!detailMap.containsKey(containList.get(i))) {
-					detailMap.put(containList.get(i), "");
+					detailMap.put(containList.get(i), "0");
 				}
 			}
 			
@@ -268,7 +269,7 @@ public class SM02Svcmpl implements SM02Svc {
 			}			
 			sm02Mapper.sm01UpdateInsertBarterStockMove(detailMap);  // 신규 추가
 			sm02Mapper.sm02InsertBarterStockMove(detailMap);        // 재고이동 이력
-		// 	insertIfMesStockMove(detailMap);                        // MES If 입력   바터재고는 공장간 이동이 없으며 MES에서는 이미 생산하고 차감이 되었음으로 전송 필요 없음.
+			// 	insertIfMesStockMove(detailMap);                    // MES If 입력   바터재고는 공장간 이동이 없으며 MES에서는 이미 생산하고 차감이 되었음으로 전송 필요 없음.
 		}
 		return 200;
 		

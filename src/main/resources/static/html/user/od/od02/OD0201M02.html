@@ -219,7 +219,9 @@
 				<div class="add_btn_small pdl10">
 					비고작성 : <input type="text" id="edtetc" onkeyup="updateNoteText()"> 
 					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="updateNote();" authchk><i	class="fas fa-file-signature"></i>비고저장</a> 
-					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setSelectedRows();" authchk><i class="fas fa-file-signature"></i>선택정보</a> 
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="setSelectedRows();" authchk><i class="fas fa-file-signature"></i>선택정보</a>
+					<a style="height: 30px; line-height: 28px; width: 80px;" onclick="openClntChange();" authchk><i class="fas fa-exchange-alt"></i>거래처변경</a>
+					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="openSalesDivision();" authchk><i class="fas fa-divide"></i>매입분할</a> 
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="sellCal();" authchk><i class="fas fa-calculator"></i>매입정산</a>
 					<a style="height: 30px; line-height: 28px; width: 50px;" onclick="insertSellModal('U');" authchk><i	class="fas fa-window-close"></i>반입</a> 
 					<a style="height: 30px; line-height: 28px; width: 70px;" onclick="insertBilg(this);" authchk><i	class="fas fa-file-signature"></i>매입확정</a> 
@@ -823,70 +825,74 @@
 		if (type == 'CLNT') {
 			var fileName = "AR0201R05.jrf";
 			openSecondModal("/static/html/user/ar/ar02/AR0202P04.html", 600,
-					300, "거래처 일보 출력 선택", null, function(showYn, showYnRmk) {
-						var arg = "selPchCd#SELPCH1" + "#coCd#"
-								+ $('#coCd_S').val() + "#fromDt#"
-								+ $("#reqDtFrom").val().replace(/\-/g, '')
-								+ "#toDt#"
-								+ $("#reqDtTo").val().replace(/\-/g, '')
-								+ "#clntCd#" + $('#clntCd_S').val()
-								+ "#clntNm#" + $('#clntNm_S').val()
-								+ "#prdtGrp#" + $('#prdtGrp').val()
-								+ "#prdtDiv#" + $('#prdtDiv_S').val()
-								+ "#prdtDivNm#"
-								+ $('#prdtDiv_S option:selected').text()
-								+ "#estCoprt#" + $('#estCoprt_S').val()
-								+ "#estCoprtNm#"
-								+ $('#estCoprt_S option:selected').text()
-								+ "#dirtrsYn#" + $('#dirtrsYn_S').val()
-								+ "#siteCd#" + $('#siteCd_S').val()
-								+ "#siteNm#" + $('#siteNm_S').val() + "#typCd#"
-								+ $('#typCd_S').val() + "#typNm#"
-								+ $('#typCd_S option:selected').text()
-								+ "#bilg#" + $('#bilgYn_S').val() + "#impYn#"
-								+ $('#impYn').val() + "#showYn#" + showYn
-								+ "#showYnRmk#" + showYnRmk + "#dtKind#"
-								+ "#monthStDt#"	+ monthStDt
-								+ "sellDate" + "#";
+					300, "거래처 일보 출력 선택", null, function(showYn, showTotalYn, showMonthTotalYn, showYnRmk) {
+						var arg = "selPchCd#SELPCH1" 
+								+ "#coCd#"				+ $('#coCd_S').val() 
+								+ "#fromDt#"			+ $("#reqDtFrom").val().replace(/\-/g, '')
+								+ "#toDt#"				+ $("#reqDtTo").val().replace(/\-/g, '')
+								+ "#clntCd#" 			+ $('#clntCd_S').val()
+								+ "#clntNm#" 			+ $('#clntNm_S').val()
+								+ "#prdtGrp#" 			+ $('#prdtGrp').val()
+								+ "#prdtDiv#" 			+ $('#prdtDiv_S').val()
+								+ "#prdtDivNm#"			+ $('#prdtDiv_S option:selected').text()
+								+ "#estCoprt#" 			+ $('#estCoprt_S').val()
+								+ "#estCoprtNm#" 		+ $('#estCoprt_S option:selected').text()
+								+ "#dirtrsYn#" 			+ $('#dirtrsYn_S').val()
+								+ "#siteCd#" 			+ $('#siteCd_S').val()
+								+ "#siteNm#" 			+ $('#siteNm_S').val() 
+								+ "#typCd#"				+ $('#typCd_S').val() 
+								+ "#typNm#"				+ $('#typCd_S option:selected').text()
+								+ "#bilg#" 				+ $('#bilgYn_S').val() 
+								+ "#impYn#"				+ $('#impYn').val() 
+			         			+ "#showYn#"			+ showYn
+			         			+ "#showTotalYn#"		+ showTotalYn
+			         			+ "#showMonthTotalYn#"	+ showMonthTotalYn
+			         			+ "#showYnRmk#"			+ showYnRmk
+								+ "#monthStDt#"			+ monthStDt
+								+ "#dtKind#"			+ "sellDate" + "#";
 						callReport(fileName, arg, 1040, 720);
 					});
 
 		} else {
-			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html",	600,300,"거래처 일보 출력 선택",null,function(showClntSumYn, showPSClntYn, orderYn, rptName) {
+			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html",	600,300,"거래처 일보 출력 선택",null,function(showClntSumYn, showDaySumYn, showMonthSumYn, showTotalSumYn, showMonthTotalSumYn, showPSClntYn, orderYn, rptName){
 						var fileName = "AR0201R01.jrf";
 
 						if (showPSClntYn == "Y") {
 							var fileName = "AR0201R08.jrf";
 						}
 
-						var arg = "selPchCd#SELPCH1" + "#coCd#"
-								+ $('#coCd_S').val() + "#fromDt#"
-								+ $("#reqDtFrom").val().replace(/\-/g, '')
-								+ "#toDt#"
-								+ $("#reqDtTo").val().replace(/\-/g, '')
-								+ "#clntCd#" + $('#clntCd_S').val()
-								+ "#clntNm#" + $('#clntNm_S').val()
-								+ "#prdtGrp#" + $('#prdtGrp').val()
-								+ "#prdtDiv#" + $('#prdtDiv_S').val()
-								+ "#pdsk#" + $('#pdsk_S').val() + "#prdtDivNm#"
-								+ $('#prdtDiv_S option:selected').text()
-								+ "#estCoprt#" + $('#estCoprt_S').val()
-								+ "#monthStDt#"	+ monthStDt
-								+ "#estCoprtNm#"
-								+ $('#estCoprt_S option:selected').text()
-								+ "#dirtrsYn#" + $('#dirtrsYn_S').val()
-								+ "#siteCd#" + $('#siteCd_S').val()
-								+ "#siteNm#" + $('#siteNm_S').val() + "#typCd#"
-								+ $('#typCd_S').val() + "#typNm#"
-								+ $('#typCd_S option:selected').text()
-								+ "#bilg#" + $('#bilgYn_S').val() + "#impYn#"
-								+ $('#impYn').val() + "#sellClntCd#"
-								+ $('#sellClntCd').val() + "#sellClntNm#"
-								+ $('#sellClntNm').val() + "#trspRmk#"
-								+ $('#trspRmk_S').val() + "#showPSClntYn#"
-								+ showPSClntYn + "#orderYn#" + orderYn
-								+ "#rptName#" + rptName + "#showClntSumYn#"
-								+ showClntSumYn + "#dtKind#" + "sellDate" + "#";
+						var arg = "selPchCd#SELPCH1" 
+								+ "#coCd#" 					+ $('#coCd_S').val() 
+								+ "#fromDt#" 				+ $("#reqDtFrom").val().replace(/\-/g, '')
+								+ "#toDt#" 					+ $("#reqDtTo").val().replace(/\-/g, '')
+								+ "#clntCd#" 				+ $('#clntCd_S').val()
+								+ "#clntNm#" 				+ $('#clntNm_S').val()
+								+ "#prdtGrp#" 				+ $('#prdtGrp').val()
+								+ "#prdtDiv#" 				+ $('#prdtDiv_S').val()
+								+ "#pdsk#" 					+ $('#pdsk_S').val() 
+								+ "#prdtDivNm#"				+ $('#prdtDiv_S option:selected').text()
+								+ "#estCoprt#" 				+ $('#estCoprt_S').val()
+								+ "#monthStDt#"				+ monthStDt
+								+ "#estCoprtNm#" 			+ $('#estCoprt_S option:selected').text()
+								+ "#dirtrsYn#" 				+ $('#dirtrsYn_S').val()
+								+ "#siteCd#" 				+ $('#siteCd_S').val()
+								+ "#siteNm#" 				+ $('#siteNm_S').val() 
+								+ "#typCd#"					+ $('#typCd_S').val() 
+								+ "#typNm#"					+ $('#typCd_S option:selected').text()
+								+ "#bilg#" 					+ $('#bilgYn_S').val() 
+								+ "#impYn#"					+ $('#impYn').val() 
+								+ "#sellClntCd#" 			+ $('#sellClntCd').val() 
+								+ "#sellClntNm#" 			+ $('#sellClntNm').val() 
+								+ "#trspRmk#" 				+ $('#trspRmk_S').val() 
+				         		+ "#showPSClntYn#" 			+ showPSClntYn
+				         		+ "#orderYn#" 				+ orderYn
+				         		+ "#rptName#" 				+ rptName
+				         		+ "#showClntSumYn#"			+ showClntSumYn
+				         		+ "#showDaySumYn#"			+ showDaySumYn
+				         		+ "#showMonthSumYn#"		+ showMonthSumYn
+				         		+ "#showTotalSumYn#"		+ showTotalSumYn
+				         		+ "#showMonthTotalSumYn#"	+ showMonthTotalSumYn
+								+ "#dtKind#" 				+ "sellDate" + "#";
 						callReport(fileName, arg, 1040, 720);
 					});
 		}
@@ -985,6 +991,114 @@
 			paramObj.trstCertiNo = checkedObj.trstCertiNo;
 			openModal("/static/html/user/od/od02/OD0202P01.html", 700, 650,	"매입 등록", paramObj);
 			
+		}
+	}
+	
+	// 거래처변경 모달 오픈
+	function openClntChange(){
+		if(checkGridRow(subGridView.target, "multi")){
+			
+			var isValid = true;
+			var clntCd = null;
+			var clntNm = null;
+			
+			var selectedRows = subGridView.target.getList("selected");
+			$.each(selectedRows, function(idx, obj){
+				if(obj.bilgYn == "Y"){
+					alert("매출이 확정되지 않은건만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(obj.returnYn == "Y"){
+					alert("반품건은 변경이 불가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(clntCd != null && clntCd != obj.clntCd){
+					alert("동일한 거래처끼리만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				clntCd = obj.clntCd;
+				clntNm = obj.clntNm;
+			});
+			
+			if(isValid){
+				openModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 변경", {}, function (grid) {
+					var salesArr = [];
+					var selectedRows = subGridView.target.getList("selected");
+					var selectedClnt = grid.target.getList("selected")[0];
+					
+					if(confirm(clntNm +" 거래처를 " + selectedClnt.clntNm + " 거래처로 변경하시겠습니까?")){
+						for(var i=0;i<selectedRows.length;i++){
+							var selectedRow = selectedRows[i];
+							var salesObj = {
+								"trstCertiNo": selectedRow.trstCertiNo,
+								"clntCd": selectedClnt.clntCd,
+								"clntNm": selectedClnt.clntNm,
+								"userId": jwt.userId,
+								"updatePgmId": "OD0201M02"
+							}
+							salesArr.push(salesObj);
+						}
+						
+						putAjax("/user/ar/ar02/updateSalesClnt", salesArr, null, function(data){
+		 					alert(data.resultMessage);
+		 					if(data.resultCode == 200) {
+		 						subGridView.setData(0);
+		 					}
+		 				});
+					}
+				});
+			}
+		}
+	}	
+	
+	// 매출분할 모달 오픈
+	function openSalesDivision(){
+		if(checkGridRow(subGridView.target, "multi")){
+			var isValid = true;
+			var clntCd = null;
+			var prdtGrp = null;
+			
+			var selectedRows = subGridView.target.getList("selected");
+			$.each(selectedRows, function(idx, obj){
+				if(obj.bilgYn == "Y"){
+					alert("매입이 확정되지 않은건만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(clntCd != null && clntCd != obj.clntCd){
+					alert("동일한 거래처끼리만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(prdtGrp != null && prdtGrp != obj.prdtGrp){
+					alert("동일한 제품그룹끼리만 가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				if(obj.returnYn == "Y"){
+					alert("반품건은 분할이 불가능합니다.");
+					isValid = false;
+					return false;
+				}
+				
+				clntCd = obj.clntCd;
+				prdtGrp = obj.prdtGrp;
+				
+				obj.__selected__ = false;
+			});
+			
+			if(isValid){
+				openModal("/static/html/user/od/od02/OD0203P01.html", 1600, 800, "매입분할", {"selectedRows": selectedRows});
+			}
 		}
 	}
 	

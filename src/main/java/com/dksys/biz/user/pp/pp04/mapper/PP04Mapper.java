@@ -39,6 +39,34 @@ public interface PP04Mapper {
 	int deleteMesDetailList(Map<String, String> paramMap);
 	
 	int deleteSellTrst(Map<String, String> paramMap);
+
+	Map<String, Object> selectAr01MListLoadNo(Map<String, String> listMap);
+
+	void updateAr01M(Map<String, Object> listMap);
+
+	void insertAr01M(Map<String, String> listMap);
+
+	void insertShip(Map<String, String> map);
+
+	Map<String, String> selectSite(Map<String, String> map);
+
+	int selectMesMtrlRstlFirstCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectMesMtrlRstlFirstList(Map<String, String> paramMap);
+
+	Map<String, String> insertOrder(Map<String, String> map);
+
+	Map<String, String> insertOrderDetail(Map<String, String> map);
+
+	void insertShipDetail(Map<String, String> map);
+
+	Map<String, String> selectStockInfo(Map<String, String> stockMap);
+
+	Map<String, String> selectAr01MSeq();
+
+	List<Map<String, String>> daliyAccessList(Map<String, String> paramMap);
+
+	void updateMesErpFlag(Map<String, String> map);
 	
 	/*
 	 * 

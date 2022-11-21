@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
+import com.dksys.biz.exc.LogicException;
 import com.dksys.biz.user.od.od02.service.OD02Svc;
 import com.dksys.biz.util.MessageUtils;
 
@@ -34,5 +35,21 @@ public class OD02Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+    
+	@PostMapping(value = "/insertSalesDivision")
+    public String insertSalesDivision(@RequestBody List<Map<String, String>> paramList, ModelMap model) {
+		try {
+			od02Svc.insertSalesDivision(paramList);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("save"));
+		}catch(LogicException le) {
+			model.addAttribute("resultCode", 500);
+			model.addAttribute("resultMessage", le.getMessage());
+		}catch(Exception e) {
+			model.addAttribute("resultCode", 500);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
 	
 }

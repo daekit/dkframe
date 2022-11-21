@@ -2,139 +2,301 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.user.pp.pp04.mapper.PP04Mapper">
+
+	<select id="selectMesMtrlRstlFirstCount" parameterType="Map" resultType="int">		
+		SELECT COUNT(*) FROM (
+			SELECT T.ISS_DT, T.SITE_CD, T.SITE_NM
+						, SUM(T.PROD_WGT) AS PROD_WGT
+						, SUM(T.LOSS_WGT) AS LOSS_WGT
+						, SUM(T.ISS_WGT) AS ISS_WGT
+						, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
+						, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
+						FROM (
+			SELECT 
+						LOAD_ORG_NO
+						, ISS_DT
+						, SUM(PROD_WGT) AS PROD_WGT
+						, SUM(LOSS_WGT) AS LOSS_WGT
+						, SUM(ISS_WGT) AS ISS_WGT
+						, SITE_CD
+						, SITE_NM
+						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+						FROM (
+			
+							SELECT -- 납품대장 (발송완료) key : 일자+납품차수
+			--					   TO_CHAR(TO_DATE(LOAD.ISS_PLAN_DD, 'YYYYMMDD'), 'YY-MM-DD') AS ISS_PLAN_DD -- 출하예정일 (화면에서 일자항목)
+								 TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
+								 , ISS_SEQ_NO			-- 납품차수
+								 , BDTL.DIMS_CD
+								 , TB_DIMS.DIMS_CD_SEQ	
+								 , BITEM.PROD_WGT		-- 제품중량
+								 , BITEM.LOSS_WGT		-- 로스중량
+								 , BITEM.ISS_WGT			-- 출고중량 (화면:할증중량)
+								 , LOAD.NM_UNIT_PRICE	-- 일반단가
+								 , LOAD.EP_UNIT_PRICE	-- 내진단가
+								 , LOAD.REF_TEXT_IN		-- 비고
+								 , LOAD.REF_TEXT_PRT	-- 비고
+								 , LOAD.PROCESS_NM
+								 , VW_SITE_INFO.SITE_CD
+								 , VW_SITE_INFO.SITE_NM
+								 , LOAD.COMP_MOV_VAL	-- 운송비1
+								 , LOAD.COMP_MOV_VAL2	-- 운송비2
+								 , LOAD.COMP_MOV_VAL3	-- 운송비3
+								 , BITEM.LOSS_RATE		-- 철근할증(%)
+						         , LOAD.VEHL_NO
+						         , LOAD.LOAD_ORG_NO
+						         , LOAD.LOCK_FLAG
+						         , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
+							FROM 
+								
+									 ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_BARLIST_DTL BDTL
+								   , ${mesFtrCd}.TB_MES_BARLIST_ITEM BITEM
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ
+								   		   , CD_V AS DIMS_CODE
+									  FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD
+										   ,SITE_CD
+									   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
+									  WHERE USE_YN = 'Y') AS OUTSRC
+
+							WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
+							  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
+							  AND BDTL.BARLIST_NO = BITEM.BARLIST_NO
+							  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+							  AND LOAD.ISS_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
+							  AND LOAD.ERP_FLAG = #{erpFlag}
+							  <if test="siteNm != null and !siteNm.equals('')">
+							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  </if>
+							  <if test="siteCd != null and !siteCd.equals('')">
+							  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  </if>
+							  <if test="coCd != null and !coCd.equals('')">
+							  	AND VW_SITE_INFO.CO_CD = #{coCd}
+							  </if>
+			
+						)
+						GROUP BY ISS_DT, SITE_CD, SITE_NM, LOAD_ORG_NO
+						) T
+						GROUP BY ISS_DT, SITE_CD, SITE_NM
+						) A
+	</select>
+	
+	<select id="selectMesMtrlRstlFirstList" parameterType="Map" resultType="CamelMap">
+		SELECT L.*, #{mesFtrCd} AS MES_FTR_CD FROM (
+		SELECT ROWNUM RNUM, A.* FROM (
+			SELECT T.ISS_DT, T.SITE_CD, T.SITE_NM, T.ERP_FLAG
+						, SUM(T.PROD_WGT) AS PROD_WGT
+						, SUM(T.LOSS_WGT) AS LOSS_WGT
+						, SUM(T.ISS_WGT) AS ISS_WGT
+						, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
+						, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
+						FROM (
+			SELECT 
+						LOAD_ORG_NO
+						, ERP_FLAG
+						, ISS_DT
+						, SUM(PROD_WGT) AS PROD_WGT
+						, SUM(LOSS_WGT) AS LOSS_WGT
+						, SUM(ISS_WGT) AS ISS_WGT
+						, SITE_CD
+						, SITE_NM
+						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+						FROM (
+			
+							SELECT
+								 TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
+								 , ISS_SEQ_NO			-- 납품차수
+								 , BDTL.DIMS_CD
+								 , TB_DIMS.DIMS_CD_SEQ	
+								 , BITEM.PROD_WGT		-- 제품중량
+								 , BITEM.LOSS_WGT		-- 로스중량
+								 , BITEM.ISS_WGT			-- 출고중량 (화면:할증중량)
+								 , BITEM.LOSS_RATE		-- 철근할증(%)
+								 , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
+								 , LOAD.NM_UNIT_PRICE	-- 일반단가
+								 , LOAD.EP_UNIT_PRICE	-- 내진단가
+								 , LOAD.REF_TEXT_IN		-- 비고
+								 , LOAD.REF_TEXT_PRT	-- 비고
+								 , LOAD.PROCESS_NM
+								 , LOAD.VEHL_NO
+						         , LOAD.LOAD_ORG_NO
+						         , LOAD.ERP_FLAG
+						         , LOAD.COMP_MOV_VAL	-- 운송비1
+								 , LOAD.COMP_MOV_VAL2	-- 운송비2
+								 , LOAD.COMP_MOV_VAL3	-- 운송비3
+								 , VW_SITE_INFO.SITE_CD
+								 , VW_SITE_INFO.SITE_NM
+							FROM 
+							
+									 ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_BARLIST_DTL BDTL
+								   , ${mesFtrCd}.TB_MES_BARLIST_ITEM BITEM
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ
+								   		   , CD_V AS DIMS_CODE
+									  FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD
+										   ,SITE_CD
+									   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
+									  WHERE USE_YN = 'Y') AS OUTSRC
+								  
+							WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
+							  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
+							  AND BDTL.BARLIST_NO = BITEM.BARLIST_NO
+							  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+							  AND LOAD.ISS_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
+							  AND LOAD.ERP_FLAG = #{erpFlag}
+							  <if test="siteNm != null and !siteNm.equals('')">
+							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  </if>
+							  <if test="siteCd != null and !siteCd.equals('')">
+							  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  </if>
+							  <if test="coCd != null and !coCd.equals('')">
+							  	AND VW_SITE_INFO.CO_CD = #{coCd}
+							  </if>
+							  
+			
+						)
+						GROUP BY ISS_DT, SITE_CD, SITE_NM, LOAD_ORG_NO, ERP_FLAG
+						) T
+						GROUP BY ISS_DT, SITE_CD, SITE_NM, ERP_FLAG
+						) A
+						) L WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
 	
 	<select id="selectMesMtrlRstlCount" parameterType="Map" resultType="int">		
-	         SELECT  COUNT(*)
-	         FROM(		
-		         SELECT WORKS_CD, FAC_CD, ALLOC_VEHL_NO, BASE_DD,
-	                    MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD,
-	                    VEHL_NO, 
-	                    MTRL_CHG_CAUSE,
-	                    ERP_TRANS_YN,
-	                    (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM ,
-	                    SUM(LOSS_MTRL_WGT) LOSS_MTRL_WGT,
-	                    SUM( MTRL_WGT)MTRL_WGT
-		         FROM  KUMMUN.TB_MES_MTRL_RSLT A
-		         WHERE 1= 1 
-		         <if test= "mesFtrCd != null and !mesFtrCd.equals('')">
-		           AND WORKS_CD = #{mesFtrCd}
-		         </if>
-	               AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
-	               AND MTRL_CHG_CAUSE_CD = '8'
-	               <if test= "cfYn != null and !cfYn.equals('')">
-	               AND ERP_TRANS_YN = #{cfYn}
-	               </if>
-	               AND ALLOC_VEHL_NO IS NOT NULL
-	             GROUP BY WORKS_CD, FAC_CD, ALLOC_VEHL_NO,BASE_DD,
-	                      MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD, VEHL_NO, 
-	                      MTRL_CHG_CAUSE,ERP_TRANS_YN
-            )  
-	    <if test= "siteNm != null and !siteNm.equals('')">
-         WHERE SITE_NM  LIKE '%${siteNm}%'
-         </if>
+		SELECT COUNT(*) FROM
+		(
+		SELECT 
+			  DIMS_CD
+			, ORD_LENGTH
+			, NM_UNIT_PRICE
+			, SUM(PROD_WGT) AS PROD_WGT
+			, SUM(ISS_WGT) AS ISS_WGT
+			, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+			, SUM(NVL(COMP_MOV_VAL,0) + NVL(COMP_MOV_VAL2,0) + NVL(COMP_MOV_VAL3,0)) AS COMP_MOV_VAL
+			FROM (
+				SELECT
+					 BDTL.DIMS_CD
+ 					 , BDTL.ORD_LENGTH
+					 , BITEM.PROD_WGT		-- 제품 중량
+					 , BITEM.ISS_WGT		-- 할증 중량
+					 , BITEM.PROD_PCS_CNT 	-- 제품 수량
+					 , LOAD.NM_UNIT_PRICE	-- 일반단가
+					 , LOAD.COMP_MOV_VAL	-- 운송비1
+					 , LOAD.COMP_MOV_VAL2	-- 운송비2
+					 , LOAD.COMP_MOV_VAL3	-- 운송비3
+				FROM 
+				
+					   ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+					   , ${mesFtrCd}.TB_MES_BARLIST_DTL BDTL
+					   , ${mesFtrCd}.TB_MES_BARLIST_ITEM BITEM
+					   , ${mesFtrCd}.VW_SITE_INFO
+					   , (SELECT ROWNUM AS DIMS_CD_SEQ
+					   		   , CD_V AS DIMS_CODE
+						  FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+					   ,(SELECT CONT_CD
+							   ,SITE_CD
+						   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
+						  WHERE USE_YN = 'Y') AS OUTSRC
+					  
+					  
+				WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
+				  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
+				  AND BDTL.BARLIST_NO = BITEM.BARLIST_NO
+				  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+				  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+				  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+				  AND LOAD.LOAD_ORG_NO IN (${loadOrgNo})
+				  
+				  ) GROUP BY DIMS_CD, ORD_LENGTH, NM_UNIT_PRICE
+				  )
 	</select>
 
 	<select id="selectMesMtrlRstlList" parameterType="Map" resultType="CamelMap">
-	SELECT * FROM(
-      SELECT WORKS_CD, FAC_CD, ALLOC_VEHL_NO, BASE_DD,
-                MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD,
-                VEHL_NO, 
-                MTRL_CHG_CAUSE,
-                ERP_TRANS_YN,
-                (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '1' AND CUST_CD = A.CUST_CD) AS SITE_NM ,
-                (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = A.WORKS_CD AND CUST_TP = '3' AND CUST_CD = A.SUP_CUST_CD) AS SUP_CUST_NM,
-                (SELECT ODR_SEQ FROM TB_SD05M01_MES SD05M 
-                  INNER JOIN TB_SD04M01 SD04
-                          ON SD04.PRJCT_CD = SD05M.PRJCT_CD 
-                  WHERE SD05M.MES_FTR_CD = WORKS_CD AND  PRJCT_MES_CD = CUST_CD AND ROWNUM = 1) AS ODR_SEQ ,
-                SUM(LOSS_MTRL_WGT) LOSS_MTRL_WGT,
-                SUM( MTRL_WGT)MTRL_WGT
-         FROM  KUMMUN.TB_MES_MTRL_RSLT A
-         WHERE  1= 1 
-	         <if test= "mesFtrCd != null and !mesFtrCd.equals('')">
-	          AND  WORKS_CD = #{mesFtrCd}
-	         </if>
-              AND BASE_DD  BETWEEN #{reqDtFrom}  and  #{reqDtTo}
-              AND MTRL_CHG_CAUSE_CD = '8'
-              <if test= "cfYn != null and !cfYn.equals('')">
-              AND ERP_TRANS_YN = #{cfYn}
-              </if>
-              AND ALLOC_VEHL_NO IS NOT NULL
-            GROUP BY WORKS_CD, FAC_CD, ALLOC_VEHL_NO,BASE_DD,
-                     MTRL_CHG_CAUSE_CD, SUP_CUST_CD, CUST_CD, VEHL_NO, 
-                     MTRL_CHG_CAUSE,ERP_TRANS_YN
-        ) D
-        <if test= "siteNm != null and !siteNm.equals('')">
-        WHERE D.SITE_NM  LIKE '%${siteNm}%'
-        </if>
+		SELECT 
+			  DIMS_CD
+			, ORD_LENGTH
+			, NM_UNIT_PRICE
+			, SUM(PROD_WGT) AS PROD_WGT
+			, SUM(ISS_WGT) AS ISS_WGT
+			, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+			, SUM(NVL(COMP_MOV_VAL,0) + NVL(COMP_MOV_VAL2,0) + NVL(COMP_MOV_VAL3,0)) AS COMP_MOV_VAL
+			FROM (
+				SELECT
+					 BDTL.DIMS_CD
+ 					 , BDTL.ORD_LENGTH
+					 , BITEM.PROD_WGT		-- 제품 중량
+					 , BITEM.ISS_WGT		-- 할증 중량
+					 , BITEM.PROD_PCS_CNT 	-- 제품 수량
+					 , LOAD.NM_UNIT_PRICE	-- 일반단가
+					 , LOAD.COMP_MOV_VAL	-- 운송비1
+					 , LOAD.COMP_MOV_VAL2	-- 운송비2
+					 , LOAD.COMP_MOV_VAL3	-- 운송비3
+				FROM 
+				
+					   ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+					   , ${mesFtrCd}.TB_MES_BARLIST_DTL BDTL
+					   , ${mesFtrCd}.TB_MES_BARLIST_ITEM BITEM
+					   , ${mesFtrCd}.VW_SITE_INFO
+					   , (SELECT ROWNUM AS DIMS_CD_SEQ
+					   		   , CD_V AS DIMS_CODE
+						  FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+					   ,(SELECT CONT_CD
+							   ,SITE_CD
+						   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
+						  WHERE USE_YN = 'Y') AS OUTSRC
+					  
+					  
+				WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
+				  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
+				  AND BDTL.BARLIST_NO = BITEM.BARLIST_NO
+				  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+				  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+				  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+				  AND LOAD.LOAD_ORG_NO IN (${loadOrgNo})
+				  
+				  ) GROUP BY DIMS_CD, ORD_LENGTH, NM_UNIT_PRICE
 	</select>
 	<select id="selectMesAllocVehlDtlList" parameterType="Map" resultType="CamelMap">
-	    SELECT WORKS_CD,
-	           FAC_CD,
-			   ALLOC_VEHL_NO, 
-			   SUM(ORD_PACK_WGT) AS ORD_PACK_WGT, 
-			   BASE_DD,
-			   LOSS_RATE,
-			   CUST_CD, 
-			   CUST_NM, 
-			   ORD_COMP_CD,
-			   ORD_COMP_NM,
-			   DIMS_CD,
-			   PRODUCT_NAME_CD,
-			   VEHL_NO,
-			   ODR_SEQ,
-               ODR_DTL_SEQ
-	    FROM (
-		       SELECT  F.WORKS_CD, F.FAC_CD,
-					   F.ALLOC_VEHL_NO, 
-					   SUM(A.ORD_PACK_WGT) AS ORD_PACK_WGT, 
-					   F.ISS_DD AS BASE_DD,
-					   I.LOSS_RATE,
-					   H.CUST_CD, 
-					   H.CUST_NM, 
-					   H.ORD_COMP_CD,
-					   (SELECT CUST_NM FROM KUMMUN.TB_MES_CUST_INFO WHERE WORKS_CD = F.WORKS_CD AND FAC_CD = F.FAC_CD AND CUST_TP != '1' AND CUST_CD = H.ORD_COMP_CD) AS ORD_COMP_NM,
-					   G.DIMS_CD,
-				 	   E.ORD_NO,
-					   G.ORD_LINE_NO,
-					   D.REF_CD_2 AS PRODUCT_NAME_CD,
-					   F.VEHL_NO,
-					   (SELECT ODR_SEQ     FROM TB_SD04M01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO) AS ODR_SEQ,
-                       (SELECT ODR_DTL_SEQ FROM TB_SD04D01_MES WHERE MES_FTR_CD = F.WORKS_CD AND MES_ORD_NO = E.ORD_NO AND MES_ORD_LINE_NO = G.ORD_LINE_NO) AS ODR_DTL_SEQ
-			FROM   KUMMUN.TB_MES_ORD_ITEM A
-						JOIN KUMMUN.TB_MES_LOAD_ORG B   ON A.WORKS_CD = B.WORKS_CD AND A.FAC_CD = B.FAC_CD AND A.LOAD_ORG_NO = B.LOAD_ORG_NO
-						JOIN KUMMUN.TB_MES_ALLOC_VEHL F ON B.WORKS_CD = F.WORKS_CD AND B.FAC_CD = F.FAC_CD AND B.ALLOC_VEHL_NO = F.ALLOC_VEHL_NO
-						JOIN  ( SELECT MAX(EQP_CD) AS EQP_CD, TAG_NO, MAX(SCAN_NO) AS SCAN_NO, WORKS_CD, FAC_CD 
-						          FROM KUMMUN.TB_MES_PROD_RSLT 
-						          GROUP BY TAG_NO, WORKS_CD, FAC_CD
-							  ) C ON A.WORKS_CD = C.WORKS_CD AND A.FAC_CD =C.FAC_CD AND A.TAG_NO = C.TAG_NO
-						JOIN KUMMUN.TB_MES_CODE_DTL D  ON D.WORKS_CD = C.WORKS_CD AND D.FAC_CD = C.FAC_CD AND D.CD_TP   = 'EQP_CD'  AND D.CD_V = C.EQP_CD
-						JOIN KUMMUN.TB_MES_ORD_DTL G   ON A.WORKS_CD = G.WORKS_CD AND A.FAC_CD = G.FAC_CD AND A.ORD_NO  = G.ORD_NO  AND A.ORD_LINE_NO = G.ORD_LINE_NO 
-						JOIN KUMMUN.TB_MES_ORD_MST E   ON A.WORKS_CD = E.WORKS_CD AND A.FAC_CD = E.FAC_CD AND A.ORD_NO  = E.ORD_NO 
-						JOIN KUMMUN.TB_MES_CUST_INFO H ON E.WORKS_CD = H.WORKS_CD AND E.FAC_CD = H.FAC_CD AND E.CUST_CD = H.CUST_CD
-						LEFT OUTER JOIN KUMMUN.TB_MES_CUST_INFO_DTL I ON H.WORKS_CD = I.WORKS_CD AND H.FAC_CD = I.FAC_CD AND H.CUST_CD = I.CUST_CD AND G.DIMS_CD = I.DIMS_CD
-			WHERE A.WORKS_CD      = #{worksCd}
-			  AND F.ALLOC_VEHL_NO = #{allocVehlNo}
-			  AND H.CUST_CD       = #{custCd}
-			GROUP BY F.ALLOC_VEHL_NO, I.LOSS_RATE, H.CUST_CD, H.CUST_NM, H.ORD_COMP_CD, G.DIMS_CD,
-			         E.ORD_NO,G.ORD_LINE_NO, 
-			         D.REF_CD_2, F.WORKS_CD, F.FAC_CD, F.ISS_DD, F.VEHL_NO ) T
-	   GROUP BY  WORKS_CD,
-	           FAC_CD,
-			   ALLOC_VEHL_NO, 
-			   BASE_DD,
-			   LOSS_RATE,
-			   CUST_CD, 
-			   CUST_NM, 
-			   ORD_COMP_CD,
-			   ORD_COMP_NM,
-			   DIMS_CD,
-			   PRODUCT_NAME_CD,
-			   VEHL_NO,
-			   ODR_SEQ,
-               ODR_DTL_SEQ
-			ORDER BY ODR_SEQ,DIMS_CD
-			
+		SELECT DIMS_CD_SEQ
+		 	, MAX(DIMS_CD) AS DIMS_CD
+		 	, MTRL_CHG_CAUSE_CD
+		 	, SUM(MTRL_WGT) AS MTRL_WGT
+		 	, SUM(LOSS_MTRL_WGT) AS LOSS_MTRL_WGT
+				FROM (
+					SELECT MTRL.BASE_DD				-- 기준일자
+						, MTRL.MTRL_CHG_CAUSE_CD	-- 재고변동사유코드 (I:입고 ,O:재고, EI:재고이동입고, EO:재공이동출고)
+						, MTRL.DIMS_CD
+						, TB_DIMS.DIMS_CD_SEQ
+						, MTRL.MTRL_WGT			-- 소재중량(이론중량)
+						, MTRL.LOSS_MTRL_WGT		-- 로스율감안중량(할증중량)
+						, VW_SITE_INFO.SITE_CD
+						, VW_SITE_INFO.SITE_NM FROM ${mesFtrCd}.TB_MES_MTRL_RSLT AS MTRL
+						, ${mesFtrCd}.VW_SITE_INFO
+						, (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+						, (SELECT CONT_CD, SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+					
+							WHERE MTRL.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								AND MTRL.SITE_CD = OUTSRC.SITE_CD(+)
+								AND MTRL.DIMS_CD = TB_DIMS.DIMS_CODE(+)				   
+								AND MTRL.BASE_DD  <![CDATA[ <= ]]>  SYSDATE				   
+								AND MTRL.SITE_CD = #{siteCd}
+								AND VW_SITE_INFO.USE_YN = 'Y'
+								)
+		GROUP BY DIMS_CD_SEQ, MTRL_CHG_CAUSE_CD
+		ORDER BY DIMS_CD_SEQ, MTRL_CHG_CAUSE_CD 
+
 	</select> 
 	<update id="updateMesMtrlRslt" parameterType="Map">
 		UPDATE KUMMUN.TB_MES_MTRL_RSLT
@@ -145,55 +307,9 @@
 	</update>
 	
 	<select id="selectAr01MList" resultType="CamelMap">
-	SELECT CO_CD
-		 , REQ_DT
-		 , CLNT_CD
-		 , SHIP_SEQ
-		 , PRJCT_CD
-		 , MAKR_CD
-		 , WH_CD
-		 , TYP_CD
-		 , OWNER_CD
-		 , IMP_YN
-		 , SALES_AREA_CD
-		 , MNG_TEL
-		 , TO_CHAR(DLVR_DTTM, 'YYYYMMDD') DLVR_DTTM
-		 , DIRTRS_YN
-		 , DLVR_RMK
-		 , ADDR_ZIP
-		 , ADDR_MAIN
-		 , ADDR_SUB
-		 , SHIP_RMK
-		 , SHIP_TOT_QTY
-		 , SHIP_TOT_WT
-		 , SHIP_TOT_AMT
-		 , REAL_TOT_QTY
-		 , REAL_TOT_WT
-		 , REAL_TOT_AMT
-		 , TRANS_AMT
-		 , ODR_SEQ
-		 , ORDRG_SEQ
-		 , SALES_MNG
-		 , RECPT_YN
-		 , SHIP_YN
-		 , SHIP_PROC_ID
-		 , TO_CHAR(SHIP_DTTM, 'YYYYMMDD') SHIP_DTTM
-		 , ODR_CREAT_DIV
-		 , ETC_FIELD1
-		 , ETC_FIELD2
-		 , ETC_FIELD3
-		 , CREAT_ID
-		 , CREAT_PGM
-		 , CREAT_DTTM
-		 , UDT_ID
-		 , UDT_PGM
-		 , UDT_DTTM
-		 , SITE_CD
-		 , ALLOC_VEHL_NO
-		 , TRANS_SEQ
-		 , TAXIVC_COPRT 
-	  FROM TB_AR01M01
-	WHERE SHIP_SEQ = #{shipSeq}
+	SELECT * 
+		FROM TB_AR01M01
+			WHERE SHIP_SEQ = #{shipSeq}
 	</select>
 	
 	<select id="selectAr01DList" resultType="CamelMap">
@@ -792,5 +908,249 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 													       AND ODR_CREAT_DIV = 'MES')	
        AND CREAT_PGM = #{pgmId}
     </delete>
+	
+	<select id="selectAr01MListLoadNo" resultType="CamelMap">
+	SELECT *
+	  FROM TB_AR01M01
+	WHERE LOAD_ORG_NO = #{loadOrgNo}
+	</select>
+	
+	<update id="updateAr01M" parameterType="Map">
+		UPDATE TB_AR01M01 SET SHIP_TOT_QTY = #{출하요청총수량}, SHIP_TOT_WT = #{출하요청총중량}, SHIP_TOT_AMT = #{출하요청총금액}, REAL_TOT_QTY = #{실출하총수량}, REAL_TOT_WT = #{실출하중량}, REAL_TOT_AMT = #{실출하총금액}, TRANS_AMT = #{운송비}, SHIP_YN = 'N', SHIP_PROC_ID = NULL, SHIP_DTTM = NULL,UDT_ID = #{userId}, UDT_PGM = #{pgmId},UDT_DTTM = SYSDATE, SHIP_CNT = SHIP_CNT + 1  
+	</update>
+	
+	<insert id="insertAr01M" parameterType="Map">
+		INSERT INTO TB_AR01M01 VALUES(@@ = @@)
+	</insert>
+	
+	<insert id="insertShip" parameterType="Map">
+		INSERT INTO TB_AR01M01
+		(
+			CO_CD,
+            REQ_DT,
+            CLNT_CD,
+            SHIP_SEQ,
+            PRJCT_CD,
+            WH_CD,
+            TYP_CD,
+            OWNER_CD,
+            SALES_AREA_CD,
+            MNG_TEL,
+            DLVR_DTTM,
+            REAL_DLVR_DTTM,
+            DIRTRS_YN,
+            DLVR_RMK,
+            ADDR_ZIP,
+            ADDR_MAIN,
+            ADDR_SUB,
+            SHIP_RMK,
+            SHIP_TOT_QTY,
+            SHIP_TOT_WT,
+            SHIP_TOT_AMT,
+            REAL_TOT_QTY,
+            REAL_TOT_WT,
+            REAL_TOT_AMT,
+            TRANS_AMT,
+            TRANS_SEQ,
+            ODR_SEQ,
+            ORDRG_SEQ,
+            SALES_MNG,
+            SALES_DEPT,
+            SHIP_YN,
+            ODR_CREAT_DIV,
+            CREAT_ID,
+            CREAT_PGM,
+            CREAT_DTTM,
+            UDT_ID,
+            UDT_PGM,
+            UDT_DTTM,
+            SITE_CD,
+            ALLOC_VEHL_NO,
+            TAXIVC_COPRT,
+            SHIP_CNT,
+            LOAD_ORG_NO
+	    ) 
+	    VALUES
+	    (
+	    	#{coCd},
+			TO_CHAR(SYSDATE, 'YYYYMMDD'),
+			#{clntCd},
+			#{shipSeq},
+			#{prjctCd},
+			#{whCd},
+			'SELLTYPE2', 	<!-- #{typCd}, 판매유형 가공 고정 -->
+			'OWNER1', 		<!-- #{ownerCd}, 재고 주체 자사 고정 -->
+			'SALESAREA99',	<!-- #{salesAreaCd}, 판매지역 전국 고정 -->
+			#{telNo}, 		<!-- #{mngTel}, -->
+			#{issDt}, 		<!-- #{dlvrDttm}, -->
+			#{issDt},		<!-- #{realDlvrDttm}, -->
+			'N', 			<!-- #{dirtrsYn}, 직송여부 N고정 -->	<!-- 수정필요 현재 안됨 : 직송여부 -->
+			NULL, 			<!-- #{dlvrRmk}, 비고 고정 -->
+			#{siteAddrZip},	<!-- #{addrZip}, -->
+			#{siteAddr},	<!-- #{addrMain}, -->
+			#{siteAddrSub},	<!-- #{addrSub}, -->
+			NULL,			<!-- #{shipRmk}, 비고 고정 -->
+			#{totQty},		<!-- #{shipTotQty}, -->
+			#{totWt},		<!-- #{shipTotWt}, -->
+			#{totAmt}, 		<!-- #{shipTotAmt}, -->
+			#{totQty},
+			#{totWt},	
+			#{totAmt}, 		<!-- #{realTotAmt}, -->
+			'0',			<!-- #{transAmt}, 운송비 0원 고정 -->
+			NULL, 			<!-- #{transSeq}, 운송번호 NULL 고정 -->
+			#{odrSeq},
+			#{ordrgSeq},
+			#{salesEmpNm},			<!-- #{salesMng}, -->
+			(SELECT DEPT_ID FROM TB_CM06M01 WHERE ID = #{salesEmpId}),
+			'N',
+			'MES',
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{siteCd,  jdbcType=VARCHAR},
+			#{vehlNo},
+			(SELECT CODE_ETC FROM TB_CM05M01 WHERE USE_YN='Y' AND CODE_KIND='WH' AND CODE_ID = #{whCd}),		<!-- #{taxivcCoprt,  jdbcType=VARCHAR}, -->
+			1, <!-- NVL(#{shipCnt,  jdbcType=VARCHAR},1) 운송차수 1 고정 -->
+			#{loadOrgNoGroup}
+	    )
+	</insert>
+	
+	<select id="selectSite" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			  A.*
+			, NAME AS SALES_EMP_NM
+			FROM 
+			(
+				SELECT 
+					  SD09.*
+					, FN_BM02_MNG_ID(SD09.CO_CD, SD09.CLNT_CD) AS SALES_EMP_ID 
+					FROM 
+						TB_SD09M01 SD09
+						WHERE SD09.SITE_CD = #{siteCd}
+			) A
+			LEFT OUTER JOIN TB_CM06M01 CM06
+			ON CM06.ID = A.SALES_EMP_ID
+	</select>
+	
+	<select id="insertOrder" resultType="CamelMap">
+		SELECT TB_SD04M01_SQ01.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="insertOrderDetail" resultType="CamelMap">
+		SELECT TB_SD04D01_SQ01.NEXTVAL FROM DUAL
+	</select>
+		
+	<insert id="insertShipDetail" parameterType="Map">
+		<selectKey keyProperty="shipDtlSeq" resultType="String" order="BEFORE">
+			SELECT TB_AR01D01_SQ01.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TB_AR01D01
+		(
+			SHIP_SEQ,
+            SHIP_DTL_SEQ,
+            PRDT_CD,
+            PRDT_UNIT,
+            PRDT_LEN,
+            SHIP_QTY,
+            SHIP_WT,
+            BD_CNT,
+            SHIP_UPR,
+            SHIP_AMT,
+            PCHS_UPR,
+            SELL_UPR,
+            STOCK_UPR,
+            PRDT_UPR,
+            SHIP_YN,
+            SHIP_PROC_ID,
+            SHIP_DTTM,
+            REAL_SHIP_QTY,
+            REAL_SHIP_WT,
+            REAL_SHIP_UPR,
+            REAL_SHIP_AMT,
+            SHIP_VEH_NO,
+            SHIP_DTL_RMK,
+            ORDRG_DTL_SEQ,
+            ODR_DTL_SEQ,
+            CREAT_ID,
+            CREAT_PGM,
+            CREAT_DTTM,
+            UDT_ID,
+            UDT_PGM,
+            UDT_DTTM,
+            PRDT_SIZE,
+            PRDT_SPEC,
+            IMP_YN,
+            MAKR_CD
+	    ) 
+	    VALUES
+	    (
+	    	#{shipSeq},
+			#{shipDtlSeq},
+			#{prdtCd},
+			#{prdtUnit, jdbcType=VARCHAR},
+			#{ordLength}, <!-- #{prdtLen,  jdbcType=VARCHAR}, -->
+			#{prodPcsCnt}, <!-- #{shipQty} -->
+			#{issWgt}, <!-- #{shipWt} -->
+			0, <!-- #{bdCnt} -->
+			#{shipUpr}, <!-- #{shipUpr} -->
+			#{totAmt}, <!-- #{shipAmt} -->
+			#{shipUpr}, <!-- #{pchsUpr} -->
+			#{shipUpr}, <!-- #{sellUpr} -->
+			#{stockUpr}, <!-- #{stockUpr} -->
+			#{shipUpr},
+			'N',
+			NULL, <!-- #{shipProcId} -->
+			#{issDt}, <!-- #{shipDttm} -->
+			#{prodPcsCnt}, <!-- #{realShipQty} -->
+			#{issWgt}, <!-- #{realShipWt} -->
+			#{shipUpr}, <!-- #{realShipUpr} -->
+			#{totAmt}, <!-- #{realShipAmt} -->
+			NULL, <!-- #{shipVehNo} -->
+			NULL, <!-- #{shipDtlRmk} -->
+			NULL, <!-- #{ordrgDtlSeq} -->
+			NULL, <!-- #{odrDtlSeq} -->
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{userId},
+			#{pgmId},
+			SYSDATE,
+			#{prdtSize,  jdbcType=VARCHAR},
+			#{prdtSpec,  jdbcType=VARCHAR},
+			#{impYn},
+			#{makrCd}
+	    )
+	</insert>
+	
+	<select id="selectStockInfo" parameterType="Map" resultType="CamelMap">
+		SELECT 
+			BM01.*
+			, DECODE(BM01.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N', BM01.PRDT_CD, '', ''), 0)) AS SHIP_UPR
+			, NVL(FN_SM01_UPR_FROM_PRDT_CD('GUM',BM01.PRDT_CD), 0) AS STOCK_UPR 
+				FROM 
+					TB_BM01M01 BM01 
+						WHERE PRDT_MES_CD = #{dimsCd}
+	</select>
+	
+	<select id="selectAr01MSeq" resultType="CamelMap">
+		SELECT TB_AR01M01_SQ01.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="daliyAccessList" parameterType="Map" resultType="CamelMap">
+	     SELECT *
+       		FROM MES_KMCN_DEV.TB_MCM_SEC_SSESIONS
+			WHERE CREATION_TIMESTAMP BETWEEN TO_CHAR(SYSDATE, 'YYYY/MM/DD') AND TO_CHAR(SYSDATE+1,'YYYY/MM/DD')
+	</select>
+	
+	<update id="updateMesErpFlag" parameterType="Map">
+		UPDATE 
+			${mesFtrCd}.TB_MES_LOAD_ORG
+				SET
+					ERP_FLAG = #{erpUpdateFlag}
+						WHERE LOAD_ORG_NO IN (${loadOrgNo})
+	</update>
 	
 </mapper>

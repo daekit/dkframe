@@ -21,6 +21,7 @@ import com.dksys.biz.user.ar.ar01.mapper.AR01Mapper;
 import com.dksys.biz.user.ar.ar01.service.AR01Svc;
 import com.dksys.biz.user.ar.ar02.mapper.AR02Mapper;
 import com.dksys.biz.user.ar.ar02.service.AR02Svc;
+import com.dksys.biz.user.pp.pp04.mapper.PP04Mapper;
 import com.dksys.biz.user.sd.sd04.mapper.SD04Mapper;
 import com.dksys.biz.user.sd.sd07.mapper.SD07Mapper;
 import com.dksys.biz.user.sd.sd08.mapper.SD08Mapper;
@@ -54,6 +55,9 @@ public class AR01SvcImpl implements AR01Svc {
     
     @Autowired
     BM01Mapper bm01Mapper;
+    
+    @Autowired
+    PP04Mapper pp04Mapper;
     
     @Autowired
     AR01Svc ar01Svc;
@@ -144,6 +148,53 @@ public class AR01SvcImpl implements AR01Svc {
 
 	@Override
 	public int deleteShip(Map<String, String> paramMap) {
+		
+		Map<String, String> ar01Map = pp04Mapper.selectAr01MList(paramMap);
+		
+		if(ar01Map.containsKey("loadOrgNo")) {
+			
+			ar01Map.put("ERP_UPDATE_FLAG", "N");
+			String loadOrgNo = "";
+			String loadOrgNoGroup = MapUtils.getString(ar01Map, "loadOrgNo");
+			String factoryCode = loadOrgNoGroup.substring(0, 1);
+			String mesFtrCd = "";
+			
+			
+			
+			if(factoryCode.equals("C")) {
+				mesFtrCd = "MES_KMCN";
+			}else if(factoryCode.equals("N")) {
+				mesFtrCd = "MES_KMIC";
+			}else if(factoryCode.equals("J")) {
+				mesFtrCd = "MES_KMJC";
+			}
+			
+			
+/*
+			if(factoryCode.equals("C")) {
+				mesFtrCd = "MES_KMCN_DEV";
+			}else if(factoryCode.equals("N")) {
+				mesFtrCd = "MES_KMIC_DEV";
+			}else if(factoryCode.equals("J")) {
+				mesFtrCd = "MES_KMJC_DEV";
+			}
+*/			
+			
+			String[] loadOrgNoList = loadOrgNoGroup.split(",");
+			for(int l = 0; l < loadOrgNoList.length; l++) {
+				loadOrgNo += "'" + loadOrgNoList[l] + "'";
+				
+				if(l != loadOrgNoList.length-1) {
+					loadOrgNo += ",";
+				}
+			}
+			
+			ar01Map.put("MES_FTR_CD", mesFtrCd);
+			ar01Map.put("LOAD_ORG_NO", loadOrgNo);
+			
+			pp04Mapper.updateMesErpFlag(ar01Map);
+		}
+		
 		int result = ar01Mapper.deleteShip(paramMap);
 		result += ar01Mapper.deleteShipDetail(paramMap);
 		return result;

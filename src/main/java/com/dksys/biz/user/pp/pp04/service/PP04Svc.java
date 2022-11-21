@@ -21,6 +21,12 @@ public interface PP04Svc {
 	
 	int deleteMesShipList(Map<String, Object> param);
 
+	int selectMesMtrlRstlFirstCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectMesMtrlRstlFirstList(Map<String, String> paramMap);
+
+	List<Map<String, String>> daliyAccessList(Map<String, String> paramMap);
+
 	
 	
 	/*

@@ -68,7 +68,7 @@
 		    	<a onclick="initSearch();">
 		          <button class="bg_gray">초기화</button>
 		        </a>
-		        <a onclick="gridView.setData(0);">
+		        <a onclick="gridFirstView.setData(0);">
 		          <button class="bg_gray">검 색</button>
 		        </a>
 	        </li>
@@ -80,43 +80,50 @@
 	            <!-- 테이블 인풋 3분할 -->
 	            <table class="table_input type03">
 	              <tr>
-	              	<th class= "hit">회사</th>
+	              	<th class= "hit">회사</th>동국제강포항공장
 	                <td>
-	                 	<select id="coCd_S" data-kind="CO" onchange="gridView.setData(0);" required="required" msg="회사">
-	                 		<option value="">전체</option>
+	                 	<select id="coCd_S" data-kind="CO" onchange="gridFirstView.setData(0);" required="required" msg="회사">
+	                 		<!-- <option value="">전체</option> -->
 	                 	</select>
 	                </td>
 	                <th class= "hit">기간</th>
 	                <td>
 	                    <div class="date_input">
-	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation();" required="required" msg="조회시작일자">
+	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation(); gridFirstView.setData(0);" required="required" msg="조회시작일자">
 	                      <span>~</span>
-	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off" onchange="dateValidation();" required="required" msg="조회종료일자">
+	                      <input type="text" id="reqDtTo" class="input_calendar" autocomplete="off" onchange="dateValidation(); gridFirstView.setData(0);" required="required" msg="조회종료일자">
 	                    </div>
 	                </td>
 	              <tr>
 	              	<th class= "hit">창고구분</th>
 	                <td>
-	                 	<select id="mesFtrCd" data-kind="MESFTR" onchange="gridView.setData(0);" required="required" msg="창고구분">
-	                 		<option value="">전체</option>
+	                 	<select id="mesFtrCd" onchange="gridFirstView.setData(0);" required="required" msg="창고구분">
+	                 		<option value="MES_KMCN">창녕공장</option>
+	                 		<option value="MES_KMIC">인천공장</option>
+	                 		<option value="MES_KMJC">진천공장</option>
+	                 		
+	                 		<!-- 
+	                 		<option value="MES_KMCN_DEV">개발계_창녕공장</option>
+	                 		<option value="MES_KMIC_DEV">개발계_인천공장</option>
+	                 		<option value="MES_KMJC_DEV">개발계_진천공장</option>
+	                 		 -->
 	                 	</select>
 	                </td>
 	              	<th>현장</th>
 	                <td>
 		              <div class="search_form" style="width: 43%;">
 								<input type="hidden" id="siteCd">
-								<input type="text"   id="siteNm" > 
+								<input type="text"   id="siteNm" onkeyup="if(event.keyCode != 13){resetSiteCd()}; event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? gridFirstView.setData(0) : ''; "> 
 								<a onclick="openSiteSearch();">	<i class="i_search_w"></i>
 								</a>
 				  	  </div>
 	                </td>
 	 	           	<th>확정여부</th>
 	                <td>
-	                 	<select id="cfYn_S" data-kind="YN">
-	                 		<option value="">전체</option>
+	                 	<select id="erpFlag" data-kind="YN" onchange="gridFirstView.setData(0);">
 	                 	</select>
-	                </td>               
-	                
+	                </td>
+	              
 	              </tr>
 	            </table>
 	        </div>
@@ -129,30 +136,40 @@
 			<div class="contents_tit">
    				<ul class="btn_ul">
 					<li class="btn_r">
-						<!-- <a onclick="viewCplrUntpcModal('U');" style="float:right; margin-left:5px">
-							<button type="button" class="bg_gray">세금계산서 관리</button>
-						</a>  -->
-						<a onclick="insertMesShip();" style="float:right; margin-left:5px" authchk>
-							<button type="button" class="bg_gray">매출반영</button>
-						</a> 
-						<a onclick="deleteMesShip();" style="float:right; margin-left:5px" authchk>
-							<button type="button" class="bg_gray">매출반영취소</button>
-						</a> 
+					<!-- 
+						<a onclick="deleteMesShip();" style="float:right; margin-left:5px; display:none" authchk>
+							<button type="button" class="bg_gray">출하요청서 삭제</button>
+						</a>
+					 --> 
+						<a onclick="insertMesShip();" style="float:right; margin-left:5px; display:none" authchk>
+							<button type="button" class="bg_gray">출하요청서 생성</button>
+						</a>
 					</li>
 				</ul>
-         
+				<select class="prae_select" data-search="recordCnt" id="recordCnt" onchange="gridFirstView.setData(0);">
+					<option value="10">10</option>
+					<option value="20">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999" selected>전체</option>
+				</select>
 			</div>
 		</div>
 	  <!-- 콘텐츠 -->
+	  <div class="contents">
+	      <div class="ax5_grid">
+	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 350px; width: 100%" ></div>
+	      </div>
+	    </div>
+	    
 	    <div class="contents">
 	      <div class="ax5_grid">
-	        <!-- 리스트 -->
-	        <div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 250px; width: 100%" ></div>
+	        <div data-ax5grid="second-grid" data-ax5grid-config="{}" style="height: 350px; width: 100%" ></div>
 	      </div>
-	    </div>           
+	    </div>
+	    
         <div class="contents">
-			<!-- 리스트 -->	               
-	        <div data-ax5grid="detail-grid" data-ax5grid-config="{}" style="height: 300px; width: 100%" ></div>
+	        <div data-ax5grid="stock-grid" data-ax5grid-config="{}" style="height: 300px; width: 100%" ></div>
 	    </div>
 	</div>
 		
@@ -167,88 +184,134 @@
 	var openFrom = null;
 	var firstGrid = null;
 	var secondGrid = null;
+	var stockGrid = null;
+	
+	var gridFirstView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			    	showRowSelector: true,
+			    	multipleSelect: true,
+			    	sortable: true,
+			        target: $('[data-ax5grid="first-grid"]'),
+			        header: {
+			        	align: "center",
+			        	selector: true
+			        },
+			        body: { 
+			        	onClick: function () {
+			                this.self.select(this.dindex); 
+			                // var row = gridView.target.getList("selected")[0];
+			                gridView.setData(this.dindex);
+						    gridDetailView.setData(this.dindex);
+			            },
+			            onDBLClick: function () {
+			            	//viewShipModal();
+			            },
+			        },
+			        page: {
+			            navigationItemCount: 9,
+			            height: 30,
+			            display: true,
+			            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+			            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+			            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+			            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+			            onChange: function () {
+			            	gridFirstView.setData(this.page.selectPage);
+			            }
+			        },
+			        columns: [
+			        	{key: "erpFlag",   label: "생성여부", 	align: "center",	width: 80},
+			        	{key: "loadOrgNoGroup",  label: "상차지시번호", 	align: "center",	hidden: true},
+			        	{key: "mesFtrCd",  	label: "공장번호", 	align: "center",	hidden: true},
+			        	{key: "siteNm",  	label: "현장명", 		align: "center",	width: 180},
+			        	{key: "issDt",   	label: "출하일자",   	align: "center",  	width: 80},
+			            {key: "prodPcsCnt", label: "총 제품 수량",	align: "right", 	width: 100,	formatter: "money" },
+			            {key: "issWgt",   	label: "총 제품 중량",	align: "right", 	width: 100,	formatter: "money" },
+			            
+			        ]
+			    });
+				return this;
+			}, 
+			setData: function(_pageNo) {
+				firstGrid = this.target;
+				
+				var formData = {
+					"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+					"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+					"coCd" : $("#coCd_S").val(),
+					"erpFlag" : $("#erpFlag").val(),
+					"siteNm" : $("#siteNm").val(),
+					"mesFtrCd" : $("#mesFtrCd").val(),
+					"pageNo" : _pageNo + 1, 
+					"recordCnt" : $("#recordCnt").val()
+				}
+				postAjax("/user/pp/pp04/selectMesMtrlRstlFirstList", formData, null, function(data){
+					var list = data.resultList;
+					firstGrid.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				    gridDetailView.setData(0);
+				});
+			}
+		}
 	
 	var gridView = {
 		initView: function(){
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
-		    	showRowSelector: true,
-		    	multipleSelect: true,
+		    	// showRowSelector: true,
+		    	// multipleSelect: true,
 		    	sortable: true,
-		        target: $('[data-ax5grid="first-grid"]'),
+		        target: $('[data-ax5grid="second-grid"]'),
 		        header: {
 		        	align: "center",
 		        	selector: false
 		        },
 		        body: { 
 		        	onClick: function () {
-		                this.self.select(this.dindex); 
+		                /*
+		        		this.self.select(this.dindex); 
+		                var row = gridView.target.getList("selected")[0];
+		                console.log(row);
 					    gridDetailView.setData(this.dindex);
+					    */
 		            },
 		            onDBLClick: function () {
 		            	//viewShipModal();
 		            },
 		        },
-		        page: {
-		            navigationItemCount: 9,
-		            height: 30,
-		            display: true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	gridView.setData(this.page.selectPage);
-		            }
-		        },
 		        columns: [
-		        	{key: "erpTransYn",   label: "이관",   align: "center",  width: 50},
-		          	{key: "worksCd",      label: "공장",   align: "center",  width: 40},
-		            {key: "supCustNm",    label: "발주처",  align: "left",   width: 140},
-		            {key: "baseDd",       label: "배차일자", align: "center", width: 90},
-		        	{key: "siteNm",       label: "현장",   align: "left",    width: 240},
-		            {key: "vehlNo",       label: "차량",   align: "left",    width: 120},
-		          	{key: "mtrlWgt",      label: "수량",   align: "right",   width: 80, formatter: "money" },
-		            {key: "mtrlChgCause", label: "변경사유", align: "center", width: 80},		       
-		            {key: "allocVehlNo",  label: "배차번호", align: "center", width: 120}, 	       
-		            {key: "odrSeq",       label: "주문번호", align: "center", width: 100},       	
+		        	// {key: "lockFlag",   label: "생성여부", 	align: "center",	width: 80},
+		        	// {key: "issDt",   	label: "일자",   		align: "center",  	width: 80},
+		        	// {key: "siteNm",   	label: "현장명",   	align: "center",  	width: 180},
+		            {key: "dimsCd",  	label: "자재",  		align: "center",   	width: 80},
+		            {key: "ordLength",  label: "제품길이",		align: "right",  	width: 100,	formatter: "money" },
+		            {key: "prodPcsCnt", label: "제품수량",		align: "right", 	width: 100,	formatter: "money" },
+		            {key: "issWgt",   	label: "제품중량",		align: "right", 	width: 100,	formatter: "money" },
+		        	// {key: "lossWgt",   	label: "로스중량",		align: "right",   	width: 100,	formatter: "money" },
+		            // {key: "issWgt",   	label: "할증중량",		align: "right",  	width: 100,	formatter: "money" },
+		            // {key: "refTextIn", 	label: "비고(내부)", 	align: "left", 		width: 220},
+		            // {key: "refTextPrt",	label: "비고(외부)", 	align: "left", 		width: 220},
 		        ]
 		    });
 			return this;
 		}, 
-		setData: function(_pageNo) {
-			firstGrid = this.target;
-			var mesFtrCd = "";
-			if($("#mesFtrCd").val() != ""){
-				mesFtrCd = $('#mesFtrCd option:selected').data("etc");
-			}
+		setData: function(_dindex) {
+			secondGrid = this.target;
+			var row = gridFirstView.target.getList()[_dindex];
+			row.mesFtrCd = $("#mesFtrCd").val();
 			
-			var formData = {
-				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
-				"coCd" : $("#coCd_S").val(),
-				"cfYn" : $("#cfYn_S").val(),
-				"siteNm" : $("#siteNm").val(),
-//				"mesFtrCd" : $("#mesFtrCd").val(),
-//				"mesFtrCd" : $('#mesFtrCd option:selected').data("etc"),
-				"mesFtrCd" : mesFtrCd,
-// 				"searchType" : $("#searchType").val(),
-// 				"searchValue" : $("#searchValue").val(),
-				"pageNo" : _pageNo + 1, 
-				"recordCnt" : $("#recordCnt").val()
-			}
-			postAjax("/user/pp/pp04/selectMesMtrlRstlList", formData, null, function(data){
+			postAjax("/user/pp/pp04/selectMesMtrlRstlList", row, null, function(data){
 				var list = data.resultList;
-				firstGrid.setData({
-					list : list,
-					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
-					}
-				});
-			    gridDetailView.setData(0);
+				secondGrid.setData(list);
 			});
 		}
 	}
@@ -257,14 +320,14 @@
 			initView: function(){
 				this.target = new ax5.ui.grid();
 				this.target.setConfig({
-					target: $('[data-ax5grid="detail-grid"]'),
+					target: $('[data-ax5grid="stock-grid"]'),
 				//	showRowSelector: true,
 		        	multipleSelect: false,
-		        	header: {align: "center", 
-			        	selector: false},
+		        	header: {align: "center", selector: false},
 					body: {
 			        	onClick: function () {
-			                this.self.select(this.dindex);
+			                // this.self.select(this.dindex);
+			                
 			            },
 			            onDBLClick: function () {
 			            	//openClntDetail("U");
@@ -278,49 +341,41 @@
 				    	]
 				    ],
 		            columns: [
-		                {key: "allocVehlNo",   label: "배차번호", 	   width: 100,		align: "center"},
-		                {key: "vehlNo", 	   label: "차량", 	   width: 100,		align: "left"},
-		                {key: "custNm",        label: "현장", 	   width: 200,		align: "left"},
-		                {key: "dimsCd", 	   label: "자재", 	   width: 100,		align: "left"},
-		                {label: "영업오더",  columns:[
-		                     {key: "odrSeq", 	   label: "오더",    width: 100,		align: "left"},
-		                     {key: "odrDtlSeq",    label: "행번",    width:  50,		align: "left"},
-		                ]},		                
-		            	{key: "worksCd",       label: "공장",   	   width: 40,		align: "center"},
-		                {key: "ordPackWgt",	   label: "출하량", 	   width:  90,		align: "right", formatter: "money"},
-//		                {key: "lossRate",	   label: "Loss율",     width: 60,		align: "right", formatter: "money"},
-		                {key: "ordCompCd", 	   label: "업체코드", 	   width:  60,		align: "center"},
-		                {key: "ordCompNm", 	   label: "업체명", 	   width:  100,		align: "left"},
-		                {label: "MES오더",  columns:[
-                             {key: "ordNo", 	       label: "오더", 	   width: 80,		align: "left"},		                	
-		                     {key: "ordLineNo", 	   label: "행번",  width: 50,		align: "left"},
-		                ]},
-		                {key: "productNameCd", label: "제품명", 	   width: 60,		align: "left"},
-		                {key: "facCd",	       label: "MES공장거래처코드",		width: 95,		align: "center", hidden : true},
-		                {key: "custCd", 	   label: "현장코드", 	   width: 90, 	    align: "right", hidden : true},
+		            	{label: "재고 현황",  columns:[
+			                {key: "dimsCd", 	   label: "자재", 	   width: 80,		align: "center"},              
+			            	{key: "mtrlChgCauseCd",label: "입출고",      width: 100,		align: "center", formatter: "transType"},
+			                {key: "mtrlWgt",	   label: "출하량", 	   width: 100,		align: "center", formatter: "money"},
+			                {key: "lossMtrlWgt",   label: "Loss량",	   width: 100,		align: "center", formatter: "money"},
+		                ]}
 		            ]
 				});
 				return this;
 			},
 			setData : function(_dindex) {
-			    secondGrid = this.target;	
-				row = gridView.target.getList();			
-				if(row.length > 0){
-					var formData = {
-							"worksCd"     : row[_dindex].worksCd,
-							"allocVehlNo" : row[_dindex].allocVehlNo,
-							"custCd"      : row[_dindex].custCd
-						}
-					postAjax("/user/pp/pp04/selectMesAllocVehlDtlList", formData, null, function(data){
-						var list = data.resultList;
-						secondGrid.setData(list);
-					});
-				}
+			    stockGrid = this.target;
+				var row = gridFirstView.target.getList()[_dindex];
+				row.mesFtrCd = $("#mesFtrCd").val();
+				
+				postAjax("/user/pp/pp04/selectMesAllocVehlDtlList", row, null, function(data){
+					var list = data.resultList;
+					stockGrid.setData(list);
+				});
 			}
 		}
 	
 	
 	$(document).ready(function() {
+		
+		ax5.ui.grid.formatter["bilgYn"] = function () {
+			var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
+			return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
+		};
+		
+		ax5.ui.grid.formatter["transType"] = function () {
+			var text = this.value == "I" ? "입고" : "출고";
+			return text;
+		};
+		
 		//순서 맨 처음
 		mainDefaultLoad("매출관리", "MES 출하실적 전송");
 		setCommonSelect($("#main_area select[data-kind]"));
@@ -334,8 +389,9 @@
 		});
 		
 		// grid init
-		gridView.initView().setData(0);
-		gridDetailView.initView()
+		gridFirstView.initView().setData(0);
+		gridView.initView();
+		gridDetailView.initView();
 		authChk();
 	})
 	
@@ -354,42 +410,45 @@
 	
 
 	function insertMesShip() {
-		var list = gridView.target.getList("selected");
+		
+		var list = gridFirstView.target.getList("selected");
 		var odrSeqArr = [];
 		var allocVehlNoArr = [];
-		console.log(list);
-		var rowLength = gridView.target.getList("selected").length;
+		var rowLength = gridFirstView.target.getList("selected").length;
 		var flag = 0;
+		
 		if(rowLength == 0) {
-			alert("매출 반영할 데이터를 선택해 주세요.");
+			alert("출하요청서를 생성할 데이터를 선택해 주세요.");
 			return;
 		}
+		
+		if(!confirm("출하요청서를 생성하시겠습니까?")){
+			return;
+		}
+		
 		$.each(list, function(idx, obj){
-			if(obj.erpTransYn == 'Y'){
+			if(obj.erpFlag == 'Y'){
 				flag = 1;
 			}
-			if(!obj.odrSeq){
-				flag = 2;
-			}
 		});
+		
 		if(flag == 1){
-			alert("이미 생성된 건이 있습니다.");
+			alert("이미 출하요청서 생성된 건이 있습니다.");
 			return;
 		}
-		if(flag == 2){
-			alert("주문 번호를 확인 해 주세요.");
-			return;
-		}
+		
 		var formData = {
 				"list" : list,
 				"userId" : jwt.userId,
 				"userNm" : jwt.userNm,
 				"pgmId" : "PP0401M01"
 		}
+		
 		postAjax("/user/pp/pp04/insertMesShipList", formData, null, function(data){
 			alert(data.resultMessage);
-			gridView.setData(0);
+			gridFirstView.setData(0);
 		});
+		
 	}
 	
 	function deleteMesShip() {
@@ -448,4 +507,67 @@
 		gridDetailView.initView().setData(0);
 		
 	}
+	
+	
+	function accessListSubmit(){
+		
+		var formData = {
+				"userId" : jwt.userId,
+				"userNm" : jwt.userNm,
+				"pgmId" : "PP0401M01"
+		}
+		
+		postAjax("/user/pp/pp04/daliyAccessList", formData, null, function(data){
+			var list = data.resultList;
+			
+			if(list != null){
+				
+				for(var i=0; i<list.length; i++){
+					
+					var accessTime = list[i].firstAccessTime;
+					accessTime = accessTime.substring(0,4)+"-"+accessTime.substring(4,6)+"-"+accessTime.substring(6,8)+" "+accessTime.substring(8,10)+":"+accessTime.substring(10,12)+":"+accessTime.substring(12,14)+".000";
+					
+					var accessUser = list[i].userId;
+
+					var param = {
+						'crtfcKey' 		: "$5$API$y3q3QB1tkSn00x7LNc4Cu9kdL.zboDeV4V8AwFFT/RA",
+						'logDt' 		: accessTime,
+						'useSe' 		: "접속",
+						'sysUser' 		: accessUser,
+						'conectIp' 		: "61.97.190.240",
+						'dataUsgqty'	: "0"
+					};
+					
+					$.ajax({
+					    type : "POST",
+					    url : "https://log.smart-factory.kr/apisvc/sendLogData.json",
+					    cache : false,
+					    timeout : 360000,
+					    data : param,
+					    dataType : "json",
+					    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+					    beforeSend : function() {
+					    },
+					    success : function(data, textStatus, jqXHR) {
+					        var result = data.result;
+					        console.log(result);  // <-- 전송 결과 확인
+					    },
+					    error : function(jqXHR, textStatus, errorThrown) {
+					    },
+					    complete : function() {
+					    }
+					});
+					
+				}
+				
+			}
+			
+			
+			
+			
+			
+			
+		});
+	}
+	
 </script>
