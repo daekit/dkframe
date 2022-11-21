@@ -114,7 +114,7 @@ public class PP04Svcmpl implements PP04Svc {
 			List<Map<String, String>> stockListMap = pp04Mapper.selectMesMtrlRstlList(listMap.get(i));
 			
 			// 현장, 날짜에 따른 강종/길이별 데이터를 for문 돌면서 출하요청서 상세 테이블에 INSERT 
-			// 109번라인에서 추출한 새로 만들 출하요청서 시퀀스도 같이 입력
+			// 새로 추출한 새로운 출하요청서 시퀀스도 같이 입력
 			for(Map<String, String> stockMap : stockListMap) {
 				Map<String, String> stockInfo = pp04Mapper.selectStockInfo(stockMap);
 				listMap.get(i).putAll(stockMap);
