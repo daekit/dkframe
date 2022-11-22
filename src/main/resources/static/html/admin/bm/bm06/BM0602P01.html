@@ -389,7 +389,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr name="pldgHead">
+					<tr name="pldgHead" id="pldgBtnGroup">
 						<td colspan="14">
 							<div class="add_btn">
 								<a onclick="addPldgRow();" authchk>+</a> 
@@ -578,7 +578,12 @@
 	                {
 						key:"fileDelete", label: "삭제", width:60,
 						formatter:function() {
-							return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');" authchk>삭제</button>'
+							var authInfo = jwt.authInfo;
+							if(authInfo.indexOf("AUTH003") != -1){
+								return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');" authchk>삭제</button>'
+							}else{
+								return null;
+							}
 						}
 					}
 	            ]
@@ -690,6 +695,11 @@
 // 			addBizdeptRow();
 // 		}
 		
+		var authInfo = jwt.authInfo;
+		if(authInfo.indexOf("AUTH003") == -1){
+			$('#pldgBtnGroup').remove();	
+		}
+		
 		// 담보내역 set
 		var pldgList = clntInfo.pldgList;
 		if(pldgList.length > 0){
@@ -697,7 +707,13 @@
 				var $pldgRow = addPldgRow();
 				for(var i=0;i<$pldgRow.find('[name]').length;i++){
 					var pldgItem = $pldgRow.find('[name]')[i];
+
+					if(authInfo.indexOf("AUTH003") == -1){
+						$(pldgItem).attr("disabled",true);
+					}
+					
 					var itemValue = obj[pldgItem.name];
+					
 					if(itemValue){
 						if($(pldgItem).is('[date]')){
 							$(pldgItem).datepicker("setDate", moment(itemValue, 'YYYY-MM-DD').toDate());
@@ -1028,7 +1044,7 @@
 	function countTot() {
 		var pldgTotAmt = 0;
 		var cdtlnTotAmt = 0;
-		debugger;
+		
 		
 		$.each($('#pldgTable tr[name="pldgRow"]'), function(idx, elem){
 			var pldgAmt = Number(deleteCommaStr($(elem).find('input[name="pldgAmt"]').val())) || 0;
