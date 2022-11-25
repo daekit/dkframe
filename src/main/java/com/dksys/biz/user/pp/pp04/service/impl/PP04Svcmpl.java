@@ -67,6 +67,7 @@ public class PP04Svcmpl implements PP04Svc {
 		String userId = String.valueOf(paramMap.get("userId"));
 		String userNm = String.valueOf(paramMap.get("userNm"));
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String issDt = String.valueOf(paramMap.get("issDt"));
 		
 		List<Map<String,String>> listMap = (List<Map<String,String>>)paramMap.get("list");
 		for(int i = 0; i < listMap.size(); i++) {
@@ -75,7 +76,7 @@ public class PP04Svcmpl implements PP04Svc {
 			Integer totQtyM = 0;
 			Integer totWtM = 0;
 			
-			listMap.get(i).put("issDt", "20"+MapUtils.getString(listMap.get(i), "issDt"));
+			listMap.get(i).put("issDt", issDt);
 			listMap.get(i).put("userId", userId);
 			listMap.get(i).put("loginId", userId);
 			listMap.get(i).put("userNm", userNm);
@@ -119,7 +120,10 @@ public class PP04Svcmpl implements PP04Svc {
 				Map<String, String> stockInfo = pp04Mapper.selectStockInfo(stockMap);
 				listMap.get(i).putAll(stockMap);
 				listMap.get(i).putAll(stockInfo);
-				Integer issWgt = MapUtils.getInteger(listMap.get(i), "issWgt");
+				
+				// 중량도 개수와 동일하기 1:1로 변경하도록 수정
+				// Integer issWgt = MapUtils.getInteger(listMap.get(i), "issWgt");
+				Integer issWgt = MapUtils.getInteger(listMap.get(i), "prodPcsCnt");
 				Integer prodPcsCnt = MapUtils.getInteger(listMap.get(i), "prodPcsCnt");
 				// Integer shipUpr = MapUtils.getInteger(listMap.get(i), "prdtUpr");
 				Integer shipUpr = MapUtils.getInteger(listMap.get(i), "shipUpr");
