@@ -21,7 +21,7 @@
 					AND CLNT_NM LIKE '%${clntNm}%'	
 				</if>
 				<if test="baseDt != null and !baseDt.equals('')">
-					AND INST_DT <![CDATA[<=]]> #{baseDt}
+					AND TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
 				</if>	
 	</select>
 	
@@ -32,7 +32,7 @@
 				, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM
 				, TAXIVC_COPRT
 				, FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM
-				, TO_CHAR(INST_DT, 'YYYY-MM-DD') AS INST_DT
+				, TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS INST_DT
 				, CLNT_CD
 				, CLNT_NM
 				, REPST_NM
@@ -62,8 +62,9 @@
 					AND CLNT_NM LIKE '%${clntNm}%'	
 				</if>
 				<if test="baseDt != null and !baseDt.equals('')">
-					AND INST_DT <![CDATA[<=]]> #{baseDt}
+					AND TO_CHAR(TO_DATE(INST_DT,'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
 				</if>	
+			ORDER BY INST_DT
 	</select>
 	
 	<!-- 부실채권 TB_AR14M01 테이블 INSERT -->
@@ -96,7 +97,7 @@
 						#{coCd}
 						<!-- , #{prdtGrp} -->
 						, #{taxivcCoprt}
-						, #{instDt}
+						, TO_CHAR(TO_DATE(#{instDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
 						, #{clntCd}
 						, #{clntNm}
 						, #{repstNm}
@@ -113,6 +114,42 @@
 						, #{debtNo}
 					)
 	</insert>
+	
+	<!-- 부실채권 TB_AR14M01 테이블 UPDATE -->
+	<update id="updateDebt" parameterType="Map">
+			UPDATE
+				TB_AR14M01
+					SET
+						  CO_CD 		= #{coCd}
+						, TAXIVC_COPRT 	= #{taxivcCoprt}
+						, INST_DT 		= TO_CHAR(TO_DATE(#{instDt}, 'YYYY-MM-DD'), 'YYYYMMDD')
+						, CLNT_CD 		= #{clntCd}
+						, CLNT_NM 		= #{clntNm}
+						<if test='repstNm != null and repstNm != ""'>
+						, REPST_NM 		= #{repstNm}
+						</if>
+						<if test='crn != null and crn != ""'>
+						, CRN 			= #{crn}
+						</if>
+						<if test='mngCd != null and mngCd != ""'>
+						, MNG_CD 		= #{mngCd}
+						</if>
+						<if test='mngNm != null and mngNm != ""'>
+						, MNG_NM 		= #{mngNm}
+						</if>
+						<if test='mngTel != null and mngTel != ""'>
+						, MNG_TEL 		= #{mngTel}
+						</if>
+						, ASSORT_CD 	= #{assortCd}
+						, DEBT_AMT 		= #{debtAmt}
+						<if test='debtRmk != null and debtRmk != ""'>
+						, DEBT_RMK 		= #{debtRmk}
+						</if>
+						, UDT_ID 		= #{userId}
+						, UDT_PGM 		= #{pgmId}
+					WHERE 
+						  DEBT_NO 		= #{debtNo}
+	</update>
 	
 	<!-- 부실채권 TB_AR14M01 테이블 COUNT -->
 	<select id="selectDebtGroupCount" resultType="int">
@@ -154,7 +191,7 @@
 						AND CLNT_NM LIKE '%${clntNm}%'	
 					</if>
 					<if test="baseDt != null and !baseDt.equals('')">
-						AND INST_DT <![CDATA[<=]]> #{baseDt}
+						AND TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
 					</if>	
 				) GROUP BY CO_CD, TAXIVC_COPRT, CLNT_CD, CLNT_NM, REPST_NM, CRN	
 				) T
@@ -175,8 +212,11 @@
 			, REPST_NM 
 			, CRN 
 			, NVL(SUM(DEBT_AMT),0) AS DEBT_AMT 
-			, NVL(SUM(REPAY_AMT),0) AS REPAY_AMT
-			, NVL(SUM(DEBT_AMT),0) - NVL(SUM(REPAY_AMT),0) AS BALANCE
+			, NVL(SUM(REPAY_AMT1),0) AS REPAY_AMT1
+			, NVL(SUM(REPAY_AMT2),0) AS REPAY_AMT2
+			, NVL(SUM(REPAY_AMT3),0) AS REPAY_AMT3
+			, NVL(SUM(REPAY_AMT4),0) AS REPAY_AMT4
+			, NVL(SUM(DEBT_AMT),0) - NVL(SUM(REPAY_AMT1),0) - NVL(SUM(REPAY_AMT2),0) - NVL(SUM(REPAY_AMT3),0) - NVL(SUM(REPAY_AMT4),0) AS BALANCE
 			FROM (
 				SELECT
 					  CO_CD 
@@ -186,7 +226,10 @@
 					, REPST_NM
 					, CRN
 					, DECODE(ASSORT_CD, 'ASSORTCD1', DEBT_AMT) AS DEBT_AMT
-					, DECODE(ASSORT_CD, 'ASSORTCD2', DEBT_AMT) AS REPAY_AMT
+					, DECODE(ASSORT_CD, 'ASSORTCD2', DEBT_AMT) AS REPAY_AMT1
+					, DECODE(ASSORT_CD, 'ASSORTCD3', DEBT_AMT) AS REPAY_AMT2
+					, DECODE(ASSORT_CD, 'ASSORTCD4', DEBT_AMT) AS REPAY_AMT3
+					, DECODE(ASSORT_CD, 'ASSORTCD5', DEBT_AMT) AS REPAY_AMT4
 			  	 FROM TB_AR14M01
 			  	 WHERE 1=1 
 					<if test="coCd != null and !coCd.equals('')">
@@ -202,7 +245,7 @@
 						AND CLNT_NM LIKE '%${clntNm}%'	
 					</if>
 					<if test="baseDt != null and !baseDt.equals('')">
-						AND INST_DT <![CDATA[<=]]> #{baseDt}
+						AND TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
 					</if>	
 				) GROUP BY CO_CD, TAXIVC_COPRT, CLNT_CD, CLNT_NM, REPST_NM, CRN
 				) T
@@ -212,5 +255,34 @@
 	<delete id="deleteDebt" parameterType="Map">
 		DELETE FROM TB_AR14M01 WHERE DEBT_NO = #{debtNo} 
 	</delete>
+	
+	<resultMap id="resultInfoMap" type="CamelMap">
+		<collection select="selectClntFileList" property="CLNT_FILE_LIST" column="{fileTrgtKey=DEBT_NO}" ofType="CamelMap"/>
+	</resultMap>
+	
+	<select id="selectDebtInfo" parameterType="Map" resultMap="resultInfoMap">
+		SELECT 
+			  TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS TRST_DT
+			, CLNT_CD
+			, CLNT_NM
+			, REPST_NM
+			, CRN
+			, MNG_NM
+			, ASSORT_CD
+			, DEBT_AMT
+			, DEBT_RMK
+			, USE_YN
+			, DEBT_NO
+			, CO_CD
+			, PRDT_GRP
+			, TAXIVC_COPRT
+			, MNG_CD
+			, MNG_TEL
+				FROM TB_AR14M01 WHERE DEBT_NO = #{debtNo}
+	</select>
+	
+	<select id="selectClntFileList" resultType="CamelMap">
+		SELECT * FROM TB_CM08M01 WHERE FILE_TRGT_TYP = 'TB_AR14M01' AND FILE_TRGT_KEY = ${fileTrgtKey} ORDER BY CREAT_DTTM DESC
+	</select>
 	
 </mapper>	

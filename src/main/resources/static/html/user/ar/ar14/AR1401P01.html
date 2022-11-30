@@ -1,7 +1,11 @@
+<style>
+	input[comma] {text-align: right;}
+</style>
 <div id="arViewDiv" class="popup_area of_a" style="width: 100%; height: 100%;">
 	<div class="popup_table">
 		<form id="popForm">
 			<table>
+			<input type="file" id="clntFile" style="display:none" multiple="multiple" onchange="setClntFile(this);"/>
 				<colgroup>
 					<col width="15%">
 					<col width="">
@@ -16,6 +20,7 @@
 					<th class="hit">거래처</th>
 					<td>
 						<div class="search_form">
+							<input type="hidden" id="debtNo" name="debtNo">
 							<input type="hidden" id="clntCd" name="clntCd" msg="거래처" required>
 							<input type="text" id="clntNm" name="clntNm" readonly>
 							<a onclick="openSecondClntSearch();"><i class="i_search_w"></i></a>
@@ -30,7 +35,7 @@
 					
 					<th class="hit">기준일자</th>
 					<td>
-						<input type="text" class="input_calendar" id="trstDt" name="instDt" autocomplete="off" msg="기준일자" required>
+						<input type="text" class="input_calendar" id="trstDt" name="instDt" autocomplete="off" msg="기준일자" required date>
 					</td>
 					<!-- 
 					<th>제품그룹</th>
@@ -46,12 +51,15 @@
 					<td>
 						<select id="assortCd" name="assortCd" data-kind="ASSORTCD" msg="구분" required>
 							<option value="ASSORTCD1">부채발생</option>
-							<option value="ASSORTCD2">채권회수</option>
+							<option value="ASSORTCD2">현금회수</option>
+							<option value="ASSORTCD3">출자전환</option>
+							<option value="ASSORTCD4">대손처리</option>
+							<option value="ASSORTCD5">기타</option>
 						</select>
 					</td>
 					<th class="hit">금액</th>
 					<td>
-						<input type="text" class="tr" name="debtAmt" value="0" onkeyup="onlyNumber(this); if(this.value == ''){this.value = '0'}  countAmt(this);" comma minus msg="금액" required>
+						<input type="text" class="tr" name="debtAmt" id="debtAmt" value="0" onkeyup="onlyNumber(this); if(this.value == ''){this.value = '0'}  countAmt(this);" minus msg="금액" required comma>
 					</td>
 				</tr>
 				<tr>
@@ -87,8 +95,99 @@
 			</table>
 			<input type="hidden" id="userId" name="userId">
 			<input type="hidden" id="pgmId" name="pgmId" value="AR1401P01">
+			<table class="popup_table">
+				<colgroup>
+					<col width="12%">
+					<col width="">
+				</colgroup>
+				<thead>
+					<tr>
+						<td style="text-align: left;">첨부파일</td>
+						<td style="text-align: right;">
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th>
+							<button type="button" class="btn btn-primary btn-sm" style="height: 25px; line-height: 15px;" onclick="clntFile.click();">첨부파일</button>
+						</th>
+						<td>
+							<div data-ax5grid="file-grid" data-ax5grid-config="{}" style="height: 150px; width: 100%"></div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<table id="pldgFrameTable" style="display: none;">
+				<tbody><tr name="pldgRow">
+					<td>
+				 		<input type="hidden" id="pldgSn" name="pldgSn">
+						<input type="checkbox" name="pldgChkBox">
+					</td>
+					<td>
+				 		<select class="form-control input-sm" name="coCd" data-kind="CO">
+				 			<option value="">선택</option>
+				 		<option value="GUM" data-rprc="DKTST001" data-etc="1" data-desc="회사코드" data-dz-code="1000">금문철강(주)</option><option value="GGM" data-rprc="DKTST001" data-etc="5" data-desc="회사코드" data-dz-code="3000">(주)지지엠</option><option value="GGS" data-rprc="DKTST001" data-etc="7" data-desc="회사코드" data-dz-code="2000">지지스틸(주)</option></select>
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" id="selpchCd" name="selpchCd" data-kind="SELPCH">
+				 			<option value="">선택</option>
+				 		<option value="SELPCH1" data-rprc="undefined" data-etc="1" data-desc="매입매출구분" data-dz-code="undefined">매입</option><option value="SELPCH2" data-rprc="undefined" data-etc="2" data-desc="매입매출구분" data-dz-code="undefined">매출</option></select>
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="prdtGrp" data-kind="PRDTGRP">
+				 			<option value="">선택</option>
+				 		<option value="PRDTGRP1" data-rprc="undefined" data-etc="undefined" data-desc="철근,형강,철판 등" data-dz-code="undefined">철제품</option><option value="PRDTGRP2" data-rprc="undefined" data-etc="undefined" data-desc="건축자재, 시멘트,몰탈등" data-dz-code="undefined">건자재</option><option value="PRDTGRP3" data-rprc="undefined" data-etc="undefined" data-desc="관납 운반비,보관료 등" data-dz-code="undefined">관수</option><option value="PRDTGRP4" data-rprc="undefined" data-etc="undefined" data-desc="임가공" data-dz-code="undefined">임가공</option><option value="PRDTGRP99" data-rprc="undefined" data-etc="undefined" data-desc="기타" data-dz-code="undefined">기타제품</option></select>
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="pldgChgCd" data-kind="PLDGCHG">
+				 			<option value="">선택</option>
+				 		<option value="PLDGCHG01" data-rprc="undefined" data-etc="undefined" data-desc="신규생성" data-dz-code="undefined">신규</option><option value="PLDGCHG02" data-rprc="undefined" data-etc="undefined" data-desc="담보 증액" data-dz-code="undefined">증액</option><option value="PLDGCHG03" data-rprc="undefined" data-etc="undefined" data-desc="담보 감액" data-dz-code="undefined">감액</option><option value="PLDGCHG04" data-rprc="undefined" data-etc="undefined" data-desc="한도조정" data-dz-code="undefined">한도조정</option><option value="PLDGCHG05" data-rprc="undefined" data-etc="undefined" data-desc="팀장임시 설정" data-dz-code="undefined">팀장임시</option><option value="PLDGCHG06" data-rprc="undefined" data-etc="undefined" data-desc="본부장임시 지정" data-dz-code="undefined">본부장임시</option><option value="PLDGCHG07" data-rprc="undefined" data-etc="undefined" data-desc="오류정정" data-dz-code="undefined">오류정정</option><option value="PLDGCHG08" data-rprc="undefined" data-etc="undefined" data-desc="담보 조건조정" data-dz-code="undefined">조건조정</option><option value="PLDGCHG09" data-rprc="undefined" data-etc="undefined" data-desc="담보 재품의" data-dz-code="undefined">제품의</option><option value="PLDGCHG10" data-rprc="undefined" data-etc="undefined" data-desc="보증서" data-dz-code="undefined">보증서</option></select>
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="pldgDivCd" data-kind="PLDG">
+				 			<option value="">선택</option>
+				 		<option value="PLDG04" data-rprc="undefined" data-etc="undefined" data-desc="담보" data-dz-code="undefined">개별신용</option><option value="PLDG03" data-rprc="undefined" data-etc="undefined" data-desc="담보" data-dz-code="undefined">공통신용</option><option value="PLDG05" data-rprc="undefined" data-etc="undefined" data-desc="담보" data-dz-code="undefined">현금</option><option value="PLDG02" data-rprc="undefined" data-etc="undefined" data-desc="담보" data-dz-code="undefined">보증서</option><option value="PLDG01" data-rprc="undefined" data-etc="undefined" data-desc="담보" data-dz-code="undefined">부동산</option><option value="PLDG99" data-rprc="undefined" data-etc="undefined" data-desc="담보" data-dz-code="undefined">기타</option></select>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="pldgAmt" oninput="onlyNumber(this); calCdtlnAmt(this); countTot();" onblur="onlyNumber(this); calCdtlnAmt(this); countTot();" comma="">
+				 		<input type="hidden" class="form-control tr" name="pldgRcognRate" value="100">
+				 	</td>
+<!-- 				 	<td> -->
+<!-- 				 		<input type="text" class="form-control" name="cdtlnAmt" comma readOnly> -->
+<!-- 				 	</td> -->
+				 	<td>
+				 		<input type="text" class="input_calendar" autocomplete="off" name="setupDt" date="" style="text-align: center;">
+				 	</td>
+				 	<td>
+				 		<input type="text" class="input_calendar" autocomplete="off" name="exprtnDt" date="" style="text-align: center;">
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="pldgRmk" maxlength="127">
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="grntyInsttCd" data-kind="INSTT" msg="보증기관">
+				 			<option value="">선택</option>
+				 		<option value="INSTT01" data-rprc="undefined" data-etc="undefined" data-desc="은행보증" data-dz-code="undefined">은행보증</option><option value="INSTT02" data-rprc="undefined" data-etc="undefined" data-desc="신용보증기금" data-dz-code="undefined">신용보증기금</option><option value="INSTT03" data-rprc="undefined" data-etc="undefined" data-desc="서울보증보험" data-dz-code="undefined">서울보증보험</option><option value="INSTT04" data-rprc="undefined" data-etc="undefined" data-desc="매출채권보험" data-dz-code="undefined">매출채권보험</option><option value="INSTT99" data-rprc="undefined" data-etc="undefined" data-desc="기타보증업체" data-dz-code="undefined">기타</option></select>
+				 	</td>
+				 	<td>
+				 		<select class="form-control input-sm" name="useYn">
+							<option value="Y">Y</option>
+							<option value="N">N</option>
+						</select>
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="ptonNm" style="text-align: center;">
+				 	</td>
+				 	<td>
+				 		<input type="text" class="form-control" name="udtDttm" readonly="" style="text-align: center;">
+				 	</td>
+				 </tr>
+			</tbody></table>
 		</form>
 	</div>
+	
+	
 	<br>
 	<!-- 하단 버튼 -->
 	<div class="popup_bottom_btn">
@@ -97,7 +196,58 @@
 	</div>
 </div>
 <script type="text/javascript">
+	var clntFileArr = [];
+	var deleteFileArr = [];
+	var fileGridView = {
+		initView: function() {
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				target: $('[data-ax5grid="file-grid"]'),
+				showRowSelector: true,
+	        	multipleSelect: true,
+				header: {selector: false},
+				body: {
+		            onDBLClick: function () {
+		            	if(this.item.fileKey){
+							downloadFile(this.item.fileKey);
+						}
+		            }
+		        },
+	            columns: [
+	                {key: "fileName", label: "파일명", width: 315},
+	                {key: "fileType", label: "파일타입", width: 100},
+	                {key: "fileSize", label: "파일크기", width: 100},
+	                {
+						key:"fileDelete", label: "삭제", width:60,
+						formatter:function() {
+							var authInfo = jwt.authInfo;
+							if(authInfo.indexOf("AUTH003") != -1){
+								return '<button type="button" class="btn btn-default btn-sm" style="height: 19px; padding: 0 0 0 0;" onclick="deleteFile('+this.dindex+');" authchk>삭제</button>'
+							}else{
+								return null;
+							}
+						}
+					}
+	            ]
+			});
+			return this;
+		},
+		setData: function() {
+			var targetObj = this.target;
+			targetObj.setData({
+				list: clntFileArr,
+				page : {
+					totalElements : clntFileArr.length
+				}
+			});
+		}
+	}
+
 	$(document).ready(function() {
+		
+		// 그리드 초기화
+		fileGridView.initView().setData();
+		
 		setCommonSelect($(".popup_area select[data-kind]"));
 		$('#trstDt').datepicker({
 			format : "yyyy-mm-dd",
@@ -124,122 +274,62 @@
 			$("#trspTypCd option[value='TRSPTYP3']").remove();
 			selectSellInfoBase();
 			setByCocd($("#coCd").val());
-		}else if(actionType == "P"){
+		}else if(actionType == "U"){ // 수정
 			selectSellInfo();
-			$('#actionArBtn').on("click", function(){insertDebt();});
-			$('#actionArBtn').text("등록");
-			$("#ownerCd").val("OWNER1");
-			$("#makrCd").val("MAKR09");
-			// 거래유형 (절감량입고, 기타입고) 제거
-			$("#trspTypCd option[value='TRSPTYP2']").remove();
-			$("#trspTypCd option[value='TRSPTYP3']").remove();
-		}else if(actionType == "U"){ // 반품
-			selectSellInfo();
-			$('#actionArBtn').on("click", function(){insertDebt();});
+			$('#actionArBtn').on("click", function(){updateDebt();});
 			$('#actionArBtn').text("저장");
-		}else if(actionType == "I"){ // 조회 및 수정
-			selectSellInfo();
-			$('#actionArBtn').on("click", function(){updatePchsSellPart();});
-			$('#actionArBtn').text("저장");
-		}else if(actionType == "D"){ // 조회 및 수정
-			selectSellInfo();
-			$('#actionArBtn').on("click", function(){dInsertPchsSellPart();});
-			$('#actionArBtn').text("수정");
 		}
 	}
 	
 	function selectSellInfo() {
-		if(actionType == "U" || actionType =="P"){ // 반품
-			var row = subGridView.target.getList("selected")[0];
-			var trstCertiNo = row.trstCertiNo			
-		}else if(actionType == "I" || actionType == "D"){ // 조회 및 수정
-			var trstCertiNo = modalStack.last().paramObj.trstCertiNo;
-		}
-		var formData = {
-				"trstCertiNo": trstCertiNo
-		}
-		postAjax("/user/ar/ar02/selectSellInfo", formData, null, function(data){
+		var row = subGridView.target.getList("selected")[0];
+		
+		var paramObj = {"debtNo": row.debtNo};
+		
+		postAjax("/user/ar/ar14/selectDebtInfo", paramObj, null, function(data){
 			setSellInfo(data.result);
 		});
 	}
 	
+	// 메인정보 set
 	function setSellInfo(obj) {
-		// 메인정보 set
+		
+		var taxivcCoprt = "";
 		$.each(obj, function(key, value){
-			if($('[name="'+key+'"]')[0]){
-				
-				if(actionType == "U"){ // 반품은  -1을 곱한다.
-					if($('[name="'+key+'"]').is('[minus]')){
-						value = -1 * Number(value);
-					}
-				}
-				
-				if($('[name="'+key+'"]').is('[comma]')){
-					value = addCommaStr(value);
-				}
-				
-				// 창고, 판매법인 set
-				if(key == "coCd"){
-					setByCocd(value);
-				}
-				
-				if(actionType == "U"){ // 반품
-					// 반품시 재고변동사유 set
-					if(key == "bilgQty"){
-						var stockChgCd = Math.sign(deleteCommaStr(value)) == -1 ? "STOCKCHG11" : "STOCKCHG04";
-						$("#stockChgCd").val(stockChgCd);
-					}
-					// 반품시 운반비 제거
-					if(key == "transAmt"){
-						value = "0";
-					}
-				}
-				
-				$('[name="'+key+'"]').val(value);
+			console.log(key + " :: " + value + " :: " + $('#'+key).is('[comma]') + " :: " + $('#'+key).is('[date]'));
+			
+			$('#popForm ' + '#'+key).val(value);
+			
+			if(key == "taxivcCoprt"){
+				taxivcCoprt = value;
+			}
+			
+			// 금액 콤마 set
+			if($('#'+key).is('[comma]')){
+				onlyNumber($('#'+key)[0]);
+			}else if($('#'+key).is('[date]')){
+				$('#'+key).datepicker("setDate", moment(value, 'YYYY-MM-DD').toDate());
 			}
 		});
 		
-		if(actionType == "I"){ // 조회 및 수정일 경우 dom 변경
+		setByCocd($('#popForm  #coCd').val());
+		$('#popForm #taxivcCoprt').val(taxivcCoprt);
+		
+		// 첨부파일 set
+		var clntFileList = obj.clntFileList;
+		$.each(clntFileList, function(idx, obj){
+			clntFileArr.push({
+				'fileKey' : obj.fileKey,
+		      	'fileName' : obj.fileName,
+		      	'fileType' : obj.fileType,
+		      	'fileSize' : obj.fileSize,
+		      	'file' : obj
+			});
+		});
 
-			    $('#popForm #coCd').prop("disabled", true);
-				$('input[name="clntNm').prop("disabled", true);
-				$('#popForm #clntNm').siblings('a').remove();
-				
-				$('#popForm #taxivcCoprt').prop("disabled", true);
-				$('input[name="trstDt"]').prop("disabled", true);
-				$('#popForm #whCd').prop("disabled", true);
-				$('#popForm #typCd').prop("disabled", true);
-				$('#popForm #ownerCd').prop("disabled", true);
-				$('#popForm #impYn').prop("disabled", true);
-				$('#popForm #makrCd').prop("disabled", true);
-				
-				$('input[name="prdtNm"]').prop("disabled", true);
-				$('#popForm #prdtNm').siblings('a').remove();
-				$('#popForm .prdtSearch a').removeAttr("onclick");
-
-				$('input[name="prdtSizeNm"]').prop("disabled", true);
-				$('input[name="prdtSpec"]').prop("disabled", true);
-				$('input[name="prdtSize"]').prop("disabled", true);
-				$('input[name="prdtLen"]').prop("disabled", true);
-				
-				$('[name="toggleReq"]').removeClass("hit");
-				$('[name="toggleReq"]').next().find('input:text:not([name="bilgUpr"])').prop("readonly", true);
-				$('[name="toggleReq"]').next().find('input:text').prop("required", false);
-
-				$('input[name="bilgQty"]').prop("disabled", true);	
-				$('input[name="bilgWt"]').prop("disabled", true);	
-				$('input[name="prdtUpr"]').prop("disabled", true);		
-				$('input[name="bilgUpr"]').prop("disabled", true);	
-				$('input[name="bilgAmt"]').prop("disabled", true);	
-				$('input[name="trstDcAmt"]').prop("disabled", true);	
-				$('input[name="etcAmt"]').prop("disabled", true);	
-				$('input[name="realDlvrDttm"]').prop("disabled", true);	
-			
-		}else if(actionType == "D"){
-			$('input[name="prdtSizeNm"]').prop("readonly", true);
-			$('input[name="prdtSpec"]').prop("readonly", true);
-			$('input[name="prdtSize"]').prop("readonly", true);
-		}
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+		
 	}
 	
 	function selectSellInfoBase() {
@@ -499,19 +589,29 @@
 	function insertDebt() {
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
-			console.log(formData);
-			
-			if(checkTotalAmt()){
-				postAjax("/user/ar/ar14/insertDebt", formData, null, function(data){
-					alert(data.resultMessage);
-					if (data.resultCode == 200) {
-						subGridView.setData(0);
-						modalStack.close();
-					}
-				});	
-			}
+			filePostAjax("/user/ar/ar14/insertDebt", formData, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					subGridView.setData(0);
+					modalStack.close();
+				}
+			});
 		}
 	}
+	
+	function updateDebt() {
+		if(inputValidation($('.popup_area [required]'))) {
+			var formData = makeFormData();
+			filePostAjax("/user/ar/ar14/updateDebt", formData, function(data){
+				alert(data.resultMessage);
+				if(data.resultCode == 200){
+					subGridView.setData(0);
+					modalStack.close();
+				}
+			});
+		}
+	}
+	
 	function updatePchsSellPart() {
 		if(inputValidation($('.popup_area [required]'))) {
 			var formData = makeFormData();
@@ -528,59 +628,6 @@
 		}
 	}	
 	
-
-	
-	/* 수정 버튼을 위한 로직 설계 */
-	function dInsertPchsSellPart() {
-			insertDeletePchsSell();
-	}	
-	
-	function insertDeletePchsSell() {
-		if(inputValidation($('.popup_area [required]'))) {
-			var formData = makeFormData();
-			if(checkTotalAmt()){
-				
-				formData.userId = jwt.userId;
-				formData.pgmId = "AR0202P01";
-				
-					
-				if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
-					postAjax("/user/ar/ar02/insertDeletePchsSell", formData, null, function(data){
-						alert(data.resultMessage);
-						if (data.resultCode == 200) {
-							subGridView.setData(0);
-							modalStack.close();
-						}
-					});
-				}else{
-					alert("수정할 수 없는 데이터 입니다.");
-				}	
-			}			
-		}
-	}
-	
-	/*
-	function dDeleteSell(formData) {
-			var paramObj = {
-				"trstCertiNo" : formData.trstCertiNo,
-				"userId" : jwt.userId,
-				"pgmId" : "AR0201M02"
-			}
-			
-			if (formData.bilgCertNo == undefined && formData.trstDtlSeq == undefined) {
-			//전표 미발행, 매출화면에서 직접 등록한 데이터만 삭제 가능
-				deleteAjax("/user/ar/ar02/deleteSell", paramObj, null, function(data) {
-					alert(data.resultMessage);
-					if (data.resultCode == 200) {
-						subGridView.setData(0);
-					}
-				});
-			} else {
-				alert("삭제할 수 없는 데이터 입니다.");
-			}
-			
-	}
-	*/
 	function makeFormData() {
 		$("#popForm input").prop("disabled", false);
 		$("#popForm select").prop("disabled", false);
@@ -591,7 +638,26 @@
 			deleteComma(elem);
 		});
 		
-		var formData = $("#popForm").serializeObject();
+		
+		// 폼데이터 생성
+		var formData = new FormData($('#popForm')[0]);
+		console.log(formData);
+		
+// 		var formData = $("#popForm").serializeObject();
+		
+		// 첨부파일 추가
+		$.each(clntFileArr, function(idx, obj){
+			// 신규파일만 추가
+			if(obj.fileKey == 0){
+				formData.append("files", obj.file);
+			}
+		});
+		
+		// 수정시 삭제된 파일 추가
+		var actionType = modalStack.last().paramObj.actionType;
+		if(actionType == "U"){
+			formData.append("deleteFileArr", JSON.stringify(deleteFileArr));
+		}
 		
 		return formData;
 	}
@@ -607,6 +673,69 @@
 		}else{
 			return true;
 		}
+	}
+	
+	// 파일 추가
+	function setClntFile(elem) {
+		var tempFiles = elem.files;
+		// 전역변수 배열에 선택된 파일 추가 
+		$.each(tempFiles, function(idx, obj){
+			var typeArr = obj.name.split(".");
+			clntFileArr.unshift({
+				'fileKey' : 0,
+		      	'fileName' : obj.name,
+		      	'fileType' : typeArr[typeArr.length-1],
+		      	'fileSize' : obj.size,
+		      	'file' : obj
+			});
+		});
+		
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+		
+		// input file 초기화
+		$(elem).val("");
+	}
+	
+	// 파일 삭제
+	function deleteFile(rowIndex) {
+		if(clntFileArr[rowIndex].fileKey){
+		// 기 등록되어 있는 파일 삭제시
+			deleteFileArr.push(clntFileArr[rowIndex].fileKey);
+		}
+		clntFileArr.splice(rowIndex, 1);
+		
+		// 첨부파일 그리드 set
+		fileGridView.setData();
+	}
+	
+	// 파일 다운로드
+	function downloadFile(fileKey) {
+		postAjax("/admin/cm/cm08/fileDownInfo", {"fileKey": fileKey}, null, function(data){
+			var fileInfo = data.fileInfo;
+			var filePath = encodeURI(fileInfo.filePath + fileInfo.fileKey + "_" + fileInfo.fileName , "UTF-8");
+			location.href = "/admin/cm/cm08/fileDownload?filePath="+filePath;
+		});
+	}
+	
+	// 파일 내역
+	function addPldgRow(){
+		var $pldgRow = $('#pldgFrameTable tr[name="pldgRow"]').clone();
+		//재품그룹 임가공 제거
+	//	($pldgRow.find('select[name="prdtGrp"]')[0][4]).remove();
+		$('#pldgTable tbody').append($pldgRow[0]);
+		
+		// datepicker bind
+		$pldgRow.find('.input_calendar').datepicker({
+			format : "yyyy-mm-dd",
+			language : "ko",
+			autoclose : true
+		});
+	
+		// 접속자 회사 set
+		$pldgRow.find('select[name="coCd"]').val(jwt.coCd)
+		
+		return $pldgRow;
 	}
 	
 </script>

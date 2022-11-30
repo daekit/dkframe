@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.dksys.biz.cmn.vo.PaginationInfo;
 import com.dksys.biz.exc.LogicException;
@@ -29,7 +31,7 @@ public class AR14Ctr {
     AR14Svc ar14Svc;
 	
     @PostMapping(value = "/selectDebtList")
-	public String selectRcvpayList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+	public String selectDebtList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	
     	int totalCnt = ar14Svc.selectDebtCount(paramMap);
 		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
@@ -39,17 +41,40 @@ public class AR14Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+	
     
-	@PostMapping(value = "/insertDebt")
-    public String insertDebt(@RequestBody Map<String, String> paramMap, ModelMap model) {
-		try {
-			ar14Svc.insertDebt(paramMap);
-			model.addAttribute("resultCode", 200);
-			model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
-		}catch(Exception e) {
-			model.addAttribute("resultCode", 500);
-			model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
-		}
+    @PostMapping(value = "/selectDebtInfo")
+    public String selectDebtInfo(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	Map<String, Object> result = ar14Svc.selectDebtInfo(paramMap);
+    	model.addAttribute("result", result);
+    	return "jsonView";
+    }
+    
+    // 부실채권 등록
+	@PostMapping("/insertDebt")
+    public String insertDebt(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	try {
+    		ar14Svc.insertDebt(paramMap, mRequest);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));    
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+    	return "jsonView";
+    }
+    
+    // 부실채권 수정
+	@PostMapping("/updateDebt")
+    public String updateDebt(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
+    	try {
+    		ar14Svc.updateDebt(paramMap, mRequest);
+	    	model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));    
+    	}catch(Exception e){
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
     	return "jsonView";
     }
 	

@@ -20,4 +20,8 @@ public interface AR14Mapper {
 
 	void deleteDebt(Map<String, String> paramMap);
 
+	Map<String, Object> selectDebtInfo(Map<String, String> paramMap);
+
+	void updateDebt(Map<String, String> paramMap);
+
 }
