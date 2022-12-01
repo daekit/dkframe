@@ -7,7 +7,7 @@
 		SELECT COUNT(*) FROM (
 			SELECT
 				T.SITE_CD
-				-- , T.ISS_DT 
+				, T.ISS_DT 
 				, T.SITE_NM
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
@@ -17,7 +17,7 @@
 				FROM (
 					SELECT 
 						LOAD_ORG_NO
-						-- , ISS_DT
+						, ISS_DT
 						, SUM(PROD_WGT) AS PROD_WGT
 						, SUM(LOSS_WGT) AS LOSS_WGT
 						, SUM(ISS_WGT) AS ISS_WGT
@@ -28,7 +28,7 @@
 			
 							SELECT -- 납품대장 (발송완료) key : 일자+납품차수
 								 ISS_SEQ_NO			-- 납품차수
-								 -- , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
+								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
 								 , BDTL.DIMS_CD
 								 , TB_DIMS.DIMS_CD_SEQ	
 								 , BITEM.PROD_WGT		-- 제품중량
@@ -70,7 +70,7 @@
 							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
-							  AND LOAD.ISS_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
+							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
 							  AND LOAD.ERP_FLAG = #{erpFlag}
 							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
 							  <if test="siteNm != null and !siteNm.equals('')">
@@ -87,13 +87,13 @@
 						)
 						GROUP BY 
 							SITE_CD
-							-- , ISS_DT
+							, ISS_DT
 							, SITE_NM
 							, LOAD_ORG_NO
 						) T
 						GROUP BY
 							SITE_CD
-							-- , ISS_DT
+							, ISS_DT
 							, SITE_NM
 						) A
 	</select>
@@ -103,7 +103,7 @@
 		SELECT ROWNUM RNUM, A.* FROM (
 			SELECT
 				T.SITE_CD
-				-- , T.ISS_DT
+				, T.ISS_DT
 				, T.SITE_NM
 				, T.ERP_FLAG
 				, SUM(T.PROD_WGT) AS PROD_WGT
@@ -115,7 +115,7 @@
 					SELECT 
 						LOAD_ORG_NO
 						, ERP_FLAG
-						-- , ISS_DT
+						, ISS_DT
 						, SUM(PROD_WGT) AS PROD_WGT
 						, SUM(LOSS_WGT) AS LOSS_WGT
 						, SUM(ISS_WGT) AS ISS_WGT
@@ -126,7 +126,7 @@
 			
 							SELECT
 								 ISS_SEQ_NO			-- 납품차수
-								 -- , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시 
+								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시 
 								 , BDTL.DIMS_CD
 								 , TB_DIMS.DIMS_CD_SEQ	
 								 , BITEM.PROD_WGT		-- 제품중량
@@ -168,7 +168,7 @@
 							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
-							  AND LOAD.ISS_DT BETWEEN #{reqDtFrom} AND #{reqDtTo}
+							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
 							  AND LOAD.ERP_FLAG = #{erpFlag}
 							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
 							  <if test="siteNm != null and !siteNm.equals('')">
@@ -185,14 +185,14 @@
 						)
 						GROUP BY
 							SITE_CD
-							-- , ISS_DT
+							, ISS_DT
 							, SITE_NM
 							, LOAD_ORG_NO
 							, ERP_FLAG
 						) T
 						GROUP BY 
 							SITE_CD
-							-- , ISS_DT
+							, ISS_DT
 							, SITE_NM
 							, ERP_FLAG
 						) A
@@ -993,7 +993,7 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
             UDT_PGM,
             UDT_DTTM,
             SITE_CD,
-            ALLOC_VEHL_NO,
+            <!-- ALLOC_VEHL_NO, -->
             TAXIVC_COPRT,
             SHIP_CNT,
             LOAD_ORG_NO
@@ -1028,7 +1028,7 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 			NULL, 			<!-- #{transSeq}, 운송번호 NULL 고정 -->
 			#{odrSeq},
 			#{ordrgSeq},
-			#{salesEmpNm},			<!-- #{salesMng}, -->
+			#{salesEmpId},			<!-- #{salesMng}, -->
 			(SELECT DEPT_ID FROM TB_CM06M01 WHERE ID = #{salesEmpId}),
 			'N',
 			'MES',
@@ -1039,7 +1039,7 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 			#{pgmId},
 			SYSDATE,
 			#{siteCd,  jdbcType=VARCHAR},
-			#{vehlNo},
+			<!-- #{vehlNo}, -->
 			(SELECT CODE_ETC FROM TB_CM05M01 WHERE USE_YN='Y' AND CODE_KIND='WH' AND CODE_ID = #{whCd}),		<!-- #{taxivcCoprt,  jdbcType=VARCHAR}, -->
 			1, <!-- NVL(#{shipCnt,  jdbcType=VARCHAR},1) 운송차수 1 고정 -->
 			#{loadOrgNoGroup}
@@ -1048,12 +1048,57 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 	
 	<select id="selectSite" parameterType="Map" resultType="CamelMap">
 		SELECT 
-			  A.*
-			, NAME AS SALES_EMP_NM
+			  A.CO_CD
+			, A.SITE_CD
+			, A.CLNT_CD
+			, A.PRJCT_CD
+			, A.SITE_NM
+			, A.SITE_ADDR_ZIP
+			, A.SITE_ADDR
+			, A.SITE_ADDR_SUB
+			, A.SITE_MNG_NM
+			, A.TEL_NO
+			, A.SITE_MES_CD
+			, A.SALES_AREA_CD
+			, A.WH_CD
+			, A.MNG_ID
+			, A.SCND_WH_CD
+			, A.THRD_WH_CD
+			, A.ORD_TYP
+			, A.TNKEY_YN
+			, A.MAKR_CD
+			, A.SITE_ABBR_NM
+			, A.PRCSN_UPR
+			, A.ETHQKP_UPR
+			, A.SHOP_UPR
+			, A.SALES_EMP_ID
+			, CM06.NAME AS SALES_EMP_NM
 			FROM 
 			(
 				SELECT 
-					  SD09.*
+					  SD09.CO_CD
+					, SD09.SITE_CD
+					, SD09.CLNT_CD
+					, SD09.PRJCT_CD
+					, SD09.SITE_NM
+					, SD09.SITE_ADDR_ZIP
+					, SD09.SITE_ADDR
+					, SD09.SITE_ADDR_SUB
+					, SD09.SITE_MNG_NM
+					, SD09.TEL_NO
+					, SD09.SITE_MES_CD
+					, SD09.SALES_AREA_CD
+					, SD09.WH_CD
+					, SD09.MNG_ID
+					, SD09.SCND_WH_CD
+					, SD09.THRD_WH_CD
+					, SD09.ORD_TYP
+					, SD09.TNKEY_YN
+					, SD09.MAKR_CD
+					, SD09.SITE_ABBR_NM
+					, SD09.PRCSN_UPR
+					, SD09.ETHQKP_UPR
+					, SD09.SHOP_UPR
 					, FN_BM02_MNG_ID(SD09.CO_CD, SD09.CLNT_CD) AS SALES_EMP_ID 
 					FROM 
 						TB_SD09M01 SD09
@@ -1120,8 +1165,8 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 			#{prdtCd},
 			#{prdtUnit, jdbcType=VARCHAR},
 			#{ordLength}, <!-- #{prdtLen,  jdbcType=VARCHAR}, -->
-			#{prodPcsCnt}, <!-- #{shipQty} -->
-			#{prodPcsCnt}, <!-- #{issWgt} -->
+			#{issWgt}, <!-- #{shipQty} -->
+			#{issWgt}, <!-- #{issWgt} -->
 			0, <!-- #{bdCnt} -->
 			#{shipUpr}, <!-- #{shipUpr} -->
 			#{totAmt}, <!-- #{shipAmt} -->
@@ -1132,8 +1177,8 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 			'N',
 			NULL, <!-- #{shipProcId} -->
 			#{issDt}, <!-- #{shipDttm} -->
-			#{prodPcsCnt}, <!-- #{realShipQty} -->
-			#{prodPcsCnt}, <!-- #{issWgt} -->
+			#{issWgt}, <!-- #{realShipQty} -->
+			#{issWgt}, <!-- #{issWgt} -->
 			#{shipUpr}, <!-- #{realShipUpr} -->
 			#{totAmt}, <!-- #{realShipAmt} -->
 			NULL, <!-- #{shipVehNo} -->

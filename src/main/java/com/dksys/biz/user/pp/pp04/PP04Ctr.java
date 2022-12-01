@@ -97,9 +97,15 @@ public class PP04Ctr {
   */
     @PostMapping(value = "/insertMesShipList")
     public String insertMesShipList(@RequestBody Map<String, Object> paramMap, ModelMap model) {
-		pp04Svc.insertMesShipList(paramMap);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	try {
+    		pp04Svc.insertMesShipList(paramMap);
+        	model.addAttribute("resultCode", 200);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch (Exception e) {
+    		model.addAttribute("resultCode", 500);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+		
     	return "jsonView";
     }
     
