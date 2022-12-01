@@ -263,6 +263,7 @@ public class PP04Svcmpl implements PP04Svc {
 					// 현장, 날짜에 따른 강종/길이별 데이터를 for문 돌면서 출하요청서 상세 테이블에 INSERT 
 					// 새로 추출한 새로운 출하요청서 시퀀스도 같이 입력
 					for(Map<String, String> stockMap : stockListMap) {
+						stockMap.put("CO_CD", MapUtils.getString(listMap.get(i), "coCd"));
 						Map<String, String> stockInfo = pp04Mapper.selectStockInfo(stockMap);
 						listMap.get(i).putAll(stockMap);
 						listMap.get(i).putAll(stockInfo);
@@ -383,6 +384,7 @@ public class PP04Svcmpl implements PP04Svc {
 				// 현장, 날짜에 따른 강종/길이별 데이터를 for문 돌면서 출하요청서 상세 테이블에 INSERT 
 				// 새로 추출한 새로운 출하요청서 시퀀스도 같이 입력
 				for(Map<String, String> stockMap : stockListMap) {
+					stockMap.put("CO_CD", MapUtils.getString(listMap.get(i), "coCd"));
 					Map<String, String> stockInfo = pp04Mapper.selectStockInfo(stockMap);
 					listMap.get(i).putAll(stockMap);
 					listMap.get(i).putAll(stockInfo);
