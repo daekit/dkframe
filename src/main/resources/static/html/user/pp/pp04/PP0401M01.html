@@ -188,7 +188,11 @@
 </html>
 
 <script type="text/javascript">
-
+	ax5.ui.grid.formatter["bilgYn"] = function () {
+		var color = this.value == "Y" ? "color-circle_02.png" : "color-circle_01.png";
+		return '<img src="/static/img/'+color+'" style="width: 10px;height: 10px;"></img>';
+	};
+	
 	var authId = null;
 	var authRole = null;
 	var actionType = null;
@@ -233,7 +237,7 @@
 			            }
 			        },
 			        columns: [
-			        	{key: "erpFlag",   label: "생성여부", 	align: "center",	width: 80},
+			        	{key: "erpFlag",   label: "생성", 	align: "center",	width: 50,	formatter: "bilgYn"},
 			        	{key: "loadOrgNoGroup",  label: "상차지시번호", 	align: "center",	hidden: true},
 			        	{key: "mesFtrCd",  	label: "공장번호", 	align: "center",	hidden: true},
 			        	{key: "siteNm",  	label: "현장명", 		align: "left",	width: 300},
@@ -387,20 +391,23 @@
 			setData : function(_dindex) {
 			    stockGrid = this.target;
 				var row = gridFirstView.target.getList()[_dindex];
-				row.mesFtrCd = $("#mesFtrCd").val();
+				if(row != null){
+					row.mesFtrCd = $("#mesFtrCd").val();	
+				}
 				
 				postAjax("/user/pp/pp04/selectMesAllocVehlDtlList", row, null, function(data){
 					var list = data.resultList;
-					stockGrid.setData({
-						list : list,
-						page : {
-							currentPage : 1,
-							pageSize : list.length,
-							totalElements : list.length,
-							totalPages : 1
-						}
-					});
-					
+					if(list != null){
+						stockGrid.setData({
+							list : list,
+							page : {
+								currentPage : 1,
+								pageSize : list.length,
+								totalElements : list.length,
+								totalPages : 1
+							}
+						});	
+					}
 				});
 			}
 		}
