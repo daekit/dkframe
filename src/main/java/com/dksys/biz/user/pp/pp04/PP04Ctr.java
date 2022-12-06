@@ -58,6 +58,17 @@ public class PP04Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectMesMtrlRstlUnGroupList")
+	public String selectMesMtrlRstlUnGroupList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = pp04Svc.selectMesMtrlRstlUnGroupListCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = pp04Svc.selectMesMtrlRstlUnGroupList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+    
     @PostMapping(value = "/selectMesMtrlRstlList")
 	public String selectMesMtrlRstlList(@RequestBody Map<String, String> paramMap, ModelMap model) {
     	

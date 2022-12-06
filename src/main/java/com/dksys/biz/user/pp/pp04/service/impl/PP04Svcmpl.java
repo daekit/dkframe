@@ -41,6 +41,16 @@ public class PP04Svcmpl implements PP04Svc {
 	public List<Map<String, String>> selectMesMtrlRstlFirstList(Map<String, String> paramMap) {
 		return pp04Mapper.selectMesMtrlRstlFirstList(paramMap);
 	}
+	
+	@Override
+	public int selectMesMtrlRstlUnGroupListCount(Map<String, String> paramMap) {
+		return pp04Mapper.selectMesMtrlRstlUnGroupListCount(paramMap);
+	}
+
+	@Override
+	public List<Map<String, String>> selectMesMtrlRstlUnGroupList(Map<String, String> paramMap) {
+		return pp04Mapper.selectMesMtrlRstlUnGroupList(paramMap);
+	}
 
 	@Override
 	public int selectMesMtrlRstlCount(Map<String, String> paramMap) {

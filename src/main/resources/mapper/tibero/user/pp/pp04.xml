@@ -202,6 +202,217 @@
 						</if>
 	</select>
 	
+	<select id="selectMesMtrlRstlUnGroupListCount" parameterType="Map" resultType="int">		
+		SELECT COUNT(*) FROM (
+			SELECT
+				T.SITE_CD
+				, T.ISS_DT 
+				, T.SITE_NM
+				, SUM(T.PROD_WGT) AS PROD_WGT
+				, SUM(T.LOSS_WGT) AS LOSS_WGT
+				, SUM(T.ISS_WGT) AS ISS_WGT
+				, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
+				, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
+				, T.ERP_SHIP_SEQ
+				FROM (
+					SELECT 
+						LOAD_ORG_NO
+						, ERP_SHIP_SEQ
+						, ISS_DT
+						, SUM(PROD_WGT) AS PROD_WGT
+						, SUM(LOSS_WGT) AS LOSS_WGT
+						, SUM(ISS_WGT) AS ISS_WGT
+						, SITE_CD
+						, SITE_NM
+						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+						FROM (
+			
+							SELECT -- 납품대장 (발송완료) key : 일자+납품차수
+								 ISS_SEQ_NO			-- 납품차수
+								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
+								 , BDTL.DIMS_CD
+								 , TB_DIMS.DIMS_CD_SEQ	
+								 , BITEM.PROD_WGT		-- 제품중량
+								 , BITEM.LOSS_WGT		-- 로스중량
+								 , BITEM.ISS_WGT			-- 출고중량 (화면:할증중량)
+								 , LOAD.NM_UNIT_PRICE	-- 일반단가
+								 , LOAD.EP_UNIT_PRICE	-- 내진단가
+								 , LOAD.REF_TEXT_IN		-- 비고
+								 , LOAD.REF_TEXT_PRT	-- 비고
+								 , LOAD.PROCESS_NM
+								 , VW_SITE_INFO.SITE_CD
+								 , VW_SITE_INFO.SITE_NM
+								 , LOAD.COMP_MOV_VAL	-- 운송비1
+								 , LOAD.COMP_MOV_VAL2	-- 운송비2
+								 , LOAD.COMP_MOV_VAL3	-- 운송비3
+								 , BITEM.LOSS_RATE		-- 철근할증(%)
+						         , LOAD.VEHL_NO
+						         , LOAD.LOAD_ORG_NO
+						         , LOAD.LOCK_FLAG
+						         , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
+						         , LOAD.ERP_SHIP_SEQ
+							FROM 
+								
+									 ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_BARLIST_DTL BDTL
+								   , ${mesFtrCd}.TB_MES_BARLIST_ITEM BITEM
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ
+								   		   , CD_V AS DIMS_CODE
+									  FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD
+										   ,SITE_CD
+									   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
+									  WHERE USE_YN = 'Y') AS OUTSRC
+
+							WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
+							  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
+							  AND BDTL.BARLIST_NO = BITEM.BARLIST_NO
+							  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  AND LOAD.ERP_FLAG = #{erpFlag}
+							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  <if test="siteNm != null and !siteNm.equals('')">
+							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  </if>
+							  <if test="siteCd != null and !siteCd.equals('')">
+							  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  </if>
+							  <if test="coCd != null and !coCd.equals('')">
+							  	AND VW_SITE_INFO.CO_CD = #{coCd}
+							  </if>
+							  
+			
+						)
+						GROUP BY 
+							SITE_CD
+							, ISS_DT
+							, SITE_NM
+							, LOAD_ORG_NO
+							, ERP_SHIP_SEQ
+						) T
+						GROUP BY
+							SITE_CD
+							, ISS_DT
+							, SITE_NM
+							, LOAD_ORG_NO
+							, ERP_SHIP_SEQ
+						) A
+	</select>
+	
+	<select id="selectMesMtrlRstlUnGroupList" parameterType="Map" resultType="CamelMap">
+		SELECT L.*, #{mesFtrCd} AS MES_FTR_CD FROM (
+		SELECT ROWNUM RNUM, A.* FROM (
+			SELECT
+				T.SITE_CD
+				, T.ERP_SHIP_SEQ
+				, T.ISS_DT
+				, T.SITE_NM
+				, T.ERP_FLAG
+				, SUM(T.PROD_WGT) AS PROD_WGT
+				, SUM(T.LOSS_WGT) AS LOSS_WGT
+				, SUM(T.ISS_WGT) AS ISS_WGT
+				, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
+				, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
+				FROM (
+					SELECT 
+						LOAD_ORG_NO
+						, ERP_SHIP_SEQ
+						, ERP_FLAG
+						, ISS_DT
+						, SUM(PROD_WGT) AS PROD_WGT
+						, SUM(LOSS_WGT) AS LOSS_WGT
+						, SUM(ISS_WGT) AS ISS_WGT
+						, SITE_CD
+						, SITE_NM
+						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+						FROM (
+			
+							SELECT
+								 ISS_SEQ_NO			-- 납품차수
+								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시 
+								 , BDTL.DIMS_CD
+								 , TB_DIMS.DIMS_CD_SEQ	
+								 , BITEM.PROD_WGT		-- 제품중량
+								 , BITEM.LOSS_WGT		-- 로스중량
+								 , BITEM.ISS_WGT			-- 출고중량 (화면:할증중량)
+								 , BITEM.LOSS_RATE		-- 철근할증(%)
+								 , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
+								 , LOAD.NM_UNIT_PRICE	-- 일반단가
+								 , LOAD.EP_UNIT_PRICE	-- 내진단가
+								 , LOAD.REF_TEXT_IN		-- 비고
+								 , LOAD.REF_TEXT_PRT	-- 비고
+								 , LOAD.PROCESS_NM
+								 , LOAD.VEHL_NO
+						         , LOAD.LOAD_ORG_NO
+						         , LOAD.ERP_FLAG
+						         , LOAD.COMP_MOV_VAL	-- 운송비1
+								 , LOAD.COMP_MOV_VAL2	-- 운송비2
+								 , LOAD.COMP_MOV_VAL3	-- 운송비3
+								 , VW_SITE_INFO.SITE_CD
+								 , VW_SITE_INFO.SITE_NM
+								 , LOAD.ERP_SHIP_SEQ
+							FROM 
+							
+									 ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_BARLIST_DTL BDTL
+								   , ${mesFtrCd}.TB_MES_BARLIST_ITEM BITEM
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ
+								   		   , CD_V AS DIMS_CODE
+									  FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD
+										   ,SITE_CD
+									   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
+									  WHERE USE_YN = 'Y') AS OUTSRC
+								  
+							WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
+							  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
+							  AND BDTL.BARLIST_NO = BITEM.BARLIST_NO
+							  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  AND LOAD.ERP_FLAG = #{erpFlag}
+							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  <if test="siteNm != null and !siteNm.equals('')">
+							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  </if>
+							  <if test="siteCd != null and !siteCd.equals('')">
+							  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  </if>
+							  <if test="coCd != null and !coCd.equals('')">
+							  	AND VW_SITE_INFO.CO_CD = #{coCd}
+							  </if>
+							  
+			
+						)
+						GROUP BY
+							SITE_CD
+							, ISS_DT
+							, SITE_NM
+							, LOAD_ORG_NO
+							, ERP_FLAG
+							, ERP_SHIP_SEQ
+						) T
+						GROUP BY 
+							SITE_CD
+							, ISS_DT
+							, SITE_NM
+							, LOAD_ORG_NO
+							, ERP_FLAG
+							, ERP_SHIP_SEQ
+						) A
+						) L 
+						<if test='pageYn != null and pageYn.equals("Y")'>
+						WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+						</if>
+	</select>
+	
 	<select id="selectMesMtrlRstlCount" parameterType="Map" resultType="int">		
 		SELECT COUNT(*) FROM
 		(
@@ -1202,7 +1413,8 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 		SELECT 
 			BM01.*
 			, DECODE(BM01.PRDT_STOCK_CD, 'N', 0, NVL(FN_SD06_UPR_FROM_PRDT_CD(TO_CHAR(SYSDATE,'YYYYMMDD'), 'SELPCH2',   'N', BM01.PRDT_CD, '', ''), 0)) AS SHIP_UPR
-			, NVL(FN_SM01_UPR_FROM_PRDT_CD(#{coCd},BM01.PRDT_CD), 0) AS STOCK_UPR 
+			<!-- , NVL(FN_SM01_UPR_FROM_PRDT_CD(#{coCd},BM01.PRDT_CD), 0) AS STOCK_UPR -->
+			, 0 AS STOCK_UPR 
 				FROM 
 					TB_BM01M01 BM01 
 						WHERE PRDT_MES_CD = #{dimsCd}
@@ -1222,7 +1434,15 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 		UPDATE 
 			${mesFtrCd}.TB_MES_LOAD_ORG
 				SET
-					ERP_FLAG = #{erpUpdateFlag}
+					  ERP_FLAG = #{erpUpdateFlag}
+					  <choose>
+					  	<when test='erpUpdateFlag != null and erpUpdateFlag.equals("N")'>
+					  		, ERP_SHIP_SEQ = NULL
+					  	</when>
+					  	<otherwise>
+					  		, ERP_SHIP_SEQ = #{shipSeq}
+					  	</otherwise>
+					  </choose>
 						WHERE LOAD_ORG_NO IN (${loadOrgNo})
 	</update>
 	

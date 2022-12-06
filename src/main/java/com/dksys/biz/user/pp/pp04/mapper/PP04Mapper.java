@@ -67,6 +67,10 @@ public interface PP04Mapper {
 	List<Map<String, String>> daliyAccessList(Map<String, String> paramMap);
 
 	void updateMesErpFlag(Map<String, String> map);
+
+	int selectMesMtrlRstlUnGroupListCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectMesMtrlRstlUnGroupList(Map<String, String> paramMap);
 	
 	/*
 	 * 

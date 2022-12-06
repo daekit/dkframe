@@ -27,6 +27,10 @@ public interface PP04Svc {
 
 	List<Map<String, String>> daliyAccessList(Map<String, String> paramMap);
 
+	int selectMesMtrlRstlUnGroupListCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectMesMtrlRstlUnGroupList(Map<String, String> paramMap);
+
 	
 	
 	/*
