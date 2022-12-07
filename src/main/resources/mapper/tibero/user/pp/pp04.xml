@@ -12,7 +12,6 @@
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
 				, SUM(T.ISS_WGT) AS ISS_WGT
-				, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
 				, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
 				FROM (
 					SELECT 
@@ -23,12 +22,11 @@
 						, SUM(ISS_WGT) AS ISS_WGT
 						, SITE_CD
 						, SITE_NM
-						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
 						FROM (
 			
 							SELECT -- 납품대장 (발송완료) key : 일자+납품차수
 								 ISS_SEQ_NO			-- 납품차수
-								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
+								 , LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시
 								 , BDTL.DIMS_CD
 								 , TB_DIMS.DIMS_CD_SEQ	
 								 , BITEM.PROD_WGT		-- 제품중량
@@ -48,7 +46,7 @@
 						         , LOAD.VEHL_NO
 						         , LOAD.LOAD_ORG_NO
 						         , LOAD.LOCK_FLAG
-						         , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
+						         , LOAD.ERP_FLAG
 							FROM 
 								
 									 ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
@@ -70,9 +68,13 @@
 							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
-							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  <if test="erpFlag != null and !erpFlag.equals('')">
 							  AND LOAD.ERP_FLAG = #{erpFlag}
+							  </if>
+							  <if test="tnkeyYn != null and !tnkeyYn.equals('')">
 							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  </if>
 							  <if test="siteNm != null and !siteNm.equals('')">
 							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
 							  </if>
@@ -83,6 +85,57 @@
 							  	AND VW_SITE_INFO.CO_CD = #{coCd}
 							  </if>
 							  
+			
+					UNION ALL
+						SELECT -- 납품대장 (발송완료) key : 일자+납품차수 - 기납
+							  ISS_SEQ_NO			-- 납품차수
+							, LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시 
+							, PORG.DIMS_CD
+							, TB_DIMS.DIMS_CD_SEQ	
+							, PORG.PROD_WGT		-- 제품중량
+							, PORG.LOSS_WGT		-- 로스중량
+							, PORG.ISS_WGT			-- 출고중량 (화면:할증중량)
+							, LOAD.NM_UNIT_PRICE	-- 일반단가
+							, LOAD.EP_UNIT_PRICE	-- 내진단가
+							, LOAD.REF_TEXT_IN		-- 비고
+							, LOAD.REF_TEXT_PRT	-- 비고
+							, LOAD.PROCESS_NM
+							, VW_SITE_INFO.SITE_CD
+							, VW_SITE_INFO.SITE_NM
+						    , LOAD.COMP_MOV_VAL	-- 운송비1
+							, LOAD.COMP_MOV_VAL2	-- 운송비2
+							, LOAD.COMP_MOV_VAL3	-- 운송비3
+							, PORG.LOSS_RATE		-- 철근할증(%)
+							, LOAD.VEHL_NO
+						    , LOAD.LOAD_ORG_NO
+						    , LOAD.LOCK_FLAG
+						    , LOAD.ERP_FLAG
+								FROM ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_PRE_LOAD_ORG_DTL PORG
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
+								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+								  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1		   
+							  	<if test="erpFlag != null and !erpFlag.equals('')">
+							    	AND LOAD.ERP_FLAG = #{erpFlag}
+							  	</if>
+							  	<if test="tnkeyYn != null and !tnkeyYn.equals('')">
+								    AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  	</if>
+							  	<if test="siteNm != null and !siteNm.equals('')">
+								  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  	</if>
+							  	<if test="siteCd != null and !siteCd.equals('')">
+								  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  	</if>
+							  	<if test="coCd != null and !coCd.equals('')">
+								  	AND VW_SITE_INFO.CO_CD = #{coCd}
+								</if>	
 			
 						)
 						GROUP BY 
@@ -109,7 +162,6 @@
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
 				, SUM(T.ISS_WGT) AS ISS_WGT
-				, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
 				, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
 				FROM (
 					SELECT 
@@ -121,32 +173,31 @@
 						, SUM(ISS_WGT) AS ISS_WGT
 						, SITE_CD
 						, SITE_NM
-						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
 						FROM (
 			
 							SELECT
 								 ISS_SEQ_NO			-- 납품차수
-								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시 
+								 , LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시 
 								 , BDTL.DIMS_CD
 								 , TB_DIMS.DIMS_CD_SEQ	
 								 , BITEM.PROD_WGT		-- 제품중량
 								 , BITEM.LOSS_WGT		-- 로스중량
 								 , BITEM.ISS_WGT			-- 출고중량 (화면:할증중량)
-								 , BITEM.LOSS_RATE		-- 철근할증(%)
-								 , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
 								 , LOAD.NM_UNIT_PRICE	-- 일반단가
 								 , LOAD.EP_UNIT_PRICE	-- 내진단가
 								 , LOAD.REF_TEXT_IN		-- 비고
 								 , LOAD.REF_TEXT_PRT	-- 비고
 								 , LOAD.PROCESS_NM
-								 , LOAD.VEHL_NO
-						         , LOAD.LOAD_ORG_NO
-						         , LOAD.ERP_FLAG
+								 , VW_SITE_INFO.SITE_CD
+								 , VW_SITE_INFO.SITE_NM
 						         , LOAD.COMP_MOV_VAL	-- 운송비1
 								 , LOAD.COMP_MOV_VAL2	-- 운송비2
 								 , LOAD.COMP_MOV_VAL3	-- 운송비3
-								 , VW_SITE_INFO.SITE_CD
-								 , VW_SITE_INFO.SITE_NM
+								 , BITEM.LOSS_RATE		-- 철근할증(%)
+								 , LOAD.VEHL_NO
+						         , LOAD.LOAD_ORG_NO
+						         , LOAD.LOCK_FLAG
+						         , LOAD.ERP_FLAG
 							FROM 
 							
 									 ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
@@ -168,9 +219,13 @@
 							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
-							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
-							  AND LOAD.ERP_FLAG = #{erpFlag}
-							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  <if test="erpFlag != null and !erpFlag.equals('')">
+							  	AND LOAD.ERP_FLAG = #{erpFlag}
+							  </if>
+							  <if test="tnkeyYn != null and !tnkeyYn.equals('')">
+							  	AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  </if>
 							  <if test="siteNm != null and !siteNm.equals('')">
 							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
 							  </if>
@@ -181,6 +236,57 @@
 							  	AND VW_SITE_INFO.CO_CD = #{coCd}
 							  </if>
 							  
+				UNION ALL
+						SELECT -- 납품대장 (발송완료) key : 일자+납품차수 - 기납
+							  ISS_SEQ_NO			-- 납품차수
+							, LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시 
+							, PORG.DIMS_CD
+							, TB_DIMS.DIMS_CD_SEQ	
+							, PORG.PROD_WGT		-- 제품중량
+							, PORG.LOSS_WGT		-- 로스중량
+							, PORG.ISS_WGT			-- 출고중량 (화면:할증중량)
+							, LOAD.NM_UNIT_PRICE	-- 일반단가
+							, LOAD.EP_UNIT_PRICE	-- 내진단가
+							, LOAD.REF_TEXT_IN		-- 비고
+							, LOAD.REF_TEXT_PRT	-- 비고
+							, LOAD.PROCESS_NM
+							, VW_SITE_INFO.SITE_CD
+							, VW_SITE_INFO.SITE_NM
+						    , LOAD.COMP_MOV_VAL	-- 운송비1
+							, LOAD.COMP_MOV_VAL2	-- 운송비2
+							, LOAD.COMP_MOV_VAL3	-- 운송비3
+							, PORG.LOSS_RATE		-- 철근할증(%)
+							, LOAD.VEHL_NO
+						    , LOAD.LOAD_ORG_NO
+						    , LOAD.LOCK_FLAG
+						    , LOAD.ERP_FLAG
+								FROM ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_PRE_LOAD_ORG_DTL PORG
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
+								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+								  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1		   
+							  	<if test="erpFlag != null and !erpFlag.equals('')">
+							    	AND LOAD.ERP_FLAG = #{erpFlag}
+							  	</if>
+							  	<if test="tnkeyYn != null and !tnkeyYn.equals('')">
+								    AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  	</if>
+							  	<if test="siteNm != null and !siteNm.equals('')">
+								  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  	</if>
+							  	<if test="siteCd != null and !siteCd.equals('')">
+								  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  	</if>
+							  	<if test="coCd != null and !coCd.equals('')">
+								  	AND VW_SITE_INFO.CO_CD = #{coCd}
+								</if>	
+			
 			
 						)
 						GROUP BY
@@ -211,7 +317,6 @@
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
 				, SUM(T.ISS_WGT) AS ISS_WGT
-				, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
 				, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
 				, T.ERP_SHIP_SEQ
 				FROM (
@@ -224,12 +329,11 @@
 						, SUM(ISS_WGT) AS ISS_WGT
 						, SITE_CD
 						, SITE_NM
-						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
 						FROM (
 			
 							SELECT -- 납품대장 (발송완료) key : 일자+납품차수
 								 ISS_SEQ_NO			-- 납품차수
-								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시
+								 , LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시
 								 , BDTL.DIMS_CD
 								 , TB_DIMS.DIMS_CD_SEQ	
 								 , BITEM.PROD_WGT		-- 제품중량
@@ -249,7 +353,7 @@
 						         , LOAD.VEHL_NO
 						         , LOAD.LOAD_ORG_NO
 						         , LOAD.LOCK_FLAG
-						         , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
+						    	 , LOAD.ERP_FLAG
 						         , LOAD.ERP_SHIP_SEQ
 							FROM 
 								
@@ -272,9 +376,13 @@
 							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
-							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
-							  AND LOAD.ERP_FLAG = #{erpFlag}
-							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  <if test="erpFlag != null and !erpFlag.equals('')">
+							  	AND LOAD.ERP_FLAG = #{erpFlag}
+							  </if>
+							  <if test="tnkeyYn != null and !tnkeyYn.equals('')">
+							 	AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  </if>
 							  <if test="siteNm != null and !siteNm.equals('')">
 							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
 							  </if>
@@ -288,6 +396,63 @@
 							  	AND LOAD.LOAD_ORG_NO LIKE '%' || #{loadOrgNo} || '%'
 							  </if>
 							  
+			
+				UNION ALL
+						SELECT -- 납품대장 (발송완료) key : 일자+납품차수 - 기납
+							  ISS_SEQ_NO			-- 납품차수
+							, LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시 
+							, PORG.DIMS_CD
+							, TB_DIMS.DIMS_CD_SEQ	
+							, PORG.PROD_WGT		-- 제품중량
+							, PORG.LOSS_WGT		-- 로스중량
+							, PORG.ISS_WGT			-- 출고중량 (화면:할증중량)
+							, LOAD.NM_UNIT_PRICE	-- 일반단가
+							, LOAD.EP_UNIT_PRICE	-- 내진단가
+							, LOAD.REF_TEXT_IN		-- 비고
+							, LOAD.REF_TEXT_PRT	-- 비고
+							, LOAD.PROCESS_NM
+							, VW_SITE_INFO.SITE_CD
+							, VW_SITE_INFO.SITE_NM
+						    , LOAD.COMP_MOV_VAL	-- 운송비1
+							, LOAD.COMP_MOV_VAL2	-- 운송비2
+							, LOAD.COMP_MOV_VAL3	-- 운송비3
+							, PORG.LOSS_RATE		-- 철근할증(%)
+							, LOAD.VEHL_NO
+						    , LOAD.LOAD_ORG_NO
+						    , LOAD.LOCK_FLAG
+						    , LOAD.ERP_FLAG
+						    , LOAD.ERP_SHIP_SEQ
+								FROM ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_PRE_LOAD_ORG_DTL PORG
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
+								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+								  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1		   
+							  <if test="erpFlag != null and !erpFlag.equals('')">
+							  	AND LOAD.ERP_FLAG = #{erpFlag}
+							  </if>
+							  <if test="tnkeyYn != null and !tnkeyYn.equals('')">
+							 	AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  </if>
+							  <if test="siteNm != null and !siteNm.equals('')">
+							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  </if>
+							  <if test="siteCd != null and !siteCd.equals('')">
+							  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  </if>
+							  <if test="coCd != null and !coCd.equals('')">
+							  	AND VW_SITE_INFO.CO_CD = #{coCd}
+							  </if>
+							  <if test="loadOrgNo != null and !loadOrgNo.equals('')">
+							  	AND LOAD.LOAD_ORG_NO LIKE '%' || #{loadOrgNo} || '%'
+							  </if>
+			
+			
 			
 						)
 						GROUP BY 
@@ -318,7 +483,6 @@
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
 				, SUM(T.ISS_WGT) AS ISS_WGT
-				, SUM(T.PROD_PCS_CNT) AS PROD_PCS_CNT
 				, WM_CONCAT(T.LOAD_ORG_NO) AS LOAD_ORG_NO_GROUP
 				FROM (
 					SELECT 
@@ -331,32 +495,31 @@
 						, SUM(ISS_WGT) AS ISS_WGT
 						, SITE_CD
 						, SITE_NM
-						, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
 						FROM (
 			
 							SELECT
 								 ISS_SEQ_NO			-- 납품차수
-								 , TO_CHAR(LOAD.ISS_DT, 'YY-MM-DD') AS ISS_DT -- 출하일시 
+								 , LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시 
 								 , BDTL.DIMS_CD
 								 , TB_DIMS.DIMS_CD_SEQ	
 								 , BITEM.PROD_WGT		-- 제품중량
 								 , BITEM.LOSS_WGT		-- 로스중량
 								 , BITEM.ISS_WGT			-- 출고중량 (화면:할증중량)
-								 , BITEM.LOSS_RATE		-- 철근할증(%)
-								 , BITEM.PROD_PCS_CNT AS PROD_PCS_CNT
 								 , LOAD.NM_UNIT_PRICE	-- 일반단가
 								 , LOAD.EP_UNIT_PRICE	-- 내진단가
 								 , LOAD.REF_TEXT_IN		-- 비고
 								 , LOAD.REF_TEXT_PRT	-- 비고
 								 , LOAD.PROCESS_NM
-								 , LOAD.VEHL_NO
-						         , LOAD.LOAD_ORG_NO
-						         , LOAD.ERP_FLAG
+								 , VW_SITE_INFO.SITE_CD
+								 , VW_SITE_INFO.SITE_NM
 						         , LOAD.COMP_MOV_VAL	-- 운송비1
 								 , LOAD.COMP_MOV_VAL2	-- 운송비2
 								 , LOAD.COMP_MOV_VAL3	-- 운송비3
-								 , VW_SITE_INFO.SITE_CD
-								 , VW_SITE_INFO.SITE_NM
+								 , BITEM.LOSS_RATE		-- 철근할증(%)
+								 , LOAD.VEHL_NO
+						         , LOAD.LOAD_ORG_NO
+						         , LOAD.LOCK_FLAG
+						         , LOAD.ERP_FLAG
 								 , LOAD.ERP_SHIP_SEQ
 							FROM 
 							
@@ -379,9 +542,13 @@
 							  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
-							  AND LOAD.ISS_DT BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
-							  AND LOAD.ERP_FLAG = #{erpFlag}
-							  AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1
+							  <if test="erpFlag != null and !erpFlag.equals('')">
+							  	AND LOAD.ERP_FLAG = #{erpFlag}
+							  </if>
+							  <if test="tnkeyYn != null and !tnkeyYn.equals('')">
+							  	AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  </if>
 							  <if test="siteNm != null and !siteNm.equals('')">
 							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
 							  </if>
@@ -395,6 +562,63 @@
 							  	AND LOAD.LOAD_ORG_NO LIKE '%' || #{loadOrgNo} || '%'
 							  </if>
 							  
+				UNION ALL
+						SELECT -- 납품대장 (발송완료) key : 일자+납품차수 - 기납
+							  ISS_SEQ_NO			-- 납품차수
+							, LOAD.ISS_PLAN_DD AS ISS_DT -- 출하일시 
+							, PORG.DIMS_CD
+							, TB_DIMS.DIMS_CD_SEQ	
+							, PORG.PROD_WGT		-- 제품중량
+							, PORG.LOSS_WGT		-- 로스중량
+							, PORG.ISS_WGT			-- 출고중량 (화면:할증중량)
+							, LOAD.NM_UNIT_PRICE	-- 일반단가
+							, LOAD.EP_UNIT_PRICE	-- 내진단가
+							, LOAD.REF_TEXT_IN		-- 비고
+							, LOAD.REF_TEXT_PRT	-- 비고
+							, LOAD.PROCESS_NM
+							, VW_SITE_INFO.SITE_CD
+							, VW_SITE_INFO.SITE_NM
+						    , LOAD.COMP_MOV_VAL	-- 운송비1
+							, LOAD.COMP_MOV_VAL2	-- 운송비2
+							, LOAD.COMP_MOV_VAL3	-- 운송비3
+							, PORG.LOSS_RATE		-- 철근할증(%)
+							, LOAD.VEHL_NO
+						    , LOAD.LOAD_ORG_NO
+						    , LOAD.LOCK_FLAG
+						    , LOAD.ERP_FLAG
+						    , LOAD.ERP_SHIP_SEQ
+								FROM ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_PRE_LOAD_ORG_DTL PORG
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
+								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+								  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})+1		   
+							  <if test="erpFlag != null and !erpFlag.equals('')">
+							  	AND LOAD.ERP_FLAG = #{erpFlag}
+							  </if>
+							  <if test="tnkeyYn != null and !tnkeyYn.equals('')">
+							 	AND VW_SITE_INFO.TNKEY_YN = #{tnkeyYn}
+							  </if>
+							  <if test="siteNm != null and !siteNm.equals('')">
+							  	AND VW_SITE_INFO.SITE_NM LIKE '%${siteNm}%'
+							  </if>
+							  <if test="siteCd != null and !siteCd.equals('')">
+							  	AND VW_SITE_INFO.SITE_CD = #{siteCd}
+							  </if>
+							  <if test="coCd != null and !coCd.equals('')">
+							  	AND VW_SITE_INFO.CO_CD = #{coCd}
+							  </if>
+							  <if test="loadOrgNo != null and !loadOrgNo.equals('')">
+							  	AND LOAD.LOAD_ORG_NO LIKE '%' || #{loadOrgNo} || '%'
+							  </if>
+			
+			
+			
 			
 						)
 						GROUP BY
