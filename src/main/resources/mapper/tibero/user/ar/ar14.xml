@@ -28,43 +28,44 @@
 	<!-- 부실채권 TB_AR14M01 테이블 LIST -->
 	<select id="selectDebtList" resultType="CamelMap">
 			SELECT
-				  CO_CD 
-				, FN_CM05M01_CD_TO_NM(CO_CD) AS CO_NM
-				, TAXIVC_COPRT
-				, FN_CM05M01_CD_TO_NM(TAXIVC_COPRT) AS TAXIVC_COPRT_NM
-				, TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS INST_DT
-				, CLNT_CD
-				, CLNT_NM
-				, REPST_NM
-				, CRN
-				, MNG_CD
-				, MNG_NM
-				, MNG_TEL
-				, ASSORT_CD
-				, DEBT_AMT
-				, DEBT_RMK
-				, USE_YN
-				, CREAT_ID
-				, CREAT_PGM
-				, DEBT_NO
-		  	 FROM TB_AR14M01
+				  AR14.CO_CD 
+				, FN_CM05M01_CD_TO_NM(AR14.CO_CD) AS CO_NM
+				, AR14.TAXIVC_COPRT
+				, FN_CM05M01_CD_TO_NM(AR14.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
+				, TO_CHAR(TO_DATE(AR14.INST_DT, 'YYYYMMDD'), 'YYYY-MM-DD') AS INST_DT
+				, AR14.CLNT_CD
+				, AR14.CLNT_NM
+				, AR14.REPST_NM
+				, AR14.CRN
+				, AR14.MNG_CD
+				, AR14.MNG_NM
+				, AR14.MNG_TEL
+				, AR14.ASSORT_CD
+				, AR14.DEBT_AMT
+				, AR14.DEBT_RMK
+				, AR14.USE_YN
+				, AR14.CREAT_ID
+				, AR14.CREAT_PGM
+				, AR14.DEBT_NO
+				, DECODE((SELECT COUNT(*) FROM TB_CM08M01 CM08 WHERE FILE_TRGT_KEY = AR14.DEBT_NO), 0, 'N', 'Y') AS FILE_YN
+		  	 FROM TB_AR14M01 AR14
 		  	 WHERE 1=1 
 				<if test="coCd != null and !coCd.equals('')">
-					AND CO_CD = #{coCd}		
+					AND AR14.CO_CD = #{coCd}		
 				</if>
 				<if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-					AND TAXIVC_COPRT= #{taxivcCoprt}				
+					AND AR14.TAXIVC_COPRT= #{taxivcCoprt}				
 				</if>
 		  	 	<if test="clntCd != null and !clntCd.equals('')">
-					AND CLNT_CD = #{clntCd}				
+					AND AR14.CLNT_CD = #{clntCd}				
 				</if>
 				<if test="clntNm != null and !clntNm.equals('')">
-					AND CLNT_NM LIKE '%${clntNm}%'	
+					AND AR14.CLNT_NM LIKE '%${clntNm}%'	
 				</if>
 				<if test="baseDt != null and !baseDt.equals('')">
-					AND TO_CHAR(TO_DATE(INST_DT,'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
+					AND TO_CHAR(TO_DATE(AR14.INST_DT,'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
 				</if>	
-			ORDER BY INST_DT
+			ORDER BY AR14.INST_DT
 	</select>
 	
 	<!-- 부실채권 TB_AR14M01 테이블 INSERT -->
