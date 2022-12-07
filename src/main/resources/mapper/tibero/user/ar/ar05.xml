@@ -393,7 +393,7 @@
 				  AND A.ETRDPS_YN    = 'N'
 				  AND E.PRDT_GRP     = #{prdtGrp}
 				  AND A.SELPCH_CD    = #{selpchCd}
-				ORDER BY  A.TRST_DT) T
+				ORDER BY A.TRST_DT) T
 		LEFT OUTER JOIN TB_CM05M01 CD
 		ON T.CLMN_DIV_CD = CD.CODE_ID
 	</select>
@@ -430,7 +430,7 @@
 	<update id="updateEtrdpsDtl" parameterType="Map">	
 	UPDATE TB_AR02M01
 	   SET ETRDPS_AMT = NVL(ETRDPS_AMT, 0) + #{etrdpsAmt}
-	     , ETRDPS_YN = CASE WHEN #{etrdpsAmt} = (BILG_VAT_AMT + BILG_AMT - ETRDPS_AMT) THEN 'Y' ELSE 'N' END
+	     , ETRDPS_YN = CASE WHEN #{etrdpsAmt} = (NVL(BILG_VAT_AMT, 0) + NVL(BILG_AMT, 0) - NVL(ETRDPS_AMT, 0)) THEN 'Y' ELSE 'N' END
 	 WHERE CO_CD = #{coCd}
 	   AND TRST_CERTI_NO = #{trstCertiNo}
 	</update>
