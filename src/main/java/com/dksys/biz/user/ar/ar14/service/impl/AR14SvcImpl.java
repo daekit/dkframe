@@ -42,7 +42,6 @@ public class AR14SvcImpl implements AR14Svc {
 		List<Map<String, String>> resultListMap = new ArrayList<Map<String,String>>(); 
 		resultListMap = ar14Mapper.selectDebtList(paramMap);
 		
-		
 		int balance = 0;
 		
 		if(resultListMap != null) {
@@ -89,7 +88,13 @@ public class AR14SvcImpl implements AR14Svc {
 					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(debtAmt));
 				}
 				
-				resultListMap.get(i).put("balance", Integer.toString(balance));
+				resultListMap.get(i).put("BALANCE", Integer.toString(balance));
+			}
+		}
+		
+		if(resultListMap != null) {
+			for(int i=0; i<resultListMap.size(); i++) {
+				resultListMap.get(i).put("TOTAL_BALANCE", Integer.toString(balance));
 			}
 		}
 		
