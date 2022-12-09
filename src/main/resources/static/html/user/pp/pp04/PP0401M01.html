@@ -202,6 +202,7 @@
 	var firstGrid = null;
 	var secondGrid = null;
 	var stockGrid = null;
+	var lockFlag = "N";
 	
 	var gridFirstView = {
 			initView: function(){
@@ -474,9 +475,17 @@
 			return;
 		}
 		
-		if(!confirm("출하요청서를 생성하시겠습니까?")){
+		if(lockFlag == "N"){
+			lockFlag = "Y";
+			if(!confirm("출하요청서를 생성하시겠습니까?")){
+				lockFlag = "N";
+				return;
+			}	
+		}else{
+			alert("출하요청서 생성을 중복 실행하셨습니다.");
 			return;
 		}
+		
 		
 		$.each(list, function(idx, obj){
 			if(obj.erpFlag == 'Y'){
@@ -486,6 +495,7 @@
 		
 		if(flag == 1){
 			alert("이미 출하요청서 생성된 건이 있습니다.");
+			lockFlag = "N";
 			return;
 		}
 
@@ -507,6 +517,7 @@
 				"issDt"	 : issDtTo
 		}
 		postAjax("/user/pp/pp04/insertMesShipList", formData, null, function(data){
+			lockFlag = "N";
 			alert(data.resultMessage);
 			gridFirstView.setData(0);
 		});
@@ -668,7 +679,7 @@
 					        	{key: "loadOrgNoGroup",  label: "상차지시번호", 	align: "center",	hidden: true},
 					        	{key: "mesFtrCd",  	label: "공장번호", 	align: "center",	hidden: true},
 					        	{key: "siteNm",  	label: "현장명", 		align: "left",	width: 300},
-					        	/*{key: "issDt",   	label: "출하일자",   	align: "center",  	width: 80},*/
+					        	{key: "issDt",   	label: "출하일자",   	align: "center",  	width: 80},
 					            {key: "prodPcsCnt", label: "총 제품 수량",	align: "right", 	width: 100,	formatter: "money" },
 					            {key: "issWgt",   	label: "총 제품 중량",	align: "right", 	width: 100,	formatter: "money" },
 					            
