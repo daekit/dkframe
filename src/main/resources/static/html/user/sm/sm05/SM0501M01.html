@@ -184,9 +184,14 @@
 					</td>
 			</tr>
 			<tr>
-	         	<th>자사거래 제외</th>
+	         	<th>자사거래 조회</th>
                 <td>
-                	<input type="checkbox" id="selfCheck" name="selfCheck"  style="width: 100%;" data-search="selfCheck"onchange="gridView.setData(0);">
+                	<select id="selfCheck" data-search="selfCheck" onchange="gridView.setData(0);">
+						<option value="A">전체</option>
+						<option value="Y">자사거래만 조회</option>
+						<option value="N">자사거래 제외</option>
+					</select>
+                	<!-- <input type="checkbox" id="selfCheck" name="selfCheck"  style="width: 100%;" data-search="selfCheck"onchange="gridView.setData(0);"> -->
                 </td>      
 				<th>담당자 조회여부</th>
 				<td>
@@ -300,7 +305,8 @@
 				}
 		       // 담당자 조회 여부
 				paramObj.mngShow = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
-				paramObj.selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+				// paramObj.selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+				paramObj.selfCheck = $('#selfCheck').val();
 				
 				postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
 					var list = data.resultList;
@@ -360,6 +366,7 @@
 		$(".contents.search select").val("");
 		$(".contents.search input").val("");
 		$("#coCd").val(jwt.coCd);
+		$('#selfCheck').val("A");
 		setByCoCd(jwt.coCd);
 		$("#startDt").val(getMonth("S"));
 		$("#endDt").val(getMonth("E"));
@@ -491,7 +498,8 @@
 
 		    // 담당자 조회 여부
 			paramObj.mngShow = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
-			paramObj.selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+			// paramObj.selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+			paramObj.selfCheck = $('#selfCheck').val();
 			
 			postAjax("/user/sm/sm05/selectPchsAggr", paramObj, null, function(data){
 				var list = data.resultList;
@@ -533,7 +541,8 @@
 	function setReportMain() {
 	    
 		var mngShowYn = $('#mngShowYn').is(":checked") ? 'Y' : 'N';
-		var selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+		// var selfCheck = $('#selfCheck').is(":checked") ? 'Y' : 'N';
+		var selfCheck = $('#selfCheck').val();
 		
 		if(mngShowYn == 'Y'){
 			var fileName = "SM0501R01.jrf";
