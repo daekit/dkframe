@@ -13,6 +13,7 @@
 				SELECT
 				     T.CO_CD
 					,T.TRST_CLNT_CD
+					,FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
 					,T.CLNT_NM
 					<if test='mngShow=="Y"'>
 					,T.SALES_MNG
@@ -109,7 +110,7 @@
 					</if>
 				</if>
 				
-				GROUP BY T.CO_CD, TRST_CLNT_CD, CLNT_NM
+				GROUP BY T.CO_CD, TRST_CLNT_CD, CLNT_NM, TAXIVC_COPRT
 					<if test='mngShow=="Y"'>
 					 ,SALES_MNG
 					 </if>
@@ -134,6 +135,7 @@
 				SELECT
 				     T.CO_CD
 				    ,FN_CM05M01_CD_TO_NM(T.CO_CD) AS CO_NM
+				    ,FN_CM05M01_CD_TO_NM(T.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
 					,T.TRST_CLNT_CD
 					--,(SELECT CLNT_NM FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD) AS CLNT_NM
 					,FN_CM05M01_CD_TO_NM((SELECT CLNT_DIV_CD FROM TB_BM02M01 WHERE CLNT_CD = T.TRST_CLNT_CD)) AS CLNT_DIV_NM
@@ -233,7 +235,7 @@
 						</if>
 					</if>
 				</if>
-				GROUP BY T.CO_CD , TRST_CLNT_CD, CLNT_NM
+				GROUP BY T.CO_CD , TRST_CLNT_CD, CLNT_NM, TAXIVC_COPRT
 					<if test='mngShow=="Y"'>
 					 ,SALES_MNG
 					 </if>
