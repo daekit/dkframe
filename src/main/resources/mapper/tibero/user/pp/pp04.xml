@@ -680,7 +680,7 @@
 			-- , NM_UNIT_PRICE
 			, SUM(PROD_WGT) AS PROD_WGT
 			, SUM(ISS_WGT) AS ISS_WGT
-			, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+			-- , SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
 			, SUM(NVL(COMP_MOV_VAL,0) + NVL(COMP_MOV_VAL2,0) + NVL(COMP_MOV_VAL3,0)) AS COMP_MOV_VAL
 			FROM (
 				SELECT
@@ -688,7 +688,7 @@
  					 -- , BDTL.ORD_LENGTH
 					 , BITEM.PROD_WGT		-- 제품 중량
 					 , BITEM.ISS_WGT		-- 할증 중량
-					 , BITEM.PROD_PCS_CNT 	-- 제품 수량
+					 -- , BITEM.PROD_PCS_CNT 	-- 제품 수량
 					 -- , LOAD.NM_UNIT_PRICE	-- 일반단가
 					 , LOAD.COMP_MOV_VAL	-- 운송비1
 					 , LOAD.COMP_MOV_VAL2	-- 운송비2
@@ -716,6 +716,28 @@
 				  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 				  AND LOAD.LOAD_ORG_NO IN (${loadOrgNo})
 				  
+				  UNION ALL
+						SELECT 
+							PORG.DIMS_CD
+							, PORG.PROD_WGT		-- 제품중량
+							, PORG.ISS_WGT			-- 출고중량 (화면:할증중량)
+						    , LOAD.COMP_MOV_VAL	-- 운송비1
+							, LOAD.COMP_MOV_VAL2	-- 운송비2
+							, LOAD.COMP_MOV_VAL3	-- 운송비3
+								FROM ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_PRE_LOAD_ORG_DTL PORG
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
+								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+								  AND LOAD.LOAD_ORG_NO IN (${loadOrgNo})
+				  
+				  
+				  
 				  ) GROUP BY DIMS_CD -- , ORD_LENGTH, NM_UNIT_PRICE
 				  )
 	</select>
@@ -727,15 +749,15 @@
 			-- , NM_UNIT_PRICE
 			, SUM(PROD_WGT) AS PROD_WGT
 			, SUM(ISS_WGT) AS ISS_WGT
-			, SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
+			-- , SUM(PROD_PCS_CNT) AS PROD_PCS_CNT
 			, SUM(NVL(COMP_MOV_VAL,0) + NVL(COMP_MOV_VAL2,0) + NVL(COMP_MOV_VAL3,0)) AS COMP_MOV_VAL
 			FROM (
 				SELECT
 					 BDTL.DIMS_CD
- 					 , BDTL.ORD_LENGTH
+ 					 -- , BDTL.ORD_LENGTH
 					 , BITEM.PROD_WGT		-- 제품 중량
 					 , BITEM.ISS_WGT		-- 할증 중량
-					 , BITEM.PROD_PCS_CNT 	-- 제품 수량
+					 -- , BITEM.PROD_PCS_CNT 	-- 제품 수량
 					 -- , LOAD.NM_UNIT_PRICE	-- 일반단가
 					 , LOAD.COMP_MOV_VAL	-- 운송비1
 					 , LOAD.COMP_MOV_VAL2	-- 운송비2
@@ -762,6 +784,27 @@
 				  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 				  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 				  AND LOAD.LOAD_ORG_NO IN (${loadOrgNo})
+				  
+				  
+				    UNION ALL
+						SELECT 
+							PORG.DIMS_CD
+							, PORG.PROD_WGT		-- 제품중량
+							, PORG.ISS_WGT			-- 출고중량 (화면:할증중량)
+						    , LOAD.COMP_MOV_VAL	-- 운송비1
+							, LOAD.COMP_MOV_VAL2	-- 운송비2
+							, LOAD.COMP_MOV_VAL3	-- 운송비3
+								FROM ${mesFtrCd}.TB_MES_LOAD_ORG AS LOAD
+								   , ${mesFtrCd}.TB_MES_PRE_LOAD_ORG_DTL PORG
+								   , ${mesFtrCd}.VW_SITE_INFO
+								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
+								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
+								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
+								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
+								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
+								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
+								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
+								  AND LOAD.LOAD_ORG_NO IN (${loadOrgNo})
 				  
 				  ) GROUP BY DIMS_CD -- , NM_UNIT_PRICE -- , ORD_LENGTH
 	</select>
