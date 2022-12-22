@@ -42,6 +42,8 @@ public class AR14SvcImpl implements AR14Svc {
 		List<Map<String, String>> resultListMap = new ArrayList<Map<String,String>>(); 
 		resultListMap = ar14Mapper.selectDebtList(paramMap);
 		
+		int totalDebtAmt = 0;
+		int totalRepayAmt = 0;
 		int balance = 0;
 		
 		if(resultListMap != null) {
@@ -51,41 +53,60 @@ public class AR14SvcImpl implements AR14Svc {
 				
 				// 부채일시
 				if(assortCd.equals("ASSORTCD1")) {
+					totalDebtAmt += debtAmt;
 					balance += debtAmt;
-					resultListMap.get(i).put("DEBT_AMT", Integer.toString(debtAmt));
+					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(debtAmt));
+					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
 				// 상환일시
 				}else if(assortCd.equals("ASSORTCD2")) {
+					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(debtAmt));
 					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
 				}else if(assortCd.equals("ASSORTCD3")) {
+					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(debtAmt));
 					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
 				}else if(assortCd.equals("ASSORTCD4")) {
+					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(debtAmt));
 					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
 				}else if(assortCd.equals("ASSORTCD5")) {
+					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
 					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(debtAmt));
+				}else if(assortCd.equals("ASSORTCD6")) {
+					totalDebtAmt += debtAmt;
+					balance += debtAmt;
+					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(debtAmt));
+					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
+					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
+					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
+					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
 				}
 				
 				resultListMap.get(i).put("BALANCE", Integer.toString(balance));
@@ -95,6 +116,8 @@ public class AR14SvcImpl implements AR14Svc {
 		if(resultListMap != null) {
 			for(int i=0; i<resultListMap.size(); i++) {
 				resultListMap.get(i).put("TOTAL_BALANCE", Integer.toString(balance));
+				resultListMap.get(i).put("TOTAL_DEBT_AMT", Integer.toString(totalDebtAmt));
+				resultListMap.get(i).put("TOTAL_REPAY_AMT", Integer.toString(totalRepayAmt));
 			}
 		}
 		
@@ -135,7 +158,31 @@ public class AR14SvcImpl implements AR14Svc {
 	
 	@Override
 	public List<Map<String, String>> selectDebtGroupList(Map<String, String> paramMap) {
-		return ar14Mapper.selectDebtGroupList(paramMap);
+		
+		List<Map<String, String>> resultMap = ar14Mapper.selectDebtGroupList(paramMap);
+		
+		int totalDebtAmt = 0;
+		int totalRepayAmt = 0;
+		
+		if(resultMap != null) {
+			for(int i = 0; i < resultMap.size(); i++) {
+				totalDebtAmt += MapUtils.getInteger(resultMap.get(i), "debtAmt1");
+				totalDebtAmt += MapUtils.getInteger(resultMap.get(i), "debtAmt2");
+				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt1");
+				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt2");
+				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt3");
+				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt4");
+			}			
+		}
+		
+		if(resultMap != null) {
+			for(int i = 0; i < resultMap.size(); i++) {
+				resultMap.get(i).put("TOTAL_DEBT_AMT", Integer.toString(totalDebtAmt));
+				resultMap.get(i).put("TOTAL_REPAY_AMT", Integer.toString(totalRepayAmt));
+			}
+		}
+		
+		return resultMap;
 	}
 	
 	@Override
