@@ -27,8 +27,11 @@
 	
 	<!-- 부실채권 TB_AR14M01 테이블 LIST -->
 	<select id="selectDebtList" resultType="CamelMap">
-			SELECT
-				  AR14.CO_CD 
+		SELECT * 
+			FROM 
+			( SELECT
+				ROWNUM AS RNUM
+				, AR14.CO_CD 
 				, FN_CM05M01_CD_TO_NM(AR14.CO_CD) AS CO_NM
 				, AR14.TAXIVC_COPRT
 				, FN_CM05M01_CD_TO_NM(AR14.TAXIVC_COPRT) AS TAXIVC_COPRT_NM
@@ -65,7 +68,16 @@
 				<if test="baseDt != null and !baseDt.equals('')">
 					AND TO_CHAR(TO_DATE(AR14.INST_DT,'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
 				</if>	
+				<if test="mngCd != null and !mngCd.equals('')">
+					AND AR14.MNG_CD = #{mngCd}
+				</if>
+				<if test="mngNm != null and !mngNm.equals('')">
+					AND AR14.MNG_NM LIKE '%${mngNm}%'
+				</if>
 			ORDER BY AR14.INST_DT
+			)
+			WHERE
+			RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
 	<!-- 부실채권 TB_AR14M01 테이블 INSERT -->

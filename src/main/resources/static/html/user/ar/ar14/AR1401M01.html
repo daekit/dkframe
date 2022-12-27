@@ -80,21 +80,21 @@
 			              </div>
 		                </td>
 					</tr>
-					</tr>
+					<tr>
 						<th>판매법인</th>
 						<td>
 						  <select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="subGridView.setData(0);">
 						 	 <option value="">전체</option>
 						  </select>
 						</td>
-						<!-- 
-						<th>제품그룹</th>
+						<th>담당자</th>
 						<td>
-							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="subGridView.setData(0);">
-								<option value="">전체</option>
-							</select>
-						</td>
-						 -->
+		                  <input type="hidden" id="mngCd_S" name="mngCd" data-search="mngCd">
+		                  <div class="search_form" style="width: 50%;">
+			                <input type="text" id="mngNm_S" name="mngNm" data-search="mngNm" onkeyup="if(event.keyCode != 13){resetClntCd()}; event.keyCode == 8 ? mngCd_S.value = '' : event.keyCode == 13 ? subGridView.initView(closeYm.value).setData(0) : ''">
+			              	<a onclick="openUserSearch();"><i class="i_search_w"></i></a>
+			              </div>
+		                </td>
 					</tr>
 				</table>
 			</div>
@@ -110,10 +110,10 @@
 	            </div>
 				<select class="prae_select" data-search="recordCnt">
 					<option value="10">10</option>
-					<option value="20" selected>20</option>
+					<option value="20">20</option>
 					<option value="50">50</option>
 					<option value="100">100</option>
-					<option value="9999999">전체</option>
+					<option value="9999999" selected>전체</option>
 				</select> 
 			</div>
 		</div>
@@ -412,6 +412,22 @@ ax5.ui.grid.formatter["bilgYn"] = function () {
 			modalTitle = "부실채권등록";
 		}
 		openModal("/static/html/user/ar/ar14/AR1401P01.html", 700, 470, modalTitle,paramObj);
+	}
+	
+	// 사용자 검색
+	function openUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM",
+			"userId": $('#mngCd').val(),
+			"useYn": "Y"
+		};
+		
+		openSecondModal("/static/html/cmn/modal/userSearch.html", 300, 500, "담당자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#mngCd_S').val(checkedNode.id);
+			$('#mngNm_S').val(checkedNode.text);
+		});
 	}
 	
 	
