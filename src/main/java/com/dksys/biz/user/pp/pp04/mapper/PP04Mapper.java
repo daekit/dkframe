@@ -71,6 +71,15 @@ public interface PP04Mapper {
 	int selectMesMtrlRstlUnGroupListCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectMesMtrlRstlUnGroupList(Map<String, String> paramMap);
+
+	int compulsionMesUpdate(Map<String, String> updateMap);
+
+	Map<String, Object> checkProgressFlag(Map<String, Object> checkMap);
+
+	void updateProgressLockFlag(Map<String, Object> checkMap);
+
+	Map<String, Object> checkShipSeq(Map<String, Object> checkMap);
+
 	
 	/*
 	 * 

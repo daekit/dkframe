@@ -105,14 +105,15 @@
 	                <td>
 	                 	<select id="mesFtrCd" onchange="gridFirstView.setData(0);" required="required" msg="창고구분">
 	                 	 
+	                 	 	 
 	                 		<option value="MES_KMCN">창녕공장</option>
 	                 		<option value="MES_KMIC">인천공장</option>
 	                 		<option value="MES_KMJC">진천공장</option>
-	                 		<!-- 
+	                 		<!--  
 	                 		<option value="MES_KMCN_DEV">개발계_창녕공장</option>
 	                 		<option value="MES_KMIC_DEV">개발계_인천공장</option>
 	                 		<option value="MES_KMJC_DEV">개발계_진천공장</option>
-	                 	 	-->
+	                 		 -->
 	                 	</select>
 	                </td>
 	              	<th>현장</th>
@@ -148,10 +149,18 @@
 							<button type="button" class="bg_gray">출하요청서 삭제</button>
 						</a>
 					 -->
-					  
+					  	<a onclick="compulsionMesCancel();" style="float:right; margin-left:5px; display:none" authchk>
+							<button type="button" class="bg_gray">출하 취소</button>
+						</a>
+						<a onclick="compulsionMesUpdate();" style="float:right; margin-left:5px; display:none" authchk>
+							<button type="button" class="bg_gray">출하 확정</button>
+						</a>
 						<a onclick="insertMesShip();" style="float:right; margin-left:5px; display:none" authchk>
 							<button type="button" class="bg_gray">출하요청서 생성</button>
 						</a>
+						
+						
+						
 						
 					</li>
 				</ul>
@@ -556,6 +565,140 @@
 		postAjax("/user/pp/pp04/deleteMesShipList", formData, null, function(data){
 			alert(data.resultMessage);
 			gridView.setData(0);
+		});
+	}
+	
+	function compulsionMesUpdate() {
+
+		var list = gridFirstView.target.getList("selected");
+		var odrSeqArr = [];
+		var allocVehlNoArr = [];
+		var rowLength = gridFirstView.target.getList("selected").length;
+		var flag = 0;
+		
+		if(rowLength == 0) {
+			alert("출하요청서를 생성할 데이터를 선택해 주세요.");
+			return;
+		}
+		
+		if(lockFlag == "N"){
+			lockFlag = "Y";
+			if(!confirm("강제 출하 처리 하겠습니까?")){
+				lockFlag = "N";
+				return;
+			}	
+		}else{
+			alert("강제 출하 처리를 중복 실행했습니다.");
+			return;
+		}
+		
+		
+		$.each(list, function(idx, obj){
+			if(obj.erpFlag == 'Y'){
+				flag = 1;
+			}
+		});
+		
+		if(flag == 1){
+			alert("이미 출하요청서 생성된 건이 있습니다.");
+			lockFlag = "N";
+			return;
+		}
+
+		var issDtTo = $('#reqDtTo').val();
+
+		var year = issDtTo.substr(0,4);
+		var month = issDtTo.substr(5,2);
+		var day = issDtTo.substr(8,2);
+
+		var lastDate = new Date(year, month, 0).getDate();
+		
+		issDtTo = year + month + lastDate;
+		
+		var formData = {
+				"list"   : list,
+				"userId" : jwt.userId,
+				"userNm" : jwt.userNm,
+				"pgmId"  : "PP0401M01",
+				"issDt"	 : issDtTo
+		}
+		
+		postAjax("/user/pp/pp04/compulsionMesUpdate", formData, null, function(data){
+			lockFlag = "N";
+			alert(data.resultMessage);
+			gridFirstView.setData(0);
+		});
+		
+	}
+	
+	function compulsionMesCancel() {
+
+		var list = gridFirstView.target.getList("selected");
+		var odrSeqArr = [];
+		var allocVehlNoArr = [];
+		var rowLength = gridFirstView.target.getList("selected").length;
+		var flag = 0;
+		var shipFlag = 0;
+		if(rowLength == 0) {
+			alert("출하요청서를 생성할 데이터를 선택해 주세요.");
+			return;
+		}
+		
+		if(lockFlag == "N"){
+			lockFlag = "Y";
+			if(!confirm("강제 출하 취소 하겠습니까?")){
+				lockFlag = "N";
+				return;
+			}	
+		}else{
+			alert("강제 출하 취소를 중복 실행했습니다.");
+			return;
+		}
+		
+		
+		$.each(list, function(idx, obj){
+			if(obj.erpFlag == 'N'){
+				flag = 1;
+			}
+			
+			if(obj.erpShipSeq != null){
+				shipFlag = 1;
+			}
+		});
+		
+		if(flag == 1){
+			alert("출하되지 않은 건이 있습니다.");
+			lockFlag = "N";
+			return;
+		}
+		
+		if(shipFlag == 1){
+			alert("출하요청서가 존재하는 건이 있습니다.");
+			lockFlag = "N";
+			return;
+		}
+
+		var issDtTo = $('#reqDtTo').val();
+
+		var year = issDtTo.substr(0,4);
+		var month = issDtTo.substr(5,2);
+		var day = issDtTo.substr(8,2);
+
+		var lastDate = new Date(year, month, 0).getDate();
+		
+		issDtTo = year + month + lastDate;
+		
+		var formData = {
+				"list"   : list,
+				"userId" : jwt.userId,
+				"userNm" : jwt.userNm,
+				"pgmId"  : "PP0401M01",
+				"issDt"	 : issDtTo
+		}
+		postAjax("/user/pp/pp04/compulsionMesCancel", formData, null, function(data){
+			lockFlag = "N";
+			alert(data.resultMessage);
+			gridFirstView.setData(0);
 		});
 	}
 	

@@ -31,6 +31,10 @@ public interface PP04Svc {
 
 	List<Map<String, String>> selectMesMtrlRstlUnGroupList(Map<String, String> paramMap);
 
+	int compulsionMesUpdate(Map<String, Object> paramMap);
+
+	int compulsionMesCancel(Map<String, Object> paramMap);
+
 	
 	
 	/*

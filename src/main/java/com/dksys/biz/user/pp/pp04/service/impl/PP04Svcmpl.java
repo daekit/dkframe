@@ -463,6 +463,158 @@ public class PP04Svcmpl implements PP04Svc {
 		}
 		return 200;
 	}
+	
+	// 20221128 넘기는 데이터를 다음 것과 확인해서 insert 하기
+	@Override
+	public int compulsionMesUpdate(Map<String, Object> paramMap) {
+		
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String issDt = String.valueOf(paramMap.get("issDt"));
+		String loadOrgNo = "";
+		String siteCd = "";
+		List<String> loadOrgNoList = new ArrayList<String>(); 
+		List<Map<String, String>> listMap = (List<Map<String,String>>)paramMap.get("list");
+		
+		// 화면에서 넘겨준 list를 돌면서 다음 현장과 같은지 확인하고 같으면 병합, 다르면 따로 출하요청서를 생성하는 로직 수행
+		for(int i = 0; i < listMap.size(); i++) {
+			
+			String loadOrgNoGroup = MapUtils.getString(listMap.get(i), "loadOrgNoGroup");
+			String[] splitList = loadOrgNoGroup.split(",");
+			String mergeLoadOrgNo = "";
+			
+			for(int s = 0; s < splitList.length; s++) {
+				mergeLoadOrgNo += "'" + splitList[s] + "',";
+			}
+			
+			loadOrgNo += mergeLoadOrgNo;
+		}
+
+		String lastStringCheck = loadOrgNo.substring(loadOrgNo.length()-1);
+		
+		if(lastStringCheck.equals(",")) {
+			loadOrgNo = loadOrgNo.substring(0, loadOrgNo.length()-1);
+		}
+		
+		Map<String, Object> checkMap = new HashMap<String, Object>();
+
+		checkMap.put("mesFtrCd", listMap.get(0).get("mesFtrCd"));
+		checkMap.put("loadOrgNo", loadOrgNo);
+		int updateCount = 500;
+		
+		try {
+			
+			Map<String, Object> checkFlagMap = pp04Mapper.checkProgressFlag(checkMap);
+			int countFlagY = MapUtils.getInteger(checkFlagMap, "countFlagY");
+			
+			if(countFlagY == 0) {
+				checkMap.put("erpUpdateLockFlag", "Y");
+				pp04Mapper.updateProgressLockFlag(checkMap);
+			}else {
+				checkMap.put("erpUpdateLockFlag", "N");
+				pp04Mapper.updateProgressLockFlag(checkMap);
+				return updateCount;
+			}
+
+			Map<String, String> updateMap = new HashMap<String, String>();
+			
+			updateMap.put("erpUpdateFlag", "Y");
+			updateMap.put("mesFtrCd", listMap.get(0).get("mesFtrCd"));
+			updateMap.put("loadOrgNo", loadOrgNo);
+			
+	 		updateCount = pp04Mapper.compulsionMesUpdate(updateMap);
+	 		checkMap.put("erpUpdateLockFlag", "N");
+			pp04Mapper.updateProgressLockFlag(checkMap);
+			
+		}catch (Exception e) {
+			checkMap.put("erpUpdateLockFlag", "N");
+			pp04Mapper.updateProgressLockFlag(checkMap);
+		}
+		
+		return updateCount;
+	}
+	
+	// 20221219 MES 강제 취소 처리 로직 추가
+	@Override
+	public int compulsionMesCancel(Map<String, Object> paramMap) {
+		
+		String userId = String.valueOf(paramMap.get("userId"));
+		String userNm = String.valueOf(paramMap.get("userNm"));
+		String pgmId = String.valueOf(paramMap.get("pgmId"));
+		String issDt = String.valueOf(paramMap.get("issDt"));
+		String loadOrgNo = "";
+		String siteCd = "";
+		List<String> loadOrgNoList = new ArrayList<String>(); 
+		List<Map<String, String>> listMap = (List<Map<String,String>>)paramMap.get("list");
+		
+		// 화면에서 넘겨준 list를 돌면서 다음 현장과 같은지 확인하고 같으면 병합, 다르면 따로 출하요청서를 생성하는 로직 수행
+		for(int i = 0; i < listMap.size(); i++) {
+			
+			String loadOrgNoGroup = MapUtils.getString(listMap.get(i), "loadOrgNoGroup");
+			String[] splitList = loadOrgNoGroup.split(",");
+			String mergeLoadOrgNo = "";
+			
+			for(int s = 0; s < splitList.length; s++) {
+				mergeLoadOrgNo += "'" + splitList[s] + "',";
+			}
+			
+			loadOrgNo += mergeLoadOrgNo;
+		}
+
+		String lastStringCheck = loadOrgNo.substring(loadOrgNo.length()-1);
+		
+		if(lastStringCheck.equals(",")) {
+			loadOrgNo = loadOrgNo.substring(0, loadOrgNo.length()-1);
+		}
+		
+		Map<String, Object> checkMap = new HashMap<String, Object>();
+
+		checkMap.put("mesFtrCd", listMap.get(0).get("mesFtrCd"));
+		checkMap.put("loadOrgNo", loadOrgNo);
+		int updateCount = 500;
+		
+		try {
+			
+			// 선택된 출하리스트 중 출하요청서가 생성된 건이 있는지 확인하는 로직
+			Map<String, Object> checkShipMap = pp04Mapper.checkShipSeq(checkMap);
+			int countShipY = MapUtils.getInteger(checkShipMap, "countShipY");
+			
+			if(countShipY != 0) {
+				updateCount = 300;
+				return updateCount;
+			}
+			
+			// 현재 작업중인 출하리스트 번호가 들어있는지 확인하는 로직
+			Map<String, Object> checkFlagMap = pp04Mapper.checkProgressFlag(checkMap);
+			int countFlagY = MapUtils.getInteger(checkFlagMap, "countFlagY");
+			
+			if(countFlagY == 0) {
+				checkMap.put("erpUpdateLockFlag", "Y");
+				pp04Mapper.updateProgressLockFlag(checkMap);
+			}else {
+				checkMap.put("erpUpdateLockFlag", "N");
+				pp04Mapper.updateProgressLockFlag(checkMap);
+				return updateCount;
+			}
+
+			Map<String, String> updateMap = new HashMap<String, String>();
+			
+			updateMap.put("erpUpdateFlag", "N");
+			updateMap.put("mesFtrCd", listMap.get(0).get("mesFtrCd"));
+			updateMap.put("loadOrgNo", loadOrgNo);
+			
+	 		updateCount = pp04Mapper.compulsionMesUpdate(updateMap);
+	 		checkMap.put("erpUpdateLockFlag", "N");
+			pp04Mapper.updateProgressLockFlag(checkMap);
+			
+		}catch (Exception e) {
+			checkMap.put("erpUpdateLockFlag", "N");
+			pp04Mapper.updateProgressLockFlag(checkMap);
+		}
+		
+		return updateCount;
+	}
 
 	@Override
 	public int selectBilgNoCnt(Map<String, Object> paramMap) {

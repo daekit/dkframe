@@ -138,6 +138,50 @@ public class PP04Ctr {
     	return "jsonView";
     }
     
+   /* 선택된 출하실적 강제 생성 처리  */
+    @PostMapping(value = "/compulsionMesUpdate")
+    public String compulsionMesUpdate(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	try {
+    		int cnt = pp04Svc.compulsionMesUpdate(paramMap);
+    		
+    		if(cnt == 500) {
+        		model.addAttribute("resultCode", 500);
+            	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    		}else {
+    			model.addAttribute("resultCode", 200);
+            	model.addAttribute("resultMessage", cnt + "개를 " + messageUtils.getMessage("update"));
+    		}
+        	
+    	}catch (Exception e) {
+    		model.addAttribute("resultCode", 500);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
+    
+    /* 선택된 출하실적 강제 취소 처리  */
+    @PostMapping(value = "/compulsionMesCancel")
+    public String compulsionMesCancel(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+    	try {
+    		int cnt = pp04Svc.compulsionMesCancel(paramMap);
+    		
+    		if(cnt == 500) {
+    			model.addAttribute("resultCode", 500);
+            	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));	
+    		}else if(cnt == 300){
+    			model.addAttribute("resultCode", 200);
+            	model.addAttribute("resultMessage", messageUtils.getMessage("alreadyShip"));
+    		}else {
+    			model.addAttribute("resultCode", 200);
+            	model.addAttribute("resultMessage", cnt + "개를 " + messageUtils.getMessage("cancel"));	
+    		}
+    	}catch (Exception e) {
+    		model.addAttribute("resultCode", 500);
+        	model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+    	return "jsonView";
+    }
+    
     
     /*  
      *   

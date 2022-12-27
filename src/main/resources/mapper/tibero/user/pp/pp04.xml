@@ -1747,4 +1747,36 @@ WHERE T1.DIMS_CD = BM01.PRDT_SPEC
 						WHERE LOAD_ORG_NO IN (${loadOrgNo})
 	</update>
 	
+	<update id="compulsionMesUpdate" parameterType="Map">
+		UPDATE 
+			${mesFtrCd}.TB_MES_LOAD_ORG
+				SET
+					  ERP_FLAG = #{erpUpdateFlag}
+				WHERE LOAD_ORG_NO IN (${loadOrgNo})
+	</update>
+	
+	<select id="checkProgressFlag" parameterType="Map" resultType="CamelMap">
+		SELECT
+			COUNT(LOCK_FLAG) AS COUNT_FLAG_Y
+				 FROM ${mesFtrCd}.TB_MES_LOAD_ORG
+				WHERE LOAD_ORG_NO IN (${loadOrgNo})
+				  AND LOCK_FLAG = 'Y'
+	</select>
+	
+	<update id="updateProgressLockFlag" parameterType="Map">
+		UPDATE 
+			${mesFtrCd}.TB_MES_LOAD_ORG
+				SET
+					  LOCK_FLAG = #{erpUpdateLockFlag}
+				WHERE LOAD_ORG_NO IN (${loadOrgNo})
+	</update>
+	
+	<select id="checkShipSeq" parameterType="Map" resultType="CamelMap">
+		SELECT
+			COUNT(ERP_SHIP_SEQ) AS COUNT_SHIP_Y
+				 FROM ${mesFtrCd}.TB_MES_LOAD_ORG
+				WHERE LOAD_ORG_NO IN (${loadOrgNo})
+				  AND ERP_SHIP_SEQ IS NOT NULL
+	</select>
+	
 </mapper>
