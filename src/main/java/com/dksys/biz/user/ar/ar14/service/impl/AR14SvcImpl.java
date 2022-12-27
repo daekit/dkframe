@@ -42,82 +42,82 @@ public class AR14SvcImpl implements AR14Svc {
 		List<Map<String, String>> resultListMap = new ArrayList<Map<String,String>>(); 
 		resultListMap = ar14Mapper.selectDebtList(paramMap);
 		
-		int totalDebtAmt = 0;
-		int totalRepayAmt = 0;
-		int balance = 0;
+		long totalDebtAmt = 0;
+		long totalRepayAmt = 0;
+		long balance = 0;
 		
 		if(resultListMap != null) {
 			for(int i=0; i<resultListMap.size(); i++) {
 				String assortCd = resultListMap.get(i).get("assortCd");
-				int debtAmt = MapUtils.getInteger(resultListMap.get(i), "debtAmt"); 
+				long debtAmt = MapUtils.getLong(resultListMap.get(i), "debtAmt"); 
 				
 				// 부채일시
 				if(assortCd.equals("ASSORTCD1")) {
 					totalDebtAmt += debtAmt;
 					balance += debtAmt;
-					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(debtAmt));
-					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Long.toString(debtAmt));
+					resultListMap.get(i).put("DEBT_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT1", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT3", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT4", Long.toString(0));
 				// 상환일시
 				}else if(assortCd.equals("ASSORTCD2")) {
 					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(debtAmt));
-					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Long.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT1", Long.toString(debtAmt));
+					resultListMap.get(i).put("REPAY_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT3", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT4", Long.toString(0));
 				}else if(assortCd.equals("ASSORTCD3")) {
 					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(debtAmt));
-					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Long.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT1", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT2", Long.toString(debtAmt));
+					resultListMap.get(i).put("REPAY_AMT3", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT4", Long.toString(0));
 				}else if(assortCd.equals("ASSORTCD4")) {
 					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(debtAmt));
-					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Long.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT1", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT3", Long.toString(debtAmt));
+					resultListMap.get(i).put("REPAY_AMT4", Long.toString(0));
 				}else if(assortCd.equals("ASSORTCD5")) {
 					totalRepayAmt += debtAmt;
 					balance -= debtAmt;
-					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(debtAmt));
+					resultListMap.get(i).put("DEBT_AMT1", Long.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT1", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT3", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT4", Long.toString(debtAmt));
 				}else if(assortCd.equals("ASSORTCD6")) {
 					totalDebtAmt += debtAmt;
 					balance += debtAmt;
-					resultListMap.get(i).put("DEBT_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("DEBT_AMT2", Integer.toString(debtAmt));
-					resultListMap.get(i).put("REPAY_AMT1", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT2", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT3", Integer.toString(0));
-					resultListMap.get(i).put("REPAY_AMT4", Integer.toString(0));
+					resultListMap.get(i).put("DEBT_AMT1", Long.toString(0));
+					resultListMap.get(i).put("DEBT_AMT2", Long.toString(debtAmt));
+					resultListMap.get(i).put("REPAY_AMT1", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT2", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT3", Long.toString(0));
+					resultListMap.get(i).put("REPAY_AMT4", Long.toString(0));
 				}
 				
-				resultListMap.get(i).put("BALANCE", Integer.toString(balance));
+				resultListMap.get(i).put("BALANCE", Long.toString(balance));
 			}
 		}
 		
 		if(resultListMap != null) {
 			for(int i=0; i<resultListMap.size(); i++) {
-				resultListMap.get(i).put("TOTAL_BALANCE", Integer.toString(balance));
-				resultListMap.get(i).put("TOTAL_DEBT_AMT", Integer.toString(totalDebtAmt));
-				resultListMap.get(i).put("TOTAL_REPAY_AMT", Integer.toString(totalRepayAmt));
+				resultListMap.get(i).put("TOTAL_BALANCE", Long.toString(balance));
+				resultListMap.get(i).put("TOTAL_DEBT_AMT", Long.toString(totalDebtAmt));
+				resultListMap.get(i).put("TOTAL_REPAY_AMT", Long.toString(totalRepayAmt));
 			}
 		}
 		
@@ -161,24 +161,24 @@ public class AR14SvcImpl implements AR14Svc {
 		
 		List<Map<String, String>> resultMap = ar14Mapper.selectDebtGroupList(paramMap);
 		
-		int totalDebtAmt = 0;
-		int totalRepayAmt = 0;
+		long totalDebtAmt = 0;
+		long totalRepayAmt = 0;
 		
 		if(resultMap != null) {
 			for(int i = 0; i < resultMap.size(); i++) {
-				totalDebtAmt += MapUtils.getInteger(resultMap.get(i), "debtAmt1");
-				totalDebtAmt += MapUtils.getInteger(resultMap.get(i), "debtAmt2");
-				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt1");
-				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt2");
-				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt3");
-				totalRepayAmt += MapUtils.getInteger(resultMap.get(i), "repayAmt4");
+				totalDebtAmt += MapUtils.getLong(resultMap.get(i), "debtAmt1");
+				totalDebtAmt += MapUtils.getLong(resultMap.get(i), "debtAmt2");
+				totalRepayAmt += MapUtils.getLong(resultMap.get(i), "repayAmt1");
+				totalRepayAmt += MapUtils.getLong(resultMap.get(i), "repayAmt2");
+				totalRepayAmt += MapUtils.getLong(resultMap.get(i), "repayAmt3");
+				totalRepayAmt += MapUtils.getLong(resultMap.get(i), "repayAmt4");
 			}			
 		}
 		
 		if(resultMap != null) {
 			for(int i = 0; i < resultMap.size(); i++) {
-				resultMap.get(i).put("TOTAL_DEBT_AMT", Integer.toString(totalDebtAmt));
-				resultMap.get(i).put("TOTAL_REPAY_AMT", Integer.toString(totalRepayAmt));
+				resultMap.get(i).put("TOTAL_DEBT_AMT", Long.toString(totalDebtAmt));
+				resultMap.get(i).put("TOTAL_REPAY_AMT", Long.toString(totalRepayAmt));
 			}
 		}
 		
