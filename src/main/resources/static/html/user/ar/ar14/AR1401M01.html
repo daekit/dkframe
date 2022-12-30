@@ -138,6 +138,26 @@ ax5.ui.grid.formatter["bilgYn"] = function () {
 	
 };
 
+ax5.ui.grid.formatter["balance"] = function () {
+	var index = this.dindex;
+	
+	var row = subGridView.target.getList("");
+	
+	var balance = 0;
+	
+	for(var i = 0; i < index+1; i++){
+		if(row[i].assortCd == "ASSORTCD1" || row[i].assortCd == "ASSORTCD6"){
+			balance += Number(row[i].debtAmt);
+		}else{
+			balance -= Number(row[i].debtAmt);
+		}
+	}
+	
+	balance = balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	
+	return balance;	
+};
+
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
@@ -202,8 +222,9 @@ ax5.ui.grid.formatter["bilgYn"] = function () {
 		        	{key: "repayAmt2",  	label: "출자전환",			align: "right",    	width: 100,  formatter: "money"},
 		        	{key: "repayAmt3",  	label: "대손처리",			align: "right",    	width: 100,  formatter: "money"},
 		        	{key: "repayAmt4",  	label: "기타",			align: "right",    	width: 100,  formatter: "money"},
-		        	{key: "balance",  		label: "잔액",			align: "right",    	width: 100,  formatter: "money"},
-		        	{key: "fileYn",        	label: "파일",			align: "center",    width: 50,	formatter: "bilgYn"},
+		        	{key: "debtAmt",  		label: "잔액",			align: "right",    	width: 100,  formatter: "balance"},
+		        	// {key: "debtAmt",  		label: "잔액테스트",		align: "right",    	width: 100,  formatter: "balance"},
+		        	{key: "fileYn",        	label: "파일",			align: "center",    width: 50,	 formatter: "bilgYn"},
 		        	{key: "debtRmk",  		label: "비고",			align: "left",    	width: 500}
 		        ],
 		        footSum: [

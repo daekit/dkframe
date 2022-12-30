@@ -127,6 +127,29 @@
 </html>
 
 <script type="text/javascript">
+
+ax5.ui.grid.formatter["balance"] = function () {
+	var index = this.dindex;
+	
+	var row = subGridView.target.getList("");
+	
+	var balance = 0;
+	
+	for(var i = 0; i < index+1; i++){
+		balance += Number(row[i].debtAmt1);
+		balance += Number(row[i].debtAmt2);
+		balance -= Number(row[i].repayAmt1);
+		balance -= Number(row[i].repayAmt2);
+		balance -= Number(row[i].repayAmt3);
+		balance -= Number(row[i].repayAmt4);
+	}
+	
+	balance = balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	
+	return balance;	
+};
+
+
 	var actionType = null;
 	var odrSeq = null;
 	var odrDtlSeqArr = [];
@@ -184,7 +207,7 @@
 		        	{key: "repayAmt2",  	label: "출자전환",			align: "right",    	width: 100,  formatter: "money"},
 		        	{key: "repayAmt3",  	label: "대손처리",			align: "right",    	width: 100,  formatter: "money"},
 		        	{key: "repayAmt4",  	label: "기타",			align: "right",    	width: 100,  formatter: "money"},
-		        	{key: "balance",  		label: "잔액",			align: "right",    	width: 100,  formatter: "money"},
+		        	{key: "balance",  		label: "잔액",			align: "right",    	width: 100,  formatter: "balance"},
 		        ],
 		        footSum: [
 			    	[
