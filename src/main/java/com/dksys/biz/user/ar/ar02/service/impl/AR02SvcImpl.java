@@ -427,6 +427,7 @@ public class AR02SvcImpl implements AR02Svc {
 			paramMap.put("stockQty", String.valueOf(stockQty));
 			paramMap.put("stockWt",  String.valueOf(stockWt));
 			paramMap.put("stockUpr", stockInfo.get("stockUpr"));
+			paramMap.put("prjctCd", stockInfo.get("prjctCd"));
 			paramMap.put("stdUpr", stockInfo.get("stdUpr"));
 			paramMap.put("pchsUpr", stockInfo.get("pchsUpr"));
 			paramMap.put("sellUpr", paramMap.get("bilgUpr"));
