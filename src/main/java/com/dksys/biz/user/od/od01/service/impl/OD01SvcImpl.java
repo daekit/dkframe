@@ -458,7 +458,8 @@ public class OD01SvcImpl implements OD01Svc {
 			//매출매입 데이터 세팅
 			paramMap.putAll(detailMap);
 			paramMap.put("selpchCd",    "SELPCH1");
-			paramMap.put("trstDt",       paramMap.get("dlvrDttm").replace("-", ""));
+			// paramMap.put("trstDt",       paramMap.get("dlvrDttm").replace("-", ""));
+			paramMap.put("trstDt",       paramMap.get("realDlvrDttm").replace("-", ""));
 			paramMap.put("pchsUpr",      detailMap.get("realDlvrUpr"));
 			paramMap.put("stockUpr",     detailMap.get("stockUpr"));
 			paramMap.put("trstQty",      detailMap.get("ordrgQty"));
@@ -549,6 +550,8 @@ public class OD01SvcImpl implements OD01Svc {
 				/* } */
 			}	
 
+			paramMap.put("trstDt",       paramMap.get("dlvrDttm").replace("-", ""));
+			
 			// S 매출확정, A 일괄
 			// 직송일 이면서 매출확정 혹은 일괄확정일 경우 매출 생성 및 재고차감.
 			// 매출만 단독으로 확정가능함. - 20210611
