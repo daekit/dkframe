@@ -860,11 +860,27 @@
 					});
 
 		} else {
-			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html",	600,300,"거래처 일보 출력 선택",null,function(showClntSumYn, showDaySumYn, showMonthSumYn, showTotalSumYn, showMonthTotalSumYn, showPSClntYn, orderYn, rptName){
+			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html",	600,300,"거래처 일보 출력 선택",null,function(showClntSumYn, showDaySumYn, showMonthSumYn, showTotalSumYn, showMonthTotalSumYn, showPSClntYn, orderYn, rptName, checkYn){
 						var fileName = "AR0201R01.jrf";
 
 						if (showPSClntYn == "Y") {
 							var fileName = "AR0201R08.jrf";
+						}
+						
+						// 화면에서 체크박스 선택한 리스트만으로 일보출력 가능하도록 추가
+						var trstCertiNo = "";
+						
+						var row = subGridView.target.getList("selected");
+						if(checkYn == "Y"){
+							if(row.length != 0){
+								for(var i = 0; i < row.length; i++){
+									trstCertiNo += "'" + row[i].trstCertiNo + "'";
+									
+									if(i != row.length -1){
+										trstCertiNo += ",";
+									}
+								}
+							}
 						}
 
 						var arg = "selPchCd#SELPCH1" 
@@ -898,6 +914,7 @@
 				         		+ "#showMonthSumYn#"		+ showMonthSumYn
 				         		+ "#showTotalSumYn#"		+ showTotalSumYn
 				         		+ "#showMonthTotalSumYn#"	+ showMonthTotalSumYn
+						         + "#trstCertiNo#"			+ trstCertiNo
 								+ "#dtKind#" 				+ "sellDate" + "#";
 						callReport(fileName, arg, 1040, 720);
 					});

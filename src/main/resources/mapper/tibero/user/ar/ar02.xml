@@ -523,6 +523,7 @@
 				    <if test="selpchCd != 'SELPCH1' and selpchCd != 'SELPCH3'">
 					 ,   '' AS SELL_CLNT_NM
 				    </if>
+				    , T.SUB_CLNT_NM
 				FROM 
 					TB_AR02M01 T
 					LEFT JOIN TB_BM01M01 BM01M01 ON T.TRST_PRDT_CD = BM01M01.PRDT_CD
@@ -619,12 +620,12 @@
 			) A
 		    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
 				<if test="pchsClntNm != null and !pchsClntNm.equals('')">
-					WHERE PCHS_CLNT_NM LIKE '%'|| #{pchsClntNm} || '%'
+					WHERE DECODE(PCHS_CLNT_NM, NULL, SUB_CLNT_NM, PCHS_CLNT_NM) LIKE '%'|| #{pchsClntNm} || '%'
 				</if>
 			</if>
 		    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
 				<if test="sellClntNm != null and !sellClntNm.equals('')">
-					WHERE SELL_CLNT_NM LIKE '%'|| #{sellClntNm} || '%'
+					WHERE DECODE(SELL_CLNT_NM, NULL, SUB_CLNT_NM, SELL_CLNT_NM) LIKE '%'|| #{sellClntNm} || '%'
 				</if>
 			</if>
 	</select>
@@ -871,12 +872,12 @@
 			) A
 		    <if test="selpchCd == 'SELPCH2' or selpchCd == 'SELPCH4'">
 				<if test="pchsClntNm != null and !pchsClntNm.equals('')">
-					WHERE PCHS_CLNT_NM LIKE '%'|| #{pchsClntNm} || '%'
+					WHERE DECODE(PCHS_CLNT_NM, NULL, SUB_CLNT_NM, PCHS_CLNT_NM) LIKE '%'|| #{pchsClntNm} || '%'
 				</if>
 			</if>
 		    <if test="selpchCd == 'SELPCH1' or selpchCd == 'SELPCH3'">
 				<if test="sellClntNm != null and !sellClntNm.equals('')">
-					WHERE SELL_CLNT_NM LIKE '%'|| #{sellClntNm} || '%'
+					WHERE DECODE(SELL_CLNT_NM, NULL, SUB_CLNT_NM, SELL_CLNT_NM) LIKE '%'|| #{sellClntNm} || '%'
 				</if>
 			</if>
 		)

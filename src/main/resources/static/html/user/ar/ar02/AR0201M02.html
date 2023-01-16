@@ -1102,6 +1102,8 @@
 			         + "#toDt#"				+ $("#dtTo").val().replace(/\-/g,'')
 			         + "#clntCd#"			+ $('#clntCd_S').val()
 			         + "#clntNm#"			+ $('#clntNm_S').val()
+				     + "#pchsClntCd#"		+ $('#pchsClntCd').val()
+				     + "#pchsClntNm#"		+ $('#pchsClntNm').val()
 			         + "#prdtGrp#"			+ $('#prdtGrp').val()
 			         + "#prdtDiv#"			+ $('#prdtDiv_S').val()
 			         + "#prdtDivNm#"		+ $('#prdtDiv_S option:selected').text()
@@ -1126,11 +1128,27 @@
 			});
 			
 		}else{
-			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html", 600, 300, "거래처 일보 출력 선택", null, function (showClntSumYn, showDaySumYn, showMonthSumYn, showTotalSumYn, showMonthTotalSumYn, showPSClntYn, orderYn, rptName){
+			openSecondModal("/static/html/user/ar/ar02/AR0202P05.html", 600, 400, "거래처 일보 출력 선택", null, function (showClntSumYn, showDaySumYn, showMonthSumYn, showTotalSumYn, showMonthTotalSumYn, showPSClntYn, orderYn, rptName, checkYn){
 				var fileName = "AR0201R01.jrf";
 				
 				if(showPSClntYn == "Y"){
 					var fileName = "AR0201R08.jrf";
+				}
+				
+				// 화면에서 체크박스 선택한 리스트만으로 일보출력 가능하도록 추가
+				var trstCertiNo = "";
+				
+				var row = subGridView.target.getList("selected");
+				if(checkYn == "Y"){
+					if(row.length != 0){
+						for(var i = 0; i < row.length; i++){
+							trstCertiNo += "'" + row[i].trstCertiNo + "'";
+							
+							if(i != row.length -1){
+								trstCertiNo += ",";
+							}
+						}
+					}
 				}
 					
 				var arg = "selPchCd#SELPCH2" 
@@ -1164,8 +1182,10 @@
 				         + "#showMonthSumYn#"		+ showMonthSumYn
 				         + "#showTotalSumYn#"		+ showTotalSumYn
 				         + "#showMonthTotalSumYn#"	+ showMonthTotalSumYn
+				         + "#checkYn#"				+ checkYn
 				         + "#dtKind#"				+ $('#dtKind').val()
 				         + "#monthStDt#"			+ monthStDt
+				         + "#trstCertiNo#"			+ trstCertiNo
 				         + "#";
 				callReport(fileName, arg, 1040, 720);
 			});
