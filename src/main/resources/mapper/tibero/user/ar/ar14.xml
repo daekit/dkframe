@@ -22,6 +22,24 @@
 				</if>
 				<if test="baseDt != null and !baseDt.equals('')">
 					AND TO_CHAR(TO_DATE(INST_DT, 'YYYYMMDD'),'YYYY-MM-DD') <![CDATA[<=]]> #{baseDt}
+				</if>
+				<if test="mngCd != null and !mngCd.equals('')">
+					AND MNG_CD = #{mngCd}
+				</if>
+				<if test="mngNm != null and !mngNm.equals('')">
+					AND MNG_NM LIKE '%${mngNm}%'
+				</if>
+				<if test="repstNm != null and !repstNm.equals('')">
+					AND REPST_NM LIKE '%${repstNm}%'
+				</if>
+				<if test="fileYn != null and !fileYn.equals('')">
+					AND DECODE((SELECT COUNT(*) FROM TB_CM08M01 CM08 WHERE FILE_TRGT_KEY = DEBT_NO), 0, 'N', 'Y') = #{fileYn}
+				</if>
+				<if test="debtRmk != null and !debtRmk.equals('')">
+					AND DEBT_RMK LIKE '%${debtRmk}%'
+				</if>
+				<if test="crn != null and !crn.equals('')">
+					AND CRN LIKE '%${crn}%'
 				</if>	
 	</select>
 	
@@ -73,6 +91,18 @@
 				</if>
 				<if test="mngNm != null and !mngNm.equals('')">
 					AND AR14.MNG_NM LIKE '%${mngNm}%'
+				</if>
+				<if test="repstNm != null and !repstNm.equals('')">
+					AND AR14.REPST_NM LIKE '%${repstNm}%'
+				</if>
+				<if test="fileYn != null and !fileYn.equals('')">
+					AND DECODE((SELECT COUNT(*) FROM TB_CM08M01 CM08 WHERE FILE_TRGT_KEY = AR14.DEBT_NO), 0, 'N', 'Y') = #{fileYn}
+				</if>
+				<if test="debtRmk != null and !debtRmk.equals('')">
+					AND AR14.DEBT_RMK LIKE '%${debtRmk}%'
+				</if>
+				<if test="crn != null and !crn.equals('')">
+					AND AR14.CRN LIKE '%${crn}%'
 				</if>
 			ORDER BY AR14.INST_DT
 			)

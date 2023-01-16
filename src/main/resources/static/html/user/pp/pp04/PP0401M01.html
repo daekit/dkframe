@@ -105,15 +105,17 @@
 	                <td>
 	                 	<select id="mesFtrCd" onchange="gridFirstView.setData(0);" required="required" msg="창고구분">
 	                 	 
-	                 	 	 
+							 	                 	 	  
 	                 		<option value="MES_KMCN">창녕공장</option>
 	                 		<option value="MES_KMIC">인천공장</option>
 	                 		<option value="MES_KMJC">진천공장</option>
-	                 		<!--  
+	                 		
+	                 		<!--    
 	                 		<option value="MES_KMCN_DEV">개발계_창녕공장</option>
 	                 		<option value="MES_KMIC_DEV">개발계_인천공장</option>
 	                 		<option value="MES_KMJC_DEV">개발계_진천공장</option>
-	                 		 -->
+	                 		  -->
+	                 		  
 	                 	</select>
 	                </td>
 	              	<th>현장</th>
@@ -130,7 +132,16 @@
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	              
+	              </tr>
+	              <tr>
+	              	<th>프로젝트</th>
+	                <td>
+	                    <input type="hidden" id="prjctCd" name="prjctCd">
+		                <div class="search_form" style="width: 100%;">
+				            <input type="text" id="prjctNm" name="prjctNm" onkeyup="if(event.keyCode != 13){resetPrjctCd()}; event.keyCode == 8 ? prjctCd.value = '' : event.keyCode == 13 ? gridFirstView.setData(0) : ''; ">
+				            <a id="btnPrjct" onclick="openSecondPrjctSearch();" tall><i class="i_search_w"></i></a>
+			            </div>
+	                </td>
 	              </tr>
 	            </table>
 	        </div>
@@ -253,13 +264,14 @@
 			        	{key: "loadOrgNoGroup",  label: "상차지시번호", 	align: "center",	hidden: true},
 			        	{key: "mesFtrCd",  	label: "공장번호", 	align: "center",	hidden: true},
 			        	{key: "siteNm",  	label: "현장명", 		align: "left",	width: 300},
+			        	{key: "prjctNm",    label: "프로젝트명",	align: "left",	width: 300},
 			        	{key: "issDt",   	label: "출하일자",   	align: "center",  	width: 80},
 			            {key: "prodWgt", 	label: "총 가공 중량",	align: "right", 	width: 100,	formatter: "money" },
 			            {key: "issWgt",   	label: "총 할증 중량",	align: "right", 	width: 100,	formatter: "money" },
 			            
 			        ],
 					footSum : [ [ 
-						{label : "총계",align : "center",colspan : 3}, 
+						{label : "총계",align : "center",colspan : 4}, 
 						{key : "prodWgt",collector : "sum",formatter : "money",align : "right"}, 
 						{key : "issWgt",collector : "sum",formatter : "money",align : "right"}, 
 					] ]
@@ -279,7 +291,9 @@
 					"pageNo" 	: _pageNo + 1, 
 					"recordCnt" : $("#recordCnt").val(),
 					"tnkeyYn"	: $("#tnkeyYn").val(),
-					"pageYn"	: "Y"
+					"pageYn"	: "Y",
+					"prjctCd"	: $("#prjctCd").val(),
+					"prjctNm"	: $("#prjctNm").val()
 				}
 				postAjax("/user/pp/pp04/selectMesMtrlRstlFirstList", formData, null, function(data){
 					var list = data.resultList;
@@ -468,6 +482,23 @@
 			$('#siteCd').val(row.siteCd);
 			$('#siteNm').val(row.siteNm);
 		});
+	}
+	
+	// 프로젝트 검색
+	function openSecondPrjctSearch(type) {
+		var paramObj = {
+			"coCd"   : $("#coCd_S").val(), 
+			"clntCd" : "",
+			"clntNm" : "",
+			"prjctNm": ""
+		}
+		
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 600, 450, "프로젝트 검색", paramObj, function (tree){
+			var row = tree.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+	
 	}
 	
 
