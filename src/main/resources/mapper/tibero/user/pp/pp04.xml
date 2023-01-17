@@ -10,7 +10,7 @@
 				, T.ISS_DT 
 				, T.SITE_NM
 				, T.PRJCT_CD
-				, T.PRJCT_NM
+				<!-- , T.PRJCT_NM -->
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
 				, SUM(T.ISS_WGT) AS ISS_WGT
@@ -25,7 +25,7 @@
 						, SITE_CD
 						, SITE_NM
 						, PRJCT_CD
-						, PRJCT_NM
+						<!-- , PRJCT_NM -->
 						FROM (
 			
 							SELECT -- 납품대장 (발송완료) key : 일자+납품차수
@@ -44,7 +44,7 @@
 								 , VW_SITE_INFO.SITE_CD
 								 , VW_SITE_INFO.SITE_NM
  								 , VW_SITE_INFO.PRJCT_CD
-								 , PRJ.PRJCT_NM
+								 <!-- , PRJ.PRJCT_NM -->
 								 , LOAD.COMP_MOV_VAL	-- 운송비1
 								 , LOAD.COMP_MOV_VAL2	-- 운송비2
 								 , LOAD.COMP_MOV_VAL3	-- 운송비3
@@ -66,7 +66,7 @@
 										   ,SITE_CD
 									   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
 									  WHERE USE_YN = 'Y') AS OUTSRC
-								   , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ 
+								   <!-- , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ --> 
 
 							WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
 							  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
@@ -76,7 +76,7 @@
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
 							  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})
-							  AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+)
+							  <!-- AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+) -->
 							  <if test="erpFlag != null and !erpFlag.equals('')">
 							  AND LOAD.ERP_FLAG = #{erpFlag}
 							  </if>
@@ -92,12 +92,14 @@
 							  <if test="coCd != null and !coCd.equals('')">
 							  	AND VW_SITE_INFO.CO_CD = #{coCd}
 							  </if>
+							  <!-- 
   						      <if test="prjctCd != null and !prjctCd.equals('')">
 							  	AND VW_SITE_INFO.PRJCT_CD = #{prjctCd}
 							  </if>
 							  <if test="prjctNm != null and !prjctNm.equals('')">
 							  	AND PRJ.PRJCT_NM LIKE '%${prjctNm}%'
 							  </if>	
+							   -->
 							  
 			
 					UNION ALL
@@ -117,7 +119,7 @@
 							, VW_SITE_INFO.SITE_CD
 							, VW_SITE_INFO.SITE_NM
 							, VW_SITE_INFO.PRJCT_CD
-							, PRJ.PRJCT_NM
+							<!-- , PRJ.PRJCT_NM -->
 						    , LOAD.COMP_MOV_VAL	-- 운송비1
 							, LOAD.COMP_MOV_VAL2	-- 운송비2
 							, LOAD.COMP_MOV_VAL3	-- 운송비3
@@ -131,14 +133,14 @@
 								   , ${mesFtrCd}.VW_SITE_INFO
 								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
 								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
-								   , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ 
+								   <!-- , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ --> 
 								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
 								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
 								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
 								  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})   
-								  AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+)
+								  <!-- AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+) -->
 							  	<if test="erpFlag != null and !erpFlag.equals('')">
 							    	AND LOAD.ERP_FLAG = #{erpFlag}
 							  	</if>
@@ -154,12 +156,14 @@
 							  	<if test="coCd != null and !coCd.equals('')">
 								  	AND VW_SITE_INFO.CO_CD = #{coCd}
 								</if>
+								<!-- 
 	  						    <if test="prjctCd != null and !prjctCd.equals('')">
 							  		AND VW_SITE_INFO.PRJCT_CD = #{prjctCd}
 							    </if>
 							    <if test="prjctNm != null and !prjctNm.equals('')">
 							  		AND PRJ.PRJCT_NM LIKE '%${prjctNm}%'
-							    </if>	
+							    </if>
+							     -->	
 			
 						)
 						GROUP BY 
@@ -168,14 +172,14 @@
 							, SITE_NM
 							, LOAD_ORG_NO
 							, PRJCT_CD
-							, PRJCT_NM
+							<!-- , PRJCT_NM -->
 						) T
 						GROUP BY
 							SITE_CD
 							, ISS_DT
 							, SITE_NM
 							, PRJCT_CD
-							, PRJCT_NM
+							<!-- , PRJCT_NM -->
 						) A
 	</select>
 	
@@ -188,7 +192,7 @@
 				, T.SITE_NM
 				, T.ERP_FLAG
 				, T.PRJCT_CD
-				, T.PRJCT_NM
+				<!-- , T.PRJCT_NM -->
 				, SUM(T.PROD_WGT) AS PROD_WGT
 				, SUM(T.LOSS_WGT) AS LOSS_WGT
 				, SUM(T.ISS_WGT) AS ISS_WGT
@@ -204,7 +208,7 @@
 						, SITE_CD
 						, SITE_NM
 						, PRJCT_CD
-						, PRJCT_NM
+						<!-- , PRJCT_NM -->
 						FROM (
 			
 							SELECT
@@ -223,7 +227,7 @@
 								 , VW_SITE_INFO.SITE_CD
 								 , VW_SITE_INFO.SITE_NM
 								 , VW_SITE_INFO.PRJCT_CD
-								 , PRJ.PRJCT_NM
+								 <!-- , PRJ.PRJCT_NM -->
 						         , LOAD.COMP_MOV_VAL	-- 운송비1
 								 , LOAD.COMP_MOV_VAL2	-- 운송비2
 								 , LOAD.COMP_MOV_VAL3	-- 운송비3
@@ -245,7 +249,7 @@
 										   ,SITE_CD
 									   FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP
 									  WHERE USE_YN = 'Y') AS OUTSRC
-								   , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ 
+								   <!-- , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ --> 
 								  
 							WHERE LOAD.LOAD_ORG_NO = BITEM.LOAD_ORG_NO
 							  AND BDTL.BARLIST_CD = BITEM.BARLIST_CD
@@ -255,7 +259,7 @@
 							  AND BDTL.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 							  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
 							  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})
-							  AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+)
+							  <!-- AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+) -->
 							  <if test="erpFlag != null and !erpFlag.equals('')">
 							  	AND LOAD.ERP_FLAG = #{erpFlag}
 							  </if>
@@ -271,12 +275,14 @@
 							  <if test="coCd != null and !coCd.equals('')">
 							  	AND VW_SITE_INFO.CO_CD = #{coCd}
 							  </if>
+							  <!-- 
 							  <if test="prjctCd != null and !prjctCd.equals('')">
 							  	AND VW_SITE_INFO.PRJCT_CD = #{prjctCd}
 							  </if>
 							  <if test="prjctNm != null and !prjctNm.equals('')">
 							  	AND PRJ.PRJCT_NM LIKE '%${prjctNm}%'
 							  </if>
+							   -->
 							   
 							  
 				UNION ALL
@@ -296,7 +302,7 @@
 							, VW_SITE_INFO.SITE_CD
 							, VW_SITE_INFO.SITE_NM
 							, VW_SITE_INFO.PRJCT_CD
-							, PRJ.PRJCT_NM
+							<!-- , PRJ.PRJCT_NM -->
 						    , LOAD.COMP_MOV_VAL	-- 운송비1
 							, LOAD.COMP_MOV_VAL2	-- 운송비2
 							, LOAD.COMP_MOV_VAL3	-- 운송비3
@@ -310,14 +316,14 @@
 								   , ${mesFtrCd}.VW_SITE_INFO
 								   , (SELECT ROWNUM AS DIMS_CD_SEQ, CD_V AS DIMS_CODE FROM (SELECT * FROM ${mesFtrCd}.TB_MES_CODE_DTL WHERE CD_TP = 'DIMS_CD' ORDER BY REF_CD_1, REF_CD_2)) AS TB_DIMS
 								   ,(SELECT CONT_CD ,SITE_CD FROM ${mesFtrCd}.TB_MES_OUTSRC_MAP WHERE USE_YN = 'Y') AS OUTSRC
-								   , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ
+								   <!-- , (SELECT PRJCT_CD, PRJCT_NM FROM TB_SD05M01) AS PRJ -->
 								WHERE LOAD.LOAD_ORG_NO = PORG.LOAD_ORG_NO
 								  AND LOAD.SITE_CD = VW_SITE_INFO.SITE_CD(+)
 								  AND LOAD.SITE_CD = OUTSRC.SITE_CD(+)
 								  AND PORG.DIMS_CD = TB_DIMS.DIMS_CODE(+)
 								  AND LOAD.LOAD_ORG_PROG_STAT_CD = 'D'
 								  AND LOAD.ISS_PLAN_DD BETWEEN TO_DATE(#{reqDtFrom}) AND TO_DATE(#{reqDtTo})   
-								  AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+) 
+								  <!-- AND VW_SITE_INFO.PRJCT_CD = PRJ.PRJCT_CD(+) --> 
 							  	<if test="erpFlag != null and !erpFlag.equals('')">
 							    	AND LOAD.ERP_FLAG = #{erpFlag}
 							  	</if>
@@ -333,12 +339,14 @@
 							  	<if test="coCd != null and !coCd.equals('')">
 								  	AND VW_SITE_INFO.CO_CD = #{coCd}
 								</if>
+								<!--
 								<if test="prjctCd != null and !prjctCd.equals('')">
 							  		AND VW_SITE_INFO.PRJCT_CD = #{prjctCd}
 							  	</if>
 							  	<if test="prjctNm != null and !prjctNm.equals('')">
 							  		AND PRJ.PRJCT_NM LIKE '%${prjctNm}%'
 							  	</if>
+							  	 -->
 							  	 
 						)
 						GROUP BY
@@ -348,7 +356,7 @@
 							, LOAD_ORG_NO
 							, ERP_FLAG
 							, PRJCT_CD
-							, PRJCT_NM
+							<!-- , PRJCT_NM -->
 						) T
 						GROUP BY 
 							SITE_CD
@@ -356,7 +364,7 @@
 							, SITE_NM
 							, ERP_FLAG
 							, PRJCT_CD
-							, PRJCT_NM
+							<!-- , PRJCT_NM -->
 						) A
 						) L 
 						<if test='pageYn != null and pageYn.equals("Y")'>
