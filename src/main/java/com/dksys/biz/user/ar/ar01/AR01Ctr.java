@@ -78,9 +78,22 @@ public class AR01Ctr {
 	
 	@PutMapping(value = "/updateShip")
     public String updateShip(@RequestParam Map<String, String> paramMap, MultipartHttpServletRequest mRequest, ModelMap model) {
-		ar01Svc.updateShip(paramMap, mRequest);
-    	model.addAttribute("resultCode", 200);
-    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));
+		int result = ar01Svc.updateShip(paramMap, mRequest);
+		
+		if(result == 500) {
+			model.addAttribute("resultCode", result);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("siteCheck"));
+		} else if(result == 501) {
+			model.addAttribute("resultCode", result);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("whCheck"));
+		} else if(result == 502) {
+			model.addAttribute("resultCode", result);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("estcoprtCheck"));
+		} else {
+			model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("update"));	
+		}
+    	
     	return "jsonView";
     }
 	

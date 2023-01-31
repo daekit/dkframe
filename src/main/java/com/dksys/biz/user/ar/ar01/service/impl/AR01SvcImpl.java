@@ -213,6 +213,17 @@ public class AR01SvcImpl implements AR01Svc {
 
 	@Override
 	public int updateShip(Map<String, String> paramMap, MultipartHttpServletRequest mRequest) {
+		Map<String, Object> validationShip = ar01Mapper.validationShip(paramMap);
+		if(!paramMap.get("siteCd").equals("") && MapUtils.getInteger(validationShip, "siteCount")  < 1) {
+			return 500;
+		}
+		if(MapUtils.getInteger(validationShip, "whCount") < 1) {
+			return 501;
+		}
+		if(MapUtils.getInteger(validationShip, "estcoprtCount") < 1) {
+			return 502;
+		}
+		
 		int result = ar01Mapper.updateShip(paramMap);
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Type mapList = new TypeToken<ArrayList<Map<String, String>>>() {}.getType();

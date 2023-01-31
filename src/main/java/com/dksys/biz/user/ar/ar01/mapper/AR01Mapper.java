@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface AR01Mapper {
+	
+	Map<String, Object> validationShip(Map<String, String> paramMap);
 
 	int insertShip(Map<String, String> paramMap);
 

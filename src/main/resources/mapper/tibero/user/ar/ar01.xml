@@ -2,6 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dksys.biz.user.ar.ar01.mapper.AR01Mapper">
+ 	<select id="validationShip" parameterType="Map" resultType="camelMap">
+ 		SELECT
+ 			(SELECT COUNT(*)
+ 				FROM TB_CM05M01
+ 				WHERE CODE_ID = #{whCd} AND CODE_DESC = #{coCd}
+ 				) AS WH_COUNT
+ 			, (SELECT COUNT(*)
+ 			FROM TB_CM05M01
+ 			WHERE CODE_ID = #{taxivcCoprt} AND CODE_RPRC = #{coCd}) AS ESTCOPRT_COUNT
+ 			<if test="siteCd != null and !siteCd.equals('')">
+	 			,(SELECT COUNT(*)
+	 				FROM TB_SD09M01
+	 				WHERE CO_CD = #{coCd}
+	 					AND SITE_CD = #{siteCd}
+	 			) AS SITE_COUNT
+ 			</if>
+ 			FROM DUAL
+ 	</select>
 
 	<insert id="insertShip" parameterType="Map">
 		<selectKey keyProperty="shipSeq" resultType="String" order="BEFORE">
@@ -629,6 +647,7 @@
 		UPDATE 
 			TB_AR01M01
 		SET
+			CO_CD		   = #{coCd},
 		    CLNT_CD        = #{clntCd}, 
 			PRJCT_CD       = #{prjctCd}, 
 			WH_CD          = #{whCd}, 
