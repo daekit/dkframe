@@ -20,7 +20,7 @@
 		          		<tr>
 		          			<th colspan= "2">출고 회사</th>
 		          			<td colspan="3"> 
-		          				<select id="searchDtlOutCoCd" name="searchDtlOutCoCd" data-kind="CO" onchange="setWareHouse(this.value); gridView1.setData(0);" required >
+		          				<select id="searchDtlOutCoCd" name="searchDtlOutCoCd" data-kind="CO" onchange="setByCoCd(this.value); gridView1.setData(0);" required >
 <!-- 		          				<option value="">전체</option> -->
 		          				</select>
 		          			</td>
@@ -143,10 +143,17 @@
 		              <a onclick="openSecondPrjctSearch('E');"><i class="i_search_w"></i></a>
 		            </div>
                 </td>
-      		    <th colspan= "2" class="hit">메모</th>
+      		      <th colspan="2" class="hit">수입구분</th>
+      		      <td colspan="2">
+      		      	<select id="impYn" name="impYn" data-kind="YN" required>
+       				</select>
+      		      </td>
+          	  </tr>
+          	  <tr>
+          	   <th colspan= "2" class="hit">메모</th>
       			  <td colspan="6"> 
       			    <input id="searchRmk" required msg="메모">
-      		      </td>	          	  
+      		      </td>
           	  </tr>         	  
           	</tbody>
           </table>      		
@@ -316,8 +323,8 @@
 		$("#searchDtlOutCoCd").val(jwt.coCd);
 		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
 		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
-		//창고 초기값 설정
-		setWareHouse(jwt.coCd);
+		//창고, 판매법인 초기값 설정
+		setByCoCd(jwt.coCd);
 		
 	    //setDtlSelectCombo();
 	    gridView1.initView().setData(0);
@@ -353,7 +360,7 @@
 		$("#clntCd").val($('#searchDtlOutCoCd option:selected').data("etc"));
 		$("#clntNm").val($('#searchDtlOutCoCd option:selected').text());
 		//창고 초기값 설정
-		setWareHouse(jwt.coCd);
+		setByCoCd(jwt.coCd);
 		
 	    //setDtlSelectCombo();
 	    gridView1.initView().setData(0);
@@ -512,7 +519,8 @@
 			"transSeq"  : $("#transSeq").val(),	
 			"transAmt"  : $("#transAmt").val(),
 			"realStockYn" : $("#realStockYn").val()	,
-			"errCorecYn"  : $("#errCorecYn").val()	
+			"errCorecYn"  : $("#errCorecYn").val(),
+			"impYn"		: $("#impYn").val(),
 		}
 		// 상세내역 추가
 		//formData["detailArr"] = searchGrid.getList();
@@ -586,7 +594,7 @@
 	}
 	
 	// 창고 set
-	function setWareHouse(value){
+	function setByCoCd(value){
 		//출고고지 창고 법인별 설정
 		$('#searchDtlOutWhCd').data("desc", value);
 		$('#searchDtlOutWhCd').empty();
