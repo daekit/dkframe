@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<style>
+
+.add_btn_small{
+    display: inline-block;
+    float: right;
+    padding: 0px;
+}
+
+.add_btn_small a {
+    display: inline-block;
+    width: 33px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    bShip: 1px solid #dbdbdb;
+    color: #444;
+    background: #ffffff;
+    box-shadow: 1px 1px rgba(0,0,0,0.15);
+}
+
+
+</style>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/dashboard.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/ax5/ax5grid.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5mask.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5modal.css" />
+	<link rel="stylesheet" href="/static/css/ax5/ax5toast.css" />
+	<link rel="stylesheet" href="/static/css/jstree/style.min.css" />
+	<link rel="stylesheet" href="/static/css/gnb.css" />
+	<link rel="stylesheet" href="/static/css/main.css" />
+	<link rel="stylesheet" href="/static/css/sub.css" />
+	<link rel="stylesheet" href="/static/css/common.css" />
+	
+	<script src="/static/js/jquery-latest.min.js"></script>
+	<script src="/static/js/jquery.serializeObject.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.min.js"></script>
+	<script src="/static/js/moment/moment-with-locales.js"></script>
+	<script src="/static/bootstrap/js/bootstrap-datepicker.ko.min.js"></script>
+	<script src="/static/js/ax5/ax5core.min.js"></script>
+	<script src="/static/js/ax5/ax5grid.min.js"></script>
+	<script src="/static/js/ax5/ax5mask.min.js"></script>
+	<script src="/static/js/ax5/ax5modal.min.js"></script>
+	<script src="/static/js/ax5/ax5toast.min.js"></script>
+	<script src="/static/js/jstree/jstree.min.js"></script>
+	<script src="/static/js/global.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+	<script type="text/javascript" src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" ></script>
+</head>
+
+<body>
+	<div id="head_area"></div>
+	<div id="top_area"></div>
+	<div class="main_area" id="main_area">
+	
+		<div class="contents no_bg">
+	      <ul class="btn_ul">
+	        <li class="btn_r">
+	        <a onclick="initSearch();">
+		          <button class="bg_gray">초기화</button>
+		    </a>
+	        <a onclick = "gridView.setData(0);">
+	          <button class="bg_gray">검 색</button>
+	        </a>
+	        </li>
+	      </ul>
+    	</div>
+    	
+    	<div class="contents search">
+        <div class="">
+            <!-- 테이블 인풋 3분할 -->
+            <table class="table_input type04">
+              <tr>
+				
+              </tr>
+              <tr>
+                <th>회사</th>
+                <td>
+                  <select id="coCd" data-kind="CO" data-search="coCd" onchange="setByCoCd(this.value); gridView.setData(0);">
+                    <option value="">전체</option>
+                  </select>
+                </td>
+            	<th>기준 년도</th>
+				<td>
+					<div class="date_input">
+						<input type="text" class="input_calendar" autocomplete="off" id="salesYy" name="salesYy" data-search="salesYy" date onchange="initYy();gridView.initView().setData(0);"
+						    style="width: 100% !important;"> 
+					</div>
+				</td>
+                <th>계산서</th>
+                <td>
+              	  <select id="bill" name="bill" data-search="bill" style="width:100%;" onchange="gridView.setData(0);">
+                  <option value="">전체</option>
+                  <option value="Y">확정</option>
+                  <option value="N">미확정</option>
+                  </select>
+              	</td>
+              </tr>
+              <tr>
+                <th>거래처</th>
+                <td>
+                  <input type="hidden" id="clntCd_S" name="clntCd" data-search="clntCd">
+                  <div class="search_form" style="width: 60%;">
+	                <input type="text" id="clntNm" name="clntNm" data-search="clntNm"  onkeyup="if(event.keyCode != 13){resetClntCd()}; event.keyCode == 8 ? clntCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''; ">
+	              	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
+	              </div>
+                </td>
+		        <th>현장명</th>
+		        <td>
+		          <input type="hidden" id="siteCd_S" name="siteCd" data-search="siteCd">
+		          <div class="search_form" style="width: 62%;">
+		            <input type="text" id="siteNm" name="siteNm" data-search="siteNm" onkeyup="if(event.keyCode != 13){resetSiteCd()}; event.keyCode == 8 ? siteCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''; ">
+		            <a onclick="openSiteSearch('S');"><i class="i_search_w"></i></a>
+		          </div>
+		        </td>
+		        <th>판매법인</th>
+				<td>
+					<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
+		        <input type="hidden" id="prjctCd" name="prjctCd" data-search="prjctCd">      
+
+              </tr>
+              <tr>
+                <th>제품유형</th>
+                <td>
+                  <select id="prdtDiv" data-search="prdtDiv" data-kind="PRDTDIV" onchange="prdtDivCombo();gridView.setData(0);">
+                    <option value="">전체</option>
+                  </select>
+                </td>
+                <th>강종</th>
+                <td>
+	                <select id="prdtStkn" name="prdtStkn" data-search="prdtStkn" onchange="gridView.setData(0);">
+	                	<option value="">전체</option>
+	                </select>
+                </td>
+                <th>제품그룹</th>
+				<td>
+					<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="gridView.setData(0);">
+						<option value="">전체</option>
+					</select>
+				</td>
+              </tr>
+              <tr>
+				<th>영업담당자</th>
+					<td>
+						<div class="search_form">
+							<input type="hidden" id="salesMng_S" data-search="salesMng">
+							<input type="text" id="salesMngNm_S" data-search="salesMngNm" onkeyup="event.keyCode == 8 ? salesMng_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''">
+							<a onclick="openUserSearch();">
+								<i class="i_search_w"></i>
+							</a>
+						</div>
+					</td>		
+              </tr>
+            </table>
+          </div>
+    </div>
+          <div class="contents no_bg">
+			<!-- 콘텐츠 타이틀 -->
+			<div class="contents_tit">
+				<span style = "font-size:1.2em; line-height: 28px">&nbsp;&nbsp;&nbsp;단위:원</span>
+				<div class="add_btn_small pdl10">
+	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
+	            </div>
+				<select id="recordCnt" class="prae_select" data-search="recordCnt" onchange="gridView.setData(0);">
+					<option value="10">10</option>
+					<option value="20" selected="selected">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+					<option value="9999999">전체</option>
+				</select>
+				<input type="hidden" id="pgmId" name="pgmId" value="AR1501M01">
+			</div>
+		</div>
+    	
+		<div class="contents">
+		  <div class="ax5_grid">
+			<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px; width: 100%"></div>
+            <div data-ax5grid="excel-grid" data-ax5grid-config="{}" style="display: none;"></div>
+          </div>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	var authId = null;
+	var authRole = null;
+	var actionType = null;
+	var firstGrid = null;
+	var Yy   = "";
+	var chkGrid = [];
+	var gridView = {
+		initView: function(){
+			this.target = new ax5.ui.grid();
+			this.target.setConfig({
+				showRowSelector: true,
+		    	multipleSelect: false,
+		    	sortable: true,
+		        target: $('[data-ax5grid="first-grid"]'),
+		        header: {
+		        	align: "center", 
+		        	selector: true
+		        },
+		        body: {
+		        	 onClick: function () {
+ 		                this.self.select(this.dindex);
+		            },
+		        },  
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display:true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
+		        footSum: [
+			    	[
+			    		{label: "합 계", colspan:1, align:"center"},
+			            {key: "realTrstAmt01",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt02",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt03",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt04",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt05",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt06",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt07",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt08",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt09",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt10",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt11",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmt12",   collector: "sum", formatter:"money", align: "right"},
+			            {key: "realTrstAmtAvg",  collector: "sum", formatter:"money", align: "right"},
+			    		{key: "realTrstAmt",     collector: "sum", formatter:"money", align: "right"},
+			    		//{key: "bilgAmt",    collector: "sum", formatter:"money", align: "right"},
+	                    //{key: "bilgVatAmt", collector: "sum", formatter:"money", align: "right"},
+	                    //{key: "totalAmt",   collector: "sum", formatter:"money", align: "right"},
+			    	]
+			    ],
+		        columns: [
+		            {key: "salesMngNm",     label: "영업담당자",   align: "center", width: 80},
+		            {key: "salesMng",  		label: "담당자ID",    align: "center", width: 80, hidden: true},
+		            {key: "realTrstAmt01",   label: "01월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt02",   label: "02월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt03",   label: "03월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt04",   label: "04월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt05",   label: "05월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt06",   label: "06월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt07",   label: "07월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt08",   label: "08월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt09",   label: "09월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt10",   label: "10월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt11",   label: "11월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmt12",   label: "12월", align: "right", width: 80, formatter: "money"},
+		            {key: "realTrstAmtAvg",  label: "평균", align: "right", width: 120, formatter: "money"},
+		            {key: "realTrstAmt",     label: "년합계", align: "right", width: 120, formatter: "money"},
+		            //{key: "bilgAmt",    label: "공급가액",  align: "right", width: 100, formatter: "money"},
+		            //{key: "bilgVatAmt", label: "부가세액",  align: "right", width: 100, formatter: "money"},
+		            //{key: "totalAmt",   label: "합계금액",  align: "right", width: 100, formatter: "money"}
+		        ]
+			});
+			return this;
+		},
+		setData: function(_pageNo){
+			var targetObj = this.target;
+			Yy = $('#salesYy').val();
+			
+			var paramObj = {"pageNo" : _pageNo + 1};
+			if(inputValidation($('[required]'))){
+				for(var i=0;i<$('[data-search]').length;i++){
+					var tempElem = $('[data-search]')[i];
+					paramObj[$(tempElem).data("search")] = $(tempElem).val();
+				}
+				postAjax("/user/ar/ar15/selectSalesMngYyList", paramObj, null, function(data){
+					var list = data.resultList;
+					targetObj.setData({
+						list : list,
+						page : {
+							currentPage : _pageNo,
+							pageSize : data.paginationInfo.pageSize,
+							totalElements : data.paginationInfo.totalRecordCount,
+							totalPages : data.paginationInfo.totalPageCount
+						}
+					});
+				});
+			}
+		}
+	}
+
+	var excelView = {
+			initView: function(){
+				this.target = new ax5.ui.grid();
+				this.target.setConfig({
+			        target: $('[data-ax5grid="excel-grid"]'),
+			        footSum: [
+				    [
+				    		{label: "합 계", colspan:1, align:"center"},
+				            {key: "realTrstAmt01",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt02",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt03",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt04",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt05",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt06",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt07",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt08",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt09",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt10",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt11",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmt12",   collector: "sum", formatter:"money", align: "right"},
+				            {key: "realTrstAmtAvg",  collector: "sum", formatter:"money", align: "right"},
+				    		{key: "realTrstAmt",     collector: "sum", formatter:"money", align: "right"},
+				    		//{key: "bilgAmt",    collector: "sum", formatter:"money", align: "right"},
+		                    //{key: "bilgVatAmt", collector: "sum", formatter:"money", align: "right"},
+		                    //{key: "totalAmt",   collector: "sum", formatter:"money", align: "right"},
+				    	]
+				    ],
+			        columns: [
+			            {key: "salesMngNm",     label: "영업담당자",   align: "center", width: 80},
+			            {key: "salesMng",  		label: "담당자ID",    align: "center", width: 80, hidden: true},
+			            {key: "realTrstAmt01",   label: "01월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt02",   label: "02월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt03",   label: "03월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt04",   label: "04월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt05",   label: "05월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt06",   label: "06월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt07",   label: "07월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt08",   label: "08월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt09",   label: "09월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt10",   label: "10월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt11",   label: "11월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmt12",   label: "12월", align: "right", width: 80, formatter: "money"},
+			            {key: "realTrstAmtAvg",  label: "평균", align: "right", width: 120, formatter: "money"},
+			            {key: "realTrstAmt",     label: "년합계", align: "right", width: 120, formatter: "money"},
+			            //{key: "bilgAmt",    label: "공급가액",  align: "right", width: 100, formatter: "money"},
+			            //{key: "bilgVatAmt", label: "부가세액",  align: "right", width: 100, formatter: "money"},
+			            //{key: "totalAmt",   label: "합계금액",  align: "right", width: 100, formatter: "money"}
+			        ]
+				});
+				return this;
+			}
+		}	
+	
+	$(document).ready(function() {
+		mainDefaultLoad("매출관리", "년간담당자실적");
+		setCommonSelect($("#main_area select[data-kind]"));
+		initSearch();		
+		// 마감년월 set	
+		gridView.initView().setData(0);
+		excelView.initView();
+		authChk();
+	})
+	
+	function initSearch() {
+		$(".contents.search select").val("");
+		$(".contents.search input").val("");
+		$("#coCd").val(jwt.coCd);
+		setByCoCd(jwt.coCd);
+		$('#salesYy').datepicker({
+			format : "yyyy",
+			minViewMode: 2,
+			language : "ko",
+			autoclose : true
+		})
+		.datepicker("setDate", new Date());
+		initYy();
+	}
+	
+	function initYy(){		
+		Yy = $('#salesYy').val();		
+	}
+
+	
+	//거래처 검색
+	function clntSearch() {
+		openSecondModal("/static/html/cmn/modal/clntSearch.html", 600, 420, "거래처 검색", {}, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$('#clntCd_S').val(row.clntCd);
+			$('#clntNm').val(row.clntNm);
+		});
+	}
+	
+	// 영업담당자 검색
+	function openUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM", // $('#coCd_S').val(),
+			"userId": $('#salesMng_S').val(),
+			"useYn": "Y"
+		};
+		
+		openModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#salesMng_S').val(checkedNode.id);
+			$('#salesMngNm_S').val(checkedNode.text);
+		});
+	}
+	
+	//프로젝트 검색
+	function prjctSearch(){
+		var paramObj = {"coCd": $('#coCd').val()}
+		openSecondModal("/static/html/cmn/modal/prjctSearch.html", 700, 420, "프로젝트 검색", paramObj, function (grid) {
+			var row = grid.target.getList("selected")[0];
+			$("#prjctCd").val(row.prjctCd);
+			$("#prjctNm").val(row.prjctNm);
+		});
+	}
+	// 현장 검색
+	function openSiteSearch(type) {
+		var paramObj = {
+			"coCd": $('#coCd').val(),
+			"insertYn": "N"
+		};
+		
+		openModal("/static/html/cmn/modal/siteSearch.html", 600, 450, "현장 검색", paramObj, function (grid){
+			var row = grid.target.getList("selected")[0];
+			if(type == 'S') {
+				$("#siteCd_S").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+			} else {
+				$("#siteCd_S").val(row.siteCd);
+				$("#siteNm").val(row.siteNm);
+				$("#prjctCd").val(row.prjctCd);
+			}
+		});
+	}	
+	
+	//제품유형에 따른 강종
+	function prdtDivCombo(){
+		var formData = {"prdtDivCd" : $("#prdtDiv").val()};
+		postAjax("/user/sd/sd05/prdtDivCombo", formData, null, function (data){
+			var codeList = data.codeInfoList; 
+			var optionHtml = '<option value="">선택</option>';
+			for (var i = 0; i < codeList.length; i++) {
+				optionHtml += '<option value=\"' + codeList[i].prdtStkn + '\">' + codeList[i].prdtStknNm + '</option>';
+			}
+			$("#prdtStkn").html(optionHtml);
+		})
+ 	}
+	
+	function excelDown() {
+		var paramObj = {"pageNo" : 1,"recordCnt"   : 9999999};
+		if(inputValidation($('[required]'))){
+			for(var i=0;i<$('[data-search]').length;i++){
+				var tempElem = $('[data-search]')[i];
+				paramObj[$(tempElem).data("search")] = $(tempElem).val();
+			}
+			postAjax("/user/ar/ar15/selectSalesMngYyList", paramObj, null, function(data){
+				var list = data.resultList;
+				excelView.target.setData({
+					list : list,
+					page : {
+						totalElements : list.length,
+					}
+				});
+				var todayDate = new Date().format('yyyyMMddHHmmss');
+				excelView.target.exportExcel("년간담당자실적_"+todayDate+".xls");
+			});	
+		}
+	}
+	
+	function setByCoCd(value){
+		// 판매법인 set
+		$('#taxivcCoprt').data("rprc", value);
+		$('#taxivcCoprt option:not([value=""])').remove()
+		setCommonSelect($('#taxivcCoprt'));  
+	}
+
+	
+</script>
