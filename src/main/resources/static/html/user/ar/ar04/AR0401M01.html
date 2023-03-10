@@ -849,6 +849,7 @@
 		var arrGnChk = true;
 		var rvrsChk = true;
 		var selpchChk = true;
+		var ceoLengthChk = true;
 		var selectDt;
 		$.each(list, function(idx, obj){
 			if(obj.taxBilgNo) {
@@ -912,6 +913,12 @@
 				return false;
 			}
 			
+			if(obj.taxivcRcvCeo.length > 15){
+				ceoLengthChk = false;
+				alert("공급받는자 대표자명은 15자를 초과할 수 없습니다.");
+				return false;
+			}
+			
 			//coCdArr.push(obj.coCd);
 		});
 		
@@ -946,13 +953,23 @@
 			alert("발행일자 선택 1건씩 처리만 가능합니다..");
 			return;
 		}
+		
+		if(!ceoLengthChk){
+			return false;
+		}
+		
 		if(!confirm(rowLength + "건을 발행하시겠습니까?")){
 			return;
 		}
+		
+
+		
 		var paramObj = {
 			"selectDt": selectDt,
 			"sndYnDp": "Y"
 		}
+		
+
 		openModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 240, "", paramObj, function (callbackObj) {
 			callbackObj.bilgCertNoArr = bilgCertNoArr;
 			callbackObj.userId = jwt.userId;
