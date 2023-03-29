@@ -351,6 +351,7 @@ public class AR05SvcImpl implements AR05Svc {
 		Map<String, String> sd07resultMax = sd07Mapper.selectMaxCloseDay(paramMap);
 		
 		// 데이터 키값 존재 여부 확인
+		/*
 		List<String> containList = new ArrayList<>();
 		containList.add("etrdpsCloseDttm");
 		containList.add("etrdpsCloseYn");		
@@ -364,6 +365,7 @@ public class AR05SvcImpl implements AR05Svc {
 		if(!sd07resultMax.containsKey("maxEtrdpsCloseDay")) {
 			sd07resultMax.put("maxEtrdpsCloseDay", "");
 		}
+		*/
 		
 		
 		if(sd07result != null) {
@@ -373,9 +375,10 @@ public class AR05SvcImpl implements AR05Svc {
 				return true;
 			}
 		}
+		
 		// 마지막 마감일체크ㅡ하여 그 이전이면 수정불가
 		if(sd07resultMax != null) {
-			int maxEtrdpsCloseDay = Integer.parseInt(sd07resultMax.get("maxEtrdpsCloseDay").replace("-", ""));		
+			int maxEtrdpsCloseDay = Integer.parseInt(sd07resultMax.get("maxEtrdpsCloseDay").replace("-", ""));
 			if( maxEtrdpsCloseDay > Integer.parseInt(etrdpsDt)) {
 				return true;
 			}
