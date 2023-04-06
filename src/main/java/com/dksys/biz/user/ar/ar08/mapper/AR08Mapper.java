@@ -14,5 +14,10 @@ public interface AR08Mapper {
 
 	long selectBasisAmt(Map<String, String> paramMap);
 
+	int selectRemaindCount(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectRemaindAmt(Map<String, String> paramMap);
+
+
 	
 }

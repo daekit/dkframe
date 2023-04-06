@@ -289,6 +289,37 @@
 <!-- 			RNUM BETWEEN ${firstIndex} AND ${lastIndex} -->
 			
 	</select>
+	
+	
+	<select id="selectRemaindAmt" parameterType="Map" resultType="CamelMap">
+		SELECT * FROM
+		(
+		    SELECT ROWNUM AS RNUM, A.*
+		    FROM
+		    (
+		        SELECT
+		            BM.CLNT_NM AS CLNT_NM
+		            ,NVL(FN_BASIS_AMT(#{coCd}, BM.CLNT_CD, #{strtDt}, #{selpchCd}  ,#{bilgYn},#{taxivcCoprt}, #{prdtGrp}),0) AS REMAIND_AMT
+		        FROM TB_BM02M01 BM
+		        WHERE 
+		        	USE_YN = 'Y'
+		        	<if test= "clntNm != null and !clntNm.equals('')">
+		        		AND BM.CLNT_NM LIKE '%${clntNm}%'
+		        	</if>
+		    ) A
+		) 
+		WHERE
+		    RNUM BETWEEN ${firstIndex} AND ${lastIndex}
+	</select>
+	
+	<select id="selectRemaindCount" parameterType="Map" resultType="int">
+		SELECT COUNT(*) FROM TB_BM02M01
+        WHERE 
+	      	USE_YN = 'Y'
+	      	<if test= "clntNm != null and !clntNm.equals('')">
+	      		AND BM.CLNT_NM LIKE '%${clntNm}%'
+	      	</if>
+	</select>
 
 	
 </mapper>

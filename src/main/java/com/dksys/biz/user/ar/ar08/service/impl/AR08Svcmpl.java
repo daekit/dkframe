@@ -160,7 +160,20 @@ public class AR08Svcmpl implements AR08Svc {
 	    	lastResult.put("pchsAmt",String.valueOf(cAmt));	
 	    	lastResult.put("sellAmt",String.valueOf(dAmt));
 	    	lastResult.put("remaindAmt",String.valueOf(remaindAmt));
-			result.add(lastResult);	
+			result.add(lastResult);
+			
+			
 		return result;
+	}
+	
+    @Override
+	public int selectRemaindCount(Map<String, String> paramMap) {
+		return ar08Mapper.selectRemaindCount(paramMap);
+	}
+	
+
+	@Override
+	public List<Map<String, String>> selectRemaindAmt(Map<String, String> paramMap) {
+		return ar08Mapper.selectRemaindAmt(paramMap);
 	}
 }

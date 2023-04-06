@@ -121,6 +121,12 @@
 					</select>
 				</td>
              </tr>
+             <tr>
+             	<th>거래처별잔액조회</th>
+             	<td>
+             		<input type="checkbox" id="RemaindAmtChk"   name="RemaindAmtChk" value="Y" onchange="setRemaindAmtChk()">
+             	</td>
+             </tr>
             </table>
           </div>
     </div>
@@ -194,18 +200,18 @@
 // 			    		{key: "", collector: "sum", formatter:"money", align: "right"}
 // 			    	]
 // 			    ],
-// 		        page: {
-// 		            navigationItemCount: 9,
-// 		            height: 30,
-// 		            display:true,
-// 		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-// 		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-// 		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-// 		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-// 		            onChange: function () {
-// 		            	gridView.setData(this.page.selectPage);
-// 		            }
-//		        },
+		        page: {
+		            navigationItemCount: 9,
+		            height: 30,
+		            display:true,
+		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+		            onChange: function () {
+		            	gridView.setData(this.page.selectPage);
+		            }
+		        },
 		        columns: [
 		            {key: "trstDt",       label: "날짜",   align: "center", width: "8%"},
 		            {key: "taxivcCoprtNm",label: "법인명",  align: "center", width: "12%"},
@@ -225,10 +231,12 @@
 		// 일계, 월계 여부
 		    var dailySumYn = 'N';
 			var monthlySumYn = 'N';
+			var remaindAmtChk = 'N';
 			var clntCd   = $("#clntCd_S").val();
 			var clntNm   = $("#clntNm_S").val();
 			if($("#dailySumYn").is(":checked"))  { dailySumYn = 'Y';};
 			if($("#monthlySumYn").is(":checked")){ monthlySumYn = 'Y';};
+			if($("#RemaindAmtChk").is(":checked")){ remaindAmtChk = 'Y';};
 			
 			firstGrid = this.target;
 			// 거래처 명만 있을 경우 거래처가 2개 이상인지 확인.
@@ -249,21 +257,6 @@
 					clntSearch();
 				};	
 			}
-			var formData = {
-				"coCd"         : $("#coCd_S").val(), 
-				"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
-				"prdtGrp"      : $("#prdtGrp_S").val(),
-				"clntCd"       : $("#clntCd_S").val(),
-				"clntNm"       : $("#clntNm_S").val(),
-				"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
-				"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
-				"selpchCd"     : $("#selpch_S").val(),
-				"bilgYn"       : $("#bilgYn").val(),
-				"dailySumYn"   : dailySumYn,
-				"monthlySumYn" : monthlySumYn,
-				"pageNo"       : 1, //_pageNo + 1,
-				"recordCnt"    : 999999999 // $("#recordCnt").val()
-			}
 			
 			var startDt = new Date($('#strtDt_S').val());
 			var endDt = new Date($('#endDt_S').val());
@@ -273,23 +266,108 @@
 				alert("2021년 06월 01일 이전의 데이터는 검색할 수 없습니다.");
 				return false;
 			}
+				
 			
-			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
-				var list = data.resultList;
-				//firstGrid.setData(list);
- 				firstGrid.setData({
- 					list : list,
- 					page : {
- 						totalElements : list.length,
- 					}
-// 					page : {
-// 						currentPage : _pageNo,
-// 						pageSize : data.paginationInfo.pageSize,
-// 						totalElements : data.paginationInfo.totalRecordCount,
-// 						totalPages : data.paginationInfo.totalPageCount
-// 					}
- 				});
-			});
+// 			var formData = {
+// 				"coCd"         : $("#coCd_S").val(), 
+// 				"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
+// 				"prdtGrp"      : $("#prdtGrp_S").val(),
+// 				"clntCd"       : $("#clntCd_S").val(),
+// 				"clntNm"       : $("#clntNm_S").val(),
+// 				"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
+// 				"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
+// 				"selpchCd"     : $("#selpch_S").val(),
+// 				"bilgYn"       : $("#bilgYn").val(),
+// 				"dailySumYn"   : dailySumYn,
+// 				"monthlySumYn" : monthlySumYn,
+// 				"pageNo"       : 1, //_pageNo + 1,
+// 				"recordCnt"    : 999999999 // $("#recordCnt").val()
+// 			}
+			
+
+			if(remaindAmtChk == 'Y'){ // 잔액만 조회
+				var formData = {
+						"coCd"         : $("#coCd_S").val(), 
+						"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
+						"prdtGrp"      : $("#prdtGrp_S").val(),
+						"clntCd"       : $("#clntCd_S").val(),
+						"clntNm"       : $("#clntNm_S").val(),
+						"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
+						"selpchCd"     : $("#selpch_S").val(),
+						"bilgYn"       : $("#bilgYn").val(),
+						"pageNo"       : _pageNo + 1,
+						"recordCnt"    : 20 //$("#recordCnt").val()
+					}
+			
+				postAjax("/user/ar/ar08/selectRemaindAmt", formData, null, function(data){
+					var list = data.resultList;
+					console.log(list);
+					//firstGrid.setData(list);
+	 				firstGrid.setData({
+	 					list : list,
+// 	 					page : {
+// 	 						totalElements : list.length,
+// 	 					},
+	 					page : {
+	 						currentPage : _pageNo,
+	 						pageSize : data.paginationInfo.pageSize,
+	 						totalElements : data.paginationInfo.totalRecordCount,
+	 						totalPages : data.paginationInfo.totalPageCount
+	 					}
+	 				});
+				});
+			
+			} else { // 원장 조회
+				var formData = {
+						"coCd"         : $("#coCd_S").val(), 
+						"taxivcCoprt"  : $("#taxivcCoprt_S").val(),
+						"prdtGrp"      : $("#prdtGrp_S").val(),
+						"clntCd"       : $("#clntCd_S").val(),
+						"clntNm"       : $("#clntNm_S").val(),
+						"strtDt"       : $("#strtDt_S").val().replace(/\-/g,''),
+						"endDt"        : $("#endDt_S").val().replace(/\-/g,''),
+						"selpchCd"     : $("#selpch_S").val(),
+						"bilgYn"       : $("#bilgYn").val(),
+						"dailySumYn"   : dailySumYn,
+						"monthlySumYn" : monthlySumYn,
+						"pageNo"       : 1, //_pageNo + 1,
+						"recordCnt"    : 999999999 // $("#recordCnt").val()
+				}
+				
+				postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
+					var list = data.resultList;
+					//firstGrid.setData(list);
+	 				firstGrid.setData({
+	 					list : list,
+	 					page : {
+	 						totalElements : list.length,
+	 					}
+//	 					page : {
+//	 						currentPage : _pageNo,
+//	 						pageSize : data.paginationInfo.pageSize,
+//	 						totalElements : data.paginationInfo.totalRecordCount,
+//	 						totalPages : data.paginationInfo.totalPageCount
+//	 					}
+	 				});
+				});
+			}
+			
+// 			postAjax("/user/ar/ar08/selectCreditList", formData, null, function(data){
+// 				var list = data.resultList;
+// 				//firstGrid.setData(list);
+//  				firstGrid.setData({
+//  					list : list,
+//  					page : {
+//  						totalElements : list.length,
+//  					}
+// // 					page : {
+// // 						currentPage : _pageNo,
+// // 						pageSize : data.paginationInfo.pageSize,
+// // 						totalElements : data.paginationInfo.totalRecordCount,
+// // 						totalPages : data.paginationInfo.totalPageCount
+// // 					}
+//  				});
+// 			});
 		}
 	}
 
@@ -449,6 +527,19 @@
 		$('#taxivcCoprt_S').data("rprc", value);
 		$('#taxivcCoprt_S option:not([value=""])').remove()
 		setCommonSelect($('#taxivcCoprt_S'));  
+	}
+	
+	function setRemaindAmtChk(){
+		if($("#RemaindAmtChk").is(":checked")){
+			$("#endDt_S").attr("disabled", true);
+			$("#dailySumYn").attr("disabled", true);
+			$("#monthlySumYn").attr("disabled", true);
+		}
+		else{
+			$("#endDt_S").attr("disabled", false);
+			$("#dailySumYn").attr("disabled", false);
+			$("#monthlySumYn").attr("disabled", false);
+		}
 	}
 	
 	function setReportMain(type) {

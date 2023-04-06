@@ -8,5 +8,9 @@ public interface AR08Svc {
 	int selectCreditCount(Map<String, String> param);
 
 	List<Map<String, String>> selectCreditList(Map<String, String> param);
+	
+	List<Map<String, String>> selectRemaindAmt(Map<String, String> param);
+
+	int selectRemaindCount(Map<String, String> param);
 
 }

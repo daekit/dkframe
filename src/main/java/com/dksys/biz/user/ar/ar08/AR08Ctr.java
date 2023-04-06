@@ -39,5 +39,16 @@ public class AR08Ctr {
     	return "jsonView";
 	}
     
+    @PostMapping(value = "/selectRemaindAmt")
+    public String selectRemaindAmt(@RequestBody Map<String, String> paramMap, ModelMap model) {
+	   	int totalCnt = ar08Svc.selectRemaindCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = ar08Svc.selectRemaindAmt(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+    }
+    
 
 }
