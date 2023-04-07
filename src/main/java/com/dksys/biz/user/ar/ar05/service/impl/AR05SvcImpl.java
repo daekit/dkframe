@@ -350,16 +350,17 @@ public class AR05SvcImpl implements AR05Svc {
 		Map<String, String> sd07result = sd07Mapper.selectClose(paramMap);
 		Map<String, String> sd07resultMax = sd07Mapper.selectMaxCloseDay(paramMap);
 		
-		// 데이터 키값 존재 여부 확인
-		if(!sd07result.containsKey("etrdpsCloseDttm")) {
-			sd07result.put("etrdpsCloseDttm", "20210601");
-		}
 		
-		if(!sd07result.containsKey("etrdpsCloseYn")) {
-			sd07result.put("etrdpsCloseYn", "N");
-		}
-		
-		if(sd07result != null) {
+		if(sd07result != null) {			
+			// 데이터 키값 존재 여부 확인
+			if(!sd07result.containsKey("etrdpsCloseDttm")) {
+				sd07result.put("etrdpsCloseDttm", "20210601");
+			}
+			
+			if(!sd07result.containsKey("etrdpsCloseYn")) {
+				sd07result.put("etrdpsCloseYn", "N");
+			}			
+			
 			int today       = Integer.parseInt(DateUtil.getCurrentYyyymmdd());
 			int closeDay    = Integer.parseInt(sd07result.get("etrdpsCloseDttm").replace("-", ""));
 			if("Y".equals(sd07result.get("etrdpsCloseYn")) && today > closeDay) {
