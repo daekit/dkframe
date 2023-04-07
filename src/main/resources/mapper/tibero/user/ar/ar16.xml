@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dksys.biz.user.ar.ar16.mapper.AR16Mapper">
+	<select id="selectLoanAmtCount" resultType="int">
+		SELECT COUNT(*) FROM (
+		 SELECT
+		            A.CODE_ID AS CO_CD
+		            , A.CODE_NM AS CO_NM
+		            , B.*
+		        FROM 
+		            TB_CM05M01 A 
+		            , (SELECT BM.CLNT_CD, BM.CLNT_NM, C.*
+		                FROM TB_BM02M01 BM
+		                     , (SELECT CODE_ID AS PRDT_GRP, FN_CM05M01_CD_TO_NM(CODE_ID) AS PRDT_GRP_NM FROM TB_CM05M01 WHERE CODE_KIND = 'PRDTGRP') C
+						WHERE 1=1
+		                <if test="clntNm != null and !clntNm.equals('')">
+		                	AND BM.CLNT_NM LIKE '%${clntNm}%'
+		                </if>
+		                <if test="clntCd != null and !clntCd.equals('')">
+		                	AND BM.CLNT_CD = #{clntCd}
+		                </if>
+		                <if test= "crn != null and !crn.equals('')">
+		        			AND BM.CRN LIKE '%${crn}%'
+		        		</if>
+		        		<if test="useYn != null and !useYn.equals('')">
+					     	AND BM.USE_YN = #{useYn}
+				     	</if>
+		        		<if test="clntDivCd != null and !clntDivCd.equals('')">
+					     	AND BM.CLNT_DIV_CD = #{clntDivCd}
+				     	</if>
+		              ) B
+		        WHERE CODE_KIND = 'CO'
+		        AND CODE_ID != 'GGS'
+		        ORDER BY B.CLNT_NM, CO_CD, B.PRDT_GRP
+		)
+	</select>
+	
+	<select id="selectLoanAmtList" resultType="CamelMap">
+		SELECT * FROM(
+		    SELECT ROWNUM AS RNUM, T.*
+		    FROM( 
+		        SELECT
+		            A.CODE_ID AS CO_CD
+		            , A.CODE_NM AS CO_NM
+		            , B.*
+		            , F_CREDIT_LOAN_PRDTGRP2(B.CLNT_CD, A.CODE_ID, B.PRDT_GRP, #{baseDt}) AS LOAN_AMT
+		        FROM 
+		            TB_CM05M01 A 
+		            , (SELECT BM.CLNT_CD, BM.CLNT_NM, C.*
+		                FROM TB_BM02M01 BM
+		                     , (SELECT CODE_ID AS PRDT_GRP, FN_CM05M01_CD_TO_NM(CODE_ID) AS PRDT_GRP_NM FROM TB_CM05M01 WHERE CODE_KIND = 'PRDTGRP') C
+		                WHERE 1=1
+		                <if test="clntNm != null and !clntNm.equals('')">
+		                	AND BM.CLNT_NM LIKE '%${clntNm}%'
+		                </if>
+		                <if test="clntCd != null and !clntCd.equals('')">
+		                	AND BM.CLNT_CD = #{clntCd}
+		                </if>
+		                <if test= "crn != null and !crn.equals('')">
+		        			AND BM.CRN LIKE '%${crn}%'
+		        		</if>
+		        		<if test="useYn != null and !useYn.equals('')">
+					     	AND BM.USE_YN = #{useYn}
+				     	</if>
+		        		<if test="clntDivCd != null and !clntDivCd.equals('')">
+					     	AND BM.CLNT_DIV_CD = #{clntDivCd}
+				     	</if>
+		              ) B
+		        WHERE CODE_KIND = 'CO'
+		        AND CODE_ID != 'GGS'
+		        ORDER BY B.CLNT_NM, CO_CD, B.PRDT_GRP
+		        ) T 
+		    ) 	  
+		    WHERE
+			   RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+
+</mapper>
