@@ -787,9 +787,22 @@ public class AR04SvcImpl implements AR04Svc {
 	
 	@SuppressWarnings("all")
 	@Override
-	public void deleteTaxHd(Map<String, Object> paramMap) {
+	public void deleteTaxHd(Map<String, Object> paramMap) throws Exception {
+
+		// 세금계산서 에러 확인
+		Map<String, String> bilgParam = new HashMap<String, String>();
+		bilgParam.put("bilgCertNo", (String) paramMap.get("bilgCertNo"));
+		
+		Map<String, String> tax = ar04Mapper.selectTaxBilg(bilgParam);
+		
+		if(tax.get("cseqRcvYn") != "E") {
+			throw new Exception();
+		}
+		
+		// 세금계산서 삭제
 		ar04Mapper.updateAR02BilgCertNo(paramMap);
-		ar04Mapper.deleteTaxHd(paramMap);
+		ar04Mapper.deleteTaxHd(paramMap);	
+
 	}
 	
 }
