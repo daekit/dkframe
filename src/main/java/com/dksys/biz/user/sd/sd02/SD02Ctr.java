@@ -111,4 +111,23 @@ public class SD02Ctr {
     	model.addAttribute("sellList", sellList);
         return "jsonView";
     }
+    
+    @PostMapping(value = "/copyPlanToNextMonth")
+    public String copyPlanToNextMonth(@RequestBody Map<String, Object> param, ModelMap model) {
+    	try {
+    		int result = sd02svc.copyPlanToNextMonth(param);
+    		if(result == 501) {
+        		model.addAttribute("resultCode", 500);
+        		model.addAttribute("resultMessage", "중복된 거래처가 있습니다.");
+    		} else {
+    			model.addAttribute("resultCode", 200);
+        		model.addAttribute("resultMessage", messageUtils.getMessage("insert"));	
+    		}
+    		
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+	    	return "jsonView";
+    }
 }

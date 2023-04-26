@@ -1,7 +1,5 @@
 package com.dksys.biz.user.sd.sd02.service.impl;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dksys.biz.user.sd.sd02.mapper.SD02Mapper;
 import com.dksys.biz.user.sd.sd02.service.SD02Svc;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -76,5 +71,19 @@ public class SD02Svcmpl implements SD02Svc {
 	@Override
 	public List<Map<String, String>> selectSellListInd(Map<String, String> param) {
 		return sd02Mapper.selectSellListInd(param);
+	}
+
+	@Override
+	public int copyPlanToNextMonth(Map<String, Object> param) throws Exception {
+		
+		List<Map<String, String>> clntList = sd02Mapper.selectClnt(param);
+		
+		if(clntList.size() > 0) {
+			return 501;
+		}else {
+			return sd02Mapper.copyPlanToNextMonth(param);
+		}
+
+		
 	}
 }

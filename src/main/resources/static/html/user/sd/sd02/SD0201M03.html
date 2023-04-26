@@ -128,6 +128,7 @@
 			<div class="contents_tit">
 				<div class="add_btn_small pdl10">
 	                <a onclick="copyPlan();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;" authchk>전월복사</a>
+	                <a onclick="copyPlanToNextMonth();" style="font-size:100%; width:80px; height: 30px; line-height: 28px;" authchk>다음달로 복사</a>
 	                <a onclick="insertUpdatePlan('C');" style="height: 30px; line-height: 28px;" >+</a>
 	                <a onclick="deletePlan();" style="height: 30px; line-height: 28px;" >-</a>
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -172,7 +173,7 @@
 		        target: $('[data-ax5grid="first-grid"]'),
 		        header: {
 		        	align: "center", 
-		        	selector: false
+		        	selector: true
 		        },
 		        body: {
 		        	 onClick: function () {
@@ -378,6 +379,50 @@
 			}
 		}
 		openModal("/static/html/user/sd/sd02/SD0201P01.html", 400, 600," ");
+	}
+	
+	function copyPlanToNextMonth(){
+		var list = gridView.target.getList("selected");
+		var planSeqArr = [];
+		var clntArr = [];
+/*		
+		$.each(list, function(idx, obj) {
+			if(!obj.planSeq){
+				alert("계획등록 자료가 아닌 데이터가 포함되어 있습니다.");
+				return false;
+			}
+			if(obj.clntCd != null){
+				clntArr.push(obj.clntCd);
+			}
+			planSeqArr.push(obj.planSeq);
+		});
+*/
+
+		for(var i = 0; i < list.length; i++){
+			if(!list[i].planSeq){
+				alert("계획등록 자료가 아닌 데이터가 포함되어 있습니다.");
+				return;
+			}
+			if(list[i].clntCd != null){
+				clntArr.push(list[i].clntCd);
+			}
+			planSeqArr.push(list[i].planSeq);
+		}
+		if(confirm("선택한 판매계획을 다음달로 복사하시겠습니까?")){
+			var formData = {
+					"planSeq"	: planSeqArr,
+					"clntCd"	: clntArr,
+					"planYm"    : $("#planYm").val()
+				}
+				
+				
+				postAjax("/user/sd/sd02/copyPlanToNextMonth", formData, null, function(data){
+					alert(data.resultMessage);           
+					gridView.setData(0);
+					modalStack.close();
+				});
+
+		}		
 	}
 	
 	function copyPlan(){

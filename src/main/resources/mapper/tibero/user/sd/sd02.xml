@@ -997,6 +997,83 @@
 		    </if>
 		    ORDER BY CO_CD, CLNT_DIV_CD, PRDT_DIV, CLNT_CD
 	</select>
+	
+	<select id="selectClnt" parameterType="Map" resultType="CamelMap">
+	
+		SELECT 
+			A.CLNT_CD,
+			B.CLNT_NM
+		FROM TB_SD01M01 A, TB_BM02M01 B
+		WHERE A.CLNT_CD = B.CLNT_CD
+		AND PLAN_SEQ IS NOT NULL
+		AND PLAN_YM = TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM') + INTERVAL '+1' MONTH, 'YYYYMM')
+		AND A.CLNT_CD IN
+			<foreach item="item" index="index" collection="clntCd" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+	</select>
+	
+	<insert id="copyPlanToNextMonth">
+	INSERT INTO TB_SD01M01
+		(
+			PLAN_SEQ,
+			CO_CD,
+			SELPCH_CD,
+			PRDT_GRP,
+			PRDT_DIV,
+			ETC_FIELD1,
+			UDT_DTTM,
+			PLAN_YM,
+			PAN_DEPT_ID,
+			PLAN_SALES_ID,
+			MAKR_CD,
+			CLNT_CD,
+			SALES_AREA_CD,
+			PRDT_STKN,
+			PLAN_WT,
+			RMK,
+			DRAW_DT,
+			ETC_FIELD2,
+			CREAT_ID,
+			ETC_FIELD3,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM
+		)
+		SELECT 
+			TB_SD01M01_SQ01.NEXTVAL,
+			CO_CD,
+			SELPCH_CD,
+			PRDT_GRP,
+			PRDT_DIV,
+			ETC_FIELD1,
+			UDT_DTTM,
+			TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM') + INTERVAL '+1' MONTH, 'YYYYMM'),
+			PAN_DEPT_ID,
+			PLAN_SALES_ID,
+			MAKR_CD,
+			CLNT_CD,
+			SALES_AREA_CD,
+			PRDT_STKN,
+			PLAN_WT,
+			RMK,
+			DRAW_DT,
+			ETC_FIELD2,
+			CREAT_ID,
+			ETC_FIELD3,
+			CREAT_PGM,
+			CREAT_DTTM,
+			UDT_ID,
+			UDT_PGM 
+	    from TB_SD01M01
+		WHERE 
+			PLAN_SEQ IN
+				<foreach item="item" index="index" collection="planSeq" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+	</insert>
+	
 </mapper>
 
 <!-- 	<select id="selectSellList" parameterType="Map" resultType="CamelMap"> -->
