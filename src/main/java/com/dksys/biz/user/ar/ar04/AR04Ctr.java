@@ -206,5 +206,18 @@ public class AR04Ctr {
 		}
 		return "jsonView";
 	}
+	
+	@PostMapping(value = "/deleteNoSndTaxHd")
+	public String deleteNoSndTaxHd(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		try {
+			ar04Svc.deleteNoSndTaxHd(paramMap);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("delete"));
+		}catch(Exception e){
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+		return "jsonView";
+	}
 
 }

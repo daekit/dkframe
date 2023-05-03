@@ -44,4 +44,7 @@ public interface AR04Svc {
 	int updateNote(Map<String, Object> paramMap);
 
 	public void deleteTaxHd(Map<String, Object> paramMap) throws Exception;
+
+	public void deleteNoSndTaxHd(Map<String, Object> paramMap) throws Exception;
+
 }

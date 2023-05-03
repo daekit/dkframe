@@ -197,7 +197,8 @@
    3) 원하는 계산서 종류를 필히 선택해야함"><i class="fas fa-redo"></i>국세청오류정정</a>
 						<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 90px;" authchk><i class="fas fa-print"></i>계산서인쇄</a>
 <!-- 						<a onclick="" style="height: 30px; line-height: 28px; width: 60px;" authchk>회계 전송</a> -->
-						<a onclick="deleteTaxHd();" style="height: 30px; line-height: 28px; display: none" authChk id="deleteTaxHd">-</a>
+						<a onclick="deleteErrTaxHd();" style="height: 30px; line-height: 28px; width: 100px;" authChk id="deleteTaxHd">에러계산서삭제</a>
+						<a onclick="deleteNoSndTaxHd();" style="height: 30px; line-height: 28px; width: 100px;" authChk id="deleteNoSndTaxHd">미전송계산서삭제</a>
 						<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 				</div>
 				<select class="prae_select" data-search="recordCnt">
@@ -1335,6 +1336,7 @@
 			}
 		});
 		
+		
 		if(flag) {
 			return;
 		};
@@ -1506,7 +1508,7 @@
 	
 	// 세금계산서를 삭제하는 로직
 	// 국세청 발송 후 결과가 에러 E인 세금계산서만 삭제할 수 있는 로직
-	function deleteTaxHd(){
+	function deleteErrTaxHd(){
 		if(checkGridRow(gridView.target, "single")) {
 			var row = gridView.target.getList("selected")[0];
 			var cseqRcvYn = row.cseqRcvYn;
@@ -1525,6 +1527,35 @@
 				alert("국세청 전송 결과가 오류인건만 삭제가 가능합니다.");
 				return false;
 			}	
+		}
+	}
+	
+	function deleteNoSndTaxHd(){
+		if(checkGridRow(gridView.target, "single")) {
+			var row = gridView.target.getList("selected")[0];
+			var cseqRcvYn = row.cseqRcvYn;
+			var sndYn = row.sndYn;
+			var rcvYn = row.orgnRcvYn;
+			var bilgCertNo = row.bilgCertNo;
+			console.log(cseqRcvYn + "/" + sndYn + "/" + rcvYn + "/" + bilgCertNo)
+	
+			
+			if(cseqRcvYn == 'Y' && sndYn == 'N' && rcvYn == 'N'){ 
+				if(confirm("선택한 세금계산서를 삭제하시겠습니까?")){
+					postAjax("/user/ar/ar04/deleteNoSndTaxHd", row, null, function(data){
+						alert(data.resultMessage);
+						if(data.resultCode == 200){
+							gridView.setData(0);
+						}
+					});
+				}
+			}else{
+				alert("국세청 미전송 건만 삭제가 가능합니다.");
+				return false;
+			}
+			
+		} else {
+			alert("국세청 미전송건은 1건식 처리 가능합니다.");
 		}
 	}
 	
