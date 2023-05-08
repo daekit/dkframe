@@ -1,5 +1,6 @@
 package com.dksys.biz.user.ar.ar07.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,18 @@ public class AR07SvcImpl implements AR07Svc {
 	@Override
 	public List<Map<String, String>> selectClosCditList(Map<String, String> paramMap) {
 		
-		List<Map<String, String>> detailList = ar07Mapper.selectClosCditList(paramMap);
+		List<Map<String, String>> detailList = new ArrayList<Map<String, String>>();
+		
+		String clntSelectYn = (String) paramMap.get("clntSelectYn"); // 거래처별 조회 여부
+		
+		// 거래처별 조회
+		if(clntSelectYn.equals("Y")) { 
+			detailList = ar07Mapper.selectClosCditListClnt(paramMap);
+		} else {
+			detailList = ar07Mapper.selectClosCditList(paramMap);
+		}
+		
+		
 		
 //	//	for(Map<String, String> detailMap : detailList) {
 //	for(int i = 0; i < detailList.size();i++){

@@ -13,6 +13,8 @@ public interface AR07Mapper {
 	List<Map<String, String>> selectMtClosCditList(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectClosCditList(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectClosCditListClnt(Map<String, String> paramMap);
 
 	int selectMtCloseChkCount(Map<String, String> paramMap);
 
@@ -27,5 +29,6 @@ public interface AR07Mapper {
 	int selectPreMtClosCditCount(Map<String, String> paramMap);
 
 	List<Map<String, String>> selectPreMtClosCditList(Map<String, String> paramMap);
+
 
 }

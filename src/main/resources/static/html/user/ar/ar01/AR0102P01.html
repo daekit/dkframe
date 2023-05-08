@@ -275,7 +275,7 @@
 							<input type="text" class="tc" name="prdtSpec">
 						</td>
 						<td>
-							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this);" comma>
+							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this); calShipWt(this);" comma>
 						</td>
 						<td>
 							<input type="hidden" name="prdtUnit">
@@ -1000,9 +1000,19 @@
 	
 	function calShipWt(elem){
 		$targetRow = $(elem).closest('tr[name="detailRow"]');
+		var prdtDiv = $targetRow.find('input[name="prdtDiv"]').val();
+		var prdtLen = Number(deleteCommaStr($targetRow.find('input[name="prdtLen"]').val())) || 0;
+		
 		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val())) || 0;
 		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val()) || 0;
-		var shipWt = shipQty * prdtCnvrsnWt;
+		var shipWt;
+		
+		if(prdtDiv == "PRDTDIV12"){ // 형강일경우 길이 * 수량 * 단중
+			shipWt = prdtLen * shipQty * prdtCnvrsnWt
+		} else{ // 아닐경우 수량 * 단중
+			shipWt = shipQty * prdtCnvrsnWt;
+		}
+	
 		$targetRow.find('input[name="shipWt"]').val(addCommaStr(shipWt));
 		$targetRow.find('input[name="realShipWt"]').val(shipWt);
 	}
