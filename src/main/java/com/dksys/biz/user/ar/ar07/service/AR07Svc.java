@@ -24,5 +24,9 @@ public interface AR07Svc {
 	public int selectPreMtClosCditCount(Map<String, String> paramMap);
 
 	public List<Map<String, String>> selectPreMtClosCditList(Map<String, String> paramMap);
+
+	public List<Map<String, String>> selectDailyClosCditList(Map<String, String> paramMap);
+
+	public int selectClosCditListCount(Map<String, String> paramMap);
 	
 }

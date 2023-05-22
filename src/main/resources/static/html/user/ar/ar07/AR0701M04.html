@@ -87,25 +87,15 @@
 					<tr>
 						<th>제품그룹</th>
 						<td>
-							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="gridView.setData(0);">
+							<select id="prdtGrp_S" data-kind="PRDTGRP" data-search="prdtGrp" onchange="subGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>판매법인</th>
 						<td>
-							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="gridView.setData(0);">
+							<select id="taxivcCoprt" data-kind="ESTCOPRT" data-search="taxivcCoprt" onchange="subGridView.setData(0);">
 								<option value="">전체</option>
 							</select>
-						</td>
-						<th>거래처별조회</th>
-						<td>
-							<input type="checkbox" id="clntSelectYn" onchange="gridView.setData(0);">
-						</td>
-					</tr>
-					<tr>
-						<th>전체채권조회</th>
-						<td>
-							<input type="checkbox" id="allCditYn" onchange="gridView.setData(0);">
 						</td>
 					</tr>
 				</table>
@@ -118,13 +108,12 @@
 				<div class="add_btn_small pdl10">
 	                <a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;"><i class="fas fa-file-excel"></i> 엑셀다운로드</a>
 	            </div>
- 				<select class="prae_select" data-search="recordCnt" id="recordCnt">
- 					<option value="10">10</option>
- 					<option value="20" selected>20</option> 
-					<option value="50">50</option> 
- 					<option value="100">100</option> 
- 					<option value="999999">전체</option>
- 				</select>  
+<!-- 				<select class="prae_select" data-search="recordCnt"> -->
+<!-- 					<option value="10">10</option> -->
+<!-- 					<option value="20" selected>20</option> -->
+<!-- 					<option value="50">50</option> -->
+<!-- 					<option value="100">100</option> -->
+<!-- 				</select>  -->
 			</div>
 		</div>
 		<!-- 콘텐츠 -->
@@ -147,9 +136,10 @@
 // 			var closeYm2 = moment(closeYm, 'YYYY-MM').subtract(2, "month").format('YYYY-MM');
 // 			var closeYm0 = $("#closeYm").val().replace(/\-/g,'');
             var baseDtSt = $("#baseDt").val().replace(/\-/g,'');
-			var closeYm0 = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYYY-MM');
-			var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYYY-MM');
-			var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYYY-MM');
+			var closeYm0 = moment(baseDt, 'YYYY-MM-DD').subtract(0, "month").format('YYMMDD');
+			var closeYm1 = moment(baseDt, 'YYYY-MM-DD').subtract(1, "month").format('YYMMDD');
+			var closeYm2 = moment(baseDt, 'YYYY-MM-DD').subtract(2, "month").format('YYMMDD');
+			var closeYm3 = moment(baseDt, 'YYYY-MM-DD').subtract(3, "month").format('YYMMDD');
 			
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
@@ -184,6 +174,7 @@
 	                    {key: "pre2CreditAmt",   	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "pre1CreditAmt",    	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "curCreditAmt", 		collector: "sum", formatter:"money", align: "right"},
+	                    {key: "afterCreditAmt", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "curTrmendCreditAmt", collector: "sum", formatter:"money", align: "right"},
 	                    {key: "unsetlBilAmt",  		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "unitTotAmt", 		collector: function () {
@@ -201,16 +192,16 @@
 			    	]
 			    ],
 				page : {
-		            navigationItemCount: 10,
-		            height: 30,
-		            display: true,
-		            firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
-		            prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
-		            nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
-		            lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
-		            onChange: function () {
-		            	gridView.setData(this.page.selectPage);
-		            }
+					navigationItemCount : 10,
+					height : 30,
+					display : true,
+					firstIcon : '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+					prevIcon : '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+					nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+					lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+					onChange : function() {
+						gridView.setData(this.page.selectPage);
+					}
 				},
 				columns: [
 					{key: "coCd",			hidden: true},
@@ -247,7 +238,7 @@
 		        					 }
 		        	},       				        		
 // 		        	{key: "pre3PchsClmnDay",	label: "전월결제에정일",  			align: "right",   width: 80, hidden: true},
-		        	{key: "pre2CreditAmt", 		 label: closeYm2 +" 미수금",		align: "right",   width: 100, formatter: "money",
+		        	{key: "pre2CreditAmt", 		 label: closeYm3 + "-" + closeYm2 +" 미수금",		align: "right",   width: 150, formatter: "money",
 		        				styleClass: function () {
 		        					if(this.item.pre2PchsClmnDay <=  baseDtSt ) {return "grid-font-blue-bold"}
 		        					else {return false;}
@@ -268,6 +259,7 @@
 		        					}
 		        	},
 		        	{key: "pre0PchsClmnDay",     label: closeYm0 +"결제에정일",  	align: "right",   width: 100, hidden: true},
+		        	{key: "afterCreditAmt", 	 label: "미연체미수금",  			align: "right",   width: 100, formatter: "money"},
 		        	{key: "curTrmendCreditAmt",  label: "미수금합계",    	 		align: "right",   width: 100, formatter: "money"},		        	
 		        	{key: "unsetlBilAmt",   	 label: "미결제어음",    			align: "right",   width: 100, formatter: "money"},
 		        	{key: "unitTotAmt",  		 label: "미수미결합계",     		align: "right",   width: 100, formatter: function () {		        		
@@ -288,7 +280,7 @@
 		},
 		setData : function(_pageNo) {
 			var targetObj = this.target;
-			var paramObj = {"pageNo"  : _pageNo + 1 } //,  "recordCnt" : 999999
+			var paramObj = {"pageNo"  : 1, "recordCnt" : 9999999}
 			
  			for(var i=0;i<$('[data-search]').length;i++){
  				var tempElem = $('[data-search]')[i];
@@ -297,32 +289,13 @@
 			//set DATE type 
 			paramObj.baseDt = $("#baseDt").val().replace(/\-/g,'');
 			
-			// 거래처별 조회 여부 체크
-			if($('#clntSelectYn').is(':checked')){
-				paramObj.clntSelectYn = "Y";
-			} else {
-				paramObj.clntSelectYn = "N";
-			}
 			
-			// 전체채권 조회 여부 체크
-			if($('#allCditYn').is(':checked')){
-				paramObj.allCditYn = "Y";
-			} else {
-				paramObj.allCditYn = "N";
-			}
-			
-			postAjax("/user/ar/ar07/selectClosCditList", paramObj, null, function(data) {
+			postAjax("/user/ar/ar07/selectDailyClosCditList", paramObj, null, function(data) {
 				var list = data.resultList;
-				
  				targetObj.setData({
  					list : list,
  					page : {
-						currentPage : _pageNo,
-						pageSize : data.paginationInfo.pageSize,
-						totalElements : data.paginationInfo.totalRecordCount,
-						totalPages : data.paginationInfo.totalPageCount
- 						//totalElements : list.length
-						
+						totalElements : list.length,
  					}
  				});
 			});
@@ -345,7 +318,7 @@
 					sortable : true,
 			    	frozenColumnIndex: 6,
 			    	
-					target : $('[data-ax5grid="excel-grid"]'),
+					target : $('[data-ax5grid="first-grid"]'),
 					header : {
 						align : "center",
 						selector : false
@@ -363,6 +336,7 @@
 		                    {key: "pre2CreditAmt",   	collector: "sum", formatter:"money", align: "right"},
 		                    {key: "pre1CreditAmt",    	collector: "sum", formatter:"money", align: "right"},
 		                    {key: "curCreditAmt", 		collector: "sum", formatter:"money", align: "right"},
+		                    {key: "afterCreditAmt", 	collector: "sum", formatter:"money", align: "right"},
 		                    {key: "curTrmendCreditAmt", collector: "sum", formatter:"money", align: "right"},
 		                    {key: "unsetlBilAmt",  		collector: "sum", formatter:"money", align: "right"},
 		                    {key: "unitTotAmt", 		collector: function () {
@@ -388,7 +362,7 @@
 						nextIcon : '<i class="fa fa-caret-right" aria-hidden="true"></i>',
 						lastIcon : '<i class="fa fa-step-forward" aria-hidden="true"></i>',
 						onChange : function() {
-							excelView.setData(this.page.selectPage);
+							gridView.setData(this.page.selectPage);
 						}
 					},
 					columns: [
@@ -468,7 +442,7 @@
 	$(document).ready(function() {
 	
 		// 페이지 타이틀 set
-		mainDefaultLoad("채권관리", "매출채권(연체현황)조회");
+		mainDefaultLoad("채권관리", "일자별 수금예정금액");
 		// 공통코드 set
 		setCommonSelect($("#main_area select[data-kind]"));
 		// 접속자 회사 set
@@ -527,24 +501,6 @@
 		excelView.initView(baseDt.value);
 		
 		var paramObj = {"pageNo" : 1, "recordCnt"   : 9999999 };
-		var clntSelectYn = "";
-		// 거래처별 조회 여부 체크
-		if($('#clntSelectYn').is(':checked')){
-			clntSelectYn = "Y";
-		} else {
-			clntSelectYn = "N";
-		}
-		
-		var allCditYn = "";
-		// 전체채권 조회 여부 체크
-		if($('#allCditYn').is(':checked')){
-			allCditYn = "Y";
-		} else {
-			allCditYn = "N";
-		}
-		
-		var _pageNo = gridView.target.page.currentPage + 1;
-		var _recordCnt = $("recordCnt").val();
 		
 		var formData = {
 				"baseDt"   : $("#baseDt").val().replace(/\-/g,''),
@@ -553,17 +509,16 @@
 				"clntNm"   : $("#clntNm").val(),
 				"prdtGrp"  : $("#prdtGrp_S").val(),
 				"taxivcCoprt"  : $("#taxivcCoprt").val(),
-				"pageNo"  :  _pageNo, 
-				"recordCnt" : _recordCnt,
-				"clntSelectYn" : clntSelectYn,
-				"allCditYn" : allCditYn
+				"pageNo"  :  1, 
+				"recordCnt" : 9999999,
 				}
 // 		for(var i=0;i<$('[data-search]').length;i++){
 // 			var tempElem = $('[data-search]')[i];
 // 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
 // 		}
 		
-		postAjax("/user/ar/ar07/selectClosCditList", formData, null, function(data) {
+		postAjax("/user/ar/ar07/selectDailyClosCditList", formData, null, function(data) {
+			console.log(data);
 			var list = data.resultList;
 				excelView.target.setData({
 					list : list,

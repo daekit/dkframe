@@ -30,5 +30,21 @@ public interface AR07Mapper {
 
 	List<Map<String, String>> selectPreMtClosCditList(Map<String, String> paramMap);
 
+	List<Map<String, String>> selectDailyClosCditList(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectAllCditList(Map<String, String> paramMap);
+
+	List<Map<String, String>> selectAllCditListClnt(Map<String, String> paramMap);
+
+	int selectClosCditListClntCount(Map<String, String> paramMap);
+
+	int selectClosCditListCount(Map<String, String> paramMap);
+
+	int selectAllCditListClntCount(Map<String, String> paramMap);
+
+	int selectAllCditListCount(Map<String, String> paramMap);
+
+	
+
 
 }

@@ -27,6 +27,34 @@ public class AR07SvcImpl implements AR07Svc {
 	public List<Map<String, String>> selectMtClosCditList(Map<String, String> paramMap) {
 		return ar07Mapper.selectMtClosCditList(paramMap);
 	}
+	
+	@Override
+	public int selectClosCditListCount(Map<String, String> paramMap) {
+		
+		int totalCnt = 0;		
+		
+		String clntSelectYn = (String) paramMap.get("clntSelectYn"); // 거래처별 조회 여부
+		String allCditYn = (String) paramMap.get("allCditYn"); // 전체채권 조회 여부
+		
+		
+		if(allCditYn.equals("Y")) { // 전체채권조회
+			if(clntSelectYn.equals("Y")) {
+				totalCnt = ar07Mapper.selectAllCditListClntCount(paramMap);
+			} else {
+				totalCnt = ar07Mapper.selectAllCditListCount(paramMap);
+			}
+			
+		} 
+		else {
+			if(clntSelectYn.equals("Y")) { // 거래처별 조회 
+				totalCnt = ar07Mapper.selectClosCditListClntCount(paramMap);
+			} else { // 프로젝트별 조회
+				totalCnt = ar07Mapper.selectClosCditListCount(paramMap);
+			}
+		}
+		
+		return totalCnt;
+	}
 
 	@Override
 	public List<Map<String, String>> selectClosCditList(Map<String, String> paramMap) {
@@ -35,12 +63,27 @@ public class AR07SvcImpl implements AR07Svc {
 		
 		String clntSelectYn = (String) paramMap.get("clntSelectYn"); // 거래처별 조회 여부
 		
-		// 거래처별 조회
-		if(clntSelectYn.equals("Y")) { 
-			detailList = ar07Mapper.selectClosCditListClnt(paramMap);
-		} else {
-			detailList = ar07Mapper.selectClosCditList(paramMap);
+		String allCditYn = (String) paramMap.get("allCditYn"); // 전체채권 조회 여부
+		
+		
+		if(allCditYn.equals("Y")) { // 전체채권조회
+			if(clntSelectYn.equals("Y")) {
+				detailList = ar07Mapper.selectAllCditListClnt(paramMap);
+			} else {
+				detailList = ar07Mapper.selectAllCditList(paramMap);
+			}
+			
+		} 
+		else {
+			if(clntSelectYn.equals("Y")) { // 거래처별 조회 
+				detailList = ar07Mapper.selectClosCditListClnt(paramMap);
+			} else { // 프로젝트별 조회
+				detailList = ar07Mapper.selectClosCditList(paramMap);
+			}
 		}
+		
+		
+		
 		
 		
 		
@@ -108,6 +151,15 @@ public class AR07SvcImpl implements AR07Svc {
 //			
 //		}
 		
+		
+		return detailList;
+	}
+	
+	@Override
+	public List<Map<String, String>> selectDailyClosCditList(Map<String, String> paramMap) {
+		
+		List<Map<String, String>> detailList = new ArrayList<Map<String, String>>();
+		detailList = ar07Mapper.selectDailyClosCditList(paramMap);
 		
 		return detailList;
 	}

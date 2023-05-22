@@ -64,7 +64,26 @@ public class AR07Ctr {
 	}
 
 	@PostMapping(value = "/selectClosCditList")
-	public String selectClosCditList(@RequestBody Map<String, String> paramMap, ModelMap model) {
+	public String selectClosCditList(@RequestBody Map<String, String> paramMap, ModelMap model) {		
+		int closeCnt = ar07Svc.selectMtCloseChkCount(paramMap);
+		
+		//  당월 마감 자료가 없으면 실적자료를 가져온다.
+		paramMap.put("curDataYn", "N");
+		if(closeCnt ==  0) {
+			paramMap.put("curDataYn", "Y");
+		}	
+		
+		int totalCnt = ar07Svc.selectClosCditListCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+		model.addAttribute("paginationInfo", paginationInfo);
+		
+		List<Map<String, String>> resultList = ar07Svc.selectClosCditList(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
+	
+	@PostMapping(value = "/selectDailyClosCditList")
+	public String selectDailyClosCditList(@RequestBody Map<String, String> paramMap, ModelMap model) {
 		
 		int closeCnt = ar07Svc.selectMtCloseChkCount(paramMap);
     	
@@ -75,7 +94,7 @@ public class AR07Ctr {
 			paramMap.put("curDataYn", "Y");
 		}	
 		
-		List<Map<String, String>> resultList = ar07Svc.selectClosCditList(paramMap);
+		List<Map<String, String>> resultList = ar07Svc.selectDailyClosCditList(paramMap);
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
