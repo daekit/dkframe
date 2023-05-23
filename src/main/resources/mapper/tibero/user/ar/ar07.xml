@@ -1248,9 +1248,6 @@
 				       <if test="clntNm != null and !clntNm.equals('')">
 					    AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 					   </if>
-				       <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-	                    AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
-	                   </if>
 	                   <if test="prdtGrp != null and !prdtGrp.equals('')">
 	                    AND BM01.PRDT_GRP = #{prdtGrp}
 	                   </if>
@@ -1490,9 +1487,6 @@
 				       <if test="clntNm != null and !clntNm.equals('')">
 					    AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 					   </if>
-				       <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-	                    AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
-	                   </if>
 	                   <if test="prdtGrp != null and !prdtGrp.equals('')">
 	                    AND BM01.PRDT_GRP = #{prdtGrp}
 	                   </if>
@@ -3038,7 +3032,11 @@
 				   LEFT JOIN TB_CM05M01 CM05M01 ON  NVL(SD05.CLMN_DIV_CD, BM02.SELL_CLMN_DIV_CD) = CM05M01.CODE_ID
 				   LEFT JOIN TB_AR05D02 AR05D02 ON AR02.TRST_CERTI_NO = AR05D02.TRST_CERTI_NO AND AR05D02.ETRDPS_DT <![CDATA[  <= ]]>   REPLACE(#{baseDt},'-','')
 				  WHERE  SELPCH_CD = 'SELPCH2'
- 		  	       AND AR02.TRST_DT       <![CDATA[ <= ]]>  REPLACE(#{baseDt},'-','')		  	       
+ 		  	       <!-- AND AR02.TRST_DT       <![CDATA[ <= ]]>  REPLACE(#{baseDt},'-','') -->
+ 		  	       AND CASE
+							    WHEN CM05M01.CODE_RPRC = 'MON' THEN TO_CHAR(LAST_DAY(ADD_MONTHS(TRUNC(TO_DATE(AR02.TRST_DT,'YYYYMMDD'),'MM'), NVL(CM05M01.CODE_ETC,0)) -1) + NVL(NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY) ,0), 'YYYYMMDD')
+							   	WHEN CM05M01.CODE_RPRC = 'DAY' THEN TO_CHAR(TO_DATE(AR02.TRST_DT,'YYYYMMDD')+ NVL(NVL(SD05.CLMN_DAY, BM02.SELL_CLMN_DAY) ,0), 'YYYYMMDD')
+						END  <![CDATA[ <= ]]>  REPLACE(#{baseDt},'-','')	       
 		  	       AND (AR02.ETRDPS_YN = 'N' OR 
 		  	            AR02.TRST_CERTI_NO IN (SELECT DISTINCT D02.TRST_CERTI_NO FROM TB_AR05D02 D02 
 		  	                                              WHERE D02.ETRDPS_DT   <![CDATA[  > ]]>  REPLACE(#{baseDt},'-','')))
@@ -3107,8 +3105,10 @@
 	  		     , SELL_VAT_CD
 <!-- 	  		     , CASE WHEN PCHS_CLMN_DAY <![CDATA[  < ]]>  REPLACE('20210907', '-', '') THEN 'Y' ELSE 'N' END -->
 	     ) AR07
-	   WHERE DELAY_AMT <![CDATA[  > ]]> 0
-	      AND PCHS_CLMN_DAY <![CDATA[  <= ]]> REPLACE(#{baseDt},'-','')
+	   WHERE 
+	   		DELAY_AMT <![CDATA[  >= ]]> 0
+	   		AND CUR_TRMEND_CREDIT_AMT != 0
+	      	
        ORDER BY  CO_CD
 								 , CLNT_CD 
 				            	 , CLNT_NM
@@ -3193,7 +3193,9 @@
 				   LEFT JOIN TB_AR05D02 AR05D02 ON AR02.TRST_CERTI_NO = AR05D02.TRST_CERTI_NO AND AR05D02.ETRDPS_DT <![CDATA[  <= ]]>   REPLACE(#{baseDt},'-','')
 				  WHERE  SELPCH_CD = 'SELPCH2'
  		  	       AND AR02.TRST_DT       <![CDATA[ <= ]]>  REPLACE(#{baseDt},'-','')		  	       
-		  	       AND AR02.ETRDPS_YN = 'N' 
+		  	       AND (AR02.ETRDPS_YN = 'N' OR 
+			  	            AR02.TRST_CERTI_NO IN (SELECT DISTINCT D02.TRST_CERTI_NO FROM TB_AR05D02 D02 
+			  	                                              WHERE D02.ETRDPS_DT   <![CDATA[  > ]]>  REPLACE(#{baseDt},'-','')))
 		  	       <if test="coCd != null and !coCd.equals('')">
 			       AND AR02.CO_CD = #{coCd}				
 			       </if>	
@@ -3257,6 +3259,7 @@
 	  		     , SELL_PMNT_MTD_CD
 	  		     , SELL_VAT_CD
 	     ) AR07
+	   WHERE CUR_TRMEND_CREDIT_AMT != 0
        ORDER BY  CO_CD
 								 , CLNT_CD 
 				            	 , CLNT_NM
@@ -3363,7 +3366,9 @@
 				   LEFT JOIN TB_AR05D02 AR05D02 ON AR02.TRST_CERTI_NO = AR05D02.TRST_CERTI_NO AND AR05D02.ETRDPS_DT <![CDATA[  <= ]]>   REPLACE(#{baseDt},'-','')
 				  WHERE  SELPCH_CD = 'SELPCH2'
  		  	       AND AR02.TRST_DT       <![CDATA[ <= ]]>  REPLACE(#{baseDt},'-','')		  	       
-		  	       AND AR02.ETRDPS_YN = 'N' 
+		  	       AND (AR02.ETRDPS_YN = 'N' OR 
+			  	            AR02.TRST_CERTI_NO IN (SELECT DISTINCT D02.TRST_CERTI_NO FROM TB_AR05D02 D02 
+			  	                                              WHERE D02.ETRDPS_DT   <![CDATA[  > ]]>  REPLACE(#{baseDt},'-','')))
 		  	       <if test="coCd != null and !coCd.equals('')">
 			       AND AR02.CO_CD = #{coCd}				
 			       </if>	
@@ -3427,6 +3432,7 @@
 	  		     , SELL_PMNT_MTD_CD
 	  		     , SELL_VAT_CD
 	     ) AR07
+	     WHERE CUR_TRMEND_CREDIT_AMT != 0
        ORDER BY  CO_CD
 								 , CLNT_CD 
 				            	 , CLNT_NM
@@ -3505,9 +3511,6 @@
 			       <if test="clntNm != null and !clntNm.equals('')">
 				    AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 				   </if>
-			       <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-                    AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
-                   </if>
                    <if test="prdtGrp != null and !prdtGrp.equals('')">
                     AND BM01.PRDT_GRP = #{prdtGrp}
                    </if>
@@ -3543,6 +3546,7 @@
 	  		     , SELL_PMNT_MTD_CD
 	  		     , SELL_VAT_CD
 	     ) AR07
+	   WHERE CUR_TRMEND_CREDIT_AMT != 0
        ORDER BY  CO_CD
 								 , CLNT_CD 
 				            	 , CLNT_NM
@@ -3632,9 +3636,6 @@
 			       <if test="clntNm != null and !clntNm.equals('')">
 				    AND BM02.CLNT_NM  LIKE '%' || #{clntNm} ||'%'
 				   </if>
-			       <if test="taxivcCoprt != null and !taxivcCoprt.equals('')">
-                    AND AR02.TAXIVC_COPRT = #{taxivcCoprt}
-                   </if>
                    <if test="prdtGrp != null and !prdtGrp.equals('')">
                     AND BM01.PRDT_GRP = #{prdtGrp}
                    </if>
@@ -3670,6 +3671,7 @@
 	  		     , SELL_PMNT_MTD_CD
 	  		     , SELL_VAT_CD
 	     ) AR07
+	   WHERE CUR_TRMEND_CREDIT_AMT != 0
        ORDER BY  CO_CD
 								 , CLNT_CD 
 				            	 , CLNT_NM
