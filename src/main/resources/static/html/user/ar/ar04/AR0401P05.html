@@ -52,6 +52,7 @@
 <script type="text/javascript">	
 	$(document).ready(function() {
 		// 시작일 (현재날짜의 월 첫일)
+		/*
 		$('#selectDt').datepicker({
 			format : "yyyy-mm-dd",
 			language : "ko",
@@ -60,11 +61,32 @@
 			endDate: moment(modalStack.last().paramObj.selectDt).endOf("month").toDate()
 		})
 		.datepicker("setDate", modalStack.last().paramObj.selectDt);
+		*/
 		
 		// 국세청 전송여부 표시
 		var sndYnDp = modalStack.last().paramObj.sndYnDp;
 		if(sndYnDp == "N"){
 			$('#sndYnRow').remove();
+			
+			// 역발행일 경우 날짜 자유선택 가능
+			$('#selectDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true,
+			})
+			.datepicker("setDate", modalStack.last().paramObj.selectDt);
+		} else{
+			// 역발행이 아닐 경우 지정된 일자만 선택하도록 설정
+			// 시작일 (현재날짜의 월 첫일)
+			$('#selectDt').datepicker({
+				format : "yyyy-mm-dd",
+				language : "ko",
+				autoclose : true,
+				startDate: moment(modalStack.last().paramObj.selectDt).startOf("month").toDate(),
+				endDate: moment(modalStack.last().paramObj.selectDt).endOf("month").toDate()
+			})
+			.datepicker("setDate", modalStack.last().paramObj.selectDt);
+			
 		}
 		
 		authChk("AR0401M01");
@@ -87,4 +109,5 @@
 		}
 		return isValid;
 	}
+	
 </script>
