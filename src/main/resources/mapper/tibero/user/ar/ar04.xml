@@ -440,8 +440,18 @@
 								 GROUP BY AR01.BILG_CERT_NO) B					 
 							WHERE A.BILG_CERT_NO = B.BILG_CERT_NO				
 							</otherwise>
-						</choose>		
-					  
+						</choose>
+						<if test="siteNm != null and !siteNm.equals('')">
+						AND A.BILG_CERT_NO IN ( SELECT BILG_CERT_NO 
+								  FROM TB_AR02M01 A, TB_SD09M01 B
+								 WHERE
+								 	A.SITE_CD = B.SITE_CD
+								   AND B.SITE_NM LIKE '%' || #{siteNm} || '%'
+								   <if test="siteCd != null and !siteCd.equals('')">
+									AND B.SITE_CD = #{siteCd}				
+								   </if> 
+								   )
+						</if>								
 						<if test="coCd != null and !coCd.equals('')">
 						   AND A.CO_CD = #{coCd}
 						</if>
