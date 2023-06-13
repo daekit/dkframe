@@ -795,7 +795,7 @@ public class AR04SvcImpl implements AR04Svc {
 		
 		Map<String, String> tax = ar04Mapper.selectTaxBilg(bilgParam);
 		
-		if(tax.get("cseqRcvYn") != "E") {
+		if(!"E".equals(tax.get("cseqRcvYn"))) {
 			throw new Exception();
 		}
 		
