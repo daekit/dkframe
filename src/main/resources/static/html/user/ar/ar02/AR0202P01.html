@@ -129,7 +129,7 @@
 					<th>길이</th>
 					<td>
 						<input type="hidden" id="mngPrdtLen" name="mngPrdtLen">
-						<input type="text" class="tr" name="prdtLen" value="0" onkeyup="onlyPositive(this);" comma>
+						<input type="text" class="tr" name="prdtLen" value="0" onkeyup="onlyPositive(this); countAmt(this);" comma>
 					</td>
 				</tr>
 				<tr>
@@ -142,6 +142,12 @@
 					<td>
 						<input type="hidden" name="realTrstWt">
 						<input type="text" class="tr" name="bilgWt" value="0" msg="매출중량" onkeyup="onlyNumber(this);" required comma minus>
+					</td>
+				</tr>
+				<tr>
+					<th name="toggleReq">번들/본수</th>
+					<td>
+						<input type="text" class="tr" name="bdCnt" value="0" msg="번들/본수" onkeyup="onlyNumber(this); countAmt(this);" comma minus>
 					</td>
 				</tr>
 				<tr>
@@ -577,21 +583,35 @@
 		var prdtCnvrsnWt = $("input[name='prdtCnvrsnWt']").val();
 		var prdtStockCd  = $("input[name='prdtStockCd']").val();
 		
+		var prdtDiv = $("input[name='prdtDiv']").val()
+		var prdtLen = $("input[name='prdtLen']").val()
+		var bdCnt = $("input[name='bdCnt']").val()
+		
 		if(prdtStockCd == "N") {
 			$("input[name='bilgWt']")[0].value = deleteCommaStr(bilgQty);
 			$("input[name='bilgAmt']")[0].value = deleteCommaStr(bilgUpr) - deleteCommaStr(trstDcAmt);
 			$("input[name='realTrstAmt']")[0].value = deleteCommaStr(bilgUpr);
 		} else {
-			$("input[name='bilgWt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(prdtCnvrsnWt)));
-			$("input[name='bilgAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr) - deleteCommaStr(trstDcAmt)));
-			$("input[name='realTrstAmt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr)));
+			if(prdtDiv == "PRDTDIV12"){
+				if(el.name == "bilgQty"){
+					$("input[name='bilgWt']")[0].value = deleteCommaStr(bilgQty);
+				} else{
+					$("input[name='bilgWt']").val((deleteCommaStr(bdCnt) * deleteCommaStr(prdtCnvrsnWt) * deleteCommaStr(prdtLen)));
+					$("input[name='bilgQty']").val((deleteCommaStr(bdCnt) * deleteCommaStr(prdtCnvrsnWt) * deleteCommaStr(prdtLen)));
+				}
+			}else{
+				$("input[name='bilgWt']").val((deleteCommaStr(bilgQty) * deleteCommaStr(prdtCnvrsnWt)));	
+			}
+			
+			$("input[name='bilgAmt']").val(Math.round((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr) - deleteCommaStr(trstDcAmt))));
+			$("input[name='realTrstAmt']").val(Math.round((deleteCommaStr(bilgQty) * deleteCommaStr(bilgUpr))));
 		}
 		
 		if($("input[name='bilgQty']").val().length>2){
-			onlyNumber($("input[name='bilgQty']"));	
+			onlyNumber($("input[name='bilgQty']")[0]);	
 		}
-		onlyNumber($("input[name='bilgWt']"));
-		onlyNumber($("input[name='bilgAmt']"));
+		onlyNumber($("input[name='bilgWt']")[0]);
+		onlyNumber($("input[name='bilgAmt']")[0]);
 	}
 	
 	// 매출금액이 변경되면 수정

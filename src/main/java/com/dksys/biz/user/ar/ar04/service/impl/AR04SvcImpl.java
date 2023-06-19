@@ -678,19 +678,25 @@ public class AR04SvcImpl implements AR04Svc {
 		String pgmId = String.valueOf(paramMap.get("pgmId"));
 		String deptId = String.valueOf(paramMap.get("deptId"));
 		String selectDt = String.valueOf(paramMap.get("selectDt")); /* 세금계산서 발행일자 */
-		List<String> list = (List<String>) paramMap.get("bilgCertNoArr");
-		// List<String> cdCdList = (List<String>) paramMap.get("coCdArr");
-		Map<String, String> param = new HashMap<String, String>();
+		List<String> bilgCertNoList = (List<String>) paramMap.get("bilgCertNoArr");
+		List<String> coCdList = (List<String>) paramMap.get("coCdArr");
 		int msgId = 0;
 		// for문 제거 start
-		param.put("userId", userId);
-		param.put("userNm", userNm);
-		param.put("deptId", deptId);
-		param.put("pgmId", pgmId);
-		param.put("selectDt", selectDt); /* 세금계산서 발행일자 */
-		param.put("bilgCertNo", list.get(0).split(",")[0]);
-		param.put("coCd", list.get(0).split(",")[1]);
-		result = ar04Mapper.updateBilgRvrs(param); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 :
+		for(int i = 0; i < bilgCertNoList.size(); i++) {
+			Map<String, String> param = new HashMap<String, String>();
+			param.put("userId", userId);
+			param.put("userNm", userNm);
+			param.put("deptId", deptId);
+			param.put("pgmId", pgmId);
+			param.put("selectDt", selectDt); /* 세금계산서 발행일자 */
+			param.put("bilgCertNo", bilgCertNoList.get(i));
+			param.put("coCd", coCdList.get(i));
+			//param.put("bilgCertNo", list.get(0).split(",")[0]);
+			//param.put("coCd", list.get(0).split(",")[1]);
+			result = ar04Mapper.updateBilgRvrs(param); // taxHd에 BGM_1004를 ar04테이블에 업데이트, 세금계산서종류 : 수정 세금계산서, 수정사유코드 :
+			param.clear();
+		}
+		
 		// for문 제거 end
 		return result;
 	}

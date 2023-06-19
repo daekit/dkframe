@@ -1329,10 +1329,10 @@
 		var coCdArr = [];
 		var selectDt = "";
 		var list = gridView.target.getList("selected");
-		if(rowLength > 1){
-			alert("세금계산서 역발행은 한건씩 가능합니다.");
-			return false;
-		}
+//		if(rowLength > 1){
+//			alert("세금계산서 역발행은 한건씩 가능합니다.");
+//			return false;
+//		}
 		$.each(list, function(idx, obj){
 			
 			if(obj.taxBilgNo) {
@@ -1348,7 +1348,9 @@
 				return false;
 			}
 			
-			bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+			//bilgCertNoArr.push(obj.bilgCertNo + "," + obj.coCd);
+			bilgCertNoArr.push(obj.bilgCertNo);
+			coCdArr.push(obj.coCd);
 
 			//세금계산서 발행일자 초기값 설정
 			if (!selectDt) {
@@ -1356,9 +1358,14 @@
 			}
 			
 			if (selectDt.slice(0, 7) != obj.sellDt.slice(0, 7)){
-				flag = true;
-				alert("매출년월이 다릅니다. 동일 년월로 계산서 처리 불가!");
-				return false;
+				
+				if(!confirm("매출년월이 다름니다. 동일 년월로 역발행 하시겠습니까?")){
+					flag = true;
+					return false;
+				}
+				
+				//alert("매출년월이 다릅니다. 동일 년월로 계산서 처리 불가!");
+				
 			}
 		});
 		
@@ -1372,9 +1379,9 @@
 			return;
 		}
 		
-// 		if(!confirm(rowLength + "건을 역발행 처리 하시겠습니까?")){
-// 			return;
-// 		}
+ 		if(!confirm(rowLength + "건을 역발행 처리 하시겠습니까?")){
+ 			return;
+ 		}
 		
 		var paramObj = {
 			"selectDt": selectDt,
@@ -1382,6 +1389,7 @@
 		}
 		openModal("/static/html/user/ar/ar04/AR0401P05.html", 600, 240, "", paramObj, function (callbackObj) {
 			callbackObj.bilgCertNoArr = bilgCertNoArr;
+			callbackObj.coCdArr = coCdArr;
 			callbackObj.userId = jwt.userId;
 			callbackObj.userNm = jwt.userNm;
 			callbackObj.deptId = jwt.deptId;

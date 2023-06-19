@@ -221,7 +221,7 @@
 						<th class="tc">단위</th>
 						<th class="tc hit">수량</th>
 						<th class="tc hit">중량(KG)</th>
-						<th class="tc">번들</th>
+						<th class="tc">번들/본수</th>
 						<th class="tc">매출단가</th>
 						<th class="tc">금액</th>
 						<th class="tc">예상손익</th>
@@ -245,6 +245,7 @@
 						<input type="hidden" name="prdtStockCd">
 						<input type="hidden" name="prdtCoilYn"> 
 						<input type="hidden" name="prdtCnvrsnWt">
+						<input type="hidden" name="prdtWt">
 						<input type="hidden" name="prdtDt">
 						
 						<input type="hidden" name="pchsUpr" value="0">
@@ -275,7 +276,7 @@
 							<input type="text" class="tc" name="prdtSpec">
 						</td>
 						<td>
-							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this);" comma>
+							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this); calShipWt(this);" onblur="onlyNumber(this); calShipWt(this);" comma>
 						</td>
 						<td>
 							<input type="hidden" name="prdtUnit">
@@ -288,7 +289,7 @@
 							<input type="text" class="tr" name="shipWt" value="0" msg="중량" onkeyup="onlyNumber(this); countAmt(this);" comma required>
 						</td>
 						<td>
-							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this);" comma>
+							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this); calShipWt(this);" onblur="onlyNumber(this); calShipWt(this);" comma>
 						</td>
 						<td>
 							<input type="hidden" name="shipUprD" value="0">
@@ -1005,13 +1006,25 @@
 		
 		var shipQty = Number(deleteCommaStr($targetRow.find('input[name="shipQty"]').val())) || 0;
 		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val()) || 0;
-		var shipWt = shipQty * prdtCnvrsnWt;
+		//var shipWt = shipQty * prdtCnvrsnWt;
 		
-//		if(prdtDiv == "PRDTDIV12"){ // 형강일경우 길이 * 수량 * 단중
-//			shipWt = prdtLen * shipQty * prdtCnvrsnWt
-//		} else{ // 아닐경우 수량 * 단중
-//			shipWt = shipQty * prdtCnvrsnWt;
-//		}
+		var prdtWt = Number($targetRow.find('input[name="prdtWt"]').val()) || 0;
+		var bdCnt = Number(deleteCommaStr($targetRow.find('input[name="bdCnt"]').val())) || 0;
+		
+		// 입력한 곳이 수량이고, 형강이면 계산하지않고 중량만 설정 후 return
+		if(elem.name == "shipQty" && prdtDiv == "PRDTDIV12"){
+			$targetRow.find('input[name="shipWt"]').val(addCommaStr(shipQty));
+			countAmt(elem);
+			return;
+		}
+		
+		if(prdtDiv == "PRDTDIV12"){ // 형강일경우 본수 * 수량 * 단중
+			shipWt = prdtLen * bdCnt * prdtCnvrsnWt
+			$targetRow.find('input[name="shipQty"]').val(addCommaStr(shipWt));	
+			countAmt(elem);
+		} else{ // 아닐경우 수량 * 환산중량
+			shipWt = shipQty * prdtCnvrsnWt;
+		}
 	
 		$targetRow.find('input[name="shipWt"]').val(addCommaStr(shipWt));
 		$targetRow.find('input[name="realShipWt"]').val(shipWt);

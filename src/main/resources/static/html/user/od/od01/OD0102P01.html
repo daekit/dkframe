@@ -312,7 +312,7 @@
 							<input type="text" class="tc" name="prdtSpec">
 						</td>
 						<td>
-							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this);" comma>
+							<input type="text" class="tr" name="prdtLen" onkeyup="onlyNumber(this); calOdrWt(this);" onblur="onlyNumber(this); calOdrWt(this);" comma>
 						</td>
 						<td>
 							<input type="hidden" name="prdtUnit">
@@ -325,7 +325,7 @@
 							<input type="text" class="tr" name="ordrgWt" value="0" msg="중량" onkeyup="onlyNumber(this); countAmt(this);" comma required>
 						</td>
 						<td>
-							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this);" comma>
+							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this); calOdrWt(this);" onblur="onlyNumber(this); calOdrWt(this);" comma>
 						</td>
 						<td>
 							<input type="text" class="tr" name="ordrgUpr" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma>
@@ -1301,13 +1301,30 @@
 		
 		var ordrgQty = Number(deleteCommaStr($targetRow.find('input[name="ordrgQty"]').val())) || 0;
 		var prdtCnvrsnWt = Number($targetRow.find('input[name="prdtCnvrsnWt"]').val()) || 0;
-		var ordrgWt = ordrgQty * prdtCnvrsnWt;
+//		var ordrgWt = ordrgQty * prdtCnvrsnWt;
 		
 //		if(prdtDiv == "PRDTDIV12"){ // 형강일경우 길이 * 수량 * 단중
 //			ordrgWt = prdtLen * ordrgQty * prdtCnvrsnWt
 //		} else{ // 아닐경우 수량 * 단중
 //			ordrgWt = ordrgQty * prdtCnvrsnWt;
 //		}
+
+		var bdCnt = Number(deleteCommaStr($targetRow.find('input[name="bdCnt"]').val())) || 0;
+		
+		// 입력한 곳이 수량이고, 형강이면 계산하지않고 중량만 설정 후 return
+		if(elem.name == "ordrgQty" && prdtDiv == "PRDTDIV12"){
+			$targetRow.find('input[name="ordrgWt"]').val(addCommaStr(ordrgQty));
+			countAmt(elem);
+			return;
+		}
+		
+		if(prdtDiv == "PRDTDIV12"){ // 형강일경우 본수 * 수량 * 단중
+			ordrgWt = prdtLen * bdCnt * prdtCnvrsnWt
+			$targetRow.find('input[name="ordrgQty"]').val(addCommaStr(ordrgWt));	
+			countAmt(elem);
+		} else{ // 아닐경우 수량 * 환산중량
+			ordrgWt = ordrgQty * prdtCnvrsnWt;
+		}
 		
 		$targetRow.find('input[name="ordrgWt"]').val(addCommaStr(ordrgWt));
 		$targetRow.find('input[name="realDlvrWt"]').val(ordrgWt);
