@@ -231,9 +231,9 @@
 					<th class="tc">SPEC</th>
 					<th class="tc">길이</th>
 					<th class="tc">단위</th>
+					<th class="tc">번들/본수</th>
 					<th class="tc">수량</th>
 					<th class="tc pd0">중량(KG)</th>
-					<th class="tc">번들/본수</th>
 					<th class="tc">발주단가</th>
 					<th class="tc">매출단가</th>
 					<th class="tc">발주금액</th>
@@ -297,13 +297,13 @@
 						<input type="text" class="tc" name="prdtUnitNm" readonly>
 					</td>
 					<td>
+						<input type="text" class="tr" name="bdCnt" comma readonly>
+					</td>					
+					<td>
 						<input type="text" class="tr" name="ordrgQty" comma readonly>
 					</td>
 					<td>
 						<input type="text" class="tr" name="ordrgWt" comma readonly>
-					</td>
-					<td>
-						<input type="text" class="tr" name="bdCnt" comma readonly>
 					</td>
 					<td>
 						<input type="text" class="tr" name="ordrgUpr" comma readonly>
@@ -352,12 +352,14 @@
 				<tr>
 					<th class="tc" colspan="8">합계</th>
 					<td>
+						<input class="tr" type="text" id="totBdCnt" name="totBdCnt" comma readonly>
+					</td>
+					<td>
 						<input class="tr" type="text" id="totQty" name="totQty" comma readonly>
 					</td>
 					<td>
 						<input class="tr" type="text" id="totWt" name="totWt" comma readonly>
 					</td>
-					<td>-</td>
 					<td>-</td>
 					<td>-</td>
 					<td>
@@ -717,6 +719,7 @@
 		var totOrdrgAmt = 0;
 		var totShipAmt = 0;
 		var totEpctPal = 0;
+		var totBdCnt = 0;
 		
 		$.each($('#ordrgView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val()));
@@ -724,12 +727,14 @@
 			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val()));
 			var shipAmt  = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
 			var epctPal  = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val()));
+			var bdCnt 	 = Number(deleteCommaStr($(elem).find('input[name="bdCnt"]').val()));
 			
 			totOrdrgQty += ordrgQty;
 			totOrdrgWt  += ordrgWt;
 			totOrdrgAmt += ordrgAmt; 
 			totShipAmt  += shipAmt; 
 			totEpctPal  += epctPal; 
+			totBdCnt	+= bdCnt;
 		});
 		
 		$('#ordrgView #totQty').val(addCommaStr(totOrdrgQty));
@@ -737,6 +742,7 @@
 		$('#ordrgView #totAmt').val(addCommaStr(totOrdrgAmt));
 		$('#ordrgView #totShipAmt').val(addCommaStr(totShipAmt));
 		$('#ordrgView #totEpctPal').val(addCommaStr(totEpctPal));
+		$('#ordrgView #totBdCnt').val(addCommaStr(totBdCnt));
 	}
 	
 	function setFile(elem){

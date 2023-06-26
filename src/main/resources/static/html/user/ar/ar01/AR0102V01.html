@@ -208,9 +208,9 @@
 					<th class="tc">SPEC</th>
 					<th class="tc">길이</th>
 					<th class="tc">단위</th>
+					<th class="tc">번들/본수</th>
 					<th class="tc hit">수량</th>
 					<th class="tc hit">중량(KG)</th>
-					<th class="tc">번들/본수</th>
 					<th class="tc">매출단가</th>
 					<th class="tc">금액</th>
 					<th class="tc">예상손익</th>
@@ -270,14 +270,15 @@
 						<input type="text" class="tc" name="prdtUnitNm" readonly>
 					</td>
 					<td>
+						<input type="text" class="tr" name="bdCnt" maxlength="5" comma readonly>
+					</td>					
+					<td>
 						<input type="text" class="tr" name="shipQty" comma readonly>
 					</td>
 					<td>
 						<input type="text" class="tr" name="shipWt" comma readonly>
 					</td>
-					<td>
-						<input type="text" class="tr" name="bdCnt" maxlength="5" comma readonly>
-					</td>
+
 					<td>
 						<input type="text" class="tr" name="shipUpr" comma readonly>
 					</td>
@@ -329,12 +330,14 @@
 				<tr>
 					<th class="tc" colspan="7">합계</th>
 					<td>
+						<input class="tr" type="text" id="shipTotBdCnt" name="shipTotBdCnt" comma readonly>
+					</td>					
+					<td>
 						<input class="tr" type="text" id="shipTotQty" name="shipTotQty" comma readonly>
 					</td>
 					<td>
 						<input class="tr" type="text" id="shipTotWt" name="shipTotWt" comma readonly>
 					</td>
-					<td>-</td>
 					<td>-</td>
 					<td>
 						<input class="tr" type="text" id="shipTotAmt" name="shipTotAmt" comma readonly>
@@ -670,23 +673,27 @@
 		var shipTotWt = 0;
 		var shipTotAmt = 0;
 		var totEpctPal = 0;
+		var shipTotBdCnt = 0;
 		
 		$.each($('#shipView #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var shipQty = Number(deleteCommaStr($(elem).find('input[name="shipQty"]').val()));
 			var shipWt = Number(deleteCommaStr($(elem).find('input[name="shipWt"]').val()));
 			var shipAmt = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val()));
 			var epctPal = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val()));
+			var bdCnt = Number(deleteCommaStr($(elem).find('input[name="bdCnt"]').val())) || 0;
 			
 			shipTotQty += shipQty;
 			shipTotWt += shipWt;
 			shipTotAmt += shipAmt; 
-			totEpctPal += epctPal; 
+			totEpctPal += epctPal;
+			shipTotBdCnt += bdCnt;
 		});
 		
 		$('#shipView #shipTotQty').val(addCommaStr(shipTotQty));
 		$('#shipView #shipTotWt').val(addCommaStr(shipTotWt));
 		$('#shipView #shipTotAmt').val(addCommaStr(shipTotAmt));
 		$("#shipView #totEpctPal").val(addCommaStr(totEpctPal));
+		$('#shipView #shipTotBdCnt').val(addCommaStr(shipTotBdCnt));
 	}
 	
 	function downloadFile(idx) {

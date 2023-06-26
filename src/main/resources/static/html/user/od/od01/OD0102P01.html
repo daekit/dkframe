@@ -249,9 +249,9 @@
 						<th class="tc">SPEC</th>
 						<th class="tc">길이</th>
 						<th class="tc">단위</th>
+						<th class="tc">번들/본수</th>
 						<th class="tc hit">수량</th>
 						<th class="tc pd0 hit">중량(KG)</th>
-						<th class="tc">번들/본수</th>
 						<th class="tc">발주단가</th>
 						<th class="tc">매출단가</th>
 						<th class="tc">발주금액</th>
@@ -319,13 +319,13 @@
 							<input type="text" class="tc" name="prdtUnitNm" readonly>
 						</td>
 						<td>
+							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this); calOdrWt(this); countAmt(this);" onblur="onlyNumber(this); calOdrWt(this); countAmt(this);" comma>
+						</td>
+						<td>
 							<input type="text" class="tr" name="ordrgQty" value="0" msg="수량" onInput="onlyNumber(this); calOdrWt(this); countAmt(this);" onblur="onlyNumber(this); calOdrWt(this); countAmt(this);"comma required>
 						</td>
 						<td>
 							<input type="text" class="tr" name="ordrgWt" value="0" msg="중량" onkeyup="onlyNumber(this); countAmt(this);" comma required>
-						</td>
-						<td>
-							<input type="text" class="tr" name="bdCnt" value="0" onkeyup="onlyNumber(this); calOdrWt(this);" onblur="onlyNumber(this); calOdrWt(this);" comma>
 						</td>
 						<td>
 							<input type="text" class="tr" name="ordrgUpr" value="0" onkeyup="onlyNumber(this); countAmt(this);" comma>
@@ -375,6 +375,9 @@
 					</colgroup>
 					<tr>
 						<th class="tc" colspan="8">합계</th>
+						<td>
+							<input class="tr" type="text" id="totBdCnt" name="totBdCnt" comma readonly>
+						</td>
 						<td>
 							<input class="tr" type="text" id="totQty" name="totQty" comma readonly>
 						</td>
@@ -1382,6 +1385,7 @@
 		var totOrdrgAmt = 0;
 		var totShipAmt  = 0;
 		var totEpctPal  = 0;
+		var totBdCnt	= 0;
 		
 		$.each($('#ordrgPopup #detailTable tr[name="detailRow"]'), function(idx, elem){
 			var ordrgQty = Number(deleteCommaStr($(elem).find('input[name="ordrgQty"]').val())) || 0;
@@ -1389,12 +1393,14 @@
 			var ordrgAmt = Number(deleteCommaStr($(elem).find('input[name="ordrgAmt"]').val())) || 0;
 			var shipAmt  = Number(deleteCommaStr($(elem).find('input[name="shipAmt"]').val())) || 0;
 			var epctPal  = Number(deleteCommaStr($(elem).find('input[name="epctPal"]').val())) || 0;
+			var bdCnt	 = Number(deleteCommaStr($(elem).find('input[name="bdCnt"]').val())) || 0;
 			
 			totOrdrgQty += ordrgQty;
 			totOrdrgWt  += ordrgWt;
 			totOrdrgAmt += ordrgAmt; 
 			totShipAmt  += shipAmt; 
 			totEpctPal  += epctPal; 
+			totBdCnt	+= bdCnt
 		});
 		
 		$('#ordrgPopup #totQty').val(addCommaStr(totOrdrgQty));
@@ -1402,6 +1408,7 @@
 		$('#ordrgPopup #totAmt').val(addCommaStr(totOrdrgAmt));
 		$('#ordrgPopup #totShipAmt').val(addCommaStr(totShipAmt));
 		$('#ordrgPopup #totEpctPal').val(addCommaStr(totEpctPal));
+		$('#ordrgPopup #totBdCnt').val(addCommaStr(totBdCnt));
 	}
 	
 	function setFile(elem){
