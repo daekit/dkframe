@@ -11,6 +11,8 @@ public interface BM02Mapper {
 	int selectClntCount(Map<String, String> paramMap);
 	
 	List<Map<String, String>> selectClntList(Map<String, String> paramMap);
+	
+	List<Map<String, String>> selectClntListPrdtGrp(Map<String, String> paramMap);
 
 	Map<String, Object> selectClntInfo(Map<String, String> paramMap);
 	
@@ -40,6 +42,8 @@ public interface BM02Mapper {
 	
 	// 동일 사업자 번호 체크
 	Map<String, String> selectCrnDupChk(Map<String, String> paramMap);
+
+	
 
 
 }
