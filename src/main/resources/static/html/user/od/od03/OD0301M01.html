@@ -89,7 +89,12 @@ th {
 	                 		<option value="">전체</option>
 	                 	</select>
 	                </td>
-	                <th class= "hit">일자</th>
+	                <th class="hit">
+						<select id= "dtKind" style = "width: 72px">
+							<option value = "sellDate">매출일자</option>
+							<option value = "dlvrDate">운송일자</option>
+						</select>
+					</th>
 	                <td>
 	                    <div class="date_input">
 	                      <input type="text" id="reqDtFrom" class="input_calendar" autocomplete="off" onchange="dateValidation();">
@@ -273,6 +278,13 @@ th {
 			firstGrid = this.target;
 			
 			var paramObj = {"selpchCd": "SELPCH1", "pageNo": _pageNo + 1};
+			var dtKind = "";
+			if($('#dtKind option:selected').val() == 'sellDate'){
+				dtKind = "sellDate";
+			}
+			if($('#dtKind option:selected').val() == 'dlvrDate'){
+				dtKind = "dlvrDate";
+			}
 			
 			$.each($('#main_area [data-search]'), function(idx, elem){
 				var searchValue = elem.value;
@@ -284,8 +296,8 @@ th {
 						
 			var formData = {
 				"coCd" : $("#coCd_S").val(),
-				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
-				"reqDtTo" : $("#reqDtTo").val().replace(/\-/g,''),
+				"dtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
+				"dtTo" : $("#reqDtTo").val().replace(/\-/g,''),
 				"selpchCd" : $("#selpch_S").val(),
 				"clntCd" : $("#clntCd_S").val(),
 				"clntNm" : $("#clntNm_S").val(),
@@ -295,7 +307,8 @@ th {
 				"bilgYn" : $("#bilgYn_S").val(),
 				"typCd" : $("#typCd_S").val(),
 				"prdtGrp" : $("#prdtGrp_S").val(),
-				"taxivcCoprt" : $("#taxivcCoprt").val()
+				"taxivcCoprt" : $("#taxivcCoprt").val(),
+				"dtKind" : dtKind
 			}
 			postAjax("/user/ar/ar02/selectSellSumList", formData, null, function(data){
 				var list = data.resultList;
@@ -416,6 +429,15 @@ th {
 	
 	function excelDown() {
 		var targetObj = this.target;
+		
+		var dtKind = "";
+		if($('#dtKind option:selected').val() == 'sellDate'){
+			dtKind = "sellDate";
+		}
+		if($('#dtKind option:selected').val() == 'dlvrDate'){
+			dtKind = "dlvrDate";
+		}
+		
 		var formData = {
 				"coCd" : $("#coCd_S").val(),
 				"reqDtFrom" : $("#reqDtFrom").val().replace(/\-/g,''),
@@ -429,7 +451,8 @@ th {
 				"bilgYn" : $("#bilgYn_S").val(),
 				"typCd" : $("#typCd_S").val(),
 				"prdtGrp" : $("#prdtGrp_S").val(),
-				"taxivcCoprt" : $("#taxivcCoprt").val()
+				"taxivcCoprt" : $("#taxivcCoprt").val(),
+				"dtKind" : dtKind
 			}
 			postAjax("/user/ar/ar02/selectSellSumList", formData, null, function(data){
 				var list = data.resultList;
@@ -445,7 +468,16 @@ th {
 	}	
 
 	function setReportMain() {
-		var fileName = "OD0301R01.jrf";
+		var fileName = "OD0301R01.jrf";		
+		
+		var dtKind = "";
+		if($('#dtKind option:selected').val() == 'sellDate'){
+			dtKind = "sellDate";
+		}
+		if($('#dtKind option:selected').val() == 'dlvrDate'){
+			dtKind = "dlvrDate";
+		}
+		
 		var arg = "selPchCd#" 	+ $('#selpch_S').val() 
 		         +"#coCd#"		+ $('#coCd_S').val()
 		         +"#fromDt#"	+ $("#reqDtFrom").val().replace(/\-/g,'')
@@ -458,9 +490,10 @@ th {
 		         +"#siteNm#"	+ $('#siteNm_S').val()
 		         +"#typCd#"		+ $('#typCd_S').val()
 		         +"#typNm#"		+ $('#typCd_S option:selected').text()
-		         +"#bilgYn#"		+ $('#bilgYn_S').val()
+		         +"#bilgYn#"	+ $('#bilgYn_S').val()
 		         +"#prdtGrp#"	+ $('#prdtGrp_S').val()
 		         +"#taxivcCoprt#"	+ $('#taxivcCoprt').val()
+		         +"#dtKind" + dtKind
 		         +"#";
 		callReport(fileName, arg, "900", "680");
 	}
@@ -471,6 +504,14 @@ th {
 	    
 		var fileName = "OD0301R02.jrf";
 		var prdtGrp = $("#prdtGrp_S").val();
+		
+		var dtKind = "";
+		if($('#dtKind option:selected').val() == 'sellDate'){
+			dtKind = "sellDate";
+		}
+		if($('#dtKind option:selected').val() == 'dlvrDate'){
+			dtKind = "dlvrDate";
+		}
 		
 		if(type =='FE'){ //(철재) 클릭 시 전체 조회
 			
@@ -498,6 +539,7 @@ th {
 			         +"#prdtGrp#"	+ prdtGrp
 			         +"#taxivcCoprt#"	+ $('#taxivcCoprt').val()
 			         +"#selltypeYn#"	+ selltypeYn
+			         +"#dtKind" + dtKind
 			         +"#";
 			
 						callReport(fileName, arg, "1050", "680");
@@ -523,6 +565,7 @@ th {
 			         +"#prdtGrp#"	+ prdtGrp
 			         +"#taxivcCoprt#"	+ $('#taxivcCoprt').val()
 			         +"#selltypeYn#"	+ $('#selltypeYn').val()
+			         +"#dtKind" + dtKind
 			         +"#";
 	
 	//	alert(arg);
