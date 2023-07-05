@@ -204,6 +204,16 @@
 								<option value="">전체</option>
 							</select>
 						</td>
+						<th>등록자</th>
+						<td>
+							<div class="search_form">
+								<input type="hidden" id="creatMng_S" data-search="creatMng">
+								<input type="text" id="creatMngNm_S" data-search="creatMngNm" onkeyup="event.keyCode == 8 ? creatMng_S.value = '' : event.keyCode == 13 ? ordrgGridView.setData(0) : ''">
+								<a onclick="openUserSearch();">
+									<i class="i_search_w"></i>
+								</a>
+							</div>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -364,7 +374,9 @@
 					"recordCnt"   	: $("#recordCnt").val(),
 					"ordrgYn"		: $("#ordrgYn").val(),
 					"shipYn"		: $("#shipYn").val(),
-					"trspTypCd"		: $("#trspTypCd_S").val()
+					"trspTypCd"		: $("#trspTypCd_S").val(),
+					"creatMng"		: $("#creatMng_S").val(),
+					"creatMngNm"	: $("#creatMngNm_S").val()
 				}
 				
 				postAjax("/user/od/od01/selectOrdrgList", formData, null, function(data){
@@ -683,6 +695,21 @@
 			var row = grid.target.getList("selected")[0];
 			$('#siteCd_S').val(row.siteCd);
 			$('#siteNm_S').val(row.siteNm);
+		});
+	}
+	
+	// 영업담당자 검색
+	function openUserSearch() {
+		var paramObj = {
+			"coCd" : "GUM",
+			"useYn": "Y"
+		};
+		
+		openModal("/static/html/cmn/modal/userSearch.html", 300, 500, "사용자 검색", paramObj, function (tree){
+			var checkedId = tree.get_checked()[0];
+			var checkedNode = tree.get_node(checkedId);
+			$('#creatMng_S').val(checkedNode.id);
+			$('#creatMngNm_S').val(checkedNode.text);
 		});
 	}
 	
