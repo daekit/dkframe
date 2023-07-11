@@ -920,19 +920,24 @@
 // 			url = "/user/ar/ar04/updateBilg";
 // 			bilgCertNo = list[0].bilgCertNo
 		}
-		var formData = {
-			"trstCertiNoList" : trstCertiNoArr,
-			"bilgCertNo" : bilgCertNo,
-			"ftxac21" : $('#dtFrom').val() + ' ~ ' + $('#dtTo').val(),
-			"userId" : jwt.userId,
-			"userNm" : jwt.userNm,
-			"pgmId" : "AR0201M02"
-		}
-		postAjax(url, formData, null, function(data) {
-			alert(data.resultMessage);
-			if(data.resultCode == 200) {
-				subGridView.setData(0);	
-			}
+		
+		openSecondModal("/static/html/user/ar/ar02/AR0202P06.html", 600, 230, "자사거래여부 선택", null, function (intraYn) {
+			// 자사거래시 세금계산서 테이블에 저장하지않고, 확정처리된 것 처럼 보이도록 수정
+			var formData = {
+					"trstCertiNoList" : trstCertiNoArr,
+					"bilgCertNo" : bilgCertNo,
+					"ftxac21" : $('#dtFrom').val() + ' ~ ' + $('#dtTo').val(),
+					"userId" : jwt.userId,
+					"userNm" : jwt.userNm,
+					"pgmId" : "AR0201M02",
+					"intraYn" : intraYn
+				}
+				postAjax(url, formData, null, function(data) {
+					alert(data.resultMessage);
+					if(data.resultCode == 200) {
+						subGridView.setData(0);	
+					}
+				});
 		});
 	}
 	

@@ -28,7 +28,13 @@ public class AR04Ctr {
 	@PostMapping(value = "/insertBilg")
 	public String insertBilg(@RequestBody Map<String, Object> paramMap, ModelMap model) {
 		try {
-			ar04Svc.insertBilg(paramMap);
+			String intraYn = paramMap.get("intraYn").toString();
+			if("Y".equals(intraYn)) { // 자사거래일시
+				ar04Svc.insertBilgIntra(paramMap);
+			} else { // 일반거래일시
+				ar04Svc.insertBilg(paramMap);
+			}
+			
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
 		}catch(Exception e){

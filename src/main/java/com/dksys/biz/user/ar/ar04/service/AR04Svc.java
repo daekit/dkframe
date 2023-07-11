@@ -7,6 +7,8 @@ public interface AR04Svc {
 
 	public void insertBilg(Map<String, Object> paramMap) throws Exception;
 	
+	public void insertBilgIntra(Map<String, Object> paramMap) throws Exception;
+	
 	public List<Map<String, String>> selectTaxBilgList(Map<String, String> param);
 	
 	public List<Map<String, String>> selectTaxBilgDetailList(Map<String, String> param);
@@ -46,5 +48,7 @@ public interface AR04Svc {
 	public void deleteTaxHd(Map<String, Object> paramMap) throws Exception;
 
 	public void deleteNoSndTaxHd(Map<String, Object> paramMap) throws Exception;
+
+	
 
 }

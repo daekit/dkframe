@@ -228,6 +228,7 @@
 					<a onclick="insertOrderModal();" style="height: 30px; line-height: 28px;" authchk>+</a> 
 					<a onclick="deleteOrder();" style="height: 30px; line-height: 28px;" authChk>-</a>
 					<a onclick="copyOrderModal();" style="height: 30px; line-height: 28px; width: 50px;" authChk>생성</a>
+					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setReportDetail('Detail');" authchk><i class="fas fa-print"></i>명세서</a>
 					<a onclick="setReportMain();" style="height: 30px; line-height: 28px; width: 110px;" title="제품만 출력합니다."><i class="fas fa-print"></i> 납품서출력</a>
 					<a onclick="excelDown();" style="height: 30px; line-height: 28px; width: 90px;">
 					<i class="fas fa-file-excel"></i> 엑셀다운로드</a>
@@ -286,6 +287,7 @@
 		        },
 		        columns: [
 		          	{key: "ordrgSeq",      label: "발주일련번호", hidden: true},
+		          	{key: "coCd",	      label: "회사코드", hidden: true},
 		        	{key: "dlvrDttm",      label: "출하일자",     align: "center",  width: 80},
 		        	{key: "realDlvrDttm",  label: "실출하일자",   align: "center",  width: 80},
 		            {key: "dirtrsYn",      label: "직송",         align: "center",  width: 50},
@@ -294,6 +296,7 @@
 		        	{key: "typNm",         label: "판매유형",     align: "center",  width: 80},
 		            {key: "clntNm",        label: "매입거래처",   align: "left",    width: 150},
 		        	{key: "sellClntNm",    label: "매출거래처",   align: "left",    width: 150},
+		        	{key: "taxivcCoprt",   label: "판매법인",     hidden: true},
 		        	{key: "prjctNm",       label: "프로젝트",     hidden: true},
 		        	{key: "siteNm",        label: "현장",         align: "left",    width: 150},
 		        	{key: "mngTel",        label: "담당자연락처", align: "center",  width: 100},
@@ -712,5 +715,34 @@
 			$('#creatMngNm_S').val(checkedNode.text);
 		});
 	}
+	
+	function setReportDetail(type) {
+		
+		var flag = false;
+		var row = ordrgGridView.target.getList("selected")[0];		    		
+		var pSiteNm = "";
+		if(row.siteNm != null && row.siteNm != ""){
+			pSiteNm = row.siteNm;
+		}
+		
+ 		openSecondModal("/static/html/user/od/od01/OD0101P01.html", 600, 230, "명세서 출력 선택", null, function (uprYn) {
+		var arg = "selPchCd#SELPCH2" 
+				 + "#ordrgSeq#"		+ row.ordrgSeq
+		 		 + "#coCd#"			+ row.coCd
+		         + "#taxivcCoprt#"  + row.taxivcCoprt
+		         + "#trstDt#"		+ row.dlvrDttm
+		         + "#fromDt#"		+ $("#reqDtFrom").val().replace(/\-/g,'')
+		         + "#toDt#"			+ $("#reqDtTo").val().replace(/\-/g,'')
+		         + "#clntCd#"		+ row.sellClntCd
+		         + "#clntNm#"		+ row.sellClntNm
+		         + "#siteCd#"		+ ""
+		         + "#siteNm#"		+ pSiteNm
+		         + "#uprYn#"		+ uprYn
+		         + "#";
+
+			callReport("OD0101R01.jrf", arg, "750", "1007");
+
+	});
+}
 	
 </script>

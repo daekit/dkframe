@@ -123,6 +123,34 @@ public class AR04SvcImpl implements AR04Svc {
 			ar02Mapper.updatePchsSellBilg(sellParam);
 		}
 	}
+	
+	@Override
+	public void insertBilgIntra(Map<String, Object> paramMap) throws Exception {
+		Map<String, String> bilgInfo = ar02Mapper.selectBilgInfo(paramMap);
+		
+		// 매출리스트에서 매출확정을 두번 클릭했을 때 한번만 INSERT 되도록 로직 수정
+		// 현재 선택된 매출리스트에 세금계산서 번호 (BILG_CERT_NO)가 있는지 확인하고, 있으면 에러로 떨군다.
+		List<String> selectCertiList = (List<String>) paramMap.get("trstCertiNoList");
+		for(int i=0; i<selectCertiList.size(); i++) {
+			Map<String, Object> selectTaxBilgDetailList = ar04Mapper.selectTaxBilgDetail(selectCertiList.get(i));
+			
+			if(MapUtils.getString(selectTaxBilgDetailList, "bilgCertNo") != null) {
+				throw new Exception();
+			}
+			
+		}
+		
+		List<String> trstCertiNoList = (List<String>) paramMap.get("trstCertiNoList");
+		// 청구번호 UPDATE
+		for (String trstCertiNo : trstCertiNoList) {
+			Map<String, String> sellParam = new HashMap<String, String>();
+			sellParam.put("trstCertiNo", trstCertiNo);
+			sellParam.put("bilgCertNo", "0");
+			ar02Mapper.updatePchsSellBilg(sellParam);
+		}
+		
+		
+	}
 
 	@Override
 	public int selectTaxBilgCount(Map<String, String> paramMap) {
