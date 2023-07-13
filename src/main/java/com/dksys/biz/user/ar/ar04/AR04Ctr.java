@@ -28,13 +28,21 @@ public class AR04Ctr {
 	@PostMapping(value = "/insertBilg")
 	public String insertBilg(@RequestBody Map<String, Object> paramMap, ModelMap model) {
 		try {
-			String intraYn = paramMap.get("intraYn").toString();
-			if("Y".equals(intraYn)) { // 자사거래일시
-				ar04Svc.insertBilgIntra(paramMap);
-			} else { // 일반거래일시
-				ar04Svc.insertBilg(paramMap);
-			}
-			
+			ar04Svc.insertBilg(paramMap);
+			model.addAttribute("resultCode", 200);
+			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
+		}catch(Exception e){
+			model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+		}
+		return "jsonView";
+	}
+	
+	@PostMapping(value = "/insertBilgIntra")
+	public String insertBilgIntra(@RequestBody Map<String, Object> paramMap, ModelMap model) {
+		// 자사거래 매출확정
+		try {
+			ar04Svc.insertBilgIntra(paramMap);
 			model.addAttribute("resultCode", 200);
 			model.addAttribute("resultMessage", messageUtils.getMessage("confirm"));
 		}catch(Exception e){

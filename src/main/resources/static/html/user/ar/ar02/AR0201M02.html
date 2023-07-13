@@ -253,8 +253,9 @@
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="openClntChange();" authchk><i class="fas fa-exchange-alt"></i>거래처변경</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="openSalesDivision();" authchk><i class="fas fa-divide"></i>매출분할</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="sellCal();" authchk><i class="fas fa-calculator"></i>매출정산</a>
-					<a style="height: 30px; line-height: 28px; width: 50px;"  onclick="insertSellModal('U');" authchk><i class="fas fa-window-close"></i>반품</a> 
-					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="insertBilg(this);" authchk><i class="fas fa-file-signature"></i>매출확정</a>
+					<a style="height: 30px; line-height: 28px; width: 50px;"  onclick="insertSellModal('U');" authchk><i class="fas fa-window-close"></i>반품</a>
+					<!-- <a style="height: 30px; line-height: 28px; width: 70px;"  onclick="insertBilg(this);" name="insertBilgIntra" authchk><i class="fas fa-file-signature"></i>자사확정</a> --> 
+					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="insertBilg(this);" name="insertBilg" authchk><i class="fas fa-file-signature"></i>매출확정</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="updateBilgCancel(this);" authchk><i class="fas fa-trash"></i>확정취소</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setReportDetail('Detail');" authchk><i class="fas fa-print"></i>명세서</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setReportDetail('Sumary');" authchk><i class="fas fa-print"></i>집계표</a>
@@ -850,8 +851,14 @@
 			return false;
 		var isConfirmed = confirmBefore(btnElem);
 		if(!isConfirmed) return false;
-		
 		var url = "/user/ar/ar04/insertBilg";
+		if(btnElem.name == "insertBilgIntra"){
+			// 자사거래시 세금계산서 테이블에 저장하지않고, 확정처리된 것 처럼 보이도록 수정
+			url = "/user/ar/ar04/insertBilgIntra";
+		}
+		
+	
+		
 		var flag = false;
 		var clntFlag = false;
 		var returnFlag = false;
@@ -921,25 +928,25 @@
 // 			bilgCertNo = list[0].bilgCertNo
 		}
 		
-		openSecondModal("/static/html/user/ar/ar02/AR0202P06.html", 600, 230, "자사거래여부 선택", null, function (intraYn) {
-			// 자사거래시 세금계산서 테이블에 저장하지않고, 확정처리된 것 처럼 보이도록 수정
-			var formData = {
-					"trstCertiNoList" : trstCertiNoArr,
-					"bilgCertNo" : bilgCertNo,
-					"ftxac21" : $('#dtFrom').val() + ' ~ ' + $('#dtTo').val(),
-					"userId" : jwt.userId,
-					"userNm" : jwt.userNm,
-					"pgmId" : "AR0201M02",
-					"intraYn" : intraYn
+		
+		var formData = {
+				"trstCertiNoList" : trstCertiNoArr,
+				"bilgCertNo" : bilgCertNo,
+				"ftxac21" : $('#dtFrom').val() + ' ~ ' + $('#dtTo').val(),
+				"userId" : jwt.userId,
+				"userNm" : jwt.userNm,
+				"pgmId" : "AR0201M02"
+			}
+			postAjax(url, formData, null, function(data) {
+				alert(data.resultMessage);
+				if(data.resultCode == 200) {
+					subGridView.setData(0);	
 				}
-				postAjax(url, formData, null, function(data) {
-					alert(data.resultMessage);
-					if(data.resultCode == 200) {
-						subGridView.setData(0);	
-					}
-				});
-		});
+			});
+		
 	}
+	
+	
 	
 	function updateBilgCancel(btnElem) {
 		if (!checkGridRow(subGridView.target, ""))
