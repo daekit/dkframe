@@ -254,7 +254,7 @@
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="openSalesDivision();" authchk><i class="fas fa-divide"></i>매출분할</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="sellCal();" authchk><i class="fas fa-calculator"></i>매출정산</a>
 					<a style="height: 30px; line-height: 28px; width: 50px;"  onclick="insertSellModal('U');" authchk><i class="fas fa-window-close"></i>반품</a>
-					<!-- <a style="height: 30px; line-height: 28px; width: 70px;"  onclick="insertBilg(this);" name="insertBilgIntra" authchk><i class="fas fa-file-signature"></i>자사확정</a> --> 
+					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="insertBilg(this);" name="insertBilgIntra" authchk><i class="fas fa-file-signature"></i>자사확정</a> 
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="insertBilg(this);" name="insertBilg" authchk><i class="fas fa-file-signature"></i>매출확정</a>
 					<a style="height: 30px; line-height: 28px; width: 70px;"  onclick="updateBilgCancel(this);" authchk><i class="fas fa-trash"></i>확정취소</a>
 					<a style="height: 30px; line-height: 28px; width: 80px;"  onclick="setReportDetail('Detail');" authchk><i class="fas fa-print"></i>명세서</a>
@@ -852,6 +852,7 @@
 		var isConfirmed = confirmBefore(btnElem);
 		if(!isConfirmed) return false;
 		var url = "/user/ar/ar04/insertBilg";
+		
 		if(btnElem.name == "insertBilgIntra"){
 			// 자사거래시 세금계산서 테이블에 저장하지않고, 확정처리된 것 처럼 보이도록 수정
 			url = "/user/ar/ar04/insertBilgIntra";
@@ -956,8 +957,12 @@
 		
 		var flag = false;
 		var bilgFlag = false;
+		var intraFlag = false; // 자사거래여부
+		var url = "/user/ar/ar04/updateBilgCancel";
 		var list = subGridView.target.getList("selected");
 		var bilgCertNoArr = [];
+		var trstCertiNoArr = [];
+		
 		$.each(list, function(idx, obj) {
 			if (obj.bilgYn == "N"){
 				flag = true;
@@ -969,7 +974,13 @@
 					return false;
 				}
 			}
+			
+			if(obj.bilgCertNo == "0"){
+				intraFlag = true;
+			}
+			
 			bilgCertNoArr.push(obj.bilgCertNo);
+			trstCertiNoArr.push(obj.trstCertiNo);
 		});
 		if (flag) {
 			alert("발행되지 않은 매출 건이 포함되어 있습니다.");
@@ -979,13 +990,19 @@
 			alert("같은 청구서 번호끼리만 취소 가능합니다.");
 			return;
 		}
+		if(intraFlag) {
+			url = "/user/ar/ar04/updateBilgCancelIntra";
+		}
+		
+		console.log(intraFlag);
 		if(confirm("해당 전표로 발행된 매출 건수가 함께 취소됩니다.\n진행하시겠습니까?")){
 			var formData = {
+				"trstCertiNo" : trstCertiNoArr,
 				"bilgCertNo" : bilgCertNoArr,
 				"userId" : jwt.userId,
 				"pgmId" : "AR0201M02"
 			}
-			putAjax("/user/ar/ar04/updateBilgCancel", formData, null, function(data) {
+			putAjax(url, formData, null, function(data) {
 				alert(data.resultMessage);
 				subGridView.setData(0);
 			});

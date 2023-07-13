@@ -694,6 +694,25 @@ public class AR04SvcImpl implements AR04Svc {
 		return result;
 	}
 	
+	
+	@Override
+	@SuppressWarnings("all")
+	public int updateBilgCancelIntra(Map<String, Object> paramMap){
+		int result = 0;
+		List<String> list = (List<String>) paramMap.get("bilgCertNo");
+		
+		for(String bilgCertNo : list) {
+			if(!"0".equals(bilgCertNo)) {
+				result = 500;
+				return result;
+			}
+		}
+		
+		ar02Mapper.updateBilgCancelIntra(paramMap);
+		result = 200;
+		return result;
+	}
+	
 
 
 	@Override

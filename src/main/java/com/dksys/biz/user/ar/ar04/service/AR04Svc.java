@@ -34,6 +34,8 @@ public interface AR04Svc {
 	int insertTaxHdCancel(Map<String, Object> paramMap);
 
 	int updateBilgCancel(Map<String, Object> paramMap);
+	
+	int updateBilgCancelIntra(Map<String, Object> paramMap);
 
 	int updateBilgRvrs(Map<String, Object> paramMap);
 
@@ -48,6 +50,8 @@ public interface AR04Svc {
 	public void deleteTaxHd(Map<String, Object> paramMap) throws Exception;
 
 	public void deleteNoSndTaxHd(Map<String, Object> paramMap) throws Exception;
+
+	
 
 	
 
