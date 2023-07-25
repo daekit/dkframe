@@ -1025,12 +1025,14 @@
 			var p_clntCd = "";
 			var p_siteNm = "";
 			var p_taxivcCoprt = "";
-			
+			var calWtFlag = false;
 			
 			if ($('#coCd_S').val() == "") {
 				alert("전체 법인으로 거래명세서 발행 할 수 없습니다.");
 				return;
 			}
+			
+			
 	
 			$.each(list, function(idx, obj) {
 				if (!flag){
@@ -1062,11 +1064,15 @@
 				}
 				
 				if(Math.round(list[idx].bilgQty * list[idx].prdtCnvrsnWt * 1000) / 1000 != list[idx].bilgWt){
-					alert("청구수량 * 스펙 = 청구중량. 맞지않는것이 있습니다.");
-					
+					calWtFlag = true;
 				}
 				
 			});
+			if(calWtFlag){
+				if(!confirm("청구수량 * 스펙 = 청구중량. 맞지않는것이 있습니다. 출력하시겠습니까?")){
+					return;
+				}
+			}
 			if (!flag) {
 				alert("거래명세서 발행대상이 선택되지 않았습니다.");
 				return;
