@@ -555,8 +555,18 @@ public class SM02Svcmpl implements SM02Svc {
 		detailMap.put("stockUpr", stockInfo.get("stockUpr"));
 		detailMap.put("stdUpr", stockInfo.get("stdUpr"));
 		
-		double stockQty = Double.parseDouble(stockInfo.get("stockQty")) + Double.parseDouble(detailMap.get("moveQty"));
-		double stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + Double.parseDouble(detailMap.get("moveWt"));
+		// 이동수량이 null일 경우 0 입력 하도록 수정
+		double moveQty = 0; 
+		double moveWt = 0;
+		if(detailMap.get("moveQty") != null) {
+			moveQty = Double.parseDouble(detailMap.get("moveQty"));
+		}
+		if(detailMap.get("moveWt") != null) {
+			moveQty = Double.parseDouble(detailMap.get("moveWt"));
+		}
+		
+		double stockQty = Double.parseDouble(stockInfo.get("stockQty")) + moveQty;
+		double stockWt  = Double.parseDouble(stockInfo.get("stockWt"))  + moveWt;
 		detailMap.put("stockQty", String.valueOf(stockQty));
 		detailMap.put("stockWt" , String.valueOf(stockWt));
 		
