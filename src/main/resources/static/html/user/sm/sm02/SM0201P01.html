@@ -528,18 +528,25 @@
 			"transAmt"  : $("#transAmt").val(),
 			"realStockYn" : $("#realStockYn").val()	,
 			"errCorecYn"  : $("#errCorecYn").val(),
-			//"impYn"		: $("#impYn").val(),
-			//"estcoprtCd" : $("#estcoprt").val()
 		}
 		// 상세내역 추가
 		//formData["detailArr"] = searchGrid.getList();
 		formData["detailArr2"] = JSON.stringify(formData2);
 		
-		var detailArr = searchGrid.getList("modified");
+		var modifiedArr = searchGrid.getList("modified");
+		var detailArr = [];
+		// 중량이 없는 행 제거
+		$.each(modifiedArr, function(idx, elem) {
+			if(elem.moveWt){
+				detailArr.push(elem);
+			}
+		});
+		
+		console.log(detailArr);
 		
 		/* formData.append("mWhCd", );
 		formData.append("sTransDt", );
-		formData.append("sRmk", ); */
+		formData.append("sRmk", ); */ 
 		
 		formData["detailArr"] = JSON.stringify(detailArr);
 		return formData;
