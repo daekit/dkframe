@@ -77,7 +77,7 @@
 						<td>
 							<div class="date_input">
 								<input type="text" class="input_calendar" autocomplete="off" id="closeYm" name="closeYm" data-search="closeYm" date
-								onchange="gridView.setData();"> 
+								onchange="gridView.setData(); resetExcuteResult();"> 
 							</div>
 						</td>
 					</tr>
@@ -95,6 +95,7 @@
 					<a style="width:80px;" onclick="excuteCloseStock();"  authchk>재고마감실행</a>
 					<a style="width:80px;" onclick="excuteCloseCreate();" authchk>매출마감실행</a>
 					<a style="width:80px;" onclick="excuteClosePurch();"  authchk>매입마감실행</a>
+					<a style="width:80px;" onclick="excuteAllClose();"  authchk>일괄마감실행</a>
 				</div>
 			</div>
 		  <!-- 콘텐츠 -->
@@ -472,6 +473,19 @@
 		}
 	}
 	
+	function resetExcuteResult(){
+		$('span[name="stockStatus"]').text("작업전");
+		$('span[name="stockStatus"]').removeClass("complete");
+		$('span[name="stockStatus"]').removeClass("fail");
+		$('span[name="salesStatus"]').text("작업전");
+		$('span[name="salesStatus"]').removeClass("complete");
+		$('span[name="salesStatus"]').removeClass("fail");
+		$('span[name="purchsStatus"]').text("작업전");
+		$('span[name="purchsStatus"]').removeClass("complete");
+		$('span[name="purchsStatus"]').removeClass("fail");
+		
+	}
+	
 	// 월마감정보 set
 	function setCloseInfo(closeInfo){
 		if(closeInfo){
@@ -555,7 +569,7 @@
 			}
 			else{
 				if(data.chkCount != '0'){				
-					alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+					alert("재고 미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
 					return;
 				}else{				
 					if(data.resultCode == 200){
@@ -588,7 +602,7 @@
 			}
 			else{
 				if(data.chkCount != '0'){				
-					alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+					alert("매출 미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
 					return;
 				}else{				
 					if(data.resultCode == 200){
@@ -620,7 +634,7 @@
 			}
 			else{
 				if(data.chkCount != '0'){				
-					alert("미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
+					alert("매일 미발생 전표가 "+ data.chkCount +"건 있습있습니다. 확정 후 작업하세요.");
 					return;
 				}else{				
 					if(data.resultCode == 200){
@@ -634,6 +648,13 @@
 				}
 			}
 		});
+	}
+	
+	// 일괄마감실행
+	function excuteAllClose(){
+		excuteCloseStock(); //재고마감실행
+		excuteCloseCreate(); //매출마감실행
+		excuteClosePurch(); //매입마감실행
 	}
 	
 	// 매출 마감실행 삭제
