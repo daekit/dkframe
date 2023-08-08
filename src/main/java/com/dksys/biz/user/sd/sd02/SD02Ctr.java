@@ -109,7 +109,7 @@ public class SD02Ctr {
     	    List<Map<String, Object>> selectCopy = sd02svc.selectCopy(param);
     	    int size = 0;
     	    String clntNm = "";
-    	    if(selectCopy != null) {
+    	    if(selectCopy.size() != 0) {
     	    	size = selectCopy.size();
     	    	clntNm = MapUtils.getString(selectCopy.get(0), "CLNT_NM");
     	    	if(size != 1) {
