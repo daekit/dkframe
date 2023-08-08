@@ -29,4 +29,6 @@ public interface SD02Svc {
 
 	public int copyPlanToNextMonth(Map<String, Object> param) throws Exception;
 
+	public List<Map<String, Object>> selectCopy(Map<String, String> param);
+
 }

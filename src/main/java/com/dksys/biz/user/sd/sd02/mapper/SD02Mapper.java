@@ -31,4 +31,6 @@ public interface SD02Mapper {
 	List<Map<String, String>> selectClnt(Map<String, Object> param);
 
 	int copyPlanToNextMonth(Map<String, Object> param);
+
+	List<Map<String, Object>> selectCopy(Map<String, String> param);
 }

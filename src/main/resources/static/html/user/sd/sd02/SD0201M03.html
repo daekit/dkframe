@@ -430,12 +430,22 @@
 	}
 	
 	function copyPlan(){
+		
+		var salesMng = $('#salesMng_S').val();
+		
+		if(salesMng == null || salesMng == ""){
+			alert("담당자 조회조건을 선택 후 시도해주세요.");
+			return false;
+		}
+		
 		if(firstGrid.list != ""){
 			var con = confirm("삭제후 전월복사 하시겠습니까?");
 			if(con == false){
 				return;
 			}
 		}
+		
+		
 		var formData = {
 			"planSeq" : $('#planSeq').val(),
 			"coCd" : $("#coCd").val(),
@@ -452,12 +462,51 @@
 			"userId" : jwt.userId,
 			"pgmId" : $('#pgmId').val()
 		}
-		postAjax("/user/sd/sd02/copyInsert", formData, null, function(data){
-			alert(data.resultMessage);           
-			gridView.setData(0);
-			modalStack.close();
+		
+		var size = 0;
+		var clntNm = "";
+		
+		/*
+        $.ajax({
+            type: 'post',
+            url: '/user/sd/sd02/copySelect',
+            data: formData,
+            async: false,
+            success: function(data) {
+    			size = data.resultSize;
+    			clntNm = data.resultClntNm;
+    			if(size != 0){
+    				sizeCheck = true;
+    			}
+            }
+        });
+		*/
+		
+        
+		postAjax("/user/sd/sd02/copySelect", formData, null, function(data){
+			size = data.resultSize;
+			clntNm = data.resultClntNm;
+			
+			if(size != 0){
+				if(confirm("해당 계획년월에 이미 중복된 거래처가 있습니다.\n중복건 제외 후 전월복사를 진행하시겠습니까? (" + clntNm + ")")){
+					postAjax("/user/sd/sd02/copyInsert", formData, null, function(data){
+						alert(data.resultMessage);           
+						gridView.setData(0);
+						modalStack.close();
+					});		
+				}
+			}else{
+				postAjax("/user/sd/sd02/copyInsert", formData, null, function(data){
+					alert(data.resultMessage);           
+					gridView.setData(0);
+					modalStack.close();
+				});		
+			}
+			
 		});
 		
+		
+
 	}
 	
 	function initSearch() {

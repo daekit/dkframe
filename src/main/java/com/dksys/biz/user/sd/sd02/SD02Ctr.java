@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -78,10 +79,48 @@ public class SD02Ctr {
     @PostMapping(value = "/copyInsert")
     public String copyInsert(@RequestBody Map<String, String> param, ModelMap model) {
     	try {
+    	    List<Map<String, Object>> selectCopy = sd02svc.selectCopy(param);
+    	    String clntCdList = "";
+    	    if(selectCopy != null) {
+    	    	for(int i = 0; i < selectCopy.size(); i++) {
+    	    		clntCdList += "'" + selectCopy.get(i).get("CLNT_CD") + "'";
+    				
+    				if(i != selectCopy.size()-1) {
+    					clntCdList += ",";
+    				}
+    	    	}
+    	    }
+    	    
+    	    param.put("clntCdList", clntCdList);
     		sd02svc.deleteCopy(param);
 	    	sd02svc.copyInsert(param);
 	    	model.addAttribute("resultCode", 200);
 	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    	}catch(Exception e) {
+    		model.addAttribute("resultCode", 500);
+    		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));
+    	}
+	    	return "jsonView";
+    }
+    
+    @PostMapping(value = "/copySelect")
+    public String copySelect(@RequestBody Map<String, String> param, ModelMap model) {
+    	try {
+    	    List<Map<String, Object>> selectCopy = sd02svc.selectCopy(param);
+    	    int size = 0;
+    	    String clntNm = "";
+    	    if(selectCopy != null) {
+    	    	size = selectCopy.size();
+    	    	clntNm = MapUtils.getString(selectCopy.get(0), "CLNT_NM");
+    	    	if(size != 1) {
+    	    		int otherSize = size -1;
+    	    		clntNm = clntNm + "외 " + otherSize + "건";
+    	    	}
+    	    }
+    	    model.addAttribute("resultCode", 200);
+	    	model.addAttribute("resultSize", size);
+	    	model.addAttribute("resultClntNm", clntNm);
+	    	model.addAttribute("resultMessage", messageUtils.getMessage("select"));
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

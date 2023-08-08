@@ -482,8 +482,11 @@
 			UDT_PGM 
 	    from TB_SD01M01
 		WHERE 
-			PLAN_YM = TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM') + INTERVAL '-1' MONTH, 'YYYYMM')
-			<if test="coCd != null and !coCd.equals('')">
+		   PLAN_YM = TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM') + INTERVAL '-1' MONTH, 'YYYYMM')
+		   <if test="clntCdList != null and !clntCdList.equals('')">
+		   AND CLNT_CD NOT IN (${clntCdList})
+		   </if>
+		   <if test="coCd != null and !coCd.equals('')">
 		   AND CO_CD = #{coCd}
 		   </if>
 		   <if test="selpchCd != null and !selpchCd.equals('')">
@@ -509,7 +512,10 @@
 	<delete id="deleteCopy">
 		DELETE FROM TB_SD01M01
 		WHERE PLAN_YM = TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM'),'YYYYMM')
-		<if test="coCd != null and !coCd.equals('')">
+		   <if test="clntCdList != null and !clntCdList.equals('')">
+		   AND CLNT_CD NOT IN (${clntCdList})
+		   </if>
+		   <if test="coCd != null and !coCd.equals('')">
 		   AND CO_CD = #{coCd}
 		   </if>
 		   <if test="selpchCd != null and !selpchCd.equals('')">
@@ -1068,6 +1074,18 @@
 					#{item}
 				</foreach>
 	</insert>
+	
+	<select id="selectCopy" parameterType="Map" resultType="Map">
+		SELECT 
+			   SD01.PLAN_SEQ 
+			 , SD01.CLNT_CD
+			 , BM02.CLNT_NM
+		  FROM TB_SD01M01 SD01
+		     , TB_BM02M01 BM02
+		 WHERE SD01.CLNT_CD = BM02.CLNT_CD(+)
+		   AND SD01.PLAN_SALES_ID = #{planSalesId}
+		   AND SD01.PLAN_YM = TO_CHAR(TO_DATE(#{planYm}, 'YYYY-MM'),'YYYYMM')
+	</select>
 	
 </mapper>
 
