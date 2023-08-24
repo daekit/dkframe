@@ -278,6 +278,8 @@ public class AR04SvcImpl implements AR04Svc {
 		taxHdParam.put("orgnTaxBilgNo", "");
 		taxHdParam.put("bgm1225", "9"); // 정발행은 9
 		taxHdParam.put("invSndYn", bilgInfo.get("invSndYn"));
+		
+		// 정발행 할때는 RFFGN101이라서 안탐 - 수정세금계산서 발행할 때, 다시 정발행할 때 탐
 		if (bilgInfo.get("rffGn1").equals("RFFGN102")
 				&& bilgInfo.get("rffAea").equals("RFFAEA01") /* && bilgInfo.get("taxBilgNo") != null */) {
 			// 수정세금계산서 취소 로직 시작
