@@ -91,4 +91,9 @@ public class SD02Svcmpl implements SD02Svc {
 	public List<Map<String, Object>> selectCopy(Map<String, String> param) {
 		return sd02Mapper.selectCopy(param);
 	}
+
+	@Override
+	public int checkPlan(Map<String, String> param) {
+		return sd02Mapper.checkPlan(param);
+	}
 }

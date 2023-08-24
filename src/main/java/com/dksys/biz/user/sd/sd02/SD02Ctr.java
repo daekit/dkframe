@@ -53,9 +53,18 @@ public class SD02Ctr {
     @PostMapping(value = "/insertPlan")
     public String insertPlan(HttpServletRequest request, @RequestBody Map<String, String> param, ModelMap model) {
     	try {
-	    	sd02svc.insertPlan(param);
-	    	model.addAttribute("resultCode", 200);
-	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		int checkPlanCount = sd02svc.checkPlan(param);
+    		
+    		if(checkPlanCount == 0) {
+    			sd02svc.insertPlan(param);
+    	    	model.addAttribute("resultCode", 200);
+    	    	model.addAttribute("resultMessage", messageUtils.getMessage("insert"));
+    		} else {
+    			model.addAttribute("resultCode", 500);
+    	    	model.addAttribute("resultMessage", messageUtils.getMessage("alreadyPlan"));
+    		}
+    		
+	    	
     	}catch(Exception e) {
     		model.addAttribute("resultCode", 500);
     		model.addAttribute("resultMessage", messageUtils.getMessage("fail"));

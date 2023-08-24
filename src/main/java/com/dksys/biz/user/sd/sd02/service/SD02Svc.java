@@ -31,4 +31,6 @@ public interface SD02Svc {
 
 	public List<Map<String, Object>> selectCopy(Map<String, String> param);
 
+	public int checkPlan(Map<String, String> param);
+
 }

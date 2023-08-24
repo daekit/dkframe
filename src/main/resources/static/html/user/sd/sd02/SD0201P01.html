@@ -15,21 +15,21 @@
             <tr>
                 <th class="hit">회사</th>
                 <td class="detailSell">                                
-                    <select id="coCd" name="coCd" data-kind="CO" required="required">
+                    <select id="coCd" name="coCd" data-kind="CO" required="required" msg="회사">
                     </select>
                 </td>
             </tr>
             <tr>
                 <th class="hit">판매/매입구분</th>
                 <td >                                
-                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH" required="required">
+                    <select id="selpchCd" name="selpchCd" data-kind="SELPCH" required="required" msg="판매/매입구분">
                     </select>
                 </td>
             </tr>
             <tr>
                 <th class="hit">계획년월</th>
                 <td>
-                	<input id="planYm" name="planYm" type="month" readonly="readonly" required="required">
+                	<input id="planYm" name="planYm" type="month" readonly="readonly" required="required" msg="계획년월">
                 </td>
 			</tr>
 <!-- 			 <tr> -->
@@ -40,9 +40,9 @@
 <!--                 </td> -->
 <!--             </tr> -->
             <tr>
-            <th>거래처</th>
+            <th class="hit">거래처</th>
                 <td class="drctArea">
-                	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;">                   
+                	<input type="hidden" id="clntCd" name="clntCd" style="width: 76%;" required="required" msg="거래처">                   
                 	<div class="search_form">
 	                    <input type="text" id="clntNm" name="clntNm" readonly="readonly">
                     	<a onclick="clntSearch();"><i class="i_search_w"></i></a>
@@ -61,18 +61,20 @@
                 </td>
 			</tr>
  -->
-            <th class="hit">제품그룹</th>
-            <td>                                
-                <select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" onchange="prdtGrpChange(this);"  required="required" msg="제품그룹">
-                <option value="">전체</option>
-                </select>
-
-            </td>
+ 			<tr>
+	            <th class="hit">제품그룹</th>
+	            <td>                                
+	                <select id="prdtGrp" name="prdtGrp" data-kind="PRDTGRP" onchange="prdtGrpChange(this);"  required="required" msg="제품그룹">
+	                <!-- <option value="">전체</option> -->
+	                </select>
+	
+	            </td>
+ 			</tr>
 			<tr>
-                <th class="">제품구분</th>
+                <th class="hit">제품구분</th>
                 <td>                                
-                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" data-search="prdtDiv" onchange="prdtStknChange(this);">
-                    <option value="">전체</option>
+                    <select id="prdtDiv" name="prdtDiv" data-kind="PRDTDIV" data-search="prdtDiv" onchange="prdtStknChange(this);" required="required" msg="제품구분">
+                    <!-- <option value="">전체</option> -->
                     </select>
 
                 </td>
@@ -81,14 +83,14 @@
                 <th class="">강종</th>
                 <td>                                
                     <select id="prdtStkn" name="prdtStkn" data-search="prdtStkn">
-                    <option value="">전체</option>
+                    	<option value="">전체</option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <th class="">중량(Kg)</th>
+                <th class="hit">중량(Kg)</th>
                 <td>                                
-                    <input type="text" id="planWt" name="planWt" onkeyup="onlyNumber(this);" comma>
+                    <input type="text" id="planWt" name="planWt" onkeyup="onlyNumber(this);" comma required="required" msg="중량">
                 </td>
             </tr>
             <tr>                
@@ -96,7 +98,7 @@
                 <td>                                
 	              <input type="hidden" id="salesMngId" name="salesMngId" style="width: 100%;">
 	              <div class="search_form">
-	               <input type="text" id="salesMngNm" name="salesMngNm" style="width: 100%;" readonly="readonly" required="required">
+	               <input type="text" id="salesMngNm" name="salesMngNm" style="width: 100%;" readonly="readonly" required="required" msg="담당사원">
 	              	<a onclick="openUserTree2();"><i class="i_search_w"></i></a>
 	              </div>
 	            </td>
@@ -110,7 +112,7 @@
                 <th class="hit">부서(팀)</th>
                 <td>                                
                     <input type="hidden" id="deptId" name="deptId" style="width: 100%;">
-                    <input type="text" id="deptNm" name="deptNm" style="width: 100%;" readonly="readonly" required="required">
+                    <input type="text" id="deptNm" name="deptNm" style="width: 100%;" readonly="readonly" required="required" msg="부서(팀)">
                 </td>
             </tr>
             <tr>
@@ -152,6 +154,8 @@
 			$('#actionBtn').on("click", function(){insertPlan();});
 			$("#actionBtn").text("등록");
 			insertSetInit();
+			prdtGrpChange($('#prdtGrp'));
+			prdtStknChange($('#prdtDiv'));
 		}else if(actionType == "U"){
 			updateSetInit();
 			$('#actionBtn').on("click", function(){updatePlan();});
@@ -227,6 +231,9 @@
 		$.each($('input[comma]'), function(idx, elem){
 			onlyNumber(elem);
 		});
+		
+		prdtGrpChange($('#prdtGrp'));
+		prdtStknChange($('#prdtDiv'));
 	}
 	
 	//거래처 검색
@@ -336,7 +343,8 @@
 	function prdtGrpChange(elem) {
 		var paramObj = {"codeKind" : 'PRDTDIV', "codeRprc" : $(elem).val()};
 		postAjaxSync("/admin/cm/cm05/selectChildCodeList", paramObj, null, function(data){
-			var optionHtml = '<option value="">전체</option>';
+			// var optionHtml = '<option value="">전체</option>';
+			var optionHtml = '';
 			var childCodeList = data.childCodeList;
 			$.each(childCodeList, function(index, obj){
 				optionHtml += '<option value='+obj.codeId+'>';
