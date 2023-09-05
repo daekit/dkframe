@@ -16,4 +16,8 @@ public interface RD05Mapper {
 
 	List<Map<String, String>> selectRcvpayDailyDtlList(Map<String, String> paramMap);
 
+	int selectRcvpayDailyOnlyPrdtCount(Map<String, String> param);
+
+	List<Map<String, String>> selectRcvpayDailyListOnlyPrdt(Map<String, String> param);
+
 }

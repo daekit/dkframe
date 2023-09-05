@@ -26,6 +26,16 @@ public class RD05SvcImpl implements RD05Svc {
 	public List<Map<String, String>> selectRcvpayDailyList(Map<String, String> paramMap) {
 		return rd05Mapper.selectRcvpayDailyList(paramMap);
 	}
+	
+	@Override
+	public int selectRcvpayDailyOnlyPrdtCount(Map<String, String> param) {
+		return rd05Mapper.selectRcvpayDailyOnlyPrdtCount(param);
+	}
+
+	@Override
+	public List<Map<String, String>> selectRcvpayDailyListOnlyPrdt(Map<String, String> param) {
+		return rd05Mapper.selectRcvpayDailyListOnlyPrdt(param);
+	}
     
 	@Override
 	public int selectRcvpayDailyDtlCount(Map<String, String> paramMap) {
@@ -36,4 +46,6 @@ public class RD05SvcImpl implements RD05Svc {
 	public List<Map<String, String>> selectRcvpayDailyDtlList(Map<String, String> paramMap) {
 		return rd05Mapper.selectRcvpayDailyDtlList(paramMap);
 	}
+
+
 }

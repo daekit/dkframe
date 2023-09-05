@@ -30,6 +30,17 @@ public class RD05Ctr {
     	model.addAttribute("resultList", resultList);
     	return "jsonView";
 	}
+    
+    @PostMapping(value = "/selectRcvpayDailyListOnlyPrdt")
+	public String selectRcvpayDailyListOnlyPrdt(@RequestBody Map<String, String> paramMap, ModelMap model) {
+    	int totalCnt = rd05Svc.selectRcvpayDailyOnlyPrdtCount(paramMap);
+		PaginationInfo paginationInfo = new PaginationInfo(paramMap, totalCnt);
+    	model.addAttribute("paginationInfo", paginationInfo);
+    	
+    	List<Map<String, String>> resultList = rd05Svc.selectRcvpayDailyListOnlyPrdt(paramMap);
+    	model.addAttribute("resultList", resultList);
+    	return "jsonView";
+	}
 	
     @PostMapping(value = "/selectRcvpayDailyDtlList")
 	public String selectRcvpayDailyDtlList(@RequestBody Map<String, String> paramMap, ModelMap model) {

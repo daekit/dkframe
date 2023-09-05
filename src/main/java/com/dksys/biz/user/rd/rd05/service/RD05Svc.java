@@ -9,8 +9,16 @@ public interface RD05Svc {
 	
 	public int selectRcvpayDailyCount(Map<String, String> param);
 
+	public int selectRcvpayDailyOnlyPrdtCount(Map<String, String> param);
+	
+	public List<Map<String, String>> selectRcvpayDailyListOnlyPrdt(Map<String, String> param);
+	
 	public List<Map<String, String>> selectRcvpayDailyDtlList(Map<String, String> param);
 	
 	public int selectRcvpayDailyDtlCount(Map<String, String> param);
+
+	
+
+	
 	
 }

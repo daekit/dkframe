@@ -99,13 +99,13 @@
 						</td>
 						<th>창고</th>
 						<td>
-							<select data-kind="WH" data-search="whCd">
+							<select data-kind="WH" data-search="whCd" id="whCd" name="whCd">
 								<option value="">전체</option>
 							</select>
 						</td>
 						<th>재고주체</th>
 						<td>
-							<select data-kind="OWNER" data-search="ownerCd">
+							<select data-kind="OWNER" data-search="ownerCd" id="ownerCd" name="ownerCd">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -113,7 +113,7 @@
 					<tr>
 						<th>판매유형</th>
 						<td>
-							<select data-kind="SELLTYPE" data-search="typCd">
+							<select data-kind="SELLTYPE" data-search="typCd" id="typCd" name="typCd">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -127,7 +127,7 @@
 						<td>
 							<div class="search_form" style="width: 50%;">
 							<input type="hidden" data-search="prjctCd" id="prjctCd_S">
-								<input type="text" data-search="prjctNm" id="prjctNm"  onkeyup="if(event.keyCode != 13){resetPrjctCd()}; event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
+								<input type="text" data-search="prjctNm" id="prjctNm" name="prjctNm"  onkeyup="if(event.keyCode != 13){resetPrjctCd()}; event.keyCode == 8 ? prjctCd_S.value = '' : event.keyCode == 13 ? gridView.setData(0) : ''"> 
 								<a onclick="openSecondPrjctSearch();"><i class="i_search_w"></i>
 								</a>
 							</div>
@@ -147,7 +147,7 @@
 						
 						<th>판매법인</th>
 						<td>
-							<select id="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="gridView.setData(0);" data-search="taxivcCoprt_S">
+							<select id="taxivcCoprt_S" id="taxivcCoprt_S" name="taxivcCoprt_S" data-kind="ESTCOPRT" onchange="gridView.setData(0);" data-search="taxivcCoprt_S">
 								<option value="">전체</option>
 							</select>
 						</td>
@@ -164,7 +164,7 @@
 		                </td>
 						<th>수입구분</th>
 						<td>
-							<select data-search="impYn">
+							<select data-search="impYn" id="impYn" name="impYn">
 								<option value="">전체</option>
 								<option value="N">N</option>
 								<option value="Y">Y</option>
@@ -189,6 +189,13 @@
 						<td>
 							<input type="checkbox" id="stockZeroYn" name="stockZeroYn"  data-search="stockZeroYn" style="width: 100%;" onchange="gridView.setData(0);">
 		            	</td>
+					</tr>
+					<tr>
+						<th>제품별조회</th>
+						<td>
+							<input type="checkbox" id="onlyPrdtYn" name="onlyPrdtYn"  data-search="onlyPrdtYn" style="width: 100%;" onchange="setOnlyPrdt(this); gridView.setData(0);">
+						</td>
+		           	   
 					</tr>
 				</table>
 			</div>
@@ -322,6 +329,13 @@
 				paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			}
 			
+			var url = "/user/rd/rd05/selectRcvpayDailyList";
+			
+			if($('#onlyPrdtYn').is(":checked")){
+				url = "/user/rd/rd05/selectRcvpayDailyListOnlyPrdt"
+				
+			}
+			
 
 		    // 창고 조회 여부
 			paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
@@ -334,7 +348,7 @@
 			
 			paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
 			
-			postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
+			postAjax(url, paramObj, null, function(data) {
 				var list = data.resultList;
 				targetObj.setData({
 					list : list,
@@ -535,6 +549,13 @@
 			paramObj[$(tempElem).data("search")] = $(tempElem).val();
 			
 		}
+		
+		var url = "/user/rd/rd05/selectRcvpayDailyList";
+		
+		if($('#onlyPrdtYn').is(":checked")){
+			url = "/user/rd/rd05/selectRcvpayDailyListOnlyPrdt"
+			
+		}
 
 	    // 창고 조회 여부
 		paramObj.whShowYn = $('#whShowYn').is(":checked") ? 'Y' : 'N';
@@ -547,7 +568,7 @@
 		paramObj["recordCnt"] = 9999999;
 		paramObj["baseDt"] = $("#baseDt").val().replace(/\-/g,'');
 		
-		postAjax("/user/rd/rd05/selectRcvpayDailyList", paramObj, null, function(data) {
+		postAjax(url, paramObj, null, function(data) {
 			var list = data.resultList;				
 				excelView.target.setData({
 					list : list,
@@ -559,6 +580,26 @@
 				excelView.target.exportExcel($('#baseDt').val()+"일 제품수불관리_"+todayDate+".xls");
 			});	
 	}	
+	
+	function setOnlyPrdt(elem){
+		if($('#onlyPrdtYn').is(":checked")){
+			$('#whCd').prop("disabled", true);
+			$('#ownerCd').prop("disabled", true);
+			$('#typCd').prop("disabled", true);
+			$('#prjctNm').prop("disabled", true);
+			$('#taxivcCoprt_S').prop("disabled", true);
+			$('#whShowYn').prop("disabled", true);
+			$('#pjShowYn').prop("disabled", true);	
+		} else{
+			$('#whCd').prop("disabled", false);
+			$('#ownerCd').prop("disabled", false);
+			$('#typCd').prop("disabled", false);
+			$('#prjctNm').prop("disabled", false);
+			$('#taxivcCoprt_S').prop("disabled", false);
+			$('#whShowYn').prop("disabled", false);
+			$('#pjShowYn').prop("disabled", false);
+		}
+	}
 	
 	// 창고 set
 	function setWareHouse(value){
@@ -577,9 +618,15 @@
 	    var pjShowYn = $('#pjShowYn').is(":checked") ? 'Y' : 'N';
 	    var stockZeroYn = $('#stockZeroYn').is(":checked") ? 'Y' : 'N';
 		
-	   if      (type =='STOCK'){ if(whShowYn == "Y") { fileName = "RD0501R02.jrf"; } //일재고 현황
-	  							 else                 { fileName = "RD0501R04.jrf"; } //일재고 현황
-	   }else if(type == 'WH09'){  fileName = "RD0501R03.jrf"; //인천하치장 일재고 현황
+	   if(type =='STOCK')
+	   { 
+		   if(whShowYn == "Y") 
+		   { fileName = "RD0501R02.jrf"; } //일재고 현황
+			else                 
+	  		{ fileName = "RD0501R04.jrf"; } //일재고 현황
+	   }else if(type == 'WH09')
+	   {  
+		   fileName = "RD0501R03.jrf"; //인천하치장 일재고 현황
 	   }
 		var arg =  "#coCd#"			+ $('[data-search="coCd"]').val()
 		         + "#baseDt#"		+ $('[data-search="baseDt"]').val().replace(/\-/g,'')
@@ -598,6 +645,7 @@
 		         + "#stockZeroYn#"		+ stockZeroYn
 		         + "#";
 		callReport(fileName, arg, "1050", "700");
+		
 		
 	}
 </script>

@@ -384,6 +384,7 @@
 				AND A.STOCK_WT != 0
 			</if>
 	</select>
+
 	
 	<select id="selectRcvpayDailyList" resultType="CamelMap">
 		SELECT
@@ -803,6 +804,661 @@
 				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
 	</select>
 	
+	<select id="selectRcvpayDailyOnlyPrdtCount" resultType="int">
+			SELECT
+				COUNT(*)
+			FROM
+			(
+				SELECT CLOSE_YM
+					 , REPLACE(#{baseDt}, '-', '')	 AS BASE_DT
+					 , CO_CD
+					 , PRDT_CD
+					 , PRDT_DIV
+					 , IMP_YN
+					 , PRDT_SPEC
+					 , PRDT_NM
+					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
+					 , SUM(NVL(T.BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
+					 , SUM(NVL(T.SELPCH1_QTY, 0))   SELPCH1_QTY
+					 , SUM(NVL(T.SELPCH2_QTY, 0))   SELPCH2_QTY
+					 , SUM(NVL(T.OUT_MOVE_QTY, 0))  OUT_MOVE_QTY
+					 , SUM(NVL(T.IN_MOVE_QTY, 0))   IN_MOVE_QTY
+					 , SUM(NVL(T.BFR_STOCK_QTY, 0) + NVL(T.SELPCH1_QTY, 0) - NVL(T.SELPCH2_QTY, 0)+ NVL(T.IN_MOVE_QTY, 0) - NVL(T.OUT_MOVE_QTY, 0)) STOCK_QTY
+					 , SUM(NVL(T.BFR_STOCK_WT, 0)) BFR_STOCK_WT
+					 , SUM(NVL(T.SELPCH1_WT, 0))   SELPCH1_WT
+					 , SUM(NVL(T.SELPCH2_WT, 0))   SELPCH2_WT
+					 , SUM(NVL(T.OUT_MOVE_WT, 0))  OUT_MOVE_WT
+					 , SUM(NVL(T.IN_MOVE_WT, 0))   IN_MOVE_WT
+					 , SUM(NVL(T.BFR_STOCK_WT, 0) + NVL(T.SELPCH1_WT, 0) - NVL(T.SELPCH2_WT, 0)+ NVL(T.IN_MOVE_WT, 0) - NVL(T.OUT_MOVE_WT, 0)) STOCK_WT
+					 , SUM(NVL(T.CUR_SELPCH1_QTY, 0)) AS  CUR_SELPCH1_QTY
+					 , SUM(NVL(T.CUR_SELPCH1_WT, 0))  AS  CUR_SELPCH1_WT
+					 , SUM(NVL(T.CUR_SELPCH2_QTY, 0)) AS  CUR_SELPCH2_QTY
+					 , SUM(NVL(T.CUR_SELPCH2_WT, 0))  AS  CUR_SELPCH2_WT
+				FROM(
+					SELECT '1' type1
+					     , TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')	 AS CLOSE_YM
+						 , SM01.WH_CD
+						 , SM01.CO_CD
+						 , SM01.PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM01.OWNER_CD
+						 , SM01.TYP_CD
+						 , SM01.MAKR_CD
+						 , SM01.CLNT_CD
+						 , SM01.IMP_YN
+						 , SM01.PRJCT_CD
+						 , SM01.PRDT_SIZE
+						 , SM01.PRDT_SPEC
+						 , SM01.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),0,SM01.STOCK_QTY) AS BFR_STOCK_QTY
+						 , 0 AS  SELPCH1_QTY
+						 , 0 AS  SELPCH2_QTY
+						 , 0 AS  OUT_MOVE_QTY
+						 , 0 AS  IN_MOVE_QTY
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),SM01.STOCK_QTY,0) AS STOCK_QTY -- 현재고
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),0,SM01.STOCK_WT)  AS BFR_STOCK_WT
+						 , 0 AS  SELPCH1_WT
+						 , 0 AS  SELPCH2_WT
+						 , 0 AS  OUT_MOVE_WT
+						 , 0 AS  IN_MOVE_WT
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),SM01.STOCK_WT,0) AS STOCK_WT -- 현재고
+						 , 0 AS  CUR_SELPCH1_QTY
+						 , 0 AS  CUR_SELPCH1_WT
+						 , 0 AS  CUR_SELPCH2_QTY
+						 , 0 AS  CUR_SELPCH2_WT
+					FROM TB_SM01D01 SM01
+					   LEFT JOIN TB_BM01M01 BM01 
+					  	ON SM01.PRDT_CD   = BM01.PRDT_CD
+					  	LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = SM01.PRJCT_CD
+					  	WHERE 1=1
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ SM01.STOCK_QTY  !=  0 OR SM01.STOCK_WT !=  0 ]]> )
+					  	<if test="coCd != null and !coCd.equals('')">
+					  		AND SM01.CO_CD = #{coCd}			
+					  	</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+					  
+						AND ( SM01.CLOSE_YM = TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')
+						OR    SM01.CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'), -1), 'YYYYMM'))
+						
+				UNION 
+				  SELECT '2' type1
+					     , SUBSTRING(AR02.TRST_DT , 0, 6) AS CLOSE_YM
+						 , AR02.WH_CD
+						 , AR02.CO_CD
+						 , AR02.TRST_PRDT_CD AS PRDT_CD
+						 , BM01.PRDT_DIV
+						 , AR02.OWNER_CD
+						 , AR02.TYP_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        AR02.TRST_CLNT_CD)  AS CLNT_CD
+						 , AR02.IMP_YN
+						 , AR02.PRJCT_CD
+						 , AR02.PRDT_SIZE
+						 , AR02.PRDT_SPEC
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_QTY)) AS  SELPCH1_QTY
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_QTY)) AS  SELPCH2_QTY
+						 , 0 AS  OUT_MOVE_QTY
+						 , 0 AS  IN_MOVE_QTY
+						 , 0 AS STOCK_QTY -- 현재고
+						 , 0 AS BFR_STOCK_WT
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_WT)) AS  SELPCH1_WT
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_WT)) AS  SELPCH2_WT
+						 , 0 AS  OUT_MOVE_WT
+						 , 0 AS  IN_MOVE_WT
+						 , 0 AS STOCK_WT -- 현재고
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_QTY),0))  AS  CUR_SELPCH1_QTY
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_WT),0))   AS  CUR_SELPCH1_WT
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_QTY),0))  AS  CUR_SELPCH2_QTY
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_WT),0))   AS  CUR_SELPCH2_WT
+				 FROM TB_AR02M01 AR02
+						LEFT JOIN TB_BM01M01 BM01
+						ON AR02.TRST_PRDT_CD   = BM01.PRDT_CD
+						LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = AR02.PRJCT_CD
+					  	WHERE 1=1
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ AR02.REAL_TRST_QTY  !=  0 OR AR02.REAL_TRST_WT !=  0 ]]> )   
+					  	<if test="coCd != null and !coCd.equals('')">
+							AND AR02.CO_CD   = #{coCd}				
+						</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+						
+					  	AND  AR02.TRST_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')||'01' 
+					                          AND REPLACE(#{baseDt}, '-', '')
+					    
+				  GROUP BY SUBSTRING(AR02.TRST_DT , 0, 6)
+						 , AR02.WH_CD
+						 , AR02.CO_CD
+						 , AR02.TRST_PRDT_CD
+						 , BM01.PRDT_DIV
+						 , AR02.OWNER_CD
+						 , AR02.TYP_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        AR02.TRST_CLNT_CD)
+						 , AR02.IMP_YN
+						 , AR02.PRJCT_CD
+						 , AR02.PRDT_SIZE
+						 , AR02.PRDT_SPEC
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
+				UNION
+					SELECT '3' type1
+					     , SUBSTRING(SM02.TRST_DT,0,6) AS CLOSE_YM
+ 					     , SM02.OUT_WH_CD
+						 , SM02.OUT_CO_CD
+						 , SM02.PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM02.OWNER_CD
+						 , SM02.TYP_CD
+						 , SM02.MAKR_CD
+						 , SM02.CLNT_CD AS CLNT_CD
+						 , SM02.IMP_YN
+						 , SM02.PRJCT_CD
+						 , SM02.PRDT_SIZE
+						 , SM02.PRDT_SPEC
+						 , SM02.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , 0 AS SELPCH1_QTY
+						 , 0 AS SELPCH2_QTY
+						 , SUM(NVL(MOVE_QTY,0))  AS OUT_MOVE_QTY
+						 , 0 AS IN_MOVE_QTY
+						 , 0 AS STOCK_QTY
+						 , 0 AS BFR_STOCK_WT
+						 , 0 AS SELPCH1_WT
+						 , 0 AS SELPCH2_WT
+						 , SUM(NVL(MOVE_WT,0))  AS OUT_MOVE_WT
+						 , 0 AS IN_MOVE_WT
+						 , 0 AS STOCK_WT
+						 , 0 AS  CUR_SELPCH1_QTY
+						 , 0 AS  CUR_SELPCH1_WT
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_QTY,0),0)) AS  CUR_SELPCH2_QTY
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_WT,0),0))  AS  CUR_SELPCH2_WT
+					FROM TB_SM02M01 SM02
+					 	INNER JOIN  TB_BM01M01 BM01 
+						ON	SM02.PRDT_CD   = BM01.PRDT_CD
+						LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = SM02.PRJCT_CD
+					WHERE SM02.TRST_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')||'01'
+					                        AND REPLACE(#{baseDt}, '-', '')
+   		 			    AND ( <![CDATA[ SM02.MOVE_QTY  !=  0 OR SM02.MOVE_QTY !=  0 ]]> )   
+					  	<if test="coCd != null and !coCd.equals('')">
+							AND SM02.OUT_CO_CD   = #{coCd}				
+						</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+					GROUP BY SUBSTRING(SM02.TRST_DT,0,6) 
+					      , SM02.OUT_WH_CD
+						  , SM02.OUT_CO_CD
+						  , SM02.PRDT_CD
+						  , BM01.PRDT_DIV
+						  , SM02.OWNER_CD
+						  , SM02.TYP_CD
+						  , SM02.MAKR_CD
+						  , SM02.CLNT_CD
+						  , SM02.IMP_YN
+						  , SM02.PRJCT_CD
+						  , SM02.PRDT_SIZE
+						  , SM02.PRDT_SPEC
+						  , SM02.PRDT_LEN
+						  , BM01.PRDT_NM			 
+				UNION 
+					SELECT '4' type1
+					     , SUBSTRING(SM02.TRST_DT,0,6) AS CLOSE_YM
+					     , SM02.IN_WH_CD
+						 , SM02.IN_CO_CD
+						 , SM02.IN_PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM02.OWNER_CD
+						 , SM02.IN_TYP_CD
+						 , SM02.MAKR_CD
+						 , SM02.CLNT_CD
+						 , SM02.IMP_YN
+						 , SM02.IN_PRJCT_CD
+						 , SM02.IN_PRDT_SIZE
+						 , SM02.IN_PRDT_SPEC
+						 , SM02.IN_PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , 0 AS SELPCH1_QTY
+						 , 0 AS SELPCH2_QTY
+						 , 0 AS OUT_MOVE_QTY
+						 , SUM(NVL(MOVE_QTY,0)) AS IN_MOVE_QTY
+						 , 0 AS STOCK_QTY
+						 , 0 AS BFR_STOCK_WT
+						 , 0 AS SELPCH1_WT
+						 , 0 AS SELPCH2_WT
+						 , 0 AS OUT_MOVE_WT
+						 , SUM(NVL(MOVE_WT,0)) AS IN_MOVE_WT
+						 , 0 AS STOCK_WT
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_QTY,0),0)) AS  CUR_SELPCH1_QTY
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_WT,0),0)) AS  CUR_SELPCH1_WT
+						 , 0 AS  CUR_SELPCH2_QTY
+						 , 0 AS  CUR_SELPCH2_WT
+					FROM TB_SM02M01 SM02
+					 	INNER JOIN  TB_BM01M01 BM01 
+						ON	SM02.IN_PRDT_CD   = BM01.PRDT_CD
+						LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = SM02.PRJCT_CD
+				   WHERE SM02.TRST_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')||'01'
+					                      AND REPLACE(#{baseDt}, '-', '')
+   		 			    AND ( <![CDATA[ SM02.MOVE_QTY  !=  0 OR SM02.MOVE_QTY !=  0 ]]> )  
+					  	<if test="coCd != null and !coCd.equals('')">
+						  	AND SM02.OUT_CO_CD   = #{coCd}				
+						</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+				   GROUP BY SUBSTRING(SM02.TRST_DT,0,6) 
+					      , SM02.IN_WH_CD
+						  , SM02.IN_CO_CD
+						  , SM02.IN_PRDT_CD
+						  , BM01.PRDT_DIV
+						  , SM02.OWNER_CD
+						  , SM02.IN_TYP_CD
+						  , SM02.MAKR_CD
+						  , SM02.CLNT_CD
+						  , SM02.IMP_YN
+						  , SM02.IN_PRJCT_CD
+						  , SM02.IN_PRDT_SIZE
+						  , SM02.IN_PRDT_SPEC
+						  , SM02.IN_PRDT_LEN
+						  , BM01.PRDT_NM		 
+				) T
+				WHERE 1 = 1						 
+						<if test="coCd != null and !coCd.equals('')">
+							AND T.CO_CD = #{coCd}				
+						</if>	
+						<if test="closeYm != null and !closeYm.equals('')">
+							AND T.CLOSE_YM = TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')	
+						</if>
+						<if test="prdtDiv != null and !prdtDiv.equals('')">
+							AND T.PRDT_DIV = #{prdtDiv}			
+						</if>
+						<if test="prdtCd != null and !prdtCd.equals('')">
+							AND T.PRDT_CD = #{prdtCd}				
+						</if>
+						<if test="prdtNm != null and !prdtNm.equals('')">
+							AND T.PRDT_NM LIKE '%' || UPPER(#{prdtNm}) ||'%'
+						</if>
+						<if test="impYn != null and !impYn.equals('')">
+							AND T.IMP_YN = #{impYn}
+						</if>
+						<if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND T.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+											   FROM TB_BM01M01
+											   WHERE PRDT_GRP = #{prdtGrp}
+										    )
+						</if>
+				  GROUP BY T.CLOSE_YM 
+						 , T.CO_CD
+						 , T.PRDT_CD
+						 , T.PRDT_DIV
+						 , T.IMP_YN
+						 , T.PRDT_SPEC
+						 , T.PRDT_NM
+					ORDER BY  
+						   T.PRDT_DIV						   
+						 , T.PRDT_SPEC
+						 , T.PRDT_CD	
+			) A			
+			WHERE 1=1
+			<if test='stockZeroYn != null and stockZeroYn.equals("Y")'>
+				AND A.STOCK_WT != 0
+			</if>
+			ORDER BY CLOSE_YM
+					 , REPLACE(#{baseDt}, '-', '')
+					 , CO_CD
+					 , PRDT_SPEC
+					 , PRDT_DIV
+					 , PRDT_CD
+					 , IMP_YN
+					 , PRDT_NM
+	</select>	
+	<select id="selectRcvpayDailyListOnlyPrdt" resultType="CamelMap">
+		SELECT
+			*
+		FROM
+		(
+			SELECT
+				ROWNUM AS RNUM, A.*
+			FROM
+			(
+				SELECT CLOSE_YM
+					 , REPLACE(#{baseDt}, '-', '')	 AS BASE_DT
+					 , CO_CD
+					 -- , PRDT_CD
+					 , PRDT_DIV
+					 , IMP_YN
+					 -- , PRDT_SPEC
+					 , PRDT_NM
+					 , FN_CM05M01_CD_TO_NM(PRDT_DIV) PRDT_DIV_NM
+					 , SUM(NVL(T.BFR_STOCK_QTY, 0)) BFR_STOCK_QTY
+					 , SUM(NVL(T.SELPCH1_QTY, 0))   SELPCH1_QTY
+					 , SUM(NVL(T.SELPCH2_QTY, 0))   SELPCH2_QTY
+					 , SUM(NVL(T.OUT_MOVE_QTY, 0))  OUT_MOVE_QTY
+					 , SUM(NVL(T.IN_MOVE_QTY, 0))   IN_MOVE_QTY
+					 , SUM(NVL(T.BFR_STOCK_QTY, 0) + NVL(T.SELPCH1_QTY, 0) - NVL(T.SELPCH2_QTY, 0)+ NVL(T.IN_MOVE_QTY, 0) - NVL(T.OUT_MOVE_QTY, 0)) STOCK_QTY
+					 , SUM(NVL(T.BFR_STOCK_WT, 0)) BFR_STOCK_WT
+					 , SUM(NVL(T.SELPCH1_WT, 0))   SELPCH1_WT
+					 , SUM(NVL(T.SELPCH2_WT, 0))   SELPCH2_WT
+					 , SUM(NVL(T.OUT_MOVE_WT, 0))  OUT_MOVE_WT
+					 , SUM(NVL(T.IN_MOVE_WT, 0))   IN_MOVE_WT
+					 , SUM(NVL(T.BFR_STOCK_WT, 0) + NVL(T.SELPCH1_WT, 0) - NVL(T.SELPCH2_WT, 0)+ NVL(T.IN_MOVE_WT, 0) - NVL(T.OUT_MOVE_WT, 0)) STOCK_WT
+					 , SUM(NVL(T.CUR_SELPCH1_QTY, 0)) AS  CUR_SELPCH1_QTY
+					 , SUM(NVL(T.CUR_SELPCH1_WT, 0))  AS  CUR_SELPCH1_WT
+					 , SUM(NVL(T.CUR_SELPCH2_QTY, 0)) AS  CUR_SELPCH2_QTY
+					 , SUM(NVL(T.CUR_SELPCH2_WT, 0))  AS  CUR_SELPCH2_WT
+				FROM(
+					SELECT '1' type1
+					     , TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')	 AS CLOSE_YM
+						 , SM01.WH_CD
+						 , SM01.CO_CD
+						 , SM01.PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM01.OWNER_CD
+						 , SM01.TYP_CD
+						 , SM01.MAKR_CD
+						 , SM01.CLNT_CD
+						 , SM01.IMP_YN
+						 , SM01.PRJCT_CD
+						 , SM01.PRDT_SIZE
+						 , SM01.PRDT_SPEC
+						 , SM01.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),0,SM01.STOCK_QTY) AS BFR_STOCK_QTY
+						 , 0 AS  SELPCH1_QTY
+						 , 0 AS  SELPCH2_QTY
+						 , 0 AS  OUT_MOVE_QTY
+						 , 0 AS  IN_MOVE_QTY
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),SM01.STOCK_QTY,0) AS STOCK_QTY -- 현재고
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),0,SM01.STOCK_WT)  AS BFR_STOCK_WT
+						 , 0 AS  SELPCH1_WT
+						 , 0 AS  SELPCH2_WT
+						 , 0 AS  OUT_MOVE_WT
+						 , 0 AS  IN_MOVE_WT
+						 , DECODE(SM01.CLOSE_YM,TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM'),SM01.STOCK_WT,0) AS STOCK_WT -- 현재고
+						 , 0 AS  CUR_SELPCH1_QTY
+						 , 0 AS  CUR_SELPCH1_WT
+						 , 0 AS  CUR_SELPCH2_QTY
+						 , 0 AS  CUR_SELPCH2_WT
+					FROM TB_SM01D01 SM01
+					   LEFT JOIN TB_BM01M01 BM01 
+					  	ON SM01.PRDT_CD   = BM01.PRDT_CD
+					  	LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = SM01.PRJCT_CD
+					  	WHERE 1=1
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ SM01.STOCK_QTY  !=  0 OR SM01.STOCK_WT !=  0 ]]> )
+					  	<if test="coCd != null and !coCd.equals('')">
+					  		AND SM01.CO_CD = #{coCd}			
+					  	</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+					  
+						AND ( SM01.CLOSE_YM = TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')
+						OR    SM01.CLOSE_YM = TO_CHAR(ADD_MONTHS(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'), -1), 'YYYYMM'))
+						
+				UNION 
+				  SELECT '2' type1
+					     , SUBSTRING(AR02.TRST_DT , 0, 6) AS CLOSE_YM
+						 , AR02.WH_CD
+						 , AR02.CO_CD
+						 , AR02.TRST_PRDT_CD AS PRDT_CD
+						 , BM01.PRDT_DIV
+						 , AR02.OWNER_CD
+						 , AR02.TYP_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        AR02.TRST_CLNT_CD)  AS CLNT_CD
+						 , AR02.IMP_YN
+						 , AR02.PRJCT_CD
+						 , AR02.PRDT_SIZE
+						 , AR02.PRDT_SPEC
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_QTY)) AS  SELPCH1_QTY
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_QTY)) AS  SELPCH2_QTY
+						 , 0 AS  OUT_MOVE_QTY
+						 , 0 AS  IN_MOVE_QTY
+						 , 0 AS STOCK_QTY -- 현재고
+						 , 0 AS BFR_STOCK_WT
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_WT)) AS  SELPCH1_WT
+						 , SUM(DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_WT)) AS  SELPCH2_WT
+						 , 0 AS  OUT_MOVE_WT
+						 , 0 AS  IN_MOVE_WT
+						 , 0 AS STOCK_WT -- 현재고
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_QTY),0))  AS  CUR_SELPCH1_QTY
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH1', AR02.REAL_TRST_WT),0))   AS  CUR_SELPCH1_WT
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_QTY),0))  AS  CUR_SELPCH2_QTY
+						 , SUM(DECODE(AR02.TRST_DT,REPLACE(#{baseDt}, '-', ''),DECODE(AR02.SELPCH_CD, 'SELPCH2', AR02.REAL_TRST_WT),0))   AS  CUR_SELPCH2_WT
+				 FROM TB_AR02M01 AR02
+						LEFT JOIN TB_BM01M01 BM01
+						ON AR02.TRST_PRDT_CD   = BM01.PRDT_CD
+						LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = AR02.PRJCT_CD
+					  	WHERE 1=1
+   		 			    AND BM01.PRDT_STOCK_CD  = 'Y' -- 재고관리 대상만 조회
+   		 			    AND ( <![CDATA[ AR02.REAL_TRST_QTY  !=  0 OR AR02.REAL_TRST_WT !=  0 ]]> )   
+					  	<if test="coCd != null and !coCd.equals('')">
+							AND AR02.CO_CD   = #{coCd}				
+						</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+						
+					  	AND  AR02.TRST_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')||'01' 
+					                          AND REPLACE(#{baseDt}, '-', '')
+					    
+				  GROUP BY SUBSTRING(AR02.TRST_DT , 0, 6)
+						 , AR02.WH_CD
+						 , AR02.CO_CD
+						 , AR02.TRST_PRDT_CD
+						 , BM01.PRDT_DIV
+						 , AR02.OWNER_CD
+						 , AR02.TYP_CD
+						 , DECODE(AR02.IMP_YN,'Y','MAKR10','MAKR09')
+						 , DECODE(AR02.OWNER_CD,'OWNER1',TO_NUMBER((SELECT CODE_ETC FROM TB_CM05M01 CM05 WHERE CODE_ID = AR02.TAXIVC_COPRT)),
+			    	                        AR02.TRST_CLNT_CD)
+						 , AR02.IMP_YN
+						 , AR02.PRJCT_CD
+						 , AR02.PRDT_SIZE
+						 , AR02.PRDT_SPEC
+						 , AR02.PRDT_LEN
+						 , BM01.PRDT_NM
+				UNION
+					SELECT '3' type1
+					     , SUBSTRING(SM02.TRST_DT,0,6) AS CLOSE_YM
+ 					     , SM02.OUT_WH_CD
+						 , SM02.OUT_CO_CD
+						 , SM02.PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM02.OWNER_CD
+						 , SM02.TYP_CD
+						 , SM02.MAKR_CD
+						 , SM02.CLNT_CD AS CLNT_CD
+						 , SM02.IMP_YN
+						 , SM02.PRJCT_CD
+						 , SM02.PRDT_SIZE
+						 , SM02.PRDT_SPEC
+						 , SM02.PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , 0 AS SELPCH1_QTY
+						 , 0 AS SELPCH2_QTY
+						 , SUM(NVL(MOVE_QTY,0))  AS OUT_MOVE_QTY
+						 , 0 AS IN_MOVE_QTY
+						 , 0 AS STOCK_QTY
+						 , 0 AS BFR_STOCK_WT
+						 , 0 AS SELPCH1_WT
+						 , 0 AS SELPCH2_WT
+						 , SUM(NVL(MOVE_WT,0))  AS OUT_MOVE_WT
+						 , 0 AS IN_MOVE_WT
+						 , 0 AS STOCK_WT
+						 , 0 AS  CUR_SELPCH1_QTY
+						 , 0 AS  CUR_SELPCH1_WT
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_QTY,0),0)) AS  CUR_SELPCH2_QTY
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_WT,0),0))  AS  CUR_SELPCH2_WT
+					FROM TB_SM02M01 SM02
+					 	INNER JOIN  TB_BM01M01 BM01 
+						ON	SM02.PRDT_CD   = BM01.PRDT_CD
+						LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = SM02.PRJCT_CD
+					WHERE SM02.TRST_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')||'01'
+					                        AND REPLACE(#{baseDt}, '-', '')
+   		 			    AND ( <![CDATA[ SM02.MOVE_QTY  !=  0 OR SM02.MOVE_QTY !=  0 ]]> )   
+					  	<if test="coCd != null and !coCd.equals('')">
+							AND SM02.OUT_CO_CD   = #{coCd}				
+						</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+					GROUP BY SUBSTRING(SM02.TRST_DT,0,6) 
+					      , SM02.OUT_WH_CD
+						  , SM02.OUT_CO_CD
+						  , SM02.PRDT_CD
+						  , BM01.PRDT_DIV
+						  , SM02.OWNER_CD
+						  , SM02.TYP_CD
+						  , SM02.MAKR_CD
+						  , SM02.CLNT_CD
+						  , SM02.IMP_YN
+						  , SM02.PRJCT_CD
+						  , SM02.PRDT_SIZE
+						  , SM02.PRDT_SPEC
+						  , SM02.PRDT_LEN
+						  , BM01.PRDT_NM			 
+				UNION 
+					SELECT '4' type1
+					     , SUBSTRING(SM02.TRST_DT,0,6) AS CLOSE_YM
+					     , SM02.IN_WH_CD
+						 , SM02.IN_CO_CD
+						 , SM02.IN_PRDT_CD
+						 , BM01.PRDT_DIV
+						 , SM02.OWNER_CD
+						 , SM02.IN_TYP_CD
+						 , SM02.MAKR_CD
+						 , SM02.CLNT_CD
+						 , SM02.IMP_YN
+						 , SM02.IN_PRJCT_CD
+						 , SM02.IN_PRDT_SIZE
+						 , SM02.IN_PRDT_SPEC
+						 , SM02.IN_PRDT_LEN
+						 , BM01.PRDT_NM
+						 , 0 AS BFR_STOCK_QTY
+						 , 0 AS SELPCH1_QTY
+						 , 0 AS SELPCH2_QTY
+						 , 0 AS OUT_MOVE_QTY
+						 , SUM(NVL(MOVE_QTY,0)) AS IN_MOVE_QTY
+						 , 0 AS STOCK_QTY
+						 , 0 AS BFR_STOCK_WT
+						 , 0 AS SELPCH1_WT
+						 , 0 AS SELPCH2_WT
+						 , 0 AS OUT_MOVE_WT
+						 , SUM(NVL(MOVE_WT,0)) AS IN_MOVE_WT
+						 , 0 AS STOCK_WT
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_QTY,0),0)) AS  CUR_SELPCH1_QTY
+						 , SUM(DECODE(SM02.TRST_DT,REPLACE(#{baseDt}, '-', ''),NVL(MOVE_WT,0),0)) AS  CUR_SELPCH1_WT
+						 , 0 AS  CUR_SELPCH2_QTY
+						 , 0 AS  CUR_SELPCH2_WT
+					FROM TB_SM02M01 SM02
+					 	INNER JOIN  TB_BM01M01 BM01 
+						ON	SM02.IN_PRDT_CD   = BM01.PRDT_CD
+						LEFT JOIN TB_SD05M01 SD05
+					  	ON SD05.PRJCT_CD = SM02.PRJCT_CD
+				   WHERE SM02.TRST_DT BETWEEN TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')||'01'
+					                      AND REPLACE(#{baseDt}, '-', '')
+   		 			    AND ( <![CDATA[ SM02.MOVE_QTY  !=  0 OR SM02.MOVE_QTY !=  0 ]]> )  
+					  	<if test="coCd != null and !coCd.equals('')">
+						  	AND SM02.OUT_CO_CD   = #{coCd}				
+						</if>
+					  	<if test='tnkeyYn != null and tnkeyYn.equals("Y")'>
+					  		AND SD05.TNKEY_YN = #{tnkeyYn}			
+					  	</if>	
+				   GROUP BY SUBSTRING(SM02.TRST_DT,0,6) 
+					      , SM02.IN_WH_CD
+						  , SM02.IN_CO_CD
+						  , SM02.IN_PRDT_CD
+						  , BM01.PRDT_DIV
+						  , SM02.OWNER_CD
+						  , SM02.IN_TYP_CD
+						  , SM02.MAKR_CD
+						  , SM02.CLNT_CD
+						  , SM02.IMP_YN
+						  , SM02.IN_PRJCT_CD
+						  , SM02.IN_PRDT_SIZE
+						  , SM02.IN_PRDT_SPEC
+						  , SM02.IN_PRDT_LEN
+						  , BM01.PRDT_NM		 
+				) T
+				WHERE 1 = 1						 
+						<if test="coCd != null and !coCd.equals('')">
+							AND T.CO_CD = #{coCd}				
+						</if>	
+						<if test="closeYm != null and !closeYm.equals('')">
+							AND T.CLOSE_YM = TO_CHAR(TO_DATE(REPLACE(#{baseDt}, '-', ''),'YYYYMMDD'),'YYYYMM')	
+						</if>
+						<if test="prdtDiv != null and !prdtDiv.equals('')">
+							AND T.PRDT_DIV = #{prdtDiv}			
+						</if>
+						<if test="prdtCd != null and !prdtCd.equals('')">
+							AND T.PRDT_CD = #{prdtCd}				
+						</if>
+						<if test="prdtNm != null and !prdtNm.equals('')">
+							AND T.PRDT_NM LIKE '%' || UPPER(#{prdtNm}) ||'%'
+						</if>
+						<if test="impYn != null and !impYn.equals('')">
+							AND T.IMP_YN = #{impYn}
+						</if>
+						<if test="prdtGrp != null and !prdtGrp.equals('')">
+							AND T.PRDT_DIV IN (SELECT DISTINCT PRDT_DIV
+											   FROM TB_BM01M01
+											   WHERE PRDT_GRP = #{prdtGrp}
+										    )
+						</if>
+				  GROUP BY T.CLOSE_YM 
+						 , T.CO_CD
+						 -- , T.PRDT_CD
+						 , T.PRDT_DIV
+						 , T.IMP_YN
+						 -- , T.PRDT_SPEC
+						 , T.PRDT_NM
+					ORDER BY  
+						   T.PRDT_DIV						   
+						 -- , T.PRDT_SPEC
+						 -- , T.PRDT_CD	
+			) A			
+			WHERE 1=1
+			<if test='stockZeroYn != null and stockZeroYn.equals("Y")'>
+				AND A.STOCK_WT != 0
+			</if>
+			ORDER BY CLOSE_YM
+					 , REPLACE(#{baseDt}, '-', '')
+					 , CO_CD
+					 -- , PRDT_SPEC
+					 , PRDT_DIV
+					 -- , PRDT_CD
+					 , IMP_YN
+					 , PRDT_NM
+		)
+		WHERE
+				RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>	
 	<select id="selectRcvpayDailyDtlCount" resultType="int">
 		SELECT 
 	 		COUNT(*)
