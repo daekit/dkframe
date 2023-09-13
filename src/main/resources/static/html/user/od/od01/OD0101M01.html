@@ -258,7 +258,7 @@
 			this.target = new ax5.ui.grid();
 			this.target.setConfig({
 		    	showRowSelector: true,
-		    	multipleSelect: false,
+		    	multipleSelect: true,
 		    	sortable: true,
 		        target: $('[data-ax5grid="ordrg-grid"]'),
 		        header: {
@@ -718,16 +718,46 @@
 	
 	function setReportDetail(type) {
 		
-		var flag = false;
+		var clntRtnFlag = false;
+		var siteRtnFlag = false;
+		var selectedRows = ordrgGridView.target.getList("selected");
 		var row = ordrgGridView.target.getList("selected")[0];		    		
 		var pSiteNm = "";
 		if(row.siteNm != null && row.siteNm != ""){
 			pSiteNm = row.siteNm;
 		}
 		
+		var ordrgSeqArr = "(";
+		
+		$.each(selectedRows, function(idx, obj){
+			if(obj.sellClntCd != row.sellClntCd){
+				clntRtnFlag = true;
+			}
+			
+			if(obj.siteNm != row.siteNm){
+				siteRtnFlag = true;
+			}
+			ordrgSeqArr += "'" + obj.ordrgSeq + "',"
+		})
+		ordrgSeqArr = ordrgSeqArr.slice(0, -1);
+		ordrgSeqArr += ")";
+		
+		console.log(ordrgSeqArr);
+		
+		if(clntRtnFlag){
+			alert("같은 매출거래처끼리만 출력할 수 있습니다.");
+			return false;
+		}
+		
+		if(siteRtnFlag){
+			alert("같은 현장끼리만 출력할 수 있습니다.");
+			return false;
+		}
+		
+		
  		openSecondModal("/static/html/user/od/od01/OD0101P01.html", 600, 230, "명세서 출력 선택", null, function (uprYn) {
 		var arg = "selPchCd#SELPCH2" 
-				 + "#ordrgSeq#"		+ row.ordrgSeq
+				 + "#ordrgSeq#"		+ ordrgSeqArr
 		 		 + "#coCd#"			+ row.coCd
 		         + "#taxivcCoprt#"  + row.taxivcCoprt
 		         + "#trstDt#"		+ row.dlvrDttm
