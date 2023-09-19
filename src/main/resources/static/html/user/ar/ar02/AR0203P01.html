@@ -2,7 +2,7 @@
 	<div class="pdb5">
 		<ul class="ul_list type02">
 			<li>
-				<div class="ax5_grid" data-ax5grid="diff-grid" data-ax5grid-config="{}" style="height: 54px; width: 642px;"></div>
+				<div class="ax5_grid" data-ax5grid="diff-grid" data-ax5grid-config="{}" style="height: 54px; width: 728px;"></div>
 			</li>
 			<li>
 				<div class="form-inline tr">
@@ -52,6 +52,7 @@
 	
 	// 원본데이터 합
 	var orgTotData = {
+		bdCnt : 0,
 		realTrstQty : 0,
 		realTrstWt : 0,
 		realTrstAmt : 0,
@@ -82,7 +83,11 @@
 		        		// 로우가 선택되었으면(즉, 특정 로우에 특정 컬럼을 찍고 수정하는 케이스만 허용)
 		        			var itemKey = this.key;
 		        		
-		        			if(itemKey == "divRealTrstQty"){
+		        			if(itemKey == "divBdCnt"){
+			        			// 분할 본수/번들 수정시
+		        				salesDivGridView.target.setValue(this.dindex, "diffBdCnt", Number(orgRows[this.dindex].bdCnt) - (Number(this.item.bdCnt) + Number(this.item.divBdCnt)));	
+		        			}
+		        			else if(itemKey == "divRealTrstQty"){
 		        			// 분할 수량 수정시
 		        				salesDivGridView.target.setValue(this.dindex, "diffRealTrstQty", Number(orgRows[this.dindex].realTrstQty) - (Number(this.item.realTrstQty) + Number(this.item.divRealTrstQty)));	
 		        			}else if(itemKey == "divRealTrstWt"){
@@ -136,6 +141,7 @@
 		        		label: "매출", columns: [
 		        			{key: "clntNm",    	 	label: "거래처명",		align: "left", 		width: 120},
 				        	{key: "prdtNm",    	 	label: "제품", 		    align: "left", 		width: 140},
+				        	{key: "bdCnt",		    label: "번들/본수",	    align: "right", 	width: 80, 	formatter: "money"},
 				        	{key: "realTrstQty",    label: "수량", 		    align: "right", 	width: 80, 	formatter: "money"},
 				        	{key: "realTrstWt", 	label: "중량", 		    align: "right", 	width: 80, 	formatter: "money"},
 				        	{key: "realTrstAmt",    label: "금액",		    align: "right", 	width: 80, 	formatter: "money"},
@@ -153,6 +159,7 @@
 		        	{
 		        		label: "분할", columns: [
 		        			{key: "divClntNm",    	   label: "거래처명",		align: "left", 		width: 120},
+		        			{key: "divBdCnt",		   label: "번들/본수",	    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 		        			{key: "divRealTrstQty",    label: "수량", 		    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divRealTrstWt", 	   label: "중량", 		    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
 				        	{key: "divRealTrstAmt",    label: "금액",		    align: "right", 	width: 80, 	formatter: "money", editor: {type:"text"}, styleClass:"grid-cell-blue"},
@@ -167,6 +174,7 @@
 		        	},
 		        	{
 		        		label: "차이", columns: [
+		        			{key: "diffBdCnt",    		label: "번들/본수",	    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffBdCnt != 0 ? "grid-font-red" : ""}},
 		        			{key: "diffRealTrstQty",    label: "수량", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstQty != 0 ? "grid-font-red" : ""}},
 				        	{key: "diffRealTrstWt", 	label: "중량", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstWt != 0 ? "grid-font-red" : ""}},
 				        	{key: "diffRealTrstAmt",    label: "금액",		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstAmt != 0 ? "grid-font-red" : ""}},
@@ -181,6 +189,7 @@
 		        footSum: [
 			    	[
 			    		{label: "총계", 	    	align:"center",	  colspan:2},
+			    		{key: "bdCnt", 				collector: "sum", formatter:"money", align: "right"},
 		    		 	{key: "realTrstQty", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "realTrstWt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "realTrstAmt", 		collector: "sum", formatter:"money", align: "right"},
@@ -193,6 +202,7 @@
 	                    {key: "trspRmk"																   },
 	                    
 	                    {key: "clntNm"																   },
+	                    {key: "divBdCnt", 			collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divRealTrstQty", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divRealTrstWt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divRealTrstAmt", 	collector: "sum", formatter:"money", align: "right"},
@@ -204,6 +214,7 @@
 	                    {key: "divTrstDcAmt", 		collector: "sum", formatter:"money", align: "right"},
 	                    {key: "divTrspRmk"															   },
 	                    
+	                    {key: "diffBdCnt", 			collector: "sum", formatter:"money", align: "right"},
 	                    {key: "diffRealTrstQty", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "diffRealTrstWt", 	collector: "sum", formatter:"money", align: "right"},
 	                    {key: "diffRealTrstAmt", 	collector: "sum", formatter:"money", align: "right"},
@@ -228,6 +239,7 @@
 				// 분할데이터 init
 				obj.divClntCd = "";
 				obj.divClntNm = "";
+				obj.divBdCnt = 0;
 				obj.divRealTrstQty = 0;
 				obj.divRealTrstWt = 0;
 				obj.divRealTrstAmt = 0;
@@ -239,6 +251,7 @@
 				obj.divTrstDcAmt = 0;
 				
 				// 차이데이터 init
+				obj.diffBdCnt = 0;
 				obj.diffRealTrstQty = 0;
 				obj.diffRealTrstWt = 0;
 				obj.diffRealTrstAmt = 0;
@@ -268,6 +281,7 @@
 		        	display: false,
 		        },
 		        columns: [
+		        	{key: "diffBdCnt",   		label: "번들/본수차이", 		align: "right", 	width: 86, 	formatter: "money", styleClass: function(){return this.item.diffBdCnt != 0 ? "grid-font-red" : ""}},
 		        	{key: "diffRealTrstQty",    label: "수량차이", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstQty != 0 ? "grid-font-red" : ""}},
 		        	{key: "diffRealTrstWt", 	label: "중량차이", 		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstWt != 0 ? "grid-font-red" : ""}},
 		        	{key: "diffRealTrstAmt",    label: "금액차이",		    align: "right", 	width: 80, 	formatter: "money", styleClass: function(){return this.item.diffRealTrstAmt != 0 ? "grid-font-red" : ""}},
@@ -283,6 +297,7 @@
 		setData: function() {
 			var targetObj = this.target;
 			var diffData = {
+				"diffBdCnt" : 0,
 				"diffRealTrstQty": 0,
 				"diffRealTrstWt": 0,
 				"diffRealTrstAmt": 0,
@@ -301,6 +316,7 @@
 		diffGridView.initView().setData();
 		// 원본데이터 sum
 		$.each(orgRows, function(idx, obj){
+			orgTotData.bdCnt += Number(obj.bdCnt); // 번들/본수
 			orgTotData.realTrstQty += Number(obj.realTrstQty); // 수량
 			orgTotData.realTrstWt += Number(obj.realTrstWt); // 중량
 			orgTotData.realTrstAmt += Number(obj.realTrstAmt); // 금액
@@ -356,6 +372,7 @@
 		
 		// 분할데이터 합
 		var divSumData = {
+			divBdCnt : 0,
 			divRealTrstQty : 0,
 			divRealTrstWt : 0,
 			divRealTrstAmt : 0,
@@ -368,6 +385,7 @@
 		
 		// 매출데이터 합
 		var salesSumData = {
+			bdCnt : 0,
 			realTrstQty : 0,
 			realTrstWt : 0,
 			realTrstAmt : 0,
@@ -379,9 +397,11 @@
 		}
 		
 		$.each(orgRows, function(idx, obj){
+			var prdtGrp = obj.prdtGrp;
 			// 원본데이터 배열길이
 			var orgRowsLen = orgRows.length - 1;
 			// 원본데이터
+			var orgBdCnt = Number(obj.bdCnt);
 			var orgRealTrstQty = Number(obj.realTrstQty);
 			var orgRealTrstWt = Number(obj.realTrstWt);
 			var orgRealTrstAmt = Number(obj.realTrstAmt);
@@ -392,21 +412,24 @@
 			var orgTotAmt = Number(obj.totAmt);
 			var orgTrstDcAmt = Number(obj.trstDcAmt);
 			
+			
 			// 원본 수량 소수점 체크
 			var orgRealTrstQtyPointChk = false;
-			if(orgRealTrstQty % 1 > 0)
+			if(orgRealTrstQty % 1 > 0 || prdtGrp == "PRDTGRP2")
 			{
 				orgRealTrstQtyPointChk = true;
 			}
 			
 			// 원본 청구 수량 소수점 체크
 			var orgBilgQtyPointChk = false;
-			if(orgBilgQty % 1 > 0)
+			if(orgBilgQty % 1 > 0 || prdtGrp == "PRDTGRP2")
 			{
 				orgBilgQtyPointChk = true;
 			}
 			
 			// 매출데이터
+			var bdCnt = Number((orgBdCnt * leftRatio).toFixed(3));
+			
 			var realTrstQty = Math.round(orgRealTrstQty * leftRatio);
 			if(orgRealTrstQtyPointChk)
 			{
@@ -429,6 +452,7 @@
 			var trstDcAmt = Math.round(orgTrstDcAmt * leftRatio);
 			
 			// 매출데이터 set
+			salesDivGridView.target.setValue(idx, "bdCnt", bdCnt);			
 			salesDivGridView.target.setValue(idx, "realTrstQty", realTrstQty);
 			salesDivGridView.target.setValue(idx, "realTrstWt", realTrstWt);
 			salesDivGridView.target.setValue(idx, "realTrstAmt", realTrstAmt);
@@ -440,6 +464,7 @@
 			salesDivGridView.target.setValue(idx, "trstDcAmt", trstDcAmt);
 			
 			// 매출데이터 sum
+			salesSumData.bdCnt += bdCnt;			
 			salesSumData.realTrstQty += realTrstQty;
 			salesSumData.realTrstWt += realTrstWt;
 			salesSumData.realTrstAmt += realTrstAmt;
@@ -452,6 +477,7 @@
 			salesSumData.bilgQty = Number(salesSumData.bilgQty.toFixed(3));
 			
 			// 분할데이터
+			var divBdCnt = Number((orgBdCnt * rightRatio).toFixed(3));			
 			var divRealTrstQty = Math.round(orgRealTrstQty * rightRatio);
 			if(orgRealTrstQtyPointChk)
 			{
@@ -474,6 +500,7 @@
 			var divTrstDcAmt = Math.round(orgTrstDcAmt * rightRatio);
 			
 			// 분할데이터 set
+			salesDivGridView.target.setValue(idx, "divBdCnt", divBdCnt);			
 			salesDivGridView.target.setValue(idx, "divRealTrstQty", divRealTrstQty);
 			salesDivGridView.target.setValue(idx, "divRealTrstWt", divRealTrstWt);
 			salesDivGridView.target.setValue(idx, "divRealTrstAmt", divRealTrstAmt);
@@ -485,6 +512,7 @@
 			salesDivGridView.target.setValue(idx, "divTrstDcAmt", divTrstDcAmt);
 			
 			// 분할데이터 sum
+			divSumData.divBdCnt += divBdCnt;			
 			divSumData.divRealTrstQty += divRealTrstQty;
 			divSumData.divRealTrstWt += divRealTrstWt;
 			divSumData.divRealTrstAmt += divRealTrstAmt;
@@ -497,6 +525,8 @@
 			divSumData.divBilgQty = Number(divSumData.divBilgQty.toFixed(3));
 			
 			// 차이데이터
+			var diffBdCnt = Number((orgBdCnt - (bdCnt + divBdCnt)).toFixed(3));
+			
 			var diffRealTrstQty = orgRealTrstQty - (realTrstQty + divRealTrstQty);
 			if(orgRealTrstQtyPointChk)
 			{
@@ -518,6 +548,7 @@
 			var diffTrstDcAmt = orgTrstDcAmt - (trstDcAmt + divTrstDcAmt);
 			
 			// 차이데이터 set
+			salesDivGridView.target.setValue(idx, "diffBdCnt", diffBdCnt);
 			salesDivGridView.target.setValue(idx, "diffRealTrstQty", diffRealTrstQty);
 			salesDivGridView.target.setValue(idx, "diffRealTrstWt", diffRealTrstWt);
 			salesDivGridView.target.setValue(idx, "diffRealTrstAmt", diffRealTrstAmt);
@@ -531,6 +562,7 @@
 		salesDivGridView.target.repaint();
 		
 		var diffData = {
+			"diffBdCnt": Number((orgTotData.bdCnt - (salesSumData.bdCnt + divSumData.divBdCnt)).toFixed(3)),				
 			"diffRealTrstQty": Number((orgTotData.realTrstQty - (salesSumData.realTrstQty + divSumData.divRealTrstQty)).toFixed(3)),
 			"diffRealTrstWt": orgTotData.realTrstWt - (salesSumData.realTrstWt + divSumData.divRealTrstWt),
 			"diffRealTrstAmt": orgTotData.realTrstAmt - (salesSumData.realTrstAmt + divSumData.divRealTrstAmt),
@@ -567,6 +599,7 @@
 	// 차이 계산
 	function calTotDiff(){
 		var totData = {
+			bdCnt : 0,				
 			realTrstQty : 0,
 			realTrstWt : 0,
 			realTrstAmt : 0,
@@ -579,6 +612,7 @@
 		
 		var salesDivList = salesDivGridView.target.getList();
 		$.each(salesDivList, function(idx, obj){
+			totData.bdCnt += Number(obj.bdCnt) + Number(obj.divBdCnt);
 			totData.realTrstQty += Number(obj.realTrstQty) + Number(obj.divRealTrstQty);
 			totData.realTrstWt += Number(obj.realTrstWt) + Number(obj.divRealTrstWt);
 			totData.realTrstAmt += Number(obj.realTrstAmt) + Number(obj.divRealTrstAmt);
@@ -593,6 +627,7 @@
 			
 		});
 		
+		var diffBdCnt = orgTotData.bdCnt - totData.bdCnt;
 		var diffRealTrstQty = orgTotData.realTrstQty - totData.realTrstQty;
 		var diffRealTrstWt = orgTotData.realTrstWt - totData.realTrstWt;
 		var diffRealTrstAmt = orgTotData.realTrstAmt - totData.realTrstAmt;
@@ -602,6 +637,7 @@
 		var diffBilgVatAmt = orgTotData.bilgVatAmt - totData.bilgVatAmt;
 		var diffTrstDcAmt = orgTotData.trstDcAmt - totData.trstDcAmt;
 		
+		diffGridView.target.setValue(0, "diffBdCnt", diffBdCnt);
 		diffGridView.target.setValue(0, "diffRealTrstQty", diffRealTrstQty);
 		diffGridView.target.setValue(0, "diffRealTrstWt", diffRealTrstWt);
 		diffGridView.target.setValue(0, "diffRealTrstAmt", diffRealTrstAmt);

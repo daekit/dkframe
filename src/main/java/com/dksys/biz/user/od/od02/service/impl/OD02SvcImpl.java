@@ -103,6 +103,8 @@ public class OD02SvcImpl implements OD02Svc {
 			// 거래처
 			divMap.put("clntCd", paramMap.get("divClntCd"));
 			divMap.put("clntNm", paramMap.get("divClntNm"));
+			// 번들/본수
+			divMap.put("bdCnt", paramMap.get("divBdCnt"));
 			// 수량
 			divMap.put("realTrstQty", paramMap.get("divRealTrstQty"));
 			// 중량
