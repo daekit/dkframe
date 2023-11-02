@@ -87,8 +87,8 @@ var ubiprefix = "";
 if(jwt){
 	switch (jwt.serverType){
     case "real" :
-    	ubiprefix = "http://61.97.185.103:8090/ubi4/ubihtml.jsp";
-    	//ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";        
+        ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+        
         //ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
         break;
     case "dev" :
@@ -98,8 +98,7 @@ if(jwt){
         ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
         break;
     default :
-    	ubiprefix = "http://61.97.185.103:8090/ubi4/ubihtml.jsp";
-    	//ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
+        ubiprefix = "http://erp.kmsteel.com:8090/ubi4/ubihtml.jsp";
     	//ubiprefix = "http://localhost:8090/ubi4/ubihtml.jsp";
 	}
 }
