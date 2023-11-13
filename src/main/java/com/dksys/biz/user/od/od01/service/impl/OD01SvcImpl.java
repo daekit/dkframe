@@ -649,11 +649,13 @@ public class OD01SvcImpl implements OD01Svc {
 		}
 		
 		// 직송이면서 매출여부 N인경우 매출확정 시작
+		/*
         if("Y".equals(paramMap.get("dirtrsYn"))) {		
 		       // 전체 확정인 경우는 진행
 		       // 매출확정이면서 매입이 확정이 된경우 P 매입확정, S 매출확정, A 일괄
 	       	if ( "A".equals(paramMap.get("comfirmType")) || "S".equals(paramMap.get("comfirmType"))) {
 	       		// 최종 여신 체크 / 여신 차감
+	       		
 	    		for(Map<String, Object> loanMap : loanList) {
 	    			long diffLoan = ar02Svc.checkLoan(loanMap);
 	    			if(diffLoan < 0) {
@@ -666,8 +668,9 @@ public class OD01SvcImpl implements OD01Svc {
 	    	    		}
 	    	        }
 	    		}
+	    		
 	       	}
-        }
+        }*/
 	}
 
 	@Override

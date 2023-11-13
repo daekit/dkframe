@@ -485,7 +485,7 @@ public class AR01SvcImpl implements AR01Svc {
 		if(selectConfirmCount(paramMap) == selectDetailCount(paramMap)) {
 			ar01Mapper.updateConfirm(paramMap);
 		}
-		
+		/*
 		// 최종 여신 체크 / 여신 차감
 		for(Map<String, Object> loanMap : loanList) {
 			long diffLoan = ar02Svc.checkLoan(loanMap);
@@ -499,6 +499,7 @@ public class AR01SvcImpl implements AR01Svc {
 	    		}
 	        }
 		}
+		*/
 	}
 	
 	/*
