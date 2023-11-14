@@ -137,7 +137,64 @@ public class AR02SvcImpl implements AR02Svc {
 		String maxTrstDt = null;
 		String trstDt = null;
 		
+		
+		// *** 여신 체크 *** // 20231114 여신체크로직 아래에 있으면 오류 발생하여 수정
 		List<Map<String, String>> detailList = (List<Map<String, String>>) paramMap.get("detailArr");
+			for (Map<String, String> detailMap : detailList) {
+			// for문을 순회하며 가장 큰 trstDt 계산
+			if(trstDt == null) {
+				maxTrstDt = detailMap.get("trstDt").toString();
+			}else{
+				Date tempDate1 = dateFormat.parse(maxTrstDt);
+				Date tempDate2 = dateFormat.parse(detailMap.get("trstDt").toString());
+				if(tempDate2.compareTo(tempDate1) > 0) {
+					maxTrstDt = dateFormat.format(tempDate2);
+				}
+			}
+			
+			// 비교를 위한 현재 인덱스의 거래일자 set
+			trstDt = detailMap.get("trstDt").toString();
+			// 총금액 계산
+			totAmt += Long.parseLong(String.valueOf(detailMap.get("totAmt")));
+		}
+		
+		// 여신맵 초기화
+		Map<String, Object> loanMap = new HashMap<String, Object>();
+		loanMap.put("coCd", paramMap.get("coCd"));
+		loanMap.put("clntCd", paramMap.get("clntCd"));
+		loanMap.put("prdtGrp", detailList.get(0).get("prdtGrp"));
+		loanMap.put("trstDt", maxTrstDt.replace("-", ""));
+		
+		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)){
+			// 부가세를 포함한 원본 총 금액
+			long orgTotAmt = Long.parseLong(paramMap.get("orgTotAmt").toString());
+			// 차이금액(원본 총 금액 - 정산 총 금액)
+			long exceedAmt = totAmt - orgTotAmt;
+			if(exceedAmt > 0) {
+				loanMap.put("totAmt", exceedAmt);
+				
+				long diffLoan = ar02Svc.checkLoan(loanMap);
+				if(diffLoan < 0) {
+		        	thrower.throwCreditLoanException("", diffLoan);
+		        }else {
+		        	// 여신 차감후 음수 return시 롤백 
+		        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);
+		        	if(loanPrcsResult < 0) {
+		    			throw new Exception();
+		    		}
+		        }
+			}else if(exceedAmt < 0){
+				loanMap.put("totAmt", exceedAmt);
+				// 여신 누적후 음수 return시 롤백 
+	        	long loanPrcsResult = ar02Svc.depositLoan(loanMap);
+	        	if(loanPrcsResult < 0) {
+	    			throw new Exception();
+	    		}
+			}
+		}
+		
+		
+		
 		for (Map<String, String> detailMap : detailList) {
 			// for문을 순회하며 개별 마감 체크
 			Map<String, String> closeChkMap = new HashMap<String, String>();
@@ -206,62 +263,10 @@ public class AR02SvcImpl implements AR02Svc {
 			ar02Mapper.deleteSell05D(detailMap);
 			
 			ar02Mapper.callSaleMatch(detailMap);
-			
-			
-			
-			
-			
-			// for문을 순회하며 가장 큰 trstDt 계산
-			if(trstDt == null) {
-				maxTrstDt = detailMap.get("trstDt").toString();
-			}else{
-				Date tempDate1 = dateFormat.parse(maxTrstDt);
-				Date tempDate2 = dateFormat.parse(detailMap.get("trstDt").toString());
-				if(tempDate2.compareTo(tempDate1) > 0) {
-					maxTrstDt = dateFormat.format(tempDate2);
-				}
-			}
-			
-			// 비교를 위한 현재 인덱스의 거래일자 set
-			trstDt = detailMap.get("trstDt").toString();
-			// 총금액 계산
-			totAmt += Long.parseLong(String.valueOf(detailMap.get("totAmt")));
+		
 		}
 		
-		// 여신맵 초기화
-		Map<String, Object> loanMap = new HashMap<String, Object>();
-		loanMap.put("coCd", paramMap.get("coCd"));
-		loanMap.put("clntCd", paramMap.get("clntCd"));
-		loanMap.put("prdtGrp", detailList.get(0).get("prdtGrp"));
-		loanMap.put("trstDt", maxTrstDt.replace("-", ""));
 		
-		if("SELPCH2".equals(selpchCd) || "SELPCH4".equals(selpchCd)){
-			// 부가세를 포함한 원본 총 금액
-			long orgTotAmt = Long.parseLong(paramMap.get("orgTotAmt").toString());
-			// 차이금액(원본 총 금액 - 정산 총 금액)
-			long exceedAmt = totAmt - orgTotAmt;
-			if(exceedAmt > 0) {
-				loanMap.put("totAmt", exceedAmt);
-				
-				long diffLoan = ar02Svc.checkLoan(loanMap);
-				if(diffLoan < 0) {
-		        	thrower.throwCreditLoanException("", diffLoan);
-		        }else {
-		        	// 여신 차감후 음수 return시 롤백 
-		        	long loanPrcsResult = ar02Svc.deductLoan(loanMap);
-		        	if(loanPrcsResult < 0) {
-		    			throw new Exception();
-		    		}
-		        }
-			}else if(exceedAmt < 0){
-				loanMap.put("totAmt", exceedAmt);
-				// 여신 누적후 음수 return시 롤백 
-	        	long loanPrcsResult = ar02Svc.depositLoan(loanMap);
-	        	if(loanPrcsResult < 0) {
-	    			throw new Exception();
-	    		}
-			}
-		}
 	}
 	
 	@Override
@@ -724,7 +729,7 @@ public class AR02SvcImpl implements AR02Svc {
 		matchMap.put("clntCd", paramList.get(0).get("divClntCd"));
 		
 		ar02Mapper.callSaleMatch(matchMap);
-		
+		/*
 		// 최종 여신 체크 / 여신 차감
 		diffLoan = ar02Svc.checkLoan(loanMap);
 		if(diffLoan < 0) {
@@ -736,6 +741,8 @@ public class AR02SvcImpl implements AR02Svc {
     			throw new Exception();
     		}
         }
+        */
+        
 	}
 	
 	@Override
